@@ -29,7 +29,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
+    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("r", twt.getR());
         context.getWriter().writeDoubleAttribute("x", twt.getX());
         context.getWriter().writeDoubleAttribute("g", twt.getG());
@@ -46,7 +46,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeSubElements(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
+    protected void writeSubElements(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) {
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
             writeRatioTapChanger("ratioTapChanger", rtc, context);
@@ -88,18 +88,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected TwoWindingsTransformerAdder createAdder(Container<? extends Identifiable<?>> c) {
-        if (c instanceof Network) {
-            return ((Network) c).newTwoWindingsTransformer();
-        }
-        if (c instanceof Substation) {
-            return ((Substation) c).newTwoWindingsTransformer();
-        }
-        throw new IllegalStateException();
+    protected TwoWindingsTransformerAdder createAdder(Substation s) {
+        return s.newTwoWindingsTransformer();
     }
 
     @Override
-    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, Container<? extends Identifiable<?>> c, NetworkXmlReaderContext context) {
+    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, Substation s, NetworkXmlReaderContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
         double g = context.getReader().readDoubleAttribute("g");

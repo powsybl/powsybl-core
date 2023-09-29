@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.Sets;
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineFilter;
 import org.apache.commons.math3.complex.Complex;
@@ -21,6 +21,8 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.powsybl.iidm.network.util.TieLineReports.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -67,6 +69,10 @@ public final class TieLineUtil {
     }
 
     public static void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties) {
+        mergeProperties(dl1, dl2, properties, Reporter.NO_OP);
+    }
+
+    public static void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties, Reporter reporter) {
         Set<String> dl1Properties = dl1.getPropertyNames();
         Set<String> dl2Properties = dl2.getPropertyNames();
         Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
@@ -77,12 +83,15 @@ public final class TieLineUtil {
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else if (dl1.getProperty(prop).isEmpty()) {
                 LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
+                propertyOnlyOnOneSide(reporter, prop, dl2.getProperty(prop), 1, dl1.getId(), dl2.getId());
                 properties.setProperty(prop, dl2.getProperty(prop));
             } else if (dl2.getProperty(prop).isEmpty()) {
                 LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
+                propertyOnlyOnOneSide(reporter, prop, dl1.getProperty(prop), 2, dl1.getId(), dl2.getId());
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else {
                 LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+                inconsistentPropertyValues(reporter, prop, dl1.getProperty(prop), dl2.getProperty(prop), dl1.getId(), dl2.getId());
             }
         });
         dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
@@ -90,15 +99,21 @@ public final class TieLineUtil {
     }
 
     public static void mergeIdenticalAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases) {
+        mergeIdenticalAliases(dl1, dl2, aliases, Reporter.NO_OP);
+    }
+
+    public static void mergeIdenticalAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases, Reporter reporter) {
         for (String alias : dl1.getAliases()) {
             if (dl2.getAliases().contains(alias)) {
                 LOGGER.debug("Alias '{}' is found in dangling lines '{}' and '{}'. It is moved to their new tie line.", alias, dl1.getId(), dl2.getId());
+                moveCommonAliases(reporter, alias, dl1.getId(), dl2.getId());
                 String type1 = dl1.getAliasType(alias).orElse("");
                 String type2 = dl2.getAliasType(alias).orElse("");
                 if (type1.equals(type2)) {
                     aliases.put(alias, type1);
                 } else {
                     LOGGER.warn("Inconsistencies found for alias '{}' type in dangling lines '{}' and '{}'. Type is lost.", alias, dl1.getId(), dl2.getId());
+                    inconsistentAliasTypes(reporter, alias, type1, type2, dl1.getId(), dl2.getId());
                     aliases.put(alias, "");
                 }
             }
@@ -109,63 +124,75 @@ public final class TieLineUtil {
         });
     }
 
+    public static void mergeDifferentAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases, Reporter reporter) {
+        for (String alias : dl1.getAliases()) {
+            if (!dl2.getAliases().contains(alias)) {
+                aliases.put(alias, dl1.getAliasType(alias).orElse(""));
+            }
+        }
+        for (String alias : dl2.getAliases()) {
+            if (!dl1.getAliases().contains(alias)) {
+                String type = dl2.getAliasType(alias).orElse("");
+                if (!type.isEmpty() && aliases.containsValue(type)) {
+                    String tmpType = type;
+                    String alias1 = aliases.entrySet().stream().filter(e -> tmpType.equals(e.getValue())).map(Map.Entry::getKey).findFirst().orElseThrow(IllegalStateException::new);
+                    aliases.put(alias1, type + "_1");
+                    LOGGER.warn("Inconsistencies found for alias type '{}'('{}' for '{}' and '{}' for '{}'). " +
+                            "Types are respectively renamed as '{}_1' and '{}_2'.", type, alias1, dl1.getId(), alias, dl2.getId(), type, type);
+                    inconsistentAliasValues(reporter, alias1, alias, type, dl1.getId(), dl2.getId());
+                    type += "_2";
+                }
+                aliases.put(alias, type);
+            }
+        }
+        aliases.keySet().forEach(alias -> {
+            if (dl1.getAliases().contains(alias)) {
+                dl1.removeAlias(alias);
+            }
+            if (dl2.getAliases().contains(alias)) {
+                dl2.removeAlias(alias);
+            }
+        });
+    }
+
     /**
      * If it exists, find the dangling line in the merging network that should be associated to a candidate dangling line in the network to be merged.
      * Two dangling lines in different IGM should be associated if:
-     * - they have the same ID and at least one has a non-null X-node code
+     * - they have the same non-null pairing key and are the only dangling lines to have this pairing key in their respective networks
      * OR
-     * - they have the same non-null X-node code and are the only dangling lines to have this X-node code in their respective networks
-     * OR
-     * - they have the same non-null X-node code and are the only connected dangling lines to have this X-node code in their respective networks
+     * - they have the same non-null pairing key and are the only connected dangling lines to have this pairing key in their respective networks
      *
      * @param candidateDanglingLine candidate dangling line in the network to be merged
-     * @param danglingLine dangling line in the merging network with same ID as the candidate dangling line. Can be null.
-     * @param getDanglingLinesByXnodeCode function to retrieve dangling lines with a given X-node code in the merging network.
+     * @param getDanglingLinesByPairingKey function to retrieve dangling lines with a given pairing key in the merging network.
      * @param associateDanglingLines function associating two dangling lines
      */
-    public static void findAndAssociateDanglingLines(DanglingLine candidateDanglingLine, DanglingLine danglingLine,
-                                                     Function<String, List<DanglingLine>> getDanglingLinesByXnodeCode,
+    public static void findAndAssociateDanglingLines(DanglingLine candidateDanglingLine, Function<String, List<DanglingLine>> getDanglingLinesByPairingKey,
                                                      BiConsumer<DanglingLine, DanglingLine> associateDanglingLines) {
         Objects.requireNonNull(candidateDanglingLine);
-        Objects.requireNonNull(getDanglingLinesByXnodeCode);
+        Objects.requireNonNull(getDanglingLinesByPairingKey);
         Objects.requireNonNull(associateDanglingLines);
-        if (danglingLine == null) { // if dangling line with same ID not present, find dangling line(s) with same X-node code in merging network if present
-            // mapping by ucte xnode code
-            if (candidateDanglingLine.getUcteXnodeCode() != null) { // if X-node code null: no associated dangling line
-                if (candidateDanglingLine.getNetwork().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
-                        .filter(d -> d != candidateDanglingLine)
-                        .filter(d -> candidateDanglingLine.getUcteXnodeCode().equals(d.getUcteXnodeCode()))
-                        .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same X-node code in the network to be merged
-                    return;                                         // in that case, do nothing
+        // mapping by pairing key
+        if (candidateDanglingLine.getPairingKey() != null) { // if pairing key null: no associated dangling line
+            if (candidateDanglingLine.getNetwork().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                    .filter(d -> d != candidateDanglingLine)
+                    .filter(d -> candidateDanglingLine.getPairingKey().equals(d.getPairingKey()))
+                    .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same pairing key in the network to be merged
+                return;                                         // in that case, do nothing
+            }
+            List<DanglingLine> dls = getDanglingLinesByPairingKey.apply(candidateDanglingLine.getPairingKey());
+            if (dls != null) {
+                if (dls.size() == 1) { // if there is exactly one dangling line in the merging network, merge it
+                    associateDanglingLines.accept(dls.get(0), candidateDanglingLine);
                 }
-                List<DanglingLine> dls = getDanglingLinesByXnodeCode.apply(candidateDanglingLine.getUcteXnodeCode());
-                if (dls != null) {
-                    if (dls.size() == 1) { // if there is exactly one dangling line in the merging network, merge it
-                        associateDanglingLines.accept(dls.get(0), candidateDanglingLine);
-                    }
-                    if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
-                        List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
-                        if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
-                            associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
-                        }
+                if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
+                    List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
+                    if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
+                        associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
                     }
                 }
             }
-        } else {
-            // if dangling line with same ID present, there is only one: they are associated if the X-node code is identical (if not: throw exception)
-            if ((danglingLine.getUcteXnodeCode() != null && candidateDanglingLine.getUcteXnodeCode() != null
-                    && !danglingLine.getUcteXnodeCode().equals(candidateDanglingLine.getUcteXnodeCode())) || (danglingLine.getUcteXnodeCode() == null && candidateDanglingLine.getUcteXnodeCode() == null)) {
-                throw new PowsyblException("Dangling line couple " + danglingLine.getId()
-                        + " have inconsistent Xnodes (" + danglingLine.getUcteXnodeCode()
-                        + "!=" + candidateDanglingLine.getUcteXnodeCode() + ")");
-            }
-            String code = Optional.ofNullable(danglingLine.getUcteXnodeCode()).orElseGet(candidateDanglingLine::getUcteXnodeCode);
-            List<DanglingLine> dls = getDanglingLinesByXnodeCode.apply(code);
-            if (dls != null && dls.size() > 1) {
-                throw new PowsyblException("Should not have any dangling lines other than " + danglingLine.getId() + " linked to " + code);
-            }
-            associateDanglingLines.accept(danglingLine, candidateDanglingLine);
         }
+
     }
 
     public static double getR(DanglingLine dl1, DanglingLine dl2) {
@@ -202,7 +229,7 @@ public final class TieLineUtil {
 
     private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(DanglingLine dl1,
         DanglingLine dl2) {
-        // zero impedance half lines should be supported
+        // zero impedance dangling lines should be supported
 
         BranchAdmittanceMatrix adm1 = LinkData.calculateBranchAdmittance(dl1.getR(), dl1.getX(), 1.0, 0.0, 1.0, 0.0,
             new Complex(dl1.getG(), dl1.getB()), new Complex(0.0, 0.0));
@@ -224,5 +251,16 @@ public final class TieLineUtil {
         } else {
             return adm.y21().getReal() == 0.0 && adm.y22().getImaginary() == 0.0;
         }
+    }
+
+    /**
+     * <p>Retrieve, if it exists, the dangling line paired to the given one.</p>
+     *
+     * @param danglingLine a dangling line
+     * @return an Optional containing the dangling line paired to the given one
+     */
+    public static Optional<DanglingLine> getPairedDanglingLine(DanglingLine danglingLine) {
+        return danglingLine.getTieLine().map(t ->
+                t.getDanglingLine1() == danglingLine ? t.getDanglingLine2() : t.getDanglingLine1());
     }
 }

@@ -57,8 +57,8 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
             context.getWriter().writeStringAttribute("danglingLineId2", context.getAnonymizer().anonymizeString(tl.getDanglingLine2().getId()));
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
-            if (tl.getUcteXnodeCode() != null) {
-                context.getWriter().writeStringAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
+            if (tl.getPairingKey() != null) {
+                context.getWriter().writeStringAttribute("ucteXnodeCode", tl.getPairingKey());
             }
             writeNodeOrBus(1, tl.getDanglingLine1().getTerminal(), context);
             writeNodeOrBus(2, tl.getDanglingLine2().getTerminal(), context);
@@ -122,7 +122,6 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
         double b1 = context.getReader().readDoubleAttribute("b1_" + side);
         double g2 = context.getReader().readDoubleAttribute("g2_" + side);
         double b2 = context.getReader().readDoubleAttribute("b2_" + side);
-        String ucteXnodeCode = context.getReader().readStringAttribute("ucteXnodeCode");
         DanglingLineAdder adder = network.getVoltageLevel(voltageLevelId).newDanglingLine().setId(id)
                 .setName(name)
                 .setR(r)
@@ -130,8 +129,15 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
                 .setG(g1 + g2)
                 .setB(b1 + b2)
                 .setP0(0.0)
-                .setQ0(0.0)
-                .setUcteXnodeCode(ucteXnodeCode);
+                .setQ0(0.0);
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_10, context, () -> {
+            String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
+            adder.setPairingKey(pairingKey);
+        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
+            String pairingKey = context.getReader().readStringAttribute("pairingKey");
+            adder.setPairingKey(pairingKey);
+        });
         readNodeOrBus(adder, String.valueOf(side), context);
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {

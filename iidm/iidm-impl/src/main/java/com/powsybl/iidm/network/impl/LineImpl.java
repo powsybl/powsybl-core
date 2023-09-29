@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LineImpl extends AbstractBranch<Line> implements Line {
+class LineImpl extends AbstractConnectableBranch<Line> implements Line {
 
     private double r;
 

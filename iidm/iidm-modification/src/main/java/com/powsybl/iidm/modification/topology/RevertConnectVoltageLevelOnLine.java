@@ -22,10 +22,10 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.createdLineReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.noVoltageLevelInCommonReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundLineReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.removedLineReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.createdLineReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.noVoltageLevelInCommonReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.notFoundLineReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.removedLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;

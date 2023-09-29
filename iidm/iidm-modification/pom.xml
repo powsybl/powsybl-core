@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-iidm</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>5.3.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-iidm-modification</artifactId>
@@ -48,6 +48,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-extensions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-loadflow-api</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
@@ -90,10 +94,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-loadflow-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

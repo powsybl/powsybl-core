@@ -14,8 +14,11 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -84,6 +87,7 @@ class CgmesConformity1ConversionTest {
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -99,6 +103,7 @@ class CgmesConformity1ConversionTest {
         // are recalculated and we need to increase the tolerance
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         ConversionTester t = new ConversionTester(new Properties(), exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
             new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
@@ -112,6 +117,7 @@ class CgmesConformity1ConversionTest {
         // are recalculated and we need to increase the tolerance
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         Properties importParams = new Properties();
         importParams.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
         ConversionTester t = new ConversionTester(
@@ -191,6 +197,38 @@ class CgmesConformity1ConversionTest {
         t.testConversion(null, CgmesConformity1Catalog.miniNodeBreaker());
         t.lastConvertedNetwork().getVoltageLevels()
             .forEach(vl -> assertEquals(TopologyKind.NODE_BREAKER, vl.getTopologyKind()));
+    }
+
+    @Test
+    void miniNodeBreakerAsBusBranchBusBalanceValidation() throws IOException {
+        // This test will check that IIDM buses,
+        // that will be created during conversion from CGMES TopologicalNodes,
+        // have proper balances from SV values
+        Properties params = new Properties();
+        params.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
+        params.put(CgmesImport.IMPORT_NODE_BREAKER_AS_BUS_BREAKER, "true");
+        ConversionTester t = new ConversionTester(
+                params,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
+        t.setValidateBusBalances(true);
+        t.testConversion(null, CgmesConformity1Catalog.miniNodeBreaker());
+
+        Network network = t.lastConvertedNetwork();
+        CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
+
+        // All voltage levels must have bus/breaker topology kind
+        network.getVoltageLevels()
+                .forEach(vl -> assertEquals(TopologyKind.BUS_BREAKER, vl.getTopologyKind()));
+
+        // All bus identifiers in the bus/breaker view must correspond to Topological Nodes of CGMES model
+        List<String> iidmBusIds = network.getBusBreakerView().getBusStream().map(Identifiable::getId).sorted().toList();
+        List<String> cgmesTNIds = cgmes.topologicalNodes().pluckIdentifiers(CgmesNames.TOPOLOGICAL_NODE).stream().sorted().toList();
+        // Boundary nodes of CGMES model are not mapped to buses in IIDM
+        List<String> cgmesBoundaryTNIds = cgmes.boundaryNodes().pluckIdentifiers(CgmesNames.TOPOLOGICAL_NODE).stream().sorted().toList();
+        List<String> expectedBusIds = new ArrayList<>(cgmesTNIds);
+        expectedBusIds.removeAll(cgmesBoundaryTNIds);
+        assertEquals(expectedBusIds, iidmBusIds);
     }
 
     @Test

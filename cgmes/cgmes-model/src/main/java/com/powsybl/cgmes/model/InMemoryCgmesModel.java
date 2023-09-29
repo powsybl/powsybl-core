@@ -16,11 +16,7 @@ import org.joda.time.DateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -333,6 +329,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags countrySourcingActors(String countryName) {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags sourcingActor(String sourcingActor) {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags substations() {
         return substations;
     }
@@ -349,7 +355,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags connectivityNodeContainers() {
-        // TODO(Luma) refactoring node-breaker conversion temporal
         return new PropertyBags();
     }
 
@@ -505,6 +510,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public PropertyBags acDcConverters() {
         return acDcConverters;
     }
@@ -592,24 +607,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
         return null;
     }
 
-    /**
-     * @deprecated Use {@link #ratioTapChangerListForPowerTransformer(String)} instead.
-     */
-    @Override
-    @Deprecated
-    public String ratioTapChangerForPowerTransformer(String powerTransformerId) {
-        return null;
-    }
-
-    /**
-     * @deprecated Use {@link #phaseTapChangerListForPowerTransformer(String)} instead.
-     */
-    @Override
-    @Deprecated
-    public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
-        return null;
-    }
-
     @Override
     public String substation(CgmesTerminal t, boolean nodeBreaker) {
         return null;
@@ -632,27 +629,26 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     @Override
     public void setBasename(String baseName) {
-        // TODO Review if required by current tests
+        // Not required by current tests
     }
 
     @Override
     public String getBasename() {
-        // TODO Review if required by current tests
         return null;
     }
 
     @Override
     public void read(ReadOnlyDataSource ds, Reporter reporter) {
-        // TODO Review if required by current tests
+        // Not required by current tests
     }
 
     @Override
     public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter) {
-        // TODO Review if required by current tests
+        // Not required by current tests
     }
 
     @Override
     public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
-        // TODO Review if required by current tests
+        // Not required by current tests
     }
 }

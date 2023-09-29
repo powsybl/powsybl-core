@@ -13,24 +13,22 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.jupiter.api.AfterEach;
@@ -174,15 +172,8 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     private static Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
         config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config);
-        return c.convert();
+        return ConversionUtil.networkModel(testGridModel, config);
     }
 
     @Test
@@ -516,65 +507,6 @@ class CgmesConformity1ModifiedConversionTest {
         assertEquals(115.5, ext.getTargetQ(), 0.0);
         assertTrue(ext.isEnabled());
         assertSame(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
-    }
-
-    @Test
-    void microSwitchAtBoundaryCompareMerges() {
-        final String tieLineId = "78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49";
-        ReadOnlyDataSource assembled = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
-        ReadOnlyDataSource ds1 = CgmesConformity1ModifiedCatalog.microGridBESwitchAtBoundary().dataSource();
-        ReadOnlyDataSource ds2 = CgmesConformity1Catalog.microGridBaseCaseNL().dataSource();
-        compareMerges(tieLineId, assembled, ds1, ds2);
-    }
-
-    @Test
-    void microTransformerAtBoundaryCompareMerges() {
-        final String tieLineId = "78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49";
-        ReadOnlyDataSource assembled = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledTransformerAtBoundary().dataSource();
-        ReadOnlyDataSource ds1 = CgmesConformity1ModifiedCatalog.microGridBETransformerAtBoundary().dataSource();
-        ReadOnlyDataSource ds2 = CgmesConformity1Catalog.microGridBaseCaseNL().dataSource();
-        compareMerges(tieLineId, assembled, ds1, ds2);
-    }
-
-    @Test
-    void microEquivalentBranchAtBoundaryCompareMerges() {
-        final String tieLineId = "78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49";
-        ReadOnlyDataSource assembled = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEquivalentBranchAtBoundary().dataSource();
-        ReadOnlyDataSource ds1 = CgmesConformity1ModifiedCatalog.microGridBEEquivalentBranchAtBoundary().dataSource();
-        ReadOnlyDataSource ds2 = CgmesConformity1Catalog.microGridBaseCaseNL().dataSource();
-        compareMerges(tieLineId, assembled, ds1, ds2);
-    }
-
-    private static void compareMerges(String tieLineId, ReadOnlyDataSource dsAssembled, ReadOnlyDataSource ds1, ReadOnlyDataSource ds2) {
-        Network networkAssembled = Network.read(dsAssembled);
-        TieLine lineAssembled = networkAssembled.getTieLine(tieLineId);
-
-        Network n1 = Network.read(ds1);
-        Network n2 = Network.read(ds2);
-        Network networkMergingView = MergingView.create("1+2", "CGMES");
-        networkMergingView.merge(n1, n2);
-        TieLine lineMergingView = networkMergingView.getTieLine(tieLineId);
-
-        Network networkMerged = Network.read(ds1);
-        Network n2bis = Network.read(ds2);
-        networkMerged.merge(n2bis);
-        TieLine lineMerged = networkMergingView.getTieLine(tieLineId);
-
-        final double tolerance = 1e-10;
-
-        assertEquals(lineMergingView.getR(), lineMerged.getR(), tolerance);
-        assertEquals(lineMergingView.getX(), lineMerged.getX(), tolerance);
-        assertEquals(lineMergingView.getG1(), lineMerged.getG1(), tolerance);
-        assertEquals(lineMergingView.getG2(), lineMerged.getG2(), tolerance);
-        assertEquals(lineMergingView.getB1(), lineMerged.getB1(), tolerance);
-        assertEquals(lineMergingView.getB2(), lineMerged.getB2(), tolerance);
-
-        assertEquals(lineMergingView.getR(), lineAssembled.getR(), tolerance);
-        assertEquals(lineMergingView.getX(), lineAssembled.getX(), tolerance);
-        assertEquals(lineMergingView.getG1(), lineAssembled.getG1(), tolerance);
-        assertEquals(lineMergingView.getG2(), lineAssembled.getG2(), tolerance);
-        assertEquals(lineMergingView.getB1(), lineAssembled.getB1(), tolerance);
-        assertEquals(lineMergingView.getB2(), lineAssembled.getB2(), tolerance);
     }
 
     @Test
@@ -1006,6 +938,12 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLShuntCompensatorGP().dataSource(), null);
         assertEquals(0.0000123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getG(), 0.0);
         assertEquals(0.123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getTerminal().getP(), 0.0);
+    }
+
+    @Test
+    void microGridBaseCaseNLSwitchWithoutName() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLSwitchWithoutName().dataSource(), null);
+        assertNotNull(network.getSwitch("5f5d40ae-d52d-4631-9285-b3ceefff784c"));
     }
 
     @Test

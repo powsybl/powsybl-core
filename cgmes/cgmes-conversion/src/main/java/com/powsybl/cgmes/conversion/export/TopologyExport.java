@@ -73,7 +73,7 @@ public final class TopologyExport {
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
         }
     }
@@ -139,11 +139,15 @@ public final class TopologyExport {
             return context.getNamingStrategy().getCgmesId(selectedBus.get());
         }
 
-        return context.getNamingStrategy().getCgmesId(nodeSet.stream()
+        String disconnectedBusId = nodeSet.stream()
                 .sorted()
                 .findFirst()
                 .map(selectedNode -> vl.getId() + "_" + selectedNode)
-                .orElseThrow(() -> new PowsyblException("nodeSet is never empty")));
+                .orElseThrow(() -> new PowsyblException("nodeSet is never empty"));
+        if (vl.getNetwork().getIdentifiable(disconnectedBusId) != null) { // can happen, particularly with busbar sections - must be distinct or mRIDs will be identical
+            disconnectedBusId += "_TN";
+        }
+        return context.getNamingStrategy().getCgmesId(disconnectedBusId);
     }
 
     private static void writeTopologicalNode(String tn, String tname, Bus bus, VoltageLevel voltageLevel, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -235,10 +239,7 @@ public final class TopologyExport {
     }
 
     private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
-            if (dl.isPaired()) {
-                continue;
-            }
+        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNodeId == null) {
                 // If no information about original boundary has been preserved in the IIDM model,
@@ -250,7 +251,7 @@ public final class TopologyExport {
                     // As a last resort, we create the TN in the same container of the dangling line
                     LOG.error("Dangling line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
                                     " Dangling line {} is considered entirely inside voltage level {}",
-                            dl.getId(), dl.getUcteXnodeCode() != null ? " linked to X-node " + dl.getUcteXnodeCode() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
+                            dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }
                 String fictTopologicalNodeId = CgmesExportUtil.getUniqueId();

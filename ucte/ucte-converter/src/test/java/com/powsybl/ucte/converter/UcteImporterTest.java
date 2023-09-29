@@ -6,12 +6,12 @@
  */
 package com.powsybl.ucte.converter;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
-import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.ucte.converter.util.UcteConstants;
@@ -115,8 +115,6 @@ class UcteImporterTest {
         assertEquals(1, network.getTieLineCount());
         TieLine l = network.getTieLineStream().findFirst().orElseThrow(IllegalStateException::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
-        MergedXnode mergedXnode = l.getExtension(MergedXnode.class);
-        assertNotNull(mergedXnode);
         assertTrue(l.getDanglingLine1().getCurrentLimits().isPresent());
         assertTrue(l.getDanglingLine2().getCurrentLimits().isPresent());
     }
@@ -277,5 +275,13 @@ class UcteImporterTest {
         assertEquals(1.92419, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getAlpha(), 0.001);
         assertEquals(1.00000694, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getRho(), 0.0000001); // FIXME, symmetrical no impact
     }
-}
 
+    @Test
+    void lineBetweenTwoXnodesTest() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("lineBetweenTwoXnodes", new ResourceSet("/", "lineBetweenTwoXnodes.uct"));
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        UcteImporter importer = new UcteImporter();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> importer.importData(dataSource, networkFactory, null));
+        assertEquals("Line between 2 X-nodes: 'XXNODE11' and 'XXNODE12'", e.getMessage());
+    }
+}

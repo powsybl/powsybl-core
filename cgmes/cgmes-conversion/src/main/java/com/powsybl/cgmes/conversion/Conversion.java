@@ -32,7 +32,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.importedCgmesNetworkReport;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
@@ -282,6 +281,7 @@ public class Conversion {
                 .setName(ca.getLocal("name"))
                 .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
                 .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
+                .setPTolerance(ca.asDouble("pTolerance", Double.NaN))
                 .add();
     }
 
@@ -386,6 +386,7 @@ public class Conversion {
         PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
         if (sshDescription != null && !sshDescription.isEmpty()) {
             CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
+                    .setId(sshDescription.get(0).get("FullModel"))
                     .setDescription(sshDescription.get(0).get("description"))
                     .setSshVersion(readVersion(sshDescription, context))
                     .setModelingAuthoritySet(sshDescription.get(0).get("modelingAuthoritySet"));
@@ -404,10 +405,10 @@ public class Conversion {
     }
 
     private void addCimCharacteristics(Network network) {
-        if (cgmes instanceof CgmesModelTripleStore) {
+        if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
             network.newExtension(CimCharacteristicsAdder.class)
                     .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
-                    .setCimVersion(((CgmesModelTripleStore) cgmes).getCimVersion())
+                    .setCimVersion(cgmesModelTripleStore.getCimVersion())
                     .add();
         }
     }
@@ -518,6 +519,9 @@ public class Conversion {
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
         vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", vldata.lineId);
+        if (!context.nodeBreaker()) {
+            vl.getBusBreakerView().newBus().setId(vldata.nodeId).add();
+        }
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
@@ -618,11 +622,11 @@ public class Conversion {
             // In some TYNDP there are three acLineSegments at the boundary node,
             // one of them disconnected. The two connected acLineSegments are imported.
             List<BoundaryEquipment> connectedBeqs = beqs.stream()
-                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).collect(Collectors.toList());
+                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).toList();
             if (connectedBeqs.size() == 2) {
                 convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
                 // There can be multiple disconnected ACLineSegment to the same X-node (for example, for planning purposes)
-                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).collect(Collectors.toList())
+                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).toList()
                     .forEach(beq -> {
                         context.fixed("convertEquipmentAtBoundaryNode",
                                 String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a dangling line.", node, beq.getAcLineSegmentId()));
@@ -684,7 +688,7 @@ public class Conversion {
         network.getHvdcConverterStationStream()
                 .filter(converter -> converter.getHvdcLine() == null)
                 .peek(converter -> context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found."))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(Connectable::remove);
     }
 
@@ -725,8 +729,13 @@ public class Conversion {
             return this;
         }
 
-        public boolean useNodeBreaker() {
-            return true;
+        public boolean importNodeBreakerAsBusBreaker() {
+            return importNodeBreakerAsBusBreaker;
+        }
+
+        public Config setImportNodeBreakerAsBusBreaker(boolean importNodeBreakerAsBusBreaker) {
+            this.importNodeBreakerAsBusBreaker = importNodeBreakerAsBusBreaker;
+            return this;
         }
 
         public double lowImpedanceLineR() {
@@ -921,6 +930,7 @@ public class Conversion {
 
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
+        private boolean importNodeBreakerAsBusBreaker = false;
 
         private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
@@ -932,7 +942,6 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
-
     }
 
     private final CgmesModel cgmes;
@@ -949,4 +958,5 @@ public class Conversion {
 
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
+    public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
 }

@@ -1,0 +1,137 @@
+/**
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.network.impl;
+
+import com.google.common.collect.FluentIterable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.*;
+import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+/**
+ * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ */
+abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements NetworkExt {
+
+    private DateTime caseDate = new DateTime(); // default is the time at which the network has been created
+
+    private int forecastDistance = 0;
+
+    protected String sourceFormat;
+
+    AbstractNetwork(String id, String name, String sourceFormat) {
+        super(id, name);
+        this.sourceFormat = Objects.requireNonNull(sourceFormat, "source format is null");
+    }
+
+    @Override
+    public ContainerType getContainerType() {
+        return ContainerType.NETWORK;
+    }
+
+    @Override
+    public DateTime getCaseDate() {
+        return caseDate;
+    }
+
+    @Override
+    public Network setCaseDate(DateTime caseDate) {
+        ValidationUtil.checkCaseDate(this, caseDate);
+        this.caseDate = caseDate;
+        return this;
+    }
+
+    @Override
+    public int getForecastDistance() {
+        return forecastDistance;
+    }
+
+    @Override
+    public Network setForecastDistance(int forecastDistance) {
+        ValidationUtil.checkForecastDistance(this, forecastDistance);
+        this.forecastDistance = forecastDistance;
+        return this;
+    }
+
+    @Override
+    public String getSourceFormat() {
+        return sourceFormat;
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Network";
+    }
+
+    /**
+     * Transfer the extensions of a network to another one.
+     * @param from the network whose extensions must be transferred
+     * @param to the destination network
+     */
+    protected static void transferExtensions(Network from, Network to) {
+        // Only well-defined extensions (with an interface) are transferred
+        new ArrayList<>(from.getExtensions())
+                .forEach(e -> Arrays.stream(e.getClass().getInterfaces())
+                        .filter(c -> Objects.nonNull(from.getExtension(c)))
+                        .forEach(clazz -> {
+                            from.removeExtension((Class<? extends Extension<Network>>) clazz);
+                            to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
+                        }));
+    }
+
+    abstract class AbstractBusBreakerViewImpl implements BusBreakerView {
+        @Override
+        public Iterable<Bus> getBuses() {
+            return FluentIterable.from(getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
+        }
+
+        @Override
+        public int getBusCount() {
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
+        }
+
+        @Override
+        public Iterable<Switch> getSwitches() {
+            return FluentIterable.from(getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
+        }
+
+        @Override
+        public int getSwitchCount() {
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
+        }
+    }
+
+    abstract class AbstractBusViewImpl implements BusView {
+        @Override
+        public Iterable<Bus> getBuses() {
+            return FluentIterable.from(getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusView().getBuses());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
+        }
+    }
+}

@@ -31,7 +31,7 @@ public class LineCriterionContingencyListDeserializer extends AbstractEquipmentC
 
         return new LineCriterionContingencyList(parsingContext.name,
                 (TwoCountriesCriterion) parsingContext.countryCriterion,
-                (SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion,
+                (TwoNominalVoltageCriterion) parsingContext.nominalVoltageCriterion,
                 parsingContext.propertyCriteria,
                 parsingContext.regexCriterion);
     }

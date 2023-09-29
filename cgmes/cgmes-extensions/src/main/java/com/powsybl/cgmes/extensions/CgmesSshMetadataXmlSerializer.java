@@ -34,6 +34,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
     public void write(CgmesSshMetadata extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         TreeDataWriter writer = networkContext.getWriter();
+        writer.writeStringAttribute("id", extension.getId());
         writer.writeStringAttribute("description", extension.getDescription());
         writer.writeIntAttribute("sshVersion", extension.getSshVersion());
         writer.writeStringAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
@@ -50,6 +51,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
         TreeDataReader reader = networkContext.getReader();
         CgmesSshMetadataAdder adder = extendable.newExtension(CgmesSshMetadataAdder.class);
         adder.setDescription(reader.readStringAttribute("description"))
+                .setId(reader.readStringAttribute("id"))
                 .setSshVersion(reader.readIntAttribute("sshVersion"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
         reader.readUntilEndNode("cgmesSshMetadata", () -> {

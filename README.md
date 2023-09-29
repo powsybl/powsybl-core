@@ -42,8 +42,8 @@ https://github.com/powsybl/powsybl-gse page.
 ## Environment requirements
 
 Powsybl-core project is fully written in Java, so you only need few requirements:
-- JDK *(11 or greater)*
-- Maven *(3.3.9 or greater)*
+- JDK *(17 or greater)*
+- Maven *(3.8.1 or greater)* - you could use the embedded maven wrapper instead if you prefer (see [Using Maven Wrapper](#using-maven-wrapper))
 
 To run all the tests, simply launch the following command from the root of the repository:
 ```
@@ -93,9 +93,69 @@ updated each time you use the `install.sh` script.
 | ------ | ----------- | ------------- |
 | --help | Display this help | |
 | --prefix | Set the installation directory | $HOME/powsybl |
+| --mvn | Set the maven command to use | mvn | 
 
 ### Default configuration file
 ```
 #  -- Global options --
 powsybl_prefix=$HOME/powsybl
+powsybl_mvn=mvn
 ```
+
+## Using Maven Wrapper
+If you don't have a proper Maven installed, you could use the [Apache Maven Wrapper](https://maven.apache.org/wrapper/)
+scripts provided. They will download a compatible maven distribution and use it automatically.
+
+### Configuration
+#### Configure the access to the maven distributions
+In order to work properly, Maven Wrapper needs to download 2 artifacts: the maven distribution and the maven wrapper
+distribution. By default, these are downloaded from the online Maven repository, but you could use an internal repository instead.
+
+##### Using a Maven Repository Manager
+If you prefer to use an internal Maven Repository Manager instead of retrieving the artefacts from the internet, you should define the following variable in your environment:
+- `MVNW_REPOURL`: the URL to your repository manager (for instance `https://my_server/repository/maven-public`)
+
+Note that if you need to use this variable, it must be set for **each maven command**. Else, the Maven Wrapper will try to
+retrieve the maven distribution from the online Maven repository (even if one was already downloaded from another location).
+
+##### Using a proxy to access the Internet
+If you don't use an internal Maven Repository, and need to use a proxy to access the Internet, you should:
+1. configure the proxy in your terminal (on Linux/MacOS, you can do it via the `http_proxy` and `https_proxy` environment variables).
+This is needed to download the Maven Wrapper distribution ;
+
+2. execute **at least once** the following command:
+```shell
+./mvnw -DproxyHost=XXX -DproxyPort=XXX -Dhttp.proxyUser=XXX -Dhttp.proxyPassword=XXX -Djdk.http.auth.tunneling.disabledSchemes= clean
+```
+Notes:
+- The 4 `XXX` occurrences should be replaced with your configuration;
+- The `-Djdk.http.auth.tunneling.disabledSchemes=` option should be left empty;
+- Windows users should use `mvnw.cmd` instead of `./mwn`.
+
+This second step is required to download the Maven distribution.
+
+Once both distributions are retrieved, the proxy configuration isn't needed anymore to use `./mvnw` or `mvnw.cmd` commands.
+
+
+##### Checking your access configuration
+You could check your configuration with the following command:
+```shell
+./mvnw -version
+```
+
+If you encounter any problem, you could specify `MVNW_VERBOSE=true` and relaunch the command to have
+further information.
+
+#### Configuring `install.sh` to use maven wrapper
+To indicate `install.sh` to use Maven Wrapper, you need to configure it with the `--mvn` option:
+```shell
+./install.sh clean --mvn ./mvnw
+```
+
+You can revert this configuration with the following command:
+```shell
+./install.sh clean --mvn mvn
+```
+
+### Usage
+Once the configuration is done, you just need to use `./mvnw` instead of `mvn` in your commands.

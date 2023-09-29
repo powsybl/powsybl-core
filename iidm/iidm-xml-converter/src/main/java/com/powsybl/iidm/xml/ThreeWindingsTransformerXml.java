@@ -36,7 +36,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
+    protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("r1", twt.getLeg1().getR());
         context.getWriter().writeDoubleAttribute("x1", twt.getLeg1().getX());
         context.getWriter().writeDoubleAttribute("g1", twt.getLeg1().getG());
@@ -72,7 +72,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected void writeSubElements(ThreeWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
+    protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) {
         IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg1().hasRatioTapChanger(), ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1,
                 IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context, () -> writeRatioTapChanger(twt.getLeg1().getRatioTapChanger(), 1, context));
         IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg1().hasPhaseTapChanger(), ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1,
@@ -116,18 +116,12 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected ThreeWindingsTransformerAdder createAdder(Container<? extends Identifiable<?>> c) {
-        if (c instanceof Network) {
-            return ((Network) c).newThreeWindingsTransformer();
-        }
-        if (c instanceof Substation) {
-            return ((Substation) c).newThreeWindingsTransformer();
-        }
-        throw new IllegalStateException();
+    protected ThreeWindingsTransformerAdder createAdder(Substation s) {
+        return s.newThreeWindingsTransformer();
     }
 
     @Override
-    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, Container<? extends Identifiable<?>> c, NetworkXmlReaderContext context) {
+    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, Substation s, NetworkXmlReaderContext context) {
         double r1 = context.getReader().readDoubleAttribute("r1");
         double x1 = context.getReader().readDoubleAttribute("x1");
         double g1 = context.getReader().readDoubleAttribute("g1");

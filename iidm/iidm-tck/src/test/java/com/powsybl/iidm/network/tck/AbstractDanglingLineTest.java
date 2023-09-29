@@ -63,7 +63,7 @@ public abstract class AbstractDanglingLineTest {
         double q0 = 60.0;
         String id = "danglingId";
         String name = "danlingName";
-        String ucteXnodeCode = "code";
+        String pairingKey = "code";
         voltageLevel.newDanglingLine()
                         .setId(id)
                         .setName(name)
@@ -73,7 +73,7 @@ public abstract class AbstractDanglingLineTest {
                         .setB(b)
                         .setP0(p0)
                         .setQ0(q0)
-                        .setUcteXnodeCode(ucteXnodeCode)
+                        .setPairingKey(pairingKey)
                         .setBus(BUS_VL_ID)
                         .setConnectableBus(BUS_VL_ID)
                     .add();
@@ -89,7 +89,7 @@ public abstract class AbstractDanglingLineTest {
         assertEquals(id, danglingLine.getId());
         assertEquals(name, danglingLine.getOptionalName().orElse(null));
         assertEquals(name, danglingLine.getNameOrId());
-        assertEquals(ucteXnodeCode, danglingLine.getUcteXnodeCode());
+        assertEquals(pairingKey, danglingLine.getPairingKey());
         assertNull(danglingLine.getGeneration());
 
         // setter getter
@@ -141,7 +141,7 @@ public abstract class AbstractDanglingLineTest {
                 .setX(20.0)
                 .setP0(30.0)
                 .setQ0(40.0)
-                .setUcteXnodeCode("code")
+                .setPairingKey("code")
                 .setBus(BUS_VL_ID)
                 .add();
 
@@ -173,6 +173,18 @@ public abstract class AbstractDanglingLineTest {
         ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code"));
         assertTrue(e.getMessage().contains("b is invalid"));
 
+    }
+
+    @Test
+    public void testInvalidP0() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code"));
+        assertTrue(e.getMessage().contains("p0 is invalid"));
+    }
+
+    @Test
+    public void testInvalidQ0() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code"));
+        assertTrue(e.getMessage().contains("q0 is invalid"));
     }
 
     @Test
@@ -244,7 +256,7 @@ public abstract class AbstractDanglingLineTest {
         double q0 = 0.0;
         String id = "danglingId";
         String name = "danlingName";
-        String ucteXnodeCode = "code";
+        String pairingKey = "code";
         DanglingLineAdder adder = voltageLevel.newDanglingLine()
                 .setId(id)
                 .setName(name)
@@ -254,7 +266,7 @@ public abstract class AbstractDanglingLineTest {
                 .setB(b)
                 .setP0(p0)
                 .setQ0(q0)
-                .setUcteXnodeCode(ucteXnodeCode)
+                .setPairingKey(pairingKey)
                 .setBus(BUS_VL_ID)
                 .setConnectableBus(BUS_VL_ID)
                 .newGeneration()
@@ -296,7 +308,7 @@ public abstract class AbstractDanglingLineTest {
                         .setB(b)
                         .setP0(p0)
                         .setQ0(q0)
-                        .setUcteXnodeCode(ucteCode)
+                        .setPairingKey(ucteCode)
                         .setBus(BUS_VL_ID)
                         .setConnectableBus(BUS_VL_ID)
                     .add();

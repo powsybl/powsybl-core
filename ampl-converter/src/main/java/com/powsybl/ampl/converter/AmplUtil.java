@@ -55,11 +55,11 @@ public final class AmplUtil {
     }
 
     static String getXnodeBusId(TieLine tieLine) {
-        return tieLine.getUcteXnodeCode();
+        return tieLine.getPairingKey();
     }
 
     static String getXnodeVoltageLevelId(TieLine tieLine) {
-        return tieLine.getUcteXnodeCode();
+        return tieLine.getPairingKey();
     }
 
     public static void fillMapper(StringToIntMapper<AmplSubset> mapper, Network network) {
@@ -126,12 +126,15 @@ public final class AmplUtil {
             mapper.newInt(AmplSubset.BRANCH, tl.getId());
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
             mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
-            mapper.newInt(AmplSubset.BRANCH, tl.getDanglingLine1().getId());
-            mapper.newInt(AmplSubset.BRANCH, tl.getDanglingLine2().getId());
+
+            DanglingLine dl1 = tl.getDanglingLine1();
+            DanglingLine dl2 = tl.getDanglingLine2();
+            mapper.newInt(AmplSubset.BRANCH, dl1.getId());
+            mapper.newInt(AmplSubset.BRANCH, dl2.getId());
 
             // limits
-            tl.getDanglingLine1().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_1_"));
-            tl.getDanglingLine2().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_2_"));
+            dl1.getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_1_"));
+            dl2.getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_2_"));
         }
     }
 

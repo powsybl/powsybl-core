@@ -11,17 +11,34 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
+
 /**
  * @author Coline Piloquet <coline.piloquet@rte-france.fr>
  */
 public class ScalingParameters {
 
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.1";
+
+    public enum ScalingType {
+        DELTA_P,
+        TARGET_P
+    }
+
+    public enum Priority {
+        RESPECT_OF_VOLUME_ASKED,
+        RESPECT_OF_DISTRIBUTION,
+        ONESHOT
+    }
 
     public static final Scalable.ScalingConvention DEFAULT_SCALING_CONVENTION = Scalable.ScalingConvention.GENERATOR;
     public static final boolean DEFAULT_CONSTANT_POWER_FACTOR = false;
     public static final boolean DEFAULT_RECONNECT = false;
-    public static final boolean DEFAULT_ITERATIVE = false;
+    public static final boolean DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS = false;
+    public static final Priority DEFAULT_PRIORITY = ONESHOT;
+    public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
 
@@ -29,17 +46,44 @@ public class ScalingParameters {
 
     private boolean constantPowerFactor = DEFAULT_CONSTANT_POWER_FACTOR;
 
-    private boolean iterative = DEFAULT_ITERATIVE;
+    private boolean allowsGeneratorOutOfActivePowerLimits = DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS;
+    private ScalingType scalingType = DEFAULT_SCALING_TYPE;
+    private Priority priority = DEFAULT_PRIORITY;
 
     public ScalingParameters() {
     }
 
+    /**
+     * @deprecated : replace with ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
+     *                              Priority priority, boolean allowsGeneratorOutOfActivePowerLimits)
+     */
+    @Deprecated(since = "v6.0.0")
     public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
-                             boolean iterative) {
+                             boolean iterative, boolean allowsGeneratorOutOfActivePowerLimits) {
         this.scalingConvention = scalingConvention;
         this.reconnect = reconnect;
         this.constantPowerFactor = constantPowerFactor;
-        this.iterative = iterative;
+        this.priority = iterative ? RESPECT_OF_VOLUME_ASKED : ONESHOT;
+        this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
+    }
+
+    public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
+                             Priority priority, boolean allowsGeneratorOutOfActivePowerLimits) {
+        this.scalingConvention = scalingConvention;
+        this.reconnect = reconnect;
+        this.constantPowerFactor = constantPowerFactor;
+        this.priority = priority;
+        this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
+    }
+
+    public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
+                             Priority priority, boolean allowsGeneratorOutOfActivePowerLimits, ScalingType scalingType) {
+        this.scalingConvention = scalingConvention;
+        this.reconnect = reconnect;
+        this.constantPowerFactor = constantPowerFactor;
+        this.priority = priority;
+        this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
+        this.scalingType = scalingType;
     }
 
     /**
@@ -56,6 +100,7 @@ public class ScalingParameters {
 
     /**
      * @return a boolean indicating if the terminal of the scalable should be reconnected if it is disconnected.
+     * If the scalable is disconnected, then it will not be scaled.
      */
     public boolean isReconnect() {
         return reconnect;
@@ -81,14 +126,59 @@ public class ScalingParameters {
     /**
      * Scale may be iterative or not for {@link ProportionalScalable}. If the iterative mode is activated, the residues
      * due to scalable saturation is divided between the other scalable composing the {@link ProportionalScalable}.
+     * @deprecated : replace with method "getPriority"
      * @return the iterative boolean, false by default.
      */
+    @Deprecated(since = "v6.0.0")
     public boolean isIterative() {
-        return iterative;
+        return priority == RESPECT_OF_VOLUME_ASKED;
     }
 
+    /**
+     * @deprecated : replace with the method "setPriority"
+     */
+    @Deprecated(since = "v6.0.0")
     public ScalingParameters setIterative(boolean iterative) {
-        this.iterative = iterative;
+        return iterative ? setPriority(RESPECT_OF_VOLUME_ASKED) : setPriority(ONESHOT);
+    }
+
+    /**
+     * @return a boolean indicating if the scaling allows generators with an initial targetP outside the [Pmin - Pmax] range values
+     */
+    public boolean isAllowsGeneratorOutOfActivePowerLimits() {
+        return allowsGeneratorOutOfActivePowerLimits;
+    }
+
+    public ScalingParameters setAllowsGeneratorOutOfActivePowerLimits(boolean allowsGeneratorOutOfActivePowerLimits) {
+        this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
+        return this;
+    }
+
+    /**
+     * @return the type of scaling asked (DELTA_P or TARGET_P)
+     */
+    public ScalingType getScalingType() {
+        return scalingType;
+    }
+
+    public ScalingParameters setScalingType(ScalingType scalingType) {
+        this.scalingType = scalingType;
+        return this;
+    }
+
+    /**
+     * @return an enum representing the priority of the scaling. It can be either RESPECT_OF_VOLUME_ASKED (the scaling
+     * will distribute the power asked as much as possible by iterating if elements get saturated, even if it means not
+     * respecting potential percentages), RESPECT_OF_DISTRIBUTION (the scaling will respect the percentages even if it
+     * means not scaling all what is asked), or ONESHOT (the scaling will distribute the power asked as is, in one
+     * iteration even if elements get saturated and even if it means not respecting potential percentages).
+     */
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public ScalingParameters setPriority(Priority priority) {
+        this.priority = priority;
         return this;
     }
 
@@ -103,7 +193,8 @@ public class ScalingParameters {
             scalingParameters.setScalingConvention(config.getEnumProperty("scalingConvention", Scalable.ScalingConvention.class, DEFAULT_SCALING_CONVENTION));
             scalingParameters.setConstantPowerFactor(config.getBooleanProperty("constantPowerFactor", DEFAULT_CONSTANT_POWER_FACTOR));
             scalingParameters.setReconnect(config.getBooleanProperty("reconnect", DEFAULT_RECONNECT));
-            scalingParameters.setIterative(config.getBooleanProperty("iterative", DEFAULT_ITERATIVE));
+            scalingParameters.setPriority(config.getEnumProperty("priority", ScalingParameters.Priority.class, DEFAULT_PRIORITY));
+            scalingParameters.setAllowsGeneratorOutOfActivePowerLimits(config.getBooleanProperty("allowsGeneratorOutOfActivePowerLimits", DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS));
         });
         return scalingParameters;
     }

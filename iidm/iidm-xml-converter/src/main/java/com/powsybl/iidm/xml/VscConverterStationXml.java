@@ -84,8 +84,7 @@ class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterS
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                     String side = context.getReader().readStringAttribute("side");
-                    context.getEndTasks().add(() -> cs.setRegulatingTerminal(TerminalRefXml
-                            .readTerminalRef(cs.getNetwork(), id, side)));
+                    context.getEndTasks().add(() -> cs.setRegulatingTerminal(TerminalRefXml.resolve(id, side, cs.getNetwork())));
                     break;
                 default:
                     super.readSubElements(cs, context);

@@ -18,10 +18,6 @@ import java.util.Optional;
  * <div>
  *    <object data="doc-files/danglingLine.svg" type="image/svg+xml"></object>
  * </div>
- * Electrical characteritics (r, x, g, b) corresponding to a percent of the
- * orginal line.
- * <p>r, x, g, b have to be consistent with the declared length of the dangling
- * line.
  *
  * <p>
  *  Characteristics
@@ -104,12 +100,12 @@ import java.util.Optional;
  *             <td style="border: 1px solid black">The shunt susceptance</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">UcteXnodeCode</td>
+ *             <td style="border: 1px solid black">PairingKey</td>
  *             <td style="border: 1px solid black">String</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">no</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The dangling line's UCTE Xnode code</td>
+ *             <td style="border: 1px solid black">The dangling line's pairing key</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -278,10 +274,10 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     }
 
     /**
-     * Get the UCTE Xnode code corresponding to this dangling line in the case
+     * Get the pairing key corresponding to this dangling line in the case
      * where the line is a boundary, return null otherwise.
      */
-    String getUcteXnodeCode();
+    String getPairingKey();
 
     Boundary getBoundary();
 

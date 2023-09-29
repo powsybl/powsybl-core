@@ -63,13 +63,26 @@ public final class Security {
     public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, float limitReduction) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
-
         // allow to increase the limits
         if (limitReduction <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
         }
         List<LimitViolation> violations = new ArrayList<>();
         new DefaultLimitViolationDetector(limitReduction, currentLimitTypes).checkAll(network, violations::add);
+        return violations;
+    }
+
+    public static List<LimitViolation> checkLimitsDc(Network network, float limitReduction, double dcPowerFactor) {
+        Objects.requireNonNull(network);
+        // allow to increase the limits
+        if (limitReduction <= 0) {
+            throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
+        }
+        if (dcPowerFactor <= 0 || dcPowerFactor > 1) {
+            throw new IllegalArgumentException("Invalid DC power factor " + dcPowerFactor);
+        }
+        List<LimitViolation> violations = new ArrayList<>();
+        new DefaultLimitViolationDetector(limitReduction, EnumSet.allOf(LoadingLimitType.class)).checkAllDc(network, dcPowerFactor, violations::add);
         return violations;
     }
 
@@ -348,8 +361,7 @@ public final class Security {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof LimitViolationKey) {
-                LimitViolationKey other = (LimitViolationKey) obj;
+            if (obj instanceof LimitViolationKey other) {
                 return id.equals(other.id) && limitType == other.limitType && limit == other.limit;
             }
             return false;
@@ -406,7 +418,7 @@ public final class Security {
                     // pre-contingency violations filtering
                     List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
                             .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
-                            .collect(Collectors.toList());
+                            .toList();
 
                     return filteredLimitViolations2.size();
                 }
@@ -459,7 +471,7 @@ public final class Security {
                 // pre-contingency violations filtering
                 List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
                         .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (!filteredLimitViolations2.isEmpty() || postContingencyResult.getStatus() != PostContingencyComputationStatus.CONVERGED) {
                     formatter.writeCell(postContingencyResult.getContingency().getId())

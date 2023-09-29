@@ -11,10 +11,9 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
@@ -156,6 +155,24 @@ class Cgmes3ConversionTest {
         assertEquals(0, (int) tw3t.getLeg1().getCurrentLimits().map(l -> l.getTemporaryLimits().size()).orElse(-1));
         assertEquals(0, (int) tw3t.getLeg2().getCurrentLimits().map(l -> l.getTemporaryLimits().size()).orElse(-1));
         assertEquals(0, (int) tw3t.getLeg3().getCurrentLimits().map(l -> l.getTemporaryLimits().size()).orElse(-1));
+    }
+
+    @Test
+    void miniGridRatedS() throws IOException {
+        Network n = networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
+
+        assertEquals(31.5, n.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51").getRatedS(), 0.0);
+        assertEquals(150.0, n.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getRatedS(), 0.0);
+        assertEquals(100.0, n.getTwoWindingsTransformer("f1e72854-ec35-46e9-b614-27db354e8dbb").getRatedS(), 0.0);
+        assertEquals(31.5, n.getTwoWindingsTransformer("6c89588b-3df5-4120-88e5-26164afb43e9").getRatedS(), 0.0);
+
+        assertEquals(350.0, n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c").getLeg1().getRatedS(), 0.0);
+        assertEquals(350.0, n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c").getLeg2().getRatedS(), 0.0);
+        assertEquals(50.0, n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c").getLeg3().getRatedS(), 0.0);
+
+        assertEquals(350.0, n.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773").getLeg1().getRatedS(), 0.0);
+        assertEquals(350.0, n.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773").getLeg2().getRatedS(), 0.0);
+        assertEquals(50.0, n.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773").getLeg3().getRatedS(), 0.0);
     }
 
     @Test
@@ -307,15 +324,9 @@ class Cgmes3ConversionTest {
         assertTrue(true);
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
         config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config);
-        return c.convert();
+        return ConversionUtil.networkModel(testGridModel, config);
     }
 
     private static void resetBusVoltageAndAngleBeforeComparison(Network network) {

@@ -1,0 +1,74 @@
+/**
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+package com.powsybl.iidm.xml;
+
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageAngleLimit;
+import com.powsybl.iidm.network.VoltageAngleLimitAdder;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
+
+/**
+ *
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
+ */
+public final class VoltageAngleLimitXml {
+
+    private static final String VOLTAGE_ANGLE_LIMIT = "voltageAngleLimit";
+    private static final String ID = "id";
+    private static final String LOW_LIMIT = "lowLimit";
+    private static final String HIGH_LIMIT = "highLimit";
+    private static final String FROM = "from";
+    private static final String TO = "to";
+
+    public static void write(VoltageAngleLimit voltageAngleLimit, NetworkXmlWriterContext context) {
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), VOLTAGE_ANGLE_LIMIT);
+            context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(voltageAngleLimit.getId()));
+            voltageAngleLimit.getLowLimit().ifPresent(low -> context.getWriter().writeDoubleAttribute(LOW_LIMIT, low));
+            voltageAngleLimit.getHighLimit().ifPresent(high -> context.getWriter().writeDoubleAttribute(HIGH_LIMIT, high));
+            TerminalRefXml.writeTerminalRef(voltageAngleLimit.getTerminalFrom(), context, FROM);
+            TerminalRefXml.writeTerminalRef(voltageAngleLimit.getTerminalTo(), context, TO);
+            context.getWriter().writeEndNode();
+        });
+    }
+
+    public static void read(Network network, NetworkXmlReaderContext context) {
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
+
+            String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
+            double lowLimit = context.getReader().readDoubleAttribute(LOW_LIMIT);
+            double highLimit = context.getReader().readDoubleAttribute(HIGH_LIMIT);
+
+            VoltageAngleLimitAdder adder = network.newVoltageAngleLimit();
+            adder.setId(id);
+            if (!Double.isNaN(lowLimit)) {
+                adder.setLowLimit(lowLimit);
+            }
+            if (!Double.isNaN(highLimit)) {
+                adder.setHighLimit(highLimit);
+            }
+            context.getReader().readUntilEndNode(VOLTAGE_ANGLE_LIMIT, () -> {
+                if (context.getReader().getNodeName().equals(FROM)) {
+                    Terminal from = TerminalRefXml.readTerminal(context, network);
+                    adder.from(from);
+                } else if (context.getReader().getNodeName().equals(TO)) {
+                    Terminal to = TerminalRefXml.readTerminal(context, network);
+                    adder.to(to);
+                }
+            });
+
+            adder.add();
+        });
+    }
+
+    private VoltageAngleLimitXml() {
+    }
+}

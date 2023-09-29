@@ -26,10 +26,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
@@ -53,12 +52,28 @@ public final class CgmesExportUtil {
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
+    private static double fixValue(double value, double defaultValue) {
+        return Double.isNaN(value) ? defaultValue : value;
+    }
+
     public static String format(double value) {
-        return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        return format(value, 0.0); // disconnected equipment in general, a bit dangerous.
+    }
+
+    public static String format(double value, double defaultValue) {
+        // Always use scientific format for extreme values
+        if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
+            return scientificFormat(value, defaultValue);
+        }
+        return DOUBLE_FORMAT.format(fixValue(value, defaultValue));
     }
 
     public static String scientificFormat(double value) {
-        return SCIENTIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        return scientificFormat(value, 0.0); // disconnected equipment in general, a bit dangerous.
+    }
+
+    private static String scientificFormat(double value, double defaultValue) {
+        return SCIENTIFIC_FORMAT.format(fixValue(value, defaultValue));
     }
 
     public static String format(int value) {
@@ -115,6 +130,10 @@ public final class CgmesExportUtil {
         for (String dependency : modelDescription.getDependencies()) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
+        }
+        if (modelDescription.getSupersedes() != null) {
+            writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.SUPERSEDES);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, modelDescription.getSupersedes());
         }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
@@ -182,10 +201,10 @@ public final class CgmesExportUtil {
             if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
                     && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
                 return CgmesNames.CONFORM_LOAD;
-            }
-            // NonConform load if fixed part is non-zero and variable part is all zero
-            if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
-                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
+            } else if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
+                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {  // NonConform load if fixed part is non-zero and variable part is all zero
+                return CgmesNames.NONCONFORM_LOAD;
+            } else {
                 return CgmesNames.NONCONFORM_LOAD;
             }
         }
@@ -193,23 +212,28 @@ public final class CgmesExportUtil {
         return CgmesNames.ENERGY_CONSUMER;
     }
 
-    /**
-     * @deprecated Use {@link #getTerminalSequenceNumber(Terminal)} instead
-     */
-    @Deprecated(since = "4.9.0", forRemoval = true)
-    public static int getTerminalSide(Terminal t, Connectable<?> c) {
-        // There is no need to provide the connectable explicitly, it must always be the one associated with the terminal
-        if (c != t.getConnectable()) {
-            throw new PowsyblException("Wrong connectable in getTerminalSide : " + c.getId());
+    public static String switchClassname(SwitchKind kind) {
+        switch (kind) {
+            case BREAKER:
+                return "Breaker";
+            case DISCONNECTOR:
+                return "Disconnector";
+            case LOAD_BREAK_SWITCH:
+                return "LoadBreakSwitch";
         }
-        return getTerminalSequenceNumber(t);
+        LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
+        return "Switch";
     }
 
-    public static int getTerminalSequenceNumber(Terminal t) {
+    public static int getTerminalSequenceNumber(Terminal t, List<DanglingLine> boundaryDanglingLines) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
-            if (c instanceof DanglingLine) {
-                DanglingLine dl = (DanglingLine) c;
+            if (c instanceof DanglingLine dl && !boundaryDanglingLines.contains(dl)) {
+                // TODO(Luma) Export tie line components instead of a single equipment
+                // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
+                // We need to return the proper terminal of the single tie line that will be exported
+                // When we change the export and write the two dangling lines as separate equipment,
+                // then we should always return 1 and forget about special case
                 return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
             }
             return 1;
@@ -223,8 +247,8 @@ public final class CgmesExportUtil {
                     default:
                         throw new IllegalStateException("Incorrect branch side " + ((Branch<?>) c).getSide(t));
                 }
-            } else if (c instanceof ThreeWindingsTransformer) {
-                switch (((ThreeWindingsTransformer) c).getSide(t)) {
+            } else if (c instanceof ThreeWindingsTransformer twt) {
+                switch (twt.getSide(t)) {
                     case ONE:
                         return 1;
                     case TWO:
@@ -232,7 +256,7 @@ public final class CgmesExportUtil {
                     case THREE:
                         return 3;
                     default:
-                        throw new IllegalStateException("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
+                        throw new IllegalStateException("Incorrect three-windings transformer side " + twt.getSide(t));
                 }
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
@@ -289,12 +313,29 @@ public final class CgmesExportUtil {
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
-        if (c instanceof DanglingLine && !((DanglingLine) c).isPaired()) {
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL;
+        // For dangling lines terminal id is always stored at TERMINAL1 alias,
+        // it doesn't matter if it is paired or not
+        if (c instanceof DanglingLine) {
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
         } else {
-            int sequenceNumber = getTerminalSequenceNumber(t);
+            int sequenceNumber = getTerminalSequenceNumber(t, Collections.emptyList()); // never a dangling line here
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
+    }
+
+    public static List<DanglingLine> getBoundaryDanglingLines(Network network) {
+        return network.getBoundaryElements().stream()
+                .filter(DanglingLine.class::isInstance)
+                .map(DanglingLine.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {
+        if (c instanceof ShuntCompensator shuntCompensator) {
+            return "true".equals(c.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))
+                    && shuntCompensator.getSectionCount() == 0;
+        }
+        return false;
     }
 }

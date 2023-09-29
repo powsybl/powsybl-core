@@ -20,6 +20,7 @@ import com.powsybl.security.json.action.*;
 import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
+import com.powsybl.security.strategy.ConditionalActions;
 
 import java.util.Collection;
 import java.util.List;
@@ -63,6 +64,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(OperatorStrategyResult.class, new OperatorStrategyResultSerializer());
         addSerializer(OperatorStrategy.class, new OperatorStrategySerializer());
         addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
+        addSerializer(ConditionalActions.class, new ConditionalActionsSerializer());
         addSerializer(ActionList.class, new ActionListSerializer());
         addSerializer(Condition.class, new ConditionSerializer());
         addSerializer(ConnectivityResult.class, new ConnectivityResultSerializer());
@@ -80,6 +82,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(OperatorStrategyResult.class, new OperatorStrategyResultDeserializer());
         addDeserializer(OperatorStrategy.class, new OperatorStrategyDeserializer());
         addDeserializer(OperatorStrategyList.class, new OperatorStrategyListDeserializer());
+        addDeserializer(ConditionalActions.class, new ConditionalActionsDeserializer());
         addDeserializer(ActionList.class, new ActionListDeserializer());
         addDeserializer(Condition.class, new ConditionDeserializer());
         addDeserializer(NetworkResult.class, new NetworkResultDeserializer());
@@ -104,15 +107,14 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
                 new PhaseTapChangerRegulationActionSerializer(), new PhaseTapChangerRegulationActionDeserializer());
         registerActionType(RatioTapChangerRegulationAction.class, RatioTapChangerRegulationAction.NAME,
                 new RatioTapChangerRegulationActionSerializer(), new RatioTapChangerRegulationActionDeserializer());
-        registerActionType(GeneratorAction.class, GeneratorAction.NAME, new GeneratorActionSerializer(), new GeneratorActionDeserializer());
         registerActionType(LoadAction.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionDeserializer());
         registerActionType(HvdcAction.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionDeserializer());
         registerActionType(GeneratorAction.class, GeneratorAction.NAME,
                 new GeneratorActionSerializer(), new GeneratorActionDeserializer());
-        registerActionType(LoadAction.class, LoadAction.NAME,
-                new LoadActionSerializer(), new LoadActionDeserializer());
         registerActionType(ShuntCompensatorPositionAction.class, ShuntCompensatorPositionAction.NAME,
                 new ShuntCompensatorPositionActionSerializer(), new ShuntCompensatorPositionActionDeserializer());
+        registerActionType(StaticVarCompensatorAction.class, StaticVarCompensatorAction.NAME,
+                new StaticVarCompensatorActionSerializer(), new StaticVarCompensatorActionDeserializer());
     }
 
     private <T> void registerActionType(Class<T> actionClass, String typeName, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {

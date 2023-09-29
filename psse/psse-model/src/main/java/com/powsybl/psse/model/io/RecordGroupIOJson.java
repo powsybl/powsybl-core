@@ -163,8 +163,8 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         // for Parameter Sets and Data Tables
         DefaultPrettyPrinter dpp = null;
         PrettyPrinter pp = g.getPrettyPrinter();
-        if (pp instanceof DefaultPrettyPrinter) {
-            dpp = (DefaultPrettyPrinter) pp;
+        if (pp instanceof DefaultPrettyPrinter defaultPrettyPrinter) {
+            dpp = defaultPrettyPrinter;
         }
         try {
             g.writeFieldName(recordGroup.identification.getJsonNodeName());

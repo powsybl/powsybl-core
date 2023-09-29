@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -37,13 +37,13 @@ public final class TopologyModificationUtils {
     private TopologyModificationUtils() {
     }
 
-    static final class LoadingLimitsBags {
+    public static final class LoadingLimitsBags {
 
         private final LoadingLimitsBag activePowerLimits;
         private final LoadingLimitsBag apparentPowerLimits;
         private final LoadingLimitsBag currentLimits;
 
-        LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
+        public LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
                           Supplier<Optional<CurrentLimits>> currentLimitsGetter) {
             activePowerLimits = activePowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
             apparentPowerLimits = apparentPowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
@@ -170,7 +170,7 @@ public final class TopologyModificationUtils {
         }
     }
 
-    static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
+    public static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
         if (side == Branch.Side.ONE) {
             limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
             limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
@@ -320,8 +320,7 @@ public final class TopologyModificationUtils {
                     return TraverseResult.TERMINATE_PATH;
                 }
                 Connectable<?> connectable = terminal.getConnectable();
-                if (connectable instanceof BusbarSection) {
-                    BusbarSection otherBbs = (BusbarSection) connectable;
+                if (connectable instanceof BusbarSection otherBbs) {
                     BusbarSectionPosition otherBbPosition = otherBbs.getExtension(BusbarSectionPosition.class);
                     if (otherBbPosition.getSectionIndex() == bbSection) {
                         connectablesByBbs.put(otherBbs, connectables);
@@ -397,11 +396,31 @@ public final class TopologyModificationUtils {
     }
 
     /**
+     * Get the range of connectable positions delimited by neighbouring busbar sections, for a given busbar section.
+     * If the range is empty (for instance if positions max on left side is above position min on right side), the range returned is empty.
+     * Note that the connectable positions needs to be in ascending order in the voltage level for ascending busbar section index positions.
+     */
+    public static Optional<Range<Integer>> getPositionRange(BusbarSection bbs) {
+        BusbarSectionPosition positionExtension = bbs.getExtension(BusbarSectionPosition.class);
+        if (positionExtension != null) {
+            VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
+            NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+
+            int sectionIndex = positionExtension.getSectionIndex();
+            int max = getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE);
+            int min = getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(0);
+
+            return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+        }
+        return Optional.of(Range.between(0, Integer.MAX_VALUE));
+    }
+
+    /**
      * Method returning the maximum order in the slice with the highest section index lower to the given section.
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS2 will return 3.
      */
-    private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+    public static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         int s = section;
         Map.Entry<Integer, List<Integer>> lowerEntry;
         do {
@@ -421,7 +440,7 @@ public final class TopologyModificationUtils {
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS1 will return 7.
      */
-    private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+    public static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         int s = section;
         Map.Entry<Integer, List<Integer>> higherEntry;
         do {
@@ -497,8 +516,8 @@ public final class TopologyModificationUtils {
             feeders = getInjectionFeeder(position);
         } else if (connectable instanceof Branch) {
             feeders = getBranchFeeders(position, voltageLevel, (Branch<?>) connectable);
-        } else if (connectable instanceof ThreeWindingsTransformer) {
-            feeders = get3wtFeeders(position, voltageLevel, (ThreeWindingsTransformer) connectable);
+        } else if (connectable instanceof ThreeWindingsTransformer twt) {
+            feeders = get3wtFeeders(position, voltageLevel, twt);
         } else {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);
@@ -520,8 +539,8 @@ public final class TopologyModificationUtils {
             return getInjectionFeeder(position);
         } else if (connectable instanceof Branch) {
             return getBranchFeeders(position, voltageLevel, (Branch<?>) connectable);
-        } else if (connectable instanceof ThreeWindingsTransformer) {
-            return get3wtFeeders(position, voltageLevel, (ThreeWindingsTransformer) connectable);
+        } else if (connectable instanceof ThreeWindingsTransformer twt) {
+            return get3wtFeeders(position, voltageLevel, twt);
         } else {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);

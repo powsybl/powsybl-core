@@ -46,10 +46,19 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
             IidmXmlUtil.assertMinimumVersion(getRootElementName(), SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
         }
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            context.getWriter().writeDoubleAttribute(B_PER_SECTION, getBPerSection(sc, context.getVersion()));
-            int maximumSectionCount = sc.getModel() instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
+            ShuntCompensatorModel model = sc.getModel();
+            double bPerSection = model instanceof ShuntCompensatorLinearModel shuntCompensatorLinearModel ? shuntCompensatorLinearModel.getBPerSection() : sc.getB();
+            if (bPerSection == 0) {
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("bPerSection of {} is 0. It is set as {} since XIIDM version < 1.5 ({})", sc.getId(),
+                            Double.MIN_NORMAL, context.getVersion().toString("."));
+                }
+                bPerSection = Double.MIN_NORMAL;
+            }
+            context.getWriter().writeDoubleAttribute(B_PER_SECTION, bPerSection);
+            int maximumSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
             context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, maximumSectionCount);
-            int currentSectionCount = sc.getModel() instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
+            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
             context.getWriter().writeIntAttribute("currentSectionCount", currentSectionCount);
         });
         if (sc.findSectionCount().isPresent()) {
@@ -157,7 +166,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                 case REGULATING_TERMINAL:
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                     String regSide = context.getReader().readStringAttribute("side");
-                    toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getNetwork(), regId, regSide))));
+                    toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.resolve(regId, regSide, sc.getNetwork()))));
                     break;
                 case SHUNT_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);

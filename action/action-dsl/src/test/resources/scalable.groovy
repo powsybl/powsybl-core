@@ -33,7 +33,7 @@ action('testProportional') {
         script {
             variationValue = 15000
             gens = scalables('GEN', 'GEN2', 'GEN3')
-            variation = proportional([50.0f,20.0f,30.0f], gens)
+            variation = proportional([50.0d,20.0d,30.0d], gens)
             variation.reset(network)
             variation.scale(network, variationValue)
         }

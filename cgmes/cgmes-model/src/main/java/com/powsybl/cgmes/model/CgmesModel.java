@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  */
 public interface CgmesModel {
 
-    // FIXME generic cgmes models may not have an underlying triplestore
+    // Although generic cgmes models may not have an underlying triplestore
     TripleStore tripleStore();
 
     Properties getProperties();
@@ -58,6 +58,10 @@ public interface CgmesModel {
     PropertyBags boundaryNodes();
 
     PropertyBags baseVoltages();
+
+    PropertyBags countrySourcingActors(String countryName);
+
+    PropertyBags sourcingActor(String sourcingActor);
 
     PropertyBags substations();
 
@@ -184,40 +188,9 @@ public interface CgmesModel {
 
     // Helper mappings
 
-    /**
-     * @deprecated Not used anymore. To get the CGMES Terminal ID of an equipment, use alias i.e.
-     * {@code equipement.getAlias("CGMES.Terminal1")}
-     */
-    @Deprecated
-    default String terminalForEquipment(String conductingEquipmentId, int sequenceNumber) {
-        return null;
-    }
+    List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId);
 
-    /**
-     * @deprecated Use {@link #ratioTapChangerListForPowerTransformer(String)} instead.
-     */
-    @Deprecated
-    default String ratioTapChangerForPowerTransformer(String powerTransformerId) {
-        return ratioTapChangerListForPowerTransformer(powerTransformerId).stream().filter(Objects::nonNull).findFirst().orElse(null);
-    }
-
-    /**
-     * @deprecated Use {@link #phaseTapChangerListForPowerTransformer(String)} instead.
-     */
-    @Deprecated
-    default String phaseTapChangerForPowerTransformer(String powerTransformerId) {
-        return phaseTapChangerListForPowerTransformer(powerTransformerId).stream().filter(Objects::nonNull).findFirst().orElse(null);
-    }
-
-    default List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.singletonList(ratioTapChangerForPowerTransformer(powerTransformerId));
-    }
-
-    default List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.singletonList(phaseTapChangerForPowerTransformer(powerTransformerId));
-    }
-
-    // TODO(Luma) refactoring node-breaker conversion temporal
+    List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId);
 
     /**
      * Obtain the substation of a given terminal.

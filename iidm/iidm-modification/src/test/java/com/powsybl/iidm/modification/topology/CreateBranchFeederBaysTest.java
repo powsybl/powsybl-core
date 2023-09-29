@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
@@ -26,6 +27,7 @@ import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testReporter;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.jupiter.api.Assertions.*;
@@ -155,7 +157,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
         int positionOrder1 = unusedOrderPositionsAfter.get().getMinimum();
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
-                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId1("bbs2")
                 .withPositionOrder1(positionOrder1)
                 .withDirection1(TOP)
                 .withBusOrBusbarSectionId2("bbs5")
@@ -213,6 +215,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .setB2(0.0);
 
         //wrong network
+        ReporterModel reporter1 = new ReporterModel("reportTestWrongNetwork", "Testing creating line reporter with wrong network");
         Network network1 = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         CreateBranchFeederBays modification0 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
@@ -223,10 +226,12 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, Reporter.NO_OP));
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, reporter1));
         assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
+        assertEquals("networkMismatch", reporter1.getReports().iterator().next().getReportKey());
 
         // not found id
+        ReporterModel reporter2 = new ReporterModel("reportTestUndefinedId", "Testing creating line reporter with wrong busbar section ID");
         CreateBranchFeederBays modification1 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs")
@@ -236,10 +241,12 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(nbNetwork, true, Reporter.NO_OP));
-        assertEquals("Identifiable bbs not found.", e1.getMessage());
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(nbNetwork, true, reporter2));
+        assertEquals("Bus or busbar section bbs not found", e1.getMessage());
+        assertEquals("notFoundBusOrBusbarSection", reporter2.getReports().iterator().next().getReportKey());
 
         // wrong identifiable type
+        ReporterModel reporter3 = new ReporterModel("reportTestWrongBbsType", "Testing creating line reporter with wrong bbs type");
         CreateBranchFeederBays modification2 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("gen1")
@@ -249,15 +256,16 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(nbNetwork, true, Reporter.NO_OP));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(nbNetwork, true, reporter3));
         assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
+        assertEquals("unsupportedIdentifiableType", reporter3.getReports().iterator().next().getReportKey());
     }
 
     @Test
     void baseNodeBreakerTwoWindingsTransformerTest() throws IOException {
         TwoWindingsTransformerAdder twtAdder = nbNetwork.getSubstation("subst")
                 .newTwoWindingsTransformer()
-                .setId("lineTest")
+                .setId("twtTest")
                 .setR(1.0)
                 .setX(1.0)
                 .setG(0.0)
@@ -270,7 +278,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withPositionOrder1(115)
                 .withDirection1(BOTTOM)
                 .withBusOrBusbarSectionId2("bbs1")
-                .withPositionOrder2(121)
+                .withPositionOrder2(71)
                 .withDirection2(TOP)
                 .build();
         modification.apply(nbNetwork);
@@ -330,5 +338,55 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
 
         ConnectablePosition<Line> position = line.getExtension(ConnectablePosition.class);
         assertNull(position);
+    }
+
+    @Test
+    void testWithReporter() {
+        LineAdder lineAdder = nbNetwork.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+        ReporterModel reporter = new ReporterModel("reportTestCreateLine", "Testing creating line reporter");
+        new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBusOrBusbarSectionId1("bbs5")
+                .withPositionOrder1(85)
+                .withDirection1(BOTTOM)
+                .withFeederName1("lineTestFeeder1")
+                .withBusOrBusbarSectionId2("bbs1")
+                .withPositionOrder2(75)
+                .withFeederName2("lineTestFeeder2")
+                .withDirection2(TOP)
+                .build().apply(nbNetwork, true, reporter);
+        testReporter(reporter, "/reporter/create-line-NB-report.txt");
+    }
+
+    @Test
+    void testReporterWithoutExtension() throws IOException {
+        Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        LineAdder lineAdder = network.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+        ReporterModel reporter = new ReporterModel("reportTestCreateLineWithoutExtensions", "Testing creating line reporter without extensions");
+        new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBusOrBusbarSectionId1("bbs5")
+                .withPositionOrder1(115)
+                .withDirection1(BOTTOM)
+                .withBusOrBusbarSectionId2("bbs1")
+                .withPositionOrder2(121)
+                .withDirection2(TOP)
+                .build()
+                .apply(network, true, reporter);
+        testReporter(reporter, "/reporter/create-line-NB-without-extensions-report.txt");
     }
 }

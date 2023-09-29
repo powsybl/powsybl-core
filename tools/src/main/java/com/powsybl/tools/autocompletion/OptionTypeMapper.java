@@ -44,8 +44,7 @@ public class OptionTypeMapper {
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof Key) {
-                Key key = (Key) o;
+            if (o instanceof Key key) {
                 return regex.equals(key.regex) && type == key.type;
             }
             return false;

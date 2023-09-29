@@ -16,6 +16,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 
 import java.net.URLEncoder;
@@ -55,10 +56,15 @@ public class CgmesExportContext {
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
-    private boolean exportBoundaryPowerFlows = true;
-    private boolean exportFlowsForSwitches = false;
+    public static final boolean EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE = true;
+    public static final boolean EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE = true;
+    public static final boolean EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE = false;
+    public static final boolean ENCODE_IDS_DEFAULT_VALUE = true;
+    private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
+    private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
+    private boolean exportTransformersWithHighestVoltageAtEnd1 = EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE;
     private boolean exportEquipment = false;
-    private boolean encodeIds = true;
+    private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
     private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
@@ -66,10 +72,11 @@ public class CgmesExportContext {
     private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
+    private final ReferenceDataProvider referenceDataProvider;
 
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
-    // SV.dependentOn TP, SSH
+    // SV.dependentOn TP, SSH[, TP_BD]
     // TP.dependentOn EQ[, EQ_BD][, TP_BD]
     // SSH.dependentOn EQ
     public void updateDependencies() {
@@ -89,7 +96,6 @@ public class CgmesExportContext {
             Set<String> sshModelIds = getSshModelDescription().getIds();
             if (!sshModelIds.isEmpty()) {
                 getSvModelDescription().addDependencies(sshModelIds);
-                getSvModelDescription().addDependencies(sshModelIds);
             }
             if (boundaryEqId != null) {
                 getEqModelDescription().addDependency(boundaryEqId);
@@ -97,6 +103,7 @@ public class CgmesExportContext {
             }
             if (boundaryTpId != null) {
                 getTpModelDescription().addDependency(boundaryTpId);
+                getSvModelDescription().addDependency(boundaryTpId);
             }
         }
     }
@@ -113,6 +120,7 @@ public class CgmesExportContext {
 
         private String description;
         private int version = 1;
+        private String supersedes;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
         private Set<String> ids = new HashSet<>();
@@ -127,6 +135,10 @@ public class CgmesExportContext {
 
         public String getDescription() {
             return description;
+        }
+
+        public String getSupersedes() {
+            return supersedes;
         }
 
         public ModelDescription setDescription(String description) {
@@ -201,16 +213,26 @@ public class CgmesExportContext {
         public Set<String> getIds() {
             return Collections.unmodifiableSet(ids);
         }
+
+        public void setSupersedes(String id) {
+            this.supersedes = id;
+        }
     }
 
     public CgmesExportContext() {
+        referenceDataProvider = null;
     }
 
     public CgmesExportContext(Network network) {
-        this(network, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY));
+        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY));
     }
 
-    public CgmesExportContext(Network network, NamingStrategy namingStrategy) {
+    public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider) {
+        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY));
+    }
+
+    public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy) {
+        this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
@@ -233,6 +255,7 @@ public class CgmesExportContext {
         if (sshMetadata != null) {
             sshModelDescription.setDescription(sshMetadata.getDescription());
             sshModelDescription.setVersion(sshMetadata.getSshVersion() + 1);
+            sshModelDescription.setSupersedes(sshMetadata.getId());
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
@@ -272,8 +295,9 @@ public class CgmesExportContext {
         for (Substation substation : network.getSubstations()) {
             String regionName;
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID)) {
-                regionName = substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
-                String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> CgmesExportUtil.getUniqueId());
+                Pair<String, String> region = getCreateRegion(substation);
+                String regionId = region.getLeft();
+                regionName = region.getRight();
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID, regionId);
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME, regionName);
             } else {
@@ -300,12 +324,44 @@ public class CgmesExportContext {
         }
     }
 
+    private Pair<String, String> getCreateRegion(Substation substation) {
+        // The current substation does not have explicit information for geographical region,
+        // Try to obtain it from the reference data based on the current sourcing actor we are using for export
+        Pair<String, String> region = null;
+        if (referenceDataProvider != null) {
+            region = referenceDataProvider.getSourcingActorRegion();
+        }
+        if (region == null) {
+            // If no information is available from reference data,
+            // Just create a new geographical region using country name as name
+            String regionName = substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
+            String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> CgmesExportUtil.getUniqueId());
+            region = Pair.of(regionId, regionName);
+        }
+        return region;
+    }
+
     private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {
         if (mapping.isBaseVoltageEmpty()) {
+            // Here we do not have previous information about base voltages
+            // (The mapping is filled when the Network has been imported from CGMES)
+            // Now that we want to export, we may find some base voltages are defined in the reference data
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 double nominalV = vl.getNominalV();
-                String baseVoltageId = CgmesExportUtil.getUniqueId();
-                mapping.addBaseVoltage(nominalV, baseVoltageId, Source.IGM);
+                // Only create a new unique id if no reference data exists
+                String baseVoltageId = null;
+                Source source = null;
+                if (referenceDataProvider != null) {
+                    baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
+                    if (baseVoltageId != null) {
+                        source = Source.BOUNDARY;
+                    }
+                }
+                if (baseVoltageId == null) {
+                    baseVoltageId = CgmesExportUtil.getUniqueId();
+                    source = Source.IGM;
+                }
+                mapping.addBaseVoltage(nominalV, baseVoltageId, source);
             }
         }
         Map<Double, BaseVoltageMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
@@ -316,7 +372,7 @@ public class CgmesExportContext {
         for (Connectable<?> c : network.getConnectables()) {
             if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c);
+                    addIidmMappingsTerminal(t, c, network);
                 }
             }
         }
@@ -339,6 +395,12 @@ public class CgmesExportContext {
         boolean ignored = c.isFictitious() &&
                 (c instanceof Load
                         || c instanceof Switch && "true".equals(c.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL)));
+        if (c instanceof Switch ss) {
+            VoltageLevel.BusBreakerView view = ss.getVoltageLevel().getBusBreakerView();
+            if (ss.isRetained() && view.getBus1(ss.getId()).equals(view.getBus2(ss.getId()))) {
+                ignored = true;
+            }
+        }
         return !ignored;
     }
 
@@ -402,38 +464,27 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
+    private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c, Network network) {
         if (c instanceof DanglingLine) {
-            DanglingLine dl = (DanglingLine) c;
-            if (dl.isPaired()) {
-                TieLine tl = dl.getTieLine().orElseThrow(IllegalStateException::new);
-                int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
-                String terminalId = tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
-                if (terminalId == null && tl.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber)) { // TODO fix when merging is handled properly
-                    terminalId = tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber);
-                    if (tl.getAliases().contains(terminalId)) {
-                        tl.removeAlias(terminalId);
-                    }
-                    if (dl.getAliases().contains(terminalId)) {
-                        dl.setProperty(dl.getAliasType(terminalId).orElse(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL), terminalId);
-                        dl.removeAlias(terminalId);
-                    }
-                    tl.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
-                }
-            } else {
-                String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
-                if (terminalId == null) {
+            String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
+            if (terminalId == null) {
+                // Legacy: in previous versions, dangling line terminals were recorded in a different alias
+                // read it, remove it and store in the standard alias for equipment terminal (Terminal1)
+                terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
+                if (terminalId != null) {
+                    c.removeAlias(terminalId);
+                } else {
                     terminalId = CgmesExportUtil.getUniqueId();
-                    c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL);
                 }
-                String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
-                if (boundaryId == null) {
-                    boundaryId = CgmesExportUtil.getUniqueId();
-                    c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
-                }
+                c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
+            }
+            String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
+            if (boundaryId == null) {
+                boundaryId = CgmesExportUtil.getUniqueId();
+                c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network));
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 c.addAlias(CgmesExportUtil.getUniqueId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
@@ -469,6 +520,9 @@ public class CgmesExportContext {
 
     private static void addIidmMappingsShuntCompensators(Network network) {
         for (ShuntCompensator shuntCompensator : network.getShuntCompensators()) {
+            if ("true".equals(shuntCompensator.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
+                continue;
+            }
             String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
             if (regulatingControlId == null) {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
@@ -542,8 +596,8 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+    private void addIidmMappingsEquivalentInjection(Network network) {
+        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             if (alias == null) {
@@ -570,7 +624,7 @@ public class CgmesExportContext {
                     .setEnergyIdentificationCodeEic("Network--1")
                     .add();
             CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
-            for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+            for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
                 cgmesControlArea.add(danglingLine.getTerminal());
             }
         }
@@ -640,6 +694,15 @@ public class CgmesExportContext {
 
     public CgmesExportContext setExportFlowsForSwitches(boolean exportFlowsForSwitches) {
         this.exportFlowsForSwitches = exportFlowsForSwitches;
+        return this;
+    }
+
+    public boolean exportTransformersWithHighestVoltageAtEnd1() {
+        return exportTransformersWithHighestVoltageAtEnd1;
+    }
+
+    public CgmesExportContext setExportTransformersWithHighestVoltageAtEnd1(boolean exportTransformersWithHighestVoltageAtEnd1) {
+        this.exportTransformersWithHighestVoltageAtEnd1 = exportTransformersWithHighestVoltageAtEnd1;
         return this;
     }
 
