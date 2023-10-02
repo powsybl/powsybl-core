@@ -370,7 +370,7 @@ public final class TopologyModificationUtils {
     /**
      * Creates disconnectors (one closed on the specified busbarsection, the others open) between the fork node and every busbar section of the list in a voltage level
      */
-    static void createDisconnectorTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, boolean specifySide, int side) {
+    static void createDisconnectorTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, int side) {
         // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();

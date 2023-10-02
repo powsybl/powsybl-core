@@ -145,7 +145,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             }
 
             // Disconnectors on side 1
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, namingStrategy, switchPrefixId, bbsList1, bbs1, checkAndFilterOtherBbs, 1);
+            createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, namingStrategy, switchPrefixId, bbsList1, bbs1, checkAndFilterOtherBbs ? 1 : 0);
             nbOpenDisconnectors += bbsList1.size() - 1;
         } else {
             createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, namingStrategy, switchPrefixId, bbs1);
@@ -164,7 +164,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             }
 
             // Disconnectors on side 2
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, namingStrategy, switchPrefixId, bbsList2, bbs2, checkAndFilterOtherBbs, 2);
+            createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, namingStrategy, switchPrefixId, bbsList2, bbs2, checkAndFilterOtherBbs ? 2 : 0);
             nbOpenDisconnectors += bbsList2.size() - 1;
         } else {
             createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, namingStrategy, switchPrefixId, bbs2);
