@@ -57,6 +57,7 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), EXPONENTIAL_MODEL);
                 context.getWriter().writeDoubleAttribute("np", expModel.getNp());
                 context.getWriter().writeDoubleAttribute("nq", expModel.getNq());
+                context.getWriter().writeEndNode();
                 break;
             case ZIP:
                 ZipLoadModel zipModel = (ZipLoadModel) model;
@@ -67,6 +68,7 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
                 context.getWriter().writeDoubleAttribute("c0q", zipModel.getC0q());
                 context.getWriter().writeDoubleAttribute("c1q", zipModel.getC1q());
                 context.getWriter().writeDoubleAttribute("c2q", zipModel.getC2q());
+                context.getWriter().writeEndNode();
                 break;
             default:
                 throw new PowsyblException("Unexpected load model type: " + model.getType());
