@@ -217,19 +217,6 @@ public final class TopologyModificationUtils {
         });
     }
 
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String prefix, VoltageLevel.NodeBreakerView view) {
-        createNodeBreakerSwitches(node1, middleNode, node2, "", prefix, view);
-    }
-
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view) {
-        createNodeBreakerSwitches(node1, middleNode, node2, suffix, prefix, view, false);
-    }
-
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
-        createNBBreaker(node1, middleNode, suffix, prefix, view, open);
-        createNBDisconnector(middleNode, node2, suffix, prefix, view, open);
-    }
-
     static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
                 .setId(prefix + "_BREAKER" + suffix)
@@ -340,12 +327,55 @@ public final class TopologyModificationUtils {
     }
 
     /**
+     * Creates a breaker  and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
+     */
+    static void createNodeBreakerSwitchesTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int connectableNode, int forkNode, String prefix, BusbarSection bbs) {
+        // Create the fictional list with only the current busbar section
+        List<BusbarSection> bbsList = new ArrayList<>();
+        bbsList.add(bbs);
+
+        // Call the usual method for the breaker and disconnector creation
+        createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, prefix, "", bbsList, bbs);
+    }
+
+    /**
+     * Creates a breaker  and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
+     */
+    static void createNodeBreakerSwitchesTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int connectableNode, int forkNode, String prefix, List<BusbarSection> bbsList, BusbarSection bbs) {
+// Call the usual method for the breaker and disconnector creation
+        createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, prefix, "", bbsList, bbs);
+    }
+
+    /**
+     * Creates a breaker  and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
+     */
+    static void createNodeBreakerSwitchesTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int connectableNode, int forkNode, String prefix, String suffix, List<BusbarSection> bbsList, BusbarSection bbs) {
+        // Closed breaker
+        createNBBreaker(connectableNode, forkNode, suffix, prefix, voltageLevel.getNodeBreakerView(), false);
+
+        // Disconnectors - only the one on the chosen busbarsection is closed
+        createDisconnectorTopologyFromBusbarSectionList(voltageLevel, forkNode, prefix, bbsList, bbs);
+    }
+
+    /**
+     * Creates disconnectors (one closed on the specified busbarsection, the others open) between the fork node and every busbar section of the list in a voltage level
+     */
+    static void createDisconnectorTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, BusbarSection bbs) {
+        // Create the fictional list with only the current busbar section
+        List<BusbarSection> bbsList = new ArrayList<>();
+        bbsList.add(bbs);
+
+        // Call the usual method for the disconnector creation
+        createDisconnectorTopologyFromBusbarSectionList(voltageLevel, forkNode, baseId, bbsList, bbs);
+    }
+
+    /**
      * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
      */
-    static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
+    static void createDisconnectorTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), true);
+            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), b != bbs);
         });
     }
 

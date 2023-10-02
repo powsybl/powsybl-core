@@ -12,12 +12,16 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFictitiousSubstationId;
 
 /**
@@ -203,11 +207,26 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
                     .setBus2(bus.getId())
                     .add();
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
-            BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
-            int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
+            // New node
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             lineAdder.setNode2(firstAvailableNode);
-            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, originalLineId, voltageLevel.getNodeBreakerView());
+
+            // Busbar section properties
+            BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
+            BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+
+            // Topology creation
+            if (position == null) {
+                // Only one bar exists so only one disconnector is needed
+                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, originalLineId, bbs);
+                LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
+                noBusbarSectionPositionExtensionReport(reporter, bbs);
+            } else {
+                List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+                    .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
+                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
+                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, originalLineId, bbsList, bbs);
+            }
         } else {
             throw new IllegalStateException();
         }
