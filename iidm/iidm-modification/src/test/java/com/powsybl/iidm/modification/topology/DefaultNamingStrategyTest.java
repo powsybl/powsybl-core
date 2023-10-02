@@ -22,17 +22,6 @@ class DefaultNamingStrategyTest {
     @Test
     void testDisconnector() {
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
-
-//        // Prefix
-//        assertEquals("test", namingStrategy.getDisconnectorIdPrefix("test"));
-//
-//        // Suffix
-//        assertEquals("5", namingStrategy.getDisconnectorIdSuffix(5));
-//        assertEquals("5_6", namingStrategy.getDisconnectorIdSuffix(5, 6));
-//
-//        // Full Id
-//        assertEquals("test_DISCONNECTOR", namingStrategy.getDisconnectorId("test"));
-//        assertEquals("test_DISCONNECTOR_5", namingStrategy.getDisconnectorId("test", 5));
         assertEquals("test_DISCONNECTOR_5_6", namingStrategy.getDisconnectorId("test", 5, 6));
     }
 
@@ -41,20 +30,13 @@ class DefaultNamingStrategyTest {
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         Network network = createNbNetwork();
 
-        assertEquals("test_DISCONNECTOR_5_6", namingStrategy.getDisconnectorId(network.getBusbarSection("D"), "test", 5, 6, false, 0));
+        assertEquals("test_DISCONNECTOR_5_6", namingStrategy.getDisconnectorId(network.getBusbarSection("D"), "test", 5, 6, 0));
     }
 
     @Test
     void testBreaker() {
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
-        // Prefix
-//        assertEquals("test", namingStrategy.getBreakerIdPrefix("test"));
-//
-//        // Suffix
-//        assertEquals("5", namingStrategy.getBreakerIdSuffix(5));
-//        assertEquals("5_6", namingStrategy.getBreakerIdSuffix(5, 6));
-//
 //        // Full Id
         assertEquals("test_BREAKER", namingStrategy.getBreakerId("test"));
 //        assertEquals("test_BREAKER_5", namingStrategy.getBreakerId("test", 5));
@@ -64,13 +46,6 @@ class DefaultNamingStrategyTest {
     @Test
     void testSwitch() {
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
-
-//        // Prefix
-//        assertEquals("test", namingStrategy.getSwitchIdPrefix("test"));
-//
-//        // Suffix
-//        assertEquals("5", namingStrategy.getSwitchIdSuffix(5));
-//        assertEquals("5_6", namingStrategy.getSwitchIdSuffix(5, 6));
 
         // Full Id
         assertEquals("test_SW", namingStrategy.getSwitchId("test"));
@@ -82,16 +57,6 @@ class DefaultNamingStrategyTest {
     void testBusBar() {
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
-        // Prefix
-//        assertEquals("test", namingStrategy.getBusbarIdPrefix("test"));
-//
-//        // Suffix
-//        assertEquals("5", namingStrategy.getBusbarIdSuffix(5));
-//        assertEquals("5_6", namingStrategy.getBusbarIdSuffix(5, 6));
-//
-//        // Full Id
-//        assertEquals("test", namingStrategy.getBusbarId("test"));
-//        assertEquals("test_5", namingStrategy.getBusbarId("test", 5));
         assertEquals("test_5_6", namingStrategy.getBusbarId("test", 5, 6));
     }
 

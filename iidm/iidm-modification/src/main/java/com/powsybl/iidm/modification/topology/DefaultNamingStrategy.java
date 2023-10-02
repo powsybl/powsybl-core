@@ -47,7 +47,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num, boolean specifySide, int side) {
+    public String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num, int side) {
         return getDisconnectorId(prefixId, id1Num, id2Num);
     }
 

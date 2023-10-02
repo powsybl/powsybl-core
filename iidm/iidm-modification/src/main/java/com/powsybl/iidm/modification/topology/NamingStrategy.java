@@ -31,7 +31,7 @@ public interface NamingStrategy {
 
     String getDisconnectorId(String prefixId, int id1Num, int id2Num);
 
-    String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num, boolean specifySide, int side);
+    String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num, int side);
 
     String getDisconnectorBetweenChunksId(BusbarSection bbs1, String prefixId, int id1Num, int id2Num);
 

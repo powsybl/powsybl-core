@@ -363,7 +363,7 @@ public final class TopologyModificationUtils {
         // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(b, baseId, forkNode, bbsNode, false, 0), voltageLevel.getNodeBreakerView(), b != bbs);
+            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(b, baseId, forkNode, bbsNode, 0), voltageLevel.getNodeBreakerView(), b != bbs);
         });
     }
 
@@ -374,7 +374,7 @@ public final class TopologyModificationUtils {
         // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(b, baseId, forkNode, bbsNode, specifySide, side), voltageLevel.getNodeBreakerView(), b != bbs);
+            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(b, baseId, forkNode, bbsNode, side), voltageLevel.getNodeBreakerView(), b != bbs);
         });
     }
 
