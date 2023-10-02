@@ -28,6 +28,7 @@ public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
         Double minimumVoltage = Double.NaN;
         Double maximumVoltage = Double.NaN;
         Double coefficient = Double.NaN;
+        Double voltage = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -43,10 +44,14 @@ public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
                     parser.nextToken();
                     coefficient = parser.readValueAs(Double.class);
                 }
+                case "voltage" -> {
+                    parser.nextToken();
+                    voltage = parser.readValueAs(Double.class);
+                }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
-        return new VoltageRange(minimumVoltage, maximumVoltage, coefficient);
+        return new VoltageRange(minimumVoltage, maximumVoltage, coefficient, voltage);
     }
 }

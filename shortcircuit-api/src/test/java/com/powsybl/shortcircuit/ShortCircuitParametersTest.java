@@ -426,4 +426,16 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> new VoltageRange(100, 150, 0.9, 200));
         assertEquals("Declared voltage should be in voltageRange [100.0..150.0] but it is 200.0", e.getMessage());
     }
+
+    @Test
+    void roundTripWithVoltageInVoltageRange() throws IOException {
+        List<VoltageRange> voltageRanges = new ArrayList<>();
+        voltageRanges.add(new VoltageRange(0, 100, 0.95, 100));
+        voltageRanges.add(new VoltageRange(101, 150, 1.1, 140));
+        ShortCircuitParameters parameters = new ShortCircuitParameters()
+                .setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED)
+                .setVoltageRanges(voltageRanges);
+        roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
+                "/ShortCircuitParametersWithRangeVoltage.json");
+    }
 }
