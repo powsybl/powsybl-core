@@ -230,18 +230,32 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         return line;
     }
 
+    private boolean errorWhenBusNull(Reporter reporter, VoltageLevel voltageLevel, boolean throwException) {
+        notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, voltageLevel.getId());
+        LOGGER.error("Bus {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
+        if (throwException) {
+            throw new PowsyblException(String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        } else {
+            return false;
+        }
+    }
+
+    private boolean errorWhenBusbarSectionNull(Reporter reporter, VoltageLevel voltageLevel, boolean throwException) {
+        notFoundBusbarSectionInVoltageLevelReport(reporter, bbsOrBusId, voltageLevel.getId());
+        LOGGER.error("Busbar section {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
+        if (throwException) {
+            throw new PowsyblException(String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        } else {
+            return false;
+        }
+    }
+
     private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, Reporter reporter, boolean throwException) {
         TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = tappedVoltageLevel.getBusBreakerView().getBus(bbsOrBusId);
             if (bus == null) {
-                notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, tappedVoltageLevel.getId());
-                LOGGER.error("Bus {} is not found in voltage level {}", bbsOrBusId, tappedVoltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException(String.format("Bus %s is not found in voltage level %s", bbsOrBusId, tappedVoltageLevel.getId()));
-                } else {
-                    return false;
-                }
+                return errorWhenBusNull(reporter, tappedVoltageLevel, throwException);
             }
             Bus bus1 = tappedVoltageLevel.getBusBreakerView()
                 .newBus()
@@ -260,13 +274,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = tappedVoltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId);
             if (bbs == null) {
-                notFoundBusbarSectionInVoltageLevelReport(reporter, bbsOrBusId, tappedVoltageLevel.getId());
-                LOGGER.error("Busbar section {} is not found in voltage level {}", bbsOrBusId, tappedVoltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException(String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, tappedVoltageLevel.getId()));
-                } else {
-                    return false;
-                }
+                return errorWhenBusbarSectionNull(reporter, tappedVoltageLevel, throwException);
             }
 
             // New nodes
