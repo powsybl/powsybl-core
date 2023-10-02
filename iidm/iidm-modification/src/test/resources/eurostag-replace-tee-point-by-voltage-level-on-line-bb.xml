@@ -7,8 +7,8 @@
             <iidm:bus id="NEW LINE1_BUS_1"/>
             <iidm:bus id="NEW LINE2_BUS_2"/>
             <iidm:switch id="NHV1_NHV2_1_SW" kind="BREAKER" retained="true" open="false" bus1="NHV1_NHV2_1_BUS" bus2="bus"/>
-            <iidm:switch id="bus_SW_1" kind="BREAKER" retained="true" open="false" bus1="NEW LINE1_BUS_1" bus2="bus"/>
-            <iidm:switch id="bus_SW_2" kind="BREAKER" retained="true" open="false" bus1="bus" bus2="NEW LINE2_BUS_2"/>
+            <iidm:switch id="NEW LINE1_SW_1" kind="BREAKER" retained="true" open="false" bus1="NEW LINE1_BUS_1" bus2="bus"/>
+            <iidm:switch id="NEW LINE2_SW_2" kind="BREAKER" retained="true" open="false" bus1="bus" bus2="NEW LINE2_BUS_2"/>
         </iidm:busBreakerTopology>
     </iidm:voltageLevel>
     <iidm:voltageLevel id="VL3" nominalV="380.0" topologyKind="BUS_BREAKER">

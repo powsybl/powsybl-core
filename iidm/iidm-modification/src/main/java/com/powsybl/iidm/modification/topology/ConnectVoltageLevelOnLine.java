@@ -74,13 +74,14 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(namingStrategy.getBusId(line.getId(), 1))
+                    .setId(namingStrategy.getBusId(line1Id))
                     .add();
             Bus bus2 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(namingStrategy.getBusId(line.getId(), 2))
+                    .setId(namingStrategy.getBusId(line2Id))
                     .add();
-            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), line.getId(), voltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(line1Id, 1), voltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(line2Id, 2), voltageLevel.getBusBreakerView());
             adder1.setBus2(bus1.getId());
             adder2.setBus1(bus2.getId());
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {

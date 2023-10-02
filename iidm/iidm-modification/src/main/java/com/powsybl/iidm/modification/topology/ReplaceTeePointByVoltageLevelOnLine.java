@@ -251,7 +251,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
                 .newBus()
                 .setId(namingStrategy.getBusId(newLine2Id, 2))
                 .add();
-            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, tappedVoltageLevel.getBusBreakerView(), namingStrategy);
+            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(newLine1Id, 1), tappedVoltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(newLine2Id, 2), tappedVoltageLevel.getBusBreakerView());
             newLine1Adder.setBus2(bus1.getId());
             newLine1Adder.setConnectableBus2(bus1.getId());
             newLine2Adder.setBus1(bus2.getId());

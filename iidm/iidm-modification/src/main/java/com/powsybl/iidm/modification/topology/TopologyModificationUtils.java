@@ -240,15 +240,6 @@ public final class TopologyModificationUtils {
                 .add();
     }
 
-    static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String prefix, VoltageLevel.BusBreakerView view) {
-        createBusBreakerSwitches(busId1, middleBusId, busId2, prefix, view, new DefaultNamingStrategy());
-    }
-
-    static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String prefix, VoltageLevel.BusBreakerView view, NamingStrategy namingStrategy) {
-        createBusBreakerSwitch(busId1, middleBusId, namingStrategy.getSwitchId(prefix, 1), view);
-        createBusBreakerSwitch(middleBusId, busId2, namingStrategy.getSwitchId(prefix, 2), view);
-    }
-
     static void createBusBreakerSwitch(String busId1, String busId2, String id, VoltageLevel.BusBreakerView view) {
         view.newSwitch()
                 .setId(id)
