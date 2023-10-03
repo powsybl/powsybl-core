@@ -289,7 +289,6 @@ public class CgmesExportContext {
         addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
         addIidmMappingsControlArea(network);
-        addTapChangerExtensions(network);
     }
 
     private void addIidmMappingsSubstations(Network network) {
@@ -628,71 +627,6 @@ public class CgmesExportContext {
             for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
                 cgmesControlArea.add(danglingLine.getTerminal());
             }
-        }
-    }
-
-    // tap changer is exported as it is modelled in IIDM, always at end 1
-    private static void addTapChangerExtensions(Network network) {
-        network.getTwoWindingsTransformers().forEach(twt -> {
-            twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER), regulatingControlIsDefined(rtc)));
-            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER), regulatingControlIsDefined(ptc)));
-        });
-        network.getThreeWindingsTransformers().forEach(twt -> {
-            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 1), regulatingControlIsDefined(rtc)));
-            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 1), regulatingControlIsDefined(ptc)));
-
-            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 2), regulatingControlIsDefined(rtc)));
-            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 2), regulatingControlIsDefined(ptc)));
-
-            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 3), regulatingControlIsDefined(rtc)));
-            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 3), regulatingControlIsDefined(ptc)));
-        });
-    }
-
-    // If we had alias only for tc1, it will be at end 1
-    // If we had alias for tc1 and tc2, tc2 has been moved to end 1 and combined with tc1, tc1 id will be used
-    // If we only had tc at end 2, it has been moved to end 1 but the id is recorded at end2, tc2 id will be used
-    private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag) {
-        String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + 1;
-        Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType1);
-        if (optionalTapChangerId.isPresent()) {
-            return optionalTapChangerId.get();
-        } else {
-            String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + 2;
-            return twt.getAliasFromType(aliasType2).orElseThrow();
-        }
-    }
-
-    private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag, int endNumber) {
-        String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + endNumber;
-        return twt.getAliasFromType(aliasType).orElseThrow();
-    }
-
-    private static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
-        return !Double.isNaN(rtc.getTargetV()) && rtc.getTargetV() > 0.0;
-    }
-
-    private static boolean regulatingControlIsDefined(PhaseTapChanger ptc) {
-        return ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP;
-    }
-
-    private static <C extends Connectable<C>> void addTapChangerExtension(C twt, String tapChangerId, boolean regulatingControlIsDefined) {
-        if (!regulatingControlIsDefined) {
-            return;
-        }
-        CgmesTapChangers<C> cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
-        if (cgmesTapChangers == null) {
-            cgmesTapChangers = (CgmesTapChangers<C>) twt.newExtension(CgmesTapChangersAdder.class).add();
-        }
-        CgmesTapChanger cgmesTapChanger = cgmesTapChangers.getTapChanger(tapChangerId);
-        if (cgmesTapChanger == null) {
-            cgmesTapChanger = cgmesTapChangers.newTapChanger()
-                    .setId(tapChangerId)
-                    .setControlId(CgmesExportUtil.getUniqueId())
-                    .add();
-        }
-        if (cgmesTapChanger.getControlId() == null) {
-            cgmesTapChanger.setControlId(CgmesExportUtil.getUniqueId());
         }
     }
 
