@@ -483,7 +483,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         boolean keepGoing = true;
 
         LinkedList<Integer> vertexToTraverse = new LinkedList<>();
-        vertexToTraverse.offer(v);
+        vertexToTraverse.add(v);
         while (!vertexToTraverse.isEmpty()) {
             int firstV = vertexToTraverse.poll();
             if (encountered[firstV]) {
@@ -503,14 +503,14 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 if (!encountered[v1]) {
                     TraverseResult traverserResult = traverser.traverse(v2, e, v1);
                     if (traverserResult == TraverseResult.CONTINUE) {
-                        vertexToTraverse.offer(v1);
+                        vertexToTraverse.add(v1);
                     } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                         keepGoing = false;
                     }
                 } else if (!encountered[v2]) {
                     TraverseResult traverserResult = traverser.traverse(v1, e, v2);
                     if (traverserResult == TraverseResult.CONTINUE) {
-                        vertexToTraverse.offer(v2);
+                        vertexToTraverse.add(v2);
                     } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                         keepGoing = false;
                     }
