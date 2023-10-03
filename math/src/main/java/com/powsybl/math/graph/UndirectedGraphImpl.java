@@ -482,7 +482,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     private boolean traverseBreadthFirst(Traverser traverser, TIntArrayList[] adjacencyList, boolean[] encountered, int v) {
         boolean keepGoing = true;
 
-        LinkedList<Integer> vertexToTraverse = new LinkedList<>();
+        Deque<Integer> vertexToTraverse = new ArrayDeque<>();
         vertexToTraverse.add(v);
         while (!vertexToTraverse.isEmpty()) {
             int firstV = vertexToTraverse.poll();
