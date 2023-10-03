@@ -229,7 +229,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         // Topology creation
         int parallelBbsNumber = 0;
         if (position == null) {
-            // Only one bar exists so only one disconnector is needed
+            // No position extension is present so only one disconnector is needed
             createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, baseId, bbs);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs);

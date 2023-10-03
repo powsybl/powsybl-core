@@ -132,40 +132,22 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         BusbarSectionPosition position2 = bbs2.getExtension(BusbarSectionPosition.class);
         boolean checkAndFilterOtherBbs = position1 != null && position2 != null && position1.getSectionIndex() == position2.getSectionIndex();
         if (position1 != null) {
-            // List of the bars for the first section
-            List<BusbarSection> bbsList1 = voltageLevel1.getNodeBreakerView().getBusbarSectionStream()
-                .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position1.getSectionIndex()).collect(Collectors.toList());
+            // List of the bars for the first section and creation of the topology
+            List<BusbarSection> bbsList1 = computeBbsListAndCreateTopology(voltageLevel1, position1, bbs1, checkAndFilterOtherBbs, breakerNode1, busOrBbsId2);
 
-            // If the two busbarsections are in the same section, filter the second one if there are two busbarsections in the list
-            if (checkAndFilterOtherBbs && bbsList1.size() == 2) {
-                bbsList1 = bbsList1.stream().filter(b -> !b.getId().equals(busOrBbsId2)).collect(Collectors.toList());
-            }
-
-            // Disconnectors on side 1
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, switchPrefixId, bbsList1, bbs1);
             nbOpenDisconnectors += bbsList1.size() - 1;
         } else {
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, switchPrefixId, bbs1);
+            createDisconnectorTopologyFromBusbarSectionAlone(voltageLevel1, breakerNode1, switchPrefixId, bbs1);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs1.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs1);
         }
         if (position2 != null) {
-            // List of the bars for the second section
-            List<BusbarSection> bbsList2 = voltageLevel2.getNodeBreakerView().getBusbarSectionStream()
-                .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position2.getSectionIndex()).collect(Collectors.toList());
+            // List of the bars for the second section and creation of the topology
+            List<BusbarSection> bbsList2 = computeBbsListAndCreateTopology(voltageLevel2, position2, bbs2, checkAndFilterOtherBbs, breakerNode2, busOrBbsId1);
 
-            // If the two busbarsections are in the same section, filter the second one if there are two busbarsections in the list
-            if (checkAndFilterOtherBbs && bbsList2.size() == 2) {
-                bbsList2 = bbsList2.stream().filter(b -> !b.getId().equals(busOrBbsId1)).collect(Collectors.toList());
-            }
-
-            // Disconnectors on side 2
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, switchPrefixId, bbsList2, bbs2);
             nbOpenDisconnectors += bbsList2.size() - 1;
         } else {
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, switchPrefixId, bbs2);
+            createDisconnectorTopologyFromBusbarSectionAlone(voltageLevel2, breakerNode2, switchPrefixId, bbs2);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs2.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs2);
         }
@@ -174,6 +156,23 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             LOGGER.info("{} open disconnectors created on parallel busbar section in voltage level {}", nbOpenDisconnectors, voltageLevel1.getId());
             openDisconnectorsAddedReport(reporter, voltageLevel1.getId(), nbOpenDisconnectors);
         }
+    }
+
+    private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSectionPosition position, BusbarSection bbs, boolean checkAndFilterOtherBbs, int breakerNode, String otherBbsId) {
+
+        // List of the bars for the second section
+        List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+            .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
+            .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
+
+        // If the two busbarsections are in the same section, filter the second one if there are two busbarsections in the list
+        if (checkAndFilterOtherBbs && bbsList.size() == 2) {
+            bbsList = bbsList.stream().filter(b -> !b.getId().equals(otherBbsId)).collect(Collectors.toList());
+        }
+
+        // Disconnectors on side 2
+        createDisconnectorTopologyFromBusbarSectionList(voltageLevel, breakerNode, switchPrefixId, bbsList, bbs);
+        return bbsList;
     }
 
     private boolean failBbs(Identifiable<?> bbs1, Identifiable<?> bbs2, Reporter reporter, boolean throwException) {

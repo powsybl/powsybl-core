@@ -217,7 +217,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
             // Topology creation
             if (position == null) {
-                // Only one bar exists so only one disconnector is needed
+                // No position extension is present so only one disconnector is needed
                 createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, originalLineId, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);

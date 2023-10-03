@@ -342,7 +342,7 @@ public final class TopologyModificationUtils {
      * Creates a breaker  and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
      */
     static void createNodeBreakerSwitchesTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int connectableNode, int forkNode, String prefix, List<BusbarSection> bbsList, BusbarSection bbs) {
-// Call the usual method for the breaker and disconnector creation
+        // Call the usual method for the breaker and disconnector creation
         createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, prefix, "", bbsList, bbs);
     }
 
@@ -360,10 +360,9 @@ public final class TopologyModificationUtils {
     /**
      * Creates disconnectors (one closed on the specified busbarsection, the others open) between the fork node and every busbar section of the list in a voltage level
      */
-    static void createDisconnectorTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, BusbarSection bbs) {
+    static void createDisconnectorTopologyFromBusbarSectionAlone(VoltageLevel voltageLevel, int forkNode, String baseId, BusbarSection bbs) {
         // Create the fictional list with only the current busbar section
-        List<BusbarSection> bbsList = new ArrayList<>();
-        bbsList.add(bbs);
+        List<BusbarSection> bbsList = Collections.singletonList(bbs);
 
         // Call the usual method for the disconnector creation
         createDisconnectorTopologyFromBusbarSectionList(voltageLevel, forkNode, baseId, bbsList, bbs);

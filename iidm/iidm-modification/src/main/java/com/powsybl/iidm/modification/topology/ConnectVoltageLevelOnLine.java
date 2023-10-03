@@ -95,7 +95,7 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
 
             // Topology creation
             if (position == null) {
-                // Only one bar exists so only one disconnector is needed
+                // No position extension is present so the line is connected only on the required busbar section
                 createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, line1Id, bbs);
                 createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, line2Id, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());

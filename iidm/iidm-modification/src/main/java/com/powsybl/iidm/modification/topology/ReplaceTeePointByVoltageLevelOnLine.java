@@ -271,7 +271,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
             // Topology creation
             if (position == null) {
-                // Only one bar exists so only one disconnector is needed
+                // No position extension is present so only one disconnector is needed
                 createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbs);
                 createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbs);
                 LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
