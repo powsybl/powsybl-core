@@ -49,4 +49,9 @@ class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
             consumer.accept(new DummyDynamicModel(dynamicModelSpec.id, dynamicModelSpec.parameterSetId))
         }
     }
+
+    @Override
+    List<String> getModelNames() {
+        List.of(DummyDynamicModel.class.simpleName)
+    }
 }

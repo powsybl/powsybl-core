@@ -7,11 +7,32 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+
 /*
  @author Bertrand Rix <bertrand.rix at artelys.com>
  */
 public enum ThreeSides {
-    ONE,
-    TWO,
-    THREE
+    ONE(1),
+    TWO(2),
+    THREE(3);
+
+    private final int num;
+
+    ThreeSides(int num) {
+        this.num = num;
+    }
+
+    public int getNum() {
+        return num;
+    }
+
+    public static ThreeSides valueOf(int num) {
+        return switch (num) {
+            case 1 -> ONE;
+            case 2 -> TWO;
+            case 3 -> THREE;
+            default -> throw new PowsyblException("Cannot convert integer value " + num + " to ThreeSides.");
+        };
+    }
 }
