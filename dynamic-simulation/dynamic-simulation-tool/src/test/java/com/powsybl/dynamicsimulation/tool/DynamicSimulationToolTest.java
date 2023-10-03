@@ -6,20 +6,15 @@
  */
 package com.powsybl.dynamicsimulation.tool;
 
-import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.dynamicsimulation.*;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.test.AbstractToolTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,25 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 class DynamicSimulationToolTest extends AbstractToolTest {
-
-    @AutoService(DynamicSimulationProvider.class)
-    public static class DynamicSimulationProviderMock implements DynamicSimulationProvider {
-
-        @Override
-        public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters) {
-            return CompletableFuture.completedFuture(new DynamicSimulationResultImpl(true, null, Collections.emptyMap(), DynamicSimulationResult.emptyTimeLine()));
-        }
-
-        @Override
-        public String getName() {
-            return "Mock";
-        }
-
-        @Override
-        public String getVersion() {
-            return null;
-        }
-    }
 
     private final DynamicSimulationTool tool = new DynamicSimulationTool();
 
