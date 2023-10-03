@@ -80,6 +80,13 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         }
     }
 
+    /**
+     * Returns the value of scaling asked, bounded by the minValue and maxValue.
+     * @param variationAsked unbounded value of scaling asked on the scalable
+     * @param currentGlobalPower current global power in the network
+     * @param scalingConvention This is required because the minValue and maxValue are in GENERATOR convention, so we need to know wwhat convention we use for the scaling.
+     * @return the value of scaling asked bounded by the minValue and maxValue, according to the scalingConvention.
+     */
     protected double getBoundedVariation(double variationAsked, double currentGlobalPower, ScalingConvention scalingConvention) {
         double minWithConvention = scalingConvention == ScalingConvention.GENERATOR ? minValue : -maxValue;
         double maxWithConvention = scalingConvention == ScalingConvention.GENERATOR ? maxValue : -minValue;

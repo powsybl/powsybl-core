@@ -278,8 +278,9 @@ public interface Scalable {
 
     /**
      * Returns the value that has to be added to the network, depending on the type of variation chosen in the parameters
-     * @param scalingParameters Scaling parameters including a variation type (DELTA_P or TARGET_P) and a variation value
-     * @param currentGlobalPower current global power
+     * @param scalingParameters Scaling parameters including a variation type (DELTA_P or TARGET_P)
+     * @param askedValue value of scaling asked on the scalable
+     * @param currentGlobalPower current global power in the network
      * @return the variation value if the type is DELTA_P, else the difference between the variation value and the current global value sum
      */
     static double getVariationAsked(ScalingParameters scalingParameters, double askedValue, double currentGlobalPower) {
@@ -291,6 +292,8 @@ public interface Scalable {
     /**
      * Returns the current power value for the injections corresponding to this Scalable
      * @param network Network in which the injections are defined
+     * @param asked value of scaling asked on the scalable. This is used to know in which direction we want to scale for UpDownScalables.
+     * @param scalingConvention The value is computed either with Generator or Load convention according to this parameter.
      * @return the current power value
      */
     double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention);
