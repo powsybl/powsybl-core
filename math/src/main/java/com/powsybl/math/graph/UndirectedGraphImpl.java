@@ -459,7 +459,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 TraverseResult traverserResult = traverser.traverse(v2, e, v1);
                 if (traverserResult == TraverseResult.CONTINUE) {
                     encountered[v1] = true;
-                    keepGoing = traverse(v1, TraversalType.DEPTH_FIRST, traverser, encountered);
+                    keepGoing = traverseDepthFirst(traverser, adjacencyList, encountered, v1);
                 } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
                 }
@@ -467,7 +467,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 TraverseResult traverserResult = traverser.traverse(v1, e, v2);
                 if (traverserResult == TraverseResult.CONTINUE) {
                     encountered[v2] = true;
-                    keepGoing = traverse(v2, TraversalType.DEPTH_FIRST, traverser, encountered);
+                    keepGoing = traverseDepthFirst(traverser, adjacencyList, encountered, v2);
                 } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
                 }
