@@ -359,7 +359,8 @@ public final class CgmesExportUtil {
         }
         CgmesTapChangers<C> cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
         if (cgmesTapChangers == null) {
-            cgmesTapChangers = (CgmesTapChangers<C>) twt.newExtension(CgmesTapChangersAdder.class).add();
+            twt.newExtension(CgmesTapChangersAdder.class).add();
+            cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
         }
         CgmesTapChanger cgmesTapChanger = cgmesTapChangers.getTapChanger(tapChangerId);
         if (cgmesTapChanger == null) {
