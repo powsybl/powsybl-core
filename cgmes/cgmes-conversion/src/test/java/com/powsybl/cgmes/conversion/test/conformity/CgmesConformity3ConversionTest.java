@@ -41,7 +41,7 @@ class CgmesConformity3ConversionTest {
         // Both networks have the same number of dangling lines
         assertEquals(nDlBE, nDlNL);
 
-        Network merge = Network.create(be, nl);
+        Network merge = Network.merge(be, nl);
         int nSub = merge.getSubstationCount();
         assertEquals(nSubBE + nSubNL, nSub);
         long nTl = merge.getTieLineCount();

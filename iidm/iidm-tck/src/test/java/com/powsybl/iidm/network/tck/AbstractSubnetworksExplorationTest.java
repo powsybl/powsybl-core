@@ -45,7 +45,7 @@ public abstract class AbstractSubnetworksExplorationTest {
         n1Identifiables = getIdentifiables(n1);
         n2Identifiables = getIdentifiables(n2);
 
-        merged = Network.create("merged", n1, n2);
+        merged = Network.merge("merged", n1, n2);
         subnetwork1 = merged.getSubnetwork(id("network", ID_1));
         subnetwork2 = merged.getSubnetwork(id("network", ID_2));
     }
