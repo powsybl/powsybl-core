@@ -480,8 +480,6 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private boolean traverseBreadthFirst(Traverser traverser, TIntArrayList[] adjacencyList, boolean[] encountered, int v) {
-        boolean[] encounteredEdges = new boolean[edges.size()];
-        Arrays.fill(encounteredEdges, false);
         boolean keepGoing = true;
 
         LinkedList<Integer> vertexToTraverse = new LinkedList<>();
@@ -497,10 +495,6 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
             for (int i = 0; i < adjacentEdges.size(); i++) {
                 int e = adjacentEdges.getQuick(i);
-                if (encounteredEdges[e]) {
-                    continue;
-                }
-                encounteredEdges[e] = true;
 
                 Edge<E> edge = edges.get(e);
                 int v1 = edge.getV1();
