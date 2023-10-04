@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.importedCgmesNetworkReport;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * TwoWindingsTransformer Interpretation
@@ -240,6 +241,7 @@ public class Conversion {
 
         // apply post-processors
         handleDangingLineDisconnectedAtBoundary(network, context);
+        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, context);
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
             // FIXME generic cgmes models may not have an underlying triplestore
             // TODO maybe pass the properties to the post processors
@@ -279,6 +281,43 @@ public class Conversion {
                 }
             }
         }
+    }
+
+    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(Network network, Context context) {
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                .collect(groupingBy(Conversion::getDanglingLineBoundaryNode))
+                .values().stream()
+                .filter(dls -> dls.size() > 1)
+                .forEach(dls -> adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(dls, context));
+    }
+
+    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(List<DanglingLine> dls, Context context) {
+        // All dangling lines will have same value for p0, q0. Take it from the first one
+        double p0 = dls.get(0).getP0();
+        double q0 = dls.get(0).getQ0();
+        // Divide this value between all connected dangling lines
+        long count = dls.stream().filter(dl -> dl.getTerminal().isConnected()).count();
+        final double p0Adjusted = p0 / count;
+        final double q0Adjusted = q0 / count;
+        dls.stream().filter(dl -> dl.getTerminal().isConnected()).forEach(dl -> {
+            LOG.warn("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for dangling line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
+            CgmesReports.multipleUnpairedDanglingLinesAtSameBoundaryReport(context.getReporter(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
+            dl.setP0(p0Adjusted);
+            dl.setQ0(q0Adjusted);
+        });
+    }
+
+    public static String getDanglingLineBoundaryNode(DanglingLine dl) {
+        String node;
+        node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+        if (node == null) {
+            node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        }
+        if (node == null) {
+            LOG.warn("Dangling line {} does not have a boundary node identifier.", dl.getId());
+            node = "unknown";
+        }
+        return node;
     }
 
     private Source isBoundaryBaseVoltage(String graph) {
