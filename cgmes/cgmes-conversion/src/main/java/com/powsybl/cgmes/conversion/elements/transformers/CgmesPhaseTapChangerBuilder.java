@@ -247,7 +247,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         if (xMin <= 0) {
             return xtx;
         }
-        return xtx;
+        return xMin;
     }
 
     private double getXMax() {
