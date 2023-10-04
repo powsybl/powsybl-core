@@ -630,8 +630,8 @@ WHERE {
     OPTIONAL {
         ?PhaseTapChanger
             cim:PhaseTapChangerLinear.xMax ?xMax ;
-            cim:PhaseTapChangerLinear.xMin ?xMin ;
-            cim:PhaseTapChangerLinear.stepPhaseShiftIncrement ?stepPhaseShiftIncrement
+            cim:PhaseTapChangerLinear.stepPhaseShiftIncrement ?stepPhaseShiftIncrement .
+        OPTIONAL { ?PhaseTapChanger cim:PhaseTapChangerLinear.xMin ?xMin ; }
     }
     OPTIONAL {
         ?PhaseTapChanger cim:PhaseTapChangerAsymmetrical.windingConnectionAngle ?windingConnectionAngle
@@ -639,8 +639,8 @@ WHERE {
     OPTIONAL {
         ?PhaseTapChanger
             cim:PhaseTapChangerNonLinear.xMax ?xMax ;
-            cim:PhaseTapChangerNonLinear.xMin ?xMin ;
-            cim:PhaseTapChangerNonLinear.voltageStepIncrement ?voltageStepIncrement
+            cim:PhaseTapChangerNonLinear.voltageStepIncrement ?voltageStepIncrement .
+        OPTIONAL { ?PhaseTapChanger cim:PhaseTapChangerNonLinear.xMin ?xMin ; }
     }
     OPTIONAL {
         ?PhaseTapChanger cim:PhaseTapChangerTabular.PhaseTapChangerTable ?PhaseTapChangerTable
