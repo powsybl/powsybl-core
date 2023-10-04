@@ -372,6 +372,10 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringConformLoad,
                 ExportXmlCompare::ignoringChildLookupNull);
         ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh);
+
+        assertEquals(generatorsCreatedFromOriginalClassCount(network, "SynchronousMachine"), generatorsCreatedFromOriginalClassCount(actual, "SynchronousMachine"));
+        assertEquals(generatorsCreatedFromOriginalClassCount(network, "ExternalNetworkInjection"), generatorsCreatedFromOriginalClassCount(actual, "ExternalNetworkInjection"));
+        assertEquals(generatorsCreatedFromOriginalClassCount(network, "EquivalentInjection"), generatorsCreatedFromOriginalClassCount(actual, "EquivalentInjection"));
     }
 
     private static void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
