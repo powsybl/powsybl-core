@@ -363,4 +363,8 @@ public final class CgmesExportUtil {
         }
         return kind;
     }
+
+    public static boolean isMinusOrMaxValue(double value) {
+        return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
+    }
 }

@@ -565,10 +565,67 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringFullModelDependentOn(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath.contains("FullModel")) {
-                if (cxpath.contains("Model.DependentOn")) {
-                    return ComparisonResult.EQUAL;
-                }
+            if (cxpath != null && cxpath.contains("FullModel") && cxpath.contains("Model.DependentOn")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringFullModelModelingAuthoritySet(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("FullModel") && cxpath.contains("Model.modelingAuthoritySet")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSubstationNumAttributes(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_NUM_ATTRIBUTES) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("network") && cxpath.contains("substation")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSubstationLookup(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("network") && cxpath.contains("substation")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildNodeListLength(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringConformLoad(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_TAG_NAME) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("ConformLoad")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringChildLookupNull(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            if (comparison.getControlDetails().getXPath() == null) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;

@@ -31,18 +31,27 @@ public final class EquivalentInjectionEq {
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_REGULATIONCAPABILITY);
         writer.writeCharacters(CgmesExportUtil.format(regulationCapability));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MINP);
-        writer.writeCharacters(CgmesExportUtil.format(minP));
-        writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MAXP);
-        writer.writeCharacters(CgmesExportUtil.format(maxP));
-        writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MINQ);
-        writer.writeCharacters(CgmesExportUtil.format(minQ));
-        writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MAXQ);
-        writer.writeCharacters(CgmesExportUtil.format(maxQ));
-        writer.writeEndElement();
+        // To avoid Infinite values during reimport, default values are not exported
+        if (!CgmesExportUtil.isMinusOrMaxValue(minP)) {
+            writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MINP);
+            writer.writeCharacters(CgmesExportUtil.format(minP));
+            writer.writeEndElement();
+        }
+        if (!CgmesExportUtil.isMinusOrMaxValue(maxP)) {
+            writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MAXP);
+            writer.writeCharacters(CgmesExportUtil.format(maxP));
+            writer.writeEndElement();
+        }
+        if (!CgmesExportUtil.isMinusOrMaxValue(minQ)) {
+            writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MINQ);
+            writer.writeCharacters(CgmesExportUtil.format(minQ));
+            writer.writeEndElement();
+        }
+        if (!CgmesExportUtil.isMinusOrMaxValue(maxQ)) {
+            writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MAXQ);
+            writer.writeCharacters(CgmesExportUtil.format(maxQ));
+            writer.writeEndElement();
+        }
         if (reactiveCapabilityCurveId != null) {
             CgmesExportUtil.writeReference(EQ_EQUIVALENTINJECTION_REACTIVE_CAPABILITY_CURVE, reactiveCapabilityCurveId, cimNamespace, writer, context);
         }

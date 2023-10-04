@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -36,6 +37,7 @@ import com.powsybl.iidm.network.util.TwtData;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
+import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
@@ -537,6 +539,42 @@ class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
+    void miniGridCgmesExportPreservingOriginalClasses() throws IOException, XMLStreamException {
+        ReadOnlyDataSource dataSource = Cgmes3Catalog.miniGrid().dataSource();
+        Properties properties = new Properties();
+        properties.setProperty("iidm.import.cgmes.convert-boundary", "true");
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network actual = exportImportNodeBreaker(expected, dataSource);
+
+        assertEquals(generatorsCreatedFromOriginalClassCount(expected, "SynchronousMachine"), generatorsCreatedFromOriginalClassCount(actual, "SynchronousMachine"));
+        assertEquals(generatorsCreatedFromOriginalClassCount(expected, "ExternalNetworkInjection"), generatorsCreatedFromOriginalClassCount(actual, "ExternalNetworkInjection"));
+        assertEquals(generatorsCreatedFromOriginalClassCount(expected, "EquivalentInjection"), generatorsCreatedFromOriginalClassCount(actual, "EquivalentInjection"));
+
+        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        expected.getGenerators().forEach(expectedGenerator -> {
+            Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
+            actualGenerator.setTargetP(expectedGenerator.getTargetP());
+            actualGenerator.setTargetQ(expectedGenerator.getTargetQ());
+        });
+
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringSubstationNumAttributes,
+                ExportXmlCompare::ignoringSubstationLookup);
+        compareNetworksEQdata(expected, actual, knownDiffs);
+    }
+
+    private static long generatorsCreatedFromOriginalClassCount(Network network, String originalClass) {
+        return network.getGeneratorStream().filter(generator -> generatorOriginalClass(generator, originalClass)).count();
+    }
+
+    private static boolean generatorOriginalClass(Generator generator, String originalClass) {
+        String cgmesClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        return cgmesClass != null && cgmesClass.equals(originalClass);
+    }
+
+    @Test
     void equivalentShuntTest() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
@@ -842,6 +880,14 @@ class EquipmentExportTest extends AbstractConverterTest {
     }
 
     private void compareNetworksEQdata(Network expected, Network actual) throws IOException {
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ);
+        compareNetworksEQdata(expected, actual, knownDiffs);
+    }
+
+    private void compareNetworksEQdata(Network expected, Network actual, DifferenceEvaluator knownDiffs) throws IOException {
         Network expectedNetwork = prepareNetworkForEQComparison(expected);
         Network actualNetwork = prepareNetworkForEQComparison(actual);
 
@@ -853,10 +899,7 @@ class EquipmentExportTest extends AbstractConverterTest {
         NetworkXml.writeAndValidate(actualNetwork, exportOptions, tmpDir.resolve("actual.xml"));
 
         // Compare
-        ExportXmlCompare.compareEQNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), DifferenceEvaluators.chain(
-                DifferenceEvaluators.Default,
-                ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringNonEQ));
+        ExportXmlCompare.compareEQNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffs);
 
         compareTemporaryLimits(Network.read(tmpDir.resolve("expected.xml")), Network.read(tmpDir.resolve("actual.xml")));
     }
