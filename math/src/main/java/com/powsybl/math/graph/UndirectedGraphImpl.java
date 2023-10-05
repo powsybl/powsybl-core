@@ -489,44 +489,40 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
+    private static void addEdgesBreadthFirst(Deque<Integer> edgesToTraverse, TIntArrayList[] adjacencyList, int v) {
+        TIntArrayList adjacentEdges = adjacencyList[v];
+        for (int i = 0; i < adjacentEdges.size(); i++) {
+            edgesToTraverse.add(adjacentEdges.getQuick(i));
+        }
+    }
+
     private boolean traverseBreadthFirst(Traverser traverser, TIntArrayList[] adjacencyList, boolean[] encountered, int v) {
         boolean keepGoing = true;
 
-        Deque<Integer> vertexToTraverse = new ArrayDeque<>();
-        vertexToTraverse.add(v);
-        while (!vertexToTraverse.isEmpty()) {
-            int firstV = vertexToTraverse.poll();
-            if (encountered[firstV]) {
-                continue;
-            }
-            encountered[firstV] = true;
+        encountered[v] = true;
+        Deque<Integer> edgesToTraverse = new ArrayDeque<>();
+        addEdgesBreadthFirst(edgesToTraverse, adjacencyList, v);
+        while (!edgesToTraverse.isEmpty()) {
+            int e = edgesToTraverse.pollFirst();
+            Edge<E> edge = edges.get(e);
+            int v1 = edge.getV1();
+            int v2 = edge.getV2();
 
-            TIntArrayList adjacentEdges = adjacencyList[firstV];
-
-            for (int i = 0; i < adjacentEdges.size(); i++) {
-                int e = adjacentEdges.getQuick(i);
-
-                Edge<E> edge = edges.get(e);
-                int v1 = edge.getV1();
-                int v2 = edge.getV2();
-
-                if (!encountered[v1]) {
-                    TraverseResult traverserResult = traverser.traverse(v2, e, v1);
-                    if (traverserResult == TraverseResult.CONTINUE) {
-                        vertexToTraverse.add(v1);
-                    } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
-                        keepGoing = false;
-                    }
-                } else if (!encountered[v2]) {
-                    TraverseResult traverserResult = traverser.traverse(v1, e, v2);
-                    if (traverserResult == TraverseResult.CONTINUE) {
-                        vertexToTraverse.add(v2);
-                    } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
-                        keepGoing = false;
-                    }
+            if (!encountered[v1]) {
+                TraverseResult traverserResult = traverser.traverse(v2, e, v1);
+                if (traverserResult == TraverseResult.CONTINUE) {
+                    encountered[v1] = true;
+                    addEdgesBreadthFirst(edgesToTraverse, adjacencyList, v1);
+                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
+                    keepGoing = false;
                 }
-                if (!keepGoing) {
-                    break;
+            } else if (!encountered[v2]) {
+                TraverseResult traverserResult = traverser.traverse(v1, e, v2);
+                if (traverserResult == TraverseResult.CONTINUE) {
+                    encountered[v2] = true;
+                    addEdgesBreadthFirst(edgesToTraverse, adjacencyList, v2);
+                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
+                    keepGoing = false;
                 }
             }
             if (!keepGoing) {
