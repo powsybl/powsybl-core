@@ -5,7 +5,7 @@ short-circuit-parameters:
   study-type: "SUB_TRANSIENT"
   sub-transient-coefficient: 80
   with-feeder-result: false
-  min-voltage-drop-proportional-threshold: 1.2
+  min-voltage-drop-proportional-threshold: 20
   with-loads: true
   with-shunt-compensators: true
   with-vsc-converter-stations: false

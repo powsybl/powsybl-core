@@ -30,7 +30,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 20, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null));
         List<VoltageRange> voltageRanges = List.of(new VoltageRange(0, 230, 1), new VoltageRange(235, 400, 1.05));
         parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfileMode.CONFIGURED, voltageRanges));
         parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfileMode.NOMINAL, null));
@@ -56,7 +56,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         assertEquals(StudyType.STEADY_STATE, firstParam.getStudyType());
         assertTrue(firstParam.isWithFeederResult());
         assertFalse(firstParam.isWithVoltageResult());
-        assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(20, firstParam.getMinVoltageDropProportionalThreshold(), 0);
 
         FaultParameters secondParam = parameters.get(1);
         assertEquals("f01", secondParam.getId());
@@ -95,7 +95,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         assertEquals(StudyType.STEADY_STATE, firstParam.getStudyType());
         assertTrue(firstParam.isWithFeederResult());
         assertFalse(firstParam.isWithVoltageResult());
-        assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(20, firstParam.getMinVoltageDropProportionalThreshold(), 0);
     }
 
     @Test
@@ -110,7 +110,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         assertEquals(StudyType.SUB_TRANSIENT, firstParam.getStudyType());
         assertTrue(firstParam.isWithFeederResult());
         assertFalse(firstParam.isWithVoltageResult());
-        assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(20, firstParam.getMinVoltageDropProportionalThreshold(), 0);
         assertEquals(0.8, firstParam.getSubTransientCoefficient());
     }
 
@@ -129,10 +129,10 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFile.json"));
         assertEquals(5, parameters.size());
 
-        FaultParameters param = new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null);
+        FaultParameters param = new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 20, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null);
         assertEquals(parameters.get(0), param);
 
-        FaultParameters param2 = new FaultParameters("f01", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null);
+        FaultParameters param2 = new FaultParameters("f01", false, false, true, StudyType.STEADY_STATE, 20, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null);
         assertNotEquals(parameters.get(0), param2);
     }
 

@@ -239,6 +239,7 @@ public class Conversion {
         }
 
         // apply post-processors
+        handleDangingLineDisconnectedAtBoundary(network, context);
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
             // FIXME generic cgmes models may not have an underlying triplestore
             // TODO maybe pass the properties to the post processors
@@ -256,6 +257,28 @@ public class Conversion {
 
         importedCgmesNetworkReport(context.getReporter(), network.getId());
         return network;
+    }
+
+    private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
+        if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
+            for (DanglingLine dl : network.getDanglingLines()) {
+                String terminalBoundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElse(null);
+                if (terminalBoundaryId == null) {
+                    LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
+                } else {
+                    CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
+                    if (terminalBoundary == null) {
+                        LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
+                    } else {
+                        if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
+                            LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
+                            CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReporter(), dl.getId());
+                            dl.getTerminal().disconnect();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private Source isBoundaryBaseVoltage(String graph) {
@@ -913,6 +936,15 @@ public class Conversion {
             return this;
         }
 
+        public Config setDisconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected(boolean b) {
+            disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected = b;
+            return this;
+        }
+
+        public boolean disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected() {
+            return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -931,6 +963,7 @@ public class Conversion {
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
         private boolean importNodeBreakerAsBusBreaker = false;
+        private boolean disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected = true;
 
         private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 

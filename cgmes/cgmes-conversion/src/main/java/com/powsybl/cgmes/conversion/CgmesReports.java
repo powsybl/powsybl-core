@@ -85,4 +85,13 @@ public final class CgmesReports {
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
+
+    public static void danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(Reporter reporter, String danglingLineId) {
+        reporter.report(Report.builder()
+                .withKey("danglingLineDisconnectedAtBoundaryHasBeenDisconnected")
+                .withDefaultMessage("DanglingLine ${danglingLineId} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.")
+                .withValue("danglingLineId", danglingLineId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
 }
