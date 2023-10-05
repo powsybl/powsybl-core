@@ -446,20 +446,23 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private boolean traverseDepthFirst(Traverser traverser, TIntArrayList[] adjacencyList, boolean[] encountered, int v) {
-        TIntArrayList adjacentEdges = adjacencyList[v];
-        encountered[v] = true;
         boolean keepGoing = true;
 
-        for (int i = 0; i < adjacentEdges.size(); i++) {
-            int e = adjacentEdges.getQuick(i);
+        encountered[v] = true;
+        Deque<Integer> edgesToTraverse = new ArrayDeque<>();
+        addEdges(edgesToTraverse, adjacencyList, v);
+
+        while (!edgesToTraverse.isEmpty()) {
+            int e = edgesToTraverse.pollLast();
             Edge<E> edge = edges.get(e);
             int v1 = edge.getV1();
             int v2 = edge.getV2();
+
             if (!encountered[v1]) {
                 TraverseResult traverserResult = traverser.traverse(v2, e, v1);
                 if (traverserResult == TraverseResult.CONTINUE) {
                     encountered[v1] = true;
-                    keepGoing = traverseDepthFirst(traverser, adjacencyList, encountered, v1);
+                    addEdges(edgesToTraverse, adjacencyList, v1);
                 } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
                 }
@@ -467,7 +470,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 TraverseResult traverserResult = traverser.traverse(v1, e, v2);
                 if (traverserResult == TraverseResult.CONTINUE) {
                     encountered[v2] = true;
-                    keepGoing = traverseDepthFirst(traverser, adjacencyList, encountered, v2);
+                    addEdges(edgesToTraverse, adjacencyList, v2);
                 } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
                 }
@@ -477,6 +480,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             }
         }
         return keepGoing;
+    }
+
+    private static void addEdges(Deque<Integer> edgesToTraverse, TIntArrayList[] adjacencyList, int v) {
+        TIntArrayList adjacentEdges = adjacencyList[v];
+        for (int i = adjacentEdges.size() - 1; i >= 0; i--) {
+            edgesToTraverse.add(adjacentEdges.getQuick(i));
+        }
     }
 
     private boolean traverseBreadthFirst(Traverser traverser, TIntArrayList[] adjacencyList, boolean[] encountered, int v) {
@@ -537,15 +547,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
 
         TIntArrayList[] adjacencyList = getAdjacencyList();
-        boolean keepGoing;
-
-        if (traversalType == TraversalType.DEPTH_FIRST) {  // traversal by depth first
-            keepGoing = traverseDepthFirst(traverser, adjacencyList, encountered, v);
-        } else {  // traversal by breadth first
-            keepGoing = traverseBreadthFirst(traverser, adjacencyList, encountered, v);
-        }
-
-        return keepGoing;
+        return switch (traversalType) {
+            case DEPTH_FIRST -> traverseDepthFirst(traverser, adjacencyList, encountered, v);
+            case BREADTH_FIRST -> traverseBreadthFirst(traverser, adjacencyList, encountered, v);
+        };
     }
 
     @Override
