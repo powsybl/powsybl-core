@@ -188,10 +188,6 @@ public final class TieLineUtil {
                     List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
                     if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
                         associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
-                    } else {
-                        LOGGER.warn("Several connected dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                                "No tie line automatically created, tie lines must be created by hand.",
-                                connectedDls.stream().map(DanglingLine::getId).collect(Collectors.toList()), connectedDls.get(0).getPairingKey());
                     }
                 }
             }
