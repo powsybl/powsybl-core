@@ -211,7 +211,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(1E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV1")
-                .setUcteXnodeCode("XNODE1")
+                .setPairingKey("XNODE1")
                 .add();
         DanglingLine xnode1nhv2 = network.getVoltageLevel("VLHV2").newDanglingLine()
                 .setId(DANGLING_LINE_XNODE1_2)
@@ -222,7 +222,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(2E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV2")
-                .setUcteXnodeCode("XNODE1")
+                .setPairingKey("XNODE1")
                 .add();
         network.newTieLine()
                 .setId("NHV1_NHV2_1")
@@ -238,7 +238,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(1E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV1")
-                .setUcteXnodeCode("XNODE2")
+                .setPairingKey("XNODE2")
                 .add();
         DanglingLine xnode2nhv2 = network.getVoltageLevel("VLHV2").newDanglingLine()
                 .setId(DANGLING_LINE_XNODE2_2)
@@ -249,7 +249,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(2E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV2")
-                .setUcteXnodeCode("XNODE2")
+                .setPairingKey("XNODE2")
                 .add();
         network.newTieLine()
                 .setId("NHV1_NHV2_2")
@@ -375,7 +375,7 @@ public final class EurostagTutorialExample1Factory {
      *             an infinite value temporary limit, which make overload detection
      *             malfunction.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     public static Network createWithCurrentLimits() {
         Network network = createWithFixedCurrentLimits();
         Line line = network.getLine("NHV1_NHV2_1");
@@ -842,4 +842,32 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    public static Network createWithVoltageAngleLimit() {
+        Network network = create(NetworkFactory.findDefault());
+        network.setCaseDate(DateTime.parse("2023-06-28T23:11:51.614+02:00"));
+
+        network.newVoltageAngleLimit()
+            .setId("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_1")
+            .from(network.getLine("NHV1_NHV2_1").getTerminal1())
+            .to(network.getLine("NHV1_NHV2_1").getTerminal2())
+            .setHighLimit(0.25)
+            .add();
+
+        network.newVoltageAngleLimit()
+            .setId("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_2")
+            .from(network.getLine("NHV1_NHV2_2").getTerminal1())
+            .to(network.getLine("NHV1_NHV2_2").getTerminal2())
+            .setLowLimit(0.20)
+            .add();
+
+        network.newVoltageAngleLimit()
+            .setId("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
+            .from(network.getGenerator("GEN").getTerminal())
+            .to(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2())
+            .setLowLimit(-0.20)
+            .setHighLimit(0.35)
+            .add();
+
+        return network;
+    }
 }

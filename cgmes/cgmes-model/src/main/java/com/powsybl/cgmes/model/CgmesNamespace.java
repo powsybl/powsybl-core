@@ -36,7 +36,7 @@ public final class CgmesNamespace {
     public static final String CIM_14_NAMESPACE = "http://iec.ch/TC57/2009/CIM-schema-cim14#";
 
     private static final Set<String> VALID_CIM_NAMESPACES = Set.of(CIM_14_NAMESPACE, CIM_16_NAMESPACE, CIM_100_NAMESPACE);
-    private static final Pattern CIM_100_PLUS_NAMESPACE_PATTERN = Pattern.compile(".*/CIM[0-9]+#$");
+    private static final Pattern CIM_100_PLUS_NAMESPACE_PATTERN = Pattern.compile(".*/CIM\\d+#$");
 
     public static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String ENTSOE_NAMESPACE = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
@@ -273,7 +273,8 @@ public final class CgmesNamespace {
         }
 
         private Cim16() {
-            super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE, "value",
+            super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE,
+                    "value",
                     "OperationalLimitType.limitType", "LimitTypeKind",
                     Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
                     CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV",
@@ -300,7 +301,8 @@ public final class CgmesNamespace {
         }
 
         private Cim100() {
-            super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE, "normalValue",
+            super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE,
+                    "normalValue",
                     "OperationalLimitType.kind", "LimitKind",
                     Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,
                     "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE,

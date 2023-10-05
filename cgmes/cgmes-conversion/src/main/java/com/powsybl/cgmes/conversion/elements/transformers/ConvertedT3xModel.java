@@ -35,6 +35,7 @@ public class ConvertedT3xModel {
         final double r;
         final double x;
         final TapChangerConversion.ConvertedEnd1 end1;
+        final Double ratedS;
 
         /**
          * At each winding or leg:
@@ -56,6 +57,7 @@ public class ConvertedT3xModel {
                 windingTapChanger.phaseTapChanger,
                 interpretedWinding.end1.ratedU,
                 interpretedWinding.end1.terminal);
+            this.ratedS = interpretedWinding.ratedS;
         }
 
         private TapChangerWinding moveCombineTapChangerWinding(InterpretedWinding interpretedWinding, TapChangerConversion tcc) {

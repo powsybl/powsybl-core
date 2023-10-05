@@ -7,6 +7,8 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -24,11 +26,14 @@ public class EquivalentShuntConversion extends AbstractConductingEquipmentConver
         ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator()
                 .setSectionCount(terminalConnected() ? 1 : 0)
                 .newLinearModel()
+                    .setGPerSection(p.asDouble("g"))
                     .setBPerSection(p.asDouble("b"))
                     .setMaximumSectionCount(1)
                     .add();
         identify(adder);
         connect(adder);
-        addAliasesAndProperties(adder.add());
+        ShuntCompensator sc = adder.add();
+        sc.setProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT, "true");
+        addAliasesAndProperties(sc);
     }
 }

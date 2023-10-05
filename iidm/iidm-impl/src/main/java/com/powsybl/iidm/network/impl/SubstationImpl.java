@@ -28,6 +28,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     private String tso;
 
     private final Ref<NetworkImpl> networkRef;
+    private final Ref<SubnetworkImpl> subnetworkRef;
 
     private final Set<String> geographicalTags = new LinkedHashSet<>();
 
@@ -35,11 +36,16 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private boolean removed = false;
 
-    SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef) {
+    SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef, Ref<SubnetworkImpl> subnetworkRef) {
         super(id, name, fictitious);
         this.country = country;
         this.tso = tso;
         this.networkRef = networkRef;
+        this.subnetworkRef = subnetworkRef;
+    }
+
+    Ref<SubnetworkImpl> getSubnetworkRef() {
+        return subnetworkRef;
     }
 
     @Override
@@ -84,6 +90,15 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             throw new PowsyblException("Cannot access network of removed substation " + id);
         }
         return networkRef.get();
+    }
+
+    protected Ref<NetworkImpl> getNetworkRef() {
+        return networkRef;
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
     void addVoltageLevel(VoltageLevelExt voltageLevel) {

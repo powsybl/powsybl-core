@@ -84,8 +84,13 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
                 XmlUtil.writeDouble(GENERATION_TARGET_Q, generation.getTargetQ(), context.getWriter());
             });
         }
-        if (dl.getUcteXnodeCode() != null) {
-            context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
+        if (dl.getPairingKey() != null) {
+            IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_10, context,
+                () -> context.getWriter().writeAttribute("ucteXnodeCode", dl.getPairingKey())
+            );
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context,
+                () -> context.getWriter().writeAttribute("pairingKey", dl.getPairingKey())
+            );
         }
         Terminal t = terminalGetter.get();
         writeNodeOrBus(null, t, context);
@@ -130,8 +135,14 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         readRootElementAttributesInternal(adder, context);
-        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
-        adder.setUcteXnodeCode(ucteXnodeCode);
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_10, context, () -> {
+            String pairingKey = context.getReader().getAttributeValue(null, "ucteXnodeCode");
+            adder.setPairingKey(pairingKey);
+        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
+            String pairingKey = context.getReader().getAttributeValue(null, "pairingKey");
+            adder.setPairingKey(pairingKey);
+        });
         DanglingLine dl = adder.add();
         readPQ(null, dl.getTerminal(), context.getReader());
         return dl;

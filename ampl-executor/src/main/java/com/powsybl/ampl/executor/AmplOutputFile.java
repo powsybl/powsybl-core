@@ -9,8 +9,8 @@ package com.powsybl.ampl.executor;
 import com.powsybl.ampl.converter.AmplSubset;
 import com.powsybl.commons.util.StringToIntMapper;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Path;
 
 /**
  * An additional file to read as output of an Ampl run.
@@ -24,14 +24,17 @@ public interface AmplOutputFile {
     String getFileName();
 
     /**
-     * Consummer of the output file.
+     * if <code>true</code> and the file is missing, then ampl executor will throw.
+     */
+    boolean throwOnMissingFile();
+
+    /**
+     * Read data from a file though a {@link BufferedReader}.
      * Will be called if the Ampl solve is successful.
-     * <p>
-     * No check is done on the presence of the file.
      *
-     * @param outputPath        Path representing the outputfile
-     * @param networkAmplMapper Mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
+     * @param reader            reader to the file, opened in UTF-8
+     * @param networkAmplMapper mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
      *                          and vice versa
      */
-    void read(Path outputPath, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException;
+    void read(BufferedReader reader, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException;
 }

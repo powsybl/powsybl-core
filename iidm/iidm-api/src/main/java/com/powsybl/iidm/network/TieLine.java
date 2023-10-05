@@ -68,7 +68,7 @@ package com.powsybl.iidm.network;
  * </table>
  *
  * <p>
- * A tie line is created by matching two {@link DanglingLine} with the same Xnode code. <br>
+ * A tie line is created by matching two {@link DanglingLine} with the same pairing key. <br>
  * We have two Dangling Lines within the Tie Line. <br>
  * </p>
  *
@@ -91,10 +91,10 @@ package com.powsybl.iidm.network;
 public interface TieLine extends Branch<TieLine>, LineCharacteristics {
 
     /**
-     * Get the UCTE Xnode code corresponding to this tie line in the case where the
+     * Get the pairing key corresponding to this tie line in the case where the
      * line is a boundary, return null otherwise.
      */
-    String getUcteXnodeCode();
+    String getPairingKey();
 
     /**
      * Get first dangling line of this tie line
@@ -122,6 +122,11 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     }
 
     void remove();
+
+    /**
+     * Remove the tie line with an update of underlying dangling lines to reflect the tie line flows.
+     */
+    void remove(boolean updateDanglingLines);
 
     Network getNetwork();
 }

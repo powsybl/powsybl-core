@@ -56,8 +56,8 @@ public class TimeSeriesNumNodeCalc implements NodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TimeSeriesNumNodeCalc) {
-            return ((TimeSeriesNumNodeCalc) obj).timeSeriesNum == timeSeriesNum;
+        if (obj instanceof TimeSeriesNumNodeCalc timeSeriesNumNodeCalc) {
+            return timeSeriesNumNodeCalc.timeSeriesNum == timeSeriesNum;
         }
         return false;
     }

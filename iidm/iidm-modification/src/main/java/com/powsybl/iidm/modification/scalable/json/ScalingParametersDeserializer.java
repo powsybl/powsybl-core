@@ -17,10 +17,15 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
+
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 public class ScalingParametersDeserializer extends StdDeserializer<ScalingParameters> {
+
+    private static final String CONTEXT_NAME = "ScalingParameters";
 
     ScalingParametersDeserializer() {
         super(ScalingParameters.class);
@@ -33,34 +38,36 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
 
     @Override
     public ScalingParameters deserialize(JsonParser parser, DeserializationContext context, ScalingParameters parameters) throws IOException {
+        String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
+                case "version" -> {
                     parser.nextToken(); // do nothing
-                    break;
-
-                case "scalingConvention":
+                    version = parser.getValueAsString();
+                }
+                case "scalingConvention" -> {
                     parser.nextToken();
                     parameters.setScalingConvention(JsonUtil.readValue(context, parser, Scalable.ScalingConvention.class));
-                    break;
-
-                case "constantPowerFactor":
+                }
+                case "constantPowerFactor" -> {
                     parser.nextToken();
                     parameters.setConstantPowerFactor(parser.readValueAs(Boolean.class));
-                    break;
-
-                case "reconnect":
+                }
+                case "reconnect" -> {
                     parser.nextToken();
                     parameters.setReconnect(parser.readValueAs(Boolean.class));
-                    break;
-
-                case "iterative":
+                }
+                case "iterative" -> {
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: iterative", version, "1.1");
                     parser.nextToken();
-                    parameters.setIterative(parser.readValueAs(Boolean.class));
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    parameters.setPriority(Boolean.TRUE.equals(parser.readValueAs(Boolean.class)) ? RESPECT_OF_VOLUME_ASKED : ONESHOT);
+                }
+                case "priority" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: priority", version, "1.1");
+                    parser.nextToken();
+                    parameters.setPriority(JsonUtil.readValue(context, parser, ScalingParameters.Priority.class));
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return parameters;

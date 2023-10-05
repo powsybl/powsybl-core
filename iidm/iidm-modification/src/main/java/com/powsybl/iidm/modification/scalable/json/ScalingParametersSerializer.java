@@ -31,7 +31,7 @@ public class ScalingParametersSerializer extends StdSerializer<ScalingParameters
         jsonGenerator.writeStringField("scalingConvention", scalingParameters.getScalingConvention().name());
         jsonGenerator.writeBooleanField("constantPowerFactor", scalingParameters.isConstantPowerFactor());
         jsonGenerator.writeBooleanField("reconnect", scalingParameters.isReconnect());
-        jsonGenerator.writeBooleanField("iterative", scalingParameters.isIterative());
+        jsonGenerator.writeStringField("priority", scalingParameters.getPriority().name());
 
         jsonGenerator.writeEndObject();
     }

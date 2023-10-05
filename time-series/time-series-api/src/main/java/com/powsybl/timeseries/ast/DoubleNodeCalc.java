@@ -80,8 +80,8 @@ public class DoubleNodeCalc implements LiteralNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DoubleNodeCalc) {
-            return ((DoubleNodeCalc) obj).value == value;
+        if (obj instanceof DoubleNodeCalc doubleNodeCalc) {
+            return doubleNodeCalc.value == value;
         }
         return false;
     }

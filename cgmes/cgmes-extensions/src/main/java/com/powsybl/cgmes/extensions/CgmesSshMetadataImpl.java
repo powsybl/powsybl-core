@@ -20,16 +20,23 @@ import java.util.Objects;
  */
 class CgmesSshMetadataImpl extends AbstractExtension<Network> implements CgmesSshMetadata {
 
+    private final String id;
     private final String description;
     private final int sshVersion;
     private final List<String> dependencies = new ArrayList<>();
     private final String modelingAuthoritySet;
 
-    public CgmesSshMetadataImpl(String description, int sshVersion, List<String> dependencies, String modelingAuthoritySet) {
+    public CgmesSshMetadataImpl(String id, String description, int sshVersion, List<String> dependencies, String modelingAuthoritySet) {
+        this.id = id;
         this.description = description;
         this.sshVersion = sshVersion;
         this.dependencies.addAll(Objects.requireNonNull(dependencies));
         this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override

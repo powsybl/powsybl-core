@@ -32,7 +32,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -359,7 +358,7 @@ public class UcteExporter implements Exporter {
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
-        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getUcteXnodeCode());
+        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getPairingKey());
         String geographicalName = mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
         UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), STATUS_PROPERTY_KEY + "_XNode"));
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
@@ -843,7 +842,7 @@ public class UcteExporter implements Exporter {
             if (namingStrategies.size() > 1 && name == null) {
                 // several naming strategies and no information to select which one to choose, we can only throw
                 // an exception
-                List<String> namingStrategyNames = namingStrategies.stream().map(NamingStrategy::getName).collect(Collectors.toList());
+                List<String> namingStrategyNames = namingStrategies.stream().map(NamingStrategy::getName).toList();
                 throw new PowsyblException("Several naming strategy implementations found (" + namingStrategyNames
                         + "), you must add properties to select the implementation");
             }

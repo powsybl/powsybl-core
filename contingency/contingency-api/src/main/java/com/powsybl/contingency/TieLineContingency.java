@@ -42,8 +42,7 @@ public class TieLineContingency extends AbstractSidedContingency {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TieLineContingency) {
-            TieLineContingency other = (TieLineContingency) obj;
+        if (obj instanceof TieLineContingency other) {
             return id.equals(other.id) && Objects.equals(voltageLevelId, other.voltageLevelId);
         }
         return false;

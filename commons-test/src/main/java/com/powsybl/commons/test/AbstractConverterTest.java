@@ -60,10 +60,12 @@ public abstract class AbstractConverterTest {
     }
 
     protected <T> T roundTripTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
+        // Export the data and check the result with the reference
         Path xmlFile = writeTest(data, out, compare, ref);
         try (InputStream is1 = Files.newInputStream(xmlFile)) {
             compare.accept(getClass().getResourceAsStream(ref), is1);
         }
+        // Read the exported data, export the retrieved data and check the result with the reference
         T data2 = in.apply(xmlFile);
         Path xmlFile2 = tmpDir.resolve("data2");
         out.accept(data2, xmlFile2);

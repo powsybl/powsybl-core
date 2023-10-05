@@ -15,7 +15,7 @@ public interface ModuleConfigRepository {
     /**
      * @deprecated Use the <code>Optional</code> returned by {@link #getModuleConfig(String)}
      */
-    @Deprecated
+    @Deprecated(since = "4.9.0")
     default boolean moduleExists(String name) {
         return getModuleConfig(name).isPresent();
     }
