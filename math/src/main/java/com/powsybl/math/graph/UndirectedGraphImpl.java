@@ -447,17 +447,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private static void addEdges(Deque<Integer> edgesToTraverse, TIntArrayList[] adjacencyList, int v, TraversalType traversalType) {
         TIntArrayList adjacentEdges = adjacencyList[v];
-        switch (traversalType) {
-            case DEPTH_FIRST -> {
-                for (int i = adjacentEdges.size() - 1; i >= 0; i--) {
-                    edgesToTraverse.add(adjacentEdges.getQuick(i));
-                }
-            }
-            case BREADTH_FIRST -> {
-                for (int i = 0; i < adjacentEdges.size(); i++) {
-                    edgesToTraverse.add(adjacentEdges.getQuick(i));
-                }
-            }
+        for (int i = 0; i < adjacentEdges.size(); i++) {
+            int iEdge = switch (traversalType) {
+                case DEPTH_FIRST -> adjacentEdges.size() - i - 1;
+                case BREADTH_FIRST -> i;
+            };
+            edgesToTraverse.add(adjacentEdges.getQuick(iEdge));
         }
     }
 
@@ -482,16 +477,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 case DEPTH_FIRST -> edgesToTraverse.pollLast();
                 case BREADTH_FIRST -> edgesToTraverse.pollFirst();
             };
-
             Edge<E> edge = edges.get(e);
-            int v1 = edge.getV1();
-            int v2 = edge.getV2();
-            if (encountered[v1] && encountered[v2]) {
-                continue;
+            if (encountered[edge.getV1()] && encountered[edge.getV2()]) {
+                continue; // traversing parallel edges only once
             }
 
-            int vOrigin = encountered[v1] ? v2 : v1;
-            int vDest = encountered[v1] ? v1 : v2;
+            int vOrigin = encountered[edge.getV1()] ? edge.getV1() : edge.getV2();
+            int vDest = encountered[edge.getV1()] ? edge.getV2() : edge.getV1();
             TraverseResult traverserResult = traverser.traverse(vOrigin, e, vDest);
             if (traverserResult == TraverseResult.CONTINUE) {
                 encountered[vDest] = true;
