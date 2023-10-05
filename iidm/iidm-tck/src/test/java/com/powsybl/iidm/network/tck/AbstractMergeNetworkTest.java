@@ -619,23 +619,61 @@ public abstract class AbstractMergeNetworkTest {
 
     @Test
     public void multipleDanglingLinesInMergedNetwork() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the CURRENT network.
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n2, "vl2", "dl3", "code", "b2", null);
         Network merge = Network.merge(n1, n2);
+        // Since n2 has ONLY ONE connected dangling line with the pairing key, the tie line is created
         assertNotNull(merge.getTieLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
     }
 
     @Test
+    public void multipleConnectedDanglingLinesInMergedNetwork() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the CURRENT network.
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addDanglingLine(n2, "vl2", "dl3", "code", "b2", "b2");
+        Network merge = Network.merge(n1, n2);
+        // Since n2 has SEVERAL connected dangling lines with the pairing key, we don't create the tie line
+        assertEquals(0, merge.getTieLineCount());
+    }
+
+    @Test
     public void multipleDanglingLinesInMergingNetwork() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the ADDED network.
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n1, "vl1", "dl3", "code", "b1", null);
         Network merge = Network.merge(n1, n2);
+        // Since n1 has ONLY ONE connected dangling line with the pairing key, the tie line is created
         assertNotNull(merge.getTieLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
+    }
+
+    @Test
+    public void multipleConnectedDanglingLinesWithSamePairingKey() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the ADDED network.
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addDanglingLine(n1, "vl1", "dl3", "code", "b1", "b1");
+        Network merge = Network.merge(n1, n2);
+        // Since n1 has SEVERAL connected dangling lines with the pairing key, we don't create the tie line
+        assertEquals(0, merge.getTieLineCount());
     }
 }
