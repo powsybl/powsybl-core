@@ -66,7 +66,7 @@ public class InterpretedT3xModel {
         final TapChangerConversion.InterpretedEnd end1;
         final InterpretedEnd2 end2;
         final boolean structuralRatioAtEnd2;
-        final double ratedS;
+        final Double ratedS;
 
         /**
          * Maps Cgmes ratioTapChangers, phaseTapChangers, shuntAdmittances and
