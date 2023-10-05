@@ -172,6 +172,9 @@ public final class TieLineUtil {
      * @return The list of the dangling lines which are candidate to become tie lines (one or zero by pairing key)
      */
     public static List<DanglingLine> findCandidateDanglingLines(Network network, Predicate<String> logPairingKey) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(logPairingKey);
+
         List<DanglingLine> candidates = new ArrayList<>();
         Set<String> pairingKeys = new HashSet<>();
         Map<String, List<DanglingLine>> connectedByPairingKey = new HashMap<>();
@@ -226,6 +229,8 @@ public final class TieLineUtil {
      */
     public static void findAndAssociateDanglingLines(DanglingLine candidateDanglingLine, Function<String, List<DanglingLine>> getDanglingLinesByPairingKey,
                                                      BiConsumer<DanglingLine, DanglingLine> associateDanglingLines) {
+        //TODO This method is quite complicated. It would be better to call `findCandidateDanglingLines` on both networks to merge
+        // and to only process the retrieved candidate lists together.
         Objects.requireNonNull(candidateDanglingLine);
         Objects.requireNonNull(getDanglingLinesByPairingKey);
         Objects.requireNonNull(associateDanglingLines);
