@@ -36,6 +36,8 @@ public final class TieLineUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TieLineUtil.class);
 
+    public static final String NO_TIE_LINE_MESSAGE = "No tie line automatically created, tie lines must be created by hand.";
+
     private TieLineUtil() {
     }
 
@@ -159,14 +161,15 @@ public final class TieLineUtil {
     }
 
     /**
-     * <b>Analyze a network and return its dangling lines which are candidate to a tie line creation when merging the network with another.</b>
-     * <b>Are candidates for a pairing key 'k':
-     * <li>the only connected dangling line of pairing key 'k', whether disconnected dangling lines of pairing key 'k' exist;</li>
-     * <li>the only disconnected dangling line of pairing key 'k', if no connected dangling lines of pairing key 'k' exist.</li>
+     * <b>Analyze a network and return its dangling lines which are candidate to become tie lines when merging the network with another.</b>
+     * <b>Is candidate for a pairing key 'k':
+     * <li>the only connected dangling line of pairing key 'k', if disconnected dangling lines of pairing key 'k' exist;</li>
+     * <li>the only disconnected dangling line of pairing key 'k', if no connected dangling line of pairing key 'k' exists.</li>
+     * <li>no dangling line at all</li>
      * </b>
      * @param network a network
      * @param logPairingKey a Predicate indicating if we want to log a warning when several dangling lines are found for the same pairing key.
-     * @return The list of the dangling lines which are candidate to a tie line creation
+     * @return The list of the dangling lines which are candidate to become tie lines (one or zero by pairing key)
      */
     public static List<DanglingLine> findCandidateDanglingLines(Network network, Predicate<String> logPairingKey) {
         List<DanglingLine> candidates = new ArrayList<>();
@@ -190,8 +193,7 @@ public final class TieLineUtil {
                 if (disconnected.size() == 1) {
                     candidates.add(dl);
                 } else if (doLog) {
-                    LOGGER.warn("Several disconnected dangling lines {} (and no connected ones) of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                                    "No tie line will be automatically created for this pairing key, tie lines must be created by hand.",
+                    LOGGER.warn("Several disconnected dangling lines {} (and no connected one) of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
                             disconnected.stream().map(DanglingLine::getId).toList(), pairingKey);
                 }
             } else if (connected.size() == 1) {
@@ -204,8 +206,7 @@ public final class TieLineUtil {
                             pairingKey, dl.getId());
                 }
             } else if (doLog) {
-                LOGGER.warn("Several connected dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                                "No tie line automatically created, tie lines must be created by hand.",
+                LOGGER.warn("Several connected dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
                         connected.stream().map(DanglingLine::getId).toList(), pairingKey);
             }
         }
@@ -252,8 +253,7 @@ public final class TieLineUtil {
                         associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
                     } else {
                         String status = connectedDls.size() > 1 ? "connected" : "disconnected";
-                        LOGGER.warn("Several {} dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                                "No tie line automatically created, tie lines must be created by hand.",
+                        LOGGER.warn("Several {} dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
                                 status, connectedDls.stream().map(DanglingLine::getId).collect(Collectors.toList()),
                                 connectedDls.get(0).getPairingKey());
                     }
