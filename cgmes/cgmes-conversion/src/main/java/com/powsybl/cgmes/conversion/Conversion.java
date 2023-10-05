@@ -285,8 +285,10 @@ public class Conversion {
 
     private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(Network network, Context context) {
         network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                .filter(dl -> dl.getTerminal().isConnected())
                 .collect(groupingBy(Conversion::getDanglingLineBoundaryNode))
                 .values().stream()
+                // Only perform adjustment for the groups with more than one connected dangling line
                 .filter(dls -> dls.size() > 1)
                 .forEach(dls -> adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(dls, context));
     }
@@ -296,7 +298,8 @@ public class Conversion {
         double p0 = dls.get(0).getP0();
         double q0 = dls.get(0).getQ0();
         // Divide this value between all connected dangling lines
-        long count = dls.stream().filter(dl -> dl.getTerminal().isConnected()).count();
+        // This method is called only if there is more than 1 connected dangling line
+        long count = dls.size();
         final double p0Adjusted = p0 / count;
         final double q0Adjusted = q0 / count;
         dls.stream().filter(dl -> dl.getTerminal().isConnected()).forEach(dl -> {
