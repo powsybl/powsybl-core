@@ -195,14 +195,34 @@ public final class CgmesExportUtil {
         return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
     }
 
+    public static String loadClassName(Load load) {
+        String originalClassName = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "undefined");
+        double p0 = load.getP0();
+        LoadDetail loadDetail = load.getExtension(LoadDetail.class);
+        if (originalClassName.equals("AsynchronousMachine")
+                || originalClassName.equals("SvInjection")
+                || originalClassName.equals("EnergySource") && p0 <= 0.0
+                || originalClassName.equals(CgmesNames.ENERGY_CONSUMER) && p0 >= 0.0 && !isConformLoad(loadDetail) && !isNonConformLoad(loadDetail)
+                || originalClassName.equals(CgmesNames.CONFORM_LOAD) && p0 >= 0.0 && !isNonConformLoad(loadDetail)
+                || originalClassName.equals(CgmesNames.NONCONFORM_LOAD) && p0 >= 0.0 && !isConformLoad(loadDetail)
+                || originalClassName.equals("StationSupply") && p0 >= 0.0 && !isConformLoad(loadDetail) && !isNonConformLoad(loadDetail)) {
+            return originalClassName;
+        }
+        return calculatedLoadClassName(p0, loadDetail);
+    }
+
+    private static String calculatedLoadClassName(double p0, LoadDetail loadDetail) {
+        // As negative loads are not allowed, they are modeled as energy source.
+        // Note that negative loads can be the result of network reduction and could be modeled
+        // as equivalent injections.
+        return p0 < 0 ? "EnergySource" : loadClassName(loadDetail);
+    }
+
     public static String loadClassName(LoadDetail loadDetail) {
         if (loadDetail != null) {
-            // Conform load if fixed part is zero and variable part is non-zero
-            if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
-                    && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
+            if (isConformLoad(loadDetail)) {
                 return CgmesNames.CONFORM_LOAD;
-            } else if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
-                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {  // NonConform load if fixed part is non-zero and variable part is all zero
+            } else if (isNonConformLoad(loadDetail)) {
                 return CgmesNames.NONCONFORM_LOAD;
             } else {
                 return CgmesNames.NONCONFORM_LOAD;
@@ -210,6 +230,22 @@ public final class CgmesExportUtil {
         }
         LOG.warn("It is not possible to determine the type of load");
         return CgmesNames.ENERGY_CONSUMER;
+    }
+
+    private static boolean isConformLoad(LoadDetail loadDetail) {
+        // Conform load if fixed part is zero and variable part is non-zero
+        return loadDetail != null
+                && loadDetail.getFixedActivePower() == 0
+                && loadDetail.getFixedReactivePower() == 0
+                && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0);
+    }
+
+    private static boolean isNonConformLoad(LoadDetail loadDetail) {
+        // NonConform load if fixed part is non-zero and variable part is all zero
+        return loadDetail != null
+                && loadDetail.getVariableActivePower() == 0
+                && loadDetail.getVariableReactivePower() == 0
+                && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0);
     }
 
     public static String switchClassname(SwitchKind kind) {

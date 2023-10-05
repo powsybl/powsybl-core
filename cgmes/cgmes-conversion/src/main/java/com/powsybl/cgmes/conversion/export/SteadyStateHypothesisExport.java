@@ -51,7 +51,7 @@ public final class SteadyStateHypothesisExport {
                 CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);
             }
 
-            writeEnergyConsumers(network, cimNamespace, writer, context);
+            writeLoads(network, cimNamespace, writer, context);
             writeEquivalentInjections(network, cimNamespace, writer, context);
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer, context);
             writeSynchronousMachines(network, cimNamespace, regulatingControlViews, writer, context);
@@ -544,20 +544,31 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeLoads(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
-                if (load.getP0() < 0) {
-                    // As negative loads are not allowed, they are modeled as energy source.
-                    // Note that negative loads can be the result of network reduction and could be modeled
-                    // as equivalent injections.
-                    String cgmesId = context.getNamingStrategy().getCgmesId(load);
-                    writeEnergySource(cgmesId, load.getP0(), load.getQ0(), cimNamespace, writer, context);
-                } else {
-                    writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
+                String className = CgmesExportUtil.loadClassName(load);
+                switch (className) {
+                    case "AsynchronousMachine" ->
+                            writeAsynchronousMachine(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), cimNamespace, writer, context);
+                    case "EnergySource" ->
+                            writeEnergySource(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), cimNamespace, writer, context);
+                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, "StationSupply" ->
+                            writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
                 }
             }
         }
+    }
+
+    private static void writeAsynchronousMachine(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout("AsynchronousMachine", id, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "RotatingMachine.p");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "RotatingMachine.q");
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private static void writeEnergySource(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

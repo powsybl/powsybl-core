@@ -14,7 +14,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -278,20 +277,24 @@ public final class EquipmentExport {
     private static void writeLoads(Network network, LoadGroups loadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
-                LoadDetail loadDetail = load.getExtension(LoadDetail.class);
-                String className = CgmesExportUtil.loadClassName(loadDetail);
+                String className = CgmesExportUtil.loadClassName(load);
                 String loadId = context.getNamingStrategy().getCgmesId(load);
-                if (load.getP0() < 0) {
-                    // As negative loads are not allowed, they are modeled as energy source.
-                    // Note that negative loads can be the result of network reduction and could be modeled
-                    // as equivalent injections.
-                    writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
-                } else {
-                    String loadGroup = loadGroups.groupFor(className);
-                    EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
+                switch (className) {
+                    case "AsynchronousMachine" ->
+                            writeAsynchronousMachine(loadId, load.getNameOrId(), cimNamespace, writer, context);
+                    case "EnergySource" -> writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
+                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, "StationSupply" -> {
+                        String loadGroup = loadGroups.groupFor(className);
+                        EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
+                    }
                 }
             }
         }
+    }
+
+    private static void writeAsynchronousMachine(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("AsynchronousMachine", id, name, cimNamespace, writer, context);
+        writer.writeEndElement();
     }
 
     public static void writeEnergySource(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -494,7 +497,7 @@ public final class EquipmentExport {
             // We have to adjust the aliases for potential original tap changers coming from end 1 or end 2.
             // Potential tc2 is always converted to a tc at end 1.
             // If both tc1 and tc2 were present, tc2 was combined during import (fixed at current step) with tc1. Steps from tc1 were kept.
-            // If we only had tc2, it mas moved to end 1.
+            // If we only had tc2, it was moved to end 1.
             //
             // When we had only tc2, the alias for tc1 if we do EQ export should contain the identifier of original tc2.
             // In the rest of situations, we keep the same id under alias for tc1.
