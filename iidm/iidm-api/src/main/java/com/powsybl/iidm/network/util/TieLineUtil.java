@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineFilter;
+import com.powsybl.iidm.network.Network;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.Branch;
@@ -20,7 +21,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.util.TieLineReports.*;
 
@@ -156,6 +159,60 @@ public final class TieLineUtil {
     }
 
     /**
+     * <b>Analyze a network and return its dangling lines which are candidate to a tie line creation when merging the network with another.</b>
+     * <b>Are candidates for a pairing key 'k':
+     * <li>the only connected dangling line of pairing key 'k', whether disconnected dangling lines of pairing key 'k' exist;</li>
+     * <li>the only disconnected dangling line of pairing key 'k', if no connected dangling lines of pairing key 'k' exist.</li>
+     * </b>
+     * @param network a network
+     * @param logPairingKey a Predicate indicating if we want to log a warning when several dangling lines are found for the same pairing key.
+     * @return The list of the dangling lines which are candidate to a tie line creation
+     */
+    public static List<DanglingLine> findCandidateDanglingLines(Network network, Predicate<String> logPairingKey) {
+        List<DanglingLine> candidates = new ArrayList<>();
+        Set<String> pairingKeys = new HashSet<>();
+        Map<String, List<DanglingLine>> connectedByPairingKey = new HashMap<>();
+        Map<String, List<DanglingLine>> disconnectedByPairingKey = new HashMap<>();
+
+        network.getDanglingLines(DanglingLineFilter.UNPAIRED).forEach(dl -> {
+            String pairingKey = dl.getPairingKey();
+            Map<String, List<DanglingLine>> mapToUpdate = dl.getTerminal().isConnected() ? connectedByPairingKey : disconnectedByPairingKey;
+            mapToUpdate.computeIfAbsent(pairingKey, k -> new ArrayList<>()).add(dl);
+            pairingKeys.add(pairingKey);
+        });
+
+        for (String pairingKey : pairingKeys) {
+            boolean doLog = logPairingKey.test(pairingKey);
+            List<DanglingLine> connected = Optional.ofNullable(connectedByPairingKey.get(pairingKey)).orElse(Collections.emptyList());
+            List<DanglingLine> disconnected = Optional.ofNullable(disconnectedByPairingKey.get(pairingKey)).orElse(Collections.emptyList());
+            if (connected.isEmpty()) {
+                DanglingLine dl = disconnected.get(0); // Cannot be empty here: we always have at least 1 connected or disconnected dangling line
+                if (disconnected.size() == 1) {
+                    candidates.add(dl);
+                } else if (doLog) {
+                    LOGGER.warn("Several disconnected dangling lines {} (and no connected ones) of the same subnetwork are candidate for merging for pairing key '{}'. " +
+                                    "No tie line will be automatically created for this pairing key, tie lines must be created by hand.",
+                            disconnected.stream().map(DanglingLine::getId).toList(), pairingKey);
+                }
+            } else if (connected.size() == 1) {
+                DanglingLine dl = connected.get(0);
+                candidates.add(dl);
+                if (!disconnected.isEmpty() && doLog) {
+                    LOGGER.warn("Several dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
+                                    "Only {} is considered (the only connected one)",
+                            Stream.concat(Stream.of(dl.getId()), disconnected.stream().map(DanglingLine::getId)).collect(Collectors.toList()),
+                            pairingKey, dl.getId());
+                }
+            } else if (doLog) {
+                LOGGER.warn("Several connected dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
+                                "No tie line automatically created, tie lines must be created by hand.",
+                        connected.stream().map(DanglingLine::getId).toList(), pairingKey);
+            }
+        }
+        return candidates;
+    }
+
+    /**
      * If it exists, find the dangling line in the merging network that should be associated to a candidate dangling line in the network to be merged.
      * Two dangling lines in different IGM should be associated if:
      * - they have the same non-null pairing key and are the only dangling lines to have this pairing key in their respective networks
@@ -173,6 +230,7 @@ public final class TieLineUtil {
         Objects.requireNonNull(associateDanglingLines);
         // mapping by pairing key
         if (candidateDanglingLine.getPairingKey() != null) { // if pairing key null: no associated dangling line
+            // If we call this method on the results of "findCandidateDanglingLines", the following test is useless
             if (candidateDanglingLine.getNetwork().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
                     .filter(d -> d != candidateDanglingLine)
                     .filter(d -> candidateDanglingLine.getPairingKey().equals(d.getPairingKey()))
@@ -187,11 +245,17 @@ public final class TieLineUtil {
                 if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
                     List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
                     if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
+                        LOGGER.warn("Several dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
+                                        "Tie line was automatically created using the only one which is connected: {}",
+                                dls.stream().map(DanglingLine::getId).collect(Collectors.toList()), connectedDls.get(0).getPairingKey(),
+                                connectedDls.get(0).getId());
                         associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
                     } else {
-                        LOGGER.warn("Several connected dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
+                        String status = connectedDls.size() > 1 ? "connected" : "disconnected";
+                        LOGGER.warn("Several {} dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
                                 "No tie line automatically created, tie lines must be created by hand.",
-                                connectedDls.stream().map(DanglingLine::getId).collect(Collectors.toList()), connectedDls.get(0).getPairingKey());
+                                status, connectedDls.stream().map(DanglingLine::getId).collect(Collectors.toList()),
+                                connectedDls.get(0).getPairingKey());
                     }
                 }
             }
