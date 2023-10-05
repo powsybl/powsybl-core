@@ -331,18 +331,33 @@ public final class CgmesExportUtil {
     // If we only had tc at end 2, it has been moved to end 1 but the id is recorded at end2, tc2 id will be used
     private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag) {
         String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + 1;
-        Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType1);
-        if (optionalTapChangerId.isPresent()) {
-            return optionalTapChangerId.get();
+        Optional<String> optionalTapChangerId1 = twt.getAliasFromType(aliasType1);
+        if (optionalTapChangerId1.isPresent()) {
+            return optionalTapChangerId1.get();
         } else {
             String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + 2;
-            return twt.getAliasFromType(aliasType2).orElseThrow();
+            Optional<String> optionalTapChangerId2 = twt.getAliasFromType(aliasType2);
+            if (optionalTapChangerId2.isEmpty()) {
+                // We create a new id always at end 1
+                String newTapChangerId = CgmesExportUtil.getUniqueId();
+                twt.addAlias(newTapChangerId, aliasType1);
+                return newTapChangerId;
+            } else {
+                return optionalTapChangerId2.get();
+            }
         }
     }
 
     private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag, int endNumber) {
         String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + endNumber;
-        return twt.getAliasFromType(aliasType).orElseThrow();
+        Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
+        if (optionalTapChangerId.isEmpty()) {
+            String newTapChangerId = CgmesExportUtil.getUniqueId();
+            twt.addAlias(newTapChangerId, aliasType);
+            return newTapChangerId;
+        } else {
+            return optionalTapChangerId.get();
+        }
     }
 
     private static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
