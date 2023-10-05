@@ -302,7 +302,7 @@ public class Conversion {
         long count = dls.size();
         final double p0Adjusted = p0 / count;
         final double q0Adjusted = q0 / count;
-        dls.stream().filter(dl -> dl.getTerminal().isConnected()).forEach(dl -> {
+        dls.forEach(dl -> {
             LOG.warn("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for dangling line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
             CgmesReports.multipleUnpairedDanglingLinesAtSameBoundaryReport(context.getReporter(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
             dl.setP0(p0Adjusted);
