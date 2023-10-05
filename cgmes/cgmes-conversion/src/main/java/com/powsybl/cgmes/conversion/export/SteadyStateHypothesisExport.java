@@ -36,6 +36,8 @@ public final class SteadyStateHypothesisExport {
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
     private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
+    private static final String ROTATING_MACHINE_P = "RotatingMachine.p";
+    private static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
 
     private SteadyStateHypothesisExport() {
     }
@@ -255,10 +257,10 @@ public final class SteadyStateHypothesisExport {
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.p");
+            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
             writer.writeCharacters(CgmesExportUtil.format(-g.getTargetP()));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.q");
+            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
             writer.writeCharacters(CgmesExportUtil.format(-g.getTargetQ()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
@@ -276,10 +278,10 @@ public final class SteadyStateHypothesisExport {
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
             writer.writeCharacters("false"); // TODO handle battery regulation
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.p");
+            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
             writer.writeCharacters(CgmesExportUtil.format(-b.getTargetP()));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.q");
+            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
             writer.writeCharacters(CgmesExportUtil.format(-b.getTargetQ()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
@@ -555,6 +557,7 @@ public final class SteadyStateHypothesisExport {
                             writeEnergySource(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, "StationSupply" ->
                             writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
+                    default -> throw new PowsyblException("Unexpected class name: " + className);
                 }
             }
         }
@@ -562,10 +565,10 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeAsynchronousMachine(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout("AsynchronousMachine", id, cimNamespace, writer, context);
-        writer.writeStartElement(cimNamespace, "RotatingMachine.p");
+        writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, "RotatingMachine.q");
+        writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
         writer.writeEndElement();

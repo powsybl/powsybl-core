@@ -287,6 +287,7 @@ public final class EquipmentExport {
                         String loadGroup = loadGroups.groupFor(className);
                         EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
                     }
+                    default -> throw new PowsyblException("Unexpected class name: " + className);
                 }
             }
         }
