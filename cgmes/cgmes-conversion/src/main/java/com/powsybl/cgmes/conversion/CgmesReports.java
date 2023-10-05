@@ -94,4 +94,17 @@ public final class CgmesReports {
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }
+
+    public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(Reporter reporter, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
+        reporter.report(Report.builder()
+                .withKey("multipleUnpairedDanglingLinesAtSameBoundary")
+                .withDefaultMessage("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from (${p0}, ${q0}) to (${p0Adjusted}, ${q0Adjusted}) for dangling line ${danglingLineId}.")
+                .withValue("danglingLineId", danglingLineId)
+                .withValue("p0", p0)
+                .withValue("q0", q0)
+                .withValue("p0Adjusted", p0Adjusted)
+                .withValue("q0Adjusted", q0Adjusted)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
 }
