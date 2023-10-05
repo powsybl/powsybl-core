@@ -445,91 +445,20 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         adjacencyListCache = null;
     }
 
-    private boolean traverseDepthFirst(Traverser traverser, TIntArrayList[] adjacencyList, boolean[] encountered, int v) {
-        boolean keepGoing = true;
-
-        encountered[v] = true;
-        Deque<Integer> edgesToTraverse = new ArrayDeque<>();
-        addEdges(edgesToTraverse, adjacencyList, v);
-
-        while (!edgesToTraverse.isEmpty()) {
-            int e = edgesToTraverse.pollLast();
-            Edge<E> edge = edges.get(e);
-            int v1 = edge.getV1();
-            int v2 = edge.getV2();
-
-            if (!encountered[v1]) {
-                TraverseResult traverserResult = traverser.traverse(v2, e, v1);
-                if (traverserResult == TraverseResult.CONTINUE) {
-                    encountered[v1] = true;
-                    addEdges(edgesToTraverse, adjacencyList, v1);
-                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
-                    keepGoing = false;
-                }
-            } else if (!encountered[v2]) {
-                TraverseResult traverserResult = traverser.traverse(v1, e, v2);
-                if (traverserResult == TraverseResult.CONTINUE) {
-                    encountered[v2] = true;
-                    addEdges(edgesToTraverse, adjacencyList, v2);
-                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
-                    keepGoing = false;
-                }
-            }
-            if (!keepGoing) {
-                break;
-            }
-        }
-        return keepGoing;
-    }
-
-    private static void addEdges(Deque<Integer> edgesToTraverse, TIntArrayList[] adjacencyList, int v) {
+    private static void addEdges(Deque<Integer> edgesToTraverse, TIntArrayList[] adjacencyList, int v, TraversalType traversalType) {
         TIntArrayList adjacentEdges = adjacencyList[v];
-        for (int i = adjacentEdges.size() - 1; i >= 0; i--) {
-            edgesToTraverse.add(adjacentEdges.getQuick(i));
-        }
-    }
-
-    private static void addEdgesBreadthFirst(Deque<Integer> edgesToTraverse, TIntArrayList[] adjacencyList, int v) {
-        TIntArrayList adjacentEdges = adjacencyList[v];
-        for (int i = 0; i < adjacentEdges.size(); i++) {
-            edgesToTraverse.add(adjacentEdges.getQuick(i));
-        }
-    }
-
-    private boolean traverseBreadthFirst(Traverser traverser, TIntArrayList[] adjacencyList, boolean[] encountered, int v) {
-        boolean keepGoing = true;
-
-        encountered[v] = true;
-        Deque<Integer> edgesToTraverse = new ArrayDeque<>();
-        addEdgesBreadthFirst(edgesToTraverse, adjacencyList, v);
-        while (!edgesToTraverse.isEmpty()) {
-            int e = edgesToTraverse.pollFirst();
-            Edge<E> edge = edges.get(e);
-            int v1 = edge.getV1();
-            int v2 = edge.getV2();
-
-            if (!encountered[v1]) {
-                TraverseResult traverserResult = traverser.traverse(v2, e, v1);
-                if (traverserResult == TraverseResult.CONTINUE) {
-                    encountered[v1] = true;
-                    addEdgesBreadthFirst(edgesToTraverse, adjacencyList, v1);
-                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
-                    keepGoing = false;
-                }
-            } else if (!encountered[v2]) {
-                TraverseResult traverserResult = traverser.traverse(v1, e, v2);
-                if (traverserResult == TraverseResult.CONTINUE) {
-                    encountered[v2] = true;
-                    addEdgesBreadthFirst(edgesToTraverse, adjacencyList, v2);
-                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
-                    keepGoing = false;
+        switch (traversalType) {
+            case DEPTH_FIRST -> {
+                for (int i = adjacentEdges.size() - 1; i >= 0; i--) {
+                    edgesToTraverse.add(adjacentEdges.getQuick(i));
                 }
             }
-            if (!keepGoing) {
-                break;
+            case BREADTH_FIRST -> {
+                for (int i = 0; i < adjacentEdges.size(); i++) {
+                    edgesToTraverse.add(adjacentEdges.getQuick(i));
+                }
             }
         }
-        return keepGoing;
     }
 
     @Override
@@ -543,10 +472,42 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
 
         TIntArrayList[] adjacencyList = getAdjacencyList();
-        return switch (traversalType) {
-            case DEPTH_FIRST -> traverseDepthFirst(traverser, adjacencyList, encountered, v);
-            case BREADTH_FIRST -> traverseBreadthFirst(traverser, adjacencyList, encountered, v);
-        };
+        boolean keepGoing = true;
+
+        encountered[v] = true;
+        Deque<Integer> edgesToTraverse = new ArrayDeque<>();
+        addEdges(edgesToTraverse, adjacencyList, v, traversalType);
+        while (!edgesToTraverse.isEmpty()) {
+            int e = switch (traversalType) {
+                case DEPTH_FIRST -> edgesToTraverse.pollLast();
+                case BREADTH_FIRST -> edgesToTraverse.pollFirst();
+            };
+            Edge<E> edge = edges.get(e);
+            int v1 = edge.getV1();
+            int v2 = edge.getV2();
+
+            if (!encountered[v1]) {
+                TraverseResult traverserResult = traverser.traverse(v2, e, v1);
+                if (traverserResult == TraverseResult.CONTINUE) {
+                    encountered[v1] = true;
+                    addEdges(edgesToTraverse, adjacencyList, v1, traversalType);
+                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
+                    keepGoing = false;
+                }
+            } else if (!encountered[v2]) {
+                TraverseResult traverserResult = traverser.traverse(v1, e, v2);
+                if (traverserResult == TraverseResult.CONTINUE) {
+                    encountered[v2] = true;
+                    addEdges(edgesToTraverse, adjacencyList, v2, traversalType);
+                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
+                    keepGoing = false;
+                }
+            }
+            if (!keepGoing) {
+                break;
+            }
+        }
+        return keepGoing;
     }
 
     @Override
