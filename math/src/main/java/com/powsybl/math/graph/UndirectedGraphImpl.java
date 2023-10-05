@@ -482,28 +482,22 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 case DEPTH_FIRST -> edgesToTraverse.pollLast();
                 case BREADTH_FIRST -> edgesToTraverse.pollFirst();
             };
+
             Edge<E> edge = edges.get(e);
             int v1 = edge.getV1();
             int v2 = edge.getV2();
-
-            if (!encountered[v1]) {
-                TraverseResult traverserResult = traverser.traverse(v2, e, v1);
-                if (traverserResult == TraverseResult.CONTINUE) {
-                    encountered[v1] = true;
-                    addEdges(edgesToTraverse, adjacencyList, v1, traversalType);
-                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
-                    keepGoing = false;
-                }
-            } else if (!encountered[v2]) {
-                TraverseResult traverserResult = traverser.traverse(v1, e, v2);
-                if (traverserResult == TraverseResult.CONTINUE) {
-                    encountered[v2] = true;
-                    addEdges(edgesToTraverse, adjacencyList, v2, traversalType);
-                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
-                    keepGoing = false;
-                }
+            if (encountered[v1] && encountered[v2]) {
+                continue;
             }
-            if (!keepGoing) {
+
+            int vOrigin = encountered[v1] ? v2 : v1;
+            int vDest = encountered[v1] ? v1 : v2;
+            TraverseResult traverserResult = traverser.traverse(vOrigin, e, vDest);
+            if (traverserResult == TraverseResult.CONTINUE) {
+                encountered[vDest] = true;
+                addEdges(edgesToTraverse, adjacencyList, vDest, traversalType);
+            } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
+                keepGoing = false;
                 break;
             }
         }
