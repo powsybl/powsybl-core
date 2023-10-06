@@ -21,7 +21,6 @@ import com.powsybl.security.action.Action;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisProvider;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.json.JsonDynamicSecurityAnalysisParametersTest;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.results.PreContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -61,12 +60,12 @@ public class DynamicSecurityAnalysisProviderMock implements DynamicSecurityAnaly
 
     @Override
     public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
-        return Optional.of(new JsonDynamicSecurityAnalysisParametersTest.DummySerializer());
+        return Optional.of(new DynamicSecurityDummySerializer());
     }
 
     @Override
     public Optional<Extension<DynamicSecurityAnalysisParameters>> loadSpecificParameters(PlatformConfig config) {
-        return Optional.of(new JsonDynamicSecurityAnalysisParametersTest.DummyExtension());
+        return Optional.of(new DynamicSecurityDummyExtension());
     }
 
     @Override
@@ -81,7 +80,7 @@ public class DynamicSecurityAnalysisProviderMock implements DynamicSecurityAnaly
 
     @Override
     public Optional<Extension<DynamicSecurityAnalysisParameters>> loadSpecificParameters(Map<String, String> properties) {
-        return Optional.of(new JsonDynamicSecurityAnalysisParametersTest.DummyExtension());
+        return Optional.of(new DynamicSecurityDummyExtension());
     }
 
     @Override

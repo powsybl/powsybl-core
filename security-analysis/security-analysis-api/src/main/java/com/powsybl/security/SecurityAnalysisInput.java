@@ -61,15 +61,15 @@ public class SecurityAnalysisInput {
      * Get specified {@link SecurityAnalysisParameters}.
      */
     public SecurityAnalysisParameters getStaticParameters() {
-        if (!isDynamic() && parameters instanceof SecurityAnalysisParameters) {
-            return (SecurityAnalysisParameters) parameters;
+        if (!isDynamic() && parameters instanceof SecurityAnalysisParameters staticParameters) {
+            return staticParameters;
         }
         throw new PowsyblException("The security analysis is dynamic : SecurityAnalysisInput cannot return static parameter");
     }
 
     public DynamicSecurityAnalysisParameters getDynamicParameters() {
-        if (isDynamic() && parameters instanceof DynamicSecurityAnalysisParameters) {
-            return (DynamicSecurityAnalysisParameters) parameters;
+        if (isDynamic() && parameters instanceof DynamicSecurityAnalysisParameters dynamicParameters) {
+            return dynamicParameters;
         }
         throw new PowsyblException("The security analysis is static : SecurityAnalysisInput cannot return dynamic parameter");
     }

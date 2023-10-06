@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
+import com.powsybl.security.AbstractSecurityAnalysisParameters;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                     parser.nextToken();
                     parameters.setIncreasedViolationsParameters(JsonUtil.readValue(deserializationContext,
                             parser,
-                            DynamicSecurityAnalysisParameters.IncreasedViolationsParameters.class));
+                            AbstractSecurityAnalysisParameters.IncreasedViolationsParameters.class));
                     break;
                 case "dynamic-simulation-parameters":
                     parser.nextToken();

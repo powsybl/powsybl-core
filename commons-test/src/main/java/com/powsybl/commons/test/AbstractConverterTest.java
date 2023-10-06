@@ -54,7 +54,7 @@ public abstract class AbstractConverterTest {
         Path xmlFile = tmpDir.resolve("data");
         out.accept(data, xmlFile);
         try (InputStream is = Files.newInputStream(xmlFile)) {
-       //     compare.accept(getClass().getResourceAsStream(ref), is);
+            compare.accept(getClass().getResourceAsStream(ref), is);
         }
         return xmlFile;
     }

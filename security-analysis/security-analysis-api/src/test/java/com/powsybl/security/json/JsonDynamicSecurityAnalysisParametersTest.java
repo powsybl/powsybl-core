@@ -7,18 +7,9 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.security.DynamicSecurityDummyExtension;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Laurent Issertial <laurent.issertial at rte-france.com>
  */
-public class JsonDynamicSecurityAnalysisParametersTest extends AbstractConverterTest {
+class JsonDynamicSecurityAnalysisParametersTest extends AbstractConverterTest {
 
     @Test
     void roundTrip() throws IOException {
@@ -42,7 +33,7 @@ public class JsonDynamicSecurityAnalysisParametersTest extends AbstractConverter
     @Test
     void writeExtension() throws IOException {
         DynamicSecurityAnalysisParameters parameters = new DynamicSecurityAnalysisParameters();
-        parameters.addExtension(DummyExtension.class, new DummyExtension());
+        parameters.addExtension(DynamicSecurityDummyExtension.class, new DynamicSecurityDummyExtension());
         writeTest(parameters, JsonDynamicSecurityAnalysisParameters::write, ComparisonUtils::compareTxt, "/DynamicSecurityAnalysisParametersWithExtension.json");
     }
 
@@ -58,7 +49,7 @@ public class JsonDynamicSecurityAnalysisParametersTest extends AbstractConverter
     void readExtension() throws IOException {
         DynamicSecurityAnalysisParameters parameters = JsonDynamicSecurityAnalysisParameters.read(getClass().getResourceAsStream("/DynamicSecurityAnalysisParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
-        assertNotNull(parameters.getExtension(DummyExtension.class));
+        assertNotNull(parameters.getExtension(DynamicSecurityDummyExtension.class));
         assertNotNull(parameters.getExtensionByName("dummy-extension"));
     }
 
@@ -71,112 +62,16 @@ public class JsonDynamicSecurityAnalysisParametersTest extends AbstractConverter
     @Test
     void updateExtensions() {
         DynamicSecurityAnalysisParameters parameters = new DynamicSecurityAnalysisParameters();
-        DummyExtension extension = new DummyExtension();
+        DynamicSecurityDummyExtension extension = new DynamicSecurityDummyExtension();
         extension.setParameterBoolean(false);
         extension.setParameterString("test");
         extension.setParameterDouble(2.8);
-        DummyExtension oldExtension = new DummyExtension(extension);
-        parameters.addExtension(DummyExtension.class, extension);
+        DynamicSecurityDummyExtension oldExtension = new DynamicSecurityDummyExtension(extension);
+        parameters.addExtension(DynamicSecurityDummyExtension.class, extension);
         JsonDynamicSecurityAnalysisParameters.update(parameters, getClass().getResourceAsStream("/DynamicSecurityAnalysisParametersExtensionUpdate.json"));
-        DummyExtension updatedExtension = parameters.getExtension(DummyExtension.class);
+        DynamicSecurityDummyExtension updatedExtension = parameters.getExtension(DynamicSecurityDummyExtension.class);
         assertEquals(oldExtension.isParameterBoolean(), updatedExtension.isParameterBoolean());
         assertEquals(oldExtension.getParameterDouble(), updatedExtension.getParameterDouble(), 0.01);
         assertNotEquals(oldExtension.getParameterString(), updatedExtension.getParameterString());
     }
-
-    public static class DummyExtension extends AbstractExtension<DynamicSecurityAnalysisParameters> {
-        double parameterDouble;
-        boolean parameterBoolean;
-        String parameterString;
-
-        public DummyExtension() {
-            super();
-        }
-
-        DummyExtension(DummyExtension another) {
-            this.parameterDouble = another.parameterDouble;
-            this.parameterBoolean = another.parameterBoolean;
-            this.parameterString = another.parameterString;
-        }
-
-        boolean isParameterBoolean() {
-            return parameterBoolean;
-        }
-
-        double getParameterDouble() {
-            return parameterDouble;
-        }
-
-        String getParameterString() {
-            return parameterString;
-        }
-
-        void setParameterBoolean(boolean parameterBoolean) {
-            this.parameterBoolean = parameterBoolean;
-        }
-
-        void setParameterString(String parameterString) {
-            this.parameterString = parameterString;
-        }
-
-        void setParameterDouble(double parameterDouble) {
-            this.parameterDouble = parameterDouble;
-        }
-
-        @Override
-        public String getName() {
-            return "dummy-extension";
-        }
-    }
-
-    public static class DummySerializer implements ExtensionJsonSerializer<DynamicSecurityAnalysisParameters, DummyExtension> {
-        private interface SerializationSpec {
-
-            @JsonIgnore
-            String getName();
-
-            @JsonIgnore
-            DynamicSecurityAnalysisParameters getExtendable();
-        }
-
-        private static ObjectMapper createMapper() {
-            return JsonUtil.createObjectMapper()
-                    .addMixIn(DummyExtension.class, SerializationSpec.class);
-        }
-
-        @Override
-        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeEndObject();
-        }
-
-        @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return new DummyExtension();
-        }
-
-        @Override
-        public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
-            ObjectMapper objectMapper = createMapper();
-            ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-            DummyExtension updatedParameters = objectReader.readValue(jsonParser, DummyExtension.class);
-            return updatedParameters;
-        }
-
-        @Override
-        public String getExtensionName() {
-            return "dummy-extension";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "dynamic-security-analysis-parameters";
-        }
-
-        @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
-        }
-    }
-
 }

@@ -21,12 +21,14 @@ import java.nio.file.Path;
  */
 public final class DynamicSimulationSupplierFactory {
 
+    private static final String GROOVY_EXTENSION = "groovy";
+
     private DynamicSimulationSupplierFactory() {
     }
 
     public static DynamicModelsSupplier createDynamicModelsSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals("groovy")) {
+        if (extension.equals(GROOVY_EXTENSION)) {
             return new GroovyDynamicModelsSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported dynamic model format: " + extension);
@@ -39,7 +41,7 @@ public final class DynamicSimulationSupplierFactory {
 
     public static EventModelsSupplier createEventModelsSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals("groovy")) {
+        if (extension.equals(GROOVY_EXTENSION)) {
             return new GroovyEventModelsSupplier(path, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported events format: " + extension);
@@ -52,7 +54,7 @@ public final class DynamicSimulationSupplierFactory {
 
     public static CurvesSupplier createCurvesSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals("groovy")) {
+        if (extension.equals(GROOVY_EXTENSION)) {
             return new GroovyCurvesSupplier(path, GroovyExtension.find(CurveGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported curves format: " + extension);

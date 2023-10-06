@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 
-import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -150,10 +149,4 @@ public abstract class AbstractSecurityAnalysisParameters<T> extends AbstractExte
     }
 
     protected abstract T self();
-
-    @Override
-    public abstract void write(Path parametersPath);
-
-    @Override
-    public abstract void update(Path parametersPath);
 }
