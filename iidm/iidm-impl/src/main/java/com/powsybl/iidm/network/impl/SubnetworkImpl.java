@@ -218,7 +218,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
-        return new VoltageAngleLimitAdderImpl(rootNetworkRef, id);
+        return getNetwork().newVoltageAngleLimit(id);
     }
 
     @Override

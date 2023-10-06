@@ -9,13 +9,12 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
 *
@@ -110,4 +109,15 @@ class VoltageAngleLimitTest {
         assertEquals("The network " + network.getId()
                 + " already contains a voltage angle limit with the id 'Limit'", e.getMessage());
     }
+
+    @Test
+    void removeTest() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Line line = network.getLine("NHV1_NHV2_1");
+        network.newVoltageAngleLimit().setId("val").from(line.getTerminal1()).to(line.getTerminal2()).setHighLimit(7.0).setLowLimit(-7.0).add();
+        assertNotNull(network.getVoltageAngleLimit("val"));
+        network.getVoltageAngleLimit("val").remove();
+        assertNull(network.getVoltageAngleLimit("val"));
+    }
+
 }
