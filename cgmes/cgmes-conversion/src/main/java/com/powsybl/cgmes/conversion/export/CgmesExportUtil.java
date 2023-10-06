@@ -310,12 +310,12 @@ public final class CgmesExportUtil {
     }
 
     // tap changer is exported as it is modelled in IIDM, always at end 1
-    public static void addUpdateCgmesTapChangerExtension(TwoWindingsTransformer twt) {
+    static void addUpdateCgmesTapChangerExtension(TwoWindingsTransformer twt) {
         twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER), regulatingControlIsDefined(rtc)));
         twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER), regulatingControlIsDefined(ptc)));
     }
 
-    public static void addUpdateCgmesTapChangerExtension(ThreeWindingsTransformer twt) {
+    static void addUpdateCgmesTapChangerExtension(ThreeWindingsTransformer twt) {
         twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 1), regulatingControlIsDefined(rtc)));
         twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 1), regulatingControlIsDefined(ptc)));
 
@@ -360,13 +360,13 @@ public final class CgmesExportUtil {
         }
     }
 
-    private static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
+    static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
         return !Double.isNaN(rtc.getTargetV())
-                && rtc.getTargetV() > 0.0
+                && rtc.getTargetV() >= 0.0
                 && rtc.getRegulationTerminal() != null;
     }
 
-    private static boolean regulatingControlIsDefined(PhaseTapChanger ptc) {
+    static boolean regulatingControlIsDefined(PhaseTapChanger ptc) {
         return ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
                 && !Double.isNaN(ptc.getRegulationValue())
                 && ptc.getRegulationTerminal() != null;

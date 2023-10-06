@@ -688,17 +688,14 @@ public final class EquipmentExport {
             int neutralStep = getPhaseTapChangerNeutralStep(ptc);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
-            if (regulatingControlId.isPresent()) {
+            if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
                 String mode = getPhaseTapChangerRegulationMode(ptc);
-                // Only export the regulating control if mode is valid
-                if (mode != null) {
-                    String controlName = twtName + "_PTC_RC";
-                    String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
-                    cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
-                    if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
-                        TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, mode, terminalId, cimNamespace, writer, context);
-                        regulatingControlsWritten.add(cgmesRegulatingControlId);
-                    }
+                String controlName = twtName + "_PTC_RC";
+                String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
+                cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
+                if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
+                    TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, mode, terminalId, cimNamespace, writer, context);
+                    regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
             }
             String phaseTapChangerTableId = CgmesExportUtil.getUniqueId();
@@ -740,7 +737,7 @@ public final class EquipmentExport {
                 return PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER;
             case FIXED_TAP:
             default:
-                return null;
+                throw new PowsyblException("Unexpected regulation mode: " + ptc.getRegulationMode());
         }
     }
 
@@ -772,7 +769,7 @@ public final class EquipmentExport {
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             String controlMode = rtc.isRegulating() ? "volt" : "reactive";
-            if (regulatingControlId.isPresent()) {
+            if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(rtc)) {
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
                 cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
