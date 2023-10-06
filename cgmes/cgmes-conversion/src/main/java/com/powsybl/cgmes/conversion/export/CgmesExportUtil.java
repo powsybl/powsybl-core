@@ -361,11 +361,15 @@ public final class CgmesExportUtil {
     }
 
     private static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
-        return !Double.isNaN(rtc.getTargetV()) && rtc.getTargetV() > 0.0 && rtc.getRegulationTerminal() != null;
+        return !Double.isNaN(rtc.getTargetV())
+                && rtc.getTargetV() > 0.0
+                && rtc.getRegulationTerminal() != null;
     }
 
     private static boolean regulatingControlIsDefined(PhaseTapChanger ptc) {
-        return ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP;
+        return ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
+                && !Double.isNaN(ptc.getRegulationValue())
+                && ptc.getRegulationTerminal() != null;
     }
 
     private static <C extends Connectable<C>> void addTapChangerExtension(C twt, String tapChangerId, boolean regulatingControlIsDefined) {
