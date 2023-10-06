@@ -3,7 +3,7 @@
   "id" : "f00",
   "withFeederResult" : true,
   "studyType" : "STEADY_STATE",
-  "minVoltageDropProportionalThreshold" : 1.0,
+  "minVoltageDropProportionalThreshold" : 20.0,
   "withFortescueResult" : true,
   "withLoads" : true,
   "withShuntCompensators" : true,
