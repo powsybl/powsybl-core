@@ -362,13 +362,14 @@ public final class CgmesExportUtil {
 
     static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
         return !Double.isNaN(rtc.getTargetV())
-                && rtc.getTargetV() >= 0.0
+                && !Double.isNaN(rtc.getTargetDeadband())
                 && rtc.getRegulationTerminal() != null;
     }
 
     static boolean regulatingControlIsDefined(PhaseTapChanger ptc) {
         return ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
                 && !Double.isNaN(ptc.getRegulationValue())
+                && !Double.isNaN(ptc.getTargetDeadband())
                 && ptc.getRegulationTerminal() != null;
     }
 
