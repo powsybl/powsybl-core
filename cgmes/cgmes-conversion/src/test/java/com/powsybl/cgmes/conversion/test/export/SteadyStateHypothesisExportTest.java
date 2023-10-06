@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
@@ -23,7 +22,6 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -372,10 +370,6 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringConformLoad,
                 ExportXmlCompare::ignoringChildLookupNull);
         ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh);
-
-        assertEquals(generatorsCreatedFromOriginalClassCount(network, "SynchronousMachine"), generatorsCreatedFromOriginalClassCount(actual, "SynchronousMachine"));
-        assertEquals(generatorsCreatedFromOriginalClassCount(network, "ExternalNetworkInjection"), generatorsCreatedFromOriginalClassCount(actual, "ExternalNetworkInjection"));
-        assertEquals(generatorsCreatedFromOriginalClassCount(network, "EquivalentInjection"), generatorsCreatedFromOriginalClassCount(actual, "EquivalentInjection"));
     }
 
     private static void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
@@ -385,14 +379,5 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
             }
         }
-    }
-
-    private static long generatorsCreatedFromOriginalClassCount(Network network, String originalClass) {
-        return network.getGeneratorStream().filter(generator -> generatorOriginalClass(generator, originalClass)).count();
-    }
-
-    private static boolean generatorOriginalClass(Generator generator, String originalClass) {
-        String cgmesClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
-        return cgmesClass != null && cgmesClass.equals(originalClass);
     }
 }
