@@ -221,6 +221,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         Terminal getTerminal();
 
         /**
+         * Get leg side as enum ONE, TWO or THREE.
+         */
+        Side getSide();
+
+        /**
          * Get the nominal series resistance specified in ohm at the voltage of
          * the leg.
          */

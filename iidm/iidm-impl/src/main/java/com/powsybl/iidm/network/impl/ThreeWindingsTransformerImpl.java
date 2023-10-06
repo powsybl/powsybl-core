@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -60,6 +61,19 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         public TerminalExt getTerminal() {
             return transformer.terminals.get(legNumber - 1);
+        }
+
+        @Override
+        public Side getSide() {
+            return switch (legNumber) {
+                case 1 -> Side.ONE;
+                case 2 -> Side.TWO;
+                case 3 -> Side.THREE;
+                default -> throw new PowsyblException(
+                        "A three windings transformer leg number can only be 1, 2 or 3 "
+                                + "(with associated Side ONE, TWO and THREE), "
+                                + "here leg number is " + legNumber);
+            };
         }
 
         public double getR() {
