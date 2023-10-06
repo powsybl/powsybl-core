@@ -551,9 +551,9 @@ public final class SteadyStateHypothesisExport {
             if (context.isExportedEquipment(load)) {
                 String className = CgmesExportUtil.loadClassName(load);
                 switch (className) {
-                    case "AsynchronousMachine" ->
+                    case CgmesNames.ASYNCHRONOUS_MACHINE ->
                             writeAsynchronousMachine(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), cimNamespace, writer, context);
-                    case "EnergySource" ->
+                    case CgmesNames.ENERGY_SOURCE ->
                             writeEnergySource(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, "StationSupply" ->
                             writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
@@ -564,7 +564,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeAsynchronousMachine(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout("AsynchronousMachine", id, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout(CgmesNames.ASYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
@@ -575,7 +575,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeEnergySource(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout("EnergySource", id, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout(CgmesNames.ENERGY_SOURCE, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EnergySource.activePower");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();

@@ -109,6 +109,10 @@ public final class CgmesNames {
     public static final String CONFORM_LOAD = "ConformLoad";
     public static final String NONCONFORM_LOAD = "NonConformLoad";
     public static final String ENERGY_CONSUMER = "EnergyConsumer";
+    public static final String STATION_SUPPLY = "StationSupply";
+    public static final String ASYNCHRONOUS_MACHINE = "AsynchronousMachine";
+    public static final String ENERGY_SOURCE = "EnergySource";
+    public static final String SV_INJECTION = "SvInjection";
     public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
     public static final String NONCONFORM_LOAD_GROUP = "NonConformLoadGroup";
 

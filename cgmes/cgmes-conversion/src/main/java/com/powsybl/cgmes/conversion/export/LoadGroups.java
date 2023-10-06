@@ -23,7 +23,8 @@ class LoadGroups {
     }
 
     String groupFor(String loadClassName) {
-        if (loadClassName.equals(CgmesNames.ENERGY_CONSUMER)) {
+        if (loadClassName.equals(CgmesNames.ENERGY_CONSUMER)
+                || loadClassName.equals(CgmesNames.STATION_SUPPLY)) {
             return null;
         }
         return uniqueGroupByClass.computeIfAbsent(loadClassName, this::createGroupFor).id;

@@ -280,9 +280,9 @@ public final class EquipmentExport {
                 String className = CgmesExportUtil.loadClassName(load);
                 String loadId = context.getNamingStrategy().getCgmesId(load);
                 switch (className) {
-                    case "AsynchronousMachine" ->
+                    case CgmesNames.ASYNCHRONOUS_MACHINE ->
                             writeAsynchronousMachine(loadId, load.getNameOrId(), cimNamespace, writer, context);
-                    case "EnergySource" -> writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
+                    case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, "StationSupply" -> {
                         String loadGroup = loadGroups.groupFor(className);
                         EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
@@ -294,12 +294,12 @@ public final class EquipmentExport {
     }
 
     private static void writeAsynchronousMachine(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("AsynchronousMachine", id, name, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartIdName(CgmesNames.ASYNCHRONOUS_MACHINE, id, name, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
     public static void writeEnergySource(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("EnergySource", id, name, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartIdName(CgmesNames.ENERGY_SOURCE, id, name, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 

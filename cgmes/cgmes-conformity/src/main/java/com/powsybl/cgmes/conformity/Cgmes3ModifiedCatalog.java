@@ -115,5 +115,24 @@ public final class Cgmes3ModifiedCatalog {
                 new ResourceSet(CGMES_3_MICRO_GRID_BASE, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml"));
     }
 
+    public static GridModelReferenceResources microGridBaseCaseAllTypesOfLoads() {
+        String base = CGMES_3_MODIFIED_TEST_MODELS
+                + "/MicroGrid/allTypesOfLoads/";
+        return new GridModelReferenceResources(
+                "MicroGrid-allTypesOfLoads",
+                null,
+                new ResourceSet(base, "20210209T1930Z_1D_BE_EQ_9.xml",
+                        "20210209T1930Z_1D_BE_SSH_9.xml",
+                        "20210209T1930Z_1D_NL_EQ_9.xml",
+                        "20210209T1930Z_1D_NL_SSH_9.xml"),
+                new ResourceSet(CGMES_3_MICRO_GRID_BASE,
+                        "20210209T1930Z_1D_ASSEMBLED_DL_9.xml",
+                        "20210209T1930Z_1D_ASSEMBLED_SV_9.xml",
+                        "20210209T1930Z_1D_BE_GL_9.xml",
+                        "20210209T1930Z_1D_NL_GL_9.xml",
+                        "20210209T2323Z_1D_ASSEMBLED_TP_9.xml"),
+                new ResourceSet(CGMES_3_MICRO_GRID_BASE, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml"));
+    }
+
     private static final String CGMES_3_MODIFIED_TEST_MODELS = "/cgmes3-test-models-modified";
 }

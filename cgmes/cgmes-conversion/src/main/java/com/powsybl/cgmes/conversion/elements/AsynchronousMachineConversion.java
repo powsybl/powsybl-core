@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
@@ -20,7 +21,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class AsynchronousMachineConversion extends AbstractConductingEquipmentConversion {
 
     public AsynchronousMachineConversion(PropertyBag asm, Context context) {
-        super("AsynchronousMachine", asm, context);
+        super(CgmesNames.ASYNCHRONOUS_MACHINE, asm, context);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
     }
 
     private static void addSpecificProperties(Load load) {
-        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "AsynchronousMachine");
+        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ASYNCHRONOUS_MACHINE);
     }
 }
 
