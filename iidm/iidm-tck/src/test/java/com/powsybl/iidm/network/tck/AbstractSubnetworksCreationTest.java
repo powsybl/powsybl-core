@@ -392,7 +392,9 @@ public abstract class AbstractSubnetworksCreationTest {
         Line l1 = addLine(network, "l1", "vl1_0", "vl1_1");
 
         // On subnetwork1, voltage levels in root network and subnetwork2 => should fail
-        Exception e = assertThrows(ValidationException.class, () -> addVoltageAngleLimit(subnetwork1, "vla", l0.getTerminal1(), l1.getTerminal1()));
+        Terminal from = l0.getTerminal1();
+        Terminal to = l1.getTerminal1();
+        Exception e = assertThrows(ValidationException.class, () -> addVoltageAngleLimit(subnetwork1, "vla", from, to));
         assertTrue(e.getMessage().contains("Create this VoltageAngleLimit from the parent network"));
     }
 
@@ -405,7 +407,9 @@ public abstract class AbstractSubnetworksCreationTest {
         Line l2 = addLine(network, "l2", "vl2_0", "vl2_1");
 
         // On subnetwork1, voltage levels both in subnetwork2 => should fail
-        PowsyblException e = assertThrows(ValidationException.class, () -> addVoltageAngleLimit(subnetwork1, "vla", l2.getTerminal1(), l2.getTerminal2()));
+        Terminal from = l2.getTerminal1();
+        Terminal to = l2.getTerminal2();
+        PowsyblException e = assertThrows(ValidationException.class, () -> addVoltageAngleLimit(subnetwork1, "vla", from, to));
         assertTrue(e.getMessage().contains("Create this VoltageAngleLimit from the parent network"));
     }
 
