@@ -364,6 +364,17 @@ public abstract class AbstractSubnetworksCreationTest {
         vla3.remove();
         vla4.remove();
 
+        // Test VoltageAngleLimit retrieval
+        assertEquals(vla0, network.getVoltageAngleLimit("vla0"));
+        assertEquals(vla1, network.getVoltageAngleLimit("vla1"));
+        assertEquals(vla2, network.getVoltageAngleLimit("vla2"));
+        assertNull(subnetwork1.getVoltageAngleLimit("vla0"));
+        assertEquals(vla1, subnetwork1.getVoltageAngleLimit("vla1"));
+        assertNull(subnetwork1.getVoltageAngleLimit("vla2"));
+        assertNull(subnetwork2.getVoltageAngleLimit("vla0"));
+        assertNull(subnetwork2.getVoltageAngleLimit("vla1"));
+        assertEquals(vla2, subnetwork2.getVoltageAngleLimit("vla2"));
+
         // Detach all
         assertTrue(subnetwork1.isDetachable());
         assertTrue(subnetwork2.isDetachable());
