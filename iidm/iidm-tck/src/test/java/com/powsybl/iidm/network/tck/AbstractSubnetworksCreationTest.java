@@ -16,6 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -324,6 +325,94 @@ public abstract class AbstractSubnetworksCreationTest {
         assertFalse(listenerCalled.booleanValue());
     }
 
+    @Test
+    public void testAngleVoltageLimitCreation() {
+        addSubstation(network, "s0");
+        addSubstation(subnetwork1, "s1");
+        addSubstation(subnetwork2, "s2");
+
+        addVoltageLevel(network.getSubstation("s0").newVoltageLevel(), "vl0_0");
+        addVoltageLevel(network.getSubstation("s0").newVoltageLevel(), "vl0_1");
+        addVoltageLevel(network.getSubstation("s1").newVoltageLevel(), "vl1_0");
+        addVoltageLevel(network.getSubstation("s1").newVoltageLevel(), "vl1_1");
+        addVoltageLevel(network.getSubstation("s2").newVoltageLevel(), "vl2_0");
+        addVoltageLevel(network.getSubstation("s2").newVoltageLevel(), "vl2_1");
+
+        Line l0 = addLine(network, "l0", "vl0_0", "vl0_1");
+        Line l1 = addLine(network, "l1", "vl1_0", "vl1_1");
+        Line l2 = addLine(network, "l2", "vl2_0", "vl2_1");
+
+        // On root network, terminals both in root network
+        VoltageAngleLimit vla0 = addVoltageAngleLimit(network, "vla0", l0.getTerminal1(), l0.getTerminal2());
+
+        // On root network, terminals both in subnetwork1
+        VoltageAngleLimit vla1 = addVoltageAngleLimit(network, "vla1", l1.getTerminal1(), l1.getTerminal2());
+
+        // On subnetwork2, terminals both in subnetwork2
+        VoltageAngleLimit vla2 = addVoltageAngleLimit(subnetwork2, "vla2", l2.getTerminal1(), l2.getTerminal2());
+
+        // On root network, terminals in different subnetworks
+        VoltageAngleLimit vla3 = addVoltageAngleLimit(network, "vla3", l1.getTerminal1(), l2.getTerminal1());
+
+        // On root network, terminals in root network and subnetwork2
+        VoltageAngleLimit vla4 = addVoltageAngleLimit(network, "vla4", l0.getTerminal1(), l2.getTerminal1());
+
+        // Try to detach all. Some elements prevent it.
+        assertFalse(subnetwork1.isDetachable());
+        assertFalse(subnetwork2.isDetachable());
+        // Remove problematic elements
+        vla3.remove();
+        vla4.remove();
+
+        // Detach all
+        assertTrue(subnetwork1.isDetachable());
+        assertTrue(subnetwork2.isDetachable());
+        Network n1 = subnetwork1.detach();
+        Network n2 = subnetwork2.detach();
+        // - Check VoltageAngleLimits
+        assertEquals(1, List.of(network.getVoltageAngleLimits()).size());
+        assertEquals(1, List.of(n1.getVoltageAngleLimits()).size());
+        assertEquals(1, List.of(n2.getVoltageAngleLimits()).size());
+        assertEquals(vla0, network.getVoltageAngleLimit("vla0"));
+        assertNull(network.getVoltageAngleLimit("vla1"));
+        assertNull(network.getVoltageAngleLimit("vla2"));
+        assertEquals(vla1, n1.getVoltageAngleLimit("vla1"));
+        assertEquals(vla2, n2.getVoltageAngleLimit("vla2"));
+    }
+
+    @Test
+    public void failCreateVoltageAngleLimitFromSubnetworkBetweenRootAndSubnetwork() {
+        addSubstation(network, "s0");
+        addSubstation(subnetwork1, "s1");
+        addVoltageLevel(network.getSubstation("s0").newVoltageLevel(), "vl0_0");
+        addVoltageLevel(network.getSubstation("s0").newVoltageLevel(), "vl0_1");
+        addVoltageLevel(network.getSubstation("s1").newVoltageLevel(), "vl1_0");
+        addVoltageLevel(network.getSubstation("s1").newVoltageLevel(), "vl1_1");
+        Line l0 = addLine(network, "l0", "vl0_0", "vl0_1");
+        Line l1 = addLine(network, "l1", "vl1_0", "vl1_1");
+
+        // On subnetwork1, voltage levels in root network and subnetwork2 => should fail
+        Terminal from = l0.getTerminal1();
+        Terminal to = l1.getTerminal1();
+        Exception e = assertThrows(ValidationException.class, () -> addVoltageAngleLimit(subnetwork1, "vla", from, to));
+        assertTrue(e.getMessage().contains("Create this VoltageAngleLimit from the parent network"));
+    }
+
+    @Test
+    public void failCreateVoltageAngleLimitFromASubnetworkInAnother() {
+        addSubstation(subnetwork1, "s2");
+
+        addVoltageLevel(network.getSubstation("s2").newVoltageLevel(), "vl2_0");
+        addVoltageLevel(subnetwork2.newVoltageLevel(), "vl2_1");
+        Line l2 = addLine(network, "l2", "vl2_0", "vl2_1");
+
+        // On subnetwork1, voltage levels both in subnetwork2 => should fail
+        Terminal from = l2.getTerminal1();
+        Terminal to = l2.getTerminal2();
+        PowsyblException e = assertThrows(ValidationException.class, () -> addVoltageAngleLimit(subnetwork1, "vla", from, to));
+        assertTrue(e.getMessage().contains("Create this VoltageAngleLimit from the parent network"));
+    }
+
     void assertValidationLevels(ValidationLevel expected) {
         // The validation level must be the same between the root network and its subnetworks
         assertEquals(expected, network.getValidationLevel());
@@ -415,6 +504,12 @@ public abstract class AbstractSubnetworksCreationTest {
                 .setBus(getBusId(vlId3))
                 .setVoltageLevel(vlId3)
                 .add()
+                .add();
+    }
+
+    private VoltageAngleLimit addVoltageAngleLimit(Network network, String id, Terminal from, Terminal to) {
+        return network.newVoltageAngleLimit()
+                .setId(id).from(from).to(to)
                 .add();
     }
 
