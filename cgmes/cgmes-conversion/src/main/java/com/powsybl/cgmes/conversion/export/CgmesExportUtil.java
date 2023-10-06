@@ -310,12 +310,12 @@ public final class CgmesExportUtil {
     }
 
     // tap changer is exported as it is modelled in IIDM, always at end 1
-    public static void addTapChangerExtensionsNecessaryForExporting(TwoWindingsTransformer twt) {
+    public static void addUpdateCgmesTapChangerExtension(TwoWindingsTransformer twt) {
         twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER), regulatingControlIsDefined(rtc)));
         twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER), regulatingControlIsDefined(ptc)));
     }
 
-    public static void addTapChangerExtensionsNecessaryForExporting(ThreeWindingsTransformer twt) {
+    public static void addUpdateCgmesTapChangerExtension(ThreeWindingsTransformer twt) {
         twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 1), regulatingControlIsDefined(rtc)));
         twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 1), regulatingControlIsDefined(ptc)));
 
