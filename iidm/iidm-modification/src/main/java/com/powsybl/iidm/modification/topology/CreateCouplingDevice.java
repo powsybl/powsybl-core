@@ -132,7 +132,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         boolean invertSides = false;
         if (position1 != null) {
             // Check if the first side is on the first bar or not and invert the logic if it is not the case
-            invertSides = checkSides(voltageLevel1, position1, position2);
+            invertSides = bbsOnSameSection && checkSides(voltageLevel1, position1, position2);
 
             // List of the bars for the first section and creation of the topology
             List<BusbarSection> bbsList1 = computeBbsListAndCreateTopology(voltageLevel1, position1, bbs1, bbsOnSameSection, breakerNode1, !invertSides);
