@@ -15,10 +15,7 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.util.ModificationLogs.busOrBbsDoesNotExist;
@@ -131,10 +128,14 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         // Disconnectors
         BusbarSectionPosition position1 = bbs1.getExtension(BusbarSectionPosition.class);
         BusbarSectionPosition position2 = bbs2.getExtension(BusbarSectionPosition.class);
-        boolean checkAndFilterOtherBbs = position1 != null && position2 != null && position1.getSectionIndex() == position2.getSectionIndex();
+        boolean bbsOnSameSection = position1 != null && position2 != null && position1.getSectionIndex() == position2.getSectionIndex();
+        boolean invertSides = false;
         if (position1 != null) {
+            // Check if the first side is on the first bar or not and invert the logic if it is not the case
+            invertSides = checkSides(voltageLevel1, position1, position2);
+
             // List of the bars for the first section and creation of the topology
-            List<BusbarSection> bbsList1 = computeBbsListAndCreateTopology(voltageLevel1, position1, bbs1, checkAndFilterOtherBbs, breakerNode1, busOrBbsId2);
+            List<BusbarSection> bbsList1 = computeBbsListAndCreateTopology(voltageLevel1, position1, bbs1, bbsOnSameSection, breakerNode1, !invertSides);
 
             nbOpenDisconnectors += bbsList1.size() - 1;
         } else {
@@ -144,7 +145,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         }
         if (position2 != null) {
             // List of the bars for the second section and creation of the topology
-            List<BusbarSection> bbsList2 = computeBbsListAndCreateTopology(voltageLevel2, position2, bbs2, checkAndFilterOtherBbs, breakerNode2, busOrBbsId1);
+            List<BusbarSection> bbsList2 = computeBbsListAndCreateTopology(voltageLevel2, position2, bbs2, bbsOnSameSection, breakerNode2, invertSides);
 
             nbOpenDisconnectors += bbsList2.size() - 1;
         } else {
@@ -159,7 +160,37 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         }
     }
 
-    private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSectionPosition position, BusbarSection bbs, boolean checkAndFilterOtherBbs, int breakerNode, String otherBbsId) {
+    /**
+     * Check if the first side is on the first bar and the second side on the last bar
+     * @param voltageLevel Voltage level in which the busbar sections are located
+     * @param position1 Position on the first side
+     * @param position2 Position on the second side
+     * @return True if the first side is not on the first bar and the second side is not on the last bar, else False
+     */
+    private boolean checkSides(VoltageLevel voltageLevel, BusbarSectionPosition position1, BusbarSectionPosition position2) {
+        // Check if the first side is on the first bar or the second side on the last bar
+        OptionalInt minBbsIndex = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+            .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
+            .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).min();
+        OptionalInt maxBbsIndex = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+            .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
+            .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).max();
+        return position1.getBusbarIndex() != minBbsIndex.orElse(Integer.MIN_VALUE)
+            && position2.getBusbarIndex() != maxBbsIndex.orElse(Integer.MAX_VALUE);
+    }
+
+    /**
+     * Computes the list of the bars on which to connect the coupling device for the current side and creates the
+     * disconnectors for the different parallel busbar sections.
+     * @param voltageLevel Voltage level in which the busbar sections are located
+     * @param position Position of the current bar
+     * @param bbs Current bar
+     * @param bbsOnSameSection True if the two busbar sections are located on the same section
+     * @param breakerNode Node on the current site of the breaker
+     * @param avoidFirstBar If true, the first bar should not be connected
+     * @return List of the busbar sections on which a connection was made
+     */
+    private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSectionPosition position, BusbarSection bbs, boolean bbsOnSameSection, int breakerNode, boolean avoidFirstBar) {
 
         // List of the bars for the second section
         List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
@@ -167,8 +198,16 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
 
         // If the two busbarsections are in the same section, filter the second one if there are two busbarsections in the list
-        if (checkAndFilterOtherBbs && bbsList.size() == 2) {
-            bbsList = bbsList.stream().filter(b -> !b.getId().equals(otherBbsId)).collect(Collectors.toList());
+        if (bbsOnSameSection) {
+            if (avoidFirstBar) {
+                OptionalInt maxBbsIndex = bbsList.stream()
+                    .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).max();
+                bbsList = bbsList.stream().filter(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex() != maxBbsIndex.getAsInt()).collect(Collectors.toList());
+            } else {
+                OptionalInt minBbsIndex = bbsList.stream()
+                    .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).min();
+                bbsList = bbsList.stream().filter(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex() != minBbsIndex.getAsInt()).collect(Collectors.toList());
+            }
         }
 
         // Disconnectors on side 2
