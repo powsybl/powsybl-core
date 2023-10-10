@@ -42,7 +42,7 @@ public abstract class AbstractComponentCalculationBugWhenMergingTest {
                 .setX(1)
                 .setG(0)
                 .setB(0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         Network n2 = Network.create("n2", "test");
         Substation s2 = n2.newSubstation()
@@ -67,7 +67,7 @@ public abstract class AbstractComponentCalculationBugWhenMergingTest {
                 .setX(1)
                 .setG(0)
                 .setB(0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         // to reproduce the issue, force connected components on one of the network (n1)
         // and not the other one
@@ -75,18 +75,18 @@ public abstract class AbstractComponentCalculationBugWhenMergingTest {
             b.getConnectedComponent();
         }
         assertEquals(0, n1.getTieLineCount());
-        n1.merge(n2);
-        for (Bus b : n1.getBusView().getBuses()) {
+        Network merged = Network.merge(n1, n2);
+        for (Bus b : merged.getBusView().getBuses()) {
             assertDoesNotThrow(b::getConnectedComponent);
             assertEquals(0, b.getConnectedComponent().getNum());
             assertEquals(2, b.getConnectedComponent().getSize());
             assertEquals(0, b.getSynchronousComponent().getNum());
             assertEquals(2, b.getConnectedComponent().getSize());
         }
-        assertEquals(1, n1.getTieLineCount());
-        n1.getTieLine("dl1 + dl2").remove();
-        assertEquals(0, n1.getTieLineCount());
-        for (Bus b : n1.getBusView().getBuses()) {
+        assertEquals(1, merged.getTieLineCount());
+        merged.getTieLine("dl1 + dl2").remove();
+        assertEquals(0, merged.getTieLineCount());
+        for (Bus b : merged.getBusView().getBuses()) {
             assertEquals(1, b.getConnectedComponent().getSize());
             assertEquals(1, b.getConnectedComponent().getSize());
         }

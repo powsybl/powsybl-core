@@ -103,7 +103,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * Create a new LimitViolation, for types other than current limits.
+     * Create a new LimitViolation, for voltage angle limit.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
      *
@@ -114,7 +114,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param value          The actual value of the physical value which triggered the detection of a violation.
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, double limit, float limitReduction, double value) {
-        this(subjectId, null, limitType, limit, limitReduction, value);
+        this(subjectId, null, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null);
     }
 
     /**

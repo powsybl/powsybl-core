@@ -941,6 +941,12 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    void microGridBaseCaseNLSwitchWithoutName() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLSwitchWithoutName().dataSource(), null);
+        assertNotNull(network.getSwitch("5f5d40ae-d52d-4631-9285-b3ceefff784c"));
+    }
+
+    @Test
     void microGridBaseCaseBESingleFile() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), null);
         assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
@@ -989,6 +995,22 @@ class CgmesConformity1ModifiedConversionTest {
         RatioTapChanger rtc = network.getTwoWindingsTransformer(transformerId).getRatioTapChanger();
         assertTrue(Double.isNaN(rtc.getTargetDeadband()));
         assertFalse(rtc.isRegulating());
+    }
+
+    @Test
+    void microGridBELineDisconnectedAtBoundaryNode() {
+        Properties importParams = new Properties();
+        String dlId = "17086487-56ba-4979-b8de-064025a6b4da";
+
+        importParams.setProperty(CgmesImport.DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED, "true");
+        Network be0 = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELineDisconnectedAtBoundaryNode().dataSource(), importParams);
+        Bus bus0 = be0.getDanglingLine(dlId).getTerminal().getBusView().getBus();
+        assertNull(bus0);
+
+        importParams.setProperty(CgmesImport.DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED, "false");
+        Network be1 = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELineDisconnectedAtBoundaryNode().dataSource(), importParams);
+        Bus bus1 = be1.getDanglingLine(dlId).getTerminal().getBusView().getBus();
+        assertNotNull(bus1);
     }
 
     private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {

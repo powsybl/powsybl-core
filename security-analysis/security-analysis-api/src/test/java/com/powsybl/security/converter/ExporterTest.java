@@ -21,6 +21,7 @@ import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
+import com.powsybl.security.strategy.ConditionalActions;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -70,9 +71,13 @@ class ExporterTest extends AbstractConverterTest {
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = List.of(new ThreeWindingsTransformerResult("threeWindingsTransformerId", 1, 2, 3, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2));
         List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
-        operatorStrategyResults.add(new OperatorStrategyResult(new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"), new AtLeastOneViolationCondition(Collections.singletonList("violationId1")),
-                Collections.singletonList("actionId1")), PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList()),
-                new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
+        operatorStrategyResults.add(
+                new OperatorStrategyResult(
+                        new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"),
+                                List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
+                        PostContingencyComputationStatus.CONVERGED,
+                        new LimitViolationsResult(Collections.emptyList()),
+                        new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED,
                 Collections.singletonList(postContingencyResult),
                 preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults, operatorStrategyResults);
@@ -114,6 +119,12 @@ class ExporterTest extends AbstractConverterTest {
     @Test
     void testCompatibilityV13Deserialization() {
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.3.json"));
+        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
+    }
+
+    @Test
+    void testCompatibilityV14Deserialization() {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.4.json"));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
     }
 

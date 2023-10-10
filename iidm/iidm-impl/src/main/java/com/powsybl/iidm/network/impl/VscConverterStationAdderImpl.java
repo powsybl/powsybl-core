@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -59,6 +60,15 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     }
 
     @Override
+    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
+        return getNetworkRef();
+    }
+
+    private Ref<NetworkImpl> getNetworkRef() {
+        return getVoltageLevel().getNetworkRef();
+    }
+
+    @Override
     public VscConverterStationImpl add() {
         NetworkImpl network = getNetwork();
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
@@ -69,8 +79,8 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         TerminalExt terminal = checkAndGetTerminal();
         validate();
         VscConverterStationImpl converterStation
-                = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), network.getRef(), voltageRegulatorOn,
-                reactivePowerSetpoint, voltageSetpoint, regulatingTerminal == null ? terminal : regulatingTerminal);
+                = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetworkRef(),
+                voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint, regulatingTerminal == null ? terminal : regulatingTerminal);
         converterStation.addTerminal(terminal);
         getVoltageLevel().attach(terminal, false);
         network.getIndex().checkAndAdd(converterStation);

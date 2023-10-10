@@ -148,7 +148,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             Bus b = dl.getTerminal().getBusView().getBus();
             String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNode != null) {
@@ -200,7 +200,7 @@ public final class StateVariablesExport {
 
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).forEach(dl -> {
+        CgmesExportUtil.getBoundaryDanglingLines(network).stream().forEach(dl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
@@ -295,8 +295,7 @@ public final class StateVariablesExport {
             String cgmesTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(c, aliasTypeForTerminalId);
             writePowerFlow(cgmesTerminalId, p, q, cimNamespace, writer, context);
         } else {
-            // TODO(LUMA) Review for IOP, EMF. We previously returned silently if no terminal was found
-            throw new PowsyblException("Exporting CGMES SvPowerFlow. Missing alias for " + c.getType() + " " + c.getId() + ": " + aliasTypeForTerminalId);
+            LOG.error("Exporting CGMES SvPowerFlow. Missing alias for {} {}: {}", c.getType(), c.getId(), aliasTypeForTerminalId);
         }
     }
 
@@ -334,6 +333,9 @@ public final class StateVariablesExport {
 
     private static void writeShuntCompensatorSections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
+            if ("true".equals(s.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
+                continue;
+            }
             CgmesExportUtil.writeStartId("SvShuntCompensatorSections", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer, context);
             CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator", context.getNamingStrategy().getCgmesId(s), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
@@ -353,7 +355,8 @@ public final class StateVariablesExport {
                 String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
                 writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition(), cimNamespace, writer, context);
                 writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
-            } else if (twt.hasRatioTapChanger()) {
+            }
+            if (twt.hasRatioTapChanger()) {
                 int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).isPresent() ? 1 : 2;
                 String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
                 writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition(), cimNamespace, writer, context);
@@ -368,7 +371,8 @@ public final class StateVariablesExport {
                     String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
                     writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition(), cimNamespace, writer, context);
                     writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
-                } else if (leg.hasRatioTapChanger()) {
+                }
+                if (leg.hasRatioTapChanger()) {
                     String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
                     writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition(), cimNamespace, writer, context);
                     writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
@@ -406,7 +410,7 @@ public final class StateVariablesExport {
         // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
         network.getConnectableStream().forEach(c -> {
             if (context.isExportedEquipment(c)) {
-                writeConnectableStatus(c, cimNamespace, writer, context);
+                writeConnectableStatus(c, cimNamespace, writer, context, network);
             }
         });
 
@@ -414,11 +418,18 @@ public final class StateVariablesExport {
         // If it is disconnected on the boundary side, it might not appear on the SV file.
     }
 
-    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        if (connectable instanceof DanglingLine dl && dl.isPaired()) {
+    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer,
+                                               CgmesExportContext context, Network network) {
+        if (connectable instanceof DanglingLine dl && !network.isBoundaryElement(dl)) {
             // TODO(Luma) Export tie line components instead of a single equipment
             // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
             // We ignore dangling lines inside tie lines for now
+            return;
+        }
+        if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(connectable)) {
+            // Equivalent shunts do not have a section count in SSH, SV profiles,
+            // To make output consistent with IIDM section count == 0 we declare it out of service
+            writeStatus(Boolean.toString(false), context.getNamingStrategy().getCgmesId(connectable), cimNamespace, writer, context);
             return;
         }
         writeStatus(Boolean.toString(connectable.getTerminals().stream().anyMatch(Terminal::isConnected)), context.getNamingStrategy().getCgmesId(connectable), cimNamespace, writer, context);

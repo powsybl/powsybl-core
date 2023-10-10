@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 
@@ -16,11 +17,13 @@ import java.util.Objects;
 class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> implements TieLineAdder {
 
     private final NetworkImpl network;
+    private final String subnetwork;
     private String dl1Id;
     private String dl2Id;
 
-    TieLineAdderImpl(NetworkImpl network) {
-        this.network = network;
+    TieLineAdderImpl(NetworkImpl network, String subnetwork) {
+        this.network = Objects.requireNonNull(network);
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -62,11 +65,18 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
         if (dl1.getTieLine().isPresent() || dl2.getTieLine().isPresent()) {
             throw new ValidationException(this, "danglingLine1 (" + dl1Id + ") and/or danglingLine2 (" + dl2Id + ") already has a tie line");
         }
-        if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null && !Objects.equals(dl1.getUcteXnodeCode(), dl2.getUcteXnodeCode())) {
-            throw new ValidationException(this, "ucteXnodeCode is not consistent");
+        if (dl1.getPairingKey() != null && dl2.getPairingKey() != null && !Objects.equals(dl1.getPairingKey(), dl2.getPairingKey())) {
+            throw new ValidationException(this, "pairingKey is not consistent");
+        }
+        VoltageLevelExt voltageLevel1 = dl1.getTerminal().getVoltageLevel();
+        VoltageLevelExt voltageLevel2 = dl2.getTerminal().getVoltageLevel();
+        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetworkId()) || !subnetwork.equals(voltageLevel2.getSubnetworkId()))) {
+            throw new ValidationException(this, "The involved dangling lines are not in the subnetwork '" +
+                    subnetwork + "'. Create this tie line from the parent network '" + getNetwork().getId() + "'");
         }
 
-        TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious());
+        Ref<NetworkImpl> networkRef = computeNetworkRef(network, voltageLevel1, voltageLevel2);
+        TieLineImpl line = new TieLineImpl(networkRef, id, getName(), isFictitious());
 
         line.attachDanglingLines(dl1, dl2);
 

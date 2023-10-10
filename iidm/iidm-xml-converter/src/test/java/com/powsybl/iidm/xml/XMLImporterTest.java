@@ -261,7 +261,8 @@ class XMLImporterTest extends AbstractConverterTest {
 
     @Test
     void importDataReporterValidationAndMultipleExtensionTest() throws IOException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("twoWindingsTransformerPhaseAndRatioTapWithExtensions", new ResourceSet("/V1_9/", "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
+                new ResourceSet("/V1_9/", "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml"));
         ReporterModel reporterModel = new ReporterModel("test", "test reporter");
         assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
 

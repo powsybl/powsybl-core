@@ -1,0 +1,13 @@
+[ {
+  "version" : "1.2",
+  "id" : "f00",
+  "withFeederResult" : true,
+  "studyType" : "STEADY_STATE",
+  "minVoltageDropProportionalThreshold" : 20.0,
+  "withFortescueResult" : true,
+  "withLoads" : true,
+  "withShuntCompensators" : true,
+  "withVSCConverterStations" : true,
+  "withNeutralPosition" : true,
+  "initialVoltageProfileMode" : "CONFIGURED"
+}]

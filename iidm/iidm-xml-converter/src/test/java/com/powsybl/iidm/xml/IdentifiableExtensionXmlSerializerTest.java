@@ -6,23 +6,19 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
-import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.LoadZipModel;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import com.powsybl.iidm.network.test.TerminalMockExt;
+import com.powsybl.iidm.xml.extensions.util.NetworkSourceExtension;
+import com.powsybl.iidm.xml.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -115,50 +111,11 @@ class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverterTest {
         }
     }
 
-    // Define a network extension with XML serializer
-    static class NetworkSourceExtension extends AbstractExtension<Network> {
-
-        NetworkSourceExtension(String sourceData) {
-            this.sourceData = sourceData;
-        }
-
-        @Override
-        public String getName() {
-            return "networkSource";
-        }
-
-        String getSourceData() {
-            return sourceData;
-        }
-
-        private final String sourceData;
-    }
-
-    @AutoService(ExtensionXmlSerializer.class)
-    public static class NetworkSourceExtensionXmlSerializer extends AbstractExtensionXmlSerializer<Network, NetworkSourceExtension> {
-
-        public NetworkSourceExtensionXmlSerializer() {
-            super("networkSource", "network", NetworkSourceExtension.class, false, "networkSource.xsd",
-                    "http://www.itesla_project.eu/schema/iidm/ext/networksource/1_0", "extNetworkSource");
-        }
-
-        @Override
-        public void write(NetworkSourceExtension networkSource, XmlWriterContext context) throws XMLStreamException {
-            context.getWriter().writeAttribute("sourceData", networkSource.getSourceData());
-        }
-
-        @Override
-        public NetworkSourceExtension read(Network network, XmlReaderContext context) {
-            String sourceData = context.getReader().getAttributeValue(null, "sourceData");
-            return new NetworkSourceExtension(sourceData);
-        }
-    }
-
     @Test
     void testNetworkSourceExtension() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         String sourceData = "eurostag-tutorial-example1-created-from-IIDM-API";
-        NetworkSourceExtension source = new NetworkSourceExtension(sourceData);
+        NetworkSourceExtension source = new NetworkSourceExtensionImpl(sourceData);
         network.addExtension(NetworkSourceExtension.class, source);
         byte[] buffer;
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {

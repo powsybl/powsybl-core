@@ -43,6 +43,11 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     }
 
     @Override
+    public Network getParentNetwork() {
+        return voltageLevel.getParentNetwork();
+    }
+
+    @Override
     public VoltageLevelExt getVoltageLevel() {
         return voltageLevel;
     }

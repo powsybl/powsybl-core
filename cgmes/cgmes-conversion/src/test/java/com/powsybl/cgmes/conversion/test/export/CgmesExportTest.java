@@ -308,8 +308,8 @@ class CgmesExportTest {
 
         Network network = DanglingLineNetworkFactory.create();
         DanglingLine expected = network.getDanglingLine("DL");
-        network.merge(BatteryNetworkFactory.create()); // add battery
-        Battery battery = network.getBattery("BAT");
+        Network merged = Network.merge(network, BatteryNetworkFactory.create()); // add battery
+        Battery battery = merged.getBattery("BAT");
 
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
@@ -324,7 +324,7 @@ class CgmesExportTest {
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
-            network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
+            merged.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             // To be able to import from the exported CGMES data we must add the external boundary definitions
             // For bus/branch we need both EQ and TP instance files of boundaries
