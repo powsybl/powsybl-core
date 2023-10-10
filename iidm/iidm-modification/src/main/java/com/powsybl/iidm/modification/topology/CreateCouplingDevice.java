@@ -200,11 +200,11 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             if (avoidFirstBar) {
                 OptionalInt maxBbsIndex = bbsList.stream()
                     .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).max();
-                bbsList = bbsList.stream().filter(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex() != maxBbsIndex.getAsInt()).collect(Collectors.toList());
+                bbsList = bbsList.stream().filter(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex() != maxBbsIndex.getAsInt()).toList();
             } else {
                 OptionalInt minBbsIndex = bbsList.stream()
                     .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).min();
-                bbsList = bbsList.stream().filter(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex() != minBbsIndex.getAsInt()).collect(Collectors.toList());
+                bbsList = bbsList.stream().filter(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex() != minBbsIndex.getAsInt()).toList();
             }
         }
 

@@ -337,7 +337,7 @@ public final class TopologyModificationUtils {
         // List of the bars for the second section
         return voltageLevel.getNodeBreakerView().getBusbarSectionStream()
             .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-            .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
+            .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).toList();
     }
 
     /**
