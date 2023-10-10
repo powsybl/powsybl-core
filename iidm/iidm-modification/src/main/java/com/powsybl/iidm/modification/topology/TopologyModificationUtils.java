@@ -327,12 +327,25 @@ public final class TopologyModificationUtils {
     }
 
     /**
+     * Get the list of parallel busbar sections on a given busbar section position
+     *
+     * @param voltageLevel Voltage level in which to find the busbar sections
+     * @param position busbar section position according to which busbar sections are found
+     * @return the list of busbar sections in the voltage level that have the same section position as the given position
+     */
+    static List<BusbarSection> getBusbarSectionsFromPosition(VoltageLevel voltageLevel, BusbarSectionPosition position) {
+        // List of the bars for the second section
+        return voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+            .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
+            .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
+    }
+
+    /**
      * Creates a breaker  and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
      */
     static void createNodeBreakerSwitchesTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int connectableNode, int forkNode, String prefix, BusbarSection bbs) {
         // Create the fictional list with only the current busbar section
-        List<BusbarSection> bbsList = new ArrayList<>();
-        bbsList.add(bbs);
+        List<BusbarSection> bbsList = List.of(bbs);
 
         // Call the usual method for the breaker and disconnector creation
         createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, prefix, "", bbsList, bbs);

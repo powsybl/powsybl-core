@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
@@ -277,9 +276,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
                 LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);
             } else {
-                List<BusbarSection> bbsList = tappedVoltageLevel.getNodeBreakerView().getBusbarSectionStream()
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
+                List<BusbarSection> bbsList = getBusbarSectionsFromPosition(tappedVoltageLevel, position);
                 createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbsList, bbs);
                 createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbsList, bbs);
             }

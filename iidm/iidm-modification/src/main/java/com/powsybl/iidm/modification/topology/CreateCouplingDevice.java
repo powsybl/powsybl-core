@@ -193,9 +193,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSectionPosition position, BusbarSection bbs, boolean bbsOnSameSection, int breakerNode, boolean avoidFirstBar) {
 
         // List of the bars for the second section
-        List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
-            .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-            .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
+        List<BusbarSection> bbsList = getBusbarSectionsFromPosition(voltageLevel, position);
 
         // If the two busbarsections are in the same section, filter the second one if there are two busbarsections in the list
         if (bbsOnSameSection) {
