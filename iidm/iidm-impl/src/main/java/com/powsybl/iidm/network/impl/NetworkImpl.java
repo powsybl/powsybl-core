@@ -723,7 +723,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
-        return new VoltageAngleLimitAdderImpl(ref);
+        return newVoltageAngleLimit(null);
+    }
+
+    VoltageAngleLimitAdder newVoltageAngleLimit(String subnetwork) {
+        return new VoltageAngleLimitAdderImpl(this, subnetwork);
     }
 
     @Override

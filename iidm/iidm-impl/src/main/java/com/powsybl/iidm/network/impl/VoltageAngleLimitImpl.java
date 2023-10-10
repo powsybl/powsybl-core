@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import java.util.OptionalDouble;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
@@ -19,18 +20,22 @@ import com.powsybl.iidm.network.*;
  */
 class VoltageAngleLimitImpl implements VoltageAngleLimit {
 
+    private final Ref<NetworkImpl> networkRef;
+
     private final String id;
     private final Terminal fromTerminal;
     private final Terminal toTerminal;
     private final double lowLimit;
     private final double highLimit;
 
-    VoltageAngleLimitImpl(String id, Terminal fromTerminal, Terminal toTerminal, double lowLimit, double highLimit) {
+    VoltageAngleLimitImpl(String id, Terminal fromTerminal, Terminal toTerminal,
+                          double lowLimit, double highLimit, Ref<NetworkImpl> networkRef) {
         this.id = id;
         this.fromTerminal = fromTerminal;
         this.toTerminal = toTerminal;
         this.lowLimit = lowLimit;
         this.highLimit = highLimit;
+        this.networkRef = networkRef;
     }
 
     @Override
@@ -56,5 +61,10 @@ class VoltageAngleLimitImpl implements VoltageAngleLimit {
     @Override
     public OptionalDouble getHighLimit() {
         return Double.isNaN(highLimit) ? OptionalDouble.empty() : OptionalDouble.of(highLimit);
+    }
+
+    @Override
+    public void remove() {
+        this.networkRef.get().getVoltageAngleLimitsIndex().remove(id);
     }
 }
