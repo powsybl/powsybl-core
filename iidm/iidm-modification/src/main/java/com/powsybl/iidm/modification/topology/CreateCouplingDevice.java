@@ -142,7 +142,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
             nbOpenDisconnectors += bbsList1.size() - 1;
         } else {
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, switchPrefixId, List.of(bbs1), bbs1);
+            createDisconnectorTopology(voltageLevel1, breakerNode1, switchPrefixId, List.of(bbs1), bbs1);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs1.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs1);
         }
@@ -152,7 +152,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
             nbOpenDisconnectors += bbsList2.size() - 1;
         } else {
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, switchPrefixId, List.of(bbs2), bbs2);
+            createDisconnectorTopology(voltageLevel2, breakerNode2, switchPrefixId, List.of(bbs2), bbs2);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs2.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs2);
         }
@@ -172,9 +172,9 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
      */
     private boolean checkSides(VoltageLevel voltageLevel, BusbarSectionPosition position1, BusbarSectionPosition position2) {
         // Check if the first side is on the first bar or the second side on the last bar
-        OptionalInt minBbsIndex = getBusbarSectionsFromPosition(voltageLevel, position1).stream()
+        OptionalInt minBbsIndex = getParallelBusbarSections(voltageLevel, position1).stream()
             .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).min();
-        OptionalInt maxBbsIndex = getBusbarSectionsFromPosition(voltageLevel, position2).stream()
+        OptionalInt maxBbsIndex = getParallelBusbarSections(voltageLevel, position2).stream()
             .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).max();
         return position1.getBusbarIndex() == minBbsIndex.orElseThrow()
             || position2.getBusbarIndex() == maxBbsIndex.orElseThrow();
@@ -194,7 +194,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSectionPosition position, BusbarSection bbs, boolean bbsOnSameSection, int breakerNode, boolean avoidLastBar) {
 
         // List of the bars for the second section
-        List<BusbarSection> bbsList = getBusbarSectionsFromPosition(voltageLevel, position);
+        List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
 
         // If the two busbarsections are in the same section, avoid the last bar if avoidLastBar is true, else the first one
         if (bbsOnSameSection) {
@@ -208,7 +208,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         }
 
         // Disconnectors on side 2
-        createDisconnectorTopologyFromBusbarSectionList(voltageLevel, breakerNode, switchPrefixId, bbsList, bbs);
+        createDisconnectorTopology(voltageLevel, breakerNode, switchPrefixId, bbsList, bbs);
         return bbsList;
     }
 

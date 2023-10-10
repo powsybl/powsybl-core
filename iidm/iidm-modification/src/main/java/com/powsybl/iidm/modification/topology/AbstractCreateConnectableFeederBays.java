@@ -229,13 +229,13 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         int parallelBbsNumber = 0;
         if (position == null) {
             // No position extension is present so only one disconnector is needed
-            createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, baseId, bbs);
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, baseId, bbs);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs);
         } else {
-            List<BusbarSection> bbsList = getBusbarSectionsFromPosition(voltageLevel, position);
+            List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
             parallelBbsNumber = bbsList.size() - 1;
-            createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, baseId, bbsList, bbs);
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, baseId, bbsList, bbs);
         }
         LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector " +
                 "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), bbsId, parallelBbsNumber);

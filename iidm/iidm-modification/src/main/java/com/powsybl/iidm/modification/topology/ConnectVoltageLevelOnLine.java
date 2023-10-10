@@ -94,14 +94,14 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
             // Topology creation
             if (position == null) {
                 // No position extension is present so the line is connected only on the required busbar section
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, line1Id, bbs);
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, line2Id, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, line1Id, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, line2Id, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);
             } else {
-                List<BusbarSection> bbsList = getBusbarSectionsFromPosition(voltageLevel, position);
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, line1Id, bbsList, bbs);
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, line2Id, bbsList, bbs);
+                List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, line1Id, bbsList, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, line2Id, bbsList, bbs);
             }
         } else {
             throw new IllegalStateException();

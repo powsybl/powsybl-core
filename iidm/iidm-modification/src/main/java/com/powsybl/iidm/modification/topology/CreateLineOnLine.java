@@ -217,12 +217,12 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
             // Topology creation
             if (position == null) {
                 // No position extension is present so only one disconnector is needed
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, originalLineId, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, originalLineId, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);
             } else {
-                List<BusbarSection> bbsList = getBusbarSectionsFromPosition(voltageLevel, position);
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, originalLineId, bbsList, bbs);
+                List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, originalLineId, bbsList, bbs);
             }
         } else {
             throw new IllegalStateException();

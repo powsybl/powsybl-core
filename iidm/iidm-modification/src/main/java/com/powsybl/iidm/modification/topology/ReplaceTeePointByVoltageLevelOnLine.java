@@ -271,14 +271,14 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             // Topology creation
             if (position == null) {
                 // No position extension is present so only one disconnector is needed
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbs);
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbs);
                 LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);
             } else {
-                List<BusbarSection> bbsList = getBusbarSectionsFromPosition(tappedVoltageLevel, position);
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbsList, bbs);
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbsList, bbs);
+                List<BusbarSection> bbsList = getParallelBusbarSections(tappedVoltageLevel, position);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbsList, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbsList, bbs);
             }
         }
         return true;
