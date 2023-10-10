@@ -139,7 +139,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
             nbOpenDisconnectors += bbsList1.size() - 1;
         } else {
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, switchPrefixId, Collections.singletonList(bbs1), bbs1);
+            createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, switchPrefixId, List.of(bbs1), bbs1);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs1.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs1);
         }
@@ -149,7 +149,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
             nbOpenDisconnectors += bbsList2.size() - 1;
         } else {
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, switchPrefixId, Collections.singletonList(bbs2), bbs2);
+            createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, switchPrefixId, List.of(bbs2), bbs2);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs2.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs2);
         }
