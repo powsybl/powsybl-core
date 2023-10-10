@@ -196,7 +196,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         // List of the bars for the second section
         List<BusbarSection> bbsList = getBusbarSectionsFromPosition(voltageLevel, position);
 
-        // If the two busbarsections are in the same section, filter the second one if there are two busbarsections in the list
+        // If the two busbarsections are in the same section, avoid the last bar if avoidLastBar is true, else the first one
         if (bbsOnSameSection) {
             if (avoidLastBar) {
                 int maxBbsIndex = bbsList.stream().mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).max().orElseThrow();
