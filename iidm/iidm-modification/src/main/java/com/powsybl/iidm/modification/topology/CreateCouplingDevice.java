@@ -193,7 +193,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
      */
     private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSectionPosition position, BusbarSection bbs, boolean bbsOnSameSection, int breakerNode, boolean avoidLastBar) {
 
-        // List of the bars for the second section
+        // List of the bars parallel to the given position
         List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
 
         // If the two busbarsections are in the same section, avoid the last bar if avoidLastBar is true, else the first one
@@ -207,7 +207,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             }
         }
 
-        // Disconnectors on side 2
+        // Disconnectors
         createDisconnectorTopology(voltageLevel, breakerNode, switchPrefixId, bbsList, bbs);
         return bbsList;
     }
