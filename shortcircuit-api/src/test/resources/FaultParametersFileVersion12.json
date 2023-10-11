@@ -3,6 +3,6 @@
   "id" : "f00",
   "withFeederResult" : true,
   "studyType" : "SUB_TRANSIENT",
-  "minVoltageDropProportionalThreshold" : 1.0,
+  "minVoltageDropProportionalThreshold" : 20.0,
   "subTransientCoefficient": 0.8
 } ]

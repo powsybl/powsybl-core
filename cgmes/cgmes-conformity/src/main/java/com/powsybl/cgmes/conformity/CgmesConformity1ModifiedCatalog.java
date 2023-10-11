@@ -1561,6 +1561,20 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
+    public static GridModelReference microGridBaseCaseBELineDisconnectedAtBoundaryNode() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_line_disconnected_at_boundary_node/";
+        return new GridModelReferenceResources(
+                "MicroGrid-BaseCase-BE-line-disconnected-at-boundary-node",
+                null,
+                new ResourceSet(base,
+                        MICRO_GRID_BE_SSH),
+                new ResourceSet(MICRO_GRID_BE_BASE,
+                        MICRO_GRID_BE_EQ,
+                        MICRO_GRID_BE_TP),
+                microGridBaseCaseBoundaries());
+    }
+
     public static GridModelReferenceResources smallGridBusBranchWithBusbarSectionsAndIpMax() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/SmallGrid/BusBranch_busbarSections_ipMax";

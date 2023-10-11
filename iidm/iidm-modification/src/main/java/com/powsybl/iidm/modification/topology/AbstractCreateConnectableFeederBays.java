@@ -245,17 +245,14 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         // Topology creation
         int parallelBbsNumber = 0;
         if (position == null) {
-            // Only one bar exists so only one disconnector is needed
-            createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbs);
+            // No position extension is present so only one disconnector is needed
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbs);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs);
         } else {
-            // There are at least two parallel bars so multiple disconnectors are needed
-            List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
+            List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
             parallelBbsNumber = bbsList.size() - 1;
-            createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbsList, bbs);
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbsList, bbs);
         }
         LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector " +
                 "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), bbsId, parallelBbsNumber);

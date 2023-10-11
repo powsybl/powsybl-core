@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
@@ -218,6 +217,56 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         removeVoltageLevelAndSubstation(teePoint, reporter);
     }
 
+    private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, Reporter reporter, boolean throwException) {
+        TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
+        if (topologyKind == TopologyKind.BUS_BREAKER) {
+            Bus bus = tappedVoltageLevel.getBusBreakerView().getBus(bbsOrBusId);
+            if (bus == null) {
+                return errorWhenBusNull(reporter, tappedVoltageLevel, throwException);
+            }
+            Bus bus1 = tappedVoltageLevel.getBusBreakerView()
+                .newBus()
+                .setId(newLine1Id + "_BUS_1")
+                .add();
+            Bus bus2 = tappedVoltageLevel.getBusBreakerView()
+                .newBus()
+                .setId(newLine2Id + "_BUS_2")
+                .add();
+            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(newLine1Id, 1), tappedVoltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(newLine2Id, 2), tappedVoltageLevel.getBusBreakerView());
+            newLine1Adder.setBus2(bus1.getId());
+            newLine1Adder.setConnectableBus2(bus1.getId());
+            newLine2Adder.setBus1(bus2.getId());
+            newLine2Adder.setConnectableBus1(bus2.getId());
+        } else if (topologyKind == TopologyKind.NODE_BREAKER) {
+            BusbarSection bbs = tappedVoltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId);
+            if (bbs == null) {
+                return errorWhenBusbarSectionNull(reporter, tappedVoltageLevel, throwException);
+            }
+            // New node
+            int firstAvailableNode = tappedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+            newLine1Adder.setNode2(firstAvailableNode);
+            newLine2Adder.setNode1(firstAvailableNode + 3);
+
+            // Busbar section properties
+            BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+
+            // Topology creation
+            if (position == null) {
+                // No position extension is present so only one disconnector is needed
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, newLine1Id, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, newLine2Id, bbs);
+                LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
+                noBusbarSectionPositionExtensionReport(reporter, bbs);
+            } else {
+                List<BusbarSection> bbsList = getParallelBusbarSections(tappedVoltageLevel, position);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, newLine1Id, bbsList, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, newLine2Id, bbsList, bbs);
+            }
+        }
+        return true;
+    }
+
     private Line getLineFromNetwork(Network network, String lineId, Reporter reporter, boolean throwException) {
         Line line = network.getLine(lineId);
         if (line == null) {
@@ -248,59 +297,5 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         } else {
             return false;
         }
-    }
-
-    private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, Reporter reporter, boolean throwException) {
-        TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
-        if (topologyKind == TopologyKind.BUS_BREAKER) {
-            Bus bus = tappedVoltageLevel.getBusBreakerView().getBus(bbsOrBusId);
-            if (bus == null) {
-                return errorWhenBusNull(reporter, tappedVoltageLevel, throwException);
-            }
-            Bus bus1 = tappedVoltageLevel.getBusBreakerView()
-                .newBus()
-                .setId(namingStrategy.getBusId(newLine1Id, 1))
-                .add();
-            Bus bus2 = tappedVoltageLevel.getBusBreakerView()
-                .newBus()
-                .setId(namingStrategy.getBusId(newLine2Id, 2))
-                .add();
-            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(newLine1Id, 1), tappedVoltageLevel.getBusBreakerView());
-            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(newLine2Id, 2), tappedVoltageLevel.getBusBreakerView());
-            newLine1Adder.setBus2(bus1.getId());
-            newLine1Adder.setConnectableBus2(bus1.getId());
-            newLine2Adder.setBus1(bus2.getId());
-            newLine2Adder.setConnectableBus1(bus2.getId());
-        } else if (topologyKind == TopologyKind.NODE_BREAKER) {
-            BusbarSection bbs = tappedVoltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId);
-            if (bbs == null) {
-                return errorWhenBusbarSectionNull(reporter, tappedVoltageLevel, throwException);
-            }
-
-            // New nodes
-            int firstAvailableNode = tappedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            newLine1Adder.setNode2(firstAvailableNode);
-            newLine2Adder.setNode1(firstAvailableNode + 3);
-
-            // Busbar section properties
-            BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
-
-            // Topology creation
-            if (position == null) {
-                // Only one bar exists so only one disconnector is needed
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, newLine1Id, bbs);
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, newLine2Id, bbs);
-                LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created for each line.", bbs.getId());
-                noBusbarSectionPositionExtensionReport(reporter, bbs);
-            } else {
-                // There are at least two parallel bars so multiple disconnectors are needed
-                List<BusbarSection> bbsList = tappedVoltageLevel.getNodeBreakerView().getBusbarSectionStream()
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, newLine1Id, bbsList, bbs);
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, newLine2Id, bbsList, bbs);
-            }
-        }
-        return true;
     }
 }

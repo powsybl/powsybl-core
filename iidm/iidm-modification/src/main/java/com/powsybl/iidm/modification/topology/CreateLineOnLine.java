@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
@@ -218,16 +217,13 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
             // Topology creation
             if (position == null) {
-                // Only one bar exists so only one disconnector is needed
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbs);
+                // No position extension is present so only one disconnector is needed
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);
             } else {
-                // There are at least two parallel bars so multiple disconnectors are needed
-                List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
-                createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbsList, bbs);
+                List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbsList, bbs);
             }
         } else {
             throw new IllegalStateException();

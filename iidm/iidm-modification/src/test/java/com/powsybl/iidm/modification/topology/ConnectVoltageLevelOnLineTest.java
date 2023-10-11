@@ -104,7 +104,6 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     @Test
     void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-
         BusbarSection bbs = network.getBusbarSection("bbs");
         bbs.newExtension(BusbarSectionPositionAdder.class)
             .withBusbarIndex(1)

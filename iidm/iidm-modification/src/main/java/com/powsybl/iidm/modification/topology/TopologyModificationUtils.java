@@ -322,55 +322,48 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Creates a breaker  and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
+     * Get the list of parallel busbar sections on a given busbar section position
+     *
+     * @param voltageLevel Voltage level in which to find the busbar sections
+     * @param position busbar section position according to which busbar sections are found
+     * @return the list of busbar sections in the voltage level that have the same section position as the given position
      */
-    static void createNodeBreakerSwitchesTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
-        // Create the fictional list with only the current busbar section
-        List<BusbarSection> bbsList = new ArrayList<>();
-        bbsList.add(bbs);
-
-        // Call the usual method for the breaker and disconnector creation
-        createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbsList, bbs);
+    static List<BusbarSection> getParallelBusbarSections(VoltageLevel voltageLevel, BusbarSectionPosition position) {
+        // List of the bars for the second section
+        return voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+            .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
+            .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).toList();
     }
 
     /**
-     * Creates a breaker  and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
+     * Creates a breaker and a disconnector between the connectable and the specified busbar
      */
-    static void createNodeBreakerSwitchesTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
+        createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, List.of(bbs), bbs);
+    }
+
+    /**
+     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
+     */
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         // Closed breaker
         createNBBreaker(connectableNode, forkNode, namingStrategy.getBreakerId(baseId), voltageLevel.getNodeBreakerView(), false);
 
         // Disconnectors - only the one on the chosen busbarsection is closed
-        createDisconnectorTopologyFromBusbarSectionList(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs);
+        createDisconnectorTopology(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs);
     }
 
     /**
-     * Creates disconnectors (one closed on the specified busbarsection, the others open) between the fork node and every busbar section of the list in a voltage level
+     * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
      */
-    static void createDisconnectorTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
-        // Create the fictional list with only the current busbar section
-        List<BusbarSection> bbsList = new ArrayList<>();
-        bbsList.add(bbs);
-
-        // Call the usual method for the disconnector creation
-        createDisconnectorTopologyFromBusbarSectionList(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs);
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+        createDisconnectorTopology(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs, 0);
     }
 
     /**
-     * Creates disconnectors (one closed on the specified busbarsection, the others open) between the fork node and every busbar section of the list in a voltage level
+     * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
      */
-    static void createDisconnectorTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
-        // Disconnectors - only the one on the chosen busbarsection is closed
-        bbsList.forEach(b -> {
-            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(b, baseId, forkNode, bbsNode, 0), voltageLevel.getNodeBreakerView(), b != bbs);
-        });
-    }
-
-    /**
-     * Creates disconnectors (one closed on the specified busbarsection, the others open) between the fork node and every busbar section of the list in a voltage level
-     */
-    static void createDisconnectorTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, int side) {
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, int side) {
         // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
