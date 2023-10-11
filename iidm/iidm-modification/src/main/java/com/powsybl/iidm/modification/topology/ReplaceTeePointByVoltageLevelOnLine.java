@@ -11,9 +11,11 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
@@ -179,48 +181,9 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         attachLine(tpLine1.getTerminal(tpLine1OtherVlSide), newLine1Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
-        TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
-        if (topologyKind == TopologyKind.BUS_BREAKER) {
-            Bus bus = tappedVoltageLevel.getBusBreakerView().getBus(bbsOrBusId);
-            if (bus == null) {
-                notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, tappedVoltageLevel.getId());
-                LOGGER.error("Bus {} is not found in voltage level {}", bbsOrBusId, tappedVoltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException(String.format("Bus %s is not found in voltage level %s", bbsOrBusId, tappedVoltageLevel.getId()));
-                } else {
-                    return;
-                }
-            }
-            Bus bus1 = tappedVoltageLevel.getBusBreakerView()
-                    .newBus()
-                    .setId(newLine1Id + "_BUS_1")
-                    .add();
-            Bus bus2 = tappedVoltageLevel.getBusBreakerView()
-                    .newBus()
-                    .setId(newLine2Id + "_BUS_2")
-                    .add();
-            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, tappedVoltageLevel.getBusBreakerView());
-            newLine1Adder.setBus2(bus1.getId());
-            newLine1Adder.setConnectableBus2(bus1.getId());
-            newLine2Adder.setBus1(bus2.getId());
-            newLine2Adder.setConnectableBus1(bus2.getId());
-        } else if (topologyKind == TopologyKind.NODE_BREAKER) {
-            BusbarSection bbs = tappedVoltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId);
-            if (bbs == null) {
-                notFoundBusbarSectionInVoltageLevelReport(reporter, bbsOrBusId, tappedVoltageLevel.getId());
-                LOGGER.error("Busbar section {} is not found in voltage level {}", bbsOrBusId, tappedVoltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException(String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, tappedVoltageLevel.getId()));
-                } else {
-                    return;
-                }
-            }
-            int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-            int firstAvailableNode = tappedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", newLine1Id, tappedVoltageLevel.getNodeBreakerView());
-            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", newLine2Id, tappedVoltageLevel.getNodeBreakerView());
-            newLine1Adder.setNode2(firstAvailableNode);
-            newLine2Adder.setNode1(firstAvailableNode + 3);
+        // Create the breaker topology
+        if (!createTopology(newLine1Adder, newLine2Adder, tappedVoltageLevel, reporter, throwException)) {
+            return;
         }
 
         // get line tpLine1 limits
@@ -270,5 +233,74 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         // remove tee point
         removeVoltageLevelAndSubstation(teePoint, reporter);
+    }
+
+    private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, Reporter reporter, boolean throwException) {
+        TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
+        if (topologyKind == TopologyKind.BUS_BREAKER) {
+            Bus bus = tappedVoltageLevel.getBusBreakerView().getBus(bbsOrBusId);
+            if (bus == null) {
+                return errorWhenBusNull(reporter, tappedVoltageLevel, throwException);
+            }
+            Bus bus1 = tappedVoltageLevel.getBusBreakerView()
+                .newBus()
+                .setId(newLine1Id + "_BUS_1")
+                .add();
+            Bus bus2 = tappedVoltageLevel.getBusBreakerView()
+                .newBus()
+                .setId(newLine2Id + "_BUS_2")
+                .add();
+            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, tappedVoltageLevel.getBusBreakerView());
+            newLine1Adder.setBus2(bus1.getId());
+            newLine1Adder.setConnectableBus2(bus1.getId());
+            newLine2Adder.setBus1(bus2.getId());
+            newLine2Adder.setConnectableBus1(bus2.getId());
+        } else if (topologyKind == TopologyKind.NODE_BREAKER) {
+            BusbarSection bbs = tappedVoltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId);
+            if (bbs == null) {
+                return errorWhenBusbarSectionNull(reporter, tappedVoltageLevel, throwException);
+            }
+            // New node
+            int firstAvailableNode = tappedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+            newLine1Adder.setNode2(firstAvailableNode);
+            newLine2Adder.setNode1(firstAvailableNode + 3);
+
+            // Busbar section properties
+            BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+
+            // Topology creation
+            if (position == null) {
+                // No position extension is present so only one disconnector is needed
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbs);
+                LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
+                noBusbarSectionPositionExtensionReport(reporter, bbs);
+            } else {
+                List<BusbarSection> bbsList = getParallelBusbarSections(tappedVoltageLevel, position);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbsList, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbsList, bbs);
+            }
+        }
+        return true;
+    }
+
+    private boolean errorWhenBusNull(Reporter reporter, VoltageLevel voltageLevel, boolean throwException) {
+        notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, voltageLevel.getId());
+        LOGGER.error("Bus {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
+        if (throwException) {
+            throw new PowsyblException(String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        } else {
+            return false;
+        }
+    }
+
+    private boolean errorWhenBusbarSectionNull(Reporter reporter, VoltageLevel voltageLevel, boolean throwException) {
+        notFoundBusbarSectionInVoltageLevelReport(reporter, bbsOrBusId, voltageLevel.getId());
+        LOGGER.error("Busbar section {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
+        if (throwException) {
+            throw new PowsyblException(String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        } else {
+            return false;
+        }
     }
 }
