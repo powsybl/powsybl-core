@@ -6,11 +6,7 @@
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageAngleLimit;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
 
@@ -33,6 +29,14 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     /**
+     * Mirror checkCurrent on {@link Branch} but for {@link ThreeWindingsTransformer} instead.
+     */
+    @Override
+    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer) {
+        checkCurrent(transformer, side, transformer.getTerminal(side).getI(), consumer);
+    }
+
+    /**
      * This implementation computes the current value from the power value, if current is not provided (NaN).
      */
     @Override
@@ -44,6 +48,21 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
                 (1000. * branch.getTerminal(side).getP()) / (branch.getTerminal(side).getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
                 : branch.getTerminal(side).getI();
         checkCurrent(branch, side, i, consumer);
+    }
+
+    /**
+     * Mirror checkCurrentDc on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * This implementation computes the current value from the power value, if current is not provided (NaN).
+     */
+    @Override
+    public void checkCurrentDc(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
+        // After a DC load flow, the current at terminal can be undefined (NaN). In that case, we use the DC power factor,
+        // the nominal voltage and the active power at terminal in order to approximate the current following formula
+        // P = sqrt(3) x Vnom x I x dcPowerFactor
+        double i = Double.isNaN(transformer.getTerminal(side).getI()) ?
+                (1000. * transformer.getTerminal(side).getP()) / (transformer.getTerminal(side).getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
+                : transformer.getTerminal(side).getI();
+        checkCurrent(transformer, side, i, consumer);
     }
 
     /**
@@ -81,14 +100,29 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     @Override
+    public void checkCurrent(ThreeWindingsTransformer transformer, Consumer<LimitViolation> consumer) {
+        checkCurrent(transformer, ThreeWindingsTransformer.Side.ONE, consumer);
+        checkCurrent(transformer, ThreeWindingsTransformer.Side.TWO, consumer);
+        checkCurrent(transformer, ThreeWindingsTransformer.Side.THREE, consumer);
+    }
+
+    @Override
     public void checkCurrentDc(Branch branch, double dcPowerFactor, Consumer<LimitViolation> consumer) {
         checkCurrentDc(branch, Branch.Side.ONE, dcPowerFactor, consumer);
         checkCurrentDc(branch, Branch.Side.TWO, dcPowerFactor, consumer);
     }
 
     @Override
+    public void checkCurrentDc(ThreeWindingsTransformer transformer, double dcPowerFactor, Consumer<LimitViolation> consumer) {
+        checkCurrentDc(transformer, ThreeWindingsTransformer.Side.ONE, dcPowerFactor, consumer);
+        checkCurrentDc(transformer, ThreeWindingsTransformer.Side.TWO, dcPowerFactor, consumer);
+        checkCurrentDc(transformer, ThreeWindingsTransformer.Side.THREE, dcPowerFactor, consumer);
+    }
+
+    @Override
     public void checkAll(Network network, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrent(b, consumer));
+        network.getThreeWindingsTransformerStream().forEach(t -> checkCurrent(t, consumer));
         network.getVoltageLevelStream()
                 .flatMap(vl -> vl.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
@@ -98,6 +132,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     @Override
     public void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, consumer));
+        network.getThreeWindingsTransformerStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 }

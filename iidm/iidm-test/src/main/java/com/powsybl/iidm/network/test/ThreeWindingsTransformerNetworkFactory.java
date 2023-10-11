@@ -577,6 +577,14 @@ public final class ThreeWindingsTransformerNetworkFactory {
         return network;
     }
 
+    public static Network createWithCurrentLimitsAndTerminalsPAndQ() {
+        Network network = createWithCurrentLimits();
+        network.getThreeWindingsTransformer("3WT").getLeg1().getTerminal().setP(1400.0).setQ(400.0);
+        network.getThreeWindingsTransformer("3WT").getLeg2().getTerminal().setP(1400.0).setQ(400.0);
+        network.getThreeWindingsTransformer("3WT").getLeg3().getTerminal().setP(1400.0).setQ(400.0);
+        return network;
+    }
+
     private ThreeWindingsTransformerNetworkFactory() {
     }
 }

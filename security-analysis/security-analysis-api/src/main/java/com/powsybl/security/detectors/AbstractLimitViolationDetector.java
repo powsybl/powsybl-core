@@ -81,8 +81,16 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     @Override
+    public void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, Consumer<LimitViolation> consumer) {
+        checkCurrent(contingency, transformer, ThreeWindingsTransformer.Side.ONE, consumer);
+        checkCurrent(contingency, transformer, ThreeWindingsTransformer.Side.TWO, consumer);
+        checkCurrent(contingency, transformer, ThreeWindingsTransformer.Side.THREE, consumer);
+    }
+
+    @Override
     public void checkAll(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrent(contingency, b, consumer));
+        network.getThreeWindingsTransformerStream().forEach(t -> checkCurrent(contingency, t, consumer));
         network.getVoltageLevelStream()
                 .flatMap(v -> v.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(contingency, b, consumer));
