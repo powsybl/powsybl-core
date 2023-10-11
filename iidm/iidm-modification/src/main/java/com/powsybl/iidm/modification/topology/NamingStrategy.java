@@ -26,35 +26,31 @@ public interface NamingStrategy {
 
     String getName();
 
-    String getSectioningPrefix(String prefixId, BusbarSection bbs, int busBarNum, int section1Num, int section2Num);
+    String getSectioningPrefix(String baseId, BusbarSection bbs, int busBarNum, int section1Num, int section2Num);
 
-    String getChunkPrefix(String prefixId, List<SwitchKind> switchKindList, int busBarNum, int section1Num, int section2Num);
+    String getChunkPrefix(String baseId, List<SwitchKind> switchKindList, int busBarNum, int section1Num, int section2Num);
 
-    String getDisconnectorId(String prefixId, int id1Num, int id2Num);
+    String getDisconnectorId(String baseId, int id1Num, int id2Num);
 
-    String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num, int side);
+    String getDisconnectorId(BusbarSection bbs, String baseId, int id1Num, int id2Num, int side);
 
-    String getDisconnectorBetweenChunksId(BusbarSection bbs1, String prefixId, int id1Num, int id2Num);
+    String getDisconnectorBetweenChunksId(BusbarSection bbs1, String baseId, int id1Num, int id2Num);
 
-    String getBreakerId(String prefixId);
+    String getBreakerId(String baseId);
 
-    String getBreakerId(String prefixId, int id1Num, int id2Num);
+    String getBreakerId(String baseId, int id1Num, int id2Num);
 
-    String getSwitchId(String prefixId);
+    String getSwitchId(String baseId);
 
-    String getSwitchId(String prefixId, int idNum);
+    String getSwitchId(String baseId, int idNum);
 
-    String getSwitchId(String prefixId, int id1Num, int id2Num);
+    String getSwitchId(String baseId, int id1Num, int id2Num);
 
-    String getBusbarId(String prefixId, int id1Num, int id2Num);
+    String getBusbarId(String baseId, int id1Num, int id2Num);
 
-    String getBusbarId(String prefixId, List<SwitchKind> switchKindList, int id1Num, int id2Num);
+    String getBusbarId(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num);
 
-    String getBusId(String prefixId);
-
-    String getBusId(String prefixId, String suffixId);
-
-    String getBusId(String prefixId, int idNum);
+    String getBusId(String baseId);
 
     /**
      * Used when building a feeder bay

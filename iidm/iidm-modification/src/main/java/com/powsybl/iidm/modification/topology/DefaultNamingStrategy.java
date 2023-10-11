@@ -29,94 +29,68 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public String getSectioningPrefix(String prefixId, BusbarSection bbs, int busBarNum, int section1Num, int section2Num) {
-        return prefixId;
+    public final String getSectioningPrefix(String baseId, BusbarSection bbs, int busBarNum, int section1Num, int section2Num) {
+        return baseId;
     }
 
     @Override
-    public String getChunkPrefix(String prefixId, List<SwitchKind> switchKindList, int busBarNum, int section1Num, int section2Num) {
-        return prefixId;
-    }
-
-    private String getDisconnectorIdSuffix(int id1Num, int id2Num) {
-        return id1Num + SEPARATOR + id2Num;
+    public final String getChunkPrefix(String baseId, List<SwitchKind> switchKindList, int busBarNum, int section1Num, int section2Num) {
+        return baseId;
     }
 
     @Override
-    public final String getDisconnectorId(String prefixId, int id1Num, int id2Num) {
-        return prefixId + SEPARATOR + DISCONNECTOR_NAMEBASE + SEPARATOR + getDisconnectorIdSuffix(id1Num, id2Num);
+    public final String getDisconnectorId(String baseId, int id1Num, int id2Num) {
+        return baseId + SEPARATOR + DISCONNECTOR_NAMEBASE + SEPARATOR + id1Num + SEPARATOR + id2Num;
     }
 
     @Override
-    public String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num, int side) {
-        return getDisconnectorId(prefixId, id1Num, id2Num);
+    public final String getDisconnectorId(BusbarSection bbs, String baseId, int id1Num, int id2Num, int side) {
+        return getDisconnectorId(baseId, id1Num, id2Num);
     }
 
     @Override
-    public String getDisconnectorBetweenChunksId(BusbarSection bbs, String prefixId, int id1Num, int id2Num) {
-        return getDisconnectorId(prefixId, id1Num, id2Num);
-    }
-
-    public final String getBreakerIdSuffix(int id1Num, int id2Num) {
-        return id1Num + SEPARATOR + id2Num;
+    public final String getDisconnectorBetweenChunksId(BusbarSection bbs, String baseId, int id1Num, int id2Num) {
+        return getDisconnectorId(baseId, id1Num, id2Num);
     }
 
     @Override
-    public final String getBreakerId(String prefixId) {
-        return prefixId + SEPARATOR + BREAKER_NAMEBASE;
+    public final String getBreakerId(String baseId) {
+        return baseId + SEPARATOR + BREAKER_NAMEBASE;
     }
 
     @Override
-    public final String getBreakerId(String prefixId, int id1Num, int id2Num) {
-        return prefixId + SEPARATOR + BREAKER_NAMEBASE + SEPARATOR + getBreakerIdSuffix(id1Num, id2Num);
-    }
-
-    private String getSwitchIdSuffix(int id1Num, int id2Num) {
-        return id1Num + SEPARATOR + id2Num;
+    public final String getBreakerId(String baseId, int id1Num, int id2Num) {
+        return baseId + SEPARATOR + BREAKER_NAMEBASE + SEPARATOR + id1Num + SEPARATOR + id2Num;
     }
 
     @Override
-    public final String getSwitchId(String prefixId) {
-        return prefixId + SEPARATOR + SWITCH_NAMEBASE;
+    public final String getSwitchId(String baseId) {
+        return baseId + SEPARATOR + SWITCH_NAMEBASE;
     }
 
     @Override
-    public final String getSwitchId(String prefixId, int idNum) {
-        return prefixId + SEPARATOR + SWITCH_NAMEBASE + SEPARATOR + idNum;
+    public final String getSwitchId(String baseId, int idNum) {
+        return baseId + SEPARATOR + SWITCH_NAMEBASE + SEPARATOR + idNum;
     }
 
     @Override
-    public final String getSwitchId(String prefixId, int id1Num, int id2Num) {
-        return prefixId + SEPARATOR + SWITCH_NAMEBASE + SEPARATOR + getSwitchIdSuffix(id1Num, id2Num);
-    }
-
-    public final String getBusbarIdSuffix(int id1Num, int id2Num) {
-        return id1Num + SEPARATOR + id2Num;
+    public final String getSwitchId(String baseId, int id1Num, int id2Num) {
+        return baseId + SEPARATOR + SWITCH_NAMEBASE + SEPARATOR + id1Num + SEPARATOR + id2Num;
     }
 
     @Override
-    public final String getBusbarId(String prefixId, int id1Num, int id2Num) {
-        return prefixId + SEPARATOR + getBusbarIdSuffix(id1Num, id2Num);
+    public final String getBusbarId(String baseId, int id1Num, int id2Num) {
+        return baseId + SEPARATOR + id1Num + SEPARATOR + id2Num;
     }
 
     @Override
-    public final String getBusbarId(String prefixId, List<SwitchKind> switchKindList, int id1Num, int id2Num) {
-        return prefixId + SEPARATOR + getBusbarIdSuffix(id1Num, id2Num);
+    public final String getBusbarId(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num) {
+        return baseId + SEPARATOR + id1Num + SEPARATOR + id2Num;
     }
 
     @Override
-    public final String getBusId(String prefixId) {
-        return prefixId + SEPARATOR + BUS_NAMEBASE;
-    }
-
-    @Override
-    public final String getBusId(String prefixId, String suffixId) {
-        return prefixId + SEPARATOR + BUS_NAMEBASE + SEPARATOR + suffixId;
-    }
-
-    @Override
-    public final String getBusId(String prefixId, int idNum) {
-        return prefixId + SEPARATOR + BUS_NAMEBASE + SEPARATOR + idNum;
+    public final String getBusId(String baseId) {
+        return baseId + SEPARATOR + BUS_NAMEBASE;
     }
 
     @Override
