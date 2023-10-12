@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.reporter.Reporter;
 
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -17,13 +18,18 @@ import java.util.LinkedList;
  *
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public class SimpleReporterContext implements ReporterContext {
+public class SimpleReporterContext extends AbstractReporterContext {
 
     private final Deque<Reporter> reporters;
 
     public SimpleReporterContext() {
         this.reporters = new LinkedList<>();
         this.reporters.push(Reporter.NO_OP);
+    }
+
+    public SimpleReporterContext(AbstractReporterContext reporterContext) {
+        this();
+        copyReporters(reporterContext);
     }
 
     @Override
@@ -45,4 +51,11 @@ public class SimpleReporterContext implements ReporterContext {
         return popped;
     }
 
+    @Override
+    protected Iterator<Reporter> copyIterator() {
+        Iterator<Reporter> it = reporters.iterator();
+        // Since we don't want to copy the always present NO_OP, we skip the 1st item
+        it.next();
+        return it;
+    }
 }

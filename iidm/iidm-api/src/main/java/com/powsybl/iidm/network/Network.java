@@ -580,10 +580,13 @@ public interface Network extends Container<Network> {
     VariantManager getVariantManager();
 
     /**
-     * Set the reporter context
-     * @param reporterContext the <code>ReporterContext</code> to use
+     * Allows {@link ReporterContext} to be accessed simultaneously by different threads.
+     * When this option is activated, the reporter context can have a different content
+     * for each thread.
+     *
+     * @param allow allow multi-thread access to the ReporterContext
      */
-    void setReporterContext(ReporterContext reporterContext);
+    void allowReporterContextMultiThreadAccess(boolean allow);
 
     /**
      * Get the {@link ReporterContext} of the network.

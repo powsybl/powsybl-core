@@ -82,8 +82,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public void setReporterContext(ReporterContext reporterContext) {
-        getNetwork().setReporterContext(reporterContext);
+    public void allowReporterContextMultiThreadAccess(boolean allow) {
+        getNetwork().allowReporterContextMultiThreadAccess(allow);
     }
 
     @Override

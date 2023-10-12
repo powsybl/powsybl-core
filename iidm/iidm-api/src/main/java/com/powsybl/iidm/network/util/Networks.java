@@ -427,7 +427,7 @@ public final class Networks {
     }
 
     /**
-     * Set a Reporter in the reporter context of the given network, execute a runnable then restore the reporter context.
+     * Set a {@link Reporter} in the reporter context of the given network, execute a runnable then restore the reporter context.
      *
      * @param network a network
      * @param reporter the reporter to use
@@ -442,4 +442,23 @@ public final class Networks {
         }
     }
 
+    /**
+     * Returns a {@link ReporterContext} containing the same reporters as the given one,
+     * but reconfigured to allow it, or not, to be accessed simultaneously by different threads.
+     * When this option is activated, the reporter context can have a different content
+     * for each thread.
+     *
+     * @param reporterContext the ReporterContext to reconfigure
+     * @param allow allow multi-thread access to the ReporterContext
+     * @return the reconfigured ReporterContext
+     */
+    public static AbstractReporterContext allowReporterContextMultiThreadAccess(AbstractReporterContext reporterContext, boolean allow) {
+        AbstractReporterContext newReporterContext = null;
+        if (allow && !(reporterContext instanceof MultiThreadReporterContext)) {
+            newReporterContext = new MultiThreadReporterContext(reporterContext);
+        } else if (!allow && !(reporterContext instanceof SimpleReporterContext)) {
+            newReporterContext = new SimpleReporterContext(reporterContext);
+        }
+        return newReporterContext != null ? newReporterContext : reporterContext;
+    }
 }

@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.reporter.Reporter;
 
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -18,7 +19,7 @@ import java.util.LinkedList;
  *
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public class MultiThreadReporterContext implements ReporterContext {
+public class MultiThreadReporterContext extends AbstractReporterContext {
 
     private final ThreadLocal<Deque<Reporter>> reporters;
 
@@ -28,6 +29,11 @@ public class MultiThreadReporterContext implements ReporterContext {
             deque.push(Reporter.NO_OP);
             return deque;
         });
+    }
+
+    public MultiThreadReporterContext(AbstractReporterContext reporterContext) {
+        this();
+        copyReporters(reporterContext);
     }
 
     @Override
@@ -51,5 +57,13 @@ public class MultiThreadReporterContext implements ReporterContext {
 
     public void close() {
         reporters.remove();
+    }
+
+    @Override
+    protected Iterator<Reporter> copyIterator() {
+        Iterator<Reporter> it = reporters.get().iterator();
+        // Since we don't want to copy the always present NO_OP, we skip the 1st item
+        it.next();
+        return it;
     }
 }
