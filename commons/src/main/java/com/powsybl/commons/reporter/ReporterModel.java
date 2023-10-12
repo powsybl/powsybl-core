@@ -63,11 +63,6 @@ public class ReporterModel extends AbstractReporter {
         return subReporter;
     }
 
-    @Override
-    public boolean removeSubReporter(Reporter reporter) {
-        return this.subReporters.remove(reporter);
-    }
-
     /**
      * Add a reporterModel to the sub-reporters of current reporterModel.
      * @param reporterModel the reporterModel to add

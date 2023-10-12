@@ -1,4 +1,5 @@
 + test reporter
+  + Validation warnings
   + Not found extensions
      Extension foo not found.
   + XIIDM import done

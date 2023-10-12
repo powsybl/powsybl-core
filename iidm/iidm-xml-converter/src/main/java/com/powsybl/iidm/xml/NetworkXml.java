@@ -491,10 +491,6 @@ public final class NetworkXml {
 
             context.executeEndTasks(network, validationReporter);
 
-            if (validationReporter.getReports() == null || validationReporter.getReports().isEmpty()) {
-                reporter.removeSubReporter(validationReporter);
-            }
-
             reader.close();
             XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
             network.getReporterContext().popReporter();
