@@ -80,10 +80,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
         Options options = command.getOptions();
-        assertCommand(command, "security-analysis", 16, 1);
-        assertOption(options, "case-file", true, true);
-        assertOption(options, "dynamic-models-file", false, true);
-        assertOption(options, "event-models-file", false, true);
+        assertCommand(command, "security-analysis", 14, 1);
         assertOption(options, "case-file", true, true);
         assertOption(options, "parameters-file", false, true);
         assertOption(options, "limit-types", false, true);
@@ -173,7 +170,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
         SecurityAnalysisInput input = SecurityAnalysisTool.buildPreprocessedInput(executionInput, LimitViolationFilter::new, factory);
 
-        assertSame(executionInput.getParameters(), input.getStaticParameters());
+        assertSame(executionInput.getParameters(), input.getParameters());
         assertSame(executionInput.getNetworkVariant(), input.getNetworkVariant());
 
         verify(factory, times(0)).newPreprocessor(any());

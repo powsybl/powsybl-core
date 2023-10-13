@@ -20,7 +20,7 @@ import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURC
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-class PreContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PreContingencyResult> {
+public class PreContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PreContingencyResult> {
 
     private static final String CONTEXT_NAME = "PreContingencyResult";
 
@@ -28,7 +28,7 @@ class PreContingencyResultDeserializer extends AbstractContingencyResultDeserial
         LoadFlowResult.ComponentResult.Status status = null;
     }
 
-    PreContingencyResultDeserializer() {
+    public PreContingencyResultDeserializer() {
         super(PreContingencyResult.class);
     }
 

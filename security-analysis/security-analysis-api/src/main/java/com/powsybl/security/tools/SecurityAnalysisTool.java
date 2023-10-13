@@ -8,7 +8,6 @@ package com.powsybl.security.tools;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
@@ -17,46 +16,41 @@ import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProviders;
-import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.ImportersLoader;
-import com.powsybl.iidm.network.ImportersServiceLoader;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.action.ActionList;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
-import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import com.powsybl.security.execution.SecurityAnalysisExecution;
 import com.powsybl.security.execution.SecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.SecurityAnalysisInputBuildStrategy;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessors;
+import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.readProperties;
 import static com.powsybl.security.tools.SecurityAnalysisToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
@@ -70,126 +64,12 @@ public class SecurityAnalysisTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-            @Override
-            public String getName() {
-                return "security-analysis";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Computation";
-            }
-
-            @Override
-            public String getDescription() {
-                return "Run security analysis";
-            }
-
-            @Override
-            public Options getOptions() {
-                Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE_OPTION)
-                    .desc("the case path")
-                    .hasArg()
-                    .argName("FILE")
-                    .required()
-                    .build());
-                options.addOption(Option.builder().longOpt(DYNAMIC_MODELS_FILE_OPTION)
-                    .desc("dynamic models description as a Groovy file: defines the dynamic models to be associated to chosen equipments of the network")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(EVENT_MODELS_FILE_OPTION)
-                    .desc("dynamic event models description as a Groovy file: defines the dynamic event models to be associated to chosen equipments of the network")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(PARAMETERS_FILE_OPTION)
-                    .desc("loadflow parameters as JSON file")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(LIMIT_TYPES_OPTION)
-                    .desc("limit type filter (all if not set)")
-                    .hasArg()
-                    .argName("LIMIT-TYPES")
-                    .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
-                    .desc("the output path")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION)
-                    .desc("the output format " + SecurityAnalysisResultExporters.getFormats())
-                    .hasArg()
-                    .argName("FORMAT")
-                    .build());
-                options.addOption(Option.builder().longOpt(CONTINGENCIES_FILE_OPTION)
-                    .desc("the contingencies path")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(WITH_EXTENSIONS_OPTION)
-                    .desc("the extension list to enable")
-                    .hasArg()
-                    .argName("EXTENSIONS")
-                    .build());
-                options.addOption(Option.builder().longOpt(TASK_COUNT)
-                    .desc("number of tasks used for parallelization")
-                    .hasArg()
-                    .argName("NTASKS")
-                    .build());
-                options.addOption(Option.builder().longOpt(TASK)
-                    .desc("task identifier (task-index/task-count)")
-                    .hasArg()
-                    .argName("TASKID")
-                    .build());
-                options.addOption(Option.builder().longOpt(EXTERNAL)
-                    .desc("external execution")
-                    .build());
-                options.addOption(createImportParametersFileOption());
-                options.addOption(createImportParameterOption());
-                options.addOption(Option.builder().longOpt(OUTPUT_LOG_OPTION)
-                    .desc("log output path (.zip)")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(MONITORING_FILE)
-                    .desc("monitoring file (.json) to get network's infos after computation")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                return options;
-            }
-
-            @Override
-            public String getUsageFooter() {
-                return String.join(System.lineSeparator(),
-                    "Allowed LIMIT-TYPES values are " + Arrays.toString(LimitViolationType.values()),
-                    "Allowed EXTENSIONS values are " + SecurityAnalysisInterceptors.getExtensionNames()
-                );
-            }
-        };
-    }
-
-    static void checkDataCoherence(CommandLine line) {
-        if (line.hasOption(EVENT_MODELS_FILE_OPTION) && !line.hasOption(DYNAMIC_MODELS_FILE_OPTION)) {
-            throw new PowsyblException("Event model supplier cannot be set without a dynamic model supplier");
-        }
+        return new SecurityAnalysisCommand();
     }
 
     static void updateInput(ToolOptions options, SecurityAnalysisExecutionInput inputs) {
         options.getPath(PARAMETERS_FILE_OPTION)
             .ifPresent(f -> inputs.getParameters().update(f));
-
-        options.getPath(DYNAMIC_MODELS_FILE_OPTION)
-                .map(FileUtil::asByteSource)
-                .ifPresent(inputs::setDynamicModelsSource);
-
-        options.getPath(EVENT_MODELS_FILE_OPTION)
-                .map(FileUtil::asByteSource)
-                .ifPresent(inputs::setEventModelsSource);
 
         options.getPath(CONTINGENCIES_FILE_OPTION)
             .map(FileUtil::asByteSource)
@@ -233,26 +113,6 @@ public class SecurityAnalysisTool implements Tool {
             input.getFilter().setViolationTypes(ImmutableSet.copyOf(executionInput.getViolationTypes()));
         }
 
-        executionInput.getDynamicModelsSource().ifPresent(
-            ds -> {
-                try {
-                    input.setDynamicModelsSupplier(ds.openBufferedStream());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        );
-
-        executionInput.getEventModelsSource().ifPresent(
-            es -> {
-                try {
-                    input.setEventModelsSupplier(es.openBufferedStream());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        );
-
         executionInput.getContingenciesSource()
             .map(preprocessorFactory::newPreprocessor)
             .ifPresent(p -> p.preprocess(input));
@@ -261,7 +121,6 @@ public class SecurityAnalysisTool implements Tool {
     }
 
     private static SecurityAnalysisExecutionBuilder createBuilder(PlatformConfig platformConfig) {
-        //TODO handle dynamic provider name
         String providerName = platformConfig.getOptionalModuleConfig(MODULE_CONFIG_NAME_PROPERTY)
                 .flatMap(c -> c.getOptionalStringProperty(DEFAULT_SERVICE_IMPL_NAME_PROPERTY))
                 .orElse(null);
@@ -318,18 +177,17 @@ public class SecurityAnalysisTool implements Tool {
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         run(line, context,
             createBuilder(PlatformConfig.defaultConfig()),
-            isDynamic(line) ? DynamicSecurityAnalysisParameters::load : SecurityAnalysisParameters::load,
+            SecurityAnalysisParameters::load,
             new ImportersServiceLoader(),
             TableFormatterConfig::load);
     }
 
     void run(CommandLine line, ToolRunningContext context,
              SecurityAnalysisExecutionBuilder executionBuilder,
-             Supplier<SecurityAnalysisParametersInterface> parametersLoader,
+             Supplier<SecurityAnalysisParameters> parametersLoader,
              ImportersLoader importersLoader,
              Supplier<TableFormatterConfig> tableFormatterConfigLoader) throws Exception {
 
-        checkDataCoherence(line);
         ToolOptions options = new ToolOptions(line, context);
 
         // Output file and output format
@@ -376,9 +234,5 @@ public class SecurityAnalysisTool implements Tool {
             Writer writer = new OutputStreamWriter(context.getOutputStream());
             Security.print(result, network, writer, new AsciiTableFormatterFactory(), tableFormatterConfigLoader.get());
         }
-    }
-
-    private boolean isDynamic(CommandLine line) {
-        return line.hasOption(DYNAMIC_MODELS_FILE_OPTION);
     }
 }

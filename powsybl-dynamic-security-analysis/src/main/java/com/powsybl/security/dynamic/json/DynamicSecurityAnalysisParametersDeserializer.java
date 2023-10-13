@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json;
+package com.powsybl.security.dynamic.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static com.powsybl.security.json.JsonDynamicSecurityAnalysisParameters.getExtensionSerializers;
+import static com.powsybl.security.dynamic.json.JsonDynamicSecurityAnalysisParameters.getExtensionSerializers;
 
 /**
  * @author Laurent Issertial <laurent.issertial at rte-france.com>

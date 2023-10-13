@@ -18,6 +18,6 @@ class DynamicSecurityAnalysisProviderTest {
 
     @Test
     void findAllProvidersTest() {
-        assertEquals(1, DynamicSecurityAnalysisProvider.findAll().size());
+        assertEquals(2, DynamicSecurityAnalysisProvider.findAll().size());
     }
 }

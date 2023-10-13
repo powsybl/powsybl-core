@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json;
+package com.powsybl.security.dynamic.json;
 
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import com.powsybl.security.DynamicSecurityDummyExtension;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -70,8 +70,8 @@ class JsonDynamicSecurityAnalysisParametersTest extends AbstractConverterTest {
         parameters.addExtension(DynamicSecurityDummyExtension.class, extension);
         JsonDynamicSecurityAnalysisParameters.update(parameters, getClass().getResourceAsStream("/DynamicSecurityAnalysisParametersExtensionUpdate.json"));
         DynamicSecurityDummyExtension updatedExtension = parameters.getExtension(DynamicSecurityDummyExtension.class);
-        assertEquals(oldExtension.isParameterBoolean(), updatedExtension.isParameterBoolean());
-        assertEquals(oldExtension.getParameterDouble(), updatedExtension.getParameterDouble(), 0.01);
-        assertNotEquals(oldExtension.getParameterString(), updatedExtension.getParameterString());
+        Assertions.assertEquals(oldExtension.isParameterBoolean(), updatedExtension.isParameterBoolean());
+        Assertions.assertEquals(oldExtension.getParameterDouble(), updatedExtension.getParameterDouble(), 0.01);
+        Assertions.assertNotEquals(oldExtension.getParameterString(), updatedExtension.getParameterString());
     }
 }

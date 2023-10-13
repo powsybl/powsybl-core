@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security.json;
+package com.powsybl.security.dynamic.json;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -17,6 +17,7 @@ import com.powsybl.security.*;
 import com.powsybl.security.action.*;
 import com.powsybl.security.condition.Condition;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
+import com.powsybl.security.json.*;
 import com.powsybl.security.json.action.*;
 import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.OperatorStrategy;

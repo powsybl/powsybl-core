@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security;
+package com.powsybl.security.dynamic.json;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
@@ -13,42 +13,43 @@ import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 /**
  * @author Laurent Issertial <laurent.issertial at rte-france.com>
  */
-public class DynamicSecurityDummyExtension extends AbstractExtension<DynamicSecurityAnalysisParameters> {
-    private double parameterDouble;
-    private boolean parameterBoolean;
-    private String parameterString;
+public class DynamicSecurityDummyExtension extends AbstractExtension<DynamicSecurityAnalysisParameters>  {
+
+    double parameterDouble;
+    boolean parameterBoolean;
+    String parameterString;
 
     public DynamicSecurityDummyExtension() {
         super();
     }
 
-    public DynamicSecurityDummyExtension(DynamicSecurityDummyExtension another) {
+    DynamicSecurityDummyExtension(DynamicSecurityDummyExtension another) {
         this.parameterDouble = another.parameterDouble;
         this.parameterBoolean = another.parameterBoolean;
         this.parameterString = another.parameterString;
     }
 
-    public boolean isParameterBoolean() {
+    boolean isParameterBoolean() {
         return parameterBoolean;
     }
 
-    public double getParameterDouble() {
+    double getParameterDouble() {
         return parameterDouble;
     }
 
-    public String getParameterString() {
+    String getParameterString() {
         return parameterString;
     }
 
-    public void setParameterBoolean(boolean parameterBoolean) {
+    void setParameterBoolean(boolean parameterBoolean) {
         this.parameterBoolean = parameterBoolean;
     }
 
-    public void setParameterString(String parameterString) {
+    void setParameterString(String parameterString) {
         this.parameterString = parameterString;
     }
 
-    public void setParameterDouble(double parameterDouble) {
+    void setParameterDouble(double parameterDouble) {
         this.parameterDouble = parameterDouble;
     }
 

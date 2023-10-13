@@ -71,6 +71,7 @@ public class SecurityAnalysisParameters extends AbstractSecurityAnalysisParamete
         return this;
     }
 
+    @Override
     public void write(Path parametersPath) {
         JsonSecurityAnalysisParameters.write(this, parametersPath);
     }

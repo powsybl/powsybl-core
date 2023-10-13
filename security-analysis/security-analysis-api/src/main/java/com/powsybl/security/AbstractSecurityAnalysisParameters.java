@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 
+import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -21,7 +22,7 @@ import java.util.Objects;
  * @author Sylvain LECLERC <sylvain.leclerc at rte-france.com>
  * @author Laurent Issertial <laurent.issertial at rte-france.com>
  */
-public abstract class AbstractSecurityAnalysisParameters<T> extends AbstractExtendable<T> implements SecurityAnalysisParametersInterface {
+public abstract class AbstractSecurityAnalysisParameters<T extends AbstractSecurityAnalysisParameters<T>> extends AbstractExtendable<T> {
 
     public static class IncreasedViolationsParameters {
 
@@ -149,4 +150,8 @@ public abstract class AbstractSecurityAnalysisParameters<T> extends AbstractExte
     }
 
     protected abstract T self();
+
+    public abstract void write(Path parametersPath);
+
+    public abstract void update(Path parametersPath);
 }

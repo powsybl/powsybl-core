@@ -22,11 +22,11 @@ import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURC
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class PostContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PostContingencyResult> {
+public class PostContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PostContingencyResult> {
 
     protected static final String CONTEXT_NAME = "PostContingencyResult";
 
-    PostContingencyResultDeserializer() {
+    public PostContingencyResultDeserializer() {
         super(PostContingencyResult.class);
     }
 

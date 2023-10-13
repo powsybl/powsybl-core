@@ -84,6 +84,7 @@
         <module>tools-test</module>
         <module>triple-store</module>
         <module>ucte</module>
+        <module>powsybl-dynamic-security-analysis</module>
     </modules>
 
     <properties>

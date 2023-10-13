@@ -47,7 +47,7 @@ class SecurityAnalysisInputTest {
                 .isSameAs(network);
         assertThat(inputs.getNetworkVariant().getVariantId())
                 .isEqualTo(INITIAL_VARIANT_ID);
-        assertThat(inputs.getStaticParameters())
+        assertThat(inputs.getParameters())
                 .isSameAs(params);
         assertThat(inputs.getContingenciesProvider())
                 .isSameAs(provider);

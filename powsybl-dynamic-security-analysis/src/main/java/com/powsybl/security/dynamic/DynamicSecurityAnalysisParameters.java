@@ -13,7 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.security.AbstractSecurityAnalysisParameters;
-import com.powsybl.security.json.JsonDynamicSecurityAnalysisParameters;
+import com.powsybl.security.dynamic.json.JsonDynamicSecurityAnalysisParameters;
 
 import java.nio.file.Path;
 import java.util.Objects;
