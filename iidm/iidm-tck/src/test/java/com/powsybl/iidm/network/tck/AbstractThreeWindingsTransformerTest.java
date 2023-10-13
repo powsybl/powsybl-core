@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
@@ -989,32 +988,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void validLeg3Arguments() {
         //Verify that other invalidLeg3Arguments* tests are not throwing when arguments are ok
         createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, 5.3);
-    }
-
-    @Test
-    public void threeSidesTest() {
-        assertEquals(ThreeSides.ONE, ThreeSides.valueOf(1));
-        assertEquals(ThreeSides.TWO, ThreeSides.valueOf(2));
-        assertEquals(ThreeSides.THREE, ThreeSides.valueOf(3));
-
-        assertEquals(1, ThreeSides.ONE.getNum());
-        assertEquals(2, ThreeSides.TWO.getNum());
-        assertEquals(3, ThreeSides.THREE.getNum());
-
-        assertThrows(PowsyblException.class, () -> ThreeSides.valueOf(4));
-
-        assertSame(Branch.Side.ONE, ThreeSides.ONE.toBranchSide());
-        assertSame(Branch.Side.TWO, ThreeSides.TWO.toBranchSide());
-        assertThrows(PowsyblException.class, ThreeSides.THREE::toBranchSide);
-        assertSame(ThreeWindingsTransformer.Side.ONE, ThreeSides.ONE.toThreeWindingsTransformerSide());
-        assertSame(ThreeWindingsTransformer.Side.TWO, ThreeSides.TWO.toThreeWindingsTransformerSide());
-        assertSame(ThreeWindingsTransformer.Side.THREE, ThreeSides.THREE.toThreeWindingsTransformerSide());
-
-        assertSame(ThreeSides.ONE, Branch.Side.ONE.toThreeSides());
-        assertSame(ThreeSides.TWO, Branch.Side.TWO.toThreeSides());
-        assertSame(ThreeSides.ONE, ThreeWindingsTransformer.Side.ONE.toThreeSides());
-        assertSame(ThreeSides.TWO, ThreeWindingsTransformer.Side.TWO.toThreeSides());
-        assertSame(ThreeSides.THREE, ThreeWindingsTransformer.Side.THREE.toThreeSides());
     }
 
     @Test
