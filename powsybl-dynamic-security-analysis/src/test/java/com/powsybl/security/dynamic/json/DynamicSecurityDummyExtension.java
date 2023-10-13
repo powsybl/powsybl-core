@@ -13,7 +13,7 @@ import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 /**
  * @author Laurent Issertial <laurent.issertial at rte-france.com>
  */
-public class DynamicSecurityDummyExtension extends AbstractExtension<DynamicSecurityAnalysisParameters>  {
+public class DynamicSecurityDummyExtension extends AbstractExtension<DynamicSecurityAnalysisParameters> {
 
     double parameterDouble;
     boolean parameterBoolean;

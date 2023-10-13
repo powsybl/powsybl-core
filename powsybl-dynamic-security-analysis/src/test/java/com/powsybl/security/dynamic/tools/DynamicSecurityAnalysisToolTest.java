@@ -71,12 +71,11 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
     private static final String OUTPUT_LOG_FILENAME = "out.zip";
 
-    private final String DYNAMIC_MODEL_FILENAME = "dynamicModel";
+    private static final String DYNAMIC_MODEL_FILENAME = "dynamicModel";
 
     private DynamicSecurityAnalysisTool tool;
     private ByteSource dynamicModels;
     private DynamicModelsSupplier dynamicModelsSupplier;
-
 
     @Override
     @BeforeEach
@@ -84,7 +83,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         super.setUp();
         tool = new DynamicSecurityAnalysisTool();
         Files.createFile(fileSystem.getPath("network.xml"));
-        dynamicModels =  FileUtil.asByteSource(Files.write(fileSystem.getPath(DYNAMIC_MODEL_FILENAME), "test".getBytes()));
+        dynamicModels = FileUtil.asByteSource(Files.write(fileSystem.getPath(DYNAMIC_MODEL_FILENAME), "test".getBytes()));
         dynamicModelsSupplier = DynamicSimulationSupplierFactory.createDynamicModelsSupplier(dynamicModels.openBufferedStream(), "DynamicSecurityAnalysisToolProviderMock");
     }
 
@@ -194,7 +193,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    void buildPreprocessedInput() throws IOException {
+    void buildPreprocessedInput() {
         DynamicSecurityAnalysisExecutionInput executionInput = new DynamicSecurityAnalysisExecutionInput()
                 .setDynamicModelsSource(dynamicModels)
                 .setNetworkVariant(mock(Network.class), "")
