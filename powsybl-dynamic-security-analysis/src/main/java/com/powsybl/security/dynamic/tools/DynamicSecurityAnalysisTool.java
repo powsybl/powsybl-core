@@ -146,7 +146,6 @@ public class DynamicSecurityAnalysisTool implements Tool {
     }
 
     private static DynamicSecurityAnalysisExecutionBuilder createBuilder(PlatformConfig platformConfig) {
-        //TODO handle dynamic provider name
         String providerName = platformConfig.getOptionalModuleConfig(DynamicSecurityAnalysisToolConstants.MODULE_CONFIG_NAME_PROPERTY)
                 .flatMap(c -> c.getOptionalStringProperty(DEFAULT_SERVICE_IMPL_NAME_PROPERTY))
                 .orElse(null);
