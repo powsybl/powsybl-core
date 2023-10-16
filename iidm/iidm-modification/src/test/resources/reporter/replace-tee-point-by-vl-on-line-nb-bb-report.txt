@@ -5,7 +5,7 @@
    Internal connection between 1 and 0 removed
    Internal connection between 1 and 2 removed
    Switch NHV1_NHV2_1_BREAKER removed
-   Switch NHV1_NHV2_1_DISCONNECTOR removed
+   Switch NHV1_NHV2_1_DISCONNECTOR_2_0 removed
    Connectable testLine removed
    Line testLine removed
    Line NEW LINE1 created

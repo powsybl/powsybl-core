@@ -99,7 +99,7 @@ class RemoveFeederBayTest {
 
         new RemoveFeederBay("load2").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("SW1", "load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        Set<String> removedIdentifiables = Set.of("SW1", "load2", "load2_DISCONNECTOR_6_0", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
         assertEquals(removedIdentifiables, removedObjects);
     }
@@ -114,7 +114,7 @@ class RemoveFeederBayTest {
 
         new RemoveFeederBay("load2").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR_6_0", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
         assertEquals(removedIdentifiables, removedObjects);
     }
@@ -130,7 +130,7 @@ class RemoveFeederBayTest {
 
         new RemoveFeederBay("load2").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR_6_0", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
         assertEquals(removedIdentifiables, removedObjects);
         assertNotNull(network.getSwitch("SW1")); // Not removed as connect load1 with load3

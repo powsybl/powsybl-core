@@ -11,11 +11,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
 *
@@ -110,4 +108,22 @@ class VoltageAngleLimitTest {
         assertEquals("The network " + network.getId()
                 + " already contains a voltage angle limit with the id 'Limit'", e.getMessage());
     }
+
+    @Test
+    void removeTest() {
+        String id = "VOLTAGE_ANGLE_LIMIT_LINE_S2S3";
+
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Line lineS2S3 = network.getLine("LINE_S2S3");
+        network.newVoltageAngleLimit().setId(id)
+                .from(lineS2S3.getTerminal1())
+                .to(lineS2S3.getTerminal2())
+                .setHighLimit(10.0)
+                .add();
+
+        assertNotNull(network.getVoltageAngleLimit(id));
+        network.getVoltageAngleLimit(id).remove();
+        assertNull(network.getVoltageAngleLimit(id));
+    }
+
 }
