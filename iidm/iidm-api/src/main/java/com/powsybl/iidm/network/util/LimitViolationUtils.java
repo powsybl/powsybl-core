@@ -84,4 +84,21 @@ public final class LimitViolationUtils {
                 .orElse(false);
     }
 
+    public static double getValueForLimit(Terminal t, LimitType type) {
+        return switch (type) {
+            case ACTIVE_POWER -> t.getP();
+            case APPARENT_POWER -> Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
+            case CURRENT -> t.getI();
+            default ->
+                    throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        };
+    }
+
+    public static boolean checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, LimitType type) {
+        return checkPermanentLimit(transformer, side, limitReduction, getValueForLimit(transformer.getTerminal(side), type), type);
+    }
+
+    public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, LimitType type) {
+        return checkTemporaryLimits(transformer, side, limitReduction, getValueForLimit(transformer.getTerminal(side), type), type);
+    }
 }

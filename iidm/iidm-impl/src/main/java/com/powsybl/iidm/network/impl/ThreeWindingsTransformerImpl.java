@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
+
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -438,5 +440,108 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     protected String getTypeDescription() {
         return "3 windings transformer";
+    }
+
+    @Override
+    public boolean isOverloaded() {
+        return isOverloaded(1.0f);
+    }
+
+    @Override
+    public boolean isOverloaded(float limitReduction) {
+        return checkPermanentLimit1(limitReduction, LimitType.CURRENT)
+                || checkPermanentLimit2(limitReduction, LimitType.CURRENT)
+                || checkPermanentLimit3(limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
+    public int getOverloadDuration() {
+        Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
+        Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
+        Overload o3 = checkTemporaryLimits3(LimitType.CURRENT);
+        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        int duration3 = o3 != null ? o3.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        return Math.min(Math.min(duration1, duration2), duration3);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, side, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(Side side, LimitType type) {
+        return checkPermanentLimit(side, 1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
+        return checkPermanentLimit(Side.ONE, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(LimitType type) {
+        return checkPermanentLimit1(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
+        return checkPermanentLimit(Side.TWO, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(LimitType type) {
+        return checkPermanentLimit2(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit3(float limitReduction, LimitType type) {
+        return checkPermanentLimit(Side.THREE, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit3(LimitType type) {
+        return checkPermanentLimit3(1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, side, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(Side side, LimitType type) {
+        return checkTemporaryLimits(side, 1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+        return checkTemporaryLimits(Side.ONE, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1(LimitType type) {
+        return checkTemporaryLimits1(1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+        return checkTemporaryLimits(Side.TWO, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(LimitType type) {
+        return checkTemporaryLimits2(1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits3(float limitReduction, LimitType type) {
+        return checkTemporaryLimits(Side.THREE, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits3(LimitType type) {
+        return checkTemporaryLimits3(1f, type);
     }
 }

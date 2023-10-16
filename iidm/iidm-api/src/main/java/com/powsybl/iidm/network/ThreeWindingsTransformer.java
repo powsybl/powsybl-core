@@ -375,4 +375,48 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     default IdentifiableType getType() {
         return IdentifiableType.THREE_WINDINGS_TRANSFORMER;
     }
+
+    /**
+     * Only checks overloading for LimitType.Current and permanent limits
+     */
+    boolean isOverloaded();
+
+    /**
+     * Only checks overloading for LimitType.Current and permanent limits
+     */
+    boolean isOverloaded(float limitReduction);
+
+    int getOverloadDuration();
+
+    boolean checkPermanentLimit(Side side, float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit(Side side, LimitType type);
+
+    boolean checkPermanentLimit1(float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit1(LimitType type);
+
+    boolean checkPermanentLimit2(float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit2(LimitType type);
+
+    boolean checkPermanentLimit3(float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit3(LimitType type);
+
+    Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits(Side side, LimitType type);
+
+    Overload checkTemporaryLimits1(float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits1(LimitType type);
+
+    Overload checkTemporaryLimits2(float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits2(LimitType type);
+
+    Overload checkTemporaryLimits3(float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits3(LimitType type);
 }
