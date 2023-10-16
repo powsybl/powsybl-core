@@ -18,8 +18,8 @@ import com.powsybl.iidm.network.impl.util.Ref;
  */
 class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
 
-    private final Ref<NetworkImpl> networkRef;
-    private final String subnetworkId;
+    private final NetworkImpl network;
+    private final String subnetwork;
     private String id;
     private Terminal from;
     private Terminal to;
@@ -27,13 +27,9 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
 
     private double highLimit = Double.NaN;
 
-    VoltageAngleLimitAdderImpl(Ref<NetworkImpl> networkRef) {
-        this(networkRef, null);
-    }
-
-    VoltageAngleLimitAdderImpl(Ref<NetworkImpl> networkRef, String subnetworkId) {
-        this.networkRef = networkRef;
-        this.subnetworkId = subnetworkId;
+    VoltageAngleLimitAdderImpl(NetworkImpl network, String subnetwork) {
+        this.network = network;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -71,19 +67,23 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
         if (id == null) {
             throw new IllegalStateException("Voltage angle limit id is mandatory.");
         }
-        if (subnetworkId != null && checkTerminalsInSubnetwork(subnetworkId)) {
+        if (subnetwork != null && checkTerminalsInSubnetwork(subnetwork)) {
             throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
-                    subnetworkId + "'. Create this VoltageAngleLimit from the parent network '" + networkRef.get().getId() + "'");
+                    subnetwork + "'. Create this VoltageAngleLimit from the parent network '" + network.getId() + "'");
         }
-        if (networkRef.get().getVoltageAngleLimitsIndex().containsKey(id)) {
-            throw new PowsyblException("The network " + networkRef.get().getId()
+        if (network.getVoltageAngleLimitsIndex().containsKey(id)) {
+            throw new PowsyblException("The network " + network.getId()
                     + " already contains a voltage angle limit with the id '" + id + "'");
         }
         if (!Double.isNaN(lowLimit) && !Double.isNaN(highLimit) && lowLimit >= highLimit) {
             throw new IllegalStateException("Voltage angle low limit must be lower than the high limit.");
         }
 
-        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(id, from, to, lowLimit, highLimit);
+        VoltageLevelExt voltageLevel1 = (VoltageLevelExt) from.getVoltageLevel();
+        VoltageLevelExt voltageLevel2 = (VoltageLevelExt) to.getVoltageLevel();
+        Ref<NetworkImpl> networkRef = AbstractIdentifiableAdder.computeNetworkRef(network, voltageLevel1, voltageLevel2);
+
+        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(id, from, to, lowLimit, highLimit, networkRef);
         networkRef.get().getVoltageAngleLimitsIndex().put(id, voltageAngleLimit);
         return voltageAngleLimit;
     }
