@@ -63,6 +63,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         // leg1 adder
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+        assertEquals(ThreeSides.ONE, leg1.getSide());
         assertEquals(1.3, leg1.getR(), 0.0);
         assertEquals(1.4, leg1.getX(), 0.0);
         assertEquals(1.1, leg1.getRatedU(), 0.0);
@@ -83,7 +84,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         // leg2/3 adder
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+        assertEquals(ThreeSides.TWO, leg2.getSide());
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+        assertEquals(ThreeSides.THREE, leg3.getSide());
         assertEquals(2.03, leg2.getR(), 0.0);
         assertEquals(2.04, leg2.getX(), 0.0);
         assertEquals(2.05, leg2.getRatedU(), 0.0);
@@ -1005,9 +1008,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void getSideFromLeg() {
         ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
         ThreeWindingsTransformer transformer = transformerAdder.add();
-        assertSame(ThreeWindingsTransformer.Side.ONE, transformer.getLeg1().getSide());
-        assertSame(ThreeWindingsTransformer.Side.TWO, transformer.getLeg2().getSide());
-        assertSame(ThreeWindingsTransformer.Side.THREE, transformer.getLeg3().getSide());
+        assertSame(ThreeSides.ONE, transformer.getLeg1().getSide());
+        assertSame(ThreeSides.TWO, transformer.getLeg2().getSide());
+        assertSame(ThreeSides.THREE, transformer.getLeg3().getSide());
     }
 
     private void createThreeWindingsTransformerWithLeg3(double r, double x, double g, double b, double ratedU) {
