@@ -382,6 +382,22 @@ class DefaultLimitViolationDetectorTest {
     }
 
     @Test
+    void detectAllActivePowerLimitOnSide2OfAThreeWindingsTransformer() {
+        ThreeWindingsTransformer transformer = networkWithActiveLimitsOn3WT.getThreeWindingsTransformer("3WT");
+
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
+        cdetector.checkActivePower(transformer, ThreeWindingsTransformer.Side.TWO, 1201, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+                .hasSize(1)
+                .allSatisfy(l -> {
+                    assertEquals(100, l.getLimit(), 0d);
+                    assertEquals(1201, l.getValue(), 0d);
+                    assertSame(ThreeWindingsTransformer.Side.TWO, l.getThreeWindingsTransformerSide());
+                });
+    }
+
+    @Test
     void detectAllApparentPowerLimitOnSide2OfLine1() {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
@@ -395,6 +411,22 @@ class DefaultLimitViolationDetectorTest {
                       assertEquals(1201, l.getValue(), 0d);
                       assertSame(Branch.Side.TWO, l.getBranchSide());
                   });
+    }
+
+    @Test
+    void detectAllApparentPowerLimitOnSide3OfAThreeWindingsTransformer() {
+        ThreeWindingsTransformer transformer = networkWithApparentLimitsOn3WT.getThreeWindingsTransformer("3WT");
+
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
+        cdetector.checkApparentPower(transformer, ThreeWindingsTransformer.Side.THREE, 1201, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+                .hasSize(1)
+                .allSatisfy(l -> {
+                    assertEquals(10, l.getLimit(), 0d);
+                    assertEquals(1201, l.getValue(), 0d);
+                    assertSame(ThreeWindingsTransformer.Side.THREE, l.getThreeWindingsTransformerSide());
+                });
     }
 
     @Test

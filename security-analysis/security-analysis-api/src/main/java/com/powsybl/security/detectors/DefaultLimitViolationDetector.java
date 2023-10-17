@@ -65,9 +65,19 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     @Override
+    public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
+        checkLimitViolation(transformer, side, value, consumer, LimitType.ACTIVE_POWER);
+    }
+
+    @Override
     public void checkApparentPower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(branch, side, value, consumer, LimitType.APPARENT_POWER);
+    }
+
+    @Override
+    public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
+        checkLimitViolation(transformer, side, value, consumer, LimitType.APPARENT_POWER);
     }
 
     @Override

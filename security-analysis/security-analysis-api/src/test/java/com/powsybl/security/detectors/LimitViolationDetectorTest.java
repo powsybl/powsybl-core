@@ -149,6 +149,16 @@ class LimitViolationDetectorTest {
             @Override
             public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
             }
+
+            @Override
+            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not yet implemented!");
+            }
+
+            @Override
+            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not yet implemented!");
+            }
         };
     }
 
@@ -175,6 +185,16 @@ class LimitViolationDetectorTest {
 
             @Override
             public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            }
+
+            @Override
+            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not yet implemented!");
+            }
+
+            @Override
+            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not yet implemented!");
             }
 
             @Override
