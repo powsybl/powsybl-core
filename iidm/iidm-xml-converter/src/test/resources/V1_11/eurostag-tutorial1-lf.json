@@ -194,5 +194,12 @@
     "q1" : 98.74027252197266,
     "p2" : -300.43389892578125,
     "q2" : -137.18849182128906
+  } ],
+  "extensions" : [ {
+    "id" : "GEN",
+    "activePowerControl" : {
+      "participate" : true,
+      "droop" : 2.0
+    }
   } ]
 }

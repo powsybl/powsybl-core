@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +25,7 @@ class EurostagJsonTest extends AbstractXmlConverterTest {
         ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.JSON);
         ImportOptions importOptions = new ImportOptions().setFormat(TreeDataFormat.JSON);
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
+        network.getGeneratorStream().findFirst().ifPresent(g -> g.newExtension(ActivePowerControlAdder.class).withDroop(2).withParticipate(true).add());
         roundTripTest(network,
             (n, xmlFile) -> NetworkXml.write(n, exportOptions, xmlFile),
             xmlFile -> {
