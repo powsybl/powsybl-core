@@ -11,8 +11,10 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
@@ -98,6 +100,11 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     @Test
     void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
+            .add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withPositionPercent(40)
                 .withBusbarSectionOrBusId(BBS)
