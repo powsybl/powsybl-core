@@ -76,4 +76,8 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
     public Optional<String> getExtensionVersion(String extensionName) {
         return options.getExtensionVersion(extensionName);
     }
+
+    public String getNamespaceURI() {
+        return getVersion().getNamespaceURI(valid);
+    }
 }

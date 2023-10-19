@@ -7,6 +7,7 @@
 package com.powsybl.commons.io;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -47,4 +48,6 @@ public interface TreeDataWriter extends AutoCloseable {
 
     @Override
     void close();
+
+    void setVersions(Map<String, String> extensionVersions);
 }

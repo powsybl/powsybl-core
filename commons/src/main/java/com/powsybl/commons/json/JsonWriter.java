@@ -11,17 +11,18 @@ import com.powsybl.commons.io.TreeDataWriter;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class JsonWriter implements TreeDataWriter {
 
+    public static final String VERSION = "version";
+    private static final String EXTENSION_VERSIONS = "extensionVersions";
     private final JsonGenerator jsonGenerator;
+    private final String rootVersion;
+    private Map<String, String> extensionVersions;
 
     enum ContextType {
         OBJECT,
@@ -48,8 +49,14 @@ public class JsonWriter implements TreeDataWriter {
 
     private final Deque<Context> contextQueue = new ArrayDeque<>();
 
-    public JsonWriter(JsonGenerator jsonGenerator) {
+    public JsonWriter(JsonGenerator jsonGenerator, String rootVersion) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
+        this.rootVersion = Objects.requireNonNull(rootVersion);
+    }
+
+    @Override
+    public void setVersions(Map<String, String> extensionVersions) {
+        this.extensionVersions = Objects.requireNonNull(extensionVersions);
     }
 
     @Override
@@ -86,8 +93,20 @@ public class JsonWriter implements TreeDataWriter {
                 } else if (context.type == ContextType.OBJECT) {
                     jsonGenerator.writeFieldName(name);
                 }
+                jsonGenerator.writeStartObject();
+            } else {
+                jsonGenerator.writeStartObject();
+                writeStringAttribute(VERSION, rootVersion);
+                writeStartNodes(EXTENSION_VERSIONS);
+                extensionVersions.forEach((extensionName, version) -> {
+                    writeStartNode("", "");
+                    writeStringAttribute("extensionName", extensionName);
+                    writeStringAttribute(VERSION, version);
+                    writeEndNode();
+                });
+                writeEndNodes();
+
             }
-            jsonGenerator.writeStartObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

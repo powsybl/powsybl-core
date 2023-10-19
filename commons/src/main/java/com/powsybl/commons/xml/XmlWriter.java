@@ -11,10 +11,7 @@ import com.powsybl.commons.io.TreeDataWriter;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,9 +27,12 @@ public class XmlWriter implements TreeDataWriter {
     private final List<String> values = new ArrayList<>();
     private final List<String> prefixes = new ArrayList<>();
     private final List<String> namespaces = new ArrayList<>();
+    private final Map<String, Namespace> extensionNamespaces = new HashMap<>();
 
-    public XmlWriter(XMLStreamWriter writer) {
+    public XmlWriter(XMLStreamWriter writer, String rootNamespaceURI, String rootPrefix) {
         this.writer = Objects.requireNonNull(writer);
+        this.namespaces.add(rootNamespaceURI);
+        this.prefixes.add(rootPrefix);
     }
 
     @Override
@@ -201,5 +201,24 @@ public class XmlWriter implements TreeDataWriter {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    @Override
+    public void setVersions(Map<String, String> versions) {
+        Objects.requireNonNull(versions).keySet()
+                .stream()
+                .map(extensionNamespaces::get)
+                .filter(Objects::nonNull) //TODO: not silently
+                .forEach(namespace -> {
+                    prefixes.add(namespace.prefix());
+                    namespaces.add(namespace.uri());
+                });
+    }
+
+    public void setExtensionNamespace(String extensionName, String namespaceUri, String namespacePrefix) {
+        extensionNamespaces.put(extensionName, new Namespace(namespaceUri, namespacePrefix));
+    }
+
+    private record Namespace(String uri, String prefix) {
     }
 }

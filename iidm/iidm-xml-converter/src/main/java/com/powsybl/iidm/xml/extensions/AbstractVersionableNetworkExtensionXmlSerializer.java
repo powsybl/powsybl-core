@@ -99,13 +99,14 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
         }
     }
 
-    public void checkWritingCompatibility(String extensionVersion, IidmXmlVersion version) {
+    public boolean checkWritingCompatibility(String extensionVersion, IidmXmlVersion version) {
         checkExtensionVersionSupported(extensionVersion);
         checkCompatibilityNetworkVersion(version);
         if (!extensionVersions.get(version).contains(extensionVersion)) {
             throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
                     + ") is not compatible with the version " + extensionVersion + " of the " + extensionName + " extension.");
         }
+        return true;
     }
 
     private void checkCompatibilityNetworkVersion(IidmXmlVersion version) {
