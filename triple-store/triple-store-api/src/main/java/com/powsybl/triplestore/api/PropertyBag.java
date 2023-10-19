@@ -53,8 +53,7 @@ public class PropertyBag extends HashMap<String, String> {
     public String[] getLocals(String property, String separator) {
         String value = get(property);
         if (value == null) {
-            String[] emptyArray = {};
-            return emptyArray;
+            return new String[] {};
         }
         String[] tokens = value.split(separator);
         for (int i = 0; i < tokens.length; i++) {
