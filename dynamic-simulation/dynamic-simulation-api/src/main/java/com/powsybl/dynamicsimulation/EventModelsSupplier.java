@@ -12,9 +12,10 @@ import java.util.Collections;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
+
 public interface EventModelsSupplier extends SimulatorInputSupplier<EventModel> {
 
     static EventModelsSupplier empty() {
-        return network -> Collections.emptyList();
+        return (network, NO_OP) -> Collections.emptyList();
     }
 }

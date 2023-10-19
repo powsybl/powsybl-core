@@ -17,7 +17,7 @@ final class DynamicModelsSupplierMock {
     }
 
     static DynamicModelsSupplier empty() {
-        return network -> Collections.emptyList();
+        return (network, NO_OP) -> Collections.emptyList();
     }
 
 }
