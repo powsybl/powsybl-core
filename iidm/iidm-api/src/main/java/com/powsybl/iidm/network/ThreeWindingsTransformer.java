@@ -291,6 +291,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         default Leg setRatedS(double ratedS) {
             throw new UnsupportedOperationException();
         }
+
+        /**
+         * Get side of the leg on the three windings transformer
+         */
+        ThreeSides getSide();
     }
 
     Terminal getTerminal(Side side);
