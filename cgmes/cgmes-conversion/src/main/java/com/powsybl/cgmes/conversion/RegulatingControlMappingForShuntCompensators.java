@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +77,8 @@ public class RegulatingControlMappingForShuntCompensators {
         // But no regulating control information has been found
         // We create default regulation data
         if (rcId == null) {
-            context.missing("Regulating Control ID not defined");
+            // No need to report as missing, just log a message
+            LOG.trace("Regulating control Id not present for shunt compensator {}", shuntCompensator.getId());
             setDefaultRegulatingControl(shuntCompensator);
             return;
         }
@@ -127,4 +130,6 @@ public class RegulatingControlMappingForShuntCompensators {
             this.controlEnabled = controlEnabled;
         }
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegulatingControlMappingForShuntCompensators.class);
 }

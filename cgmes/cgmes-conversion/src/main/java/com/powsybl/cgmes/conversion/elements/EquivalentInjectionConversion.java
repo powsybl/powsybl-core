@@ -13,6 +13,8 @@ import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -126,7 +128,8 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         boolean regulationCapability = p.asBoolean("regulationCapability", false);
         regulation.status = p.asBoolean("regulationStatus", false) && regulationCapability;
         if (!p.containsKey("regulationStatus") || !p.containsKey(REGULATION_TARGET)) {
-            context.missing(String.format("Missing regulationStatus or regulationTarget for EquivalentInjection %s. Voltage regulation is considered as off.", id));
+            // No need to report as missing, just log a message
+            LOG.trace("Attributes regulationStatus or regulationTarget not present for equivalent injection {}. Voltage regulation is considered as off.", id);
         }
 
         regulation.status = regulation.status && terminalConnected();
@@ -150,4 +153,6 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
         return regulation;
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(EquivalentInjectionConversion.class);
 }

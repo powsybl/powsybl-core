@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -72,7 +74,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing("Regulating control Id not defined");
+            // No need to report as missing, just log a message
+            LOG.trace("Regulating control Id not present for static var compensator {}", svc.getId());
             setDefaultRegulatingControl(rc, svc, false);
             return;
         }
@@ -157,7 +160,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         return controlMode != null && controlMode.endsWith("reactivepower");
     }
 
-    private static class CgmesRegulatingControlForStaticVarCompensator {
+    private static final class CgmesRegulatingControlForStaticVarCompensator {
         String regulatingControlId;
         boolean controlEnabled;
         double defaultTargetVoltage;
@@ -168,4 +171,6 @@ public class RegulatingControlMappingForStaticVarCompensators {
     private final RegulatingControlMapping parent;
     private final Map<String, CgmesRegulatingControlForStaticVarCompensator> mapping;
     private final Context context;
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegulatingControlMappingForStaticVarCompensators.class);
 }
