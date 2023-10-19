@@ -380,14 +380,10 @@ public final class NetworkXml {
     }
 
     private static TreeDataWriter createTreeDataWriter(ExportOptions options, OutputStream os) {
-        switch (options.getFormat()) {
-            case XML:
-                return initializeXmlWriter(os, options);
-            case JSON:
-                return initializeJsonWriter(os, options);
-            default:
-                throw new PowsyblException("Unsupported IIDM format: " + options.getFormat());
-        }
+        return switch (options.getFormat()) {
+            case XML -> initializeXmlWriter(os, options);
+            case JSON -> initializeJsonWriter(os, options);
+        };
     }
 
     private static void write(Network network, NetworkXmlWriterContext context) {
