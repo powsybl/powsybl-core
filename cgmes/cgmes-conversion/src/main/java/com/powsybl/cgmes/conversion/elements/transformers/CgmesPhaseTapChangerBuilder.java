@@ -183,7 +183,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
                 angle = (step - neutralStep) * stepPhaseShiftIncrement;
             } else {
                 double dy = (step - neutralStep) * (stepVoltageIncrement / 100.0);
-                angle = Math.toDegrees(2 * Math.asin(dy / 2));
+                angle = Math.toDegrees(2 * Math.atan(dy / 2));
             }
             tapChanger.beginStep()
                 .setRatio(1.0)
