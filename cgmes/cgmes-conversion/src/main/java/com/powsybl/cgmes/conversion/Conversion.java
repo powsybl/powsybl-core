@@ -1034,4 +1034,6 @@ public class Conversion {
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
+    public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STRORAGE_KIND = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineHydroPlantStorageKind";
+    public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineFuelType";
 }

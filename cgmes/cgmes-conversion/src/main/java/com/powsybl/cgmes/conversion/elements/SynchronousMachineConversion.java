@@ -85,6 +85,24 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+
+        addSpecificProperties(g, p);
+    }
+
+    private static void addSpecificProperties(Generator generator, PropertyBag p) {
+        String hydroPlantStorageType = p.getLocal("hydroPlantStorageType");
+        if (hydroPlantStorageType != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STRORAGE_KIND, hydroPlantStorageType.replace("HydroPlantStorageKind.", ""));
+        }
+        String[] fossilFuelTypeArray = p.getLocals("fossilFuelTypeList", ";");
+        if (fossilFuelTypeArray.length > 0) {
+            for (int i = 0; i < fossilFuelTypeArray.length; i++) {
+                String s = fossilFuelTypeArray[i].replace("FuelType.", "");
+                fossilFuelTypeArray[i] = s;
+            }
+            String fossilFuelType = String.join(";", fossilFuelTypeArray);
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE, fossilFuelType);
+        }
     }
 
     private static EnergySource fromGeneratingUnitType(String gut) {
