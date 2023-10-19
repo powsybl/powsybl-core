@@ -652,6 +652,67 @@ class EquipmentExportTest extends AbstractConverterTest {
         return expected.getProperty(propertyName).equals(actual.getProperty(propertyName));
     }
 
+    @Test
+    void synchronousMachineKindExportAndImportTest() throws IOException {
+        Network network = createOneGeneratorNetwork();
+
+        // Define the synchronous machine kind property
+        Generator expectedGenerator = network.getGenerator("generator1");
+        expectedGenerator.setMinP(-50.0).setMaxP(0.0).setTargetP(-10.0);
+        String expectedSynchronousMachineKind = "motorOrCondenser";
+        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, expectedSynchronousMachineKind);
+        String expectedOperatingMode = "motor";
+        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, expectedOperatingMode);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "oneGeneratorSynchronousMachineKind";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Generator actualGenerator = actual.getGenerator("generator1");
+
+        // check the synchronous machine kind
+        String actualSynchronousMachineKind = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
+        assertEquals(expectedSynchronousMachineKind, actualSynchronousMachineKind);
+        String actualOperatingMode = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
+        assertEquals(expectedOperatingMode, actualOperatingMode);
+    }
+
+    private Network createOneGeneratorNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "test");
+        Substation substation1 = network.newSubstation()
+                .setId("substation1")
+                .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region1")
+                .add();
+        VoltageLevel voltageLevel1 = substation1.newVoltageLevel()
+                .setId("voltageLevel1")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        voltageLevel1.getNodeBreakerView()
+                .newBusbarSection()
+                .setId("busbarSection1")
+                .setNode(0)
+                .add();
+        Generator generator1 = voltageLevel1.newGenerator()
+                .setId("generator1")
+                .setNode(1)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .add();
+        generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
+        voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
+        return network;
+    }
+
     private Network exportImportNodeBreaker(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
         return exportImport(expected, dataSource, false, true, false);
     }
