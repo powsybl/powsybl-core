@@ -25,6 +25,9 @@ public interface CgmesTapChanger {
 
     String getControlId();
 
+    default void setControlId(String controlId) {
+    }
+
     default void setType(String type) {
     }
 }
