@@ -42,25 +42,24 @@ class IslandEndHvdc {
             return;
         }
         Set<String> visitedNodes = new HashSet<>();
+        Set<String> usedAcDcConverters = new HashSet<>();
 
         // islandNodesEnd can contain more than one hvdc configuration
         // Select the node with transformers where are more acDcConverters connected to
         Optional<String> nodeEndWithTransformers = nodeConnectedToTransformersWithMoreAcDcConvertersConnectedTo(nodeEquipment, islandNodesEnd, visitedNodes);
         while (nodeEndWithTransformers.isPresent()) {
-            add(adjacency, nodeEquipment, visitedNodes, nodeEndWithTransformers.get(), islandNodesEnd);
+            Set<String> acDcConverters = add(adjacency, nodeEquipment, visitedNodes, nodeEndWithTransformers.get(), islandNodesEnd);
+            usedAcDcConverters.addAll(acDcConverters);
             nodeEndWithTransformers = nodeConnectedToTransformersWithMoreAcDcConvertersConnectedTo(nodeEquipment, islandNodesEnd, visitedNodes);
         }
 
-        if (!visitedNodes.isEmpty()) {
-            return;
-        }
-
         // IslandsEnds without transformers
-        // Select the node where are more acDcConverters connected to
-        Optional<String> nodeEnd = nodeWithMoreAcDcConvertersConnectedTo(nodeEquipment, islandNodesEnd, visitedNodes);
+        // Select the node where are more acDcConverters connected to, avoiding used acDcConverters
+        Optional<String> nodeEnd = nodeWithMoreAcDcConvertersConnectedTo(nodeEquipment, islandNodesEnd, visitedNodes, usedAcDcConverters);
         while (nodeEnd.isPresent()) {
-            add(adjacency, nodeEquipment, visitedNodes, nodeEnd.get(), islandNodesEnd);
-            nodeEnd = nodeWithMoreAcDcConvertersConnectedTo(nodeEquipment, islandNodesEnd, visitedNodes);
+            Set<String> acDcConverters = add(adjacency, nodeEquipment, visitedNodes, nodeEnd.get(), islandNodesEnd);
+            usedAcDcConverters.addAll(acDcConverters);
+            nodeEnd = nodeWithMoreAcDcConvertersConnectedTo(nodeEquipment, islandNodesEnd, visitedNodes, usedAcDcConverters);
         }
     }
 
@@ -71,8 +70,8 @@ class IslandEndHvdc {
     }
 
     private static Optional<String> nodeWithMoreAcDcConvertersConnectedTo(NodeEquipment nodeEquipment,
-        List<String> islandNodesEnd, Set<String> visitedNodes) {
-        return notVisitedNodesSortedByAcDcConvertersConnectedTo(nodeEquipment, islandNodesEnd, visitedNodes).stream().findFirst();
+        List<String> islandNodesEnd, Set<String> visitedNodes, Set<String> usedAcDcConverters) {
+        return notVisitedNodesSortedByNotUsedAcDcConvertersConnectedTo(nodeEquipment, islandNodesEnd, visitedNodes, usedAcDcConverters).stream().findFirst();
     }
 
     // Not visited nodes connected to acDcConverters sorted by number of acDcConverters connected to
@@ -84,7 +83,13 @@ class IslandEndHvdc {
             .collect(Collectors.toList());
     }
 
-    private void add(Adjacency adjacency, NodeEquipment nodeEquipment, Set<String> visitedNodes, String nodeEnd,
+    private static List<String> notVisitedNodesSortedByNotUsedAcDcConvertersConnectedTo(NodeEquipment nodeEquipment, List<String> islandNodesEnd, Set<String> visitedNodes, Set<String> usedAcDcConverters) {
+        return islandNodesEnd.stream().filter(nodeEnd -> !visitedNodes.contains(nodeEnd) && nodeEquipment.containsAnyNotUsedAcDcConverter(nodeEnd, usedAcDcConverters))
+                .sorted(Comparator.<String>comparingInt(nodeEquipment::acDcConvertersConnectedTo).reversed().thenComparing(nodeEnd -> nodeEnd))
+                .collect(Collectors.toList());
+    }
+
+    private Set<String> add(Adjacency adjacency, NodeEquipment nodeEquipment, Set<String> visitedNodes, String nodeEnd,
         List<String> islandNodesEnd) {
 
         List<String> hvdcNodes = computeHvdcNodes(adjacency, nodeEquipment, nodeEnd, islandNodesEnd);
@@ -99,6 +104,8 @@ class IslandEndHvdc {
 
         HvdcEnd hvdcEnd = new HvdcEnd(hvdcNodes, transformers, acDcConverters, dcLineSegment);
         hvdc.add(hvdcEnd);
+
+        return acDcConverters;
     }
 
     private static List<String> computeHvdcNodes(Adjacency adjacency, NodeEquipment nodeEquipment,
