@@ -14,10 +14,8 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.Measurement;
-import com.powsybl.iidm.network.extensions.MeasurementAdder;
-import com.powsybl.iidm.network.extensions.Measurements;
-import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.extensions.*;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -83,7 +81,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
                         .setValid(XmlUtil.readBoolAttribute(reader, "valid"));
                 String side = reader.getAttributeValue(null, "side");
                 if (side != null) {
-                    adder.setSide(Measurement.Side.valueOf(side));
+                    adder.setSide(ThreeSides.valueOf(side));
                 }
                 XmlUtil.readUntilEndElement(MEASUREMENT, reader, () -> {
                     if (reader.getLocalName().equals("property")) {
