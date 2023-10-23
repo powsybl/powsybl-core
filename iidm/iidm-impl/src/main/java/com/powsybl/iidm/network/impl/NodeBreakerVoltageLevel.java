@@ -1202,7 +1202,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public boolean disconnect(TerminalExt terminal) {
         // Only keep the breakers in the nominal case
-        Predicate<Switch> isSwitchOpenable = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER;
+        Predicate<Switch> isSwitchOpenable = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isFictitious();
         return disconnect(terminal, isSwitchOpenable);
     }
 
