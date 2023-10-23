@@ -224,7 +224,7 @@ public interface Terminal {
         }
     }
 
-    private static ThreeSides toSide(Branch.Side side) {
+    private static ThreeSides toSide(TwoSides side) {
         return switch (side) {
             case ONE -> ThreeSides.ONE;
             case TWO -> ThreeSides.TWO;

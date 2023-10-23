@@ -24,7 +24,7 @@ public final class LimitViolationUtils {
     private LimitViolationUtils() {
     }
 
-    public static Overload checkTemporaryLimits(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
+    public static Overload checkTemporaryLimits(Branch<?> branch, TwoSides side, float limitReduction, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
         return branch.getLimits(type, side)
@@ -66,7 +66,7 @@ public final class LimitViolationUtils {
         return i >= permanentLimit * limitReduction;
     }
 
-    public static boolean checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
+    public static boolean checkPermanentLimit(Branch<?> branch, TwoSides side, float limitReduction, double i, LimitType type) {
         return branch.getLimits(type, side)
                 .map(l -> checkPermanentLimitIfAny(l, i, limitReduction))
                 .orElse(false);

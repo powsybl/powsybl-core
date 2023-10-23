@@ -89,7 +89,7 @@ class LimitViolationDetectorForThreeWindingsTransformerTest {
     private LimitViolationDetector contingencyBlindDetector() {
         return new AbstractContingencyBlindDetector() {
             @Override
-            public void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkCurrent(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
@@ -109,12 +109,12 @@ class LimitViolationDetectorForThreeWindingsTransformerTest {
             }
 
             @Override
-            public void checkActivePower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkActivePower(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
             @Override
-            public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkApparentPower(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
@@ -133,7 +133,7 @@ class LimitViolationDetectorForThreeWindingsTransformerTest {
     private LimitViolationDetector contingencyBasedDetector() {
         return new AbstractLimitViolationDetector() {
             @Override
-            public void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkCurrent(Contingency contingency, Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
@@ -153,13 +153,13 @@ class LimitViolationDetectorForThreeWindingsTransformerTest {
             }
 
             @Override
-            public void checkActivePower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkActivePower(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
 
             }
 
             @Override
-            public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkApparentPower(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
 
             }
@@ -175,7 +175,7 @@ class LimitViolationDetectorForThreeWindingsTransformerTest {
             }
 
             @Override
-            public void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+            public void checkPermanentLimit(Branch<?> branch, TwoSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
                 throw new UnsupportedOperationException("Not used in this test!");
 
             }

@@ -285,8 +285,8 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
                 case LINE:
                     Line line = (Line) connectable;
-                    visitor.visitLine(line, line.getTerminal1() == terminal ? Branch.Side.ONE
-                                                                            : Branch.Side.TWO);
+                    visitor.visitLine(line, line.getTerminal1() == terminal ? TwoSides.ONE
+                                                                            : TwoSides.TWO);
                     break;
 
                 case GENERATOR:
@@ -305,8 +305,8 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     TwoWindingsTransformer twt = (TwoWindingsTransformer) connectable;
                     visitor.visitTwoWindingsTransformer(twt,
                             twt.getTerminal1() == terminal
-                            ? Branch.Side.ONE
-                            : Branch.Side.TWO);
+                            ? TwoSides.ONE
+                            : TwoSides.TWO);
                     break;
 
                 case THREE_WINDINGS_TRANSFORMER:

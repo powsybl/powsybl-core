@@ -62,7 +62,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                     writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
 
                  // TODO use TieLine Id and DanglingLine Id for reference instead of TieLine Id and Side
-                    Branch.Side side = getSide(boundary);
+                    TwoSides side = getSide(boundary);
                     if (side != null) {
                         writer.writeAttribute("side", side.name());
                     }
@@ -72,13 +72,13 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
         }
     }
 
-    private static Branch.Side getSide(Boundary boundary) {
+    private static TwoSides getSide(Boundary boundary) {
         // a TieLine with two dangingLines inside
         return boundary.getDanglingLine().getTieLine().map(tl -> {
             if (tl.getDanglingLine1() == boundary.getDanglingLine()) {
-                return Branch.Side.ONE;
+                return TwoSides.ONE;
             }
-            return Branch.Side.TWO;
+            return TwoSides.TWO;
         }).orElse(null);
     }
 
@@ -117,7 +117,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                         cgmesControlArea.add(dl.getBoundary());
                     } else if (identifiable instanceof TieLine tl) {
                         side = networkContext.getReader().getAttributeValue(null, "side");
-                        cgmesControlArea.add(tl.getDanglingLine(Branch.Side.valueOf(side)).getBoundary());
+                        cgmesControlArea.add(tl.getDanglingLine(TwoSides.valueOf(side)).getBoundary());
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
                     }

@@ -8,9 +8,9 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,8 +34,8 @@ class SidesTest {
 
     @Test
     void threeSidesToBranchSideTest() {
-        assertSame(Branch.Side.ONE, ThreeSides.ONE.toBranchSide());
-        assertSame(Branch.Side.TWO, ThreeSides.TWO.toBranchSide());
+        assertSame(TwoSides.ONE, ThreeSides.ONE.toBranchSide());
+        assertSame(TwoSides.TWO, ThreeSides.TWO.toBranchSide());
         assertThrows(PowsyblException.class, ThreeSides.THREE::toBranchSide);
     }
 
@@ -48,8 +48,8 @@ class SidesTest {
 
     @Test
     void branchSideToThreeSidesTest() {
-        assertSame(ThreeSides.ONE, Branch.Side.ONE.toThreeSides());
-        assertSame(ThreeSides.TWO, Branch.Side.TWO.toThreeSides());
+        assertSame(ThreeSides.ONE, TwoSides.ONE.toThreeSides());
+        assertSame(ThreeSides.TWO, TwoSides.TWO.toThreeSides());
     }
 
     @Test

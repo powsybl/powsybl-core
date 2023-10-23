@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -91,7 +91,7 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     }
 
     @Override
-    public void visitLine(Line line, Side side) {
+    public void visitLine(Line line, TwoSides side) {
         if (line.equals(this.line)) {
             return;
         }
@@ -102,7 +102,7 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
         addFlow(transformer.getTerminal(side));
     }
 

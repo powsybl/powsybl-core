@@ -25,7 +25,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
-    public void checkCurrent(Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(Branch branch, TwoSides side, Consumer<LimitViolation> consumer) {
         checkCurrent(branch, side, branch.getTerminal(side).getI(), consumer);
     }
 
@@ -52,7 +52,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      * <p>This implementation computes the current value from the power value, if current is not provided (NaN).</p>
      */
     @Override
-    public void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
+    public void checkCurrentDc(Branch branch, TwoSides side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
         double i = getTerminalIOrAnApproximation(branch.getTerminal(side), dcPowerFactor);
         checkCurrent(branch, side, i, consumer);
     }
@@ -99,8 +99,8 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
 
     @Override
     public void checkCurrent(Branch branch, Consumer<LimitViolation> consumer) {
-        checkCurrent(branch, Branch.Side.ONE, consumer);
-        checkCurrent(branch, Branch.Side.TWO, consumer);
+        checkCurrent(branch, TwoSides.ONE, consumer);
+        checkCurrent(branch, TwoSides.TWO, consumer);
     }
 
     @Override
@@ -112,8 +112,8 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
 
     @Override
     public void checkCurrentDc(Branch branch, double dcPowerFactor, Consumer<LimitViolation> consumer) {
-        checkCurrentDc(branch, Branch.Side.ONE, dcPowerFactor, consumer);
-        checkCurrentDc(branch, Branch.Side.TWO, dcPowerFactor, consumer);
+        checkCurrentDc(branch, TwoSides.ONE, dcPowerFactor, consumer);
+        checkCurrentDc(branch, TwoSides.TWO, dcPowerFactor, consumer);
     }
 
     @Override

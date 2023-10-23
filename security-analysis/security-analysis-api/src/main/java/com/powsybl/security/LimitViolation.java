@@ -103,7 +103,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
      */
     public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
-                          double limit, float limitReduction, double value, Branch.Side side) {
+                          double limit, float limitReduction, double value, TwoSides side) {
         this(subjectId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, Objects.requireNonNull(side).toThreeSides());
     }
 
@@ -142,7 +142,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
-                          double limit, float limitReduction, double value, Branch.Side side) {
+                          double limit, float limitReduction, double value, TwoSides side) {
         this(subjectId, null, limitType, limitName, acceptableDuration, limit, limitReduction, value, Objects.requireNonNull(side).toThreeSides());
     }
 
@@ -277,7 +277,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      *
      * @return the side of the branch side where the violation occurred.
      */
-    public Branch.Side getBranchSide() {
+    public TwoSides getBranchSide() {
         return Objects.requireNonNull(side).toBranchSide();
     }
 

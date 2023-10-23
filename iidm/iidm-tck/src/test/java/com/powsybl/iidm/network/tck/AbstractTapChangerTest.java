@@ -44,7 +44,7 @@ public abstract class AbstractTapChangerTest {
                                 .setConnectableBus1("busA")
                                 .setConnectableBus2("busB")
                             .add();
-        terminal = twt.getTerminal(Branch.Side.ONE);
+        terminal = twt.getTerminal(TwoSides.ONE);
     }
 
     @Test

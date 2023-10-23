@@ -25,7 +25,7 @@ import java.util.Optional;
 public class IdBasedBusRef extends AbstractBusRef {
 
     private final String id;
-    private final Branch.Side side;
+    private final TwoSides side;
 
     public IdBasedBusRef(String id) {
         this.id = Objects.requireNonNull(id);
@@ -33,7 +33,7 @@ public class IdBasedBusRef extends AbstractBusRef {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public IdBasedBusRef(@JsonProperty("id") String id, @JsonProperty("side") Branch.Side side) {
+    public IdBasedBusRef(@JsonProperty("id") String id, @JsonProperty("side") TwoSides side) {
         this.id = Objects.requireNonNull(id);
         this.side = side;
     }
@@ -83,7 +83,7 @@ public class IdBasedBusRef extends AbstractBusRef {
         return id;
     }
 
-    public Branch.Side getSide() {
+    public TwoSides getSide() {
         return side;
     }
 

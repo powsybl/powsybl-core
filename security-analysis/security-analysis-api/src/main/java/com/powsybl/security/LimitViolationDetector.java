@@ -32,7 +32,7 @@ public interface LimitViolationDetector {
      * @param currentValue  The current value to be checked, in A.
      * @param consumer      Will be fed with possibly created limit violations.
      */
-    default void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+    default void checkCurrent(Contingency contingency, Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
         checkCurrent(branch, side, currentValue, consumer);
     }
 
@@ -61,7 +61,7 @@ public interface LimitViolationDetector {
      * @param side          The side of the branch on which the current must be checked.
      * @param consumer      Will be fed with possibly created limit violations.
      */
-    default void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
+    default void checkCurrent(Contingency contingency, Branch branch, TwoSides side, Consumer<LimitViolation> consumer) {
         checkCurrent(branch, side, consumer);
     }
 
@@ -195,7 +195,7 @@ public interface LimitViolationDetector {
      * @param currentValue  The current value to be checked, in A.
      * @param consumer      Will be fed with possibly created limit violations.
      */
-    void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer);
+    void checkCurrent(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the specified current value on the specified side of the specified
@@ -219,7 +219,7 @@ public interface LimitViolationDetector {
      * @param value         The active power value to be checked, in A.
      * @param consumer      Will be fed with possibly created limit violations.
      */
-    void checkActivePower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer);
+    void checkActivePower(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the specified active power value on the specified side of the specified
@@ -243,7 +243,7 @@ public interface LimitViolationDetector {
      * @param value         The apparent power value to be checked, in A.
      * @param consumer      Will be fed with possibly created limit violations.
      */
-    void checkApparentPower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer);
+    void checkApparentPower(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the specified apparent power value on the specified side of the specified
@@ -266,7 +266,7 @@ public interface LimitViolationDetector {
      * @param side          The side of the branch on which the current must be checked.
      * @param consumer      Will be fed with possibly created limit violations.
      */
-    void checkCurrent(Branch branch, Branch.Side side, Consumer<LimitViolation> consumer);
+    void checkCurrent(Branch branch, TwoSides side, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the current value on the specified side of the specified
@@ -290,7 +290,7 @@ public interface LimitViolationDetector {
      * @param dcPowerFactor The DC power factor used to convert the active power into current.
      * @param consumer      Will be fed with possibly created limit violations.
      */
-    void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer);
+    void checkCurrentDc(Branch branch, TwoSides side, double dcPowerFactor, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the current value on the specified side of the specified
@@ -446,7 +446,7 @@ public interface LimitViolationDetector {
     /**
      * Generic implementation for permanent limit checks
      */
-    default void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    default void checkPermanentLimit(Branch<?> branch, TwoSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
             double limit = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
             consumer.accept(new LimitViolation(branch.getId(),
@@ -482,7 +482,7 @@ public interface LimitViolationDetector {
     /**
      * Generic implementation for temporary limit checks
      */
-    default void checkTemporary(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    default void checkTemporary(Branch<?> branch, TwoSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (overload != null) {
             consumer.accept(new LimitViolation(branch.getId(),

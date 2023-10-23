@@ -14,7 +14,7 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
 
     public abstract void visitTerminal(Terminal t);
 
-    private void visitBranch(Branch branch, Branch.Side side) {
+    private void visitBranch(Branch branch, TwoSides side) {
         switch (side) {
             case ONE:
                 visitTerminal(branch.getTerminal1());
@@ -33,12 +33,12 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
-    public void visitLine(Line line, Branch.Side side) {
+    public void visitLine(Line line, TwoSides side) {
         visitBranch(line, side);
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
         visitBranch(transformer, side);
     }
 

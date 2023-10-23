@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.Bus;
@@ -96,8 +96,8 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                 BranchData lineData = new BranchData(line,
                                                      parameters.getEpsilonX(),
                                                      parameters.isApplyReactanceCorrection());
-                completeTerminalData(line.getTerminal(Side.ONE), Side.ONE, lineData);
-                completeTerminalData(line.getTerminal(Side.TWO), Side.TWO, lineData);
+                completeTerminalData(line.getTerminal(TwoSides.ONE), TwoSides.ONE, lineData);
+                completeTerminalData(line.getTerminal(TwoSides.TWO), TwoSides.TWO, lineData);
             });
 
         network.getTwoWindingsTransformerStream().forEach(twt -> {
@@ -112,8 +112,8 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                                                 parameters.getEpsilonX(),
                                                 parameters.isApplyReactanceCorrection(),
                                                 lfParameters.isTwtSplitShuntAdmittance());
-            completeTerminalData(twt.getTerminal(Side.ONE), Side.ONE, twtData);
-            completeTerminalData(twt.getTerminal(Side.TWO), Side.TWO, twtData);
+            completeTerminalData(twt.getTerminal(TwoSides.ONE), TwoSides.ONE, twtData);
+            completeTerminalData(twt.getTerminal(TwoSides.TWO), TwoSides.TWO, twtData);
         });
 
         network.getShuntCompensatorStream().forEach(sh -> {
@@ -179,7 +179,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         }
     }
 
-    private void completeTerminalData(Terminal terminal, Side side, BranchData branchData) {
+    private void completeTerminalData(Terminal terminal, TwoSides side, BranchData branchData) {
         if (terminal.isConnected() && terminal.getBusView().getBus() != null && terminal.getBusView().getBus().isInMainConnectedComponent()) {
             if (Double.isNaN(terminal.getP())) {
                 LOGGER.debug("Branch {}, Side {}: setting p = {}", branchData.getId(), side, branchData.getComputedP(side));

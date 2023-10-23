@@ -44,7 +44,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     @Override
-    public void checkCurrent(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(branch, side, value, consumer, LimitType.CURRENT);
     }
@@ -56,7 +56,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     @Override
-    public void checkActivePower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkActivePower(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(branch, side, value, consumer, LimitType.ACTIVE_POWER);
     }
@@ -67,7 +67,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     @Override
-    public void checkApparentPower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkApparentPower(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(branch, side, value, consumer, LimitType.APPARENT_POWER);
     }
@@ -112,7 +112,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
             });
     }
 
-    public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    public void checkLimitViolation(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
             checkTemporary(branch, side, limitReduction, value, consumer, type);

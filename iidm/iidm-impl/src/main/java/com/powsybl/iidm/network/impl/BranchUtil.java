@@ -8,10 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.Overload;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Objects;
@@ -40,22 +37,22 @@ public final class BranchUtil {
         }
     }
 
-    public static Branch.Side getSide(Terminal terminal, Terminal terminal1, Terminal terminal2) {
+    public static TwoSides getSide(Terminal terminal, Terminal terminal1, Terminal terminal2) {
         Objects.requireNonNull(terminal);
         if (terminal1 == terminal) {
-            return Branch.Side.ONE;
+            return TwoSides.ONE;
         } else if (terminal2 == terminal) {
-            return Branch.Side.TWO;
+            return TwoSides.TWO;
         } else {
             throw new IllegalStateException("The terminal is not connected to this branch");
         }
     }
 
-    static <T> T getFromSide(Branch.Side side, Supplier<T> getter1, Supplier<T> getter2) {
+    static <T> T getFromSide(TwoSides side, Supplier<T> getter1, Supplier<T> getter2) {
         Objects.requireNonNull(side);
-        if (side == Branch.Side.ONE) {
+        if (side == TwoSides.ONE) {
             return getter1.get();
-        } else if (side == Branch.Side.TWO) {
+        } else if (side == TwoSides.TWO) {
             return getter2.get();
         }
         throw new IllegalStateException("Unexpected side: " + side);

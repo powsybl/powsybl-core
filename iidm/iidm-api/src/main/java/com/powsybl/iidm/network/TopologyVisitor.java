@@ -14,9 +14,9 @@ public interface TopologyVisitor {
 
     void visitBusbarSection(BusbarSection section);
 
-    void visitLine(Line line, Branch.Side side);
+    void visitLine(Line line, TwoSides side);
 
-    void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side);
+    void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side);
 
     void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side);
 
