@@ -19,7 +19,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  * <p>
  * <p>
  * A stateMonitor allows to get information about branch, bus and three windings transformers on the network after a security analysis computation.

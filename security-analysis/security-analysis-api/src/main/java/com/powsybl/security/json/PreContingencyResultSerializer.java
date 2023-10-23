@@ -14,7 +14,7 @@ import com.powsybl.security.results.PreContingencyResult;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 class PreContingencyResultSerializer extends StdSerializer<PreContingencyResult> {
 

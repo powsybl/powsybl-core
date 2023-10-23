@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 abstract class AbstractComponentsManager<C extends Component> {
 

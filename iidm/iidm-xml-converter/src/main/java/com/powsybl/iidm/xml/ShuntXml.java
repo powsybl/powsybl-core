@@ -21,7 +21,7 @@ import static com.powsybl.iidm.xml.ConnectableXmlUtil.readNodeOrBus;
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.writeNodeOrBus;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
 

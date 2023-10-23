@@ -20,7 +20,7 @@ package com.powsybl.iidm.network;
  *        .add();
  *</pre>
  *
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  * @see Battery
  * @see VoltageLevel
  */

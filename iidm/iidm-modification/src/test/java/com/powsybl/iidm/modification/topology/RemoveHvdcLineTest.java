@@ -22,7 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Anis Touri <anis-1.touri@rte-france.com>
+ * @author Anis Touri {@literal <anis-1.touri@rte-france.com>}
  */
 class RemoveHvdcLineTest extends AbstractConverterTest {
 

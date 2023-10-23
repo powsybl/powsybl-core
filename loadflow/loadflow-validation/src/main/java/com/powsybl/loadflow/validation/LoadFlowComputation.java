@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * Load flow as a computation candidate for validation.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 @AutoService(CandidateComputation.class)
 public class LoadFlowComputation implements CandidateComputation {

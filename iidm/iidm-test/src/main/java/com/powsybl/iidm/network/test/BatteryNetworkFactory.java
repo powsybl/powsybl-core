@@ -12,7 +12,7 @@ import org.joda.time.DateTime;
 import java.util.Objects;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 public final class BatteryNetworkFactory {
 

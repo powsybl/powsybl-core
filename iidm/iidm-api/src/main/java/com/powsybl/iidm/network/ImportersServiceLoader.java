@@ -11,7 +11,7 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import java.util.List;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class ImportersServiceLoader implements ImportersLoader {
 

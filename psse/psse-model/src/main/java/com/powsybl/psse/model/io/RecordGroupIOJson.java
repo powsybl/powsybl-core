@@ -25,8 +25,8 @@ import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType
 import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType.PARAMETER_SET;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
     private final AbstractRecordGroup<T> recordGroup;

@@ -16,7 +16,7 @@ import java.io.IOException;
 import static com.powsybl.security.action.ActionList.VERSION;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ActionListSerializer extends StdSerializer<ActionList> {
 

@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.scripting
 import com.powsybl.iidm.network.Network
 
 /**
- * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
  */
 class NetworkExtension {
     static Object getShunt(Network self, String id) {

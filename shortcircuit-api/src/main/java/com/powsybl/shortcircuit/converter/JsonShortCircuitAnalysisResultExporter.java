@@ -20,7 +20,7 @@ import java.io.Writer;
 /**
  * Exports a short circuit analysis result in JSON format.
  *
- * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 @AutoService(ShortCircuitAnalysisResultExporter.class)
 public class JsonShortCircuitAnalysisResultExporter implements ShortCircuitAnalysisResultExporter {

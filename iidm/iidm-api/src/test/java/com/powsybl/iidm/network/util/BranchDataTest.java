@@ -19,8 +19,8 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Branch.Side;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class BranchDataTest {
 

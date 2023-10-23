@@ -31,7 +31,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.CGMES_EQ_3_OR_GREATER_PREFI
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesModelTripleStore extends AbstractCgmesModel {
 

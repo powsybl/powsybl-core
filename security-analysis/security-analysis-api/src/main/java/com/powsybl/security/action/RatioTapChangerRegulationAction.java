@@ -14,8 +14,8 @@ import java.util.OptionalDouble;
 /**
  * An action activating or deactivating the regulation of a ratio transformer
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class RatioTapChangerRegulationAction extends AbstractTapChangerRegulationAction {
 

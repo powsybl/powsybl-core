@@ -10,7 +10,7 @@ import com.powsybl.iidm.modification.tripping.SwitchTripping;
 import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SwitchContingency extends AbstractContingency {
 

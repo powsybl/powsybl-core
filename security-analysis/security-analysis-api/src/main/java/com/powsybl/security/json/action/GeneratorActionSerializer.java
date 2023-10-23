@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 /**
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class GeneratorActionSerializer extends StdSerializer<GeneratorAction> {
 

@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Json deserializer for sensitivity analysis parameters
  *
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<SensitivityAnalysisParameters> {
 

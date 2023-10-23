@@ -20,7 +20,7 @@ import java.util.Objects;
  * Input data/configuration for a {@link com.powsybl.shortcircuit.ShortCircuitAnalysis} computation.
  * However, all fields must always be non {@literal null}.
  *
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class ShortCircuitInput {
 

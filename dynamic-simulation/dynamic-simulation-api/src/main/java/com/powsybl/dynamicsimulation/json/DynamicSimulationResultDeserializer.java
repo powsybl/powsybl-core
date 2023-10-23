@@ -29,7 +29,7 @@ import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class DynamicSimulationResultDeserializer extends StdDeserializer<DynamicSimulationResult> {
 

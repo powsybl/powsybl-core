@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateCouplingDeviceBuilder {
 

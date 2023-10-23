@@ -20,7 +20,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 class NetworkElementIdentifierContingencyListTest {
 

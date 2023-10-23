@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.extensions.BranchObservability;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class BranchObservabilityAdderImplProvider<B extends Branch<B>> implements

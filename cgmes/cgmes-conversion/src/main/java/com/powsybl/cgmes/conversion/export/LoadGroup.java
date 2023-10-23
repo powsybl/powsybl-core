@@ -7,7 +7,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class LoadGroup {
     final String className;

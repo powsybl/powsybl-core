@@ -17,7 +17,7 @@ import com.powsybl.security.action.GeneratorActionBuilder;
 import java.io.IOException;
 
 /**
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class GeneratorActionDeserializer extends StdDeserializer<GeneratorAction> {
 

@@ -42,7 +42,7 @@ import java.util.concurrent.ForkJoinPool;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 class AmplModelExecutionHandlerTest {
 

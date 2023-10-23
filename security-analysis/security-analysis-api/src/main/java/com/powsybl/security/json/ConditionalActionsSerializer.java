@@ -14,7 +14,7 @@ import com.powsybl.security.strategy.ConditionalActions;
 import java.io.IOException;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class ConditionalActionsSerializer extends StdSerializer<ConditionalActions> {
 

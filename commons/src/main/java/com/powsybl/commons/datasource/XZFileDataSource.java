@@ -13,7 +13,7 @@ import java.io.*;
 import java.nio.file.Path;
 
 /**
- * @author Olivier Bretteville <olivier.bretteville at rte-france.com>
+ * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
  */
 public class XZFileDataSource extends FileDataSource {
 

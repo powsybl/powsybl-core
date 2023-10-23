@@ -79,7 +79,7 @@ package com.powsybl.iidm.network;
  * <p>
  * To create a battery, see {@link BatteryAdder}
  *
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  * @see BatteryAdder
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve

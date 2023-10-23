@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * A utility class that create IIDM containers, i.e voltage levels and substations from a bus branch model with respect
  * to IIDM container requirements.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class ContainersMapping {
 

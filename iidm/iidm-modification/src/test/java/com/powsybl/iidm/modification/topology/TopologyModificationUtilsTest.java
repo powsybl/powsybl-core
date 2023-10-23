@@ -27,8 +27,8 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class TopologyModificationUtilsTest extends AbstractConverterTest {
 

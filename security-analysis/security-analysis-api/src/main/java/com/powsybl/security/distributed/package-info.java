@@ -9,6 +9,6 @@
  * Classes used for the security analysis distribution or simple forwarding
  * to other {@literal itools} process(es).
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 package com.powsybl.security.distributed;

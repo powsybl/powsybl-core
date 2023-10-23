@@ -11,7 +11,7 @@ import com.powsybl.timeseries.DoubleMultiPoint;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoint> {
 

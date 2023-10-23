@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 public class LoadFlowResultImpl implements LoadFlowResult {
 

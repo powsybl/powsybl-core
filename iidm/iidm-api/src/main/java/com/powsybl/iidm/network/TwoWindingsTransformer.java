@@ -134,7 +134,7 @@ import java.util.Optional;
  * that belong to the same substation.
  * <p>To create a 2 windings transformer, see {@link TwoWindingsTransformerAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see RatioTapChanger
  * @see PhaseTapChanger
  * @see TwoWindingsTransformerAdder

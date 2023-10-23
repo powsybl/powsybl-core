@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Nicolas Lhuillier <nicolas.lhuillier@rte-france.com>
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Nicolas Lhuillier {@literal <nicolas.lhuillier@rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public abstract class AbstractMainConnectedComponentWithSwitchTest {
 
