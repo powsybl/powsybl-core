@@ -18,7 +18,7 @@ class CgmesTapChangerImpl implements CgmesTapChanger {
     private String type;
     private final boolean hidden;
     private final Integer step;
-    private final String controlId;
+    private String controlId;
 
     CgmesTapChangerImpl(String id, String combinedTapChangerId, String type, boolean hidden, Integer step, String controlId, CgmesTapChangersImpl<?> mapping) {
         this.id = id;
@@ -62,6 +62,11 @@ class CgmesTapChangerImpl implements CgmesTapChanger {
     @Override
     public String getControlId() {
         return controlId;
+    }
+
+    @Override
+    public void setControlId(String controlId) {
+        this.controlId = controlId;
     }
 
     @Override

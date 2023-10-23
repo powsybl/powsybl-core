@@ -421,16 +421,18 @@ public final class SteadyStateHypothesisExport {
         if (cgmesTc != null && cgmesTc.getControlId() != null) {
             String controlId = cgmesTc.getControlId();
             RegulatingControlView rcv = null;
-            if (tc instanceof RatioTapChanger ratioTapChanger) {
+            if (tc instanceof RatioTapChanger ratioTapChanger
+                    && CgmesExportUtil.regulatingControlIsDefined(ratioTapChanger)) {
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
-                        tc.isRegulating(),
-                        tc.getTargetDeadband(),
+                        ratioTapChanger.isRegulating(),
+                        ratioTapChanger.getTargetDeadband(),
                         ratioTapChanger.getTargetV(),
                         // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
                         "k");
-            } else if (tc instanceof PhaseTapChanger phaseTapChanger) {
+            } else if (tc instanceof PhaseTapChanger phaseTapChanger
+                    && CgmesExportUtil.regulatingControlIsDefined(phaseTapChanger)) {
                 boolean valid;
                 String unitMultiplier;
                 switch (phaseTapChanger.getRegulationMode()) {
@@ -454,9 +456,9 @@ public final class SteadyStateHypothesisExport {
                     rcv = new RegulatingControlView(controlId,
                             RegulatingControlType.TAP_CHANGER_CONTROL,
                             true,
-                            tc.isRegulating(),
-                            tc.getTargetDeadband(),
-                            ((PhaseTapChanger) tc).getRegulationValue(),
+                            phaseTapChanger.isRegulating(),
+                            phaseTapChanger.getTargetDeadband(),
+                            phaseTapChanger.getRegulationValue(),
                             unitMultiplier);
                 }
             }
