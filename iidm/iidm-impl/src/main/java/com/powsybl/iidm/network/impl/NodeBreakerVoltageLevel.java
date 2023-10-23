@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.base.Functions;
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
@@ -41,6 +40,7 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -263,7 +263,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 nodes.add(n);
                 graph.traverse(n, TraversalType.DEPTH_FIRST, (n1, e, n2) -> {
                     SwitchImpl aSwitch = graph.getEdgeObject(e);
-                    if (aSwitch != null && terminate.apply(aSwitch)) {
+                    if (aSwitch != null && terminate.test(aSwitch)) {
                         return TraverseResult.TERMINATE_PATH;
                     }
 
@@ -1201,6 +1201,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean disconnect(TerminalExt terminal) {
+        // Only keep the breakers in the nominal case
+        Predicate<Switch> isSwitchOpenable = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER;
+        return disconnect(terminal, isSwitchOpenable);
+    }
+
+    @Override
+    public boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
         }
@@ -1222,7 +1229,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             for (int i = 0; i < path.size(); i++) {
                 int e = path.get(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw != null && sw.getKind() == SwitchKind.BREAKER) {
+                if (isSwitchOpenable.test(sw)) {
                     if (!sw.isOpen()) {
                         sw.setOpen(true);
                     }

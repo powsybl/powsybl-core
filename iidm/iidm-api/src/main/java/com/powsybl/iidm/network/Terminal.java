@@ -11,6 +11,7 @@ import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * An equipment connection point in a substation topology.
@@ -165,6 +166,15 @@ public interface Terminal {
      * @see VariantManager
      */
     boolean disconnect();
+
+    /**
+     * Disconnect the terminal.
+     * <p>Depends on the working variant.
+     * @param isSwitchOpenable function telling if a switch is openable according to conditions
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    boolean disconnect(Predicate<Switch> isSwitchOpenable);
 
     /**
      * Test if the terminal is connected.
