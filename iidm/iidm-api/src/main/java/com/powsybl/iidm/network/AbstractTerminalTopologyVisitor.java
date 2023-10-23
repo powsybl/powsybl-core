@@ -43,7 +43,7 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
-    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
         switch (side) {
             case ONE:
                 visitTerminal(transformer.getLeg1().getTerminal());

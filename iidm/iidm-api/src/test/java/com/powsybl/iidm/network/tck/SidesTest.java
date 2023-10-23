@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
@@ -40,23 +39,8 @@ class SidesTest {
     }
 
     @Test
-    void threeSidesToThreeWindingsTransformerSideTest() {
-        assertSame(ThreeWindingsTransformer.Side.ONE, ThreeSides.ONE.toThreeWindingsTransformerSide());
-        assertSame(ThreeWindingsTransformer.Side.TWO, ThreeSides.TWO.toThreeWindingsTransformerSide());
-        assertSame(ThreeWindingsTransformer.Side.THREE, ThreeSides.THREE.toThreeWindingsTransformerSide());
-    }
-
-    @Test
     void twoSidesToThreeSidesTest() {
         assertSame(ThreeSides.ONE, TwoSides.ONE.toThreeSides());
         assertSame(ThreeSides.TWO, TwoSides.TWO.toThreeSides());
     }
-
-    @Test
-    void threeWindingsTransformerSideToThreeSidesTest() {
-        assertSame(ThreeSides.ONE, ThreeWindingsTransformer.Side.ONE.toThreeSides());
-        assertSame(ThreeSides.TWO, ThreeWindingsTransformer.Side.TWO.toThreeSides());
-        assertSame(ThreeSides.THREE, ThreeWindingsTransformer.Side.THREE.toThreeSides());
-    }
-
 }

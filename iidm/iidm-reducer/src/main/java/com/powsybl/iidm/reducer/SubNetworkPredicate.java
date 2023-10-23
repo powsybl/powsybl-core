@@ -68,7 +68,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
             }
 
             @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
                 switch (side) {
                     case ONE:
                         traverse(transformer.getLeg2().getTerminal().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);

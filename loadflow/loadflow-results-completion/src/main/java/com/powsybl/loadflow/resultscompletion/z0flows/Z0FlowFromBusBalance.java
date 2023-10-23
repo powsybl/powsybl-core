@@ -108,7 +108,7 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
 
     @Override
     public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer,
-            ThreeWindingsTransformer.Side side) {
+            ThreeSides side) {
         addFlow(transformer.getTerminal(side));
     }
 

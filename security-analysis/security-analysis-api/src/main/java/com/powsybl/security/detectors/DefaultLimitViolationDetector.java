@@ -50,7 +50,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     @Override
-    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(transformer, side, value, consumer, LimitType.CURRENT);
     }
@@ -62,7 +62,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     @Override
-    public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkActivePower(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer) {
         checkLimitViolation(transformer, side, value, consumer, LimitType.ACTIVE_POWER);
     }
 
@@ -73,7 +73,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     @Override
-    public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer) {
         checkLimitViolation(transformer, side, value, consumer, LimitType.APPARENT_POWER);
     }
 
@@ -121,7 +121,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         }
     }
 
-    public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReduction, value, type);
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
             checkTemporary(transformer, side, limitReduction, value, consumer, type);

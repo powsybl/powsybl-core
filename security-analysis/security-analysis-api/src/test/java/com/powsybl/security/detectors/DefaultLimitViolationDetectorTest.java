@@ -386,14 +386,14 @@ class DefaultLimitViolationDetectorTest {
         ThreeWindingsTransformer transformer = networkWithActiveLimitsOn3WT.getThreeWindingsTransformer("3WT");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkActivePower(transformer, ThreeWindingsTransformer.Side.TWO, 1201, violationsCollector::add);
+        cdetector.checkActivePower(transformer, ThreeSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(100, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.TWO, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.TWO, l.getThreeWindingsTransformerSide());
                 });
     }
 
@@ -418,14 +418,14 @@ class DefaultLimitViolationDetectorTest {
         ThreeWindingsTransformer transformer = networkWithApparentLimitsOn3WT.getThreeWindingsTransformer("3WT");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkApparentPower(transformer, ThreeWindingsTransformer.Side.THREE, 1201, violationsCollector::add);
+        cdetector.checkApparentPower(transformer, ThreeSides.THREE, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(10, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.THREE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.THREE, l.getThreeWindingsTransformerSide());
                 });
     }
 
@@ -544,14 +544,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentCurrentLimitOverloadOn3WT() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
-        detector.checkCurrent(transformer, ThreeWindingsTransformer.Side.THREE, 1101, violationsCollector::add);
+        detector.checkCurrent(transformer, ThreeSides.THREE, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(10, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.THREE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.THREE, l.getThreeWindingsTransformerSide());
                     assertEquals(2147483647, l.getAcceptableDuration());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
@@ -560,14 +560,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentCurrentLimitOverloadOn3WT2() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
-        detector.checkCurrent(transformer, ThreeWindingsTransformer.Side.THREE, 13, violationsCollector::add);
+        detector.checkCurrent(transformer, ThreeSides.THREE, 13, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(12, l.getLimit(), 0d);
                     assertEquals(13, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.THREE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.THREE, l.getThreeWindingsTransformerSide());
                     assertEquals(600, l.getAcceptableDuration());
                     assertEquals("20'", l.getLimitName());
                 });
@@ -577,14 +577,14 @@ class DefaultLimitViolationDetectorTest {
     void detectTemporaryCurrentLimitOverloadOn3WT() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
         // also test with branch one or two
-        detector.checkTemporary(transformer, ThreeWindingsTransformer.Side.THREE, 1.0f, 12, violationsCollector::add, LimitType.CURRENT);
+        detector.checkTemporary(transformer, ThreeSides.THREE, 1.0f, 12, violationsCollector::add, LimitType.CURRENT);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(12, l.getLimit(), 0d);
                     assertEquals(12, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.THREE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.THREE, l.getThreeWindingsTransformerSide());
                     assertEquals(600, l.getAcceptableDuration());
                 });
     }
@@ -592,14 +592,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentApparentPowerLimitOn3WT() {
         ThreeWindingsTransformer transformer = networkWithApparentLimitsOn3WT.getThreeWindingsTransformer("3WT");
-        detector.checkPermanentLimit(transformer, ThreeWindingsTransformer.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkPermanentLimit(transformer, ThreeSides.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.TWO, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.TWO, l.getThreeWindingsTransformerSide());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(1.0f, l.getLimitReduction());
                 });
@@ -608,14 +608,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentActivePowerLimitOn3WT() {
         ThreeWindingsTransformer transformer = networkWithActiveLimitsOn3WT.getThreeWindingsTransformer("3WT");
-        detector.checkPermanentLimit(transformer, ThreeWindingsTransformer.Side.ONE, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkPermanentLimit(transformer, ThreeSides.ONE, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1000, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.ONE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.ONE, l.getThreeWindingsTransformerSide());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }

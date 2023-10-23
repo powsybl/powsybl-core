@@ -25,7 +25,7 @@ public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVi
     }
 
     @Override
-    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
         visitEquipment(transformer);
     }
 

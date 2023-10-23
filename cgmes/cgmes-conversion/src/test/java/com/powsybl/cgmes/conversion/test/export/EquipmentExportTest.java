@@ -26,7 +26,7 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -493,12 +493,12 @@ class EquipmentExportTest extends AbstractConverterTest {
         double tol = 0.0000001;
         assertEquals(twtData.getStarU() / twt.getRatedU0(), twtDataSorted.getStarU() / twtDataSorted.getRatedU0(), tol);
         assertEquals(twtData.getStarTheta(), twtDataSorted.getStarTheta(), tol);
-        assertEquals(twtData.getComputedP(Side.ONE), twtDataSorted.getComputedP(Side.THREE), tol);
-        assertEquals(twtData.getComputedQ(Side.ONE), twtDataSorted.getComputedQ(Side.THREE), tol);
-        assertEquals(twtData.getComputedP(Side.TWO), twtDataSorted.getComputedP(Side.ONE), tol);
-        assertEquals(twtData.getComputedQ(Side.TWO), twtDataSorted.getComputedQ(Side.ONE), tol);
-        assertEquals(twtData.getComputedP(Side.THREE), twtDataSorted.getComputedP(Side.TWO), tol);
-        assertEquals(twtData.getComputedQ(Side.THREE), twtDataSorted.getComputedQ(Side.TWO), tol);
+        assertEquals(twtData.getComputedP(ThreeSides.ONE), twtDataSorted.getComputedP(ThreeSides.THREE), tol);
+        assertEquals(twtData.getComputedQ(ThreeSides.ONE), twtDataSorted.getComputedQ(ThreeSides.THREE), tol);
+        assertEquals(twtData.getComputedP(ThreeSides.TWO), twtDataSorted.getComputedP(ThreeSides.ONE), tol);
+        assertEquals(twtData.getComputedQ(ThreeSides.TWO), twtDataSorted.getComputedQ(ThreeSides.ONE), tol);
+        assertEquals(twtData.getComputedP(ThreeSides.THREE), twtDataSorted.getComputedP(ThreeSides.TWO), tol);
+        assertEquals(twtData.getComputedQ(ThreeSides.THREE), twtDataSorted.getComputedQ(ThreeSides.TWO), tol);
     }
 
     private static boolean compareCurrentLimits(CurrentLimits expected, CurrentLimits actual) {

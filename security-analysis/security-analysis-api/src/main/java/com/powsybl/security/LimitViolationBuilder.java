@@ -7,7 +7,6 @@
 package com.powsybl.security;
 
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoSides;
 
 import java.util.concurrent.TimeUnit;
@@ -82,10 +81,6 @@ public class LimitViolationBuilder {
     }
 
     public LimitViolationBuilder side(TwoSides side) {
-        return side(requireNonNull(side).toThreeSides());
-    }
-
-    public LimitViolationBuilder side(ThreeWindingsTransformer.Side side) {
         return side(requireNonNull(side).toThreeSides());
     }
 

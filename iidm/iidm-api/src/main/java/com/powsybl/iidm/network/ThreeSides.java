@@ -13,17 +13,16 @@ import com.powsybl.commons.PowsyblException;
  @author Bertrand Rix <bertrand.rix at artelys.com>
  */
 public enum ThreeSides {
-    ONE(1, ThreeWindingsTransformer.Side.ONE, TwoSides.ONE),
-    TWO(2, ThreeWindingsTransformer.Side.TWO, TwoSides.TWO),
-    THREE(3, ThreeWindingsTransformer.Side.THREE, (TwoSides) null);
+    ONE(1, TwoSides.ONE),
+    TWO(2, TwoSides.TWO),
+    THREE(3, null);
 
     private final int num;
-    private final ThreeWindingsTransformer.Side threeWindingsTransformerSide;
+
     private final TwoSides sideAsTwoSides;
 
-    ThreeSides(int num, ThreeWindingsTransformer.Side transformerSide, TwoSides sideAsTwoSides) {
+    ThreeSides(int num, TwoSides sideAsTwoSides) {
         this.num = num;
-        this.threeWindingsTransformerSide = transformerSide;
         this.sideAsTwoSides = sideAsTwoSides;
     }
 
@@ -47,9 +46,4 @@ public enum ThreeSides {
         }
         return sideAsTwoSides;
     }
-
-    public ThreeWindingsTransformer.Side toThreeWindingsTransformerSide() {
-        return threeWindingsTransformerSide;
-    }
-
 }

@@ -113,26 +113,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
      *
      * @param subjectId          The identifier of the network equipment on which the violation occurred.
-     * @param subjectName        An optional name of the network equipment on which the violation occurred.
-     * @param limitType          The type of limit which has been violated.
-     * @param limitName          An optional name for the limit which has been violated.
-     * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
-     * @param limit              The value of the limit which has been violated.
-     * @param limitReduction     The limit reduction factor used for violation detection.
-     * @param value              The actual value of the physical value which triggered the detection of a violation.
-     * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
-     */
-    public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
-                          double limit, float limitReduction, double value, ThreeWindingsTransformer.Side side) {
-        this(subjectId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, Objects.requireNonNull(side).toThreeSides());
-    }
-
-    /**
-     * Create a new LimitViolation.
-     *
-     * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
-     *
-     * @param subjectId          The identifier of the network equipment on which the violation occurred.
      * @param limitType          The type of limit which has been violated.
      * @param limitName          An optional name for the limit which has been violated.
      * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
@@ -286,8 +266,8 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      *
      * @return the side of the 3 windings transformer where the violation occurred.
      */
-    public ThreeWindingsTransformer.Side getThreeWindingsTransformerSide() {
-        return Objects.requireNonNull(side).toThreeWindingsTransformerSide();
+    public ThreeSides getThreeWindingsTransformerSide() {
+        return Objects.requireNonNull(side);
     }
 
     /**

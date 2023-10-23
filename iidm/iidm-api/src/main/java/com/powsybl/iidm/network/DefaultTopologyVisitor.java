@@ -28,7 +28,7 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     }
 
     @Override
-    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
         // empty default implementation
     }
 

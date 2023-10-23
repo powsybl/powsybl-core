@@ -18,7 +18,7 @@ public interface TopologyVisitor {
 
     void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side);
 
-    void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side);
+    void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side);
 
     void visitGenerator(Generator generator);
 

@@ -687,7 +687,7 @@ public class MatpowerExporter implements Exporter {
             }
 
             @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
                 branchCount[0]++;
             }
 

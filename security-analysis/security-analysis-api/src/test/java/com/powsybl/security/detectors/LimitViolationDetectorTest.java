@@ -128,7 +128,7 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
@@ -151,12 +151,12 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
             @Override
-            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
         };
@@ -188,12 +188,12 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
             @Override
-            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 

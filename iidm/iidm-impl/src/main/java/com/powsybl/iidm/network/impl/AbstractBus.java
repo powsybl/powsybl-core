@@ -311,13 +311,13 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
                 case THREE_WINDINGS_TRANSFORMER:
                     ThreeWindingsTransformer thwt = (ThreeWindingsTransformer) connectable;
-                    ThreeWindingsTransformer.Side side;
+                    ThreeSides side;
                     if (thwt.getLeg1().getTerminal() == terminal) {
-                        side = ThreeWindingsTransformer.Side.ONE;
+                        side = ThreeSides.ONE;
                     } else if (thwt.getLeg2().getTerminal() == terminal) {
-                        side = ThreeWindingsTransformer.Side.TWO;
+                        side = ThreeSides.TWO;
                     } else {
-                        side = ThreeWindingsTransformer.Side.THREE;
+                        side = ThreeSides.THREE;
                     }
                     visitor.visitThreeWindingsTransformer(thwt, side);
                     break;

@@ -231,7 +231,7 @@ public interface Terminal {
         };
     }
 
-    private static ThreeSides toSide(ThreeWindingsTransformer.Side side) {
+    private static ThreeSides toSide(ThreeSides side) {
         return switch (side) {
             case ONE -> ThreeSides.ONE;
             case TWO -> ThreeSides.TWO;
