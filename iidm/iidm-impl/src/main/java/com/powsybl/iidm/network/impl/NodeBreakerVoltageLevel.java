@@ -67,6 +67,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     private final Map<String, Integer> switches = new HashMap<>();
 
     public static final Predicate<Switch> KEEP_NONFICTIONAL_CLOSED_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen() && !switchObject.isFictitious();
+    public static final Predicate<Switch> KEEP_ALL_CLOSED_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen();
     public static final Predicate<Switch> KEEP_ALL_SWITCHES = Objects::nonNull;
 
     private class VariantImpl implements Variant {
@@ -1205,7 +1206,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public boolean disconnect(TerminalExt terminal) {
         // Only keep the closed non-fictional breakers in the nominal case
-        return disconnect(terminal, KEEP_NONFICTIONAL_CLOSED_BREAKERS);
+        return disconnect(terminal, KEEP_ALL_CLOSED_BREAKERS);
     }
 
     @Override

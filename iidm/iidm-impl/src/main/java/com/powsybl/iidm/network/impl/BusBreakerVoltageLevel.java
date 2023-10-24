@@ -929,11 +929,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean disconnect(TerminalExt terminal) {
-        return disconnect(terminal, null);
-    }
-
-    @Override
-    public boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
@@ -948,7 +943,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         invalidateCache();
 
         return true;
+    }
 
+    @Override
+    public boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable) {
+        return disconnect(terminal);
     }
 
     void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, TraversalType traversalType) {
