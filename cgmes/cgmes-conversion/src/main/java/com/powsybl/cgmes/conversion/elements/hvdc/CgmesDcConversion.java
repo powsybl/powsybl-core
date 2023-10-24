@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
 import com.powsybl.cgmes.conversion.elements.hvdc.Hvdc.HvdcConverter;
 import com.powsybl.cgmes.model.CgmesDcTerminal;
@@ -181,6 +182,11 @@ public class CgmesDcConversion {
 
         if (createHvdc()) {
             setCommonDataUsed();
+            // Add the second line segment identifier as an alias of the line created
+            HvdcLine line = context.network().getHvdcLine(dcLineSegmentId1);
+            if (line != null) {
+                line.addAlias(dcLineSegmentId2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2");
+            }
             context.dc().setCgmesDcLineSegmentUsed(dcLineSegmentId2);
         }
     }
