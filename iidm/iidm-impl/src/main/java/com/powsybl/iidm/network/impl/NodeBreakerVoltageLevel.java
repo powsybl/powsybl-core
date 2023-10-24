@@ -68,6 +68,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     public static final Predicate<Switch> KEEP_NONFICTIONAL_CLOSED_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen() && !switchObject.isFictitious();
     public static final Predicate<Switch> KEEP_ALL_CLOSED_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen();
+    public static final Predicate<Switch> KEEP_BREAKERS_AND_DISCONNECTORS = switchObject -> switchObject != null && (switchObject.getKind() == SwitchKind.BREAKER || switchObject.getKind() == SwitchKind.DISCONNECTOR);
     public static final Predicate<Switch> KEEP_ALL_SWITCHES = Objects::nonNull;
 
     private class VariantImpl implements Variant {
