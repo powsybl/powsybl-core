@@ -61,17 +61,7 @@ public class IdBasedBusRef extends AbstractBusRef {
         } else {
             if (identifiable instanceof Branch) {
                 Branch<?> branch = (Branch<?>) identifiable;
-                Terminal terminal;
-                switch (side) {
-                    case ONE:
-                        terminal = branch.getTerminal1();
-                        break;
-                    case TWO:
-                        terminal = branch.getTerminal2();
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected side: " + side);
-                }
+                Terminal terminal = branch.getTerminal(side);
                 return chooseBusByLevel(terminal, level);
             } else {
                 throw new PowsyblException(id + " is not a branch.");

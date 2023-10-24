@@ -239,26 +239,10 @@ public final class CgmesExportUtil {
             }
             return 1;
         } else {
-            if (c instanceof Branch) {
-                switch (((Branch<?>) c).getSide(t)) {
-                    case ONE:
-                        return 1;
-                    case TWO:
-                        return 2;
-                    default:
-                        throw new IllegalStateException("Incorrect branch side " + ((Branch<?>) c).getSide(t));
-                }
+            if (c instanceof Branch<?> branch) {
+                return branch.getSide(t).getNum();
             } else if (c instanceof ThreeWindingsTransformer twt) {
-                switch (twt.getSide(t)) {
-                    case ONE:
-                        return 1;
-                    case TWO:
-                        return 2;
-                    case THREE:
-                        return 3;
-                    default:
-                        throw new IllegalStateException("Incorrect three-windings transformer side " + twt.getSide(t));
-                }
+                return twt.getSide(t).getNum();
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
             }

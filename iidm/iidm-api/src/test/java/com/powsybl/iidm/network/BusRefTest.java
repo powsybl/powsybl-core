@@ -99,14 +99,14 @@ class BusRefTest {
         when(network.getIdentifiable("branchId")).thenReturn(branch);
         Terminal terminal = mock(Terminal.class);
         Terminal.BusView bv = mock(Terminal.BusView.class);
-        when(branch.getTerminal1()).thenReturn(terminal);
+        when(branch.getTerminal(TwoSides.ONE)).thenReturn(terminal);
         when(terminal.getBusView()).thenReturn(bv);
         when(bv.getBus()).thenReturn(bvBus);
         final BusRef busRef = new IdBasedBusRef("branchId", TwoSides.ONE);
         assertEquals(bvBus, busRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(IllegalStateException::new));
         Terminal terminal2 = mock(Terminal.class);
         Terminal.BusView bv2 = mock(Terminal.BusView.class);
-        when(branch.getTerminal2()).thenReturn(terminal2);
+        when(branch.getTerminal(TwoSides.TWO)).thenReturn(terminal2);
         when(terminal2.getBusView()).thenReturn(bv2);
         Bus bus2 = mock(Bus.class);
         when(bv2.getBus()).thenReturn(bus2);

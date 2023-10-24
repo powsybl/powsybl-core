@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import static com.powsybl.iidm.network.ThreeSides.THREE;
-import static com.powsybl.iidm.network.ThreeSides.TWO;
 import static com.powsybl.iidm.network.extensions.Measurement.Type.*;
 
 /**
@@ -122,9 +120,9 @@ public final class CgmesAnalogPostProcessor {
                 if (terminalType.endsWith("1")) {
                     return ThreeSides.ONE;
                 } else if (terminalType.endsWith("2")) {
-                    return TWO;
+                    return ThreeSides.TWO;
                 } else if (terminalType.endsWith("3")) {
-                    return THREE;
+                    return ThreeSides.THREE;
                 }
             }
         }
