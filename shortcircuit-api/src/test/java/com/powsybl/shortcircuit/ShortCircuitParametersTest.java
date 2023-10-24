@@ -216,6 +216,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertEquals(Range.between(215., 235.), voltageRanges.get(1).getRange());
         assertEquals(1.05, voltageRanges.get(2).getRangeCoefficient());
         assertEquals(Range.between(80., 100.), voltageRanges.get(2).getRange());
+        assertFalse(parameters.isDetailedReport());
     }
 
     @Test
