@@ -8,8 +8,18 @@
 package com.powsybl.iidm.network;
 
 public enum TwoSides {
-    ONE,
-    TWO;
+    ONE(1),
+    TWO(2);
+
+    private final int num;
+
+    TwoSides(int num) {
+        this.num = num;
+    }
+
+    public int getNum() {
+        return num;
+    }
 
     public ThreeSides toThreeSides() {
         return switch (this) {
