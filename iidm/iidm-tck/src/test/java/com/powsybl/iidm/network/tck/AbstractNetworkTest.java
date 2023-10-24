@@ -526,6 +526,10 @@ public abstract class AbstractNetworkTest {
                 mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
                         .getSwitchStream()
                         .filter(sw -> sw.getKind() == SwitchKind.LOAD_BREAK_SWITCH)));
+        assertEquals(Collections.emptyList(),
+                mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
+                        .getSwitchStream()
+                        .filter(sw -> sw.getKind() == SwitchKind.GROUND_DISCONNECTOR)));
     }
 
     @Test

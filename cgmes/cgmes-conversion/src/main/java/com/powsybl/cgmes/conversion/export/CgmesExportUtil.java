@@ -221,6 +221,8 @@ public final class CgmesExportUtil {
                 return "Disconnector";
             case LOAD_BREAK_SWITCH:
                 return "LoadBreakSwitch";
+            case GROUND_DISCONNECTOR:
+                return "GroundDisconnector";
         }
         LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
         return "Switch";

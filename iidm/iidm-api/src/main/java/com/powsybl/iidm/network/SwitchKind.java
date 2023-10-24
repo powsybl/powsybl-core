@@ -14,5 +14,6 @@ package com.powsybl.iidm.network;
 public enum SwitchKind {
     BREAKER,
     DISCONNECTOR,
-    LOAD_BREAK_SWITCH
+    LOAD_BREAK_SWITCH,
+    GROUND_DISCONNECTOR
 }

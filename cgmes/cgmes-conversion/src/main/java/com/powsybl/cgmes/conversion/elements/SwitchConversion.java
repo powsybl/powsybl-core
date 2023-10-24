@@ -107,6 +107,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         String type = p.getLocal("type").toLowerCase();
         if (type.contains("breaker")) {
             return SwitchKind.BREAKER;
+        } else if (type.contains("ground")) {
+            return SwitchKind.GROUND_DISCONNECTOR;
         } else if (type.contains("disconnector")) {
             return SwitchKind.DISCONNECTOR;
         } else if (type.contains("loadbreak")) {
