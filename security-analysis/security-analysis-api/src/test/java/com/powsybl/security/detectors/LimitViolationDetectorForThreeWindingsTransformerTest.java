@@ -266,7 +266,7 @@ class LimitViolationDetectorForThreeWindingsTransformerTest {
         detector.checkCurrent(contingency1, threeWindingsTransformer, ThreeSides.ONE, 5000, collectedViolations::add);
         assertEquals(0, collectedViolations.size());
         detector.checkCurrent(contingency1, threeWindingsTransformer, collectedViolations::add);
-        assertEquals(0, collectedViolations.stream().filter(l -> l.getThreeWindingsTransformerSide() == ThreeSides.ONE).count());
+        assertEquals(0, collectedViolations.stream().filter(l -> l.getSide() == ThreeSides.ONE).count());
     }
 
     @Test

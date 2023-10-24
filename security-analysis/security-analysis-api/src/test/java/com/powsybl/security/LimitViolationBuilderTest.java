@@ -49,7 +49,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.CURRENT, violation.getLimitType());
-        assertEquals(TwoSides.ONE, violation.getBranchSide());
+        assertEquals(TwoSides.ONE, violation.getSideAsTwoSides());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -63,7 +63,7 @@ class LimitViolationBuilderTest {
                 .side2()
                 .duration(60)
                 .build();
-        assertEquals(TwoSides.TWO, violation2.getBranchSide());
+        assertEquals(TwoSides.TWO, violation2.getSideAsTwoSides());
         assertEquals("name", violation2.getSubjectName());
         assertEquals("limitName", violation2.getLimitName());
         assertEquals(0.9f, violation2.getLimitReduction(), 0);
@@ -181,7 +181,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.ACTIVE_POWER, violation.getLimitType());
-        assertSame(TwoSides.ONE, violation.getBranchSide());
+        assertSame(TwoSides.ONE, violation.getSideAsTwoSides());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -200,7 +200,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.APPARENT_POWER, violation.getLimitType());
-        assertSame(TwoSides.TWO, violation.getBranchSide());
+        assertSame(TwoSides.TWO, violation.getSideAsTwoSides());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);

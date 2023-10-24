@@ -253,21 +253,12 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * The side of the branch side where the violation occurred.
+     * The side of the equipment with two sides (like branch) where the violation occurred.
      *
-     * @return the side of the branch side where the violation occurred.
+     * @return the side of the equipment with two sides (like branch) where the violation occurred.
      */
-    public TwoSides getBranchSide() {
+    public TwoSides getSideAsTwoSides() {
         return Objects.requireNonNull(side).toTwoSides();
-    }
-
-    /**
-     * The side of the 3 windings transformer where the violation occurred.
-     *
-     * @return the side of the 3 windings transformer where the violation occurred.
-     */
-    public ThreeSides getThreeWindingsTransformerSide() {
-        return Objects.requireNonNull(side);
     }
 
     /**
