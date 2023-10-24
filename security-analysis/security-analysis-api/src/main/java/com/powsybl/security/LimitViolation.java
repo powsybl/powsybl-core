@@ -278,7 +278,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @return the side of the branch side where the violation occurred.
      */
     public TwoSides getBranchSide() {
-        return Objects.requireNonNull(side).toBranchSide();
+        return Objects.requireNonNull(side).toTwoSides();
     }
 
     /**

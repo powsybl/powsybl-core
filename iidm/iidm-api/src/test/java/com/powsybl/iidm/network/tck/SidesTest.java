@@ -33,10 +33,10 @@ class SidesTest {
     }
 
     @Test
-    void threeSidesToBranchSideTest() {
-        assertSame(TwoSides.ONE, ThreeSides.ONE.toBranchSide());
-        assertSame(TwoSides.TWO, ThreeSides.TWO.toBranchSide());
-        assertThrows(PowsyblException.class, ThreeSides.THREE::toBranchSide);
+    void threeSidesToTwoSidesTest() {
+        assertSame(TwoSides.ONE, ThreeSides.ONE.toTwoSides());
+        assertSame(TwoSides.TWO, ThreeSides.TWO.toTwoSides());
+        assertThrows(PowsyblException.class, ThreeSides.THREE::toTwoSides);
     }
 
     @Test
@@ -47,7 +47,7 @@ class SidesTest {
     }
 
     @Test
-    void branchSideToThreeSidesTest() {
+    void twoSidesToThreeSidesTest() {
         assertSame(ThreeSides.ONE, TwoSides.ONE.toThreeSides());
         assertSame(ThreeSides.TWO, TwoSides.TWO.toThreeSides());
     }

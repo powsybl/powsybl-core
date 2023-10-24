@@ -19,12 +19,12 @@ public enum ThreeSides {
 
     private final int num;
     private final ThreeWindingsTransformer.Side threeWindingsTransformerSide;
-    private final TwoSides branchSide;
+    private final TwoSides sideAsTwoSides;
 
-    ThreeSides(int num, ThreeWindingsTransformer.Side transformerSide, TwoSides branchSide) {
+    ThreeSides(int num, ThreeWindingsTransformer.Side transformerSide, TwoSides sideAsTwoSides) {
         this.num = num;
         this.threeWindingsTransformerSide = transformerSide;
-        this.branchSide = branchSide;
+        this.sideAsTwoSides = sideAsTwoSides;
     }
 
     public int getNum() {
@@ -40,12 +40,12 @@ public enum ThreeSides {
         };
     }
 
-    public TwoSides toBranchSide() {
-        if (branchSide == null) {
-            throw new PowsyblException("A Branch has only two sides, ONE and TWO, " +
-                    "here it is called with " + this.name());
+    public TwoSides toTwoSides() {
+        if (sideAsTwoSides == null) {
+            throw new PowsyblException("Cannot convert ThreeSides value " + this.name()
+                    + " as a TwoSides (" + TwoSides.ONE.name() + ", " + TwoSides.TWO.name() + ")");
         }
-        return branchSide;
+        return sideAsTwoSides;
     }
 
     public ThreeWindingsTransformer.Side toThreeWindingsTransformerSide() {
