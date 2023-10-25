@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.OptionalLong;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 public class ComputationParametersImpl extends AbstractExtendable<ComputationParameters> implements ComputationParameters {
 

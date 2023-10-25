@@ -28,7 +28,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
  *
  * See {@link CreateVoltageLevelTopologyBuilder}.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 

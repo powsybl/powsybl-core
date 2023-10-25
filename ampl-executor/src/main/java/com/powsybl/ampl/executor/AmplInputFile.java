@@ -16,7 +16,7 @@ import java.io.IOException;
  * An additional file provided to an Ampl run.
  * Useful when you need more information for your ampl model.
  *
- * @author Nicolas PIERRE <nicolas.pierre@artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre@artelys.com>}
  */
 public interface AmplInputFile {
     /**

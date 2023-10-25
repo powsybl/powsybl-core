@@ -29,7 +29,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * disconnectors to connect the breaker to every parallel busbar section, else does not create them.
  * If there are exactly two busbar sections and
  * that they must have the same sectionIndex, then no open disconnector is created.
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateCouplingDevice extends AbstractNetworkModification {
 

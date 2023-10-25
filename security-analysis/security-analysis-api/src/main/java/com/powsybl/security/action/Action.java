@@ -10,7 +10,7 @@ package com.powsybl.security.action;
  * An action is taken according to an operator strategy when a condition occurs.
  * It aims at solving violations.
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public interface Action {
 

@@ -11,7 +11,7 @@ import org.apache.commons.cli.CommandLine;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class CommandLineUtil {
 

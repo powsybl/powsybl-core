@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 abstract class AbstractTransformerConversion extends AbstractConductingEquipmentConversion {
 

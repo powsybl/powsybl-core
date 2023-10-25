@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Injection;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public interface InjectionObservabilityAdder <I extends Injection<I>>
         extends ExtensionAdder<I, InjectionObservability<I>> {

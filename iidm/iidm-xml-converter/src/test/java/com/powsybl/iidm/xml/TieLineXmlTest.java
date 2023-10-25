@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 class TieLineXmlTest extends AbstractXmlConverterTest {
 

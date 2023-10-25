@@ -11,7 +11,7 @@ import com.powsybl.cgmes.model.test.CgmesModelTester;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class CgmesConformity2Test {
 

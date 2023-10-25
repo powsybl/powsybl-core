@@ -21,7 +21,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * (also called switching voltage level). The voltage level should be added to the network just before calling this method, and should contains
  * at least a configured bus in bus/breaker topology or a bus bar section in node/breaker topology.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModification<ConnectVoltageLevelOnLine> {
 

@@ -15,7 +15,7 @@ import java.util.Collection;
  * Measurements with continuous numeric values associated with an equipment (the extended equipment).
  * See {@link Measurement}.
  *
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface Measurements<C extends Connectable<C>> extends Extension<C> {
 

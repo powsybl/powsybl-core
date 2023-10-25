@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 class NodeBreakerPropertiesOnBusTest extends AbstractXmlConverterTest {
     @Test

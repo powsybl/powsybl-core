@@ -18,7 +18,7 @@ import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Elena Kaltakova <kaltakovae at aia.es>
+ * @author Elena Kaltakova {@literal <kaltakovae at aia.es>}
  *
  */
 class TripleStoreUpdateTest {

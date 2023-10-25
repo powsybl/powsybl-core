@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.TieLine;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSerializer<TieLine, CgmesLineBoundaryNode> {

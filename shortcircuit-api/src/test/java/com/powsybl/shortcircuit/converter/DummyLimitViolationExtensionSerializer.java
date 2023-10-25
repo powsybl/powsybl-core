@@ -19,7 +19,7 @@ import com.powsybl.shortcircuit.TestingResultFactory;
 import java.io.IOException;
 
 /**
- * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 @AutoService(ExtensionJsonSerializer.class)
 public class DummyLimitViolationExtensionSerializer implements ExtensionJsonSerializer<LimitViolation, TestingResultFactory.DummyLimitViolationExtension> {

@@ -26,7 +26,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.network.util.TieLineUtil.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ReplaceTieLinesByLines extends AbstractNetworkModification {
 

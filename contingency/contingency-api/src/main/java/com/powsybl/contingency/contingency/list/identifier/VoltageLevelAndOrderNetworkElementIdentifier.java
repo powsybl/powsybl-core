@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElementIdentifier {
 

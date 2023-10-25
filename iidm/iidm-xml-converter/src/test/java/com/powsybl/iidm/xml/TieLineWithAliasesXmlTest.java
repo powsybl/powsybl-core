@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey@rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
 class TieLineWithAliasesXmlTest extends AbstractXmlConverterTest {
 

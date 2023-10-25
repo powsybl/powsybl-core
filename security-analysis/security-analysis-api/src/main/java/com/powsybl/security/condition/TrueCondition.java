@@ -9,7 +9,7 @@ package com.powsybl.security.condition;
 /**
  * always simulate the associated action
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class TrueCondition implements Condition {
 

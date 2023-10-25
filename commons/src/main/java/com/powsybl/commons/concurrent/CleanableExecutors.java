@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 /**
  * Thread pool executors that can execute cleaning tasks each time a thread go back to the pool.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class CleanableExecutors {
 

@@ -11,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
 

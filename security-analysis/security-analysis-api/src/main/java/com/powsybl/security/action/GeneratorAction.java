@@ -19,8 +19,8 @@ import java.util.OptionalDouble;
  *     <li>change targetV of a generator (kV).</li>
  * </ul>
  *
- * @author Hadrien Godard <hadrien.godard@artelys.com>
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Hadrien Godard {@literal <hadrien.godard@artelys.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class GeneratorAction extends AbstractAction {
 

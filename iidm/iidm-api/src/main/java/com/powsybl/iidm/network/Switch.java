@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * A switch to connect equipments in a substation.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Switch extends Identifiable<Switch> {
 

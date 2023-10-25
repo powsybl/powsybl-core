@@ -112,8 +112,8 @@ import java.util.Optional;
  *
  * <p>To create a dangling line, see {@link DanglingLineAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  * @see DanglingLineAdder
  */
 public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder {

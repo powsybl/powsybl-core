@@ -10,7 +10,7 @@ import com.powsybl.iidm.modification.tripping.LoadTripping;
 import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
- * @author Hadrien Godard <hadrien.godard at artelys.com>
+ * @author Hadrien Godard {@literal <hadrien.godard at artelys.com>}
  */
 public class LoadContingency extends AbstractContingency {
 

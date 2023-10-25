@@ -46,7 +46,7 @@ import java.util.Objects;
  * children results from the stack and use them to compute and return
  * the result for this node.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface NodeCalc {
 

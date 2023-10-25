@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Create a new Line from a given Line Adder and attach it on an existing Line by cutting the latter.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CreateLineOnLineTest extends AbstractConverterTest {
 

@@ -17,7 +17,7 @@ import com.google.common.io.ByteSource;
  * on the command line {@literal itools security-analysis}. For that purpose, only one factory
  * must be provided at runtime as a service.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public interface SecurityAnalysisPreprocessorFactory {
 

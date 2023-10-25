@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class TopologyModificationUtils {
 

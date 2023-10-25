@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
  *     <li>{@link AbstractAmplNetworkUpdater#getThreeWindingsTransformer}</li>
  * </ul>
  *
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public abstract class AbstractAmplNetworkUpdater implements AmplNetworkUpdater {
 

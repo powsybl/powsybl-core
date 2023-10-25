@@ -15,7 +15,7 @@ import com.powsybl.security.NetworkMetadata;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class NetworkMetadataSerializer extends StdSerializer<NetworkMetadata> {
 

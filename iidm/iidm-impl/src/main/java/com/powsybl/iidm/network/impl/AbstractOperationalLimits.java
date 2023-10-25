@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.OperationalLimits;
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractOperationalLimits implements OperationalLimits {
 

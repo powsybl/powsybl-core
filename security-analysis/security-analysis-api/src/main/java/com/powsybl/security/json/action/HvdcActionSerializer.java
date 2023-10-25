@@ -16,7 +16,7 @@ import com.powsybl.security.action.HvdcAction;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class HvdcActionSerializer extends StdSerializer<HvdcAction> {
     public HvdcActionSerializer() {

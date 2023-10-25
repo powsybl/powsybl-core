@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class GeneratorEntsoeCategoryAdderImpl extends AbstractExtensionAdder<Generator, GeneratorEntsoeCategory>
         implements GeneratorEntsoeCategoryAdder {

@@ -9,8 +9,8 @@ package com.powsybl.cgmes.shorcircuit; /**
  * Generic parameters for short circuit-computations.
  * May contain extensions for implementation-specific parameters.
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public final class PerUnit {
     public static final double SB = 100d;

@@ -14,7 +14,7 @@ package com.powsybl.iidm.network.impl;
  * is notified when the array need to be resized thanks to <code>extendVariantArraySize</code>
  * and <code>reduceVariantArraySize</code> callbacks.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface MultiVariantObject {
 

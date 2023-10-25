@@ -16,7 +16,7 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.LOAD;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class DanglingLineScalable extends AbstractInjectionScalable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DanglingLineScalable.class);

@@ -27,8 +27,8 @@ import java.util.regex.Matcher;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     private static final Logger LOG = LoggerFactory.getLogger(RecordGroupIOLegacyText.class);

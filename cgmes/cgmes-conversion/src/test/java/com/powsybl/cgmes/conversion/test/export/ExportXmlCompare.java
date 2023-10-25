@@ -38,7 +38,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 final class ExportXmlCompare {
 

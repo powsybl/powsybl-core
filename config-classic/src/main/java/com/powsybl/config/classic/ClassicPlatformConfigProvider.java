@@ -33,8 +33,8 @@ import com.google.auto.service.AutoService;
  * {@link EnvironmentModuleConfigRepository} to read configuration from
  * environment variables.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 @AutoService(PlatformConfigProvider.class)
 public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
