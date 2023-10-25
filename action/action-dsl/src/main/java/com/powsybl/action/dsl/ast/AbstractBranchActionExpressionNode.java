@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Olivier Bretteville <olivier.bretteville at rte-france.com>
+ * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
  */
 public abstract class AbstractBranchActionExpressionNode extends AbstractActionExpressionNode {
 

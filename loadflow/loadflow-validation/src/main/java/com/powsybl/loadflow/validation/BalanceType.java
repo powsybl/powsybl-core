@@ -8,7 +8,7 @@ package com.powsybl.loadflow.validation;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public enum BalanceType {
     PROPORTIONAL_TO_GENERATION_P,

@@ -16,7 +16,7 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
 /**
- * @author Elena Kaltakova <kaltakovae at aia.es>
+ * @author Elena Kaltakova {@literal <kaltakovae at aia.es>}
  *
  */
 class TripleStoreCopyTest {

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.TieLine;
 import java.util.Optional;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CgmesLineBoundaryNodeImpl extends AbstractExtension<TieLine> implements CgmesLineBoundaryNode {
 

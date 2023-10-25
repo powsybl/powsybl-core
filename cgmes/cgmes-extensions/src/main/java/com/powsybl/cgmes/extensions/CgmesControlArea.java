@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Terminal;
 import java.util.Set;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface CgmesControlArea {
 

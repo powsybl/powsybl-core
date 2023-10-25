@@ -20,7 +20,7 @@ import java.util.Objects;
  * the corresponding argument values.
  * This mechanism may be used to easily submit a number of commands which differ only by their argument.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class CommandExecution {
 

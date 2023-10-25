@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class CimCharacteristicsAdderImplProvider implements ExtensionAdderProvider<Network, CimCharacteristics, CimCharacteristicsAdderImpl> {

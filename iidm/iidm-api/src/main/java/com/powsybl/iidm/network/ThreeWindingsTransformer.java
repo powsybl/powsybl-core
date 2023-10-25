@@ -106,7 +106,7 @@ import java.util.stream.Stream;
  * <p>
  * To create a three windings transformer, see {@link ThreeWindingsTransformerAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see RatioTapChanger
  * @see PhaseTapChanger
  * @see ThreeWindingsTransformerAdder

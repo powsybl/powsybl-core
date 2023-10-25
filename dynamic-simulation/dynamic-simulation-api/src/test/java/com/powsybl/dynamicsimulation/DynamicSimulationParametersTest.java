@@ -24,7 +24,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 class DynamicSimulationParametersTest {
 

@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.Terminal;
 import java.util.Objects;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public final class ConnectGenerator extends AbstractNetworkModification {
 

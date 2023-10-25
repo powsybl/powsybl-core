@@ -24,8 +24,8 @@ import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PowerFlowRawData32 extends PowerFlowRawDataAllVersions {
 

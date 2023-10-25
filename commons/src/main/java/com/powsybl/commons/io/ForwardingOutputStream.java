@@ -15,7 +15,7 @@ import java.io.OutputStream;
  *
  * @param <O> the kind of output stream forwarded
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class ForwardingOutputStream<O extends OutputStream> extends OutputStream {
 

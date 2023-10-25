@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.AbstractEquipmentCriterionContin
 import java.io.IOException;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class EquipmentCriterionContingencyListSerializer<T extends AbstractEquipmentCriterionContingencyList> extends StdSerializer<T> {
 

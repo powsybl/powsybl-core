@@ -38,7 +38,7 @@ import java.util.Map;
  * The majority of the configuration is made by the {@link AmplModel}
  * interface.
  *
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResults> {
 

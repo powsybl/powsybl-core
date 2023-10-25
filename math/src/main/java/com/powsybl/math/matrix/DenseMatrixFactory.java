@@ -11,7 +11,7 @@ package com.powsybl.math.matrix;
  *
  * @see DenseMatrix
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DenseMatrixFactory implements MatrixFactory {
 

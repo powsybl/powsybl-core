@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class GeneratorImpl extends AbstractConnectable<Generator> implements Generator, ReactiveLimitsOwner {
 

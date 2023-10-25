@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl.tck.extensions;
 import com.powsybl.iidm.network.tck.extensions.AbstractLoadDetailTest;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 class LoadDetailTest extends AbstractLoadDetailTest {
 }

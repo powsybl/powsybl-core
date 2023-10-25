@@ -9,7 +9,7 @@ package com.powsybl.commons.xml;
 import javax.xml.stream.XMLStreamReader;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface XmlReaderContext {
 

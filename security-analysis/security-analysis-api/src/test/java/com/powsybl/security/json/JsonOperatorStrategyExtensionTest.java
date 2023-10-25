@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 class JsonOperatorStrategyExtensionTest extends AbstractConverterTest {
 

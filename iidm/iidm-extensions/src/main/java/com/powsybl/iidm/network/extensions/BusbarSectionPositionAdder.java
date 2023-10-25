@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.BusbarSection;
 
 /**
- * @author Jon harper <jon.harper at rte-france.com>
+ * @author Jon harper {@literal <jon.harper at rte-france.com>}
  */
 public interface BusbarSectionPositionAdder extends ExtensionAdder<BusbarSection, BusbarSectionPosition> {
 

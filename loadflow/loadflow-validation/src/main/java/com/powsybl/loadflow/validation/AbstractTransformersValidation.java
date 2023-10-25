@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractTransformersValidation {
 

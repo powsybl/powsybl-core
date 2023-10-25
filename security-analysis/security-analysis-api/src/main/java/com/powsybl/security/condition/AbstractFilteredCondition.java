@@ -12,7 +12,7 @@ import com.powsybl.security.LimitViolationType;
 import java.util.Set;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public abstract class AbstractFilteredCondition implements Condition {
     protected final Set<LimitViolationType> conditionFilters;

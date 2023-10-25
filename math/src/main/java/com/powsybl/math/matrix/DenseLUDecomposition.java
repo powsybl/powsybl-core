@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Dense matrix LU decomposition based on Jama library.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class DenseLUDecomposition implements LUDecomposition {
 

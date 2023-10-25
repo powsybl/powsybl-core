@@ -48,7 +48,7 @@ import java.util.zip.GZIPOutputStream;
  *     <li>Concurrency between data loading and other operations (CSV writing, statistics computation) is NOT supported</li>
  * </ul>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TimeSeriesTable {
 

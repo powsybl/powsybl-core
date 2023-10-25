@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 public final class MatpowerWriter {
 

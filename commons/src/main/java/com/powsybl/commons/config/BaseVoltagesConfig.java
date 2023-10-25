@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class BaseVoltagesConfig {
 

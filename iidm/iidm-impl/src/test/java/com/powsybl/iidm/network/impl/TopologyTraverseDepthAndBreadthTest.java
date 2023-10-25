@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *    <object data="doc-files/traversalByDepthOrBreadthNetwork.svg" type="image/svg+xml"></object>
  * </div>
  *
- * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
 class TopologyTraverseDepthAndBreadthTest {
 

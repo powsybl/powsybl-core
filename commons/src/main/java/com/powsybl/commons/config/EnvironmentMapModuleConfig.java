@@ -21,7 +21,7 @@ import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.UPPER
  * the expected environment variables name is MODULE_NAME__PROPERTY_NAME.
  * CamelCase names are also translated to underscore-separated names.
  *
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 public class EnvironmentMapModuleConfig extends MapModuleConfig {
 

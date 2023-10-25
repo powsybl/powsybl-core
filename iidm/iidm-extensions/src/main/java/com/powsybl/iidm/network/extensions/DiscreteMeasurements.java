@@ -15,7 +15,7 @@ import java.util.Collection;
  * Measurements with discrete values associated with an equipment (the extended equipment).
  * See {@link DiscreteMeasurement}.
  *
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface DiscreteMeasurements<I extends Identifiable<I>> extends Extension<I> {
 

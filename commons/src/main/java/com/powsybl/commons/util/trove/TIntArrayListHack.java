@@ -9,7 +9,7 @@ package com.powsybl.commons.util.trove;
 import gnu.trove.list.array.TIntArrayList;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TIntArrayListHack extends TIntArrayList {
 

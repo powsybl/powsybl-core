@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class CgmesConversionContextExtensionAdderImpl extends AbstractExtensionAdder<Network, CgmesConversionContextExtension>
         implements CgmesConversionContextExtensionAdder {

@@ -25,8 +25,8 @@ import java.util.List;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class ContingencyDeserializer extends StdDeserializer<Contingency> {
 

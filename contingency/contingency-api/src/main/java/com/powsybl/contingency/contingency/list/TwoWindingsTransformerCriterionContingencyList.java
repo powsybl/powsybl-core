@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class TwoWindingsTransformerCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
     private final SingleCountryCriterion singleCountryCriterion;

@@ -23,7 +23,7 @@ import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_I
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 public abstract class AbstractActivePowerControlTest {
 
