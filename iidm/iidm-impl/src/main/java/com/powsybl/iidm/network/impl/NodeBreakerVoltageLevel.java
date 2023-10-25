@@ -67,6 +67,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     private final Map<String, Integer> switches = new HashMap<>();
 
     public static final Predicate<Switch> KEEP_NONFICTIONAL_CLOSED_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen() && !switchObject.isFictitious();
+    public static final Predicate<Switch> KEEP_NONFICTIONAL_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isFictitious();
     public static final Predicate<Switch> KEEP_ALL_CLOSED_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen();
     public static final Predicate<Switch> KEEP_BREAKERS_AND_DISCONNECTORS = switchObject -> switchObject != null && (switchObject.getKind() == SwitchKind.BREAKER || switchObject.getKind() == SwitchKind.DISCONNECTOR);
     public static final Predicate<Switch> KEEP_ALL_SWITCHES = Objects::nonNull;
@@ -1174,6 +1175,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return s != null && s.getKind() == SwitchKind.DISCONNECTOR && s.isOpen();
     }
 
+    private static boolean isOpenedDisconnectorOpenLoadBreakSwitchOrOpenedFictitiousBreaker(Switch s) {
+        return s != null && s.isOpen() && (s.getKind() != SwitchKind.BREAKER || s.isFictitious());
+    }
+
     @Override
     public boolean connect(TerminalExt terminal) {
         if (!(terminal instanceof NodeTerminal)) {
@@ -1187,7 +1192,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
         // paths are already sorted
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnectorOpenLoadBreakSwitchOrOpenedFictitiousBreaker);
         boolean connected = false;
         if (!paths.isEmpty()) {
             // the shorted path is the best, close all opened breakers of the path
@@ -1228,6 +1233,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return false;
         }
 
+        // Each path is visited and for each, the first openable switch found is opened
         for (TIntArrayList path : paths) {
             boolean pathOpen = false;
             for (int i = 0; i < path.size(); i++) {
@@ -1243,6 +1249,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
             }
             if (!pathOpen) {
+                // Getting here meant no openable switch was found and therefor the terminal cannot be disconnected
                 return false;
             }
         }
