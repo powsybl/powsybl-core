@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -83,7 +82,7 @@ class UpDownScalableTest {
     }
 
     @Test
-    void checkErrorOnGetCurrentPower() {
+    void checkGetCurrentPowerInBothDirections() {
         Network testNetwork = ScalableTestNetwork.createNetwork();
         Scalable upScalable = Scalable.proportional(50, Scalable.onGenerator("g2"), 50, Scalable.onGenerator("unknown generator"));
         Scalable downScalable = Scalable.onLoad("l1", 50, 200);
@@ -98,5 +97,71 @@ class UpDownScalableTest {
         asked = -1;
         assertEquals(42, upDownScalable.getSteadyStatePower(testNetwork, asked, Scalable.ScalingConvention.LOAD));
         assertEquals(-42, upDownScalable.getSteadyStatePower(testNetwork, asked, Scalable.ScalingConvention.GENERATOR));
+    }
+
+    @Test
+    void testMaxValueBoundsScalingUpGenConvention() {
+        Network testNetwork = ScalableTestNetwork.createNetwork();
+        Scalable upScalable = Scalable.proportional(100, Scalable.onGenerator("g2"));
+        Scalable downScalable = Scalable.onLoad("l1");
+
+        double initialValueUp = testNetwork.getGenerator("g2").getTargetP();
+        Scalable upDownScalable = Scalable.upDown(upScalable, downScalable, -Double.MAX_VALUE, initialValueUp + 35);
+
+        ScalingParameters parameters = new ScalingParameters();
+        parameters.setScalingConvention(Scalable.ScalingConvention.GENERATOR);
+
+        double asked = 100;
+        assertEquals(35, upDownScalable.scale(testNetwork, asked, parameters));
+    }
+
+    @Test
+    void testMaxValueBoundsScalingDownLoadConvention() {
+        Network testNetwork = ScalableTestNetwork.createNetwork();
+        Scalable upScalable = Scalable.proportional(100, Scalable.onGenerator("g2"));
+        Scalable downScalable = Scalable.onLoad("l1");
+
+        double initialValueDown = -testNetwork.getLoad("l1").getP0();
+        Scalable upDownScalable = Scalable.upDown(upScalable, downScalable, -Double.MAX_VALUE, initialValueDown + 35);
+
+        ScalingParameters parameters = new ScalingParameters();
+        parameters.setScalingConvention(Scalable.ScalingConvention.LOAD);
+
+        double asked = -100;
+        assertEquals(-35, upDownScalable.scale(testNetwork, asked, parameters));
+    }
+
+    @Test
+    void testMinValueBoundsScalingDownGenConvention() {
+        Network testNetwork = ScalableTestNetwork.createNetwork();
+        Scalable upScalable = Scalable.proportional(100, Scalable.onGenerator("g2"));
+        Scalable downScalable = Scalable.onLoad("l1");
+
+        double initialValueDown = -testNetwork.getLoad("l1").getP0();
+        Scalable upDownScalable = Scalable.upDown(upScalable, downScalable, initialValueDown - 35, Double.MAX_VALUE);
+
+        ScalingParameters parameters = new ScalingParameters();
+        parameters.setScalingConvention(Scalable.ScalingConvention.GENERATOR);
+
+        double asked = -100;
+        assertEquals(-35, upDownScalable.scale(testNetwork, asked, parameters));
+    }
+
+    @Test
+    void testMinValueBoundsScalingUpLoadConvention() {
+        Network testNetwork = ScalableTestNetwork.createNetwork();
+        testNetwork.getGenerator("g2").setTargetP(50);
+
+        Scalable upScalable = Scalable.proportional(100, Scalable.onGenerator("g2"));
+        Scalable downScalable = Scalable.onLoad("l1");
+
+        double initialValueUp = testNetwork.getGenerator("g2").getTargetP();
+        Scalable upDownScalable = Scalable.upDown(upScalable, downScalable, initialValueUp - 35, Double.MAX_VALUE);
+
+        ScalingParameters parameters = new ScalingParameters();
+        parameters.setScalingConvention(Scalable.ScalingConvention.LOAD);
+
+        double asked = 100;
+        assertEquals(35, upDownScalable.scale(testNetwork, asked, parameters));
     }
 }

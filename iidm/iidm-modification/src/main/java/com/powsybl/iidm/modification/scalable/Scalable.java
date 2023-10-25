@@ -194,8 +194,16 @@ public interface Scalable {
         return new ProportionalScalable(injections, distributionMode);
     }
 
+    static ProportionalScalable proportional(List<? extends Injection> injections, ProportionalScalable.DistributionMode distributionMode, double minValue, double maxValue) {
+        return new ProportionalScalable(injections, distributionMode, minValue, maxValue);
+    }
+
     static ProportionalScalable proportional(List<Double> percentages, List<Scalable> scalables) {
         return new ProportionalScalable(percentages, scalables);
+    }
+
+    static ProportionalScalable proportional(List<Double> percentages, List<Scalable> scalables, double minValue, double maxValue) {
+        return new ProportionalScalable(percentages, scalables, minValue, maxValue);
     }
 
     static ProportionalScalable proportional(double percentage, Scalable scalable) {
@@ -227,13 +235,27 @@ public interface Scalable {
         return new StackScalable(injectionScalables);
     }
 
+    static StackScalable stack(double minValue, double maxValue, Injection<?>... injections) {
+        List<Scalable> injectionScalables = Arrays.stream(injections).map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables, minValue, maxValue);
+    }
+
     static StackScalable stack(List<? extends Injection<?>> injections) {
         List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
         return new StackScalable(injectionScalables);
     }
 
+    static StackScalable stack(List<? extends Injection<?>> injections, double minValue, double maxValue) {
+        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables, minValue, maxValue);
+    }
+
     static StackScalable stack(Scalable... scalables) {
         return new StackScalable(scalables);
+    }
+
+    static StackScalable stack(double minValue, double maxValue, Scalable... scalables) {
+        return new StackScalable(minValue, maxValue, scalables);
     }
 
     static StackScalable stack(String... ids) {
@@ -241,14 +263,24 @@ public interface Scalable {
         return new StackScalable(identifierScalables);
     }
 
+    static StackScalable stack(double minValue, double maxValue, String... ids) {
+        List<Scalable> identifierScalables = Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(identifierScalables, minValue, maxValue);
+    }
+
     static UpDownScalable upDown(Scalable upScalable, Scalable downScalable) {
         return new UpDownScalable(upScalable, downScalable);
     }
 
+    static UpDownScalable upDown(Scalable upScalable, Scalable downScalable, double minValue, double maxValue) {
+        return new UpDownScalable(upScalable, downScalable, minValue, maxValue);
+    }
+
     /**
      * Returns the value that has to be added to the network, depending on the type of variation chosen in the parameters
-     * @param scalingParameters Scaling parameters including a variation type (DELTA_P or TARGET_P) and a variation value
-     * @param currentGlobalPower current global power
+     * @param scalingParameters Scaling parameters including a variation type (DELTA_P or TARGET_P)
+     * @param askedValue value of scaling asked on the scalable
+     * @param currentGlobalPower current global power in the network
      * @return the variation value if the type is DELTA_P, else the difference between the variation value and the current global value sum
      */
     static double getVariationAsked(ScalingParameters scalingParameters, double askedValue, double currentGlobalPower) {
@@ -260,6 +292,8 @@ public interface Scalable {
     /**
      * Returns the current power value for the injections corresponding to this Scalable
      * @param network Network in which the injections are defined
+     * @param asked value of scaling asked on the scalable. This is used to know in which direction we want to scale for UpDownScalables.
+     * @param scalingConvention The value is computed either with Generator or Load convention according to this parameter.
      * @return the current power value
      */
     double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention);

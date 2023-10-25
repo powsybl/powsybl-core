@@ -510,4 +510,152 @@ class ProportionalScalableTest {
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> proportionalScalable.scale(network, 100.0, scalingParametersProportional));
         assertEquals("RESPECT_OF_DISTRIBUTION mode can only be used with a Generator, not class com.powsybl.iidm.network.impl.LoadImpl", e1.getMessage());
     }
+
+    @Test
+    void testMaxValueBoundsScalingUpGenConvention() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ProportionalScalable proportionalScalable;
+        double variationDone;
+
+        double initialValue = injectionsList.stream().mapToDouble(injection -> {
+            if (injection instanceof Generator generator) {
+                return generator.getTargetP();
+            } else if (injection instanceof Load load) {
+                return -load.getP0();
+            } else if (injection instanceof DanglingLine danglingLine) {
+                return -danglingLine.getP0();
+            } else {
+                throw new PowsyblException("Unexpected injection type");
+            }
+        }).sum();
+        double maxValue = initialValue + 75.0;
+
+        // Proportional to P0
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0, -Double.MAX_VALUE, maxValue);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
+        scalingReport(reporterModel,
+            "loads and dangling lines",
+            PROPORTIONAL_TO_P0,
+            scalingParametersProportional.getScalingType(),
+            100.0, variationDone);
+        assertEquals(75, variationDone, 1e-5);
+        assertEquals(100.0 * (1.0 - 75 / 230.0), network.getLoad("l1").getP0(), 1e-5);
+        assertEquals(80 * (1.0 - 75 / 230.0), network.getLoad("l2").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 - 75 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        reset();
+    }
+
+    @Test
+    void testMaxValueBoundsScalingDownLoadConvention() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ProportionalScalable proportionalScalable;
+        double variationDone;
+
+        double initialValue = injectionsList.stream().mapToDouble(injection -> {
+            if (injection instanceof Generator generator) {
+                return generator.getTargetP();
+            } else if (injection instanceof Load load) {
+                return -load.getP0();
+            } else if (injection instanceof DanglingLine danglingLine) {
+                return -danglingLine.getP0();
+            } else {
+                throw new PowsyblException("Unexpected injection type");
+            }
+        }).sum();
+        double maxValue = initialValue + 75.0;
+
+        // Proportional to P0
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0, -Double.MAX_VALUE, maxValue);
+        variationDone = proportionalScalable.scale(network, -100.0, scalingParametersProportional);
+        scalingReport(reporterModel,
+            "loads and dangling lines",
+            PROPORTIONAL_TO_P0,
+            scalingParametersProportional.getScalingType(),
+            -100.0, variationDone);
+        assertEquals(-75, variationDone, 1e-5);
+        assertEquals(100.0 * (1.0 - 75 / 230.0), network.getLoad("l1").getP0(), 1e-5);
+        assertEquals(80 * (1.0 - 75 / 230.0), network.getLoad("l2").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 - 75 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        reset();
+    }
+
+    @Test
+    void testMinValueBoundsScalingDownGenConvention() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ProportionalScalable proportionalScalable;
+        double variationDone;
+
+        double initialValue = injectionsList.stream().mapToDouble(injection -> {
+            if (injection instanceof Generator generator) {
+                return generator.getTargetP();
+            } else if (injection instanceof Load load) {
+                return -load.getP0();
+            } else if (injection instanceof DanglingLine danglingLine) {
+                return -danglingLine.getP0();
+            } else {
+                throw new PowsyblException("Unexpected injection type");
+            }
+        }).sum();
+        double minValue = initialValue - 75.0;
+
+        // Proportional to P0
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0, minValue, Double.MAX_VALUE);
+        variationDone = proportionalScalable.scale(network, -100.0, scalingParametersProportional);
+        scalingReport(reporterModel,
+            "loads and dangling lines",
+            PROPORTIONAL_TO_P0,
+            scalingParametersProportional.getScalingType(),
+            -100.0, variationDone);
+        assertEquals(-75, variationDone, 1e-5);
+        assertEquals(100.0 * (1.0 + 75 / 230.0), network.getLoad("l1").getP0(), 1e-5);
+        assertEquals(80 * (1.0 + 75 / 230.0), network.getLoad("l2").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 + 75 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        reset();
+    }
+
+    @Test
+    void testMinValueBoundsScalingUpLoadConvention() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ProportionalScalable proportionalScalable;
+        double variationDone;
+
+        double initialValue = injectionsList.stream().mapToDouble(injection -> {
+            if (injection instanceof Generator generator) {
+                return generator.getTargetP();
+            } else if (injection instanceof Load load) {
+                return -load.getP0();
+            } else if (injection instanceof DanglingLine danglingLine) {
+                return -danglingLine.getP0();
+            } else {
+                throw new PowsyblException("Unexpected injection type");
+            }
+        }).sum();
+        double minValue = initialValue - 75.0;
+
+        // Proportional to P0
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0, minValue, Double.MAX_VALUE);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
+        scalingReport(reporterModel,
+            "loads and dangling lines",
+            PROPORTIONAL_TO_P0,
+            scalingParametersProportional.getScalingType(),
+            100.0, variationDone);
+        assertEquals(75, variationDone, 1e-5);
+        assertEquals(100.0 * (1.0 + 75 / 230.0), network.getLoad("l1").getP0(), 1e-5);
+        assertEquals(80 * (1.0 + 75 / 230.0), network.getLoad("l2").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 + 75 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        reset();
+    }
 }
