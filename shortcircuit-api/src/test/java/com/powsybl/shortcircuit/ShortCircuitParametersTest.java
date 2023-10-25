@@ -216,6 +216,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertEquals(Range.between(215., 235.), voltageRanges.get(1).getRange());
         assertEquals(1.05, voltageRanges.get(2).getRangeCoefficient());
         assertEquals(Range.between(80., 100.), voltageRanges.get(2).getRange());
+        assertFalse(parameters.isDetailedReport());
     }
 
     @Test
@@ -278,7 +279,35 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFeederResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
-        assertEquals(0.8, parameters.getSubTransientCoefficient(), 0);
+        assertEquals(0.7, parameters.getSubTransientCoefficient(), 0);
+        assertFalse(parameters.isWithLoads());
+        assertFalse(parameters.isWithShuntCompensators());
+        assertFalse(parameters.isWithVSCConverterStations());
+        assertTrue(parameters.isWithNeutralPosition());
+        assertEquals(InitialVoltageProfileMode.CONFIGURED, parameters.getInitialVoltageProfileMode());
+        List<VoltageRange> voltageRanges = parameters.getVoltageRanges();
+        assertEquals(3, voltageRanges.size());
+        assertEquals(1.05, voltageRanges.get(0).getRangeCoefficient());
+        assertEquals(Range.between(380., 410.), voltageRanges.get(0).getRange());
+        assertEquals(1.1, voltageRanges.get(1).getRangeCoefficient());
+        assertEquals(Range.between(0., 225.), voltageRanges.get(1).getRange());
+        assertEquals(1.09, voltageRanges.get(2).getRangeCoefficient());
+        assertEquals(Range.between(230., 375.), voltageRanges.get(2).getRange());
+    }
+
+    @Test
+    void readVersion13() {
+        ShortCircuitParameters parameters = JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion13.json"));
+        assertNotNull(parameters);
+        assertFalse(parameters.isWithLimitViolations());
+        assertFalse(parameters.isWithVoltageResult());
+        assertTrue(parameters.isWithFeederResult());
+        assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
+        assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(0.7, parameters.getSubTransientCoefficient(), 0);
+        assertEquals(InitialVoltageProfileMode.NOMINAL, parameters.getInitialVoltageProfileMode());
+        assertFalse(parameters.isDetailedReport());
     }
 
     @Test

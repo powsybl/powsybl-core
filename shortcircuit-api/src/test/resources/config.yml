@@ -12,3 +12,4 @@ short-circuit-parameters:
   with-neutral-position: true
   initial-voltage-profile-mode: "CONFIGURED"
   voltage-ranges: "config/voltage-ranges.json"
+  detailed-report: false
