@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Commands to be executed sequentially on a single computation node.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface GroupCommand extends Command {
 

@@ -15,7 +15,7 @@ import java.util.Objects;
  * A factory which creates preprocessors that read contingencies according to a
  * {@link ContingenciesProviderFactory}
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class ContingenciesProviderPreprocessorFactory implements SecurityAnalysisPreprocessorFactory {
 

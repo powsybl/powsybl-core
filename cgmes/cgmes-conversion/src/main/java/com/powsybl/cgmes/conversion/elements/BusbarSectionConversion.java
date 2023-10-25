@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.BusbarSectionAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class BusbarSectionConversion extends AbstractConductingEquipmentConversion {
 

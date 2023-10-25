@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl.tck.extensions;
 import com.powsybl.iidm.network.tck.extensions.AbstractThreeWindingsTransformerPhaseAngleClockTest;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class ThreeWindingsTransformerPhaseAngleClockTest extends AbstractThreeWindingsTransformerPhaseAngleClockTest {
 }

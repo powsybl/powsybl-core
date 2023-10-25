@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Ameni Walha <ameni.walha at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
 public interface Scalable {
 

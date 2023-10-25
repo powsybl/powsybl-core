@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 /**
  * Implements the default behaviour for limit violation detection.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetector {
 

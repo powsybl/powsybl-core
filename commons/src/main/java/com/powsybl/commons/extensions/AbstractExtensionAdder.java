@@ -14,7 +14,7 @@ import java.util.Objects;
  * This class calls {@link #createExtension} that must be overriden by
  * subclasses to create the extension.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public abstract class AbstractExtensionAdder<T extends Extendable<T>, E extends Extension<T>>
         implements ExtensionAdder<T, E> {

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNotNull
 
 /**
- * @author Miora VEDELAGO <miora.ralambotiana at rte-france.com>
+ * @author Miora VEDELAGO {@literal <miora.ralambotiana at rte-france.com>}
  */
 class BatteryExtensionTest {
 

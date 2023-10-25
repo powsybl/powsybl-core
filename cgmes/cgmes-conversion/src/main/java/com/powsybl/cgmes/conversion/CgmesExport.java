@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRequiredReport;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 @AutoService(Exporter.class)
 public class CgmesExport implements Exporter {

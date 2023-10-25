@@ -9,7 +9,7 @@ import com.powsybl.iidm.network.RatioTapChanger;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 interface RatioTapChangerParent extends TapChangerParent {
 

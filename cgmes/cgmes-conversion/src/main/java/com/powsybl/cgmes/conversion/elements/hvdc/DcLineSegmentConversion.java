@@ -20,9 +20,9 @@ import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion {
 

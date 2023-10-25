@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * Simplified option model for completion script generation.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at gmail.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at gmail.com>}
  */
 public class BashOption {
 

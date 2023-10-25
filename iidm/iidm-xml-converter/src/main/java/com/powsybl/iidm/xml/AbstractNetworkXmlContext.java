@@ -11,7 +11,7 @@ import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractNetworkXmlContext<T> extends AbstractConverterContext<T> {
 

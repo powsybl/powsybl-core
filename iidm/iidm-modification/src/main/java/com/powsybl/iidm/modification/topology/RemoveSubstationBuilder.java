@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 /**
- * @author Maissa Souissi <maissa.souissi at rte-france.com>
+ * @author Maissa Souissi {@literal <maissa.souissi at rte-france.com>}
  */
 public class RemoveSubstationBuilder {
     private String substationId = null;

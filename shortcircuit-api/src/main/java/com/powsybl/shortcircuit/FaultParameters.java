@@ -26,7 +26,7 @@ import java.util.Objects;
 import static com.powsybl.shortcircuit.VoltageRange.checkVoltageRange;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class FaultParameters {
 

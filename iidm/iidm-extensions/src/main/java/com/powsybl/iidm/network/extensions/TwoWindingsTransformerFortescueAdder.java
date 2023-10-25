@@ -10,8 +10,8 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
- * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface TwoWindingsTransformerFortescueAdder extends ExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerFortescue> {
 

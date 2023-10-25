@@ -13,7 +13,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 /**
  * {@inheritDoc}
  *
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 public class BatteryImpl extends AbstractConnectable<Battery> implements Battery, ReactiveLimitsOwner {
 

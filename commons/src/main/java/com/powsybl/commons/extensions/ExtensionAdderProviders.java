@@ -26,7 +26,7 @@ import com.powsybl.commons.PowsyblException;
 /**
  * A utility class to help finding providers using ServiceLoader.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  *
  */
 //Don't bother with generics because serviceloader doesn't return them

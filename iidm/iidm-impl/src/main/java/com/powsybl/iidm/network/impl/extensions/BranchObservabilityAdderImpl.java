@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class BranchObservabilityAdderImpl<B extends Branch<B>>
         extends AbstractExtensionAdder<B, BranchObservability<B>>

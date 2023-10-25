@@ -127,7 +127,7 @@ package com.powsybl.iidm.network;
  *<p>
  * To create a generator, see {@link GeneratorAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see GeneratorAdder
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve

@@ -10,7 +10,7 @@ package com.powsybl.security.action;
 import com.powsybl.iidm.network.StaticVarCompensator;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class StaticVarCompensatorActionBuilder {
 

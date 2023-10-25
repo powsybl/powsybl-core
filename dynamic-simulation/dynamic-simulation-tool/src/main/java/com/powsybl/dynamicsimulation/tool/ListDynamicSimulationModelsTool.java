@@ -27,7 +27,7 @@ import java.io.Writer;
 import java.util.List;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 @AutoService(Tool.class)
 public class ListDynamicSimulationModelsTool implements Tool {

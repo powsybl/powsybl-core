@@ -94,7 +94,7 @@ import java.util.stream.Stream;
  * depending of the variant (always specified in the javadoc) if
  * {@link VariantManager#allowVariantMultiThreadAccess(boolean)} is set to true.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see NetworkFactory
  * @see VariantManager
  */

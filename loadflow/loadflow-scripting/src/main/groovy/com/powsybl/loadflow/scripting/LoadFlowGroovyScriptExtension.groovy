@@ -14,7 +14,7 @@ import com.powsybl.loadflow.LoadFlowParameters
 import com.powsybl.scripting.groovy.GroovyScriptExtension
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(GroovyScriptExtension.class)
 class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {

@@ -15,7 +15,7 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import java.io.IOException;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ScalingParametersSerializer extends StdSerializer<ScalingParameters> {
 

@@ -16,7 +16,7 @@ import java.util.OptionalDouble;
  *     <li>change the Q0 of a load, either by specifying a new absolute value (MVar) or a relative change (MVar).</li>
  * </ul>
  *
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class LoadAction extends AbstractAction {
 
