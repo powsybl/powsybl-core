@@ -4,7 +4,7 @@
         <iidm:nodeBreakerTopology>
             <iidm:busbarSection id="bbs" node="0"/>
             <iidm:switch id="CJ_BREAKER" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
-            <iidm:switch id="CJ_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="0"/>
+            <iidm:switch id="CJ_DISCONNECTOR_2_0" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="0"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:voltageLevel id="CJ_VL" fictitious="true" nominalV="225.0" topologyKind="NODE_BREAKER">

@@ -5,10 +5,11 @@ short-circuit-parameters:
   study-type: "SUB_TRANSIENT"
   sub-transient-coefficient: 0.8
   with-feeder-result: false
-  min-voltage-drop-proportional-threshold: 1.2
+  min-voltage-drop-proportional-threshold: 50
   with-loads: true
   with-shunt-compensators: true
   with-vsc-converter-stations: false
   with-neutral-position: true
   initial-voltage-profile-mode: "CONFIGURED"
   voltage-ranges: "config/voltage-ranges.json"
+  detailed-report: false

@@ -308,7 +308,7 @@ class CgmesExportTest {
 
         Network network = DanglingLineNetworkFactory.create();
         DanglingLine expected = network.getDanglingLine("DL");
-        Network merged = Network.create(network, BatteryNetworkFactory.create()); // add battery
+        Network merged = Network.merge(network, BatteryNetworkFactory.create()); // add battery
         Battery battery = merged.getBattery("BAT");
 
         // Before exporting, we have to define to which point

@@ -275,6 +275,11 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             transformer.notifyUpdate(() -> getLegAttribute() + ".ratedS", oldValue, ratedS);
             return this;
         }
+
+        @Override
+        public ThreeSides getSide() {
+            return ThreeSides.valueOf(legNumber);
+        }
     }
 
     private final LegImpl leg1;

@@ -1179,7 +1179,7 @@ public final class CgmesConformity1NetworkCatalog {
                 LOG.debug("EXPECTED    n,dx,dy,angle,ratio  {} {} {} {} {}", n, dx, dy, angle, ratio);
             } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
-                angle = 2 * Math.asin(dy);
+                angle = 2 * Math.atan(dy);
                 ratio = 1.0;
                 LOG.debug("EXPECTED    n,dy,angle,ratio  {} {} {} {}", n, dy, angle, ratio);
             } else {

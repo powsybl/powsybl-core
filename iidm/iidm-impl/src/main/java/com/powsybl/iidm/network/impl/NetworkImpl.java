@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
@@ -130,7 +129,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         index.checkAndAdd(this);
     }
 
-    static Network create(String id, String name, Network... networks) {
+    static Network merge(String id, String name, Network... networks) {
         if (networks == null || networks.length < 2) {
             throw new IllegalArgumentException("At least 2 networks are expected");
         }
@@ -724,7 +723,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
-        return new VoltageAngleLimitAdderImpl(ref);
+        return newVoltageAngleLimit(null);
+    }
+
+    VoltageAngleLimitAdder newVoltageAngleLimit(String subnetwork) {
+        return new VoltageAngleLimitAdderImpl(this, subnetwork);
     }
 
     @Override
@@ -916,7 +919,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
                 dl1byPairingKey.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
             }
         }
-        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
+        for (DanglingLine dl2 : findCandidateDanglingLines(other, dl1byPairingKey::containsKey)) {
             findAndAssociateDanglingLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
         }
 

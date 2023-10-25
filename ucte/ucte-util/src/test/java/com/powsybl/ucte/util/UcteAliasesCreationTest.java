@@ -69,7 +69,7 @@ class UcteAliasesCreationTest {
         assertNotNull(networkBE.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
         assertNotNull(networkFR.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
-        Network merge = Network.create(networkBE, networkFR);
+        Network merge = Network.merge(networkBE, networkFR);
 
         // Aliases on element name have been kept after merge
         assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
@@ -88,7 +88,7 @@ class UcteAliasesCreationTest {
     void checkAliasesCreationAfterIidmMerging() {
         Network networkFR = loadNetworkFromResourceFile("/frTestGridForMerging.uct");
         Network networkBE = loadNetworkFromResourceFile("/beTestGridForMerging.uct");
-        Network merge = Network.create(networkBE, networkFR);
+        Network merge = Network.merge(networkBE, networkFR);
 
         // No aliases on dangling lines element name
         assertNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));

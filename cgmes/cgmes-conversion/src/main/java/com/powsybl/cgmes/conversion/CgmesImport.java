@@ -271,7 +271,19 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
-                                defaultValueConfig)));
+                                defaultValueConfig)))
+                .setImportNodeBreakerAsBusBreaker(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
+                                defaultValueConfig))
+                .setDisconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+                                defaultValueConfig));
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
@@ -343,6 +355,8 @@ public class CgmesImport implements Importer {
     public static final String SOURCE_FOR_IIDM_ID = "iidm.import.cgmes.source-for-iidm-id";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
+    public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
+    public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -447,6 +461,16 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Decode escaped special characters in IDs",
             Boolean.TRUE);
+    public static final Parameter IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER = new Parameter(
+            IMPORT_NODE_BREAKER_AS_BUS_BREAKER,
+            ParameterType.BOOLEAN,
+            "Force import of CGMES node/breaker models as bus/breaker",
+            Boolean.FALSE);
+    public static final Parameter DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER = new Parameter(
+            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED,
+            ParameterType.BOOLEAN,
+            "Force disconnection of dangling line network side if boundary side is disconnected",
+            Boolean.TRUE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -465,7 +489,9 @@ public class CgmesImport implements Importer {
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
             CREATE_ACTIVE_POWER_CONTROL_EXTENSION_PARAMETER,
             DECODE_ESCAPED_IDENTIFIERS_PARAMETER,
-            CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER);
+            CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
+            IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
+            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;

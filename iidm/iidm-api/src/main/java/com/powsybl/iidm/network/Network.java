@@ -507,24 +507,27 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Create a network (using default implementation) as the result of the merge of the given networks. Each underlying
-     * network becomes a subnetwork.
+     * Create a network (using default implementation) as the result of the merge of the given networks. Each given
+     * network is represented as a subnetwork in the resulting network. As a result of that merge, the given networks
+     * are empty at the end of the call.
+     * Note that, as no id is given, the id of the network created is generated.
      *
      * @return the merged network with subnetworks inside.
      */
-    static Network create(Network... networks) {
-        return NetworkFactory.findDefault().createNetwork(networks);
+    static Network merge(Network... networks) {
+        return NetworkFactory.findDefault().merge(networks);
     }
 
     /**
-     * Create a network (using default implementation) as the result of the merge of the given networks. Each underlying
-     * network becomes a subnetwork.
+     * Create a network (using default implementation) as the result of the merge of the given networks. Each given
+     * network is represented as a subnetwork in the resulting network. As a result of that merge, the given networks
+     * are empty at the end of the call.
      *
      * @param id id of the network to create
      * @return the merged network with subnetworks inside.
      */
-    static Network create(String id, Network... networks) {
-        return NetworkFactory.findDefault().createNetwork(id, networks);
+    static Network merge(String id, Network... networks) {
+        return NetworkFactory.findDefault().merge(id, networks);
     }
 
     /**
