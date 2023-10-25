@@ -25,7 +25,11 @@ public enum ContingencyContextType {
      */
     NONE,
     /**
-     *  Corresponds to one contingency his id is specified in the contingencyContext
+     *  Corresponds to one contingency whose id is specified in the contingencyContext
      */
     SPECIFIC,
+    /**
+     *  Corresponds to all contingencies (without the pre-contingency situation)
+     */
+    ALL_CONTINGENCIES
 }
