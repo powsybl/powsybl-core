@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Luma Zamarreño <zamarrenolm@aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm@aia.es>}
  */
 class TypedValueTest {
 

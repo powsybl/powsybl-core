@@ -22,7 +22,7 @@ import java.util.Objects;
  * <p>The security analysis implementation will check that condition after the simulation
  * of the contingency, and if true, it will simulate the actions.
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
     private final String id;

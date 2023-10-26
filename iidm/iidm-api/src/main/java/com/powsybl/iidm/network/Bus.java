@@ -15,7 +15,7 @@ import java.util.stream.Stream;
  * It could be a configured object ot a result of a computation depending of the
  * context.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Bus extends Identifiable<Bus> {
 

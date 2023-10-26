@@ -8,7 +8,7 @@
 package com.powsybl.dynamicsimulation;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public interface DynamicModel {
 }

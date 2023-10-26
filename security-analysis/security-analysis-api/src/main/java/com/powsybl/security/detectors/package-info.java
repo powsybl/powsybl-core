@@ -7,6 +7,6 @@
 /**
  * Base classes and default implementation of limit violation detectors.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 package com.powsybl.security.detectors;

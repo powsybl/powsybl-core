@@ -28,7 +28,7 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.iidm.network.Country;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class LimitViolationFilterTest {
 

@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * Use {@link AbstractEquipmentTopologyVisitor} instead
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class EquipmentTopologyVisitor extends AbstractEquipmentTopologyVisitor {
 

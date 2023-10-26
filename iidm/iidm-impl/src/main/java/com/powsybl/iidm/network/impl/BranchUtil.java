@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public final class BranchUtil {
 

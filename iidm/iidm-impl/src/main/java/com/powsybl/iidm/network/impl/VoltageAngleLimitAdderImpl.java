@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
 

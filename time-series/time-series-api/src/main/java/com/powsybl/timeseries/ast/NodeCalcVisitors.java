@@ -17,7 +17,7 @@ import java.util.Objects;
  * a post-order {@link NodeCalc} tree traversal using a
  * {@link NodeCalcVisitor}.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  *
  */
 public final class NodeCalcVisitors {

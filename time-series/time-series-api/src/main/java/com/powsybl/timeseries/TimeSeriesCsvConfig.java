@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class TimeSeriesCsvConfig {
     private static final int DEFAULT_MAX_COLUMNS = 20000;

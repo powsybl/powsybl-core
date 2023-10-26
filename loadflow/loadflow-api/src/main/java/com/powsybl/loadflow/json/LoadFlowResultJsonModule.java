@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.loadflow.LoadFlowResult;
 
 /**
- * @author Etienne Homer <etienne.homer at rte-france.com>
+ * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
 public class LoadFlowResultJsonModule extends SimpleModule {
 

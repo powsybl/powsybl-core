@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class JsonUtil {
 

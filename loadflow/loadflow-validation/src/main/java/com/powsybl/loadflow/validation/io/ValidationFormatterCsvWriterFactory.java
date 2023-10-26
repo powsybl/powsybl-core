@@ -13,7 +13,7 @@ import com.powsybl.loadflow.validation.ValidationType;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
 public class ValidationFormatterCsvWriterFactory implements ValidationWriterFactory {
 

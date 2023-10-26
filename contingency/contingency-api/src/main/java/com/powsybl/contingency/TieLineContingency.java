@@ -13,7 +13,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 import java.util.Objects;
 
 /**
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 public class TieLineContingency extends AbstractSidedContingency {
 

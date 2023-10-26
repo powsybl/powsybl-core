@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
 public class SecurityAnalysisResultDeserializer extends StdDeserializer<SecurityAnalysisResult> {
 

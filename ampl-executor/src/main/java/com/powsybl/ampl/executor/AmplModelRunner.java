@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public final class AmplModelRunner {
     private AmplModelRunner() {

@@ -19,7 +19,7 @@ import java.util.Optional;
  * the busbar sections with a breaker and a closed disconnector each. The branch is also connected to all
  * the parallel busbar sections, if any, with an open disconnector.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays {
 

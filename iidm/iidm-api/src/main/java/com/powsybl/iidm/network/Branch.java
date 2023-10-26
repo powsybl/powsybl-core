@@ -96,7 +96,7 @@ import java.util.Optional;
  *     </tbody>
  * </table>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 

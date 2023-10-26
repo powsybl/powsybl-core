@@ -12,8 +12,8 @@ import org.apache.commons.math3.complex.ComplexUtils;
 import com.powsybl.iidm.network.Branch;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 
 public final class LinkData {

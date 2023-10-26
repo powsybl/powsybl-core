@@ -14,8 +14,8 @@ import java.util.Objects;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class BranchData {
 

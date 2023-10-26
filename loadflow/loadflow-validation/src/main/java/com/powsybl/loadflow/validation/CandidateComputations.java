@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Provides access to the list of known candidate computations.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public final class CandidateComputations {
 

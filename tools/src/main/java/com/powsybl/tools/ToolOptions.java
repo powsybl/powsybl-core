@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * Wrapper around {@link CommandLine} to provide a more user friendly syntax,
  * in particular based on {@link Optional}s.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class ToolOptions {
 

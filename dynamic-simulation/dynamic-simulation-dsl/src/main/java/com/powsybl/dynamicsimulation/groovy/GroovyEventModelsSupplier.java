@@ -27,7 +27,7 @@ import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class GroovyEventModelsSupplier implements EventModelsSupplier {
 

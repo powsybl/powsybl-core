@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class LoadingLimitsMapping {
 

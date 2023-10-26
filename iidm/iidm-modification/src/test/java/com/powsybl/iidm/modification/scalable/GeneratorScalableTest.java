@@ -21,7 +21,7 @@ import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createN
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Ameni Walha <ameni.walha at rte-france.com>
+ * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
 class GeneratorScalableTest {
 

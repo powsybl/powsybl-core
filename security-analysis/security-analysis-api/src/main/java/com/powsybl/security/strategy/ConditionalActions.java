@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class ConditionalActions {
 

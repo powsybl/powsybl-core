@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Connectable;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public interface ConnectablePositionAdder<C extends Connectable<C>>
         extends ExtensionAdder<C, ConnectablePosition<C>> {

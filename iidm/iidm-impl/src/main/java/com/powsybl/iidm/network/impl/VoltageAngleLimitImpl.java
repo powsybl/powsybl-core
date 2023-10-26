@@ -14,9 +14,9 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 class VoltageAngleLimitImpl implements VoltageAngleLimit {
 

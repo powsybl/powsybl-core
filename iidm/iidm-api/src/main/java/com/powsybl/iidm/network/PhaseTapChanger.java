@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * A phase tap changer that is associated to a transformer to control the phase.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapChangerStep> {
 

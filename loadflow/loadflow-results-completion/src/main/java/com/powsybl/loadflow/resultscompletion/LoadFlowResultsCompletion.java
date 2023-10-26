@@ -33,7 +33,7 @@ import com.powsybl.loadflow.validation.CandidateComputation;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 @AutoService(CandidateComputation.class)
 public class LoadFlowResultsCompletion implements CandidateComputation {

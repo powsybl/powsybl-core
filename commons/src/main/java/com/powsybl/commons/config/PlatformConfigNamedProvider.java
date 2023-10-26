@@ -22,7 +22,7 @@ import java.util.function.Function;
  * A provider that can be loaded by by Java's ServiceLoader based on its name
  * present in an entry in the PlatformConfig.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public interface PlatformConfigNamedProvider {
 
@@ -50,8 +50,8 @@ public interface PlatformConfigNamedProvider {
      * fields while the find*BackwardsCompatible methods also look in the legacy
      * fields.
      *
-     * @author Jon harper <jon.harper at rte-france.com>
-     * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+     * @author Jon harper {@literal <jon.harper at rte-france.com>}
+     * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
      */
     static final class Finder {
 

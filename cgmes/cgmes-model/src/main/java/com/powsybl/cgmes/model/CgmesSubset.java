@@ -12,7 +12,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public enum CgmesSubset {
     // TODO Each subset has a "main" profile URL plus additional optional profiles

@@ -24,7 +24,7 @@ import com.powsybl.security.LimitViolationType;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public class SecurityAnalysisResultComparisonWriter implements AutoCloseable {
 

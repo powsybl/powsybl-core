@@ -24,7 +24,7 @@ import com.powsybl.iidm.network.BusbarSection;
  * Note that, when used in conjunction with {@link com.powsybl.iidm.network.extensions.ConnectablePosition}, the busbar
  * described by several BusBarSections having the same section index should have ascending connectable positions for
  * ascending section indices.
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public interface BusbarSectionPosition extends Extension<BusbarSection> {
 

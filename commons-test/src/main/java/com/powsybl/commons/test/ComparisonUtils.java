@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * @author Stanislao Fidanza <stanifidanza98@gmail.com>
+ * @author Stanislao Fidanza {@literal <stanifidanza98@gmail.com>}
  */
 public final class ComparisonUtils {
 

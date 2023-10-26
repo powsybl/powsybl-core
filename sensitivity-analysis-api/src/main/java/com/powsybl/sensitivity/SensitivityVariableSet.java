@@ -21,7 +21,7 @@ import java.util.*;
  * through shift keys, also called GLSK (for Generation and Load shift keys).
  * Note that weights are not normalized.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SensitivityVariableSet {
 

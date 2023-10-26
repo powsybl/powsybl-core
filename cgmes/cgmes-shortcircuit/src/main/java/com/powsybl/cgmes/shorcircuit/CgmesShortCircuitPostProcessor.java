@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStore;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(CgmesImportPostProcessor.class)
 public class CgmesShortCircuitPostProcessor implements CgmesImportPostProcessor {
