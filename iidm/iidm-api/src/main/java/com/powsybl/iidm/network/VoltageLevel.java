@@ -383,7 +383,7 @@ import java.util.stream.Stream;
  *
  * <p>To create a voltage level, see {@link VoltageLevelAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see VoltageLevelAdder
  */
 public interface VoltageLevel extends Container<VoltageLevel> {

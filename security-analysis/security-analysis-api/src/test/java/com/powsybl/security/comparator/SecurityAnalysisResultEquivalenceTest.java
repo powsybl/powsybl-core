@@ -23,7 +23,7 @@ import com.powsybl.security.results.PostContingencyResult;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 class SecurityAnalysisResultEquivalenceTest {
 

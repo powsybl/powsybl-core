@@ -28,7 +28,7 @@ import java.util.Map;
  * <p>The <code>Reporter</code> can be used for multilingual support. Indeed, each <code>Reporter</code> name and
  * {@link Report} message can be translated based on their key and using the value keys in the desired order.
  *
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public interface Reporter {
 

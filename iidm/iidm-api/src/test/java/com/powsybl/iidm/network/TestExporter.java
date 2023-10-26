@@ -15,7 +15,7 @@ import java.io.UncheckedIOException;
 import java.util.Properties;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(Exporter.class)
 public class TestExporter implements Exporter {

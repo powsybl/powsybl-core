@@ -36,7 +36,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * <pre>
  * VL1 ----------------------------- VL2
  *             (mergedLineId)</pre>
- * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
 public class RevertCreateLineOnLine extends AbstractNetworkModification {
 

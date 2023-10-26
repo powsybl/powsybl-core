@@ -34,8 +34,8 @@ import static com.powsybl.tools.ToolConstants.TASK;
  * Runs a load flow action simulator through calls to itools action-simulator command,
  * submitted to the computation manager.
  *
- * @author Yichen Tang <yichen.tang at rte-france.com>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Yichen Tang {@literal <yichen.tang at rte-france.com>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class ParallelLoadFlowActionSimulator {
 

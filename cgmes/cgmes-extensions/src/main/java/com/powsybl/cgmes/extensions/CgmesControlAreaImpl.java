@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Terminal;
 import java.util.*;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 class CgmesControlAreaImpl implements CgmesControlArea {
     private final String id;

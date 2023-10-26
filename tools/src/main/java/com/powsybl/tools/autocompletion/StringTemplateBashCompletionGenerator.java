@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Generator based on stringtemplate lib
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class StringTemplateBashCompletionGenerator implements BashCompletionGenerator {
 

@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
 *
-* @author Luma Zamarreño <zamarrenolm at aia.es>
-* @author José Antonio Marqués <marquesja at aia.es>
+* @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+* @author José Antonio Marqués {@literal <marquesja at aia.es>}
 */
 class VoltageAngleLimitTest {
 

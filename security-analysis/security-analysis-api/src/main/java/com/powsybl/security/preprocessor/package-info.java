@@ -8,6 +8,6 @@
 /**
  * Utilities to preprocess security analysis inputs before the actual execution.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 package com.powsybl.security.preprocessor;

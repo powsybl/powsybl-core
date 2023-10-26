@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Identifiable;
 import java.util.List;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface LinePositionAdder<T extends Identifiable<T>>
         extends ExtensionAdder<T, LinePosition<T>> {

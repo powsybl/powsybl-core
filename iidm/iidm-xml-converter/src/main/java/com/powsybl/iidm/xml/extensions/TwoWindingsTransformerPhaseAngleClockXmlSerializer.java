@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock
 import javax.xml.stream.XMLStreamException;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class TwoWindingsTransformerPhaseAngleClockXmlSerializer

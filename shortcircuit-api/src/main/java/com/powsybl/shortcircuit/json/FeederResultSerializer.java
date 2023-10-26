@@ -16,7 +16,7 @@ import com.powsybl.shortcircuit.MagnitudeFeederResult;
 import java.io.IOException;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class FeederResultSerializer extends StdSerializer<FeederResult> {
 

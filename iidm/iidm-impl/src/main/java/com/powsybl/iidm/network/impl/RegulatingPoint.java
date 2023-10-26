@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class RegulatingPoint implements MultiVariantObject {
 

@@ -15,7 +15,7 @@ package com.powsybl.iidm.network;
  * </div>
  * To create a line, see {@link LineAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see LineAdder
  */
 public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharacteristics<Line> {

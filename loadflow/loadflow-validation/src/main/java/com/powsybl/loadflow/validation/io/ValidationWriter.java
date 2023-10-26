@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.util.TwtData;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
 public interface ValidationWriter extends AutoCloseable {
 

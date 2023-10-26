@@ -20,7 +20,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.Comparator;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class ShuntConversion extends AbstractConductingEquipmentConversion {
 

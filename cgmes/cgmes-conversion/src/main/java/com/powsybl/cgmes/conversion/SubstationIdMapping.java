@@ -73,8 +73,8 @@ import java.util.stream.Collectors;
  * Two substations are adjacent if there is a transformer between them. <br>
  * The two substations associated with two adjacent voltageLevels, are adjacent if they are different substations.
  * <p>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 
 public class SubstationIdMapping {

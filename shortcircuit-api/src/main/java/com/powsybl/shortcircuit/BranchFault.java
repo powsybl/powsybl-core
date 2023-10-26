@@ -10,7 +10,7 @@ package com.powsybl.shortcircuit;
  * Class to describe the characteristics of the fault to be simulated.
  * Used for elementary short-circuit calculation only.
  *
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 public class BranchFault extends AbstractFault {
 

@@ -24,7 +24,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.notFoundSub
 import static com.powsybl.iidm.modification.util.ModificationReports.removedSubstationReport;
 
 /**
- * @author Maissa Souissi <maissa.souissi at rte-france.com>
+ * @author Maissa Souissi {@literal <maissa.souissi at rte-france.com>}
  */
 public class RemoveSubstation extends AbstractNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveSubstation.class);

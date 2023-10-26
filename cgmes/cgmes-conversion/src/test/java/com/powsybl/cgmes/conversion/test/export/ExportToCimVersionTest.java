@@ -27,7 +27,7 @@ import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma <zamarrenolm at aia.es>
+ * @author Luma {@literal <zamarrenolm at aia.es>}
  */
 class ExportToCimVersionTest extends AbstractConverterTest {
 

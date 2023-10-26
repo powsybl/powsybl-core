@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class AsynchronousMachineConversion extends AbstractConductingEquipmentConversion {
 

@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion.test.network.compare;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class ComparisonConfig {
 

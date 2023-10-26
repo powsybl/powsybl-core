@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  *         <p>
  *         A ConductingEquipment has at least one Terminal. From the Terminal we
  *         get either its ConnectivityNode or its TopologicalNode, depending of

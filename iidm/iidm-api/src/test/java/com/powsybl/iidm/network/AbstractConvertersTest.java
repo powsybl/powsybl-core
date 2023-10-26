@@ -16,7 +16,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractConvertersTest {
 

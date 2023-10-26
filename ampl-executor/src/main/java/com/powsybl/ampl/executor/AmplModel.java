@@ -33,7 +33,7 @@ import java.util.Map;
  * input files</li>
  * </ul>
  *
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public interface AmplModel {
 

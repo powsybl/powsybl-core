@@ -18,7 +18,7 @@ import java.util.concurrent.*;
  * <p>Similarly to {@link FutureTask}, this class implements {@link Runnable} and
  * can therefore be submitted to an {@link java.util.concurrent.Executor} for execution.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class CompletableFutureTask<R> extends CompletableFuture<R> implements Runnable {
 
@@ -94,7 +94,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
      * and propagates the cancel to it. It will also return the return value from the source
      * for cancel() if it has to cancel it. This means that a second cancel will return false,
      * unlike for regular CompletableFutures for which all cancels return true (if actually canceled).
-     * @author Jon Harper <jon.harper at rte-france.com>
+     * @author Jon Harper {@literal <jon.harper at rte-france.com>}
      */
     static class SourceCancelingCompletableFuture<T> extends CompletableFuture<T> {
         private final CompletableFuture<?> source;

@@ -15,7 +15,7 @@ import java.util.Optional;
  *
  * Configuration for a {@link SecurityAnalysis}. It might be loaded from a {@link PlatformConfig}.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisConfig {
 

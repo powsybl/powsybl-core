@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public class ConnectablePositionAdderImpl<C extends Connectable<C>>
         extends AbstractExtensionAdder<C, ConnectablePosition<C>>

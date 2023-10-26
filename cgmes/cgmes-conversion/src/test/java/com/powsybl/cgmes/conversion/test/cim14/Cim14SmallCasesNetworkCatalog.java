@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.XMLImporter;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 final class Cim14SmallCasesNetworkCatalog {
 

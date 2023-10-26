@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * A ratio tap changer that is associated to a transformer to control the voltage.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapChangerStep> {
 

@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  * <code>Generator</code> reactive limits that does not depend of the active
  * power.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface MinMaxReactiveLimits extends ReactiveLimits {
 

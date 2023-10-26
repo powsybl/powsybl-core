@@ -15,7 +15,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.math3.complex.Complex;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class EquivalentBranchConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 

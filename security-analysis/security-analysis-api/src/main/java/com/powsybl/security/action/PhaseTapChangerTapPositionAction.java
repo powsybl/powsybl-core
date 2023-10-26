@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 /**
  * An action changing the tap position of a phase-shifting transformer.
  *
- * @author Hadrien Godard <hadrien.godard@artelys.com>
+ * @author Hadrien Godard {@literal <hadrien.godard@artelys.com>}
  */
 public class PhaseTapChangerTapPositionAction extends AbstractTapChangerTapPositionAction {
 

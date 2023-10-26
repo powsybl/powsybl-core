@@ -21,7 +21,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.notFoundVol
 import static com.powsybl.iidm.modification.util.ModificationReports.removedVoltageLevelReport;
 
 /**
- * @author Etienne Homer <etienne.homer at rte-france.com>
+ * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
 public class RemoveVoltageLevel extends AbstractNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveVoltageLevel.class);

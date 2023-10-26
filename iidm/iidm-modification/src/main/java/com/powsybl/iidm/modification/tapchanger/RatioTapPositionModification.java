@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Objects;
 
 /**
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class RatioTapPositionModification extends AbstractTapPositionModification {
 

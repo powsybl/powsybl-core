@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Jérémy LABOUS <jlabous at silicom.fr>
+ * @author Jérémy LABOUS {@literal <jlabous at silicom.fr>}
  */
 public interface CgmesModelExtensionAdder extends ExtensionAdder<Network, CgmesModelExtension> {
 

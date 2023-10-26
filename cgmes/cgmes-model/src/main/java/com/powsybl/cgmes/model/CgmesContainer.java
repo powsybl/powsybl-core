@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.model;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesContainer {
 

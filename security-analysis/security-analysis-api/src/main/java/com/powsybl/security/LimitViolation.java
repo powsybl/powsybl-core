@@ -17,7 +17,7 @@ import java.util.Objects;
  * A generic representation of a violation of a network equipment security limit.
  * For example, it may represent a current overload on a line.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
