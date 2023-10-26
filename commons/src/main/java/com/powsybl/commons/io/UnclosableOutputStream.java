@@ -14,7 +14,7 @@ import java.io.OutputStream;
  * A {@link java.io.OutputStream} wrapper that do not close underlying {@link java.io.OutputStream} but call
  * {@link OutputStream#flush()} instead.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UnclosableOutputStream extends FilterOutputStream {
 

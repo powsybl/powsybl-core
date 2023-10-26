@@ -24,7 +24,7 @@ import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testRepor
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Maissa Souissi <maissa.souissi at rte-france.com>
+ * @author Maissa Souissi {@literal <maissa.souissi at rte-france.com>}
  */
 class RemoveSubstationTest extends AbstractConverterTest {
     private final List<String> removedObjects = new ArrayList<>();

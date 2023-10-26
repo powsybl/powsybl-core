@@ -14,7 +14,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 @AutoService(DynamicSimulationProvider.class)
 public class DynamicSimulationProviderMock implements DynamicSimulationProvider {

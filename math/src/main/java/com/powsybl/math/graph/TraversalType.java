@@ -8,7 +8,7 @@
 package com.powsybl.math.graph;
 
 /**
- * @author Franck.Lecuyer <franck.lecuyer at rte-france.com>
+ * @author Franck.Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
 public enum TraversalType {
     DEPTH_FIRST,

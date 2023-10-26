@@ -38,7 +38,7 @@ import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
 @AutoService(Tool.class)
 public class ValidationTool implements Tool {

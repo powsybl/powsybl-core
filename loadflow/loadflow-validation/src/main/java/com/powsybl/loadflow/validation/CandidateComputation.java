@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Network;
  *
  * Must be thread-safe.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public interface CandidateComputation {
 

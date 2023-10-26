@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * based on a single "mapping" method to be implemented {@link this#getValue(String)}.
  * A {@link FileSystem} also needs to be provided to build {@link Path} properties.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
 

@@ -7,8 +7,8 @@
 package com.powsybl.iidm.network;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
- * @author Thibaut Vermeulen <thibaut.vermeulen at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
+ * @author Thibaut Vermeulen {@literal <thibaut.vermeulen at rte-france.com>}
  */
 public interface OperationalLimits {
     /**

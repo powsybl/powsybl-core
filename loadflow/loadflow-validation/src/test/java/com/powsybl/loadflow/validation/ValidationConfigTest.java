@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
 class ValidationConfigTest {
 

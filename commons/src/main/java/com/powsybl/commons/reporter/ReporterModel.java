@@ -28,7 +28,7 @@ import java.util.*;
  *   <li>sub-reporters always are in the same order</li>
  *   <li>reports always are in the same order</li>
  * </ol>
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class ReporterModel extends AbstractReporter {
 

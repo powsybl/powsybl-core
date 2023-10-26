@@ -24,7 +24,7 @@ import java.util.OptionalInt;
  *     <li>Use {@link #TRANSFORMER_PHASE_1}, {@link #TRANSFORMER_PHASE_2} or {@link #TRANSFORMER_PHASE_3} to model the change of the tap position of a phase
  * tap changer of a three windings transformer that contains several phase tap changers.</li>
  * </ul>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum SensitivityVariableType {
     /** increase in MW */

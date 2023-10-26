@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Basic class for Ampl solve information.
  *
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public class AmplResults {
 

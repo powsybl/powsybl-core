@@ -41,7 +41,7 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 class MatpowerImporterTest extends AbstractConverterTest {
 

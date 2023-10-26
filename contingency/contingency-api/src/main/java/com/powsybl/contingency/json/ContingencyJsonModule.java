@@ -13,8 +13,8 @@ import com.powsybl.contingency.contingency.list.criterion.Criterion;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class ContingencyJsonModule extends SimpleModule {
 

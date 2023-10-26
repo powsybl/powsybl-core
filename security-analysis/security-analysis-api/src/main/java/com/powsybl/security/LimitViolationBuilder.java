@@ -15,7 +15,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * A builder class for {@link LimitViolation}s.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class LimitViolationBuilder {
 

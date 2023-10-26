@@ -14,7 +14,7 @@ import com.powsybl.security.results.PostContingencyResult;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class PostContingencyResultSerializer extends StdSerializer<PostContingencyResult> {
 

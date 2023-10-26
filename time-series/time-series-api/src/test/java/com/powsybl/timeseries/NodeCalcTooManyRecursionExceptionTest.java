@@ -13,7 +13,7 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeCalcTooManyRecursionExceptionTest {
 

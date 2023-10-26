@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  * Provides implementations for aggregation methods of {@link LimitViolationDetector}.
  * Actual implementations will only have to focus on detecting violations element-wise.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public abstract class AbstractLimitViolationDetector extends AbstractContingencyBlindDetector {
 

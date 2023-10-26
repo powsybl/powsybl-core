@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * @tparam V The type of the value attached to a vertex.
  * @tparam E The type of the value attached to an edge.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface UndirectedGraph<V, E> {
 

@@ -9,7 +9,7 @@ package com.powsybl.tools;
 import com.google.auto.service.AutoService;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(Version.class)
 public class PowsyblCoreVersion extends AbstractVersion {

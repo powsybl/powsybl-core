@@ -75,8 +75,8 @@ import static java.util.stream.Collectors.groupingBy;
  * END2. Structural ratio at the network side of legs 1 and 3. RatedU0 = RatedU2 <br>
  * END3. Structural ratio at the network side of legs 1 and 2. RatedU0 = RatedU2 <br>
  * <p>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  *
  */
 public class Conversion {

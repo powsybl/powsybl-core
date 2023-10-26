@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import java.util.List;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class TieLineCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
     private final TwoCountriesCriterion twoCountriesCriterion;

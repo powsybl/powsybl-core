@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.powsybl.iidm.network.IdentifiableType.*;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class TwoNominalVoltageCriterion implements Criterion {
 

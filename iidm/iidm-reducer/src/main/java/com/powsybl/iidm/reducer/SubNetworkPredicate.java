@@ -16,7 +16,7 @@ import java.util.Set;
  * A network reducer predicate that allow reduction based on a center voltage level and all other voltage level neighbors
  * within a specified depth.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SubNetworkPredicate implements NetworkPredicate {
 

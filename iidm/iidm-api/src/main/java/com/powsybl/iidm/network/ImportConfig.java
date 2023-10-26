@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * Generic configuration for network importing. Specifically, this allows to configure
  * {@link ImportPostProcessor}s to be applied after networks are imported.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class ImportConfig {
 

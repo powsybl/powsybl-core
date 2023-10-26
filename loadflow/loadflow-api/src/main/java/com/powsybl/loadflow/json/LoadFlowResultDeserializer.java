@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> {
 

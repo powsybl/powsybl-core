@@ -20,8 +20,8 @@ import java.util.Objects;
  * Active power control mode based on an offset in MW and a droop in MW/degree
  * ActivePowerSetpoint = p0 + droop * (angle1 - angle2)
  *
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 public class HvdcAngleDroopActivePowerControlImpl extends AbstractMultiVariantIdentifiableExtension<HvdcLine> implements HvdcAngleDroopActivePowerControl {
 

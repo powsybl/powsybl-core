@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.scripting
 import com.powsybl.iidm.network.TwoWindingsTransformer
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class TwoWindingsTransformerExtension {
 

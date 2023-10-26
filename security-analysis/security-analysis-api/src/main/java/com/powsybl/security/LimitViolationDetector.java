@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  * Being given some physical values (currents, voltages, ...) for network elements,
  * is in charge of deciding whether there are limit violations or not.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public interface LimitViolationDetector {
 
