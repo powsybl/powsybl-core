@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface CgmesModelExtension extends Extension<Network> {
 

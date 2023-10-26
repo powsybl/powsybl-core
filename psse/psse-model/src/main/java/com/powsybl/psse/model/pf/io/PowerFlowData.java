@@ -15,8 +15,8 @@ import com.powsybl.psse.model.PsseVersion;
 import java.io.IOException;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public interface PowerFlowData {
 

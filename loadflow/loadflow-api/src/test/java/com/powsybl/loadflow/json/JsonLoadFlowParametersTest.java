@@ -31,7 +31,7 @@ import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_V
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class JsonLoadFlowParametersTest extends AbstractConverterTest {
 

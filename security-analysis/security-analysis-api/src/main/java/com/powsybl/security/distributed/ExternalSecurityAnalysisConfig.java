@@ -12,7 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.Objects;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class ExternalSecurityAnalysisConfig {
 

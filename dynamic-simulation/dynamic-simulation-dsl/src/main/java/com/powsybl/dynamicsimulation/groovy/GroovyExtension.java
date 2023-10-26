@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public interface GroovyExtension<T> {
 

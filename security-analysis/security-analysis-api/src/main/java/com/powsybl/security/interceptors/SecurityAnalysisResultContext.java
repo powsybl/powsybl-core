@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Network;
  * They can provide additional, implementation specific information to interceptors
  * by subclassing this interface.
  *
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 public interface SecurityAnalysisResultContext {
 

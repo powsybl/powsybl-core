@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Results for one fault computation with current magnitude.
  *
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class MagnitudeFaultResult extends AbstractFaultResult {
 

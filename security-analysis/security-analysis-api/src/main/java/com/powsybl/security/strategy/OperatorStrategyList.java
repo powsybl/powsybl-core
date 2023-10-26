@@ -25,7 +25,7 @@ import java.util.Objects;
  * A container for a list of strategies.
  * The JSON format of this container is versioned.
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class OperatorStrategyList {
     private final List<OperatorStrategy> operatorStrategies;

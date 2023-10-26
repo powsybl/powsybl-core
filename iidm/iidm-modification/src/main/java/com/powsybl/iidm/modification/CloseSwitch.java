@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Switch;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class CloseSwitch extends AbstractNetworkModification {
     private final String switchId;

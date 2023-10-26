@@ -23,7 +23,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 class PostContingencyResultTest extends AbstractConverterTest {
 

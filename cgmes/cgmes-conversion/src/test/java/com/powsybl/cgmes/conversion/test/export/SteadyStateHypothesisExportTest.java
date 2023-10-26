@@ -41,8 +41,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class SteadyStateHypothesisExportTest extends AbstractConverterTest {
 

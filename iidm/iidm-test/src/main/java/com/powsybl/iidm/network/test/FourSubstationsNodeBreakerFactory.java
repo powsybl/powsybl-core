@@ -19,7 +19,7 @@ import java.util.Objects;
  * </div>
  *
  *
- * @author Agnes Leroy <agnes.leroy at rte-france.com>
+ * @author Agnes Leroy {@literal <agnes.leroy at rte-france.com>}
  */
 
 public final class FourSubstationsNodeBreakerFactory {

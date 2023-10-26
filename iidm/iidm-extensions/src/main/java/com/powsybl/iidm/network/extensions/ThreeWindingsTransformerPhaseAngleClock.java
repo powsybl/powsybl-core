@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public interface ThreeWindingsTransformerPhaseAngleClock extends Extension<ThreeWindingsTransformer> {
 

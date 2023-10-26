@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends AbstractVersionableNetworkExtensionXmlSerializer<T, ActivePowerControl<T>> {

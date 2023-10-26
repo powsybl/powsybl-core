@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 
 /**
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class HvdcAngleDroopActivePowerControlAdderImplProvider

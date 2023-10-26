@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 import com.powsybl.computation.ComputationManager;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class TestImportPostProcessor implements ImportPostProcessor {
 

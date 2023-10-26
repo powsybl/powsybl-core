@@ -10,7 +10,7 @@ package com.powsybl.dynamicsimulation.groovy;
 import com.powsybl.dynamicsimulation.Curve;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public interface CurveGroovyExtension extends GroovyExtension<Curve> {
 

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * Factory for the creation of Triplestore databases.
  * It relies on named factory services to create instances.
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class TripleStoreFactory {
 

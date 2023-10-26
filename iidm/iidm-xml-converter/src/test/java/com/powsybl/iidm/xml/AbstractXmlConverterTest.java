@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
 

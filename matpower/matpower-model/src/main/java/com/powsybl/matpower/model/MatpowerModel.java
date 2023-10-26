@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.*;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 public class MatpowerModel {
 

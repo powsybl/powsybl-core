@@ -22,7 +22,7 @@ import java.util.Objects;
  * trough shift keys, also called GLSK (for Generation and Load shift keys), see {@link com.powsybl.sensitivity.SensitivityVariableSet}
  * for more details.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class WeightedSensitivityVariable {
 

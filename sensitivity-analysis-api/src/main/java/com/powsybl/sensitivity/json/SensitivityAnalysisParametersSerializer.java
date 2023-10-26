@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * Json serializer for sensitivity analysis parameters
  *
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class SensitivityAnalysisParametersSerializer extends StdSerializer<SensitivityAnalysisParameters> {
 

@@ -26,7 +26,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
  * This modification removes the whole feeder bay related to a given feeder connectable.
  * This means that it removes all the dangling switches and internal connections which remain once the connectable is removed.
  * Note that determining the bay which corresponds to a connectable needs some computation and graph traversals.
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class RemoveFeederBay extends AbstractNetworkModification {
 

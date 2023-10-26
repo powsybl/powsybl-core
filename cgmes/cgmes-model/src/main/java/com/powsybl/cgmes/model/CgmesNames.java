@@ -10,7 +10,7 @@ package com.powsybl.cgmes.model;
 import java.util.Set;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class CgmesNames {
 

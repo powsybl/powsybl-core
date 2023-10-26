@@ -21,7 +21,7 @@ import java.util.Locale;
  *   - separator is white space
  *   - comments are allowed and start with # (header is also a comment)
  *   - strings are quoted because of the white space separator
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class AmplDatTableFormatter extends CsvTableFormatter {
 

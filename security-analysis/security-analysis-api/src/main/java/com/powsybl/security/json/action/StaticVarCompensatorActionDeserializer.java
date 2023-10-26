@@ -19,7 +19,7 @@ import com.powsybl.security.action.StaticVarCompensatorActionBuilder;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class StaticVarCompensatorActionDeserializer extends StdDeserializer<StaticVarCompensatorAction> {
 

@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory
 import java.util.function.Consumer
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 class ContingencyDslLoader extends DslLoader {
 

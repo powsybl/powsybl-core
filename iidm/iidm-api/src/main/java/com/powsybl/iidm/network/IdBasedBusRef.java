@@ -19,7 +19,7 @@ import java.util.Optional;
  * 1. id of equipment:
  * 2. id of a configured bus itself:
  * 3. id of branch, in this case, side is required
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IdBasedBusRef extends AbstractBusRef {

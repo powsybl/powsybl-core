@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class NamingStrategyFactory {
 

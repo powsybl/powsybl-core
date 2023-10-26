@@ -26,8 +26,8 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.GridModelReference;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class HvdcConversionTest {
 

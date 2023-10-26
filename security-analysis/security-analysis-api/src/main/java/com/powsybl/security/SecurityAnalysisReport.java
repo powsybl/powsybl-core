@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class SecurityAnalysisReport extends AbstractExtendable<SecurityAnalysisReport> {
 

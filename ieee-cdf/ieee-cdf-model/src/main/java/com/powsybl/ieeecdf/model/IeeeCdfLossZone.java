@@ -19,7 +19,7 @@ import com.univocity.parsers.annotations.Parsed;
  * Columns  5-16   Loss zone name (A)
  * </pre>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class IeeeCdfLossZone {
 

@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public class EmptyAmplParameters implements AmplParameters {
 

@@ -12,8 +12,8 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 interface RecordGroupIO<T> {
     List<T> read(BufferedReader reader, Context context) throws IOException;

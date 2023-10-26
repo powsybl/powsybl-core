@@ -10,8 +10,8 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public final class PowerFlowDataFactory {
 

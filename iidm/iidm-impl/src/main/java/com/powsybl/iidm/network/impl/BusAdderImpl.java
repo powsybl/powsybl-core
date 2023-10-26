@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.BusAdder;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class BusAdderImpl extends AbstractIdentifiableAdder<BusAdderImpl> implements BusAdder {
 

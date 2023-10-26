@@ -8,7 +8,7 @@
 package com.powsybl.security.action;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ShuntCompensatorPositionAction extends AbstractAction {
 

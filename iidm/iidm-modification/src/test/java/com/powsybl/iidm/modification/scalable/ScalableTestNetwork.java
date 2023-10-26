@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.scalable;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Ameni Walha <ameni.walha at rte-france.com>
+ * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
 final class ScalableTestNetwork {
     private ScalableTestNetwork() {

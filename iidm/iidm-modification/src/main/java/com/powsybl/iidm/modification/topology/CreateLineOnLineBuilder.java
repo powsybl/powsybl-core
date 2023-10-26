@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateLineOnLineBuilder {
 

@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Coline Piloquet <coline.piloquet@rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.com>}
  */
 @AutoService(ShortCircuitAnalysisProvider.class)
 public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
