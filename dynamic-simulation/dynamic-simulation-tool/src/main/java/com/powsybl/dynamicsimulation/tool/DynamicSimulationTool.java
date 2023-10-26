@@ -44,7 +44,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 @AutoService(Tool.class)
 public class DynamicSimulationTool implements Tool {

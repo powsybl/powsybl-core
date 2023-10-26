@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.ApparentPowerLimits;
 import java.util.TreeMap;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPowerLimitsImpl> implements ApparentPowerLimits {
 

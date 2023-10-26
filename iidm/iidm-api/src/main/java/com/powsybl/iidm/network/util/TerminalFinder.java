@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
 /**
  * A class which allows to find the best terminal, according to given comparator or list of predicate, among several
  * terminals.
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public final class TerminalFinder {
 

@@ -13,7 +13,7 @@ import com.powsybl.iidm.modification.GeneratorModification
 import com.powsybl.iidm.modification.NetworkModification
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 @AutoService(DslModificationExtension.class)
 class GeneratorModificationModificationExtension implements DslModificationExtension {

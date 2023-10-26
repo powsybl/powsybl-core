@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * A builder to create {@link Report} objects.
  *
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class ReportBuilder {
 

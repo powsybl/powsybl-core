@@ -49,7 +49,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class NetworkXml {
 

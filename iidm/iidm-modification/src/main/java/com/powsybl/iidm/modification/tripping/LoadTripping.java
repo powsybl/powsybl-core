@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Hadrien Godard <hadrien.godard at artelys.com>
+ * @author Hadrien Godard {@literal <hadrien.godard at artelys.com>}
  */
 public class LoadTripping extends AbstractInjectionTripping {
 

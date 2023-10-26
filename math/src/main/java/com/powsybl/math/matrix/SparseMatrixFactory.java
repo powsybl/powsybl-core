@@ -11,7 +11,7 @@ package com.powsybl.math.matrix;
  *
  * @see SparseMatrix
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SparseMatrixFactory implements MatrixFactory {
 

@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Connectable;
 
 /**
- * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
 public interface BranchStatusAdder<C extends Connectable<C>> extends ExtensionAdder<C, BranchStatus<C>> {
 

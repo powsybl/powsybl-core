@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends AbstractVersionableNetworkExtensionXmlSerializer<C, ConnectablePosition<C>> {

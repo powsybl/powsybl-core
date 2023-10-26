@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class RemoteReactivePowerControlAdderImpl extends AbstractExtensionAdder<Generator, RemoteReactivePowerControl> implements RemoteReactivePowerControlAdder {
 

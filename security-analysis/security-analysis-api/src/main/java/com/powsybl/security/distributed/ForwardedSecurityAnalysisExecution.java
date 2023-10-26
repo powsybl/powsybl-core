@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * The {@link #forwardedTaskCount} parameter will be forward to that process, so if it is greater than one,
  * it will spawn multiple "slave" processes.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class ForwardedSecurityAnalysisExecution implements SecurityAnalysisExecution {
 

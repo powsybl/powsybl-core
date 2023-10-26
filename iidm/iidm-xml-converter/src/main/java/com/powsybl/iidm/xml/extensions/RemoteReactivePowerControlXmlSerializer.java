@@ -26,7 +26,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Damien Jeandemange <damien.jeandemange at artelys.com>
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class RemoteReactivePowerControlXmlSerializer extends AbstractExtensionXmlSerializer<Generator, RemoteReactivePowerControl> {

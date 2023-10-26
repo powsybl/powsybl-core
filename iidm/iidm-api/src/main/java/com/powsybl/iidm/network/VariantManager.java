@@ -19,7 +19,7 @@ import java.util.List;
  * threads (be carefull to only write concurrently attributes flagged as dependent to variant in the Javadoc) and then
  * remove variants from main thread once work is over.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface VariantManager {
 

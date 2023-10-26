@@ -20,7 +20,7 @@ import java.util.OptionalDouble;
  *     <li>change voltageSetPoint to change the voltage setpoint if the regulation mode is set to VOLTAGE (kV) </li>
  *     <li>change reactivePowerSetpoint to change the reactive power setpoint if the regulation mode is set to REACTIVE_POWER (MVAR)</li>
  * </ul>
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class StaticVarCompensatorAction extends AbstractAction {
 

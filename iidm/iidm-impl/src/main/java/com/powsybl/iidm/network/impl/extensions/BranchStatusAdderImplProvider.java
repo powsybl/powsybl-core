@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.BranchStatus;
 
 /**
- * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class BranchStatusAdderImplProvider<C extends Connectable<C>> implements

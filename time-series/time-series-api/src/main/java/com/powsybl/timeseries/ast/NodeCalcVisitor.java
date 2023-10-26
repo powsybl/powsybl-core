@@ -15,8 +15,8 @@ import org.apache.commons.lang3.tuple.Pair;
  * traversed and their order. The visit methods compute results for
  * nodes from the node and all the results of the children.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  * @see NodeCalcVisitors
  */
 public interface NodeCalcVisitor<R, A> {

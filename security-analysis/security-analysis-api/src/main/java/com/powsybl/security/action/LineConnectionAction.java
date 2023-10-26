@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * An action opening or closing one side or both sides of a line.
  *
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class LineConnectionAction extends AbstractAction {
 

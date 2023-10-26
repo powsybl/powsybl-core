@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CgmesSvMetadataXmlSerializerTest extends AbstractConverterTest {
 

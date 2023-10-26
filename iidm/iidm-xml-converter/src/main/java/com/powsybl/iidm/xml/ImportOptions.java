@@ -11,8 +11,8 @@ import com.google.common.collect.Sets;
 import java.util.Set;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ImportOptions extends AbstractOptions<ImportOptions> {
 

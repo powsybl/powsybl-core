@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<VoltageLevel, SlackTerminal> {

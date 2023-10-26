@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.VscConverterStation;
 /**
  * Simple {@link NetworkModification} for a VSC converter station.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class VscConverterStationModification extends AbstractSetpointModification<VscConverterStation> {
 

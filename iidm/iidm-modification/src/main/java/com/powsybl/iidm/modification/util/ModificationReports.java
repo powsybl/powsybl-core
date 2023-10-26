@@ -14,7 +14,7 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public final class ModificationReports {
 

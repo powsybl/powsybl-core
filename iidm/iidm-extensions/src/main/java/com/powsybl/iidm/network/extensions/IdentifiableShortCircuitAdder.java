@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
- * @author Coline Piloquet <coline.piloquet@rte-france.fr>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 public interface IdentifiableShortCircuitAdder<I extends Identifiable<I>> extends ExtensionAdder<I, IdentifiableShortCircuit<I>> {
 

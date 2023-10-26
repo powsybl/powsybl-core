@@ -15,7 +15,7 @@ import static com.powsybl.cgmes.conformity.CgmesCatalogsConstants.*;
 import static com.powsybl.cgmes.conformity.CgmesConformity1Catalog.microGridBaseCaseBoundaries;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class CgmesConformity1ModifiedCatalog {
 

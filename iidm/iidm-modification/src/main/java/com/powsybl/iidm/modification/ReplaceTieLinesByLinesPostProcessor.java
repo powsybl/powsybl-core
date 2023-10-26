@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.ImportPostProcessor;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ImportPostProcessor.class)
 public class ReplaceTieLinesByLinesPostProcessor implements ImportPostProcessor {

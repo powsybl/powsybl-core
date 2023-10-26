@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * The kind of switch.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum SwitchKind {
     BREAKER,

@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class OperationalLimitConversion extends AbstractIdentifiedObjectConversion {
 

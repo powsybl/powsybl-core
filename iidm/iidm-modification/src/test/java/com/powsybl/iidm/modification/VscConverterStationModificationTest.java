@@ -19,7 +19,7 @@ import java.util.OptionalDouble;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 class VscConverterStationModificationTest {
 

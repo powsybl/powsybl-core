@@ -13,8 +13,8 @@ import java.lang.annotation.Target;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public final class ShortCircuitConstants {
 
@@ -26,4 +26,5 @@ public final class ShortCircuitConstants {
     public static final boolean DEFAULT_WITH_VSC_CONVERTER_STATIONS = true;
     public static final boolean DEFAULT_WITH_NEUTRAL_POSITION = false;
     public static final InitialVoltageProfileMode DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE = InitialVoltageProfileMode.NOMINAL;
+    public static final boolean DEFAULT_DETAILED_REPORT = true;
 }

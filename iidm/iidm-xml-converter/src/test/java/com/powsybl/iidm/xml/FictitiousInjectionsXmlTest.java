@@ -17,7 +17,7 @@ import java.io.IOException;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class FictitiousInjectionsXmlTest extends AbstractXmlConverterTest {
 

@@ -17,8 +17,8 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Ameni Walha <ameni.walha at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
 class GeneratorScalable extends AbstractInjectionScalable {
 

@@ -17,7 +17,7 @@ import java.nio.file.FileSystem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 class AmplConfigTest {
     @Test

@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 /**
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  * Allows to export to the "outputCaseFolder" folder in the "outputCaseFormat" format the case
  * for action-simulator. The call of this observer is optional.
  */

@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface FlowsLimitsHolder {
 

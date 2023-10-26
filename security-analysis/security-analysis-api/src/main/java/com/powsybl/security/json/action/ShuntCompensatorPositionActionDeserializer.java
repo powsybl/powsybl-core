@@ -18,7 +18,7 @@ import com.powsybl.security.action.ShuntCompensatorPositionActionBuilder;
 import java.io.IOException;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ShuntCompensatorPositionActionDeserializer extends StdDeserializer<ShuntCompensatorPositionAction> {
 

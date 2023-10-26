@@ -33,7 +33,7 @@ import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CreateBranchFeederBaysTest extends AbstractConverterTest {
 

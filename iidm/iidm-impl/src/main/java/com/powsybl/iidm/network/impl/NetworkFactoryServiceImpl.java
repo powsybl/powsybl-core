@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.NetworkFactoryService;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(NetworkFactoryService.class)
 public class NetworkFactoryServiceImpl implements NetworkFactoryService {

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class Cgmes3Test {
 

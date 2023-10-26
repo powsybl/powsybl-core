@@ -13,7 +13,7 @@ import java.util.Comparator;
 /**
  * Utility methods for {@link LimitViolation}s, in particular to ease their building and comparison.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public final class LimitViolations {
 

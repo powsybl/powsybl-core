@@ -7,7 +7,7 @@
 package com.powsybl.ampl.executor;
 
 /**
- * @author Nicolas PIERRE <nicolas.pierre@artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre@artelys.com>}
  */
 public abstract class AbstractMandatoryOutputFile implements AmplOutputFile {
     @Override

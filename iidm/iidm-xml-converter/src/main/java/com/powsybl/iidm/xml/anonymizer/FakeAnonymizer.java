@@ -12,7 +12,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class FakeAnonymizer implements Anonymizer {
     @Override

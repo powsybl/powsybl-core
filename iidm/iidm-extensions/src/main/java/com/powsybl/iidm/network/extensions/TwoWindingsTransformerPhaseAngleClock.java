@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
- * @author Jérémy LABOUS <jlabous at silicom.fr>
+ * @author Jérémy LABOUS {@literal <jlabous at silicom.fr>}
  */
 public interface TwoWindingsTransformerPhaseAngleClock extends Extension<TwoWindingsTransformer> {
 

@@ -25,7 +25,7 @@ import java.util.Optional;
  * Note that, when this class is used in conjunction with {@link com.powsybl.iidm.network.extensions.BusbarSectionPosition},
  * the connectable positions should be in ascending order for ascending busbar section indices.
  * That is, the connectable positions should be in ascending order on a given physical busbar.
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface ConnectablePosition<C extends Connectable<C>> extends Extension<C> {
 

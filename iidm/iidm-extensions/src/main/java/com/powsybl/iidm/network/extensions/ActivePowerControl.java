@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 public interface ActivePowerControl<I extends Injection<I>> extends Extension<I> {
 

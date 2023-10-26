@@ -14,7 +14,7 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class ActionExpressionPrinter extends ExpressionPrinter implements ActionExpressionVisitor<Void, Void> {
 

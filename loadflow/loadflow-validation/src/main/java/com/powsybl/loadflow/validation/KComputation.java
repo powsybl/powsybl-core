@@ -14,7 +14,7 @@ package com.powsybl.loadflow.validation;
  *
  * and compute the variance of values around the theoretical value target + k*coeff.
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public class KComputation {
 

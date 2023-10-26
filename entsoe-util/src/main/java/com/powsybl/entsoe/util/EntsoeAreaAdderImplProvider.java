@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Substation;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class EntsoeAreaAdderImplProvider implements

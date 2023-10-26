@@ -22,7 +22,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesSvMetadata> {

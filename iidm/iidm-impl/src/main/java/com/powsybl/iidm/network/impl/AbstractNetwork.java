@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements NetworkExt {
 
