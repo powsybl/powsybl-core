@@ -93,7 +93,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public int getCountryCount() {
-        return (int) getCountryStream().count();
+        return getCountries().size();
     }
 
     private Stream<Country> getCountryStream() {
