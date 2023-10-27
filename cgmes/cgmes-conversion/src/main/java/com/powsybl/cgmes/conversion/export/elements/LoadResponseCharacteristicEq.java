@@ -19,8 +19,6 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class LoadResponseCharacteristicEq {
 
-    //private static final String EQ_GENERATINGUNIT_MINP = "GeneratingUnit.minOperatingP";
-
     public static void write(String id, String name,
                              boolean exponentModel, double pVoltageExponent, double qVoltageExponent,
                              double pConstantPower, double qConstantPower, double pConstantCurrent,
