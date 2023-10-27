@@ -28,7 +28,7 @@ import java.util.List;
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrategy> {
 

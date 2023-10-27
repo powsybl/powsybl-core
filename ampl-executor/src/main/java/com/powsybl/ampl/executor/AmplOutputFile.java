@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * An additional file to read as output of an Ampl run.
  *
- * @author Nicolas PIERRE <nicolas.pierre@artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre@artelys.com>}
  */
 public interface AmplOutputFile {
     /**

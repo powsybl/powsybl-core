@@ -13,7 +13,7 @@ import java.io.*;
 import java.nio.file.Path;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 public class Bzip2FileDataSource extends FileDataSource {
 

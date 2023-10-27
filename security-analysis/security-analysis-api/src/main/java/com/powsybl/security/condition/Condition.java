@@ -9,7 +9,7 @@ package com.powsybl.security.condition;
 /**
  * describes when an action is taken
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public interface Condition {
     String getType();

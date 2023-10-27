@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Marcos De Miguel <demiguelm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Marcos De Miguel {@literal <demiguelm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class LoadFlowResultsCompletionZ0FlowsTest {
 

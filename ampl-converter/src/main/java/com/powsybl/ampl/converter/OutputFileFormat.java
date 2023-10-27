@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Simple POJO to define some properties of files read after an Ampl solve
  *
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public interface OutputFileFormat {
     /**

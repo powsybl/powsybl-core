@@ -20,7 +20,7 @@ import java.util.Objects;
  * A class representing a functional log, consisting of a key identifying the report, a map of {@link TypedValue} indexed
  * by their keys, and a default report message string, which may contain references to those values or to the values
  * of corresponding {@link Reporter}.
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class Report {
 

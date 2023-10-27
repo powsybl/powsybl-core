@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.CloseSwitch
 import com.powsybl.iidm.modification.NetworkModification
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 @AutoService(DslModificationExtension.class)
 class CloseSwitchModificationExtension implements DslModificationExtension {

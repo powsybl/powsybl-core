@@ -17,8 +17,8 @@ import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class ACLineSegmentConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 

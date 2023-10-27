@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class NetworkSourceExtensionImpl extends AbstractExtension<Network> implements NetworkSourceExtension {
     private final String sourceData;

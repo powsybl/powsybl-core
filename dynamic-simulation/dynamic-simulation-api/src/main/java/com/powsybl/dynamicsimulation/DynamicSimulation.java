@@ -17,7 +17,7 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class DynamicSimulation {
 

@@ -20,7 +20,7 @@ import static com.powsybl.iidm.modification.scalable.json.JsonScalingParameters.
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class JsonScalingParametersTest extends AbstractConverterTest {
 

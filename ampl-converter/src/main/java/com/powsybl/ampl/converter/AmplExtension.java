@@ -13,7 +13,7 @@ import com.powsybl.commons.extensions.Extension;
 
 /**
 *
-* @author Ferrari Giovanni <giovanni.ferrari@techrain.eu>
+* @author Ferrari Giovanni {@literal <giovanni.ferrari@techrain.eu>}
 */
 public class AmplExtension<A extends Extension<B>, B> {
 

@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> extends AbstractConnectable<I> implements Branch<I> {
 

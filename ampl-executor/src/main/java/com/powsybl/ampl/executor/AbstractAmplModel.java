@@ -11,7 +11,7 @@ import com.powsybl.ampl.converter.OutputFileFormat;
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
 
 /**
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public abstract class AbstractAmplModel implements AmplModel {
 

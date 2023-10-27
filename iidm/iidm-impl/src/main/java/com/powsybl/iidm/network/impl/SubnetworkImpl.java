@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class SubnetworkImpl extends AbstractNetwork {
 
@@ -218,7 +218,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
-        return new VoltageAngleLimitAdderImpl(rootNetworkRef, id);
+        return getNetwork().newVoltageAngleLimit(id);
     }
 
     @Override
@@ -236,8 +236,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     public VoltageAngleLimit getVoltageAngleLimit(String id) {
         VoltageAngleLimitImpl val = (VoltageAngleLimitImpl) getNetwork().getVoltageAngleLimit(id);
         boolean valInSubnetwork = val != null
-                && id.equals(val.getTerminalFrom().getVoltageLevel().getParentNetwork().getId())
-                && id.equals(val.getTerminalTo().getVoltageLevel().getParentNetwork().getId());
+                && contains(val.getTerminalFrom().getVoltageLevel())
+                && contains(val.getTerminalTo().getVoltageLevel());
         return valInSubnetwork ? val : null;
     }
 

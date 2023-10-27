@@ -19,7 +19,7 @@ import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_I
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public abstract class AbstractRemoteReactivePowerControlTest {
 

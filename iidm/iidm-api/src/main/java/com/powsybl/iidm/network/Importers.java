@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 /**
  * A utility class to work with IIDM importers.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class Importers {
 

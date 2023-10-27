@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 class TestPlatformConfigProviderTest {
 

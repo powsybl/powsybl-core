@@ -16,8 +16,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class AcDcConverterNodes {
     private final Map<String, AcDcConverterNode> converterNodes;

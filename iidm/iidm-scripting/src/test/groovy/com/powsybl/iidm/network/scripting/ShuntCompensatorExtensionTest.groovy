@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue
 
 /**
  *
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ShuntCompensatorExtensionTest {
 

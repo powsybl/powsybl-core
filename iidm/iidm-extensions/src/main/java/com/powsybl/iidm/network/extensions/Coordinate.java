@@ -9,8 +9,8 @@ package com.powsybl.iidm.network.extensions;
 import java.util.Objects;
 
 /**
- * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class Coordinate {
 

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.sensitivity.SensitivityFactor;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SensitivityFactorJsonDeserializer extends StdDeserializer<SensitivityFactor> {
 

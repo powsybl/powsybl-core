@@ -27,8 +27,8 @@ import static com.powsybl.psse.model.io.FileFormat.JSON;
  * PSSE RAWX data common to all versions
  * Should be able to read the case identification to obtain the version (case identification "rev" attribute)
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PowerFlowRawxDataAllVersions implements PowerFlowData {
 

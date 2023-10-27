@@ -15,7 +15,7 @@ import com.powsybl.dynamicsimulation.Curve
 import java.util.function.Consumer
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 @AutoService(CurveGroovyExtension.class)
 class DummyCurveGroovyExtension implements CurveGroovyExtension {

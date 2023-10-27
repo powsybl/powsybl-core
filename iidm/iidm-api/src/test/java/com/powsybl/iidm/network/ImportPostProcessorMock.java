@@ -12,7 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import org.joda.time.DateTime;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class ImportPostProcessorMock implements ImportPostProcessor {
 

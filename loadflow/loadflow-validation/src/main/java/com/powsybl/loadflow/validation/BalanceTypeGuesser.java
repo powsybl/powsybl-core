@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.Network;
  * the computed power outputs and initial target power.
  * This is necessary since the balancing method actually used is not known.
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public class BalanceTypeGuesser {
 

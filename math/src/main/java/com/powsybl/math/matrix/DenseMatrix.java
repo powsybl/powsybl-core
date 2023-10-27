@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 /**
  * Dense matrix implementation based on an array of {@code rowCount} * {@code columnCount} double values.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DenseMatrix extends AbstractMatrix {
 

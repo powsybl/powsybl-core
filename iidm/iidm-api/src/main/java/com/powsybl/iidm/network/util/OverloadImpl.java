@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * A simple, default implementation of {@link Branch.Overload}.
  *
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class OverloadImpl implements Branch.Overload {
 

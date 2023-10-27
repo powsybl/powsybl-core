@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class TieLineUtilTest {
 

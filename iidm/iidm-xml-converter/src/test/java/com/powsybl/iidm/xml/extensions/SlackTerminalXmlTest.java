@@ -26,7 +26,7 @@ import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkP
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class SlackTerminalXmlTest extends AbstractConverterTest {
 

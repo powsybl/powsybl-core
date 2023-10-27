@@ -10,9 +10,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Create a new Line from a given Line Adder and attach it on an existing Line by cutting the latter.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CreateLineOnLineTest extends AbstractConverterTest {
 
@@ -92,6 +94,11 @@ class CreateLineOnLineTest extends AbstractConverterTest {
     @Test
     void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
+            .add();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder()

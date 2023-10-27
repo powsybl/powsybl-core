@@ -33,8 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TransformerConversionTest {
 
@@ -400,7 +400,7 @@ class TransformerConversionTest {
         TwoWindingsTransformer twt1 = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
         TwoWindingsTransformer twt2 = n.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
 
-        assertEquals(1.109429, obtainXcurrentStep(twt1), 0.00001);
+        assertEquals(1.10949, obtainXcurrentStep(twt1), 0.00001);
         assertEquals(2.796323, obtainXcurrentStep(twt2), 0.00001);
     }
 

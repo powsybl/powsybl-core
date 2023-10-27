@@ -17,7 +17,7 @@ import java.util.Objects;
  *
  * Helper methods for checking the occurence of overloads.
  *
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public final class LimitViolationUtils {
 

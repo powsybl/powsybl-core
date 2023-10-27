@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 import java.util.Optional;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class ObservabilityQualityImpl<T> implements ObservabilityQuality<T> {
 

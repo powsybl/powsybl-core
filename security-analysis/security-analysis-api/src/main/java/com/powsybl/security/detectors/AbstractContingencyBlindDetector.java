@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  * Provides implementations for aggregation methods of {@link LimitViolationDetector}.
  * Contingency based methods are not implemented, default implementation are left untouched.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public abstract class AbstractContingencyBlindDetector implements LimitViolationDetector {
 
