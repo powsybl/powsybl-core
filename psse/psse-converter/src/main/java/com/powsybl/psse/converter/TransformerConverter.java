@@ -745,6 +745,7 @@ class TransformerConverter extends AbstractConverter {
 
     private static boolean defineVoltageControl(Network network, String id, PsseTransformerWinding winding, RatioTapChanger rtc,
         boolean regulatingForcedToOff) {
+        // TODO : remove this
         if (Math.abs(winding.getCod()) == 2) {
             LOGGER.warn("Transformer {}. Reactive power control not supported", id);
             return false;
@@ -772,13 +773,16 @@ class TransformerConverter extends AbstractConverter {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
         }
-        rtc.setTargetV(targetV)
+        rtc.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setRegulationValue(targetV)
             .setTargetDeadband(targetDeadBand)
             .setRegulationTerminal(regulatingTerminal)
             .setRegulating(regulating);
 
         return regulating;
     }
+
+    // TODO : add reactive power control
 
     private static boolean defineActivePowerControl(Network network, String id, PsseTransformerWinding winding, PhaseTapChanger ptc, boolean regulatingForcedToOff) {
         if (Math.abs(winding.getCod()) != 3) {

@@ -715,7 +715,12 @@ public class Comparison {
         compare("ratioTapChanger.hasLoadTapChangingCapabilities",
                 expected.hasLoadTapChangingCapabilities(),
                 actual.hasLoadTapChangingCapabilities());
-        compare("ratioTapChanger.targetV", expected.getTargetV(), actual.getTargetV());
+        compare("ratioTapChanger.regulationMode",
+                expected.getRegulationMode(),
+                actual.getRegulationMode());
+        compare("ratioTapChanger.regulationValue",
+                expected.getRegulationValue(),
+                actual.getRegulationValue());
     }
 
     private void comparePhaseTapChanger(

@@ -234,12 +234,13 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
 
     private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating) {
         return transformer.newRatioTapChanger()
-                .setTargetV(200.0)
+                .setRegulationValue(200.0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(regulating)
                 .setRegulationTerminal(terminal)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
                 .setTargetDeadband(0.5)
                 .beginStep()
                 .setR(39.78473)

@@ -690,7 +690,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .beginStep()
                 .setRho(1.0)
                 .endStep()
-                .setTargetV(twtNetwork.getTerminal1().getVoltageLevel().getNominalV())
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(twtNetwork.getTerminal1().getVoltageLevel().getNominalV())
                 .setTargetDeadband(2.0)
                 .setRegulationTerminal(twtNetwork.getTerminal1())
                 .add();
@@ -718,7 +719,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
 
-        assertEquals(twtNetwork.getRatioTapChanger().getTargetV(), twtActual.getRatioTapChanger().getTargetV());
+        assertEquals(twtNetwork.getRatioTapChanger().getRegulationMode(), twtActual.getRatioTapChanger().getRegulationMode());
+        assertEquals(twtNetwork.getRatioTapChanger().getRegulationValue(), twtActual.getRatioTapChanger().getRegulationValue());
         assertEquals(twtNetwork.getRatioTapChanger().getTargetDeadband(), twtActual.getRatioTapChanger().getTargetDeadband());
 
         assertEquals(twtNetwork.getPhaseTapChanger().getRegulationMode().name(), twtActual.getPhaseTapChanger().getRegulationMode().name());
@@ -797,7 +799,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .beginStep()
                 .setRho(1.0)
                 .endStep()
-                .setTargetV(leg.getTerminal().getVoltageLevel().getNominalV())
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(leg.getTerminal().getVoltageLevel().getNominalV())
                 .setTargetDeadband(2.0)
                 .setRegulationTerminal(leg.getTerminal())
                 .add();
@@ -816,7 +819,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     private static void checkLeg(ThreeWindingsTransformer.Leg legNetwork, ThreeWindingsTransformer.Leg legActual) {
-        assertEquals(legNetwork.getRatioTapChanger().getTargetV(), legActual.getRatioTapChanger().getTargetV());
+        assertEquals(legNetwork.getRatioTapChanger().getRegulationMode().name(), legActual.getRatioTapChanger().getRegulationMode().name());
+        assertEquals(legNetwork.getRatioTapChanger().getRegulationValue(), legActual.getRatioTapChanger().getRegulationValue());
         assertEquals(legNetwork.getRatioTapChanger().getTargetDeadband(), legActual.getRatioTapChanger().getTargetDeadband());
 
         assertEquals(legNetwork.getPhaseTapChanger().getRegulationMode().name(), legActual.getPhaseTapChanger().getRegulationMode().name());

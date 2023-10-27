@@ -38,7 +38,9 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private boolean regulating = false;
 
-    private double targetV = Double.NaN;
+    private RatioTapChanger.RegulationMode regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
+
+    private double regulationValue = Double.NaN;
 
     private double targetDeadband = Double.NaN;
 
@@ -143,8 +145,14 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public RatioTapChangerAdder setTargetV(double targetV) {
-        this.targetV = targetV;
+    public RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
+        this.regulationMode = regulationMode;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setRegulationValue(double regulationValue) {
+        this.regulationValue = regulationValue;
         return this;
     }
 
@@ -185,12 +193,12 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
-                targetV, network, network.getMinValidationLevel()));
+                regulationMode, regulationValue, network, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband,
                 network.getMinValidationLevel()));
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                                          tapPosition, regulating, targetV, targetDeadband);
+                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 
         Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());

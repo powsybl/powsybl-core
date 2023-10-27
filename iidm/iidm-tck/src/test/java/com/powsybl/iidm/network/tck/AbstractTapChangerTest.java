@@ -245,7 +245,7 @@ public abstract class AbstractTapChangerTest {
         VariantManager variantManager = network.getVariantManager();
         createPhaseTapChangerWith2Steps(1, 0, false,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, terminal);
-        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
+        createRatioTapChangerWith3Steps(0, 1, true, true, RatioTapChanger.RegulationMode.VOLTAGE, 10.0, 1.0, terminal);
         createThreeWindingTransformer();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
         ThreeWindingsTransformer.Leg leg2 = threeWindingsTransformer.getLeg2();
@@ -268,13 +268,16 @@ public abstract class AbstractTapChangerTest {
         phaseTapChanger.setRegulationValue(9.9);
         ratioTapChanger.setTapPosition(0);
         ratioTapChanger.setRegulating(false);
-        ratioTapChanger.setTargetV(3.5);
+        ratioTapChanger.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+        ratioTapChanger.setRegulationValue(3.5);
         ratioTapChangerInLeg2.setTapPosition(2);
         ratioTapChangerInLeg2.setRegulating(false);
-        ratioTapChangerInLeg2.setTargetV(31.5);
+        ratioTapChangerInLeg2.setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL);
+        ratioTapChangerInLeg2.setRegulationValue(31.5);
         ratioTapChangerInLeg3.setTapPosition(4);
         ratioTapChangerInLeg3.setRegulating(false);
-        ratioTapChangerInLeg3.setTargetV(13.5);
+        ratioTapChangerInLeg3.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+        ratioTapChangerInLeg3.setRegulationValue(13.5);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -287,13 +290,16 @@ public abstract class AbstractTapChangerTest {
         assertEquals(9.9, phaseTapChanger.getRegulationValue(), 0.0);
         assertEquals(0, ratioTapChanger.getTapPosition());
         assertFalse(ratioTapChanger.isRegulating());
-        assertEquals(3.5, ratioTapChanger.getTargetV(), 0.0);
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals(3.5, ratioTapChanger.getRegulationValue(), 0.0);
         assertEquals(2, ratioTapChangerInLeg2.getTapPosition());
         assertFalse(ratioTapChangerInLeg2.isRegulating());
-        assertEquals(31.5, ratioTapChangerInLeg2.getTargetV(), 0.0);
+        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL, ratioTapChangerInLeg2.getRegulationMode());
+        assertEquals(31.5, ratioTapChangerInLeg2.getRegulationValue(), 0.0);
         assertEquals(4, ratioTapChangerInLeg3.getTapPosition());
         assertFalse(ratioTapChangerInLeg3.isRegulating());
-        assertEquals(13.5, ratioTapChangerInLeg3.getTargetV(), 0.0);
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChangerInLeg3.getRegulationMode());
+        assertEquals(13.5, ratioTapChangerInLeg3.getRegulationValue(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
@@ -319,13 +325,13 @@ public abstract class AbstractTapChangerTest {
         assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertTrue(ratioTapChanger.isRegulating());
-        assertEquals(10.0, ratioTapChanger.getTargetV(), 0.0);
+        assertEquals(10.0, ratioTapChanger.getRegulationValue(), 0.0);
         assertEquals(1, ratioTapChangerInLeg2.getTapPosition());
         assertTrue(ratioTapChangerInLeg2.isRegulating());
-        assertEquals(10.0, ratioTapChangerInLeg2.getTargetV(), 0.0);
+        assertEquals(10.0, ratioTapChangerInLeg2.getRegulationValue(), 0.0);
         assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
         assertFalse(ratioTapChangerInLeg3.isRegulating());
-        assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
+        assertEquals(11.0, ratioTapChangerInLeg3.getRegulationValue(), 0.0);
     }
 
     private void getTapPositionThrowsException(TapChanger<?, ?> tapChanger) {
@@ -389,7 +395,8 @@ public abstract class AbstractTapChangerTest {
                                                 .setLoadTapChangingCapabilities(false)
                                                 .setRegulating(true)
                                                 .setTargetDeadband(1.0)
-                                                .setTargetV(220.0)
+                                                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                                                .setRegulationValue(220.0)
                                                 .setRegulationTerminal(twt.getTerminal1())
                                                 .beginStep()
                                                     .setR(39.78473)
@@ -418,7 +425,8 @@ public abstract class AbstractTapChangerTest {
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
         assertTrue(ratioTapChanger.isRegulating());
         assertEquals(1.0, ratioTapChanger.getTargetDeadband(), 0.0);
-        assertEquals(220.0, ratioTapChanger.getTargetV(), 0.0);
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals(220.0, ratioTapChanger.getRegulationValue(), 0.0);
         assertSame(twt.getTerminal1(), ratioTapChanger.getRegulationTerminal());
         assertEquals(3, ratioTapChanger.getStepCount());
 
@@ -432,8 +440,12 @@ public abstract class AbstractTapChangerTest {
         assertEquals(1.0, neutralStep.getRho(), 0.0);
         ratioTapChanger.setTapPosition(2);
         assertEquals(2, ratioTapChanger.getTapPosition());
-        ratioTapChanger.setTargetV(110.0);
-        assertEquals(110.0, ratioTapChanger.getTargetV(), 0.0);
+        ratioTapChanger.setRegulationValue(110.0);
+        assertEquals(110.0, ratioTapChanger.getRegulationValue(), 0.0);
+        ratioTapChanger.setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL);
+        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL, ratioTapChanger.getRegulationMode());
+        ratioTapChanger.setRegulationValue(-50.0);
+        assertEquals(-50.0, ratioTapChanger.getRegulationValue(), 0.0);
         ratioTapChanger.setRegulating(false);
         assertFalse(ratioTapChanger.isRegulating());
         ratioTapChanger.setTargetDeadband(0.5);
@@ -488,7 +500,8 @@ public abstract class AbstractTapChangerTest {
                 .setLoadTapChangingCapabilities(false)
                 .setRegulating(true)
                 .setTargetDeadband(1.0)
-                .setTargetV(220.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(220.0)
                 .setRegulationTerminal(twt.getTerminal1())
                 .beginStep()
                     .setRho(0.9)
@@ -509,7 +522,8 @@ public abstract class AbstractTapChangerTest {
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(false)
                 .setRegulating(true)
-                .setTargetV(220.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(220.0)
                 .setRegulationTerminal(twt.getTerminal1())
             .add());
         assertTrue(e.getMessage().contains("ratio tap changer should have at least one step"));
@@ -517,47 +531,63 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidTapPosition() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 4, true, false, 10.0, 1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 4, true, false,
+                RatioTapChanger.RegulationMode.VOLTAGE, 10.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("incorrect tap position"));
     }
 
     @Test
-    public void undefinedTargetV() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal));
-        assertTrue(e.getMessage().contains("a target voltage has to be set for a regulating ratio tap changer"));
+    public void undefinedRegulationValue() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
+                RatioTapChanger.RegulationMode.VOLTAGE, Double.NaN, 1.0, terminal));
+        assertTrue(e.getMessage().contains("a regulation value has to be set for a regulating ratio tap changer"));
+
+        ValidationException e2 = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
+                RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL, Double.NaN, 1.0, terminal));
+        assertTrue(e2.getMessage().contains("a regulation value has to be set for a regulating ratio tap changer"));
     }
 
     @Test
     public void undefinedTargetVOnlyWarning() {
-        createRatioTapChangerWith3Steps(0, 1, false, true, Double.NaN, 1.0, terminal);
+        createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.VOLTAGE, Double.NaN, 1.0, terminal);
         RatioTapChanger rtc = twt.getRatioTapChanger();
         assertNotNull(rtc);
         assertFalse(rtc.hasLoadTapChangingCapabilities());
         assertTrue(rtc.isRegulating());
-        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertTrue(Double.isNaN(rtc.getRegulationValue()));
+    }
+
+    @Test
+    public void invalidNullMode() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
+                null, 10.0, 1.0, terminal));
+        assertTrue(e.getMessage().contains("ratio regulation mode is not set"));
     }
 
     @Test
     public void negativeTargetV() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, 1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
+                RatioTapChanger.RegulationMode.VOLTAGE, -10.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("bad target voltage"));
     }
 
     @Test
     public void invalidTargetDeadbandRtc() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, -1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
+                RatioTapChanger.RegulationMode.VOLTAGE, 10.0, -1.0, terminal));
         assertTrue(e.getMessage().contains("2 windings transformer 'twt': Unexpected value for target deadband of ratio tap changer: -1.0"));
     }
 
     @Test
     public void nullRegulatingTerminal() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
+                RatioTapChanger.RegulationMode.VOLTAGE, 10.0, 1.0, null));
         assertTrue(e.getMessage().contains("a regulation terminal has to be set for a regulating ratio tap changer"));
     }
 
     @Test
     public void nullRegulatingTerminalOnlyWarning() {
-        createRatioTapChangerWith3Steps(0, 1, false, true, 10.0, 1.0, null);
+        createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.VOLTAGE, 10.0, 1.0, null);
         RatioTapChanger rtc = twt.getRatioTapChanger();
         assertNotNull(rtc);
         assertFalse(rtc.hasLoadTapChangingCapabilities());
@@ -566,13 +596,15 @@ public abstract class AbstractTapChangerTest {
     }
 
     private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
-                                                 double targetV, double deadband, Terminal terminal) {
+                                                 RatioTapChanger.RegulationMode regulationMode,
+                                                 double regulationValue, double deadband, Terminal terminal) {
         twt.newRatioTapChanger()
                 .setLowTapPosition(low)
                 .setTapPosition(tap)
                 .setLoadTapChangingCapabilities(load)
                 .setRegulating(regulating)
-                .setTargetV(targetV)
+                .setRegulationMode(regulationMode)
+                .setRegulationValue(regulationValue)
                 .setTargetDeadband(deadband)
                 .setRegulationTerminal(terminal)
                 .beginStep()
@@ -636,7 +668,8 @@ public abstract class AbstractTapChangerTest {
         ThreeWindingsTransformer.Leg leg2 = threeWindingsTransformer.getLeg2();
         ThreeWindingsTransformer.Leg leg3 = threeWindingsTransformer.getLeg3();
         leg2.newRatioTapChanger()
-                .setTargetV(10.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(10.0)
                 .setTargetDeadband(0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(0)
@@ -666,7 +699,8 @@ public abstract class AbstractTapChangerTest {
                 .endStep()
                 .add();
         leg3.newRatioTapChanger()
-                .setTargetV(11.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(11.0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(2)
                 .setTapPosition(3)

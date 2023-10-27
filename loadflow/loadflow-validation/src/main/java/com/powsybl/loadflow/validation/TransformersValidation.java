@@ -79,7 +79,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
         double rho = ratioTapChanger.getCurrentStep().getRho();
         double rhoPreviousStep = tapPosition == lowTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition - 1).getRho();
         double rhoNextStep = tapPosition == highTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition + 1).getRho();
-        double targetV = ratioTapChanger.getTargetV();
+        double regulationValue = ratioTapChanger.getRegulationValue();
         TwoSides regulatedSide;
         if (twt.getTerminal1().equals(ratioTapChanger.getRegulationTerminal())) {
             regulatedSide = TwoSides.ONE;
@@ -90,7 +90,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
                         ValidationType.TWTS, ValidationUtils.VALIDATION_WARNING, twt.getId());
             try {
                 twtsWriter.write(twt.getId(), Float.NaN, Float.NaN, Float.NaN, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
-                                 highTapPosition, targetV, null, Float.NaN, false, false, true);
+                                 highTapPosition, regulationValue, null, Float.NaN, false, false, true);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -103,7 +103,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
         return checkTransformer(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                 targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
+                regulationValue, regulatedSide, v, connected, mainComponent, config, twtsWriter);
     }
 
     public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,

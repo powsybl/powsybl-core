@@ -13,21 +13,41 @@ package com.powsybl.iidm.network;
  */
 public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapChangerStep> {
 
-    /**
-     * Get the target voltage in kV.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
-    double getTargetV();
+    enum RegulationMode {
+        VOLTAGE,
+        REACTIVE_POWER_CONTROL
+    }
+
+    // TODO : remount the methods in the parent class
 
     /**
-     * Set the target voltage in kV.
+     * Get the regulation mode.
+     * @return the regulation mode
+     */
+    RegulationMode getRegulationMode();
+
+    /**
+     * Set the regulation mode
+     * @param regulationMode the regulation mode
+     * @return itself for method chaining
+     */
+    RatioTapChanger setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
+
+    /**
+     * Get the regulation value.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
-    RatioTapChanger setTargetV(double targetV);
+    double getRegulationValue();
+
+    /**
+     * Set the regulation value.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    RatioTapChanger setRegulationValue(double regulationValue);
 
     /**
      * Get the load tap changing capabilities status.

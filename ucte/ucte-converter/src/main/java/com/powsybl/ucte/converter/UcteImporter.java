@@ -500,10 +500,12 @@ public class UcteImporter implements Importer {
                 .setLowTapPosition(lowerTap)
                 .setTapPosition(uctePhaseRegulation.getNp())
                 .setLoadTapChangingCapabilities(!Double.isNaN(uctePhaseRegulation.getU()));
+        // TODO : add reactive power case ?
         if (!Double.isNaN(uctePhaseRegulation.getU())) {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(true)
-                    .setTargetV(uctePhaseRegulation.getU())
+                    .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                    .setRegulationValue(uctePhaseRegulation.getU())
                     .setTargetDeadband(0.0)
                     .setRegulationTerminal(transformer.getTerminal1());
         }

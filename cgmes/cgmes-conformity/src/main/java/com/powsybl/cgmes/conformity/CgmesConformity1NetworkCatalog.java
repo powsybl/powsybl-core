@@ -512,7 +512,8 @@ public final class CgmesConformity1NetworkCatalog {
             }
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(true)
-                    .setTargetV(10.815)
+                    .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                    .setRegulationValue(10.815)
                     // TODO Set the right regulation terminal
                     .setRegulationTerminal(tx.getTerminal(side));
             rtca.add();
@@ -584,7 +585,8 @@ public final class CgmesConformity1NetworkCatalog {
             }
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(false)
-                    .setTargetV(0.0)
+                    .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                    .setRegulationValue(0.0)
                     .setTargetDeadband(0.5)
                     .setRegulationTerminal(txBE22.getTerminal2());
             rtca.add();
@@ -808,7 +810,8 @@ public final class CgmesConformity1NetworkCatalog {
             }
             rtca.setLoadTapChangingCapabilities(true)
                 .setRegulating(false)
-                .setTargetV(0.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(0.0)
                 .setTargetDeadband(0.5);
             rtca.add();
         }

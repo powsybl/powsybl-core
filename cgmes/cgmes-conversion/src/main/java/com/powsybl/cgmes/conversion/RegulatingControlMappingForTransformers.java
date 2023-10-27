@@ -214,7 +214,8 @@ public class RegulatingControlMappingForTransformers {
 
         // Order is important
         rtc.setRegulationTerminal(regulatingTerminal.get())
-                .setTargetV(control.targetValue)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(control.targetValue)
                 .setTargetDeadband(validTargetDeadband ? control.targetDeadband : Double.NaN)
                 .setRegulating(regulating && validTargetValue && validTargetDeadband);
 

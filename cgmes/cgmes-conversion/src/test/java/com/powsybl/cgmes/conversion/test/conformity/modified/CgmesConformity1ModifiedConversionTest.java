@@ -255,7 +255,8 @@ class CgmesConformity1ModifiedConversionTest {
         RatioTapChanger rtc = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
         assertTrue(rtc.hasLoadTapChangingCapabilities());
-        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, rtc.getRegulationMode());
+        assertTrue(Double.isNaN(rtc.getRegulationValue()));
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulationTerminal());
 
@@ -282,7 +283,8 @@ class CgmesConformity1ModifiedConversionTest {
         RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
         assertNotNull(rtc);
         assertTrue(rtc.hasLoadTapChangingCapabilities());
-        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, rtc.getRegulationMode());
+        assertTrue(Double.isNaN(rtc.getRegulationValue()));
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulationTerminal());
 
