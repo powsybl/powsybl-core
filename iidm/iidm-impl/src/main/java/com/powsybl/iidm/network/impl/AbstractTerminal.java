@@ -7,11 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.impl.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.ArrayList;
@@ -174,6 +172,14 @@ abstract class AbstractTerminal implements TerminalExt {
         return voltageLevel.disconnect(this);
     }
 
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isSwitchOpenable function telling if a switch is openable according to conditions. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         if (removed) {

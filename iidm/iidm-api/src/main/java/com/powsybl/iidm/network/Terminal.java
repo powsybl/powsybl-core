@@ -168,8 +168,8 @@ public interface Terminal {
     boolean disconnect();
 
     /**
-     * Disconnect the terminal.
-     * <p>Depends on the working variant.
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
      * @param isSwitchOpenable function telling if a switch is openable according to conditions
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager

@@ -15,6 +15,7 @@ import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.impl.util.SwitchPredicates;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.*;
@@ -65,12 +66,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     private final UndirectedGraphImpl<NodeTerminal, SwitchImpl> graph = new UndirectedGraphImpl<>(NODE_INDEX_LIMIT);
 
     private final Map<String, Integer> switches = new HashMap<>();
-
-    public static final Predicate<Switch> KEEP_NONFICTIONAL_CLOSED_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen() && !switchObject.isFictitious();
-    public static final Predicate<Switch> KEEP_NONFICTIONAL_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isFictitious();
-    public static final Predicate<Switch> KEEP_ALL_CLOSED_BREAKERS = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen();
-    public static final Predicate<Switch> KEEP_BREAKERS_AND_DISCONNECTORS = switchObject -> switchObject != null && (switchObject.getKind() == SwitchKind.BREAKER || switchObject.getKind() == SwitchKind.DISCONNECTOR);
-    public static final Predicate<Switch> KEEP_ALL_SWITCHES = Objects::nonNull;
 
     private class VariantImpl implements Variant {
 
@@ -1212,7 +1207,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public boolean disconnect(TerminalExt terminal) {
         // Only keep the closed non-fictional breakers in the nominal case
-        return disconnect(terminal, KEEP_ALL_CLOSED_BREAKERS);
+        return disconnect(terminal, SwitchPredicates.IS_CLOSED_BREAKER);
     }
 
     @Override
