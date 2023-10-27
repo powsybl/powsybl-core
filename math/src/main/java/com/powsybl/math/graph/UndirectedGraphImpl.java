@@ -19,6 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -573,20 +574,46 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     /**
+     * This method is used to get the size of a path considering only the elements validating the predicate
+     * @param path Path to size
+     * @param sizingPredicate Predicate used to filter the elements of the path
+     * @return size of the filtered path
+     */
+    private int filteredSize(TIntArrayList path, Predicate<? super E> sizingPredicate) {
+        return Math.toIntExact(Arrays.stream(path.toArray())
+            .filter(idx -> sizingPredicate.test(edges.get(idx).getObject()))
+            .count());
+    }
+
+    /**
      * {@inheritDoc}.
-     *
+     * <p>
      * This method allocates a {@link List} of {@link TIntArrayList} to store the paths, a {@link BitSet} to store the encountered vertices
      * and calls {@link #findAllPaths(int, Function, Function, TIntArrayList, BitSet, List)}.
+     * </p>
+     * In the output, the paths are sorted by size considering the number of switches in each path.
      */
     @Override
     public List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled) {
+        return findAllPaths(from, pathComplete, pathCancelled, Objects::nonNull);
+    }
+
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * This method allocates a {@link List} of {@link TIntArrayList} to store the paths, a {@link BitSet} to store the encountered vertices
+     * and calls {@link #findAllPaths(int, Function, Function, TIntArrayList, BitSet, List)}.
+     * In the output, the paths are sorted by size considering the number of switches in each path.
+     * </p>
+     */
+    public List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled, Predicate<? super E> filteringPredicateForSize) {
         Objects.requireNonNull(pathComplete);
         List<TIntArrayList> paths = new ArrayList<>();
         BitSet encountered = new BitSet(vertices.size());
         TIntArrayList path = new TIntArrayList(1);
         findAllPaths(from, pathComplete, pathCancelled, path, encountered, paths);
         // sort paths by size
-        paths.sort((o1, o2) -> o1.size() - o2.size());
+        paths.sort((o1, o2) -> filteredSize(o1, filteringPredicateForSize) - filteredSize(o2, filteringPredicateForSize));
         return paths;
     }
 

@@ -946,7 +946,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable) {
+    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
         return disconnect(terminal);
     }
 

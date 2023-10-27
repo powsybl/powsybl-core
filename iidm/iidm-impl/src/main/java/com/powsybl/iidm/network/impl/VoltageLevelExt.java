@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -59,7 +58,7 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     boolean disconnect(TerminalExt terminal);
 
-    boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable);
+    boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable);
 
     default void invalidateCache() {
         invalidateCache(false);

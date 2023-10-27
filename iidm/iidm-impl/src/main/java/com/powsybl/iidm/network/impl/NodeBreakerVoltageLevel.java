@@ -15,7 +15,6 @@ import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
-import com.powsybl.iidm.network.impl.util.SwitchPredicates;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.*;
@@ -67,7 +66,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final Map<String, Integer> switches = new HashMap<>();
 
-    private class VariantImpl implements Variant {
+    private final class VariantImpl implements Variant {
 
         final CalculatedBusTopology calculatedBusTopology
                 = new CalculatedBusTopology();
@@ -451,7 +450,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
     }
 
-    private static class CalculatedBusChecker implements BusChecker {
+    private static final class CalculatedBusChecker implements BusChecker {
 
         @Override
         public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
@@ -495,7 +494,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     }
 
-    private static class CalculatedBusBreakerChecker implements BusChecker {
+    private static final class CalculatedBusBreakerChecker implements BusChecker {
         @Override
         public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
             return !nodes.isEmpty();
@@ -509,7 +508,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         String getName(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes);
     }
 
-    private static class LowestNodeNumberBusNamingStrategy implements BusNamingStrategy {
+    private static final class LowestNodeNumberBusNamingStrategy implements BusNamingStrategy {
 
         @Override
         public String getId(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes) {
@@ -1187,7 +1186,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
         // paths are already sorted
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnectorOpenLoadBreakSwitchOrOpenedFictitiousBreaker);
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnectorOpenLoadBreakSwitchOrOpenedFictitiousBreaker, SwitchPredicates.IS_OPEN);
         boolean connected = false;
         if (!paths.isEmpty()) {
             // the shorted path is the best, close all opened breakers of the path
@@ -1211,7 +1210,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable) {
+    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
         }
