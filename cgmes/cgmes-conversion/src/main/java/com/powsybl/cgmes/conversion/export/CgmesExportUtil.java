@@ -196,7 +196,7 @@ public final class CgmesExportUtil {
         return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
     }
 
-    public static String loadClassName(Load load) {
+    static String loadClassName(Load load) {
         String originalClassName = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "undefined");
         double p0 = load.getP0();
         LoadDetail loadDetail = load.getExtension(LoadDetail.class);

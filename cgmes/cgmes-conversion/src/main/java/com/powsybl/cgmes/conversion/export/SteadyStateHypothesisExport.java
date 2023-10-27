@@ -551,7 +551,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeLoads(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
-                String className = CgmesExportUtil.loadClassName(load);
+                String className = obtainLoadClassName(load, context);
                 switch (className) {
                     case CgmesNames.ASYNCHRONOUS_MACHINE ->
                             writeAsynchronousMachine(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), cimNamespace, writer, context);
@@ -563,6 +563,12 @@ public final class SteadyStateHypothesisExport {
                 }
             }
         }
+    }
+
+    // if EQ is not exported, the original class name is preserved
+    private static String obtainLoadClassName(Load load, CgmesExportContext context) {
+        String originalClassName = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        return (originalClassName != null && !context.isExportEquipment()) ? originalClassName : CgmesExportUtil.loadClassName(load);
     }
 
     private static void writeAsynchronousMachine(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
