@@ -93,14 +93,15 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public int getCountryCount() {
-        return getCountries().size();
+        return (int) getCountryStream().count();
     }
 
     private Stream<Country> getCountryStream() {
         return getNetwork().getSubstationStream()
                 .filter(this::contains)
                 .map(s -> s.getCountry().orElse(null))
-                .filter(Objects::nonNull);
+                .filter(Objects::nonNull)
+                .distinct();
     }
 
     @Override
