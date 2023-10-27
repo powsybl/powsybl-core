@@ -285,12 +285,55 @@ public final class EquipmentExport {
                     case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, "StationSupply" -> {
                         String loadGroup = loadGroups.groupFor(className);
-                        EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
+                        String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load, cimNamespace, writer, context);
+                        EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), loadResponseCharacteristicId, cimNamespace, writer, context);
                     }
                     default -> throw new PowsyblException("Unexpected class name: " + className);
                 }
             }
         }
+    }
+
+    private static String writeLoadResponseCharacteristic(Load load, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        Optional<LoadModel> optionalLoadModel = load.getModel();
+
+        if (optionalLoadModel.isEmpty()) {
+            return null;
+        }
+        if (optionalLoadModel.get().getType() == LoadModelType.EXPONENTIAL) {
+            ExponentialLoadModel exponentialLoadModel = (ExponentialLoadModel) optionalLoadModel.get();
+            boolean exponentModel = exponentialLoadModel.getNp() != 0 || exponentialLoadModel.getNq() != 0;
+            return writeLoadResponseCharacteristicModel(load, exponentModel,
+                    exponentialLoadModel.getNp(),
+                    exponentialLoadModel.getNq(),
+                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                    cimNamespace, writer, context);
+        } else if (optionalLoadModel.get().getType() == LoadModelType.ZIP) {
+            ZipLoadModel zipLoadModel = (ZipLoadModel) optionalLoadModel.get();
+            return writeLoadResponseCharacteristicModel(load, false, 0.0, 0.0,
+                    zipLoadModel.getC0p(), zipLoadModel.getC0q(), zipLoadModel.getC1p(), zipLoadModel.getC1q(), zipLoadModel.getC2p(), zipLoadModel.getC2q(),
+                    cimNamespace, writer, context);
+        } else {
+            return null;
+        }
+    }
+
+    private static String writeLoadResponseCharacteristicModel(Load load,
+                                                               boolean exponentModel, double pVoltageExponent, double qVoltageExponent,
+                                                               double pConstantPower, double qConstantPower,
+                                                               double pConstantCurrent, double qConstantCurrent,
+                                                               double pConstantImpedance, double qConstantImpedance,
+                                                               String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String loadResponseId = CgmesExportUtil.getUniqueId();
+        String loadResponseName = "LRC_" + load.getNameOrId();
+
+        LoadResponseCharacteristicEq.write(loadResponseId, loadResponseName,
+                exponentModel, pVoltageExponent, qVoltageExponent,
+                pConstantPower, qConstantPower, pConstantCurrent,
+                qConstantCurrent, pConstantImpedance, qConstantImpedance,
+                cimNamespace, writer, context);
+
+        return loadResponseId;
     }
 
     private static void writeAsynchronousMachine(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

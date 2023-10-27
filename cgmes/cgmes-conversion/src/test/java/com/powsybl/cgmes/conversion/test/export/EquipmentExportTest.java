@@ -544,15 +544,14 @@ class EquipmentExportTest extends AbstractConverterTest {
             actualGenerator.setTargetQ(expectedGenerator.getTargetQ());
         });
 
-        // TODO
-        /***
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
-                ExportXmlCompare::numericDifferenceEvaluator);
-                //ExportXmlCompare::ignoringSubstationNumAttributes,
-                //ExportXmlCompare::ignoringSubstationLookup);
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringSubstationNumAttributes,
+                ExportXmlCompare::ignoringSubstationLookup,
+                ExportXmlCompare::ignoringGeneratorAttributes,
+                ExportXmlCompare::ignoringLoadChildNodeListLength);
         compareNetworksEQdata(expected, actual, knownDiffs);
-         ***/
     }
 
     private static long loadsCreatedFromOriginalClassCount(Network network, String originalClass) {
