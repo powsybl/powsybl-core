@@ -50,6 +50,14 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     /**
+     * This implementation takes the current value to be checked from the Network.
+     */
+    @Override
+    public void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer) {
+        checkCurrent(contingency, transformer, side, transformer.getTerminal(side).getI(), consumer);
+    }
+
+    /**
      * This implementation takes the voltage value to be checked from the Network.
      */
     @Override
