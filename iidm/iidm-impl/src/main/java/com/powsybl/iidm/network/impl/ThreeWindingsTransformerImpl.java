@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer>
         implements ThreeWindingsTransformer {
@@ -274,6 +274,11 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             this.ratedS = ratedS;
             transformer.notifyUpdate(() -> getLegAttribute() + ".ratedS", oldValue, ratedS);
             return this;
+        }
+
+        @Override
+        public ThreeSides getSide() {
+            return ThreeSides.valueOf(legNumber);
         }
     }
 

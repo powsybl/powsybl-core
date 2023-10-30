@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.scripting
 import com.powsybl.iidm.network.BatteryAdder
 
 /**
- * @author Miora VEDELAGO <miora.ralambotiana at rte-france.com>
+ * @author Miora VEDELAGO {@literal <miora.ralambotiana at rte-france.com>}
  */
 class BatteryAdderExtension {
     static BatteryAdder setP0(BatteryAdder self, double p0) {

@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.apache.commons.math3.complex.Complex;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TieLineTest {
 

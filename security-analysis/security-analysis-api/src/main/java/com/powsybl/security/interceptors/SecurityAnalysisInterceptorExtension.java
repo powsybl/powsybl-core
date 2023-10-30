@@ -7,7 +7,7 @@
 package com.powsybl.security.interceptors;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface SecurityAnalysisInterceptorExtension {
 

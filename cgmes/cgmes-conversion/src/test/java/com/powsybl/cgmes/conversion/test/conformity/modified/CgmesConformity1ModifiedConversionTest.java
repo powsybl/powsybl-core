@@ -46,7 +46,7 @@ import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class CgmesConformity1ModifiedConversionTest {
 

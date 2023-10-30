@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 /**
- * @author Luma Zamarreño <zamarrenolm@aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm@aia.es>}
  */
 @AutoService(CgmesImportPostProcessor.class)
 public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {

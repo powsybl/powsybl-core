@@ -21,7 +21,7 @@ import java.util.List;
  * {@link com.powsybl.contingency.dsl.GroovyDslContingenciesProvider},
  * but allows to use more complete action-dsl scripts as is for standard security analysis.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class GroovyDslContingenciesProvider extends AbstractDslContingenciesProvider {
 

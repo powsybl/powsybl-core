@@ -7,7 +7,7 @@
 package com.powsybl.commons.exceptions;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 public class UncheckedClassCastExceptionException extends RuntimeException {
 

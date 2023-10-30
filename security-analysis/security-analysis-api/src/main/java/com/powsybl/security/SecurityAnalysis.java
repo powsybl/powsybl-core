@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
  * Security analysis main API. It is a utility class (so with only static methods) used as an entry point for running
  * a security analysis allowing to choose either a specific implementation or just to rely on the default one.
  *
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public final class SecurityAnalysis {
 

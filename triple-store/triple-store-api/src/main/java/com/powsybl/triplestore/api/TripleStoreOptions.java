@@ -7,7 +7,7 @@
 package com.powsybl.triplestore.api;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class TripleStoreOptions {
 

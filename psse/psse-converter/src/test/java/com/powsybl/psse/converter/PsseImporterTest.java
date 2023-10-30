@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
+ * @author JB Heyberger {@literal <jean-baptiste.heyberger at rte-france.com>}
  */
 class PsseImporterTest extends AbstractConverterTest {
 

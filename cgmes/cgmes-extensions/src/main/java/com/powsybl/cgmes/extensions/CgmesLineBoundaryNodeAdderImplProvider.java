@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.TieLine;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class CgmesLineBoundaryNodeAdderImplProvider implements ExtensionAdderProvider<TieLine, CgmesLineBoundaryNode, CgmesLineBoundaryNodeAdderImpl> {

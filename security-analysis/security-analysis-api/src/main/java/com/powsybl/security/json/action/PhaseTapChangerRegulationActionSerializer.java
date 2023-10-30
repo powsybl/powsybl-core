@@ -15,8 +15,8 @@ import com.powsybl.security.action.PhaseTapChangerRegulationAction;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class PhaseTapChangerRegulationActionSerializer extends AbstractTapChangerRegulationActionSerializer<PhaseTapChangerRegulationAction> {
 

@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public abstract class AbstractTapPositionModification extends AbstractNetworkModification {
     public static final String TRANSFORMER_STR = "Transformer '";

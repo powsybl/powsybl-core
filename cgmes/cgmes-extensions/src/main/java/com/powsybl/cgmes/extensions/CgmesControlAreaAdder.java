@@ -9,7 +9,7 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.PowsyblException;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface CgmesControlAreaAdder {
 

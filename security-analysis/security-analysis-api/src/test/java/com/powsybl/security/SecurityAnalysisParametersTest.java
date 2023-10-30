@@ -19,7 +19,7 @@ import java.nio.file.FileSystem;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 class SecurityAnalysisParametersTest {
 

@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public class DefaultContingencyListSerializer extends StdSerializer<DefaultContingencyList> {
 

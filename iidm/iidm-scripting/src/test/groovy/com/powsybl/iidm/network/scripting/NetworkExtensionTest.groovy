@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNotNull
 
 /**
- * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
  */
 class NetworkExtensionTest {
 

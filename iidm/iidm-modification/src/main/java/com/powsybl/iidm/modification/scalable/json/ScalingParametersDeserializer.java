@@ -21,7 +21,7 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ScalingParametersDeserializer extends StdDeserializer<ScalingParameters> {
 

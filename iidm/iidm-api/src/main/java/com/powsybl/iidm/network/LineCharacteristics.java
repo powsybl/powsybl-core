@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface LineCharacteristics {
 

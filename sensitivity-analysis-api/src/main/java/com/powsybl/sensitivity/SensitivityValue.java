@@ -20,7 +20,7 @@ import java.util.Objects;
  * a pre-contingency value). The value is the impact of the variable change on the monitored equipment. The function
  * reference gives the level of the function in the network pre-contingency state.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see SensitivityFactor
  */
 public class SensitivityValue {

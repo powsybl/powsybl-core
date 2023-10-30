@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Substation;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class EntsoeAreaAdderImpl extends AbstractExtensionAdder<Substation, EntsoeArea>
         implements EntsoeAreaAdder {

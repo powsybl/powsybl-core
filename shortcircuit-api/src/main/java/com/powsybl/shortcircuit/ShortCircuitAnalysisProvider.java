@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
  *
  *  <p>Implementations of that interface may typically rely on an external tool.
  *
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
 

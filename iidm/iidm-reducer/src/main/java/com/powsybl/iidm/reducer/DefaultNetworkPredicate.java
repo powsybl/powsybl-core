@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 /**
  * A default implementation of {@link NetworkPredicate} that keeps everything.
  *
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class DefaultNetworkPredicate implements NetworkPredicate {
 

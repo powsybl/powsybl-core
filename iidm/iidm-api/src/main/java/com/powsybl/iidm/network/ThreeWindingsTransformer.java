@@ -106,7 +106,7 @@ import java.util.stream.Stream;
  * <p>
  * To create a three windings transformer, see {@link ThreeWindingsTransformerAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see RatioTapChanger
  * @see PhaseTapChanger
  * @see ThreeWindingsTransformerAdder
@@ -291,6 +291,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         default Leg setRatedS(double ratedS) {
             throw new UnsupportedOperationException();
         }
+
+        /**
+         * Get side of the leg on the three windings transformer
+         */
+        ThreeSides getSide();
     }
 
     Terminal getTerminal(Side side);

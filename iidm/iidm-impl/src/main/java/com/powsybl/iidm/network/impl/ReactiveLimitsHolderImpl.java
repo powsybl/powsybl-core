@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.ValidationException;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@gmail.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@gmail.com>}
  */
 class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
 

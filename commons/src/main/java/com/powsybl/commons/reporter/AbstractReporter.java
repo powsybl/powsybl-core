@@ -15,7 +15,7 @@ import java.util.Objects;
 
 /**
  * An abstract class providing some default method implementations for {@link Reporter} implementations.
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public abstract class AbstractReporter implements Reporter {
 

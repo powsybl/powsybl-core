@@ -29,8 +29,8 @@ import static java.util.Objects.requireNonNull;
  *
  * <p>In order to create a {@link ComputationException}, you will need to use a {@link ComputationExceptionBuilder}.
  *
- * @author Yichen TANG <yichen.tang at rte-france.com>
- * @author Sylvain LECLERC <sylvain.leclerc at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
+ * @author Sylvain LECLERC {@literal <sylvain.leclerc at rte-france.com>}
  */
 public final class ComputationException extends PowsyblException {
 
