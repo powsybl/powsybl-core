@@ -53,7 +53,7 @@ public class SimpleReporterContext extends AbstractReporterContext {
 
     @Override
     protected Iterator<Reporter> copyIterator() {
-        Iterator<Reporter> it = reporters.iterator();
+        Iterator<Reporter> it = reporters.descendingIterator();
         // Since we don't want to copy the always present NO_OP, we skip the 1st item
         it.next();
         return it;

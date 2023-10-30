@@ -61,7 +61,7 @@ public class MultiThreadReporterContext extends AbstractReporterContext {
 
     @Override
     protected Iterator<Reporter> copyIterator() {
-        Iterator<Reporter> it = reporters.get().iterator();
+        Iterator<Reporter> it = reporters.get().descendingIterator();
         // Since we don't want to copy the always present NO_OP, we skip the 1st item
         it.next();
         return it;
