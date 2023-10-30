@@ -220,70 +220,52 @@ class XMLImporterTest extends AbstractConverterTest {
 
     @Test
     void importDataReporterTest() throws IOException {
-        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test8"), NetworkFactory.findDefault(), null, reporterModel));
-
-        StringWriter sw = new StringWriter();
-        reporterModel.export(sw);
-        InputStream ref = XMLImporterTest.class.getResourceAsStream("/importXmlReport.txt");
-        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
-        String logExport = normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
-    }
-
-    @Test
-    void importDataReporterMultipleExtension() throws IOException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_9/", "multiple-extensions.xml"));
-        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
-        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
-
-        StringWriter sw = new StringWriter();
-        reporterModel.export(sw);
-        InputStream ref = XMLImporterTest.class.getResourceAsStream("/importXmlReportExtensions.txt");
-        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
-        String logExport = normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
-    }
-
-    @Test
-    void importDataReporterValidationTest() throws IOException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("twoWindingsTransformerPhaseAndRatioTap", new ResourceSet("/V1_9/", "twoWindingsTransformerPhaseAndRatioTap.xml"));
-        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
-        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
-
-        StringWriter sw = new StringWriter();
-        reporterModel.export(sw);
-        InputStream ref = XMLImporterTest.class.getResourceAsStream("/importXmlReportValidation.txt");
-        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
-        String logExport = normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
-    }
-
-    @Test
-    void importDataReporterValidationAndMultipleExtensionTest() throws IOException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
-                new ResourceSet("/V1_9/", "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml"));
-        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
-        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
-
-        StringWriter sw = new StringWriter();
-        reporterModel.export(sw);
-        InputStream ref = XMLImporterTest.class.getResourceAsStream("/importXmlReportExtensionsAndValidations.txt");
-        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
-        String logExport = normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test8");
+        importDataAndTestReporter("/importXmlReport.txt", dataSource);
     }
 
     @Test
     void importDataReporterExtensionNotFoundTest() throws IOException {
+        FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test5");
+        importDataAndTestReporter("/importXmlReportExtensionsNotFound.txt", dataSource);
+    }
+
+    @Test
+    void importDataReporterMultipleExtension() throws IOException {
+        importDataAndTestReporter("multiple-extensions",
+                "multiple-extensions.xml",
+                "/importXmlReportExtensions.txt");
+    }
+
+    @Test
+    void importDataReporterValidationTest() throws IOException {
+        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTap",
+                "twoWindingsTransformerPhaseAndRatioTap.xml",
+                "/importXmlReportValidation.txt");
+    }
+
+    @Test
+    void importDataReporterValidationAndMultipleExtensionTest() throws IOException {
+        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
+                "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml",
+                "/importXmlReportExtensionsAndValidations.txt");
+    }
+
+    private void importDataAndTestReporter(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet("/V1_11/", dataSourceFilename));
+        importDataAndTestReporter(expectedContentFilename, dataSource);
+    }
+
+    private void importDataAndTestReporter(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
         ReporterModel reporterModel = new ReporterModel("test", "test reporter");
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), null, reporterModel));
+        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
 
         StringWriter sw = new StringWriter();
         reporterModel.export(sw);
-        InputStream ref = XMLImporterTest.class.getResourceAsStream("/importXmlReportExtensionsNotFound.txt");
+        InputStream ref = XMLImporterTest.class.getResourceAsStream(expectedContentFilename);
         String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
         String logExport = normalizeLineSeparator(sw.toString());
         assertEquals(refLogExport, logExport);
     }
+
 }

@@ -36,27 +36,27 @@ public final class XmlReports {
     // INFO
     public static void importedExtension(Reporter reporter, Set<String> extensionsNameImported) {
         if (reporter != null) {
-            extensionsNameImported.forEach(extensionName -> {
+            extensionsNameImported.forEach(extensionName ->
                 reporter.report(Report.builder()
                         .withKey("importedExtension")
                         .withDefaultMessage("Extension ${extensionName} imported.")
                         .withValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
-            });
+                        .build())
+            );
         }
     }
 
     public static void extensionNotFound(Reporter reporter, Set<String> extensionsNotFoundName) {
         if (reporter != null) {
-            extensionsNotFoundName.forEach(extensionName -> {
+            extensionsNotFoundName.forEach(extensionName ->
                 reporter.report(Report.builder()
                         .withKey("extensionNotFound")
                         .withDefaultMessage("Extension ${extensionName} not found.")
                         .withValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
-            });
+                        .build())
+            );
         }
     }
 
