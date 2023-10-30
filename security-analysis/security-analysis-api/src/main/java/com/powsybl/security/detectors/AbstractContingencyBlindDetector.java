@@ -36,17 +36,21 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
         checkCurrent(transformer, side, transformer.getTerminal(side).getI(), consumer);
     }
 
+    private double getTerminalIOrAnApproximation(Terminal terminal, double dcPowerFactor) {
+        // After a DC load flow, the current at terminal can be undefined (NaN). In that case, we use the DC power factor,
+        // the nominal voltage and the active power at terminal in order to approximate the current following formula
+        // P = sqrt(3) x Vnom x I x dcPowerFactor
+        return Double.isNaN(terminal.getI()) ?
+                (1000. * terminal.getP()) / (terminal.getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
+                : terminal.getI();
+    }
+
     /**
      * This implementation computes the current value from the power value, if current is not provided (NaN).
      */
     @Override
     public void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
-        // After a DC load flow, the current at terminal can be undefined (NaN). In that case, we use the DC power factor,
-        // the nominal voltage and the active power at terminal in order to approximate the current following formula
-        // P = sqrt(3) x Vnom x I x dcPowerFactor
-        double i = Double.isNaN(branch.getTerminal(side).getI()) ?
-                (1000. * branch.getTerminal(side).getP()) / (branch.getTerminal(side).getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
-                : branch.getTerminal(side).getI();
+        double i = getTerminalIOrAnApproximation(branch.getTerminal(side), dcPowerFactor);
         checkCurrent(branch, side, i, consumer);
     }
 
@@ -55,12 +59,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      */
     @Override
     public void checkCurrentDc(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
-        // After a DC load flow, the current at terminal can be undefined (NaN). In that case, we use the DC power factor,
-        // the nominal voltage and the active power at terminal in order to approximate the current following formula
-        // P = sqrt(3) x Vnom x I x dcPowerFactor
-        double i = Double.isNaN(transformer.getTerminal(side).getI()) ?
-                (1000. * transformer.getTerminal(side).getP()) / (transformer.getTerminal(side).getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
-                : transformer.getTerminal(side).getI();
+        double i = getTerminalIOrAnApproximation(transformer.getTerminal(side), dcPowerFactor);
         checkCurrent(transformer, side, i, consumer);
     }
 
