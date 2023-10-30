@@ -558,7 +558,7 @@ public final class SteadyStateHypothesisExport {
                     case CgmesNames.ENERGY_SOURCE ->
                             writeEnergySource(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, "StationSupply" ->
-                            writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
+                            writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), className, load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
                     default -> throw new PowsyblException("Unexpected class name: " + className);
                 }
             }
@@ -593,8 +593,8 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(CgmesExportUtil.loadClassName(loadDetail), id, cimNamespace, writer, context);
+    private static void writeSshEnergyConsumer(String id, String className, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(className, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();

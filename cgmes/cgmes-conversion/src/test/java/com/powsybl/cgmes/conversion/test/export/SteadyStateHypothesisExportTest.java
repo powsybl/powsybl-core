@@ -365,9 +365,14 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringFullModelDependentOn,
                 ExportXmlCompare::ignoringFullModelModelingAuthoritySet,
                 ExportXmlCompare::ignoringRdfChildNodeListLength,
-                ExportXmlCompare::ignoringChildLookupNull);
-        // TODO JAM
-        //ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh);
+                ExportXmlCompare::ignoringChildLookupNull,
+                ExportXmlCompare::ignoringTextValueShuntCompensatorControlEnabled,
+                ExportXmlCompare::ignoringTextValueTapChangerControlEnabled,
+                ExportXmlCompare::ignoringRdfChildLookupTerminal,
+                ExportXmlCompare::ignoringRdfChildLookupEquivalentInjection,
+                ExportXmlCompare::ignoringRdfChildLookupStaticVarCompensator,
+                ExportXmlCompare::ignoringRdfChildLookupRegulatingControl);
+        ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh);
     }
 
     private static void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
