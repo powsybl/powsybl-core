@@ -29,7 +29,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     /**
-     * Mirror checkCurrent on {@link Branch} but for {@link ThreeWindingsTransformer} instead.
+     * This implementation takes the current value to be checked from the Network.
      */
     @Override
     public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer) {
@@ -51,7 +51,6 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     /**
-     * Mirror checkCurrentDc on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
      * This implementation computes the current value from the power value, if current is not provided (NaN).
      */
     @Override

@@ -282,9 +282,6 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return ThreeSides.valueOf(legNumber);
         }
 
-        /**
-         * Mirror method getLimits of {@link Branch}, used in {@link DefaultLimitViolationDetector}.
-         */
         @Override
         public Optional<? extends LoadingLimits> getLimits(LimitType type) {
             return switch (type) {

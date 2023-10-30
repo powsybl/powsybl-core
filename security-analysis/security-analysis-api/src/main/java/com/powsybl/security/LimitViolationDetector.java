@@ -37,7 +37,9 @@ public interface LimitViolationDetector {
     }
 
     /**
-     * Mirror checkCurrent on {@link Branch} but for {@link ThreeWindingsTransformer} instead.
+     * Checks whether the specified current value on the specified side of the specified
+     * {@link ThreeWindingsTransformer} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
      *
      * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
      * @param transformer   The three windings transformer on which the current must be checked.
@@ -64,11 +66,13 @@ public interface LimitViolationDetector {
     }
 
     /**
-     * Mirror checkCurrent on {@link Branch} but for {@link ThreeWindingsTransformer} instead.
+     * Checks whether the current value on the specified side of the specified
+     * {@link ThreeWindingsTransformer} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
      *
      * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
-     * @param transformer   The transformer on which the current must be checked.
-     * @param side          The side of the transformer on which the current must be checked.
+     * @param transformer   The three windings transformer on which the current must be checked.
+     * @param side          The side of the three windings transformer on which the current must be checked.
      * @param consumer      Will be fed with possibly created limit violations.
      */
     default void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer) {
@@ -156,11 +160,12 @@ public interface LimitViolationDetector {
     }
 
     /**
-     * Mirror checkCurrent on {@link Branch} but for {@link ThreeWindingsTransformer} instead.
-     *
+     * Checks whether the current value on both sides of the specified
+     * {@link ThreeWindingsTransformer} should be considered as {@link LimitViolation}(s).
+     * In case it should, feeds the consumer with it.
      *
      * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
-     * @param transformer   The transformer on which the current must be checked.
+     * @param transformer   The three windings transformer on which the current must be checked.
      * @param consumer      Will be fed with possibly created limit violations.
      */
     default void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, Consumer<LimitViolation> consumer) {
@@ -193,9 +198,11 @@ public interface LimitViolationDetector {
     void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer);
 
     /**
-     * Mirror checkCurrent on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * Checks whether the specified current value on the specified side of the specified
+     * {@link ThreeWindingsTransformer} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
      *
-     * @param transformer   The transformer on which the current must be checked.
+     * @param transformer   The three windings transformer on which the current must be checked.
      * @param side          The side of the transformer on which the current must be checked.
      * @param currentValue  The current value to be checked, in A.
      * @param consumer      Will be fed with possibly created limit violations.
@@ -215,10 +222,12 @@ public interface LimitViolationDetector {
     void checkActivePower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer);
 
     /**
-     * Mirror checkActivePower on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * Checks whether the specified active power value on the specified side of the specified
+     * {@link ThreeWindingsTransformer} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
      *
-     * @param transformer   The transformer on which the current must be checked.
-     * @param side          The side of the transformer on which the current must be checked.
+     * @param transformer   The three windings transformer on which the current must be checked.
+     * @param side          The side of the three windings transformer on which the current must be checked.
      * @param value         The active power value to be checked, in A.
      * @param consumer      Will be fed with possibly created limit violations.
      */
@@ -237,10 +246,12 @@ public interface LimitViolationDetector {
     void checkApparentPower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer);
 
     /**
-     * Mirror checkApparentPower on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * Checks whether the specified apparent power value on the specified side of the specified
+     * {@link ThreeWindingsTransformer} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
      *
-     * @param transformer   The transformer on which the current must be checked.
-     * @param side          The side of the transformer on which the current must be checked.
+     * @param transformer   The three windings transformer on which the current must be checked.
+     * @param side          The side of the three windings transformer on which the current must be checked.
      * @param value         The apparent power value to be checked, in A.
      * @param consumer      Will be fed with possibly created limit violations.
      */
@@ -258,11 +269,12 @@ public interface LimitViolationDetector {
     void checkCurrent(Branch branch, Branch.Side side, Consumer<LimitViolation> consumer);
 
     /**
-     * Mirror checkCurrent on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * Checks whether the current value on the specified side of the specified
+     * {@link ThreeWindingsTransformer} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
      *
-     *
-     * @param transformer   The transformer on which the current must be checked.
-     * @param side          The side of the transformer on which the current must be checked.
+     * @param transformer   The three windings transformer on which the current must be checked.
+     * @param side          The side of the three windings transformer on which the current must be checked.
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer);
@@ -281,10 +293,13 @@ public interface LimitViolationDetector {
     void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer);
 
     /**
-     * Mirror checkCurrentDc on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * Checks whether the current value on the specified side of the specified
+     * {@link ThreeWindingsTransformer} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     * In this DC power flow mode, the current is computed using the DC power factor if necessary.
      *
-     * @param transformer   The transformer on which the current must be checked.
-     * @param side          The side of the transformer on which the current must be checked.
+     * @param transformer   The three windings transformer on which the current must be checked.
+     * @param side          The side of the three windings transformer on which the current must be checked.
      * @param dcPowerFactor The DC power factor used to convert the active power into current.
      * @param consumer      Will be fed with possibly created limit violations.
      */
@@ -353,9 +368,11 @@ public interface LimitViolationDetector {
     void checkCurrent(Branch branch, Consumer<LimitViolation> consumer);
 
     /**
-     * Mirror checkCurrent on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * Checks whether the current value on both sides of the specified
+     * {@link ThreeWindingsTransformer} should be considered as {@link LimitViolation}(s).
+     * In case it should, feeds the consumer with it.
      *
-     * @param transformer   The transformer on which the current must be checked.
+     * @param transformer   The three windings transformer on which the current must be checked.
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkCurrent(ThreeWindingsTransformer transformer, Consumer<LimitViolation> consumer);
@@ -373,9 +390,12 @@ public interface LimitViolationDetector {
     void checkCurrentDc(Branch branch, double dcPowerFactor, Consumer<LimitViolation> consumer);
 
     /**
-     * Mirror checkCurrentDc on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * Checks whether the current value on both sides of the specified
+     * {@link ThreeWindingsTransformer} should be considered as {@link LimitViolation}(s).
+     * In case it should, feeds the consumer with it.
+     * In this DC power flow mode, the current is computed using the DC power factor if necessary.
      *
-     * @param transformer   The transformer on which the current must be checked.
+     * @param transformer   The three windings transformer on which the current must be checked.
      * @param dcPowerFactor The DC power factor used to convert the active power into current.
      * @param consumer      Will be fed with possibly created limit violations.
      */
@@ -442,7 +462,7 @@ public interface LimitViolationDetector {
     }
 
     /**
-     * Mirror checkPermanentLimit on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * Generic implementation for permanent limit checks
      */
     default void checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         if (LimitViolationUtils.checkPermanentLimit(transformer, side, limitReduction, value, type)) {
@@ -478,7 +498,7 @@ public interface LimitViolationDetector {
     }
 
     /**
-     * Mirror checkTemporary on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     * Generic implementation for temporary limit checks
      */
     default void checkTemporary(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReduction, value, type);

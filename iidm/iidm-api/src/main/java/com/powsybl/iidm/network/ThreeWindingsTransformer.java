@@ -305,9 +305,6 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          */
         ThreeSides getSide();
 
-        /**
-         * Mirror method getLimits of {@link Branch}, used in {@link DefaultLimitViolationDetector}.
-         */
         Optional<? extends LoadingLimits> getLimits(LimitType type);
     }
 

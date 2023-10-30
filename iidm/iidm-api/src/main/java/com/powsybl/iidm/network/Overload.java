@@ -6,6 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
+ /**
+  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+  */
 public interface Overload {
     /**
      * The temporary limit under which the current is.

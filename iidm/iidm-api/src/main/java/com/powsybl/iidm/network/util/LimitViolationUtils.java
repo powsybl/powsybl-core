@@ -32,9 +32,6 @@ public final class LimitViolationUtils {
                 .orElse(null);
     }
 
-    /**
-     * Mirror checkTemporaryLimits on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
-     */
     public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double i, LimitType type) {
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
@@ -75,9 +72,6 @@ public final class LimitViolationUtils {
                 .orElse(false);
     }
 
-    /**
-     * Mirror checkPermanentLimit on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
-     */
     public static boolean checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double i, LimitType type) {
         return transformer.getLeg(side).getLimits(type)
                 .map(l -> checkPermanentLimitIfAny(l, i, limitReduction))

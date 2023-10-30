@@ -49,9 +49,6 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         checkLimitViolation(branch, side, value, consumer, LimitType.CURRENT);
     }
 
-    /**
-     * Mirror checkCurrent on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
-     */
     @Override
     public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
 
@@ -124,9 +121,6 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         }
     }
 
-    /**
-     * Mirror checkLimitViolation on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
-     */
     public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReduction, value, type);
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
