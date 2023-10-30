@@ -595,7 +595,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
      */
     @Override
     public List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled) {
-        return findAllPaths(from, pathComplete, pathCancelled, Objects::nonNull);
+        return findAllPaths(from, pathComplete, pathCancelled, obj -> true);
     }
 
     /**
