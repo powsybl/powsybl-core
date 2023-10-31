@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.*;
 import gnu.trove.TCollections;
 import gnu.trove.list.array.TDoubleArrayList;

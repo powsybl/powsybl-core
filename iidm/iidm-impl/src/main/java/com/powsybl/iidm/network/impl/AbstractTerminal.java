@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.ArrayList;
@@ -165,10 +166,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public boolean disconnect() {
-        if (removed) {
-            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
-        }
-        return voltageLevel.disconnect(this);
+        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
     }
 
 
