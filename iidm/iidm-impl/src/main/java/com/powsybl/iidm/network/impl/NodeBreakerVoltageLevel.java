@@ -1222,7 +1222,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
         // (because otherwise there is nothing we can do to connected the terminal using only breakers)
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, SwitchPredicates.IS_OPEN::test);
         if (paths.isEmpty()) {
             return false;
         }
