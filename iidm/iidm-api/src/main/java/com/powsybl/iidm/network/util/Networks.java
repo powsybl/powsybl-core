@@ -458,6 +458,9 @@ public final class Networks {
             newReporterContext = new MultiThreadReporterContext(reporterContext);
         } else if (!allow && !(reporterContext instanceof SimpleReporterContext)) {
             newReporterContext = new SimpleReporterContext(reporterContext);
+            if (reporterContext instanceof MultiThreadReporterContext multiThreadReporterContext) {
+                multiThreadReporterContext.close(); // to avoid memory leaks
+            }
         }
         return newReporterContext != null ? newReporterContext : reporterContext;
     }
