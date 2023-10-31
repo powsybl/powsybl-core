@@ -13,14 +13,18 @@ import com.powsybl.commons.PowsyblException;
  @author Bertrand Rix <bertrand.rix at artelys.com>
  */
 public enum ThreeSides {
-    ONE(1),
-    TWO(2),
-    THREE(3);
+    ONE(1, ThreeWindingsTransformer.Side.ONE, Branch.Side.ONE),
+    TWO(2, ThreeWindingsTransformer.Side.TWO, Branch.Side.TWO),
+    THREE(3, ThreeWindingsTransformer.Side.THREE, (Branch.Side) null);
 
     private final int num;
+    private final ThreeWindingsTransformer.Side threeWindingsTransformerSide;
+    private final Branch.Side branchSide;
 
-    ThreeSides(int num) {
+    ThreeSides(int num, ThreeWindingsTransformer.Side transformerSide, Branch.Side branchSide) {
         this.num = num;
+        this.threeWindingsTransformerSide = transformerSide;
+        this.branchSide = branchSide;
     }
 
     public int getNum() {
@@ -35,4 +39,17 @@ public enum ThreeSides {
             default -> throw new PowsyblException("Cannot convert integer value " + num + " to ThreeSides.");
         };
     }
+
+    public Branch.Side toBranchSide() {
+        if (branchSide == null) {
+            throw new PowsyblException("A Branch has only two sides, ONE and TWO, " +
+                    "here it is called with " + this.name());
+        }
+        return branchSide;
+    }
+
+    public ThreeWindingsTransformer.Side toThreeWindingsTransformerSide() {
+        return threeWindingsTransformerSide;
+    }
+
 }
