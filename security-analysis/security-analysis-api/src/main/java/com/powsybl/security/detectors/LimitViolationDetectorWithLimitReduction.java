@@ -7,6 +7,12 @@
  */
 package com.powsybl.security.detectors;
 
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.security.LimitViolation;
+
+import java.util.function.Consumer;
+
 /**
  * Implements the behaviour for limit violation detection with limit reductions.
  *
@@ -19,4 +25,29 @@ public class LimitViolationDetectorWithLimitReduction extends DefaultLimitViolat
     public LimitViolationDetectorWithLimitReduction(LimitReductionDefinitionList limitReductionDefinitionList) {
         this.limitReductionDefinitionList = limitReductionDefinitionList;
     }
+
+    public void checkCurrent(LimitReductionDefinitionList limitReductionDefinitionList) {
+        //TODO
+    }
+
+    public void checkActivePower(LimitReductionDefinitionList limitReductionDefinitionList) {
+        //TODO
+    }
+
+    public void checkApparentPower(LimitReductionDefinitionList limitReductionDefinitionList) {
+        //TODO
+    }
+
+    public void checkVoltage(LimitReductionDefinitionList limitReductionDefinitionList) {
+        //TODO
+    }
+
+    public void checkVoltageAngle(LimitReductionDefinitionList limitReductionDefinitionList) {
+        //TODO
+    }
+
+    public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        //TODO
+    }
+
 }
