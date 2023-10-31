@@ -9,6 +9,7 @@ package com.powsybl.commons.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.commons.io.TreeDataReader;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -20,6 +21,16 @@ public class JsonReader implements TreeDataReader {
 
     public JsonReader(JsonParser jsonParser) {
         this.jsonParser = Objects.requireNonNull(jsonParser);
+    }
+
+    @Override
+    public String readRootVersion() {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> readVersions() {
+        return null;
     }
 
     @Override
@@ -100,5 +111,10 @@ public class JsonReader implements TreeDataReader {
     @Override
     public String readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler) {
         return null;
+    }
+
+    @Override
+    public void close() {
+
     }
 }

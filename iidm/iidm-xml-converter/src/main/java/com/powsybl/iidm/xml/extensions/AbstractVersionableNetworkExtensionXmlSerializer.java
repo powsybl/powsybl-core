@@ -98,7 +98,7 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     protected void checkReadingCompatibility(NetworkXmlReaderContext networkContext) {
         IidmXmlVersion version = networkContext.getVersion();
         checkCompatibilityNetworkVersion(version);
-        if (extensionVersions.get(version).stream().noneMatch(v -> networkContext.containsExtensionNamespaceUri(getNamespaceUri(v)))) {
+        if (extensionVersions.get(version).stream().noneMatch(v -> networkContext.containsExtensionVersion(getExtensionName(), v))) {
             throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
                     + ") is not compatible with the " + extensionName + " extension's namespace URI.");
         }

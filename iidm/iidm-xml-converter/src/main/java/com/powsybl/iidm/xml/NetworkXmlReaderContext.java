@@ -25,18 +25,18 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
     private final List<Runnable> endTasks = new ArrayList<>();
     private final ImportOptions options;
 
-    private final Set<String> extensionsNamespaceUri;
+    private final Map<String, String> extensionVersions;
 
     public NetworkXmlReaderContext(Anonymizer anonymizer, TreeDataReader reader) {
-        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION, Collections.emptySet());
+        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION, Collections.emptyMap());
     }
 
     public NetworkXmlReaderContext(Anonymizer anonymizer, TreeDataReader reader, ImportOptions options, IidmXmlVersion version,
-                                   Set<String> extensionsNamespaceUri) {
+                                   Map<String, String> extensionVersions) {
         super(anonymizer, version);
         this.reader = Objects.requireNonNull(reader);
         this.options = Objects.requireNonNull(options);
-        this.extensionsNamespaceUri = extensionsNamespaceUri;
+        this.extensionVersions = extensionVersions;
     }
 
     @Override
@@ -53,16 +53,11 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
         return options;
     }
 
-    public boolean containsExtensionNamespaceUri(String extensionNamespaceUri) {
-        return extensionsNamespaceUri.contains(extensionNamespaceUri);
+    public boolean containsExtensionVersion(String extensionName, String version) {
+        return version != null && version.equals(extensionVersions.get(extensionName));
     }
 
     public Optional<String> getExtensionVersion(ExtensionXmlSerializer<?, ?> extensionXmlSerializer) {
-        return extensionXmlSerializer.getVersions()
-                .stream()
-                .filter(v -> extensionsNamespaceUri
-                        .stream()
-                        .anyMatch(uri -> extensionXmlSerializer.getNamespaceUri(v).equals(uri)))
-                .findFirst();
+        return Optional.ofNullable(extensionVersions.get(extensionXmlSerializer.getExtensionName()));
     }
 }

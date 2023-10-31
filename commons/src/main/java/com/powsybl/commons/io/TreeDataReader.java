@@ -6,10 +6,12 @@
  */
 package com.powsybl.commons.io;
 
+import java.util.Map;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TreeDataReader {
+public interface TreeDataReader extends AutoCloseable {
 
     interface EventHandler {
 
@@ -23,6 +25,10 @@ public interface TreeDataReader {
 
         void onStartElement(int elementDepth);
     }
+
+    String readRootVersion();
+
+    Map<String, String> readVersions();
 
     double readDoubleAttribute(String name);
 
@@ -55,4 +61,7 @@ public interface TreeDataReader {
     String readUntilEndNode(String endElementName, EventHandler eventHandler);
 
     String readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler);
+
+    @Override
+    void close();
 }

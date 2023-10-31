@@ -53,8 +53,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_PREFIX;
-import static com.powsybl.iidm.xml.IidmXmlConstants.INDENT;
+import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
 
 /**
@@ -73,9 +72,6 @@ public final class NetworkXml {
     private static final String ID = "id";
     private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
     private static final String VOLTAGE_ANGLE_LIMIT_ELEMENT_NAME = "voltageAngleLimit";
-
-    // cache to improve performance
-    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
     private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
 
@@ -235,10 +231,7 @@ public final class NetworkXml {
 
             Set<ExtensionXmlSerializer<?, ?>> serializers = getExtensionSerializers(n, options);
             for (ExtensionXmlSerializer<?, ?> extensionSerializer : serializers) {
-                String extensionVersion = extensionSerializer.getVersion();
-                if (extensionSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer<?, ?> versionableNetworkExtensionXmlSerializer) {
-                    extensionVersion = versionableNetworkExtensionXmlSerializer.getVersion(iidmVersion);
-                }
+                String extensionVersion = getExtensionVersion(extensionSerializer, options);
                 xmlWriter.setExtensionNamespace(extensionSerializer.getName(), extensionSerializer.getNamespaceUri(extensionVersion), extensionSerializer.getNamespacePrefix());
             }
 
@@ -302,8 +295,8 @@ public final class NetworkXml {
         IidmXmlVersion networkVersion = options.getVersion();
         return n.getIdentifiables().stream().flatMap(identifiable -> identifiable.getExtensions()
                         .stream()
-                        .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), networkVersion, options))
-                        .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension)))
+                        .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension))
+                        .filter(exs -> canTheExtensionBeWritten(exs, networkVersion, options)))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -506,33 +499,44 @@ public final class NetworkXml {
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory) {
+        try (TreeDataReader reader = createTreeDataReader(is, config)) {
+            return read(reader, config, anonymizer, networkFactory);
+        }
+    }
+
+    private static TreeDataReader createTreeDataReader(InputStream is, ImportOptions config) {
+        return switch (config.getFormat()) {
+            case XML -> initializeXmlReader(is, config);
+            case JSON -> initializeJsonReader(is);
+        };
+    }
+
+    private static TreeDataReader initializeJsonReader(InputStream is) {
+        return null;
+    }
+
+    private static TreeDataReader initializeXmlReader(InputStream is, ImportOptions config) {
         try {
-            XMLStreamReader xmlReader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
+            XMLStreamReader xmlReader = XmlReader.createXMLStreamReader(is);
             int state = xmlReader.next();
             while (state == XMLStreamConstants.COMMENT) {
                 state = xmlReader.next();
             }
-
-            IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(xmlReader.getNamespaceURI());
-
-            Set<String> extensionsNamespaceUri = new HashSet<>();
-            if (!config.withNoExtension()) {
-                EXTENSIONS_SUPPLIER.get().getProviders().stream()
-                        .filter(e -> xmlReader.getNamespaceURI(e.getNamespacePrefix()) != null)
-                        .forEach(e -> extensionsNamespaceUri.add(xmlReader.getNamespaceURI(e.getNamespacePrefix())));
-            }
-
-            TreeDataReader reader = new XmlReader(xmlReader);
-
-            Network network = read(reader, config, anonymizer, networkFactory, version, extensionsNamespaceUri);
-
-            xmlReader.close();
-            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
-
-            return network;
+            return new XmlReader(xmlReader, getNamespaceVersionMap(),
+                    config.withNoExtension() ? Collections.emptyList() : EXTENSIONS_SUPPLIER.get().getProviders());
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private static Map<String, String> getNamespaceVersionMap() {
+        Map<String, String> namespaceVersionMap = new HashMap<>();
+        Arrays.stream(IidmXmlVersion.values())
+                .forEach(v -> namespaceVersionMap.put(v.getNamespaceURI(), v.toString(".")));
+        Arrays.stream(IidmXmlVersion.values())
+                .filter(IidmXmlVersion::supportEquipmentValidationLevel)
+                .forEach(v -> namespaceVersionMap.put(v.getNamespaceURI(false), v.toString(".")));
+        return namespaceVersionMap;
     }
 
     private static void readElements(Deque<Network> networks, NetworkFactory networkFactory, TreeDataReader reader, NetworkXmlReaderContext context,
@@ -614,8 +618,12 @@ public final class NetworkXml {
     }
 
     public static Network read(TreeDataReader reader, ImportOptions config, Anonymizer anonymizer,
-                               NetworkFactory networkFactory, IidmXmlVersion version, Set<String> extensionsNamespaceUri) {
-        NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version, extensionsNamespaceUri);
+                               NetworkFactory networkFactory) {
+
+        IidmXmlVersion iidmVersion = IidmXmlVersion.of(reader.readRootVersion(), ".");
+        Map<String, String> extensionVersions = reader.readVersions();
+
+        NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, iidmVersion, extensionVersions);
 
         Network network = initNetwork(networkFactory, context, reader, null);
 
@@ -702,14 +710,9 @@ public final class NetworkXml {
         });
     }
 
-    public static void update(Network network, InputStream is) {
-        try {
-            XMLStreamReader xmlReader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
-            xmlReader.next();
-
-            update(network, new XmlReader(xmlReader));
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
+    public static void update(Network network, InputStream is, ImportOptions config) {
+        try (TreeDataReader reader = createTreeDataReader(is, config)) {
+            update(network, reader);
         }
     }
 
@@ -755,10 +758,18 @@ public final class NetworkXml {
 
     public static void update(Network network, Path xmlFile) {
         try (InputStream is = Files.newInputStream(xmlFile)) {
-            update(network, is);
+            ImportOptions config = new ImportOptions()
+                    .setFormat(getFormatFromPathName(xmlFile));
+            update(network, is, config);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static TreeDataFormat getFormatFromPathName(Path file) {
+        String filename = file.getFileName().toString();
+        String fileExtension = filename.substring(filename.lastIndexOf(".")).toLowerCase();
+        return ".json".equals(fileExtension) ? TreeDataFormat.JSON : TreeDataFormat.XML;
     }
 
     private static void updateVoltageLevel(TreeDataReader reader, Network network, VoltageLevel[] vl) {

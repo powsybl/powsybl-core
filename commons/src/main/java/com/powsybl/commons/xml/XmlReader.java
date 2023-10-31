@@ -6,11 +6,19 @@
  */
 package com.powsybl.commons.xml;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.io.TreeDataReader;
 
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -18,10 +26,37 @@ import java.util.Objects;
  */
 public class XmlReader implements TreeDataReader {
 
-    private final XMLStreamReader reader;
+    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
-    public XmlReader(XMLStreamReader reader) {
+    private final XMLStreamReader reader;
+    private final Map<String, String> namespaceVersionsMap;
+    private final Collection<ExtensionXmlSerializer> extensionProviders;
+
+    public XmlReader(XMLStreamReader reader, Map<String, String> namespaceVersionMap, Collection<ExtensionXmlSerializer> extensionProviders) {
         this.reader = Objects.requireNonNull(reader);
+        this.namespaceVersionsMap = Objects.requireNonNull(namespaceVersionMap);
+        this.extensionProviders = extensionProviders;
+    }
+
+    public static XMLStreamReader createXMLStreamReader(InputStream is) throws XMLStreamException {
+        return XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
+    }
+
+    @Override
+    public String readRootVersion() {
+        return namespaceVersionsMap.get(reader.getNamespaceURI());
+    }
+
+    @Override
+    public Map<String, String> readVersions() {
+        Map<String, String> versions = new HashMap<>();
+        for (ExtensionXmlSerializer<?, ?> e : extensionProviders) {
+            String namespaceUri = reader.getNamespaceURI(e.getNamespacePrefix());
+            if (namespaceUri != null) {
+                versions.put(e.getExtensionName(), e.getVersion(namespaceUri));
+            }
+        }
+        return versions;
     }
 
     @Override
@@ -118,6 +153,16 @@ public class XmlReader implements TreeDataReader {
     public String readUntilEndNodeWithDepth(String endNodeName, EventHandlerWithDepth eventHandler) {
         try {
             return XmlUtil.readUntilEndElementWithDepth(endNodeName, reader, eventHandler);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            reader.close();
+            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
