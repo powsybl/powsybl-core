@@ -65,4 +65,9 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
     public String getNamespacePrefix() {
         return namespacePrefix;
     }
+
+    @Override
+    public String getVersion(String namespaceUri) {
+        return this.namespaceUri.equals(namespaceUri) ? getVersion() : null;
+    }
 }

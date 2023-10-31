@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
@@ -14,42 +15,15 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
 
-import java.io.InputStream;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class GeneratorEntsoeCategoryXmlSerializer implements ExtensionXmlSerializer<Generator, GeneratorEntsoeCategory> {
+public class GeneratorEntsoeCategoryXmlSerializer extends AbstractExtensionXmlSerializer<Generator, GeneratorEntsoeCategory> {
 
-    @Override
-    public String getExtensionName() {
-        return "entsoeCategory";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super GeneratorEntsoeCategory> getExtensionClass() {
-        return GeneratorEntsoeCategory.class;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/generatorEntsoeCategory.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri() {
-        return "http://www.itesla_project.eu/schema/iidm/ext/generator_entsoe_category/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "gec";
+    public GeneratorEntsoeCategoryXmlSerializer() {
+        super("entsoeCategory", "network", GeneratorEntsoeCategory.class,
+                "generatorEntsoeCategory.xsd", "http://www.itesla_project.eu/schema/iidm/ext/generator_entsoe_category/1_0", "gec");
     }
 
     @Override

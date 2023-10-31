@@ -10,9 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
@@ -66,6 +64,11 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
     default String getVersion() {
         return "1.0";
     }
+
+    /**
+     * Return the version corresponding to the given namespaceURI
+     */
+    String getVersion(String namespaceUri);
 
     /**
      * Return all supported versions for of the serialization of this extension.

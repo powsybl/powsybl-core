@@ -27,7 +27,7 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Generator, GeneratorStartup> implements ExtensionXmlSerializer<Generator, GeneratorStartup> {
+public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Generator, GeneratorStartup> {
 
     private static final String ITESLA_1_0 = "1.0-itesla";
     private static final String V_1_0 = "1.0";

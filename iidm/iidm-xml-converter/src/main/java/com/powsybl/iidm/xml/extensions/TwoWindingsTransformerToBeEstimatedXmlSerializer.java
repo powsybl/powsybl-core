@@ -19,8 +19,7 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAd
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractExtensionXmlSerializer<TwoWindingsTransformer, TwoWindingsTransformerToBeEstimated>
-        implements ExtensionXmlSerializer<TwoWindingsTransformer, TwoWindingsTransformerToBeEstimated> {
+public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractExtensionXmlSerializer<TwoWindingsTransformer, TwoWindingsTransformerToBeEstimated> {
 
     public TwoWindingsTransformerToBeEstimatedXmlSerializer() {
         super("twoWindingsTransformerToBeEstimated", "network", TwoWindingsTransformerToBeEstimated.class,

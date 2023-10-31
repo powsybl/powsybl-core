@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extendable;
@@ -28,7 +30,7 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     private final Class<? super E> extensionClass;
     private final String namespacePrefix;
     private final Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions = new EnumMap<>(IidmXmlVersion.class);
-    private final Map<String, String> namespaceUris = new HashMap<>();
+    private final BiMap<String, String> namespaceUris = HashBiMap.create();
 
     protected AbstractVersionableNetworkExtensionXmlSerializer(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
                                                                Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
@@ -76,13 +78,16 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     }
 
     /**
-     * get the oldest version of an extension working with a network version.
-     *
-     * @param networkVersion
-     * @return
+     * Get the oldest version of an extension working with a network version.
      */
     public String getVersion(IidmXmlVersion networkVersion) {
         return extensionVersions.get(networkVersion).last();
+    }
+
+    @Override
+    public String getVersion(String namespaceUri) {
+        return Optional.ofNullable(namespaceUris.inverse().get(namespaceUri))
+                .orElseThrow(() -> new PowsyblException("The namespace URI " + namespaceUri + " of the " + extensionName + " extension is not supported."));
     }
 
     @Override
