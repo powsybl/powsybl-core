@@ -42,7 +42,8 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     /**
-     * This implementation takes the current value to be checked from the Network.
+     * {@inheritDoc}
+     * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
     public void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
@@ -50,7 +51,8 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     /**
-     * This implementation takes the current value to be checked from the Network.
+     * {@inheritDoc}
+     * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
     public void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer) {
@@ -58,7 +60,8 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     /**
-     * This implementation takes the voltage value to be checked from the Network.
+     * {@inheritDoc}
+     * <p>This implementation takes the voltage value to be checked from the Network.</p>
      */
     @Override
     public void checkVoltage(Contingency contingency, Bus bus, Consumer<LimitViolation> consumer) {

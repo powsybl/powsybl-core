@@ -21,7 +21,8 @@ import java.util.function.Consumer;
 public abstract class AbstractContingencyBlindDetector implements LimitViolationDetector {
 
     /**
-     * This implementation takes the current value to be checked from the Network.
+     * {@inheritDoc}
+     * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
     public void checkCurrent(Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
@@ -29,7 +30,8 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     /**
-     * This implementation takes the current value to be checked from the Network.
+     * {@inheritDoc}
+     * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
     public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer) {
@@ -46,7 +48,8 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     /**
-     * This implementation computes the current value from the power value, if current is not provided (NaN).
+     * {@inheritDoc}
+     * <p>This implementation computes the current value from the power value, if current is not provided (NaN).</p>
      */
     @Override
     public void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
@@ -55,7 +58,8 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     /**
-     * This implementation computes the current value from the power value, if current is not provided (NaN).
+     * {@inheritDoc}
+     * <p>This implementation computes the current value from the power value, if current is not provided (NaN).</p>
      */
     @Override
     public void checkCurrentDc(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
@@ -64,7 +68,8 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     /**
-     * This implementation takes the voltage value to be checked from the Network.
+     * {@inheritDoc}
+     * <p>This implementation takes the voltage value to be checked from the Network.</p>
      */
     @Override
     public void checkVoltage(Bus bus, Consumer<LimitViolation> consumer) {
@@ -77,7 +82,8 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     /**
-     * This implementation takes the voltageAngle difference to be checked from the Network.
+     * {@inheritDoc}
+     * <p>This implementation takes the voltageAngle difference to be checked from the Network.</p>
      */
     @Override
     public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
