@@ -1230,25 +1230,41 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         // Each path is visited and for each, the first openable switch found is opened
         for (TIntArrayList path : paths) {
-            boolean pathOpen = false;
-            for (int i = 0; i < path.size(); i++) {
-                int e = path.get(i);
-                SwitchImpl sw = graph.getEdgeObject(e);
-                if (isSwitchOpenable.test(sw)) {
-                    if (!sw.isOpen()) {
-                        sw.setOpen(true);
-                    }
-                    // just one open breaker is enough to disconnect the terminal, so we can stop
-                    pathOpen = true;
-                    break;
-                }
-            }
+            // Open the first openable switch
+            boolean pathOpen = openPath(path, isSwitchOpenable);
+
+            // Checks
             if (!pathOpen) {
                 // Getting here meant no openable switch was found and therefor the terminal cannot be disconnected
                 return false;
             }
+            if (!terminal.isConnected()) {
+                // Stop the loop here if opening the switch on this path disconnected the terminal
+                break;
+            }
         }
         return true;
+    }
+
+    /**
+     * Opens the first openable switch in the given path
+     * @param path the path to open
+     * @param isSwitchOpenable predicate used to know if the switches can be opened
+     * @return true if the path has been opened, else false
+     */
+    boolean openPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable) {
+        for (int i = 0; i < path.size(); i++) {
+            int e = path.get(i);
+            SwitchImpl sw = graph.getEdgeObject(e);
+            if (isSwitchOpenable.test(sw)) {
+                if (!sw.isOpen()) {
+                    sw.setOpen(true);
+                }
+                // just one open breaker is enough to disconnect the terminal, so we can stop
+                return true;
+            }
+        }
+        return false;
     }
 
     boolean isConnected(TerminalExt terminal) {
