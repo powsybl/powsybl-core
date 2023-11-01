@@ -16,7 +16,7 @@ import java.util.Optional;
  * Configuration property values encountered first in this list of repositories
  * take precedence over values defined in subsequent repositories.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class StackedModuleConfigRepository implements ModuleConfigRepository {
 

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class BusbarSectionPositionAdderImplProvider

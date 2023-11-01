@@ -15,7 +15,7 @@ import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class NetworkSourceExtensionXmlSerializer extends AbstractExtensionXmlSerializer<Network, NetworkSourceExtension> {

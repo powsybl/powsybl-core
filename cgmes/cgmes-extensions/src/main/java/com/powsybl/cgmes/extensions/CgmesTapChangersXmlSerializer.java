@@ -19,7 +19,7 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends AbstractExtensionXmlSerializer<C, CgmesTapChangers<C>> {

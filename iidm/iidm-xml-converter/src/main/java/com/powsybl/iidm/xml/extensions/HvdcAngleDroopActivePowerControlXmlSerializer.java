@@ -17,8 +17,8 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class HvdcAngleDroopActivePowerControlXmlSerializer extends AbstractExtensionXmlSerializer<HvdcLine, HvdcAngleDroopActivePowerControl> {

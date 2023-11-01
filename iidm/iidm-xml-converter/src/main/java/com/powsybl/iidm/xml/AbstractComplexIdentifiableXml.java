@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 /**
  * Abstract class for equipment that need their sub-elements to be entirely created.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractComplexIdentifiableXml<T extends Identifiable<T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableXml<T, A, P> {
 

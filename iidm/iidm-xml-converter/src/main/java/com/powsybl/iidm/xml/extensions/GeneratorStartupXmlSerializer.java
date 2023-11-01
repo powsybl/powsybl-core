@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Generator, GeneratorStartup> {

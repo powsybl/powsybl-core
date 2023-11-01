@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import java.util.Objects;
 
 /**
- * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class ThreeWindingsTransformerFortescueImpl extends AbstractExtension<ThreeWindingsTransformer> implements ThreeWindingsTransformerFortescue {
 

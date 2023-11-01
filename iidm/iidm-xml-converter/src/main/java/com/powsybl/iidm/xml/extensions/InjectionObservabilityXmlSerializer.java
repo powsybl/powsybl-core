@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends AbstractExtensionXmlSerializer<T, InjectionObservability<T>> {

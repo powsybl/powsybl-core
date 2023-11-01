@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 
 /**
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSerializer<Substation, SubstationPosition> {

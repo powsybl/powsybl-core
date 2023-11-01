@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
  */
 public abstract class AbstractOptions<T> {
 

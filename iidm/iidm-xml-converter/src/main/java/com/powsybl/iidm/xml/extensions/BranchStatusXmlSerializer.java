@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.extensions.BranchStatus;
 import com.powsybl.iidm.network.extensions.BranchStatusAdder;
 
 /**
- * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class BranchStatusXmlSerializer<C extends Connectable<C>> extends AbstractExtensionXmlSerializer<C, BranchStatus<C>> {

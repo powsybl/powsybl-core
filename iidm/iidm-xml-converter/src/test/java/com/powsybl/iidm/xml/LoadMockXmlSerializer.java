@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class LoadMockXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, LoadMockExt> {

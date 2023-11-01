@@ -19,7 +19,7 @@ import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSer
 import java.io.InputStream;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class LoadQuxXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, LoadQuxExt> {

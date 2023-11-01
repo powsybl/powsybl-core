@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class TwoWindingsTransformerPhaseAngleClockXmlSerializer

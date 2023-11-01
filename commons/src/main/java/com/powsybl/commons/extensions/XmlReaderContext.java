@@ -9,7 +9,7 @@ package com.powsybl.commons.extensions;
 import com.powsybl.commons.io.TreeDataReader;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface XmlReaderContext {
 

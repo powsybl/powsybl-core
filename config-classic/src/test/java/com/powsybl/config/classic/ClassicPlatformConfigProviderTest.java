@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 class ClassicPlatformConfigProviderTest {
 

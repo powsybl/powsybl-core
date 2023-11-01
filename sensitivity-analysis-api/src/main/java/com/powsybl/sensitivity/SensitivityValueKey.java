@@ -10,7 +10,7 @@ import java.util.Objects;
 
 /*
  * Key type for sensitivity value when stored by function type, contingency, function and variable id
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class SensitivityValueKey {
 

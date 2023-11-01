@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 

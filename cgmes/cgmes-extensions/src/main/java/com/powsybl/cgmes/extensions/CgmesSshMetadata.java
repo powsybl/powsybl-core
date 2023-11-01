@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.Network;
 import java.util.List;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public interface CgmesSshMetadata extends Extension<Network> {
 

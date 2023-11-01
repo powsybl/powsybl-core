@@ -10,6 +10,6 @@ package com.powsybl.iidm.network.impl.tck;
 import com.powsybl.iidm.network.tck.AbstractSubnetworksCreationTest;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class SubnetworksCreationTest extends AbstractSubnetworksCreationTest { }

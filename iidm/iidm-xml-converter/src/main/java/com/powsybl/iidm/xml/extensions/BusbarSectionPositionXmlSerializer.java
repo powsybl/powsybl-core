@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class BusbarSectionPositionXmlSerializer extends AbstractExtensionXmlSerializer<BusbarSection, BusbarSectionPosition> {

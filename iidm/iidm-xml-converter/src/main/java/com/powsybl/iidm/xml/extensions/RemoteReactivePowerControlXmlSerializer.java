@@ -22,7 +22,7 @@ import com.powsybl.iidm.xml.TerminalRefXml;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 /**
- * @author Damien Jeandemange <damien.jeandemange at artelys.com>
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class RemoteReactivePowerControlXmlSerializer extends AbstractExtensionXmlSerializer<Generator, RemoteReactivePowerControl> {

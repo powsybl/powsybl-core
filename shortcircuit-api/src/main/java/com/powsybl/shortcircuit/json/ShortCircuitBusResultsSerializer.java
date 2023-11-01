@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class ShortCircuitBusResultsSerializer extends StdSerializer<ShortCircuitBusResults> {
 

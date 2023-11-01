@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
 import java.util.function.DoubleConsumer;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractTransformerXml<T extends Connectable<T>, A extends IdentifiableAdder<T, A>> extends AbstractSimpleIdentifiableXml<T, A, Substation> {
 

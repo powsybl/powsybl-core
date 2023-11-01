@@ -16,7 +16,7 @@ import java.io.IOException;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest {
 

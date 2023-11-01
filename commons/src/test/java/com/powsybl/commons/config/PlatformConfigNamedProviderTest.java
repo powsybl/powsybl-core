@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 class PlatformConfigNamedProviderTest {
 

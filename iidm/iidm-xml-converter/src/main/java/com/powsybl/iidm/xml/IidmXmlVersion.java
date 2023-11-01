@@ -17,7 +17,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.ITESLA_DOMAIN;
 import static com.powsybl.iidm.xml.IidmXmlConstants.POWSYBL_DOMAIN;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public enum IidmXmlVersion {
     V_1_0(ITESLA_DOMAIN, List.of(1, 0)),

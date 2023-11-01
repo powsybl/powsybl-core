@@ -15,7 +15,7 @@ import com.powsybl.shortcircuit.FortescueValue;
 import java.io.IOException;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class FortescueValuesDeserializer extends StdDeserializer<FortescueValue> {
 

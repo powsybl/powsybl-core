@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.iidm.network.Line;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ConnectVoltageLevelOnLineBuilder {
 

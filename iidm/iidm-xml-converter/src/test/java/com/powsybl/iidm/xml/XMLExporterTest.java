@@ -32,7 +32,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine BENHAMED  {@literal <chamseddine.benhamed at rte-france.com>}
  */
 
 class XMLExporterTest extends AbstractXmlConverterTest {

@@ -12,7 +12,7 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public final class TerminalRefXml {
 

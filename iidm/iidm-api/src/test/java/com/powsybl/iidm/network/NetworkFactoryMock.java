@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NetworkFactoryMock implements NetworkFactory {
 

@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimatedAdder;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class ThreeWindingsTransformerToBeEstimatedXmlSerializer extends AbstractExtensionXmlSerializer<ThreeWindingsTransformer, ThreeWindingsTransformerToBeEstimated> {

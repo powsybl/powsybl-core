@@ -9,7 +9,7 @@ package com.powsybl.action.dsl.ast;
 import java.util.List;
 
 /**
- * @author Olivier Bretteville <olivier.bretteville at rte-france.com>
+ * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
  */
 public class AllOverloadedNode extends AbstractBranchActionExpressionNode {
 

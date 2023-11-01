@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * A triple is a data entity composed of subject-predicate-object.
  * Adding a name to a triple allows to separate them in contexts or named graphs.
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface TripleStore {
 

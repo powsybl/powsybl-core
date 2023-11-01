@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.LimitType
 import com.powsybl.iidm.network.LoadingLimits
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class BranchExtension {
 

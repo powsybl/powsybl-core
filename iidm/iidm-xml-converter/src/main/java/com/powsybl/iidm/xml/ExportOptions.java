@@ -19,8 +19,8 @@ import java.util.*;
 import static com.powsybl.iidm.xml.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ExportOptions extends AbstractOptions<ExportOptions> {
 

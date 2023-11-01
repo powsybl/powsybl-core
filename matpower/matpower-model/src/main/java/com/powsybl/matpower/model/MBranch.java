@@ -13,7 +13,7 @@ package com.powsybl.matpower.model;
  * @see <a href="https://matpower.org/doc/">https://matpower.org/doc/</a>
  * </p>
  *
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 public class MBranch {
 

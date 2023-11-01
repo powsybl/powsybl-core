@@ -11,8 +11,8 @@ import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class HvdcLineXml extends AbstractSimpleIdentifiableXml<HvdcLine, HvdcLineAdder, Network> {
 

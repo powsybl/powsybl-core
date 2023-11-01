@@ -20,7 +20,7 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.TerminalRefXml;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesControlAreas> {

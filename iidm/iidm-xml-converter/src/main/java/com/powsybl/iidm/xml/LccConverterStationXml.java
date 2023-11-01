@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.VoltageLevel;
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccConverterStation, LccConverterStationAdder, VoltageLevel> {
 

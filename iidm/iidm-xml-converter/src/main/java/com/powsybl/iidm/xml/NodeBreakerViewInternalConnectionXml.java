@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class NodeBreakerViewInternalConnectionXml {
 

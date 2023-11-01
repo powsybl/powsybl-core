@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.DanglingLine;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CgmesDanglingLineBoundaryNodeAdderImpl extends AbstractExtensionAdder<DanglingLine, CgmesDanglingLineBoundaryNode> implements CgmesDanglingLineBoundaryNodeAdder {
 

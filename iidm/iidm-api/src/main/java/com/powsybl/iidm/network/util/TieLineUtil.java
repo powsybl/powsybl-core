@@ -28,8 +28,8 @@ import java.util.stream.Stream;
 import static com.powsybl.iidm.network.util.TieLineReports.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 
 public final class TieLineUtil {

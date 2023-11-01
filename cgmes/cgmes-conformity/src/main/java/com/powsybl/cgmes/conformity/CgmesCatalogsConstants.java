@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conformity;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 final class CgmesCatalogsConstants {
 

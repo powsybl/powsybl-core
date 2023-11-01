@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractIdentifiableXml<T extends Identifiable<? super T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> {
 

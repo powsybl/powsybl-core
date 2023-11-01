@@ -74,7 +74,7 @@ import java.util.Optional;
  *
  * <p>To create a load, see {@link LoadAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see LoadAdder
  */
 public interface Load extends Injection<Load> {

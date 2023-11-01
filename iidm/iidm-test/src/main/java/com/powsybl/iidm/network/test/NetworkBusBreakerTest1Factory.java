@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Objects;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class NetworkBusBreakerTest1Factory {
 

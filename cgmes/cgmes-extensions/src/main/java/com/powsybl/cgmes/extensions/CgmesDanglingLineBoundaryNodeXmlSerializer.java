@@ -14,7 +14,7 @@ import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.DanglingLine;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSerializer<DanglingLine, CgmesDanglingLineBoundaryNode> {

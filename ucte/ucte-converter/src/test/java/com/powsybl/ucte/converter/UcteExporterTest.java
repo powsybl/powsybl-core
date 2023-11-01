@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
- * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ * @author Abdelsalem Hedhili {@literal <abdelsalem.hedhili at rte-france.com>}
  */
 
 class UcteExporterTest extends AbstractConverterTest {

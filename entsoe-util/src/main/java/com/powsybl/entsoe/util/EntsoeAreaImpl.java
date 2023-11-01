@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Substation;
 import java.util.Objects;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class EntsoeAreaImpl extends AbstractExtension<Substation> implements EntsoeArea {
 

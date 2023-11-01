@@ -10,7 +10,7 @@ import com.powsybl.ampl.converter.AmplNetworkUpdater;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public class DummyAmplNetworkUpdater implements AmplNetworkUpdater {
     @Override

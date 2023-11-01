@@ -12,7 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.contingency.Contingency;
 
 /**
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 public class ProbabilityContingencyExtension extends AbstractExtension<Contingency> {
     private final Double probabilityBase;

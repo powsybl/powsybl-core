@@ -64,7 +64,7 @@ import java.util.zip.ZipOutputStream;
  *     The user may edit the generated files and reuse them in successive imports.
  * </p>
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 @AutoService(CgmesImportPreProcessor.class)
 public class CreateMissingContainersPreProcessor implements CgmesImportPreProcessor {

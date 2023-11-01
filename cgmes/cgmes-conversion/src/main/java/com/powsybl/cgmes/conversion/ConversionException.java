@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.commons.PowsyblException;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class ConversionException extends PowsyblException {
 

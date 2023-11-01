@@ -26,7 +26,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  * We check that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
  * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public final class TransformersValidation extends AbstractTransformersValidation {
 

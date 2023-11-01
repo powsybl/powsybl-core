@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadFooExt;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class LoadFooXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadFooExt> {

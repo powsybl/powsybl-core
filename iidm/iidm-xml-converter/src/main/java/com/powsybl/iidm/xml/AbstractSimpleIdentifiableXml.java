@@ -15,7 +15,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 /**
  * Abstract class for equipment that can and/or must be entirely created before reading their sub-elements.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableXml<T, A, P> {
 

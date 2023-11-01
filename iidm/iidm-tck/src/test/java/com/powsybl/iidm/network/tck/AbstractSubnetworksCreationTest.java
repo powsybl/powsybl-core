@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractSubnetworksCreationTest {
 
@@ -422,6 +422,19 @@ public abstract class AbstractSubnetworksCreationTest {
         Terminal to = l2.getTerminal2();
         PowsyblException e = assertThrows(ValidationException.class, () -> addVoltageAngleLimit(subnetwork1, "vla", from, to));
         assertTrue(e.getMessage().contains("Create this VoltageAngleLimit from the parent network"));
+    }
+
+    @Test
+    public void subnetworksWithSubstationFromSameCountry() {
+        addSubstation(subnetwork1, "substation1");
+        addSubstation(subnetwork1, "substation2");
+        assertEquals(1, subnetwork1.getCountryCount());
+
+        subnetwork1.newSubstation()
+                .setId("substation3")
+                .setCountry(Country.AD)
+                .add();
+        assertEquals(2, subnetwork1.getCountryCount());
     }
 
     void assertValidationLevels(ValidationLevel expected) {
