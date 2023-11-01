@@ -28,10 +28,10 @@ class EurostagJsonTest extends AbstractXmlConverterTest {
         network.getGeneratorStream().findFirst().ifPresent(g -> g.newExtension(ActivePowerControlAdder.class).withDroop(2).withParticipate(true).add());
         roundTripTest(network,
             (n, xmlFile) -> NetworkXml.write(n, exportOptions, xmlFile),
-            xmlFile -> {
-                return network;
-               // return NetworkXml.read(xmlFile, importOptions);
-            },
+            xmlFile -> NetworkXml.read(xmlFile, importOptions),
             getVersionedNetworkPath("eurostag-tutorial1-lf.json", CURRENT_IIDM_XML_VERSION));
+
+        //backward compatibility
+        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf.json", IidmXmlVersion.V_1_10);
     }
 }

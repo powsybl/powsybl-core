@@ -1,4 +1,9 @@
 {
+  "version" : "1.10",
+  "extensionVersions" : [ {
+    "extensionName" : "activePowerControl",
+    "version" : "1.1"
+  } ],
   "id" : "sim1",
   "caseDate" : "2013-01-15T18:45:00.000+01:00",
   "forecastDistance" : 0,
@@ -194,5 +199,12 @@
     "q1" : 98.74027252197266,
     "p2" : -300.43389892578125,
     "q2" : -137.18849182128906
+  } ],
+  "extensions" : [ {
+    "id" : "GEN",
+    "activePowerControl" : {
+      "participate" : true,
+      "droop" : 2.0
+    }
   } ]
 }
