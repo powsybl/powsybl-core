@@ -79,7 +79,7 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
         if ("1.1".compareTo(extVersionStr) <= 0) {
-            participationFactor = context.getReader().readDoubleAttribute("participationFactor", 0.0);
+            participationFactor = context.getReader().readDoubleAttribute("participationFactor");
         }
         ActivePowerControlAdder<T> activePowerControlAdder = identifiable.newExtension(ActivePowerControlAdder.class);
         return activePowerControlAdder.withParticipate(participate)
