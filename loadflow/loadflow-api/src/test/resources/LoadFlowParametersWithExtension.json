@@ -1,9 +1,9 @@
 {
-  "version" : "1.7",
+  "version" : "1.9",
   "voltageInitMode" : "UNIFORM_VALUES",
   "transformerVoltageControlOn" : false,
   "phaseShifterRegulationOn" : false,
-  "noGeneratorReactiveLimits" : false,
+  "useReactiveLimits" : true,
   "twtSplitShuntAdmittance" : false,
   "shuntCompensatorVoltageControlOn" : false,
   "readSlackBus" : true,
@@ -15,6 +15,7 @@
   "countriesToBalance" : [ ],
   "connectedComponentMode" : "MAIN",
   "hvdcAcEmulation" : true,
+  "dcPowerFactor" : 1.0,
   "extensions" : {
     "dummy-extension" : { }
   }

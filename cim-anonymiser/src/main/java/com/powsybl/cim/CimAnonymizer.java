@@ -29,7 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class CimAnonymizer {
 
@@ -150,7 +150,7 @@ public class CimAnonymizer {
                     return null;
                 }
             } else {
-                throw new AssertionError("Unknown attribute " + attribute.getName());
+                throw new IllegalStateException("Unknown attribute " + attribute.getName());
             }
         }
 

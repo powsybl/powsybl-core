@@ -7,16 +7,16 @@
 package com.powsybl.ucte.network;
 
 import com.powsybl.commons.reporter.Reporter;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.network.UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class UcteLineTest extends AbstractUcteElementTest {
+class UcteLineTest extends AbstractUcteElementTest {
 
     private UcteElementId createElementId() {
         UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.VL_380, 'A');
@@ -25,7 +25,7 @@ public class UcteLineTest extends AbstractUcteElementTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         UcteElementId id = createElementId();
         UcteLine line = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 1.0, 2.0, 3.0, 1000, "Line");
 
@@ -43,14 +43,14 @@ public class UcteLineTest extends AbstractUcteElementTest {
     }
 
     @Test
-    public void testFix() {
+    void testFix() {
         UcteElementId id = createElementId();
         UcteLine invalidLine1 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0, 0.0, 0.0, -1, null);
         invalidLine1.fix(Reporter.NO_OP);
-        Assert.assertEquals(0.05, invalidLine1.getReactance(), 0.0);
+        assertEquals(0.05, invalidLine1.getReactance(), 0.0);
 
         UcteLine invalidLine2 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0, -0.01, 0.0, null, null);
         invalidLine2.fix(Reporter.NO_OP);
-        Assert.assertEquals(-0.05, invalidLine2.getReactance(), 0.0);
+        assertEquals(-0.05, invalidLine2.getReactance(), 0.0);
     }
 }

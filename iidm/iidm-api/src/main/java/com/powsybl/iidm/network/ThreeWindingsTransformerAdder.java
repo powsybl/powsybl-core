@@ -8,9 +8,9 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWindingsTransformerAdder> {
+public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWindingsTransformer, ThreeWindingsTransformerAdder> {
 
     public interface LegAdder {
 
@@ -47,5 +47,6 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
 
     ThreeWindingsTransformerAdder setRatedU0(double ratedU0);
 
+    @Override
     ThreeWindingsTransformer add();
 }

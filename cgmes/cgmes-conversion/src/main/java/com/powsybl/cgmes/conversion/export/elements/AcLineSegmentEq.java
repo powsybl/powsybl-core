@@ -6,13 +6,14 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class AcLineSegmentEq {
 
@@ -21,8 +22,8 @@ public final class AcLineSegmentEq {
     private static final String EQ_ACLINESEGMENT_GCH = "ACLineSegment.gch";
     private static final String EQ_ACLINESEGMENT_BCH = "ACLineSegment.bch";
 
-    public static void write(String id, String lineSegmentName, String baseVoltage, double r, double x, double gch, double bch, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("ACLineSegment", id, lineSegmentName, cimNamespace, writer);
+    public static void write(String id, String lineSegmentName, String baseVoltage, double r, double x, double gch, double bch, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("ACLineSegment", id, lineSegmentName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_R);
         writer.writeCharacters(CgmesExportUtil.format(r));
         writer.writeEndElement();
@@ -38,7 +39,7 @@ public final class AcLineSegmentEq {
         writer.writeCharacters(CgmesExportUtil.format(bch));
         writer.writeEndElement();
         if (baseVoltage != null) {
-            CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, cimNamespace, writer);
+            CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, cimNamespace, writer, context);
         }
         writer.writeEndElement();
     }

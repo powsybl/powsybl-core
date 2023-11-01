@@ -8,7 +8,7 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVisitor {
 
@@ -23,7 +23,7 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
                 visitTerminal(branch.getTerminal2());
                 break;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -55,7 +55,7 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
                 visitTerminal(transformer.getLeg3().getTerminal());
                 break;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 

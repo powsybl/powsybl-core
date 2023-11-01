@@ -19,28 +19,28 @@ import java.util.Optional;
  * the busbar sections with a breaker and a closed disconnector each. The branch is also connected to all
  * the parallel busbar sections, if any, with an open disconnector.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays {
 
-    private final BranchAdder<?> branchAdder;
-    private final String bbsId1;
-    private final String bbsId2;
-    private final int positionOrder1;
-    private final int positionOrder2;
+    private final BranchAdder<?, ?> branchAdder;
+    private final String busOrBbsId1;
+    private final String busOrBbsId2;
+    private final Integer positionOrder1;
+    private final Integer positionOrder2;
     private final String feederName1;
     private final String feederName2;
     private final ConnectablePosition.Direction direction1;
     private final ConnectablePosition.Direction direction2;
 
-    CreateBranchFeederBays(BranchAdder<?> branchAdder, String bbsId1, String bbsId2, Integer positionOrder1, Integer positionOrder2,
+    CreateBranchFeederBays(BranchAdder<?, ?> branchAdder, String busOrBbsId1, String busOrBbsId2, Integer positionOrder1, Integer positionOrder2,
                            String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
         super(1, 2);
         this.branchAdder = Objects.requireNonNull(branchAdder);
-        this.bbsId1 = Objects.requireNonNull(bbsId1);
-        this.bbsId2 = Objects.requireNonNull(bbsId2);
-        this.positionOrder1 = Objects.requireNonNull(positionOrder1);
-        this.positionOrder2 = Objects.requireNonNull(positionOrder2);
+        this.busOrBbsId1 = Objects.requireNonNull(busOrBbsId1);
+        this.busOrBbsId2 = Objects.requireNonNull(busOrBbsId2);
+        this.positionOrder1 = positionOrder1;
+        this.positionOrder2 = positionOrder2;
         this.feederName1 = feederName1;
         this.feederName2 = feederName2;
         this.direction1 = Objects.requireNonNull(direction1);
@@ -48,14 +48,25 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     }
 
     @Override
-    protected String getBbsId(int side) {
+    protected String getBusOrBusbarSectionId(int side) {
         if (side == 1) {
-            return bbsId1;
+            return busOrBbsId1;
         }
         if (side == 2) {
-            return bbsId2;
+            return busOrBbsId2;
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
+    }
+
+    @Override
+    protected void setBus(int side, Bus bus, String voltageLevelId) {
+        if (side == 1) {
+            branchAdder.setConnectableBus1(bus.getId()).setBus1(bus.getId()).setVoltageLevel1(voltageLevelId);
+        } else if (side == 2) {
+            branchAdder.setConnectableBus2(bus.getId()).setBus2(bus.getId()).setVoltageLevel2(voltageLevelId);
+        } else {
+            throw createSideIllegalStateException(side);
+        }
     }
 
     @Override
@@ -65,19 +76,13 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         } else if (side == 2) {
             branchAdder.setNode2(node).setVoltageLevel2(voltageLevelId);
         } else {
-            throw createSideAssertionError(side);
+            throw createSideIllegalStateException(side);
         }
     }
 
     @Override
     protected Connectable<?> add() {
-        if (branchAdder instanceof LineAdder) {
-            return ((LineAdder) branchAdder).add();
-        } else if (branchAdder instanceof TwoWindingsTransformerAdder) {
-            return ((TwoWindingsTransformerAdder) branchAdder).add();
-        } else {
-            throw new AssertionError("Given BranchAdder not supported: " + branchAdder.getClass().getName());
-        }
+        return branchAdder.add();
     }
 
     @Override
@@ -89,18 +94,18 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return branch.getTerminal2().getVoltageLevel();
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
-    protected int getPositionOrder(int side) {
+    protected Integer getPositionOrder(int side) {
         if (side == 1) {
             return positionOrder1;
         }
         if (side == 2) {
             return positionOrder2;
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -111,7 +116,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return Optional.ofNullable(feederName2);
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -122,7 +127,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return direction2;
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -134,7 +139,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return branch.getTerminal2().getNodeBreakerView().getNode();
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -145,10 +150,10 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return connectablePositionAdder.newFeeder2();
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
-    private static AssertionError createSideAssertionError(int side) {
-        return new AssertionError("Unexpected side: " + side);
+    private static IllegalStateException createSideIllegalStateException(int side) {
+        return new IllegalStateException("Unexpected side: " + side);
     }
 }

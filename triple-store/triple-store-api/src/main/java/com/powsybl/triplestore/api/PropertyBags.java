@@ -17,7 +17,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class PropertyBags extends ArrayList<PropertyBag> {
 
@@ -63,7 +63,7 @@ public class PropertyBags extends ArrayList<PropertyBag> {
         forEach(b -> {
             String id = b.getId(idProperty);
             PropertyBag object = objects.computeIfAbsent(id, id1 -> {
-                PropertyBag o1 = new PropertyBag(propertyNames);
+                PropertyBag o1 = new PropertyBag(propertyNames, true, true);
                 o1.put(idProperty, id1);
                 return o1;
             });
@@ -87,7 +87,7 @@ public class PropertyBags extends ArrayList<PropertyBag> {
         forEach(b -> {
             String id = b.getId(idProperty);
             PropertyBag object = objects.computeIfAbsent(id, id1 -> {
-                PropertyBag o1 = new PropertyBag(propertyNames);
+                PropertyBag o1 = new PropertyBag(propertyNames, true, true);
                 o1.put(idProperty, id1);
                 return o1;
             });

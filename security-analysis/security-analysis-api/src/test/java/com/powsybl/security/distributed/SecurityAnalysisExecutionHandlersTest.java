@@ -13,6 +13,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -25,9 +26,9 @@ import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
@@ -46,29 +47,29 @@ import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class SecurityAnalysisExecutionHandlersTest {
+class SecurityAnalysisExecutionHandlersTest {
 
     private FileSystem fileSystem;
     private Path workingDir;
 
-    @Before
-    public void createFileSystem() {
+    @BeforeEach
+    void createFileSystem() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         workingDir = fileSystem.getPath("/work");
     }
 
-    @After
-    public void closeFileSystem() throws IOException {
+    @AfterEach
+    void closeFileSystem() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void forwardedBeforeWithPartialInput() throws IOException {
+    void forwardedBeforeWithPartialInput() throws IOException {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
         input.setParameters(new SecurityAnalysisParameters());
         input.setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID);
@@ -98,7 +99,7 @@ public class SecurityAnalysisExecutionHandlersTest {
     }
 
     @Test
-    public void forwardedAfter() throws IOException {
+    void forwardedAfter() throws IOException {
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("result.json"))) {
             new JsonSecurityAnalysisResultExporter().export(SecurityAnalysisResult.empty(), writer);
@@ -115,9 +116,9 @@ public class SecurityAnalysisExecutionHandlersTest {
     }
 
     @Test
-    public void forwardedBeforeWithCompleteInput() throws IOException {
+    void forwardedBeforeWithCompleteInput() throws IOException {
         Action action = new SwitchAction("action", "switch", false);
-        OperatorStrategy strategy = new OperatorStrategy("strat", "cont", new TrueCondition(), List.of("action"));
+        OperatorStrategy strategy = new OperatorStrategy("strat", ContingencyContext.specificContingency("cont"), new TrueCondition(), List.of("action"));
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())
@@ -153,7 +154,7 @@ public class SecurityAnalysisExecutionHandlersTest {
     }
 
     @Test
-    public void distributedBefore() throws IOException {
+    void distributedBefore() throws IOException {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())
                 .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
@@ -187,7 +188,7 @@ public class SecurityAnalysisExecutionHandlersTest {
     }
 
     @Test
-    public void distributedBeforeWithLog() throws IOException {
+    void distributedBeforeWithLog() throws IOException {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())
                 .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
@@ -218,7 +219,7 @@ public class SecurityAnalysisExecutionHandlersTest {
     }
 
     @Test
-    public void forwardedBeforeWithLog() throws IOException {
+    void forwardedBeforeWithLog() throws IOException {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())
                 .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
@@ -245,7 +246,7 @@ public class SecurityAnalysisExecutionHandlersTest {
     }
 
     @Test
-    public void distributedAfter() throws IOException {
+    void distributedAfter() throws IOException {
         JsonSecurityAnalysisResultExporter exporter = new JsonSecurityAnalysisResultExporter();
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {
             exporter.export(resultForContingency("c1"), writer);
@@ -291,7 +292,7 @@ public class SecurityAnalysisExecutionHandlersTest {
     }
 
     @Test
-    public void distributedAfterWithLogs() throws IOException {
+    void distributedAfterWithLogs() throws IOException {
         JsonSecurityAnalysisResultExporter exporter = new JsonSecurityAnalysisResultExporter();
 
         Set<String> expectedLogs = ImmutableSet.of("logs_0.zip",
@@ -346,13 +347,13 @@ public class SecurityAnalysisExecutionHandlersTest {
         assertEquals("c2", result.getPostContingencyResults().get(1).getContingency().getId());
 
         byte[] logBytes = report.getLogBytes()
-                .orElseThrow(AssertionError::new);
+                .orElseThrow(IllegalStateException::new);
         Set<String> foundNames = getFileNamesFromZip(logBytes);
         assertEquals(expectedLogs, foundNames);
     }
 
     @Test
-    public void forwardedAfterWithLogs() throws IOException {
+    void forwardedAfterWithLogs() throws IOException {
         JsonSecurityAnalysisResultExporter exporter = new JsonSecurityAnalysisResultExporter();
 
         Set<String> expectedLogs = ImmutableSet.of("logs.zip",
@@ -394,7 +395,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         assertTrue(report.getLogBytes().isPresent());
 
         byte[] logBytes = report.getLogBytes()
-                .orElseThrow(AssertionError::new);
+                .orElseThrow(IllegalStateException::new);
         Set<String> foundNames = getFileNamesFromZip(logBytes);
         assertEquals(expectedLogs, foundNames);
     }

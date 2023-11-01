@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractMinMaxReactiveLimitsTest;
 
-public class MinMaxReactiveLimitsTest extends AbstractMinMaxReactiveLimitsTest { }
+class MinMaxReactiveLimitsTest extends AbstractMinMaxReactiveLimitsTest { }

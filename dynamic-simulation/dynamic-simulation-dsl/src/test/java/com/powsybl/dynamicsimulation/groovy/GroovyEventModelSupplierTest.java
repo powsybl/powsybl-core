@@ -7,17 +7,14 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -26,44 +23,65 @@ import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-public class GroovyEventModelSupplierTest {
+class GroovyEventModelSupplierTest {
 
     private FileSystem fileSystem;
 
-    @Before
-    public void setup() throws IOException {
+    @BeforeEach
+    void setup() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
         Files.copy(getClass().getResourceAsStream("/eventModels.groovy"), fileSystem.getPath("/eventModels.groovy"));
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
 
         List<EventModelGroovyExtension> extensions = GroovyExtension.find(EventModelGroovyExtension.class, "dummy");
         assertEquals(1, extensions.size());
-        assertTrue(extensions.get(0) instanceof EventModelGroovyExtension);
+        assertNotNull(extensions.get(0));
 
         EventModelsSupplier supplier = new GroovyEventModelsSupplier(fileSystem.getPath("/eventModels.groovy"), extensions);
 
+        testEventModelsSupplier(network, supplier);
+    }
+
+    @Test
+    void testWithInputStream() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        List<EventModelGroovyExtension> extensions = GroovyExtension.find(EventModelGroovyExtension.class, "dummy");
+        assertEquals(1, extensions.size());
+        assertNotNull(extensions.get(0));
+
+        EventModelsSupplier supplier = new GroovyEventModelsSupplier(getClass().getResourceAsStream("/eventModels.groovy"), extensions);
+
+        testEventModelsSupplier(network, supplier);
+    }
+
+    private static void testEventModelsSupplier(Network network, EventModelsSupplier supplier) {
         List<EventModel> eventModels = supplier.get(network);
         assertEquals(2, eventModels.size());
 
         assertTrue(eventModels.get(0) instanceof DummyEventModel);
         DummyEventModel eventModel1 = (DummyEventModel) eventModels.get(0);
         assertEquals("NHV1_NHV2_1", eventModel1.getId());
+        assertEquals(50, eventModel1.getStartTime(), 0);
 
         assertTrue(eventModels.get(1) instanceof DummyEventModel);
         DummyEventModel eventModel2 = (DummyEventModel) eventModels.get(1);
         assertEquals("NHV1_NHV2_2", eventModel2.getId());
+        assertEquals(50, eventModel2.getStartTime(), 0);
     }
 }

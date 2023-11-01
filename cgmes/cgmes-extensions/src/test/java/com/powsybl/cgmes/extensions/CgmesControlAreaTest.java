@@ -9,18 +9,18 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-public class CgmesControlAreaTest {
+class CgmesControlAreaTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas extension = network.getExtension(CgmesControlAreas.class);
@@ -45,7 +45,7 @@ public class CgmesControlAreaTest {
     }
 
     @Test
-    public void invalid() {
+    void invalid() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(CgmesControlAreasAdder.class).add();
 

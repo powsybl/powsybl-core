@@ -10,21 +10,21 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Teofil Calin Banc<teofil-calin.banc at rte-france.com>
  */
-public class TopologyLevelTest extends AbstractXmlConverterTest {
+class TopologyLevelTest extends AbstractXmlConverterTest {
 
     @Test
-    public void testComparison() {
+    void testComparison() {
         assertEquals(TopologyLevel.NODE_BREAKER, TopologyLevel.min(TopologyKind.NODE_BREAKER, TopologyLevel.NODE_BREAKER));
         assertEquals(TopologyLevel.BUS_BREAKER, TopologyLevel.min(TopologyKind.NODE_BREAKER, TopologyLevel.BUS_BREAKER));
         assertEquals(TopologyLevel.BUS_BRANCH, TopologyLevel.min(TopologyKind.NODE_BREAKER, TopologyLevel.BUS_BRANCH));
@@ -35,7 +35,7 @@ public class TopologyLevelTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testConversion() throws IOException {
+    void testConversion() throws IOException {
         testConversion(NetworkXml.read(getVersionedNetworkAsStream("fictitiousSwitchRef.xml", IidmXmlVersion.V_1_0)));
 
         testConversion(FictitiousSwitchFactory.create());

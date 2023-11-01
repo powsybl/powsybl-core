@@ -10,9 +10,10 @@ import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.Objects;
 import java.util.function.IntFunction;
+import java.util.function.IntConsumer;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public class BigDoubleBuffer {
 
@@ -23,8 +24,13 @@ public class BigDoubleBuffer {
     private DoubleBuffer[] buffers;
     private long size;
 
-    public BigDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, long size) {
-        Objects.requireNonNull(byteBufferAllocator);
+    //To remove if we ever get it from somewhere else
+    //package private for tests
+    @FunctionalInterface interface IntIntBiConsumer { public void accept(int a, int b); }
+
+    //using a lambda to test independently from java.nio.ByteBuffer
+    //package private for tests
+    static void withSizes(long size, IntConsumer bufferContainerInitializer, IntIntBiConsumer bufferInitializer) {
         if (size < 0) {
             throw new IllegalArgumentException("Invalid buffer size: " + size);
         }
@@ -38,30 +44,49 @@ public class BigDoubleBuffer {
         if (size > 0 && lastBufferSizeBytes == 0) {
             lastBufferSizeBytes = BUFFER_SIZE_BYTES;
         }
-        buffers = new DoubleBuffer[bufferCount];
+        bufferContainerInitializer.accept(bufferCount);
         for (int i = 0; i < bufferCount - 1; i++) {
-            buffers[i] = byteBufferAllocator.apply(BUFFER_SIZE_BYTES).asDoubleBuffer();
+            bufferInitializer.accept(i, BUFFER_SIZE_BYTES);
         }
         if (lastBufferSizeBytes > 0) {
-            buffers[bufferCount - 1] = byteBufferAllocator.apply(lastBufferSizeBytes).asDoubleBuffer();
+            bufferInitializer.accept(bufferCount - 1, lastBufferSizeBytes);
         }
+    }
+
+    public BigDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, long size) {
+        Objects.requireNonNull(byteBufferAllocator);
+        withSizes(size,
+            bufferCount -> buffers = new DoubleBuffer[bufferCount],
+            (i, bufferSize) -> buffers[i] = byteBufferAllocator.apply(bufferSize).asDoubleBuffer()
+        );
         this.size = size;
     }
 
-    public void put(long index, double value) {
+    //To remove if we ever get it from somewhere else
+    //package private for tests
+    @FunctionalInterface interface IntIntToDoubleBiFunction { public double applyAsDouble(int a, int b); }
+
+    //using a lambda to test independently from java.nio.ByteBuffer
+    //package private for tests
+    static double withIndices(long index, IntIntToDoubleBiFunction indicesBiFunction) {
         long computedBufferIndex = index >> BUFFER_SHIFT;
         long computedSecondIndex = index & BUFFER_MASK;
         int bufferIndex = (int) computedBufferIndex;
         int secondIndex = (int) computedSecondIndex;
-        buffers[bufferIndex].put(secondIndex, value);
+        return indicesBiFunction.applyAsDouble(bufferIndex, secondIndex);
+    }
+
+    public void put(long index, double value) {
+        withIndices(index, (bufferIndex, secondIndex) -> {
+            buffers[bufferIndex].put(secondIndex, value);
+            return Double.NaN; // just to reuse the withIndices code
+        });
     }
 
     public double get(long index) {
-        long computedBufferIndex = index >> BUFFER_SHIFT;
-        long computedSecondIndex = index & BUFFER_MASK;
-        int bufferIndex = (int) computedBufferIndex;
-        int secondIndex = (int) computedSecondIndex;
-        return buffers[bufferIndex].get(secondIndex);
+        return withIndices(index, (bufferIndex, secondIndex) ->
+            buffers[bufferIndex].get(secondIndex)
+        );
     }
 
     public long capacity() {

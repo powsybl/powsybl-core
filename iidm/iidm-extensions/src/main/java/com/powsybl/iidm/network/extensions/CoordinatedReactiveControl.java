@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Generator;
 
 /**
- * @author Thomas ADAM <tadam at silicom.fr>
+ * @author Thomas ADAM {@literal <tadam at silicom.fr>}
  */
 public interface CoordinatedReactiveControl extends Extension<Generator> {
 

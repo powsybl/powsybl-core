@@ -18,10 +18,18 @@ import java.util.Objects;
 class UpDownScalable extends AbstractScalable {
     private final Scalable upScalable;
     private final Scalable downScalable;
+    private final double minValue;
+    private final double maxValue;
 
     public UpDownScalable(Scalable upScalable, Scalable downScalable) {
+        this(upScalable, downScalable, -Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    public UpDownScalable(Scalable upScalable, Scalable downScalable, double minValue, double maxValue) {
         this.upScalable = Objects.requireNonNull(upScalable);
         this.downScalable = Objects.requireNonNull(downScalable);
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
 
     @Override
@@ -38,18 +46,18 @@ class UpDownScalable extends AbstractScalable {
     @Override
     public double maximumValue(Network n, ScalingConvention scalingConvention) {
         if (scalingConvention == ScalingConvention.LOAD) {
-            return downScalable.maximumValue(n, scalingConvention) - upScalable.initialValue(n);
+            return Math.min(downScalable.maximumValue(n, scalingConvention) - upScalable.initialValue(n), maxValue);
         } else {
-            return upScalable.maximumValue(n, scalingConvention) + downScalable.initialValue(n);
+            return Math.min(upScalable.maximumValue(n, scalingConvention) + downScalable.initialValue(n), maxValue);
         }
     }
 
     @Override
     public double minimumValue(Network n, ScalingConvention scalingConvention) {
         if (scalingConvention == ScalingConvention.LOAD) {
-            return upScalable.minimumValue(n, scalingConvention) - downScalable.initialValue(n);
+            return Math.max(upScalable.minimumValue(n, scalingConvention) - downScalable.initialValue(n), minValue);
         } else {
-            return downScalable.minimumValue(n, scalingConvention) + upScalable.initialValue(n);
+            return Math.max(downScalable.minimumValue(n, scalingConvention) + upScalable.initialValue(n), minValue);
         }
     }
 
@@ -60,7 +68,17 @@ class UpDownScalable extends AbstractScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        return asked > 0 ? upScalable.scale(n, asked, scalingConvention) : downScalable.scale(n, asked, scalingConvention);
+    public double scale(Network n, double asked, ScalingParameters parameters) {
+        double minWithConvention = parameters.getScalingConvention() == ScalingConvention.GENERATOR ? minValue : -maxValue;
+        double maxWithConvention = parameters.getScalingConvention() == ScalingConvention.GENERATOR ? maxValue : -minValue;
+        double boundedAsked = asked > 0 ?
+            Math.min(asked, maxWithConvention - getSteadyStatePower(n, asked, parameters.getScalingConvention())) :
+            Math.max(asked, minWithConvention - getSteadyStatePower(n, asked, parameters.getScalingConvention()));
+        return asked > 0 ? upScalable.scale(n, boundedAsked, parameters) : downScalable.scale(n, boundedAsked, parameters);
+    }
+
+    @Override
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
+        return asked > 0 ? upScalable.getSteadyStatePower(network, asked, scalingConvention) : downScalable.getSteadyStatePower(network, asked, scalingConvention);
     }
 }

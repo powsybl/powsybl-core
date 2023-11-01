@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
 
@@ -33,8 +33,8 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         return voltageLevel != null
-                && ((context.nodeBreaker() && node != -1)
-                || (!context.nodeBreaker() && voltageLevel.getBusBreakerView().getBus(busId) != null));
+                && (context.nodeBreaker() && node != -1
+                    || !context.nodeBreaker() && voltageLevel.getBusBreakerView().getBus(busId) != null);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private void findNodeFromUnmappedCgmesTerminal() {
-        node = context.nodeMapping().iidmNodeForTerminal(cgmesTerminal, voltageLevel);
+        node = context.nodeMapping().iidmNodeForTerminal(cgmesTerminal, false, voltageLevel);
     }
 
     private void findNodeFromMappedCgmesTerminal(Terminal associatedTerminal, String topologicalNode) {

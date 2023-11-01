@@ -7,20 +7,20 @@
 
 package com.powsybl.triplestore.test;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class FoafOptionalsTest {
+class FoafOptionalsTest {
 
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         queries = new QueryCatalog("foaf/foaf-optionals.sparql");
         String base = "foaf";
         tester = new TripleStoreTester(TripleStoreFactory.allImplementations(), base, "foaf/abc-nicks.ttl");
@@ -28,7 +28,7 @@ public class FoafOptionalsTest {
     }
 
     @Test
-    public void testAllQuads() {
+    void testAllQuads() {
         Expected expected = new Expected().expect(
                 "o",
                 "Alice",
@@ -42,13 +42,13 @@ public class FoafOptionalsTest {
     }
 
     @Test
-    public void testOptional() {
+    void testOptional() {
         Expected expected = new Expected().expect("name", "Alice", "Bob", null);
         tester.testQuery(queries.get("optional"), expected);
     }
 
     @Test
-    public void testMultipleOptionals() {
+    void testMultipleOptionals() {
         Expected expected = new Expected()
                 .expect("name", "Alice", "Bob", null)
                 .expect("nick", "SweetCaroline", "Wonderland", null);
@@ -56,20 +56,20 @@ public class FoafOptionalsTest {
     }
 
     @Test
-    public void testMultipleOptionalsSameVariable() {
+    void testMultipleOptionalsSameVariable() {
         Expected expected = new Expected().expect("label", "Alice", "Bob", "SweetCaroline");
         tester.testQuery(queries.get("multipleOptionalsSameVariable"), expected);
     }
 
     @Test
-    public void testOptionalWithUnion() {
+    void testOptionalWithUnion() {
         Expected expected = new Expected()
                 .expect("label", "Alice", "Bob", "SweetCaroline", "Wonderland");
         tester.testQuery(queries.get("optionalWithUnion"), expected);
     }
 
     @Test
-    public void testNestedOptionals() {
+    void testNestedOptionals() {
         Expected expected = new Expected()
                 .expect("name", "Alice", null, null)
                 .expect("nick", "SweetCaroline", "Wonderland", null);
@@ -77,7 +77,7 @@ public class FoafOptionalsTest {
     }
 
     @Test
-    public void testOptionalAnd() {
+    void testOptionalAnd() {
         Expected expected = new Expected()
                 .expect("name", "Alice", null, null)
                 .expect("nick", "Wonderland", null, null);
@@ -85,32 +85,32 @@ public class FoafOptionalsTest {
     }
 
     @Test
-    public void testOptionalNestedFilter() {
+    void testOptionalNestedFilter() {
         Expected expected = new Expected().expect("name", "Bob", null, null);
         tester.testQuery(queries.get("optionalNestedFilter"), expected);
     }
 
     @Test
-    public void testOptionalThenFilter() {
+    void testOptionalThenFilter() {
         Expected expected = new Expected().expect("name", "Bob");
         tester.testQuery(queries.get("optionalThenFilter"), expected);
     }
 
     @Test
-    public void testOptionalNotBound() {
+    void testOptionalNotBound() {
         Expected expected = new Expected().expect("mbox", "mailto:carol@example");
         tester.testQuery(queries.get("optionalNotBound"), expected);
     }
 
     @Test
-    public void testFilterNotExists() {
+    void testFilterNotExists() {
         // Equivalent to optional not bound, the syntax is allowed since SPARQL 1.1
         Expected expected = new Expected().expect("mbox", "mailto:carol@example");
         tester.testQuery(queries.get("filterNotExists"), expected);
     }
 
     @Test
-    public void testMinus() {
+    void testMinus() {
         // Similar to filter not exists, subtract friends with name from friends with
         // mailbox
         Expected expected = new Expected().expect("mbox", "mailto:carol@example");

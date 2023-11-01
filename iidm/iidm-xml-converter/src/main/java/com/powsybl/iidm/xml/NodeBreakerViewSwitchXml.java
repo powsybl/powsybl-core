@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.NodeBreakerView.SwitchAdder> {
 
@@ -48,7 +48,7 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
     }
 
     @Override
-    protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, NetworkXmlReaderContext context) {
+    protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
         SwitchKind kind = SwitchKind.valueOf(context.getReader().getAttributeValue(null, "kind"));
         boolean retained = XmlUtil.readBoolAttribute(context.getReader(), "retained");

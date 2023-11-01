@@ -17,13 +17,12 @@ import javax.xml.transform.Source;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * @author Stanislao Fidanza <stanifidanza98@gmail.com>
+ * @author Stanislao Fidanza {@literal <stanifidanza98@gmail.com>}
  */
 public final class ComparisonUtils {
 
@@ -53,9 +52,9 @@ public final class ComparisonUtils {
 
     public static void compareTxt(InputStream expected, InputStream actual, List<Integer> excludedLines) {
         BufferedReader expectedReader = new BufferedReader(new InputStreamReader(expected));
-        List<String> expectedLines = expectedReader.lines().collect(Collectors.toList());
+        List<String> expectedLines = expectedReader.lines().toList();
         BufferedReader actualReader = new BufferedReader(new InputStreamReader(actual));
-        List<String> actualLines = actualReader.lines().collect(Collectors.toList());
+        List<String> actualLines = actualReader.lines().toList();
 
         for (int i = 0; i < expectedLines.size(); i++) {
             if (!excludedLines.contains(i)) {

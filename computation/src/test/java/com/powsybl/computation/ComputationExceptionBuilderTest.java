@@ -10,9 +10,9 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -24,20 +24,20 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-public class ComputationExceptionBuilderTest {
+class ComputationExceptionBuilderTest {
 
     private FileSystem fileSystem;
     private Path workingDir;
     private Path f1;
     private Path f2;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         workingDir = fileSystem.getPath("/wd");
         f1 = workingDir.resolve("f1.out");
@@ -55,7 +55,7 @@ public class ComputationExceptionBuilderTest {
     }
 
     @Test
-    public void readLogFromFiles() {
+    void readLogFromFiles() {
         ComputationException computationException = new ComputationExceptionBuilder()
                 .addOutLogIfExists(f1)
                 .addErrLogIfExists(f2)
@@ -67,7 +67,7 @@ public class ComputationExceptionBuilderTest {
     }
 
     @Test
-    public void withCause() {
+    void withCause() {
         Exception cause = new RuntimeException("oops");
         ComputationException computationException = new ComputationExceptionBuilder(cause)
                 .build();
@@ -80,7 +80,7 @@ public class ComputationExceptionBuilderTest {
     }
 
     @Test
-    public void withMessage() {
+    void withMessage() {
         ComputationException computationException = new ComputationExceptionBuilder()
                 .message("outch")
                 .build();
@@ -92,7 +92,7 @@ public class ComputationExceptionBuilderTest {
     }
 
     @Test
-    public void withMessageAndCause() {
+    void withMessageAndCause() {
         Exception cause = new RuntimeException("oops");
         ComputationException computationException = new ComputationExceptionBuilder(cause)
                 .message("outch")
@@ -106,7 +106,7 @@ public class ComputationExceptionBuilderTest {
     }
 
     @Test
-    public void readAdditionalFiles() throws IOException {
+    void readAdditionalFiles() throws IOException {
         ComputationException computationException = new ComputationExceptionBuilder()
                 .addFileIfExists(workingDir.resolve("notExists"))
                 .addFileIfExists(f1)
@@ -122,7 +122,7 @@ public class ComputationExceptionBuilderTest {
     }
 
     @Test
-    public void logsFromString() throws IOException {
+    void logsFromString() throws IOException {
         ComputationException computationException = new ComputationExceptionBuilder()
                 .addOutLog("out", "outLog")
                 .addErrLog("err", "errLog")
@@ -139,7 +139,7 @@ public class ComputationExceptionBuilderTest {
     }
 
     @Test
-    public void addRawBytes() throws IOException {
+    void addRawBytes() throws IOException {
         String key = "bytesKey";
         ComputationException computationException = new ComputationExceptionBuilder()
                 .addBytes(key, "someBytes".getBytes())
@@ -154,8 +154,8 @@ public class ComputationExceptionBuilderTest {
         }
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 }

@@ -13,22 +13,27 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractTerminal implements TerminalExt {
 
     protected static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Cannot modify removed equipment ";
     protected static final String CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT = "Cannot access bus of removed equipment ";
 
-    protected final Ref<? extends VariantManagerHolder> network;
+    private Ref<? extends VariantManagerHolder> network;
 
     protected AbstractConnectable connectable;
 
     protected VoltageLevelExt voltageLevel;
 
     protected int num = -1;
+
+    protected final List<RegulatingPoint> regulated = new ArrayList<>();
 
     // attributes depending on the variant
 
@@ -47,6 +52,10 @@ abstract class AbstractTerminal implements TerminalExt {
             p.add(Double.NaN);
             q.add(Double.NaN);
         }
+    }
+
+    protected VariantManagerHolder getVariantManagerHolder() {
+        return network.get();
     }
 
     @Override
@@ -70,11 +79,20 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public void setVoltageLevel(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
+        if (voltageLevel != null) {
+            network = voltageLevel.getNetworkRef();
+        }
     }
 
     @Override
     public void setNum(int num) {
         this.num = num;
+    }
+
+    @Override
+    public void removeAsRegulationPoint() {
+        regulated.forEach(RegulatingPoint::removeRegulatingTerminal);
+        regulated.clear();
     }
 
     @Override
@@ -186,5 +204,15 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public void remove() {
         removed = true;
+    }
+
+    @Override
+    public void setAsRegulatingPoint(RegulatingPoint rp) {
+        regulated.add(rp);
+    }
+
+    @Override
+    public void removeRegulatingPoint(RegulatingPoint rp) {
+        regulated.remove(rp);
     }
 }

@@ -14,25 +14,24 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class CriterionContingencyListTest {
+class CriterionContingencyListTest {
 
     Network fourSubstationNetwork;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         fourSubstationNetwork = FourSubstationsNodeBreakerFactory.create();
         fourSubstationNetwork.getSubstation("S1").setCountry(Country.FR);
         fourSubstationNetwork.getSubstation("S2").setCountry(Country.BE);
@@ -53,10 +52,9 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testCountries() {
+    void testCountries() {
         // lines in France
-        TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
-                Collections.emptyList());
+        TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR));
         LineCriterionContingencyList contingencyList = new LineCriterionContingencyList("list1", countriesCriterion,
                 null, Collections.emptyList(), null);
         List<Contingency> contingencies = contingencyList.getContingencies(fourSubstationNetwork);
@@ -92,6 +90,18 @@ public class CriterionContingencyListTest {
         assertEquals(new Contingency("GTH1", new GeneratorContingency("GTH1")), contingencies.get(3));
         assertEquals(new Contingency("GTH2", new GeneratorContingency("GTH2")), contingencies.get(4));
 
+        countryCriterion = new SingleCountryCriterion(Collections.emptyList());
+        // All generators
+        generatorContingencyList = new InjectionCriterionContingencyList("list1", "GENERATOR",
+                countryCriterion, null, Collections.emptyList(), null);
+        contingencies = generatorContingencyList.getContingencies(fourSubstationNetwork);
+        assertEquals(5, contingencies.size());
+        assertEquals(new Contingency("GH1", new GeneratorContingency("GH1")), contingencies.get(0));
+        assertEquals(new Contingency("GH2", new GeneratorContingency("GH2")), contingencies.get(1));
+        assertEquals(new Contingency("GH3", new GeneratorContingency("GH3")), contingencies.get(2));
+        assertEquals(new Contingency("GTH1", new GeneratorContingency("GTH1")), contingencies.get(3));
+        assertEquals(new Contingency("GTH2", new GeneratorContingency("GTH2")), contingencies.get(4));
+
         // hvdc between Belgium and France
         countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
                 Collections.singletonList(Country.BE));
@@ -108,10 +118,79 @@ public class CriterionContingencyListTest {
         contingencies = twoWindingsTransformerCriterionContingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(1, contingencies.size());
         assertEquals(new Contingency("TWT", new TwoWindingsTransformerContingency("TWT")), contingencies.get(0));
+
+        fourSubstationNetwork.getSubstation("S1").setCountry(null);
+        countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
+        twoWindingsTransformerCriterionContingencyList = new TwoWindingsTransformerCriterionContingencyList("list",
+                countryCriterion, null, Collections.emptyList(), null);
+        contingencies = twoWindingsTransformerCriterionContingencyList.getContingencies(fourSubstationNetwork);
+        assertEquals(0, contingencies.size());
+    }
+
+    public List<Contingency> getContingenciesForHvdcTwoCountriesCriterion(List<Country> countries1, List<Country> countries2) {
+        TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(countries1, countries2);
+        HvdcLineCriterionContingencyList hvdcLineCriterionContingencyList = new HvdcLineCriterionContingencyList("list",
+                countriesCriterion, null, Collections.emptyList(), null);
+        return hvdcLineCriterionContingencyList.getContingencies(fourSubstationNetwork);
     }
 
     @Test
-    public void testNominalVoltage() {
+    void testTwoCountriesCriterion() {
+        List<Contingency> contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.singletonList(Country.FR), Collections.singletonList(Country.BE));
+        assertEquals(1, contingencies.size());
+        assertEquals(new Contingency("HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
+
+        contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.singletonList(Country.FR), Collections.emptyList());
+        assertEquals(2, contingencies.size());
+        assertEquals(new Contingency("HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
+
+        contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.emptyList(), Collections.emptyList());
+        assertEquals(2, contingencies.size());
+        assertEquals(new Contingency("HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
+
+        contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.singletonList(Country.FR), Collections.singletonList(Country.CI));
+        assertEquals(0, contingencies.size());
+
+        fourSubstationNetwork.getSubstation("S1").setCountry(null);
+        contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.singletonList(Country.FR), Collections.singletonList(Country.BE));
+        assertEquals(0, contingencies.size());
+
+        contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.singletonList(Country.FR), Collections.emptyList());
+        assertEquals(0, contingencies.size());
+
+        contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.emptyList(), Collections.singletonList(Country.BE));
+        assertEquals(1, contingencies.size());
+
+        fourSubstationNetwork.getSubstation("S2").setCountry(null);
+        contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.singletonList(Country.FR), Collections.singletonList(Country.BE));
+        assertEquals(0, contingencies.size());
+    }
+
+    public List<Contingency> getContingenciesForGeneratorSingleCountryCriterion(SingleCountryCriterion singleCountryCriterion) {
+        InjectionCriterionContingencyList generatorContingencyList = new InjectionCriterionContingencyList("list1",
+                "GENERATOR", singleCountryCriterion, null, Collections.emptyList(), null);
+        return generatorContingencyList.getContingencies(fourSubstationNetwork);
+    }
+
+    @Test
+    void testSingleCountryCriterionEmptyCountries() {
+        List<Contingency> contingencies = getContingenciesForGeneratorSingleCountryCriterion(null);
+        assertEquals(5, contingencies.size());
+
+        contingencies = getContingenciesForGeneratorSingleCountryCriterion(new SingleCountryCriterion(Collections.emptyList()));
+        assertEquals(5, contingencies.size());
+
+        fourSubstationNetwork.getSubstation("S1").setCountry(null);
+        contingencies = getContingenciesForGeneratorSingleCountryCriterion(new SingleCountryCriterion(Collections.emptyList()));
+        assertEquals(5, contingencies.size());
+
+        contingencies = getContingenciesForGeneratorSingleCountryCriterion(new SingleCountryCriterion(Collections.singletonList(Country.FR)));
+        assertEquals(1, contingencies.size());
+        assertEquals(new Contingency("GTH2", new GeneratorContingency("GTH2")), contingencies.get(0));
+    }
+
+    @Test
+    void testNominalVoltage() {
 
         // load on 225 kV
         SingleNominalVoltageCriterion singleNominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
@@ -136,10 +215,11 @@ public class CriterionContingencyListTest {
         assertEquals(new Contingency("TWT", new TwoWindingsTransformerContingency("TWT")), contingencies.get(0));
 
         // 400 kV lines
-        singleNominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(380.0, 400.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion1 = new TwoNominalVoltageCriterion(
+                new SingleNominalVoltageCriterion.VoltageInterval(380.0, 420.0,
+                        true, true), null);
         LineCriterionContingencyList lineContingencyList = new LineCriterionContingencyList("list1", null,
-                singleNominalVoltageCriterion, Collections.emptyList(), null);
+                twoNominalVoltageCriterion1, Collections.emptyList(), null);
         contingencies = lineContingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(2, contingencies.size());
         assertEquals(new Contingency("LINE_S2S3", new LineContingency("LINE_S2S3")), contingencies.get(0));
@@ -157,7 +237,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testProperty() {
+    void testProperty() {
         // self
         List<String> values = new ArrayList<>();
         values.add("val1");
@@ -192,10 +272,55 @@ public class CriterionContingencyListTest {
         contingencies = contingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(1, contingencies.size());
         assertEquals(new Contingency("GTH1", new GeneratorContingency("GTH1")), contingencies.get(0));
+
+        // three-windings transformers
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        network.getVoltageLevel("VL_132").setProperty("property", "value1");
+        network.getVoltageLevel("VL_33").setProperty("property", "value2");
+        network.getVoltageLevel("VL_11").setProperty("property", "value3");
+        values = List.of("value");
+        propertyCriterion = new PropertyCriterion("property", values,
+                PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL);
+        contingencyList = new ThreeWindingsTransformerCriterionContingencyList("list1", null,
+                null, Collections.singletonList(propertyCriterion), null);
+        var cl = contingencyList;
+        Exception e = assertThrows(IllegalArgumentException.class, () -> cl.getContingencies(network));
+        assertTrue(e.getMessage().contains("enum to check side can not be null for threeWindingsTransformer to check their voltage level"));
+
+        assertThreeWindingsTransformerContingencies(false, network, "value0", PropertyCriterion.SideToCheck.ONE);
+        assertThreeWindingsTransformerContingencies(true, network, "value1", PropertyCriterion.SideToCheck.ONE);
+        assertThreeWindingsTransformerContingencies(true, network, "value2", PropertyCriterion.SideToCheck.ONE);
+        assertThreeWindingsTransformerContingencies(true, network, "value3", PropertyCriterion.SideToCheck.ONE);
+        assertThreeWindingsTransformerContingencies(false, network, "value1", PropertyCriterion.SideToCheck.BOTH);
+        assertThreeWindingsTransformerContingencies(false, network, "value1", PropertyCriterion.SideToCheck.ALL_THREE);
+
+        network.getVoltageLevel("VL_11").setProperty("property", "value2");
+        assertThreeWindingsTransformerContingencies(true, network, "value2", PropertyCriterion.SideToCheck.BOTH);
+        assertThreeWindingsTransformerContingencies(false, network, "value2", PropertyCriterion.SideToCheck.ALL_THREE);
+
+        network.getVoltageLevel("VL_132").setProperty("property", "value2");
+        assertThreeWindingsTransformerContingencies(true, network, "value2", PropertyCriterion.SideToCheck.BOTH);
+        assertThreeWindingsTransformerContingencies(true, network, "value2", PropertyCriterion.SideToCheck.ALL_THREE);
+
+    }
+
+    private void assertThreeWindingsTransformerContingencies(boolean successExpected, Network network, String value,
+                                                             PropertyCriterion.SideToCheck sideToCheck) {
+        PropertyCriterion propertyCriterion = new PropertyCriterion("property", List.of(value),
+                PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL, sideToCheck);
+        ContingencyList contingencyList = new ThreeWindingsTransformerCriterionContingencyList("list1", null,
+                null, Collections.singletonList(propertyCriterion), null);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        if (successExpected) {
+            assertEquals(1, contingencies.size());
+            assertEquals(new Contingency("3WT", new ThreeWindingsTransformerContingency("3WT")), contingencies.get(0));
+        } else {
+            assertEquals(0, contingencies.size());
+        }
     }
 
     @Test
-    public void testRegex() {
+    void testRegex() {
         RegexCriterion regexCriterion = new RegexCriterion("3$");
         ContingencyList contingencyList = new LineCriterionContingencyList("list1",
                 null, null, Collections.emptyList(), regexCriterion);
@@ -205,7 +330,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testThreeWindingsTransformer() {
+    void testThreeWindingsTransformer() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         network.getSubstation("SUBSTATION").setCountry(Country.FR);
         SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
@@ -300,7 +425,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testBranchesProperties() {
+    void testBranchesProperties() {
         // transfo
         // one side
         PropertyCriterion transformerPropertyCriterion = new PropertyCriterion("property",
@@ -379,7 +504,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testDanglingLines() {
+    void testDanglingLines() {
         // dangling lines
         Network network = DanglingLineNetworkFactory.create();
         SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
@@ -394,7 +519,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testSomeInjections() {
+    void testSomeInjections() {
         SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(390.0, 440.0, false, false));

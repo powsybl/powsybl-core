@@ -10,7 +10,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
+import com.powsybl.shortcircuit.StudyType;
 
 import java.io.IOException;
 
@@ -28,11 +30,24 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", ShortCircuitParameters.VERSION);
         jsonGenerator.writeBooleanField("withLimitViolations", parameters.isWithLimitViolations());
-        jsonGenerator.writeBooleanField("withVoltageMap", parameters.isWithVoltageMap());
+        jsonGenerator.writeBooleanField("withVoltageResult", parameters.isWithVoltageResult());
         jsonGenerator.writeBooleanField("withFeederResult", parameters.isWithFeederResult());
         jsonGenerator.writeStringField("studyType", parameters.getStudyType().name());
+        if (parameters.getStudyType() == StudyType.SUB_TRANSIENT) {
+            JsonUtil.writeOptionalDoubleField(jsonGenerator, "subTransientCoefficient", parameters.getSubTransientCoefficient());
+        }
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonShortCircuitParameters.getExtensionSerializers());
+        jsonGenerator.writeBooleanField("withFortescueResult", parameters.isWithFortescueResult());
+        jsonGenerator.writeBooleanField("withLoads", parameters.isWithLoads());
+        jsonGenerator.writeBooleanField("withShuntCompensators", parameters.isWithShuntCompensators());
+        jsonGenerator.writeBooleanField("withVSCConverterStations", parameters.isWithVSCConverterStations());
+        jsonGenerator.writeBooleanField("withNeutralPosition", parameters.isWithNeutralPosition());
+        jsonGenerator.writeStringField("initialVoltageProfileMode", parameters.getInitialVoltageProfileMode().name());
+        if (parameters.getInitialVoltageProfileMode() == InitialVoltageProfileMode.CONFIGURED) {
+            serializerProvider.defaultSerializeField("voltageRanges", parameters.getVoltageRanges(), jsonGenerator);
+        }
+        jsonGenerator.writeBooleanField("detailedReport", parameters.isDetailedReport());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonShortCircuitParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();
     }
 

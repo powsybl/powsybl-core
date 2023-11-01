@@ -10,14 +10,14 @@ import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.Version;
 import com.powsybl.tools.VersionTool;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class VersionToolTest extends AbstractToolTest {
+class VersionToolTest extends AbstractToolTest {
 
     @Override
     protected Iterable<Tool> getTools() {
@@ -31,7 +31,7 @@ public class VersionToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void run() throws Exception {
+    void run() throws Exception {
         assertCommand(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, "",
                 "Available commands are:" + System.lineSeparator() +
                 System.lineSeparator());

@@ -7,19 +7,19 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public class EurostagXmlTest extends AbstractXmlConverterTest {
+class EurostagXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void loadFlowResultsTest() throws IOException {
+    void loadFlowResultsTest() throws IOException {
         roundTripXmlTest(EurostagTutorialExample1Factory.createWithLFResults(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,

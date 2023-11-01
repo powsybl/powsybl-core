@@ -13,28 +13,23 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractCoordinatedReactiveControlTest {
 
     private Generator generator;
 
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() {
         Network network = EurostagTutorialExample1Factory.create();
         generator = network.getGenerator("GEN");
@@ -53,11 +48,10 @@ public abstract class AbstractCoordinatedReactiveControlTest {
 
     @Test
     public void testUndefined() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Undefined value for qPercent");
-        generator.newExtension(CoordinatedReactiveControlAdder.class)
+        PowsyblException e = assertThrows(PowsyblException.class, () -> generator.newExtension(CoordinatedReactiveControlAdder.class)
                 .withQPercent(Double.NaN)
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("Undefined value for qPercent"));
     }
 
     @Test

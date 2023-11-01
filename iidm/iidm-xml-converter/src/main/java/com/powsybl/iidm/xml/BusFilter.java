@@ -13,8 +13,8 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class BusFilter {
 
@@ -30,7 +30,7 @@ public class BusFilter {
             addBusOfOtherSideOfOpenBranches(buses, n, options);
 
             if (n.getThreeWindingsTransformerCount() != 0) {
-                throw new AssertionError("TODO");
+                throw new IllegalStateException("TODO");
             }
         }
         return new BusFilter(buses, options);
@@ -61,7 +61,7 @@ public class BusFilter {
             if (options.getTopologyLevel() == TopologyLevel.BUS_BRANCH) {
                 Bus b1 = t1.getBusView().getConnectableBus();
                 Bus b2 = t2.getBusView().getConnectableBus();
-                if ((b1 != null && b1.isInMainConnectedComponent()) && b2 != null && !b2.isInMainConnectedComponent()) {
+                if (b1 != null && b1.isInMainConnectedComponent() && b2 != null && !b2.isInMainConnectedComponent()) {
                     buses.add(b2.getId());
                 } else if (b1 != null && !b1.isInMainConnectedComponent() && b2 != null && b2.isInMainConnectedComponent()) {
                     buses.add(b1.getId());
@@ -102,5 +102,19 @@ public class BusFilter {
             }
         }
         return true;
+    }
+
+    public boolean test(TieLine tl) {
+        if (buses == null) {
+            return true;
+        }
+        Bus b = options.getTopologyLevel() == TopologyLevel.BUS_BRANCH ?
+                tl.getDanglingLine1().getTerminal().getBusView().getConnectableBus() : tl.getDanglingLine1().getTerminal().getBusBreakerView().getConnectableBus();
+        if (b != null && !buses.contains(b.getId())) {
+            return false;
+        }
+        b = options.getTopologyLevel() == TopologyLevel.BUS_BRANCH ?
+                tl.getDanglingLine2().getTerminal().getBusView().getConnectableBus() : tl.getDanglingLine2().getTerminal().getBusBreakerView().getConnectableBus();
+        return b == null || buses.contains(b.getId());
     }
 }

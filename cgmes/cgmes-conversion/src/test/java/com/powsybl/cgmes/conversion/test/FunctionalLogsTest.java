@@ -13,40 +13,40 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Importers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class FunctionalLogsTest {
+class FunctionalLogsTest {
 
     @Test
-    public void testImportMicroGridBaseCaseBE() throws IOException {
+    void testImportMicroGridBaseCaseBE() throws IOException {
         checkResult("/functional-logs/microGridBaseCaseBE.txt",
                 importReport(CgmesConformity1Catalog.microGridBaseCaseBE()));
     }
 
     @Test
-    public void testImportMicroGridBaseCaseBETargetDeadbandNegative() throws IOException {
+    void testImportMicroGridBaseCaseBETargetDeadbandNegative() throws IOException {
         checkResult("/functional-logs/microGridBaseCaseBE-target-deadband.txt",
                 importReport(CgmesConformity1ModifiedCatalog.microGridBaseBETargetDeadbandNegative()));
     }
 
     @Test
-    public void testImportMicroGridBaseCaseBEInvalidVoltageBus() throws IOException {
+    void testImportMicroGridBaseCaseBEInvalidVoltageBus() throws IOException {
         checkResult("/functional-logs/microGridBaseCaseBE-invalid-voltage-bus.txt",
                 importReport(CgmesConformity1ModifiedCatalog.microGridBaseBEInvalidVoltageBus()));
     }
 
     @Test
-    public void testImportMiniGridNodeBreaker() throws IOException {
+    void testImportMiniGridNodeBreaker() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         checkResult("/functional-logs/miniGridNodeBreaker.txt",

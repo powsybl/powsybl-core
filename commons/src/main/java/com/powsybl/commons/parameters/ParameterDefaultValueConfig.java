@@ -17,7 +17,7 @@ import java.util.function.BiFunction;
 /**
  * To override programmatic default value.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class ParameterDefaultValueConfig {
 
@@ -61,6 +61,8 @@ public class ParameterDefaultValueConfig {
                 return getStringListValue(prefix, parameter);
             case DOUBLE:
                 return getDoubleValue(prefix, parameter);
+            case INTEGER:
+                return getIntegerValue(prefix, parameter);
             default:
                 throw new IllegalStateException("Unsupported parameter type: " + parameter.getType());
         }
@@ -81,6 +83,11 @@ public class ParameterDefaultValueConfig {
     public double getDoubleValue(String prefix, Parameter parameter) {
         return getValue(prefix, (Double) parameter.getDefaultValue(), parameter,
             (moduleConfig, name) -> moduleConfig.getOptionalDoubleProperty(name).stream().boxed().findFirst());
+    }
+
+    public int getIntegerValue(String prefix, Parameter parameter) {
+        return getValue(prefix, (Integer) parameter.getDefaultValue(), parameter,
+            (moduleConfig, name) -> moduleConfig.getOptionalIntProperty(name).stream().boxed().findFirst());
     }
 
     private <T> T getValue(String prefix, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> valueSupplier) {

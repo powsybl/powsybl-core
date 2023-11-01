@@ -7,40 +7,39 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.*;
 import com.powsybl.cgmes.conversion.PhaseAngleClock;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
-import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class TransformerConversionTest {
+class TransformerConversionTest {
 
     @Test
-    public void microGridBaseCaseBExfmr2ShuntDefault() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntDefault() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
@@ -48,7 +47,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2ShuntEnd1() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntEnd1() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -57,7 +56,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2ShuntEnd2() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntEnd2() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END2);
         // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
@@ -67,7 +66,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2ShuntEnd1End2() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntEnd1End2() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1_END2);
         // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
@@ -77,7 +76,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2ShuntSplit() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntSplit() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
@@ -87,7 +86,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2RatioPhaseDefault() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseDefault() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
@@ -99,7 +98,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2RatioPhaseEnd1() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseEnd1() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -112,7 +111,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2RatioPhaseEnd2() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseEnd2() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -125,7 +124,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2RatioPhaseEnd1End2() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseEnd1End2() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1_END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -138,7 +137,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2RatioPhaseX() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseX() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.X);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -151,7 +150,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2Ratio0Default() throws IOException {
+    void microGridBaseCaseBExfmr2Ratio0Default() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
@@ -163,7 +162,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2Ratio0End1() throws IOException {
+    void microGridBaseCaseBExfmr2Ratio0End1() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -176,7 +175,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2Ratio0End2() throws IOException {
+    void microGridBaseCaseBExfmr2Ratio0End2() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -189,7 +188,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2Ratio0X() throws IOException {
+    void microGridBaseCaseBExfmr2Ratio0X() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.X);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -202,7 +201,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3ShuntDefault() throws IOException {
+    void microGridBaseCaseBExfmr3ShuntDefault() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
@@ -212,7 +211,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3ShuntNetworkSide() throws IOException {
+    void microGridBaseCaseBExfmr3ShuntNetworkSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -223,7 +222,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3ShuntStarBusSide() throws IOException {
+    void microGridBaseCaseBExfmr3ShuntStarBusSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.STAR_BUS_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -234,7 +233,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3ShuntSplit() throws IOException {
+    void microGridBaseCaseBExfmr3ShuntSplit() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
@@ -246,7 +245,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3RatioPhaseDefault() throws IOException {
+    void microGridBaseCaseBExfmr3RatioPhaseDefault() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
@@ -256,7 +255,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3RatioPhaseNetworkSide() throws IOException {
+    void microGridBaseCaseBExfmr3RatioPhaseNetworkSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -267,7 +266,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3RatioPhaseStarBusSide() throws IOException {
+    void microGridBaseCaseBExfmr3RatioPhaseStarBusSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.STAR_BUS_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -278,7 +277,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3Ratio0Default() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0Default() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
@@ -288,7 +287,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3Ratio0StarBusSide() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0StarBusSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -299,7 +298,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3Ratio0NetworkSide() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0NetworkSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.NETWORK_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -310,7 +309,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3Ratio0End1() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0End1() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -321,7 +320,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3Ratio0End2() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0End2() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -332,7 +331,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr3Ratio0End3() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0End3() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END3);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -343,7 +342,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void miniBusBranchPhaseAngleClock() throws IOException {
+    void miniBusBranchPhaseAngleClock() throws IOException {
         Conversion.Config config = new Conversion.Config();
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
@@ -357,7 +356,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void miniBusBranchPhaseAngleClockZero() throws IOException {
+    void miniBusBranchPhaseAngleClockZero() throws IOException {
         Conversion.Config config = new Conversion.Config();
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
@@ -371,7 +370,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void miniBusBranchT2xPhaseAngleClock1NonZero() throws IOException {
+    void miniBusBranchT2xPhaseAngleClock1NonZero() throws IOException {
         Conversion.Config config = new Conversion.Config();
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
@@ -383,7 +382,7 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void miniBusBranchT3xAllPhaseAngleClockNonZero() throws IOException {
+    void miniBusBranchT3xAllPhaseAngleClockNonZero() throws IOException {
         Conversion.Config config = new Conversion.Config();
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
@@ -392,6 +391,23 @@ public class TransformerConversionTest {
 
         boolean ok = t3xCompareFlow(n, "_5d38b7ed-73fd-405a-9cdb-78425e003773", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551);
         assertTrue(ok);
+    }
+
+    @Test
+    void microGridBaseCaseBEPhaseTapChangerXMin() throws IOException {
+        Network n = networkModel(Cgmes3ModifiedCatalog.microGridBaseCasePhaseTapChangerXMin(), new Conversion.Config());
+
+        TwoWindingsTransformer twt1 = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer twt2 = n.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
+
+        assertEquals(1.10949, obtainXcurrentStep(twt1), 0.00001);
+        assertEquals(2.796323, obtainXcurrentStep(twt2), 0.00001);
+    }
+
+    private static double obtainXcurrentStep(TwoWindingsTransformer twt) {
+        double xtx = twt.getX();
+        double ptcStepX = twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getX()).orElse(0d);
+        return xtx * (1 + ptcStepX / 100);
     }
 
     private boolean t2xCompareFlow(Network n, String id, double p1, double q1, double p2, double q2) {
@@ -433,34 +449,13 @@ public class TransformerConversionTest {
         return ok;
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
-        config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config);
-        Network n = c.convert();
-
-        double threshold = 0.01;
-        ValidationConfig vconfig = loadFlowValidationConfig(threshold);
-        LoadFlowParameters lfParameters = defineLoadflowParameters(vconfig.getLoadFlowParameters(), config);
-        ConversionTester.computeMissingFlows(n, lfParameters);
-
-        return n;
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
+        return networkModel(testGridModel, config, Collections.emptyList());
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) throws IOException {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
         config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config, postProcessors);
-        Network n = c.convert();
+        Network n = ConversionUtil.networkModel(testGridModel, config, postProcessors);
 
         double threshold = 0.01;
         ValidationConfig vconfig = loadFlowValidationConfig(threshold);

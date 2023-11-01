@@ -7,6 +7,7 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +27,7 @@ import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class GroovyEventModelsSupplier implements EventModelsSupplier {
 
@@ -40,6 +41,11 @@ public class GroovyEventModelsSupplier implements EventModelsSupplier {
 
     public GroovyEventModelsSupplier(Path path, List<EventModelGroovyExtension> extensions) {
         this.codeSource = GroovyScripts.load(path);
+        this.extensions = Objects.requireNonNull(extensions);
+    }
+
+    public GroovyEventModelsSupplier(InputStream is, List<EventModelGroovyExtension> extensions) {
+        this.codeSource = GroovyScripts.load(is);
         this.extensions = Objects.requireNonNull(extensions);
     }
 

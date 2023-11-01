@@ -1,6 +1,7 @@
 {
-  "version" : "1.0",
+  "version" : "1.1",
   "faultResults" : [ {
+    "status" : "SUCCESS",
     "fault" : {
       "type" : "BUS",
       "id" : "id",
@@ -14,22 +15,15 @@
     "timeConstant" : "PT1S",
     "feederResult" : [ {
       "connectableId" : "connectableId",
-      "current" : {
-        "directMagnitude" : 1.0
-      }
+      "currentMagnitude" : 1.0
     } ],
+    "currentMagnitude" : 1.0,
     "limitViolations" : [ {
       "subjectId" : "id",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
       "limit" : 2000.0,
       "limitReduction" : 1.0,
       "value" : 2500.0
-    } ],
-    "current" : {
-      "directMagnitude" : 1.0
-    },
-    "voltage" : {
-      "directMagnitude" : 2.0
-    }
+    } ]
   } ]
 }

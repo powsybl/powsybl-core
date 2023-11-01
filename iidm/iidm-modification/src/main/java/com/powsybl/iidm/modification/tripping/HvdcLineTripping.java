@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class HvdcLineTripping extends AbstractTripping {
 
@@ -43,17 +43,6 @@ public class HvdcLineTripping extends AbstractTripping {
         Terminal terminal1 = hvdcLine.getConverterStation1().getTerminal();
         Terminal terminal2 = hvdcLine.getConverterStation2().getTerminal();
 
-        if (voltageLevelId != null) {
-            if (voltageLevelId.equals(terminal1.getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            } else if (voltageLevelId.equals(terminal2.getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            } else {
-                throw new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to HVDC line '" + id + "'");
-            }
-        } else {
-            TrippingTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            TrippingTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals);
-        }
+        traverseDoubleSidedEquipment(voltageLevelId, terminal1, terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals, hvdcLine.getType().name());
     }
 }

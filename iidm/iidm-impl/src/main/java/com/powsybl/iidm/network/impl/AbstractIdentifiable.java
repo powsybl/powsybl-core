@@ -17,11 +17,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I>, Validable, MultiVariantObject {
 
-    protected final String id;
+    protected String id;
 
     protected String name;
 
@@ -45,6 +45,10 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public String getId() {
         return id;
+    }
+
+    void replaceId(String newId) {
+        throw new PowsyblException("Cannot change ID");
     }
 
     @Override

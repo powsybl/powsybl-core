@@ -10,26 +10,26 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.modification.NetworkModification;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
-public class StaticVarCompensatorTrippingTest {
+class StaticVarCompensatorTrippingTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = SvcTestCaseFactory.create();
     }
 
     @Test
-    public void generatorTrippingTest() {
+    void generatorTrippingTest() {
         assertTrue(network.getStaticVarCompensator("SVC2").getTerminal().isConnected());
 
         Contingency contingency = Contingency.staticVarCompensator("SVC2");

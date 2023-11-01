@@ -1,0 +1,10 @@
+[ {
+  "version" : "1.2",
+  "id" : "f01",
+  "withVoltageResult" : true,
+  "withFortescueResult" : true,
+  "withLoads" : true,
+  "withShuntCompensators" : true,
+  "initialVoltageProfileMode" : "CONFIGURED",
+  "voltageRanges" : []
+} ]

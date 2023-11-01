@@ -13,20 +13,20 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
-public class ValidationConfigTest {
+class ValidationConfigTest {
 
     InMemoryPlatformConfig platformConfig;
     FileSystem fileSystem;
@@ -43,19 +43,19 @@ public class ValidationConfigTest {
     boolean checkMainComponentOnly = false;
     boolean noRequirementIfSetpointOutsidePowerBounds = true;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
     @Test
-    public void testNoConfig() {
+    void testNoConfig() {
         ValidationConfig config = ValidationConfig.load(platformConfig);
         checkValues(config, ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                     ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT,
@@ -64,7 +64,7 @@ public class ValidationConfigTest {
     }
 
     @Test
-    public void checkIncompleteConfig() throws Exception {
+    void checkIncompleteConfig() throws Exception {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Double.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
@@ -78,7 +78,7 @@ public class ValidationConfigTest {
     }
 
     @Test
-    public void checkCompleteConfig() throws Exception {
+    void checkCompleteConfig() throws Exception {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Double.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
@@ -98,7 +98,7 @@ public class ValidationConfigTest {
     }
 
     @Test
-    public void checkSetters() throws Exception {
+    void checkSetters() throws Exception {
         ValidationConfig config = ValidationConfig.load(platformConfig);
         config.setThreshold(threshold);
         config.setVerbose(verbose);
@@ -135,7 +135,7 @@ public class ValidationConfigTest {
     }
 
     @Test
-    public void testWrongConfig() {
+    void testWrongConfig() {
         try {
             new ValidationConfig(-1, false, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),

@@ -10,7 +10,7 @@ import java.util.Objects;
 
 /*
  * Key type for sensitivity value when stored by function type, contingency, function and variable id
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class SensitivityValueKey {
 
@@ -19,11 +19,14 @@ public class SensitivityValueKey {
     private final String functionId;
     private final String variableId;
 
-    public SensitivityValueKey(final String contingencyId, final String variableId, final String functionId, final SensitivityFunctionType functionType) {
+    private final SensitivityVariableType variableType;
+
+    public SensitivityValueKey(final String contingencyId, final String variableId, final String functionId, final SensitivityFunctionType functionType, final SensitivityVariableType variableType) {
         this.contingencyId = contingencyId;
         this.variableId = variableId;
         this.functionId = functionId;
         this.functionType = functionType;
+        this.variableType = variableType;
     }
 
     public SensitivityFunctionType getFunctionType() {
@@ -42,6 +45,10 @@ public class SensitivityValueKey {
         return variableId;
     }
 
+    public SensitivityVariableType getVariableType() {
+        return variableType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this) {
@@ -56,11 +63,11 @@ public class SensitivityValueKey {
 
         return c.getFunctionType().equals(functionType) && c.getFunctionId().equals(functionId)
                && (c.getContingencyId() != null ? c.getContingencyId().equals(contingencyId) : contingencyId == null)
-               && c.getVariableId().equals(variableId);
+               && c.getVariableId().equals(variableId) && c.getVariableType().equals(variableType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(functionType, functionId, contingencyId, variableId);
+        return Objects.hash(functionType, functionId, contingencyId, variableId, variableType);
     }
 }

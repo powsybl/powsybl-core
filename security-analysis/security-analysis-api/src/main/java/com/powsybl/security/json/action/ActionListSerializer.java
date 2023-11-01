@@ -16,7 +16,7 @@ import java.io.IOException;
 import static com.powsybl.security.action.ActionList.VERSION;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ActionListSerializer extends StdSerializer<ActionList> {
 
@@ -28,7 +28,7 @@ public class ActionListSerializer extends StdSerializer<ActionList> {
     public void serialize(ActionList actionList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeObjectField("actions", actionList.getActions());
+        serializerProvider.defaultSerializeField("actions", actionList.getActions(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

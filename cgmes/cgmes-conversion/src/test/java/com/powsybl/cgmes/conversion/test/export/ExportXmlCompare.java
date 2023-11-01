@@ -15,6 +15,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -34,12 +35,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public final class ExportXmlCompare {
+final class ExportXmlCompare {
 
     private ExportXmlCompare() {
     }
@@ -103,7 +104,15 @@ public final class ExportXmlCompare {
     }
 
     static boolean isConsideredForNetwork(Attr attr) {
-        return !(attr.getLocalName().equals("forecastDistance"));
+        if (attr.getLocalName().equals("forecastDistance")) {
+            return false;
+        }
+        if (attr.getLocalName().equals("value")) {
+            Element e = attr.getOwnerElement();
+            return !e.getLocalName().equals("property")
+                    || !"CGMES.TP_ID".equals(e.getAttribute("name")) && !"CGMES.SSH_ID".equals(e.getAttribute("name"));
+        }
+        return true;
     }
 
     private static boolean isConsideredForEQNetwork(Attr attr) {
@@ -121,6 +130,11 @@ public final class ExportXmlCompare {
             } else if (elementName.contains("TapChanger")) {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
                         || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+            } else if (elementName.startsWith("generator")) {
+                // ratedS is optional for generators,
+                // but we always export it to keep up with the quality of datasets rules.
+                // So we do not enforce this attribute to be equal in the original and exported network
+                ignored = attr.getLocalName().equals("ratedS");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
@@ -242,7 +256,7 @@ public final class ExportXmlCompare {
         return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de1))));
     }
 
-    public static void compareSV(InputStream expected, InputStream actual) {
+    static void compareSV(InputStream expected, InputStream actual) {
         onlyNodeListSequenceDiffs(compare(diffSV(expected, actual, DifferenceEvaluators.Default).checkForIdentical()));
     }
 
@@ -271,6 +285,19 @@ public final class ExportXmlCompare {
 
     static ComparisonResult noKnownDiffs(Comparison comparison, ComparisonResult result) {
         // No previously known differences that should be filtered
+        return result;
+    }
+
+    static ComparisonResult ignoringCgmesSshMetadataId(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE
+                    && control.getNodeName().equals("id")) {
+                if (comparison.getControlDetails().getXPath().contains("cgmesSshMetadata")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
         return result;
     }
 
@@ -563,6 +590,44 @@ public final class ExportXmlCompare {
                     if (control.getTarget().getParentNode().getLocalName().endsWith(".mRID")) {
                         return ComparisonResult.EQUAL;
                     }
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringLoadAreaIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control.getXPath().contains("SubLoadArea")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("LoadArea")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SubLoadArea.LoadArea")
+                        && control.getTarget().getLocalName().equals("resource")) {
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.TEXT_VALUE) {
+                if (control.getXPath().contains("SubLoadArea") || control.getXPath().contains("LoadArea")) {
+                    if (control.getTarget().getParentNode().getLocalName().endsWith(".mRID")) {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringEnergyAreaIdOfControlArea(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control.getXPath().contains("ControlArea.EnergyArea")
+                        && control.getTarget().getLocalName().equals("resource")) {
+                    return ComparisonResult.EQUAL;
                 }
             }
         }

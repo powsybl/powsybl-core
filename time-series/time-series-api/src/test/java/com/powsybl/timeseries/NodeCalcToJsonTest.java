@@ -7,22 +7,22 @@
 package com.powsybl.timeseries;
 
 import com.powsybl.timeseries.ast.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
 import static com.powsybl.timeseries.ast.BinaryOperation.*;
 import static com.powsybl.timeseries.ast.LiteralNodeCalc.*;
 import static com.powsybl.timeseries.ast.UnaryOperation.abs;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NodeCalcToJsonTest {
+class NodeCalcToJsonTest {
 
     @Test
-    public void test() {
+    void test() {
         NodeCalc node = abs(div(plus(new TimeNodeCalc(createInteger(11)),
                                      createFloat(3.14f)),
                                 multiply(createDouble(2.4566),

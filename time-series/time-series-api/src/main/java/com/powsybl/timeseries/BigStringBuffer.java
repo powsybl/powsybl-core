@@ -9,9 +9,10 @@ package com.powsybl.timeseries;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.function.IntFunction;
+import java.util.function.IntConsumer;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public class BigStringBuffer {
 
@@ -21,8 +22,13 @@ public class BigStringBuffer {
     private CompactStringBuffer[] buffers;
     private long size;
 
-    public BigStringBuffer(IntFunction<ByteBuffer> byteBufferAllocator, long size) {
-        Objects.requireNonNull(byteBufferAllocator);
+    //To remove if we ever get it from somewhere else
+    //package private for tests
+    @FunctionalInterface interface IntIntBiConsumer { public void accept(int a, int b); }
+
+    //using a lambda to test independently from java.nio.ByteBuffer
+    //package private for tests
+    static void withSizes(long size, IntConsumer bufferContainerInitializer, IntIntBiConsumer bufferInitializer) {
         if (size < 0) {
             throw new IllegalArgumentException("Invalid buffer size: " + size);
         }
@@ -36,30 +42,49 @@ public class BigStringBuffer {
         if (size > 0 && lastBufferSizeInts == 0) {
             lastBufferSizeInts = BUFFER_SIZE_INTS;
         }
-        buffers = new CompactStringBuffer[bufferCount];
+        bufferContainerInitializer.accept(bufferCount);
         for (int i = 0; i < bufferCount - 1; i++) {
-            buffers[i] = new CompactStringBuffer(byteBufferAllocator, BUFFER_SIZE_INTS);
+            bufferInitializer.accept(i, BUFFER_SIZE_INTS);
         }
         if (lastBufferSizeInts > 0) {
-            buffers[bufferCount - 1] = new CompactStringBuffer(byteBufferAllocator, lastBufferSizeInts);
+            bufferInitializer.accept(bufferCount - 1, lastBufferSizeInts);
         }
+    }
+
+    public BigStringBuffer(IntFunction<ByteBuffer> byteBufferAllocator, long size) {
+        Objects.requireNonNull(byteBufferAllocator);
+        withSizes(size,
+            bufferCount -> buffers = new CompactStringBuffer[bufferCount],
+            (i, bufferSize) -> buffers[i] = new CompactStringBuffer(byteBufferAllocator, bufferSize)
+        );
         this.size = size;
     }
 
-    public void putString(long index, String value) {
+    //To remove if we ever get it from somewhere else
+    //package private for tests
+    @FunctionalInterface interface IntIntBiFunction { public String apply(int a, int b); }
+
+    //using a lambda to test independently from java.nio.ByteBuffer
+    //package private for tests
+    static String withIndices(long index, IntIntBiFunction indicesBiFunction) {
         long computedBufferIndex = index >> BUFFER_SHIFT;
         long computedSecondIndex = index & BUFFER_MASK;
         int bufferIndex = (int) computedBufferIndex;
         int secondIndex = (int) computedSecondIndex;
-        buffers[bufferIndex].putString(secondIndex, value);
+        return indicesBiFunction.apply(bufferIndex, secondIndex);
+    }
+
+    public void putString(long index, String value) {
+        withIndices(index, (bufferIndex, secondIndex) -> {
+            buffers[bufferIndex].putString(secondIndex, value);
+            return null; // just to reuse the withIndices code
+        });
     }
 
     public String getString(long index) {
-        long computedBufferIndex = index >> BUFFER_SHIFT;
-        long computedSecondIndex = index & BUFFER_MASK;
-        int bufferIndex = (int) computedBufferIndex;
-        int secondIndex = (int) computedSecondIndex;
-        return buffers[bufferIndex].getString(secondIndex);
+        return withIndices(index, (bufferIndex, secondIndex) ->
+            buffers[bufferIndex].getString(secondIndex)
+        );
     }
 
     public long capacity() {

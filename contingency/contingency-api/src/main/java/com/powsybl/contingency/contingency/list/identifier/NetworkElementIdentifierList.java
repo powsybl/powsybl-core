@@ -6,34 +6,37 @@
  */
 package com.powsybl.contingency.contingency.list.identifier;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class NetworkElementIdentifierList implements NetworkElementIdentifier {
     private final List<NetworkElementIdentifier> networkElementIdentifiers;
+    private final String contingencyId;
 
-    public List<NetworkElementIdentifier> getIdentifiers() {
+    public List<NetworkElementIdentifier> getNetworkElementIdentifiers() {
         return networkElementIdentifiers;
     }
 
     public NetworkElementIdentifierList(List<NetworkElementIdentifier> networkElementIdentifiers) {
-        this.networkElementIdentifiers = Objects.requireNonNull(networkElementIdentifiers);
+        this(networkElementIdentifiers, null);
+    }
+
+    public NetworkElementIdentifierList(List<NetworkElementIdentifier> networkElementIdentifiers, String contingencyId) {
+        this.networkElementIdentifiers = ImmutableList.copyOf(networkElementIdentifiers);
+        this.contingencyId = contingencyId;
     }
 
     @Override
-    public Optional<Identifiable> filterIdentifiable(Network network) {
-        return networkElementIdentifiers.stream()
-                .map(identifiant -> identifiant.filterIdentifiable(network))
-                .filter(Optional::isPresent)
-                .findFirst()
-                .orElse(null);
+    public Set<Identifiable<?>> filterIdentifiable(Network network) {
+        Set<Identifiable<?>> identifiables = new LinkedHashSet<>();
+        networkElementIdentifiers.forEach(identifiant -> identifiables.addAll(identifiant.filterIdentifiable(network)));
+        return identifiables;
     }
 
     @Override
@@ -41,4 +44,8 @@ public class NetworkElementIdentifierList implements NetworkElementIdentifier {
         return IdentifierType.LIST;
     }
 
+    @Override
+    public Optional<String> getContingencyId() {
+        return Optional.ofNullable(contingencyId);
+    }
 }

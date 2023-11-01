@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,15 +20,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class GeneratorTrippingTest extends AbstractTrippingTest {
+class GeneratorTrippingTest extends AbstractTrippingTest {
 
     @Test
-    public void generatorTrippingTest() {
+    void generatorTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
         assertTrue(network.getGenerator("GEN").getTerminal().isConnected());
 
@@ -38,16 +38,16 @@ public class GeneratorTrippingTest extends AbstractTrippingTest {
         assertFalse(network.getGenerator("GEN").getTerminal().isConnected());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void unknownGeneratorTrippingTest() {
+    @Test
+    void unknownGeneratorTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
 
         GeneratorTripping tripping = new GeneratorTripping("generator");
-        tripping.apply(network);
+        assertThrows(PowsyblException.class, () -> tripping.apply(network));
     }
 
     @Test
-    public void fictitiousSwitchTest() {
+    void fictitiousSwitchTest() {
         Set<String> switchIds = Collections.singleton("BJ");
 
         Network network = FictitiousSwitchFactory.create();

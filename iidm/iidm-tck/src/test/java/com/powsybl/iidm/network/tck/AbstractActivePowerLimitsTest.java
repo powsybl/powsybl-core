@@ -8,12 +8,12 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractActivePowerLimitsTest {
 
@@ -67,7 +67,7 @@ public abstract class AbstractActivePowerLimitsTest {
         testLimits1((ActivePowerLimits) l.getLimits(LimitType.ACTIVE_POWER, Branch.Side.ONE).orElse(null));
 
         // limits2
-        ActivePowerLimits limits2 = l.getActivePowerLimits2().orElseThrow(AssertionError::new);
+        ActivePowerLimits limits2 = l.getActivePowerLimits2().orElseThrow(IllegalStateException::new);
         testLimits2(limits2);
         testLimits2((ActivePowerLimits) l.getLimits(LimitType.ACTIVE_POWER, Branch.Side.TWO).orElse(null));
 

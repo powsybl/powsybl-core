@@ -12,14 +12,26 @@ import com.powsybl.iidm.network.Connectable;
 import java.util.Optional;
 
 /**
- * This class gives the position of a connectable relative to other equipments in the network.
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * This class gives some information for visualization tools, for a given connectable:
+ * <ul>
+ *     <li>its position relative to other equipments in its voltage level(s),</li>
+ *     <li>its direction relative to the corresponding busbar section(s) (top or bottom - as the busbar section is usually displayed horizontally - or undefined),</li>
+ *     <li>its display name(s).</li>
+ * </ul>
+ * This gives visualization tools suggestions for displaying the equipments within a voltage level.
+ * The information is given through one, two or three {@link ConnectablePosition.Feeder} objects, as the connectable
+ * might be between two or three busbar sections (which may or may not be in the same voltage level).
+ * <p>
+ * Note that, when this class is used in conjunction with {@link com.powsybl.iidm.network.extensions.BusbarSectionPosition},
+ * the connectable positions should be in ascending order for ascending busbar section indices.
+ * That is, the connectable positions should be in ascending order on a given physical busbar.
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface ConnectablePosition<C extends Connectable<C>> extends Extension<C> {
 
     String NAME = "position";
 
-    public enum Direction {
+    enum Direction {
         TOP,
         BOTTOM,
         UNDEFINED
@@ -30,8 +42,8 @@ public interface ConnectablePosition<C extends Connectable<C>> extends Extension
         return NAME;
     }
 
-    public interface Feeder {
-        String getName();
+    interface Feeder {
+        Optional<String> getName();
 
         Feeder setName(String name);
 
@@ -49,24 +61,24 @@ public interface ConnectablePosition<C extends Connectable<C>> extends Extension
     /**
      * Feeder in case the connectable has only one (injections)
      */
-    public Feeder getFeeder();
+    Feeder getFeeder();
 
     /**
      * First feeder in case the connectable has two or three
      */
-    public Feeder getFeeder1();
+    Feeder getFeeder1();
 
     /**
      * Second feeder in case the connectable has two or three
      */
-    public Feeder getFeeder2();
+    Feeder getFeeder2();
 
     /**
      * Third feeder in case the connectable has three (three windings transformers)
      */
-    public Feeder getFeeder3();
+    Feeder getFeeder3();
 
-    public static void check(Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3) {
+    static void check(Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3) {
         if (feeder == null && feeder1 == null && feeder2 == null && feeder3 == null) {
             throw new IllegalArgumentException("invalid feeder");
         }

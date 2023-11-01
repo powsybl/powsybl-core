@@ -10,6 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummySerializer;
@@ -22,7 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(LoadFlowProvider.class)
 public class LoadFlowProviderMock implements LoadFlowProvider {
@@ -58,7 +60,8 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     }
 
     @Override
-    public List<String> getSpecificParametersNames() {
-        return Collections.singletonList("dummy-extension");
+    public List<Parameter> getSpecificParameters() {
+        return List.of(new Parameter("parameterBoolean", ParameterType.BOOLEAN, "a boolean parameter", false),
+                       new Parameter("parameterString", ParameterType.STRING, "a string parameter", "yes", List.of("yes", "no")));
     }
 }

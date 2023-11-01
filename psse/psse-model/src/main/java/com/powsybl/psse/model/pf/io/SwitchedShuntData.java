@@ -14,8 +14,8 @@ import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
 
@@ -26,7 +26,7 @@ class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
         withFieldNames(V32, FIELD_NAMES_32_33);
         withFieldNames(V33, FIELD_NAMES_32_33);
         withFieldNames(V35, "i", "id", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1", "s2", "n2", "b2", "s3", "n3", "b3", "s4", "n4", "b4", "s5", "n5", "b5", "s6", "n6", "b6", "s7", "n7", "b7", "s8", "n8", "b8");
-        withQuotedFields("id", "rmidnt");
+        withQuotedFields("id", "shntid", "rmidnt");
     }
 
     @Override

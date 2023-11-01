@@ -11,11 +11,12 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.ZipLoadModelAdder;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class EnergyConsumerConversion extends AbstractConductingEquipmentConversion {
 
@@ -40,10 +41,65 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
                 .setLoadType(loadType);
         identify(adder);
         connect(adder);
+        model(adder);
         Load load = adder.add();
         addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
         setLoadDetail(loadKind, load);
+    }
+
+    private void model(LoadAdder adder) {
+        p.asBoolean("exponentModel").ifPresent(exponentModel -> {
+            if (Boolean.TRUE.equals(exponentModel)) {
+                double pVoltageExponent = p.asDouble("pVoltageExponent", 0);
+                double qVoltageExponent = p.asDouble("qVoltageExponent", 0);
+                boolean constantPower = pVoltageExponent == 0 && qVoltageExponent == 0;
+                if (!constantPower) {
+                    adder.newExponentialModel()
+                            .setNp(pVoltageExponent)
+                            .setNq(qVoltageExponent)
+                            .add();
+                }
+            } else {
+                double pConstantPower = p.asDouble("pConstantPower");
+                double pConstantCurrent = p.asDouble("pConstantCurrent");
+                double pConstantImpedance = p.asDouble("pConstantImpedance");
+                double qConstantPower = p.asDouble("qConstantPower");
+                double qConstantCurrent = p.asDouble("qConstantCurrent");
+                double qConstantImpedance = p.asDouble("qConstantImpedance");
+                // as far as only one of the 3 coefficient is not defined we cannot rely on the others
+                if (!Double.isNaN(pConstantPower) && !Double.isNaN(pConstantCurrent) && !Double.isNaN(pConstantImpedance)
+                        && !Double.isNaN(qConstantPower) && !Double.isNaN(qConstantCurrent) && !Double.isNaN(qConstantImpedance)) {
+                    boolean constantPower = pConstantPower == 1 && pConstantCurrent == 0 && pConstantImpedance == 0
+                            && qConstantPower == 1 && qConstantCurrent == 0 && qConstantImpedance == 0;
+                    if (!constantPower) {
+                        // if sum of coefficient is not equals to one, rescale values
+                        double pSum = pConstantPower + pConstantCurrent + pConstantImpedance;
+                        if (Math.abs(pSum - 1d) > ZipLoadModelAdder.SUM_EPSILON) {
+                            pConstantPower = pConstantPower / pSum;
+                            pConstantCurrent = pConstantCurrent / pSum;
+                            pConstantImpedance = pConstantImpedance / pSum;
+                            fixed("active coefficients of zip load", "sum of pConstantPower, pConstantCurrent and pConstantImpedance is not equals to 1");
+                        }
+                        double qSum = qConstantPower + qConstantCurrent + qConstantImpedance;
+                        if (Math.abs(qSum - 1d) > ZipLoadModelAdder.SUM_EPSILON) {
+                            qConstantPower = qConstantPower / qSum;
+                            qConstantCurrent = qConstantCurrent / qSum;
+                            qConstantImpedance = qConstantImpedance / qSum;
+                            fixed("reactive coefficients of zip load", "sum of qConstantPower, qConstantCurrent and qConstantImpedance is not equals to 1");
+                        }
+                        adder.newZipModel()
+                                .setC0p(pConstantPower)
+                                .setC1p(pConstantCurrent)
+                                .setC2p(pConstantImpedance)
+                                .setC0q(qConstantPower)
+                                .setC1q(qConstantCurrent)
+                                .setC2q(qConstantImpedance)
+                                .add();
+                    }
+                }
+            }
+        });
     }
 
     private static void setLoadDetail(String type, Load load) {

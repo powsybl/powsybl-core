@@ -6,24 +6,26 @@
  */
 package com.powsybl.powerfactory.model;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ProjectTest extends AbstractPowerFactoryTest {
+class ProjectTest extends AbstractPowerFactoryTest {
 
     private DataObject prj;
     private Project project;
 
     @Override
+    @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
 
@@ -60,7 +62,7 @@ public class ProjectTest extends AbstractPowerFactoryTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         assertEquals("TestProject", project.getName());
         assertSame(index, project.getIndex());
         assertSame(prj, project.getRootObject());
@@ -77,13 +79,13 @@ public class ProjectTest extends AbstractPowerFactoryTest {
     }
 
     @Test
-    public void jsonTest() throws IOException {
+    void jsonTest() throws IOException {
         var project2 = roundTripTest(project, Project::writeJson, Project::readJson, "/project.json");
         assertEquals("TestProject", project2.getName());
     }
 
     @Test
-    public void loaderTest() {
+    void loaderTest() {
         var loader = new JsonProjectLoader();
         assertEquals(Project.class, loader.getDataClass());
         assertEquals("json", loader.getExtension());

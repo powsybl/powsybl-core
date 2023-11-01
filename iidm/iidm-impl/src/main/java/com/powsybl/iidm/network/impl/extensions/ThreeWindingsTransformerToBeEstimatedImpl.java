@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeWindingsTransformer> implements ThreeWindingsTransformerToBeEstimated {
 
@@ -59,7 +59,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
             case THREE:
                 return rtc3Status;
         }
-        throw new AssertionError(UNEXPECTED_SIDE + side);
+        throw new IllegalStateException(UNEXPECTED_SIDE + side);
     }
 
     @Override
@@ -87,7 +87,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
             case THREE:
                 return ptc3Status;
         }
-        throw new AssertionError(UNEXPECTED_SIDE + side);
+        throw new IllegalStateException(UNEXPECTED_SIDE + side);
     }
 
     @Override
@@ -121,7 +121,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
                 rtc3Status = toBeEstimated;
                 break;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + side);
         }
         return this;
     }
@@ -157,7 +157,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
                 ptc3Status = toBeEstimated;
                 break;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + side);
         }
         return this;
     }

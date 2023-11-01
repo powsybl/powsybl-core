@@ -7,18 +7,18 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class TerminalRefNotFoundTest extends AbstractXmlConverterTest {
+class TerminalRefNotFoundTest extends AbstractXmlConverterTest {
 
     @Test
-    public void test() {
+    void test() {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> NetworkXml.read(getVersionedNetworkAsStream("terminalRefNotFound.xiidm", IidmXmlVersion.V_1_5)));
         assertEquals("Terminal reference identifiable not found: '????'", exception.getMessage());
     }

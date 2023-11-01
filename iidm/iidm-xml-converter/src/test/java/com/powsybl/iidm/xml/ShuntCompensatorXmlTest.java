@@ -9,30 +9,26 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void linearShuntTest() throws IOException {
-        Network network = ShuntTestCaseFactory.create();
+    void linearShuntTest() throws IOException {
+        Network network = ShuntTestCaseFactory.createWithActivePower();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
         roundTripXmlTest(network,
@@ -45,7 +41,7 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void nonLinearShuntTest() throws IOException {
+    void nonLinearShuntTest() throws IOException {
         Network network = ShuntTestCaseFactory.createNonLinear();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
@@ -86,15 +82,32 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void unsupportedWriteTest() {
+    void unsupportedWriteTest() {
         Network network = ShuntTestCaseFactory.create();
         testForAllPreviousVersions(IidmXmlVersion.V_1_2, v -> write(network, v.toString(".")));
+    }
+
+    @Test
+    void nullBPerSection() {
+        Network network = ShuntTestCaseFactory.create(0.0);
+        Path path = tmpDir.resolve("shunt.xml");
+
+        NetworkXml.write(network, new ExportOptions().setVersion(IidmXmlVersion.V_1_4.toString(".")), path);
+        Network n = NetworkXml.read(path);
+        ShuntCompensator sc = n.getShuntCompensator("SHUNT");
+        assertEquals(Double.MIN_NORMAL, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+
+        network.getShuntCompensator("SHUNT").setVoltageRegulatorOn(false).setTargetV(Double.NaN).setTargetDeadband(Double.NaN).setRegulatingTerminal(null);
+        NetworkXml.write(network, new ExportOptions().setVersion(IidmXmlVersion.V_1_1.toString(".")), path);
+        Network n2 = NetworkXml.read(path);
+        ShuntCompensator sc2 = n2.getShuntCompensator("SHUNT");
+        assertEquals(Double.MIN_NORMAL, sc2.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
     }
 
     private void write(Network network, String version) {
         try {
             ExportOptions options = new ExportOptions().setVersion(version);
-            NetworkXml.write(network, options, tmpDir.resolve("/fail.xml"));
+            NetworkXml.write(network, options, tmpDir.resolve("fail.xml"));
             fail();
         } catch (PowsyblException e) {
             assertEquals("shunt.voltageRegulatorOn is not defined as default and not supported for IIDM-XML version " +

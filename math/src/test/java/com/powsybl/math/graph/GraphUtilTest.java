@@ -7,17 +7,17 @@
 package com.powsybl.math.graph;
 
 import gnu.trove.list.array.TIntArrayList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class GraphUtilTest {
+class GraphUtilTest {
 
     @Test
-    public void testComputeConnectedComponents() {
+    void testComputeConnectedComponents() {
         TIntArrayList[] adjacencyList = new TIntArrayList[100000];
         for (int i = 0; i < adjacencyList.length; i++) {
             adjacencyList[i] = new TIntArrayList();

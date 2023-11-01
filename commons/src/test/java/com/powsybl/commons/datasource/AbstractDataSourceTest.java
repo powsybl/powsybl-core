@@ -6,10 +6,10 @@
  */
 package com.powsybl.commons.datasource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,18 +19,18 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractDataSourceTest {
+abstract class AbstractDataSourceTest {
 
     protected FileSystem fileSystem;
 
@@ -38,16 +38,16 @@ public abstract class AbstractDataSourceTest {
 
     private DataSource dataSource;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         testDir = fileSystem.getPath("/tmp");
         Files.createDirectories(testDir);
         dataSource = createDataSource();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
@@ -62,7 +62,7 @@ public abstract class AbstractDataSourceTest {
     protected abstract DataSource createDataSource();
 
     @Test
-    public void baseNameTest() {
+    void baseNameTest() {
         assertEquals(dataSource.getBaseName(), getBaseName());
     }
 
@@ -111,7 +111,7 @@ public abstract class AbstractDataSourceTest {
     }
 
     @Test
-    public void writeThenReadTest() throws IOException {
+    void writeThenReadTest() throws IOException {
         writeThenReadTest(null, "bar");
         writeThenReadTest("_baz", "bar");
         writeThenReadTest("_baz", null);

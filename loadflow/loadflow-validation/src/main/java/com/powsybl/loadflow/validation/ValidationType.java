@@ -15,7 +15,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public enum ValidationType {
     FLOWS("branches_flows.csv"),
@@ -54,7 +54,7 @@ public enum ValidationType {
             case TWTS3W:
                 return Transformers3WValidation.INSTANCE.checkTransformers(network, config, folder.resolve(file));
             default:
-                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
+                throw new IllegalStateException(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
         }
     }
 
@@ -78,7 +78,7 @@ public enum ValidationType {
             case TWTS3W:
                 return Transformers3WValidation.INSTANCE.checkTransformers(network, config, validationWriter);
             default:
-                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
+                throw new IllegalStateException(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
         }
     }
 

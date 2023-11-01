@@ -7,12 +7,16 @@
 
 package com.powsybl.contingency;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public class ContingencyBuilder {
 
@@ -111,6 +115,34 @@ public class ContingencyBuilder {
 
     public ContingencyBuilder addSwitch(String id) {
         elements.add(new SwitchContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addBus(String id) {
+        elements.add(new BusContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addTieLine(String id) {
+        elements.add(new TieLineContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addTieLine(String id, String voltageLevelId) {
+        elements.add(new TieLineContingency(id, voltageLevelId));
+        return this;
+    }
+
+    public ContingencyBuilder addIdentifiable(String id, Network network) {
+        Identifiable<?> identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            throw new PowsyblException(String.format("Element %s has not been found in the network", id));
+        }
+        return addIdentifiable(identifiable);
+    }
+
+    public ContingencyBuilder addIdentifiable(Identifiable<?> identifiable) {
+        elements.add(ContingencyElement.of(identifiable));
         return this;
     }
 }

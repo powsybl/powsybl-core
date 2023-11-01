@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
@@ -38,7 +38,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeBooleanField("isOK", result.isOk());
-        jsonGenerator.writeObjectField("metrics", result.getMetrics());
+        serializerProvider.defaultSerializeField("metrics", result.getMetrics(), jsonGenerator);
         List<LoadFlowResult.ComponentResult> componentResults = result.getComponentResults();
         if (!componentResults.isEmpty()) {
             jsonGenerator.writeFieldName("componentResults");

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVariantObject {
 
@@ -43,6 +43,11 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     }
 
     @Override
+    public Network getParentNetwork() {
+        return voltageLevel.getParentNetwork();
+    }
+
+    @Override
     public VoltageLevelExt getVoltageLevel() {
         return voltageLevel;
     }
@@ -64,9 +69,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.open.get(index);
         if (oldValue != open) {
             this.open.set(index, open);
+            voltageLevel.invalidateCache(isRetained());
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "open", variantId, oldValue, open);
-            voltageLevel.invalidateCache();
         }
     }
 
@@ -85,9 +90,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.retained.get(index);
         if (oldValue != retained) {
             this.retained.set(index, retained);
+            voltageLevel.invalidateCache();
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "retained", variantId, oldValue, retained);
-            voltageLevel.invalidateCache();
         }
     }
 

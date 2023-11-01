@@ -6,22 +6,18 @@
  */
 package com.powsybl.commons.io.table;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ColumnTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+class ColumnTest {
 
     @Test
-    public void testPositiveColspan() {
+    void testPositiveColspan() {
         Column column = new Column("column");
         assertEquals(1, column.getColspan());
 
@@ -30,11 +26,9 @@ public class ColumnTest {
     }
 
     @Test
-    public void testNegativeColspan() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("colspan must be greater than 0");
-
-        new Column("column").setColspan(-5);
+    void testNegativeColspan() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new Column("column").setColspan(-5));
+        assertEquals("colspan must be greater than 0", e.getMessage());
     }
 
 }

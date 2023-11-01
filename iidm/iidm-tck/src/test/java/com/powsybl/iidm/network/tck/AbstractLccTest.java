@@ -11,30 +11,25 @@ import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractLccTest {
 
     private static final String C1_FILTER2 = "C1_Filter2";
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private Network network;
     private HvdcLine hvdcLine;
     private LccConverterStation cs1;
     private LccConverterStation cs2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = HvdcTestNetwork.createLcc();
         hvdcLine = network.getHvdcLine("L");
@@ -114,22 +109,19 @@ public abstract class AbstractLccTest {
 
     @Test
     public void invalidLossFactor() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("loss factor is invalid");
-        cs1.setLossFactor(Float.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> cs1.setLossFactor(Float.NaN));
+        assertTrue(e.getMessage().contains("loss factor is invalid"));
     }
 
     @Test
     public void invalidNegativeLossFactor() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("loss factor must be >= 0");
-        cs1.setLossFactor(-1.0f);
+        ValidationException e = assertThrows(ValidationException.class, () -> cs1.setLossFactor(-1.0f));
+        assertTrue(e.getMessage().contains("loss factor must be >= 0"));
     }
 
     @Test
     public void invalidPowerFactor() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("power factor is invalid");
-        cs1.setPowerFactor(Float.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> cs1.setPowerFactor(Float.NaN));
+        assertTrue(e.getMessage().contains("power factor is invalid"));
     }
 }

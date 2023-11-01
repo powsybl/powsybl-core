@@ -17,7 +17,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class Parameter {
 
@@ -95,6 +95,9 @@ public class Parameter {
         if (type == ParameterType.DOUBLE && defaultValue == null) {
             throw new PowsyblException("With Double parameter you are not allowed to pass a null default value");
         }
+        if (type == ParameterType.INTEGER && defaultValue == null) {
+            throw new PowsyblException("With Integer parameter you are not allowed to pass a null default value");
+        }
         return defaultValue;
     }
 
@@ -109,6 +112,8 @@ public class Parameter {
                 return readStringList(prefix, parameters, configuredParameter, defaultValueConfig);
             case DOUBLE:
                 return readDouble(prefix, parameters, configuredParameter, defaultValueConfig);
+            case INTEGER:
+                return readInteger(prefix, parameters, configuredParameter, defaultValueConfig);
             default:
                 throw new IllegalStateException("Unknown parameter type: " + configuredParameter.getType());
         }
@@ -144,7 +149,12 @@ public class Parameter {
 
     public static double readDouble(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
         return read(parameters, configuredParameter, defaultValueConfig.getDoubleValue(prefix, configuredParameter),
-            (moduleConfig, names) -> ModuleConfigUtil.getOptionalDoubleProperty(moduleConfig, names).orElse(Double.NaN), value -> !Double.isNaN(value));
+            (moduleConfig, names) -> ModuleConfigUtil.getOptionalDoubleProperty(moduleConfig, names).orElse(Double.NaN), value -> value != null && !Double.isNaN(value));
+    }
+
+    public static int readInteger(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
+        return read(parameters, configuredParameter, defaultValueConfig.getIntegerValue(prefix, configuredParameter),
+            (moduleConfig, names) -> ModuleConfigUtil.getOptionalIntProperty(moduleConfig, names).stream().boxed().findFirst().orElse(null), Objects::nonNull);
     }
 
     public static double readDouble(String prefix, Properties parameters, Parameter configuredParameter) {

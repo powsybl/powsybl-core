@@ -9,7 +9,7 @@ package com.powsybl.dsl;
 import com.powsybl.commons.PowsyblException;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class DslException extends PowsyblException {
 

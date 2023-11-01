@@ -6,18 +6,19 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class DCLineSegmentEq {
 
-    public static void write(String id, String lineSegmentName, double resistance, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("DCLineSegment", id, lineSegmentName, cimNamespace, writer);
+    public static void write(String id, String lineSegmentName, double resistance, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("DCLineSegment", id, lineSegmentName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "DCLineSegment.resistance");
         writer.writeCharacters(CgmesExportUtil.format(resistance));
         writer.writeEndElement();

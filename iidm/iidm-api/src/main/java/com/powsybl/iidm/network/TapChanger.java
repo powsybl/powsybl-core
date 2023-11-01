@@ -13,7 +13,7 @@ import java.util.OptionalInt;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep<S>> {
 

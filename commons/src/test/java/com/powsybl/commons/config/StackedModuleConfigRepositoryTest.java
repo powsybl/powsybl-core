@@ -8,30 +8,30 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class StackedModuleConfigRepositoryTest {
+class StackedModuleConfigRepositoryTest {
 
     private FileSystem fileSystem;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
@@ -55,7 +55,7 @@ public class StackedModuleConfigRepositoryTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         StackedModuleConfigRepository stackedRepository = new StackedModuleConfigRepository(createRepository2(), createRepository1());
         ModuleConfig config1 = stackedRepository.getModuleConfig("config1").orElse(null);
         assertNotNull(config1);

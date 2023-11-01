@@ -8,53 +8,25 @@ package com.powsybl.security.action;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
-import java.util.Objects;
-import java.util.Optional;
-
 /**
  * An action changing the tap position of a phase-shifting transformer.
  *
- * @author Hadrien Godard <hadrien.godard@artelys.com>
+ * @author Hadrien Godard {@literal <hadrien.godard@artelys.com>}
  */
-public class PhaseTapChangerTapPositionAction extends AbstractAction {
+public class PhaseTapChangerTapPositionAction extends AbstractTapChangerTapPositionAction {
 
     public static final String NAME = "PHASE_TAP_CHANGER_TAP_POSITION";
 
-    private final String transformerId;
-    private final int value;
-    private final boolean relativeValue; // true if relative value chosen, false if absolute value
-    private final ThreeWindingsTransformer.Side side;
-
-    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value, ThreeWindingsTransformer.Side side) {
-        super(id);
-        this.transformerId = Objects.requireNonNull(transformerId);
-        this.relativeValue = relativeValue;
-        this.value = value;
-        this.side = side;
+    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition) {
+        super(id, transformerId, relativeValue, tapPosition, null);
     }
 
-    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value) {
-        this(id, transformerId, relativeValue, value, null);
+    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition, ThreeWindingsTransformer.Side side) {
+        super(id, transformerId, relativeValue, tapPosition, side);
     }
 
     @Override
     public String getType() {
         return NAME;
-    }
-
-    public String getTransformerId() {
-        return transformerId;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public boolean isRelativeValue() {
-        return relativeValue;
-    }
-
-    public Optional<ThreeWindingsTransformer.Side> getSide() {
-        return Optional.ofNullable(side);
     }
 }

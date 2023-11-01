@@ -10,23 +10,23 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import org.joda.time.DateTime;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public final class GLTestUtils {
+final class GLTestUtils {
 
-    public static final Coordinate SUBSTATION_1 = new Coordinate(51.380348205566406, 0.5492960214614868);
-    public static final Coordinate SUBSTATION_2 = new Coordinate(52.00010299682617, 0.30759671330451965);
-    public static final Coordinate LINE_1 = new Coordinate(51.529258728027344, 0.5132722854614258);
-    public static final Coordinate LINE_2 = new Coordinate(51.944923400878906, 0.4120868146419525);
+    static final Coordinate SUBSTATION_1 = new Coordinate(51.380348205566406, 0.5492960214614868);
+    static final Coordinate SUBSTATION_2 = new Coordinate(52.00010299682617, 0.30759671330451965);
+    static final Coordinate LINE_1 = new Coordinate(51.529258728027344, 0.5132722854614258);
+    static final Coordinate LINE_2 = new Coordinate(51.944923400878906, 0.4120868146419525);
 
     private GLTestUtils() {
     }
 
-    public static Network getNetwork() {
+    static Network getNetwork() {
         Network network = Network.create("Network", "test");
         network.setCaseDate(DateTime.parse("2018-01-01T00:30:00.000+01:00"));
         Substation substation1 = network.newSubstation()
@@ -71,7 +71,7 @@ public final class GLTestUtils {
         return network;
     }
 
-    public static void checkNetwork(Network network) {
+    static void checkNetwork(Network network) {
         Substation substation1 = network.getSubstation("Substation1");
         SubstationPosition substation1Position = substation1.getExtension(SubstationPosition.class);
         assertEquals(SUBSTATION_1.getLatitude(), substation1Position.getCoordinate().getLatitude(), 0);

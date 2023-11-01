@@ -7,26 +7,25 @@
 package com.powsybl.action.dsl;
 
 import com.powsybl.dsl.ast.BooleanLiteralNode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ExpressionConditionTest {
+class ExpressionConditionTest {
 
     @Test
-    public void test() {
+    void test() {
         ExpressionCondition condition = new ExpressionCondition(BooleanLiteralNode.TRUE);
 
         assertEquals(ConditionType.EXPRESSION, condition.getType());
         assertSame(BooleanLiteralNode.TRUE, condition.getNode());
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testNull() {
-        new ExpressionCondition(null);
+    @Test
+    void testNull() {
+        assertThrows(NullPointerException.class, () -> new ExpressionCondition(null));
     }
 }

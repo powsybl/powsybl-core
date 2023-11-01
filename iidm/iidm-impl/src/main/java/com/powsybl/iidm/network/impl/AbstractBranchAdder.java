@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.ValidationException;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends AbstractIdentifiableAdder<T> {
 
@@ -51,7 +51,8 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
     }
 
     protected TerminalExt checkAndGetTerminal1() {
-        return new TerminalBuilder(getNetwork().getRef(), this)
+        VoltageLevelExt voltageLevel = checkAndGetVoltageLevel1();
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), this)
                 .setNode(node1)
                 .setBus(bus1)
                 .setConnectableBus(connectableBus1)
@@ -60,12 +61,16 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected VoltageLevelExt checkAndGetVoltageLevel1() {
         if (voltageLevelId1 == null) {
-            throw new ValidationException(this, "first voltage level is not set");
+            String defaultVoltageLevelId1 = checkAndGetDefaultVoltageLevelId(connectableBus1);
+            if (defaultVoltageLevelId1 == null) {
+                throw new ValidationException(this, "first voltage level is not set and has no default value");
+            } else {
+                voltageLevelId1 = defaultVoltageLevelId1;
+            }
         }
         VoltageLevelExt voltageLevel1 = getNetwork().getVoltageLevel(voltageLevelId1);
         if (voltageLevel1 == null) {
-            throw new ValidationException(this, "first voltage level '"
-                    + voltageLevelId1 + "' not found");
+            throw new ValidationException(this, getNotFoundMessage("first voltage level", voltageLevelId1));
         }
         return voltageLevel1;
     }
@@ -91,7 +96,8 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
     }
 
     protected TerminalExt checkAndGetTerminal2() {
-        return new TerminalBuilder(getNetwork().getRef(), this)
+        VoltageLevelExt voltageLevel = checkAndGetVoltageLevel2();
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), this)
                 .setNode(node2)
                 .setBus(bus2)
                 .setConnectableBus(connectableBus2)
@@ -100,14 +106,41 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected VoltageLevelExt checkAndGetVoltageLevel2() {
         if (voltageLevelId2 == null) {
-            throw new ValidationException(this, "second voltage level is not set");
+            String defaultVoltageLevelId2 = checkAndGetDefaultVoltageLevelId(connectableBus2);
+            if (defaultVoltageLevelId2 == null) {
+                throw new ValidationException(this, "second voltage level is not set and has no default value");
+            } else {
+                voltageLevelId2 = defaultVoltageLevelId2;
+            }
         }
         VoltageLevelExt voltageLevel2 = getNetwork().getVoltageLevel(voltageLevelId2);
         if (voltageLevel2 == null) {
-            throw new ValidationException(this, "second voltage level '"
-                    + voltageLevelId2 + "' not found");
+            throw new ValidationException(this, getNotFoundMessage("second voltage level", voltageLevelId2));
         }
         return voltageLevel2;
     }
 
+    private String checkAndGetDefaultVoltageLevelId(String connectableBus) {
+        if (connectableBus == null) {
+            return null;
+        }
+        BusExt busExt = (BusExt) getNetwork().getBusBreakerView().getBus(connectableBus);
+        if (busExt == null) {
+            throw new ValidationException(this, getNotFoundMessage("bus", connectableBus));
+        }
+        return busExt.getVoltageLevel().getId();
+    }
+
+    protected void checkConnectableBuses() {
+        if (connectableBus1 == null && bus1 != null) {
+            connectableBus1 = bus1;
+        }
+        if (connectableBus2 == null && bus2 != null) {
+            connectableBus2 = bus2;
+        }
+    }
+
+    private static String getNotFoundMessage(String type, String id) {
+        return type + " '" + id + "' not found";
+    }
 }

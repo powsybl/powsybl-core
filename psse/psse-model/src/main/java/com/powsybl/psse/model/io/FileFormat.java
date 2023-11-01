@@ -9,8 +9,8 @@ package com.powsybl.psse.model.io;
 import java.util.regex.Pattern;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public enum FileFormat {
     LEGACY_TEXT('\'', ','),
@@ -20,7 +20,6 @@ public enum FileFormat {
     public static final String VALID_DELIMITERS = ", ";
 
     public static final Pattern LEGACY_TEXT_QUOTED_OR_WHITESPACE = Pattern.compile("('[^']*')|( )+");
-    public static final Pattern LEGACY_TEXT_UNQUOTED_OR_QUOTED = Pattern.compile("([^']+)|('([^']*)')");
 
     FileFormat(char quote, char defaultDelimiter) {
         this.quote = quote;

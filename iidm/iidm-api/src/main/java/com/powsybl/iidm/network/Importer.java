@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @see java.util.ServiceLoader
  * @see Importers
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Importer {
 
@@ -247,8 +247,8 @@ public interface Importer {
 
     static Importer removePostProcessors(Importer importer) {
         Objects.requireNonNull(importer);
-        if (importer instanceof ImporterWrapper) {
-            return removePostProcessors(((ImporterWrapper) importer).getImporter());
+        if (importer instanceof ImporterWrapper importerWrapper) {
+            return removePostProcessors(importerWrapper.getImporter());
         }
         return importer;
     }
@@ -298,7 +298,7 @@ public interface Importer {
     /**
      * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.6.0")
     default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         return importData(dataSource, NetworkFactory.findDefault(), parameters);
     }

@@ -14,18 +14,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateVoltageLevelTopologyBuilder {
 
     private String voltageLevelId = null;
 
-    private int lowBusbarIndex = 1;
-    private Integer busbarCount = null;
+    private int lowBusOrBusbarIndex = 1;
+    private Integer alignedBusesOrBusbarCount = null;
     private int lowSectionIndex = 1;
     private Integer sectionCount = null;
 
-    private String busbarSectionPrefixId = null;
+    private String busOrBusbarSectionPrefixId = null;
     private String switchPrefixId = null;
 
     private List<SwitchKind> switchKinds = Collections.emptyList();
@@ -38,8 +38,8 @@ public class CreateVoltageLevelTopologyBuilder {
      */
     public CreateVoltageLevelTopologyBuilder withVoltageLevelId(String voltageLevelId) {
         this.voltageLevelId = voltageLevelId;
-        if (busbarSectionPrefixId == null) {
-            busbarSectionPrefixId = voltageLevelId;
+        if (busOrBusbarSectionPrefixId == null) {
+            busOrBusbarSectionPrefixId = voltageLevelId;
         }
         if (switchPrefixId == null) {
             switchPrefixId = voltageLevelId;
@@ -48,22 +48,24 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     /**
-     * Set the lowest index of busbar index that will be created (1 by default).
+     * Set the lowest index of bus or busbar index that will be created (1 by default).
      *
-     * @param lowBusbarIndex
+     * @param lowBusOrBusbarIndex
      */
-    public CreateVoltageLevelTopologyBuilder withLowBusbarIndex(int lowBusbarIndex) {
-        this.lowBusbarIndex = lowBusbarIndex;
+    public CreateVoltageLevelTopologyBuilder withLowBusOrBusbarIndex(int lowBusOrBusbarIndex) {
+        this.lowBusOrBusbarIndex = lowBusOrBusbarIndex;
         return this;
     }
 
     /**
-     * Set the number of busbar which will be created.
+     * Set the number of parallel bus lines or busbar which will be created.
+     * In case of node/breaker topology, it is the number of busbar sections.
+     * In case of bus/breaker topology, it is the number of lines of aligned buses.
      *
-     * @param busbarCount
+     * @param alignedBusesOrBusbarCount
      */
-    public CreateVoltageLevelTopologyBuilder withBusbarCount(int busbarCount) {
-        this.busbarCount = busbarCount;
+    public CreateVoltageLevelTopologyBuilder withAlignedBusesOrBusbarCount(int alignedBusesOrBusbarCount) {
+        this.alignedBusesOrBusbarCount = alignedBusesOrBusbarCount;
         return this;
     }
 
@@ -78,7 +80,7 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     /**
-     * Set the number of sections for each created busbar.
+     * Set the number of sections for each created busbar or the number of switches between the buses in bus/breaker topology.
      *
      * @param sectionCount
      */
@@ -88,12 +90,12 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     /**
-     * Set the prefix ID for the created busbar sections. By default, it is equals to the voltage level ID.
+     * Set the prefix ID for the created buses or busbar sections. By default, it is equals to the voltage level ID.
      *
      * @param busbarSectionPrefixId
      */
     public CreateVoltageLevelTopologyBuilder withBusbarSectionPrefixId(String busbarSectionPrefixId) {
-        this.busbarSectionPrefixId = busbarSectionPrefixId;
+        this.busOrBusbarSectionPrefixId = busbarSectionPrefixId;
         return this;
     }
 
@@ -115,6 +117,8 @@ public class CreateVoltageLevelTopologyBuilder {
      * If it is {@link SwitchKind#DISCONNECTOR}, a closed disconnector is created.
      * If it is null, no switch is created: the sections are disconnected.
      *
+     * In bus/breaker topology, all the switching devices are by default breakers.
+     *
      * @param switchKinds
      */
     public CreateVoltageLevelTopologyBuilder withSwitchKinds(SwitchKind... switchKinds) {
@@ -129,6 +133,8 @@ public class CreateVoltageLevelTopologyBuilder {
      * If it is {@link SwitchKind#BREAKER}, a closed disconnector, a closed breaker and a closed disconnector are created.
      * If it is {@link SwitchKind#DISCONNECTOR}, a closed disconnector is created.
      *
+     * In bus/breaker topology, all the switching devices are by default breakers.
+     *
      * @param switchKinds
      */
     public CreateVoltageLevelTopologyBuilder withSwitchKinds(List<SwitchKind> switchKinds) {
@@ -137,6 +143,6 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     public CreateVoltageLevelTopology build() {
-        return new CreateVoltageLevelTopology(voltageLevelId, lowBusbarIndex, busbarCount, lowSectionIndex, sectionCount, busbarSectionPrefixId, switchPrefixId, switchKinds);
+        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, switchKinds);
     }
 }

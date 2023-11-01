@@ -6,19 +6,20 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlunit.diff.DifferenceEvaluator;
@@ -33,17 +34,17 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-public class CgmesMappingTest extends AbstractConverterTest {
+class CgmesMappingTest extends AbstractConverterTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesMappingTest.class);
 
     @Test
-    public void testExplicitMappingConstructors() {
+    void testExplicitMappingConstructors() {
         AbstractCgmesAliasNamingStrategy nss = new SimpleCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
         assertEquals("uuid1", nss.getCgmesId("1"));
         AbstractCgmesAliasNamingStrategy nsf = new FixedCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
@@ -51,17 +52,24 @@ public class CgmesMappingTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
+    void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
         testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "nordic32", "G9_______SM");
     }
 
     @Test
-    public void testExportUsingCgmesNamingStrategyIEEE14() throws IOException {
+    void testExportUsingCgmesNamingStrategyIEEE14() throws IOException {
         testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "ieee14", "GEN____8_SM");
     }
 
     @Test
-    public void testExportUsingCgmesNamingStrategyMicroGrid() throws IOException {
+    void testExportUsingCgmesNamingStrategyCgmesMicroGrid() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource();
+        Network network = Importers.importData("CGMES", ds, null);
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, network, "MicroGrid", null, Collections.emptySet(), ds);
+    }
+
+    @Test
+    void testExportUsingCgmesNamingStrategyMicroGrid() throws IOException {
         // We select a case that contains invalid IDs
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledBadIds().dataSource();
         Network network = Importers.importData("CGMES", ds, null);
@@ -76,7 +84,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         testExportUsingCgmesNamingStrategy(namingStrategy, network, baseName, null, Collections.emptySet(), null);
     }
 
-    public void testExportUsingCgmesNamingStrategy(String namingStrategy, Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds, ReadOnlyDataSource originalDataSource) throws IOException {
+    void testExportUsingCgmesNamingStrategy(String namingStrategy, Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds, ReadOnlyDataSource originalDataSource) throws IOException {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, namingStrategy);
         String outputFolder = "exportedCgmes" + baseName;
@@ -99,7 +107,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
 
         // By default, the identity naming strategy is configured, we have to set a specific one if we have a mapping file
         Properties reimportParams1 = new Properties(reimportParams);
-        reimportParams1.put(CgmesImport.ID_MAPPING_FILE_NAMING_STRATEGY, namingStrategy);
+        reimportParams1.put(CgmesImport.NAMING_STRATEGY, namingStrategy);
 
         Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams1);
         Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual, tmpDir.resolve("exportedCgmes" + baseName));
@@ -245,7 +253,11 @@ public class CgmesMappingTest extends AbstractConverterTest {
                         cgmes.terminals().stream().map(o -> o.getId(CgmesNames.TERMINAL)),
                         cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
                         cgmes.topologicalNodes().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_NODE)),
-                        cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_ISLAND)),
+                        cgmes.topologicalIslands().stream().flatMap(o -> Stream.of(
+                                o.getId(CgmesNames.TOPOLOGICAL_ISLAND),
+                                o.getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE),
+                                o.getId(CgmesNames.TOPOLOGICAL_NODES))),
+                        cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE)),
                         cgmes.transformerEnds().stream().map(o -> o.getId(CgmesNames.TRANSFORMER_END)),
                         cgmes.phaseTapChangers().stream().map(o -> o.getId(CgmesNames.PHASE_TAP_CHANGER)),
                         cgmes.ratioTapChangers().stream().map(o -> o.getId(CgmesNames.RATIO_TAP_CHANGER)),
@@ -258,9 +270,9 @@ public class CgmesMappingTest extends AbstractConverterTest {
                 )
                 .flatMap(id -> id)
                 .filter(id -> !CgmesExportUtil.isValidCimMasterRID(id));
-        assertEquals(String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))),
-                0,
-                badIds.get().count());
+        assertEquals(0,
+                badIds.get().count(),
+                String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))));
     }
 
     private static SortedSet<String> buildBusIdsBasedOnConnectedEquipment(Iterable<Bus> buses) {
@@ -268,7 +280,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         for (Bus be : buses) {
             // Build an id for the bus based on the concat of ids of connected equipment
             SortedSet<String> eqIds = new TreeSet<>();
-            be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(t.getConnectable().getId()));
+            be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(getId(t.getConnectable())));
             // Ignore empty buses
             if (!eqIds.isEmpty()) {
                 String busId = String.join(",", eqIds);
@@ -278,8 +290,16 @@ public class CgmesMappingTest extends AbstractConverterTest {
         return busIds;
     }
 
+    private static String getId(Connectable<?> c) {
+        if (c instanceof DanglingLine) {
+            DanglingLine dl = (DanglingLine) c;
+            return dl.getTieLine().map(TieLine::getId).orElseGet(dl::getId);
+        }
+        return c.getId();
+    }
+
     @Test
-    public void compareCgmesAndIidmExports() throws IOException {
+    void compareCgmesAndIidmExports() throws IOException {
         String baseName = "nordic32";
         ReadOnlyDataSource dataSource = new ResourceDataSource(baseName, new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -293,7 +313,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
     }
 
     @Test
-    public void compare2Exports() throws IOException {
+    void compare2Exports() throws IOException {
         String baseName = "nordic32";
         ReadOnlyDataSource dataSource = new ResourceDataSource(baseName, new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -317,7 +337,9 @@ public class CgmesMappingTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringFullModelAbout,
                 ExportXmlCompare::ignoringFullModelDependentOn,
                 ExportXmlCompare::ignoringOperationalLimitIds,
-                ExportXmlCompare::ignoringSVIds);
+                ExportXmlCompare::ignoringSVIds,
+                ExportXmlCompare::ignoringLoadAreaIds,
+                ExportXmlCompare::ignoringEnergyAreaIdOfControlArea);
         for (Path file : files) {
             ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
         }

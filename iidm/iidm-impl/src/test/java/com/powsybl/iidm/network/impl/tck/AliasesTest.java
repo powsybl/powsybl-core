@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl.tck;
 import com.powsybl.iidm.network.tck.AbstractAliasesTest;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class AliasesTest extends AbstractAliasesTest {
+class AliasesTest extends AbstractAliasesTest {
 }

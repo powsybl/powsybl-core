@@ -17,11 +17,12 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
 
@@ -30,6 +31,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
 
     private final Ref<NetworkImpl> networkRef;
+    private Ref<SubnetworkImpl> subnetworkRef;
 
     private final SubstationImpl substation;
 
@@ -42,10 +44,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     private boolean removed = false;
 
     AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
-                         double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+                         Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, fictitious);
         this.substation = substation;
         this.networkRef = networkRef;
+        this.subnetworkRef = subnetworkRef;
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
@@ -56,6 +59,16 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             .getOptionalModuleConfig("iidm")
             .map(moduleConfig -> moduleConfig.getIntProperty("node-index-limit", DEFAULT_NODE_INDEX_LIMIT))
             .orElse(DEFAULT_NODE_INDEX_LIMIT);
+    }
+
+    @Override
+    public String getSubnetworkId() {
+        return Optional.ofNullable(subnetworkRef.get()).map(Identifiable::getId).orElse(null);
+    }
+
+    @Override
+    public Ref<NetworkImpl> getNetworkRef() {
+        return networkRef;
     }
 
     @Override
@@ -86,6 +99,12 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                 .orElseGet(() -> Optional.ofNullable(substation)
                         .map(SubstationImpl::getNetwork)
                         .orElseThrow(() -> new PowsyblException(String.format("Voltage level %s has no container", id))));
+    }
+
+    @Override
+    public NetworkExt getParentNetwork() {
+        SubnetworkImpl subnetwork = subnetworkRef.get();
+        return subnetwork != null ? subnetwork : getNetwork();
     }
 
     private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
@@ -141,20 +160,20 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         T connectable = getNetwork().getIndex().get(id, aClass);
         if (connectable == null) {
             return null;
-        } else if (connectable instanceof Injection) {
-            return ((Injection) connectable).getTerminal().getVoltageLevel() == this
+        } else if (connectable instanceof Injection<?> injection) {
+            return injection.getTerminal().getVoltageLevel() == this
                     ? connectable : null;
-        } else if (connectable instanceof Branch) {
-            return ((Branch) connectable).getTerminal1().getVoltageLevel() == this
-                    || ((Branch) connectable).getTerminal2().getVoltageLevel() == this
+        } else if (connectable instanceof Branch<?> branch) {
+            return branch.getTerminal1().getVoltageLevel() == this
+                    || branch.getTerminal2().getVoltageLevel() == this
                     ? connectable : null;
-        } else if (connectable instanceof ThreeWindingsTransformer) {
-            return ((ThreeWindingsTransformer) connectable).getLeg1().getTerminal().getVoltageLevel() == this
-                    || ((ThreeWindingsTransformer) connectable).getLeg2().getTerminal().getVoltageLevel() == this
-                    || ((ThreeWindingsTransformer) connectable).getLeg3().getTerminal().getVoltageLevel() == this
+        } else if (connectable instanceof ThreeWindingsTransformer twt) {
+            return twt.getLeg1().getTerminal().getVoltageLevel() == this
+                    || twt.getLeg2().getTerminal().getVoltageLevel() == this
+                    || twt.getLeg3().getTerminal().getVoltageLevel() == this
                     ? connectable : null;
         } else {
-            throw new AssertionError();
+            throw new IllegalStateException();
         }
     }
 
@@ -286,13 +305,13 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getConnectables(DanglingLine.class);
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(DanglingLine.class);
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
     }
 
     @Override
@@ -423,17 +442,15 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         Objects.requireNonNull(otherTerminal);
         Objects.requireNonNull(nextTerminals);
         Connectable otherConnectable = otherTerminal.getConnectable();
-        if (otherConnectable instanceof Branch) {
-            Branch branch = (Branch) otherConnectable;
+        if (otherConnectable instanceof Branch<?> branch) {
             if (branch.getTerminal1() == otherTerminal) {
                 nextTerminals.add((TerminalExt) branch.getTerminal2());
             } else if (branch.getTerminal2() == otherTerminal) {
                 nextTerminals.add((TerminalExt) branch.getTerminal1());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
-        } else if (otherConnectable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) otherConnectable;
+        } else if (otherConnectable instanceof ThreeWindingsTransformer ttc) {
             if (ttc.getLeg1().getTerminal() == otherTerminal) {
                 nextTerminals.add((TerminalExt) ttc.getLeg2().getTerminal());
                 nextTerminals.add((TerminalExt) ttc.getLeg3().getTerminal());
@@ -444,7 +461,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                 nextTerminals.add((TerminalExt) ttc.getLeg1().getTerminal());
                 nextTerminals.add((TerminalExt) ttc.getLeg2().getTerminal());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         }
     }

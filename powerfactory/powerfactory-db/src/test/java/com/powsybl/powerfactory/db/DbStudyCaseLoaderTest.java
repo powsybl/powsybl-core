@@ -11,9 +11,9 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.powerfactory.model.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,28 +23,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class DbStudyCaseLoaderTest {
+class DbStudyCaseLoaderTest {
 
-    public static final String TEST_PROPERTIES = "test.properties";
+    static final String TEST_PROPERTIES = "test.properties";
 
     private FileSystem fileSystem;
 
     private Path testProperties;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.windows());
         testProperties = fileSystem.getPath(TEST_PROPERTIES);
         Files.writeString(testProperties, "projectName=TestProject");
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
@@ -72,14 +72,14 @@ public class DbStudyCaseLoaderTest {
     }
 
     @Test
-    public void readInstallFromConfigTest() {
+    void readInstallFromConfigTest() {
         InMemoryPlatformConfig platformConfig = createPlatformConfig();
         StudyCase studyCase = loadStudy(platformConfig);
         assertEquals("TestProject - TestStudyCase", studyCase.getName());
     }
 
     @Test
-    public void autodetectInstallTest() throws IOException {
+    void autodetectInstallTest() throws IOException {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         Path digSilentDir = fileSystem.getPath(PowerFactoryAppUtil.DIG_SILENT_DEFAULT_DIR);
         Files.createDirectories(digSilentDir.resolve("PowerFactory 2016 SP3"));
@@ -89,14 +89,14 @@ public class DbStudyCaseLoaderTest {
     }
 
     @Test
-    public void noInstallTest() {
+    void noInstallTest() {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         PowerFactoryException exception = assertThrows(PowerFactoryException.class, () -> loadStudy(platformConfig));
         assertEquals("PowerFactory installation not found", exception.getMessage());
     }
 
     @Test
-    public void dbProjectLoaderTest() {
+    void dbProjectLoaderTest() {
         InMemoryPlatformConfig platformConfig = createPlatformConfig();
         var projectLoader = new DbProjectLoader(platformConfig, new TestDatabaseReader());
         assertEquals("properties", projectLoader.getExtension());

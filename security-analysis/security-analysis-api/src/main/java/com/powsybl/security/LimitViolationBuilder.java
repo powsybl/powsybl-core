@@ -7,6 +7,8 @@
 package com.powsybl.security;
 
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,7 +17,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * A builder class for {@link LimitViolation}s.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class LimitViolationBuilder {
 
@@ -27,7 +29,7 @@ public class LimitViolationBuilder {
     private Integer duration;
     private float reduction = 1.0f;
     private Double value;
-    private Branch.Side side;
+    private ThreeSides side;
 
     public LimitViolationBuilder type(LimitViolationType type) {
         this.type = requireNonNull(type);
@@ -74,9 +76,17 @@ public class LimitViolationBuilder {
         return this;
     }
 
-    public LimitViolationBuilder side(Branch.Side side) {
+    public LimitViolationBuilder side(ThreeSides side) {
         this.side = requireNonNull(side);
         return this;
+    }
+
+    public LimitViolationBuilder side(Branch.Side side) {
+        return side(requireNonNull(side).toThreeSides());
+    }
+
+    public LimitViolationBuilder side(ThreeWindingsTransformer.Side side) {
+        return side(requireNonNull(side).toThreeSides());
     }
 
     public LimitViolationBuilder side1() {
@@ -106,7 +116,9 @@ public class LimitViolationBuilder {
             case HIGH_VOLTAGE:
             case LOW_SHORT_CIRCUIT_CURRENT:
             case HIGH_SHORT_CIRCUIT_CURRENT:
-                return new LimitViolation(subjectId, subjectName, type, limitName, Integer.MAX_VALUE, limit, reduction, value, null);
+            case LOW_VOLTAGE_ANGLE:
+            case HIGH_VOLTAGE_ANGLE:
+                return new LimitViolation(subjectId, subjectName, type, limitName, Integer.MAX_VALUE, limit, reduction, value);
             default:
                 throw new UnsupportedOperationException(String.format("Building %s limits is not supported.", type.name()));
         }

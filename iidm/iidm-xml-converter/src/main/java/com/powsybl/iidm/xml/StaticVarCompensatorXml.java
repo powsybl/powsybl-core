@@ -14,10 +14,12 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
+public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
 
     static final StaticVarCompensatorXml INSTANCE = new StaticVarCompensatorXml();
 
@@ -68,7 +70,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
-    protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
+    protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         double bMin = XmlUtil.readDoubleAttribute(context.getReader(), "bMin");
         double bMax = XmlUtil.readDoubleAttribute(context.getReader(), "bMax");
 
@@ -101,8 +103,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
                 String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                 String side = context.getReader().getAttributeValue(null, "side");
-                context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml
-                        .readTerminalRef(svc.getNetwork(), id, side)));
+                context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml.resolve(id, side, svc.getNetwork())));
             } else {
                 super.readSubElements(svc, context);
             }

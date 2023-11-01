@@ -41,6 +41,9 @@
   }, {
     "id" : "LOAD",
     "type" : "LOAD"
+  }, {
+    "id" : "BUS1",
+    "type" : "BUS"
   } ],
   "extensions" : {
     "dummy-extension" : { }

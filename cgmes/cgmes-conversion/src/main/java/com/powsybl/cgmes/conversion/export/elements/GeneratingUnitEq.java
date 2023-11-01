@@ -6,14 +6,18 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.EnergySource;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
+
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class GeneratingUnitEq {
 
@@ -22,8 +26,8 @@ public final class GeneratingUnitEq {
     private static final String EQ_GENERATINGUNIT_INITIALP = "GeneratingUnit.initialP";
 
     public static void write(String id, String generatingUnitName, EnergySource energySource, double minP, double maxP, double initialP, String cimNamespace, boolean writeInitialP,
-                             String equipmentContainer, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(generatingUnitClassName(energySource), id, generatingUnitName, cimNamespace, writer);
+                             String equipmentContainer, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(generatingUnitClassName(energySource), id, generatingUnitName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MINP);
         writer.writeCharacters(CgmesExportUtil.format(minP));
         writer.writeEndElement();
@@ -36,7 +40,11 @@ public final class GeneratingUnitEq {
             writer.writeEndElement();
         }
         if (equipmentContainer != null) {
-            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer);
+            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+        }
+        if (energySource == EnergySource.WIND) {
+            writer.writeEmptyElement(cimNamespace, "WindGeneratingUnit.windGenUnitType");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "WindGenUnitKind.onshore")); // all generators are considered onshore
         }
         writer.writeEndElement();
     }

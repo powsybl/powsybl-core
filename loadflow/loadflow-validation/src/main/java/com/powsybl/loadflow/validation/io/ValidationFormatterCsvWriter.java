@@ -24,7 +24,7 @@ import com.powsybl.loadflow.validation.ValidationType;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
 public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWriter {
 
@@ -65,7 +65,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             case TWTS3W:
                 return getTwt3wColumns();
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + validationType);
+                throw new IllegalStateException("Unexpected ValidationType value: " + validationType);
         }
     }
 

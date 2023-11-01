@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -26,17 +27,22 @@ import java.util.regex.Matcher;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     private static final Logger LOG = LoggerFactory.getLogger(RecordGroupIOLegacyText.class);
 
     protected final AbstractRecordGroup<T> recordGroup;
+    private boolean qRecordFound;
 
     protected RecordGroupIOLegacyText(AbstractRecordGroup<T> recordGroup) {
         Objects.requireNonNull(recordGroup);
         this.recordGroup = recordGroup;
+    }
+
+    protected boolean isQRecordFound() {
+        return qRecordFound;
     }
 
     @Override
@@ -72,27 +78,29 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     protected void write(List<T> objects, String[] headers, String[] quotedFields, Context context, OutputStream outputStream) {
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
         CsvWriterSettings settings = recordGroup.settingsForCsvWriter(headers, quotedFields, context);
-        CsvWriter writer = new CsvWriter(outputStream, settings);
+        CsvWriter writer = new CsvWriter(outputStreamWriter, settings);
         writer.processRecords(objects);
         writer.flush();
     }
 
+    // skip lines until a 0 is found.
+    // this method supports null lines to avoid verifying if the Q record has been found
     public static void skip(RecordGroupIdentification recordGroup, BufferedReader reader) throws IOException {
         LOG.debug("read and ignore record group {}", recordGroup);
         int number = -1;
+        String line;
         do {
-            String line = reader.readLine();
-            if (line == null) {
-                throw new PsseException("Unexpected end of file");
-            }
-            try (Scanner scanner = new Scanner(line)) {
-                if (scanner.hasNextInt()) {
-                    number = scanner.nextInt();
+            line = reader.readLine();
+            if (line != null) {
+                try (Scanner scanner = new Scanner(line)) {
+                    if (scanner.hasNextInt()) {
+                        number = scanner.nextInt();
+                    }
                 }
             }
-        }
-        while (number != 0);
+        } while (line != null && number != 0);
     }
 
     public static void writeEmpty(RecordGroupIdentification recordGroup, OutputStream outputStream) {
@@ -134,17 +142,23 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         }
     }
 
-    protected static List<String> readRecords(BufferedReader reader) throws IOException {
+    protected List<String> readRecords(BufferedReader reader) throws IOException {
         List<String> records = new ArrayList<>();
-        String line = readRecordLine(reader);
-        while (!endOfBlock(line)) {
-            records.add(line);
-            line = readRecordLine(reader);
+        if (!isQRecordFound()) {
+            String line = readRecordLine(reader);
+            while (!endOfBlock(line)) {
+                records.add(line);
+                line = readRecordLine(reader);
+            }
         }
         return records;
     }
 
-    protected static boolean endOfBlock(String line) {
+    protected boolean endOfBlock(String line) {
+        if (line.trim().equals("Q")) {
+            qRecordFound = true;
+            return true;
+        }
         return line.trim().equals("0");
     }
 
@@ -155,12 +169,12 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         if (line == null) {
             throw new PsseException("PSSE. Unexpected end of file");
         }
-        StringBuffer newLine = new StringBuffer();
+        StringBuilder newLine = new StringBuilder();
         Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(removeComment(line));
         while (m.find()) {
             // If current group is quoted, keep it as it is
             if (m.group().indexOf(LEGACY_TEXT.getQuote()) >= 0) {
-                m.appendReplacement(newLine, m.group());
+                m.appendReplacement(newLine, replaceSpecialCharacters(m.group()));
             } else {
                 // current group is whitespace, keep a single whitespace
                 m.appendReplacement(newLine, " ");
@@ -173,5 +187,9 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     private static String removeComment(String line) {
         // Only outside quotes
         return line.replaceAll("('[^']*')|(^/[^/]*)|(/[^/]*)", "$1$2");
+    }
+
+    private static String replaceSpecialCharacters(String line) {
+        return line.replace("\\", "\\\\").replace("$", "\\$");
     }
 }

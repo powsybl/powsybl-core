@@ -8,10 +8,11 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface BusAdder extends IdentifiableAdder<BusAdder> {
+public interface BusAdder extends IdentifiableAdder<Bus, BusAdder> {
 
+    @Override
     Bus add();
 
 }

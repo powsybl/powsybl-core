@@ -13,7 +13,7 @@ import com.powsybl.dsl.DslException
 import com.powsybl.dynamicsimulation.DynamicModel
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 @AutoService(DynamicModelGroovyExtension.class)
 class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
@@ -48,5 +48,10 @@ class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
 
             consumer.accept(new DummyDynamicModel(dynamicModelSpec.id, dynamicModelSpec.parameterSetId))
         }
+    }
+
+    @Override
+    List<String> getModelNames() {
+        List.of(DummyDynamicModel.class.simpleName)
     }
 }

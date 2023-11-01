@@ -6,17 +6,17 @@
  */
 package com.powsybl.iidm.xml;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public class PropertiesXmlTest extends AbstractXmlConverterTest {
+class PropertiesXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripAllVersionedXmlTest("eurostag-tutorial-example1-properties.xml");
     }
 }

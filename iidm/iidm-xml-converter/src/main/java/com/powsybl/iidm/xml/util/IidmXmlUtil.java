@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class IidmXmlUtil {
 
@@ -89,7 +89,7 @@ public final class IidmXmlUtil {
                 LOGGER.error(message(elementName, type, refVersion, context.getVersion(), reason));
             }
         } else {
-            throw new AssertionError("Unexpected behaviour: " + context.getOptions().getIidmVersionIncompatibilityBehavior());
+            throw new IllegalStateException("Unexpected behaviour: " + context.getOptions().getIidmVersionIncompatibilityBehavior());
         }
     }
 

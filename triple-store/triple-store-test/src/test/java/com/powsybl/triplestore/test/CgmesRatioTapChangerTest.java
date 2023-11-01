@@ -7,20 +7,20 @@
 
 package com.powsybl.triplestore.test;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class CgmesRatioTapChangerTest {
+class CgmesRatioTapChangerTest {
 
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         queries = new QueryCatalog("cgmes-rtcs/cgmes-rtcs.sparql");
         String base = "foo:cgmes-rtcs";
         String[] inputs = {"cgmes-rtcs/rtc-EQ.xml", "cgmes-rtcs/rtc-SSH.xml"};
@@ -29,28 +29,28 @@ public class CgmesRatioTapChangerTest {
     }
 
     @Test
-    public void testTapChangerControls() {
+    void testTapChangerControls() {
         Expected expected = new Expected().expect("TapChangerControl",
                 "_97110e84-7da6-479c-846c-696fdaa83d56", "_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b");
         tester.testQuery(queries.get("tapChangerControls"), expected);
     }
 
     @Test
-    public void testTapChangerControlsOptionalSsh() {
+    void testTapChangerControlsOptionalSsh() {
         Expected expected = new Expected().expect("TapChangerControl",
                 "_97110e84-7da6-479c-846c-696fdaa83d56", "_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b");
         tester.testQuery(queries.get("tapChangerControlsOptionalSSH"), expected);
     }
 
     @Test
-    public void testTapChangerControlsOnlySshData() {
+    void testTapChangerControlsOnlySshData() {
         Expected expected = new Expected().expect("TapChangerControl",
                 "_38f972bc-b7fd-4e75-8c24-379a86fbb506", "_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b");
         tester.testQuery(queries.get("tapChangerControlsOnlySSHData"), expected);
     }
 
     @Test
-    public void testTapChangerOptionalControlOptionalSsh() {
+    void testTapChangerOptionalControlOptionalSsh() {
         Expected expected = new Expected().expect(
                 "RatioTapChanger",
                 "_11111111-4a10-4031-b008-60c0dc340a07",

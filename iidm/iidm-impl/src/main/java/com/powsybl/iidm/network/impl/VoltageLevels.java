@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Set;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 final class VoltageLevels {
 
@@ -35,10 +35,10 @@ final class VoltageLevels {
             IdentifiableType type = connectable.getType();
             if (MULTIPLE_TERMINALS_CONNECTABLE_TYPES.contains(type)) {
                 // Reject lines, 2WT and 3WT
-                throw new AssertionError("The voltage level '" + voltageLevel.getId() + "' cannot be removed because of a remaining " + type);
-            } else if ((type == IdentifiableType.HVDC_CONVERTER_STATION) && (network.getHvdcLine((HvdcConverterStation) connectable) != null)) {
+                throw new IllegalStateException("The voltage level '" + voltageLevel.getId() + "' cannot be removed because of a remaining " + type);
+            } else if (type == IdentifiableType.HVDC_CONVERTER_STATION && network.getHvdcLine((HvdcConverterStation) connectable) != null) {
                 // Reject all converter stations connected to a HVDC line
-                throw new AssertionError("The voltage level '" + voltageLevel.getId() + "' cannot be removed because of a remaining HVDC line");
+                throw new IllegalStateException("The voltage level '" + voltageLevel.getId() + "' cannot be removed because of a remaining HVDC line");
             }
         }
     }

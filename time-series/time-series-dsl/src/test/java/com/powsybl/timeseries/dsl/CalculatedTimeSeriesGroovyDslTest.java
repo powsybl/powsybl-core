@@ -12,7 +12,7 @@ import com.powsybl.timeseries.ast.NodeCalc;
 import com.powsybl.timeseries.ast.NodeCalcEvaluator;
 import com.powsybl.timeseries.ast.NodeCalcResolver;
 import com.powsybl.timeseries.ast.NodeCalcVisitors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.time.Duration;
@@ -22,12 +22,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class CalculatedTimeSeriesGroovyDslTest {
+class CalculatedTimeSeriesGroovyDslTest {
 
     private void evaluate1(String expr, double expectedValue) {
         // create time series space mock
@@ -77,7 +77,7 @@ public class CalculatedTimeSeriesGroovyDslTest {
                     case 2:
                         return bazValues[point];
                     default:
-                        throw new AssertionError();
+                        throw new IllegalStateException();
                 }
             }
         });
@@ -115,7 +115,7 @@ public class CalculatedTimeSeriesGroovyDslTest {
     }
 
     @Test
-    public void evalTest() {
+    void evalTest() {
         evaluate("1", 1);
         evaluate("1f", 1f);
         evaluate("1d", 1d);
@@ -196,7 +196,7 @@ public class CalculatedTimeSeriesGroovyDslTest {
     }
 
     @Test
-    public void builderTest() {
+    void builderTest() {
         DoubleTimeSeries a = TimeSeries.createDouble("a", IrregularTimeSeriesIndex.create(Instant.now()), 5d);
         DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a)
                 .build("ts['b'] = ts['a'] + 1")
@@ -205,7 +205,7 @@ public class CalculatedTimeSeriesGroovyDslTest {
     }
 
     @Test
-    public void splitWithCalcTest() {
+    void splitWithCalcTest() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10002, 1);
         DoubleTimeSeries a = TimeSeries.createDouble("a", index, 1d, 2d, 3d);
         DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a).build("ts['b'] = ts['a'] + 1").get(0);
@@ -226,9 +226,9 @@ public class CalculatedTimeSeriesGroovyDslTest {
         assertArrayEquals(new double[]{2d, 3d, 4d}, split.get(1).get(1).toArray(), 0d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void splitWithOnlyCalcTest() {
+    @Test
+    void splitWithOnlyCalcTest() {
         List<DoubleTimeSeries> timeSeriesList = DoubleTimeSeries.build("ts['a'] = 1", "ts['b'] = 2");
-        TimeSeries.split(timeSeriesList, 2);
+        assertThrows(IllegalArgumentException.class, () -> TimeSeries.split(timeSeriesList, 2));
     }
 }

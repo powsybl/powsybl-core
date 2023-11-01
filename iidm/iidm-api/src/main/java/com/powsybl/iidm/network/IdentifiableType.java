@@ -8,7 +8,7 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum IdentifiableType {
     NETWORK,
@@ -19,6 +19,7 @@ public enum IdentifiableType {
     SWITCH,
     BUSBAR_SECTION,
     LINE,
+    TIE_LINE,
     TWO_WINDINGS_TRANSFORMER,
     THREE_WINDINGS_TRANSFORMER,
     GENERATOR,

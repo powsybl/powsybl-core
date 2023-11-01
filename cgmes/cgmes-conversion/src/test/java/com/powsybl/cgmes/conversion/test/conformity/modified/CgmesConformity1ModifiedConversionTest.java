@@ -13,29 +13,27 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -45,32 +43,50 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class CgmesConformity1ModifiedConversionTest {
+class CgmesConformity1ModifiedConversionTest {
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void microBEExplicitBase() {
+    void microBEUnmergedXnode() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUnmergedXnode().dataSource(),
+                        NetworkFactory.findDefault(), null);
+        DanglingLine dl = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertNotNull(dl);
+        DanglingLine test = network.getDanglingLine("test");
+        assertNotNull(test);
+    }
+
+    @Test
+    void microBEExplicitBase() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEExplicitBase().dataSource(), NetworkFactory.findDefault(), null);
         assertNotNull(network);
     }
 
     @Test
-    public void microBERatioPhaseTabularTest() {
+    void microBEDuplicateRegion() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseDuplicateRegion().dataSource(), NetworkFactory.findDefault(), null);
+        assertNotNull(network);
+    }
+
+    @Test
+    void microBERatioPhaseTabularTest() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), NetworkFactory.findDefault(), null);
         RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543")
@@ -98,7 +114,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBERatioPhaseFaultyTabularTest() {
+    void microBERatioPhaseFaultyTabularTest() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerFaultyTabular().dataSource(), NetworkFactory.findDefault(), null);
         RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543")
@@ -129,7 +145,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEPhaseTapChangerLinearTest() {
+    void microBEPhaseTapChangerLinearTest() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microT4BePhaseTapChangerLinear(),
             config);
@@ -156,19 +172,12 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     private static Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
         config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config);
-        return c.convert();
+        return ConversionUtil.networkModel(testGridModel, config);
     }
 
     @Test
-    public void microBEPtcSide2() {
+    void microBEPtcSide2() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEPtcSide2().dataSource(), NetworkFactory.findDefault(), null);
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
@@ -178,7 +187,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEUsingSshForRtcPtcDisabled() {
+    void microBEUsingSshForRtcPtcDisabled() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERtcPtcDisabled().dataSource(), NetworkFactory.findDefault(), null);
 
@@ -196,7 +205,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEReactiveCapabilityCurve() {
+    void microBEReactiveCapabilityCurve() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), NetworkFactory.findDefault(), null);
         ReactiveLimits rl = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
@@ -209,7 +218,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEReactiveCapabilityCurveOnePoint() {
+    void microBEReactiveCapabilityCurveOnePoint() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactiveCapabilityCurveOnePoint().dataSource(), NetworkFactory.findDefault(), null);
         ReactiveLimits rl = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
@@ -220,7 +229,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEPtcCurrentLimiter() {
+    void microBEPtcCurrentLimiter() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEPtcCurrentLimiter().dataSource(), NetworkFactory.findDefault(), null);
 
@@ -230,7 +239,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEInvalidRegulatingControl() {
+    void microBEInvalidRegulatingControl() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidRegulatingControl().dataSource(), NetworkFactory.findDefault(), null);
 
@@ -258,7 +267,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEMissingRegulatingControl() {
+    void microBEMissingRegulatingControl() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingRegulatingControl().dataSource(), NetworkFactory.findDefault(), null);
 
@@ -282,7 +291,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBESvInjection() {
+    void microBESvInjection() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithSvInjection().dataSource(),
                         NetworkFactory.findDefault(), null);
@@ -304,7 +313,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBETieFlow() {
+    void microBETieFlow() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource(),
             NetworkFactory.findDefault(), null);
 
@@ -317,7 +326,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEInvalidSvInjection() {
+    void microBEInvalidSvInjection() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidSvInjection().dataSource(),
                         NetworkFactory.findDefault(), null);
@@ -327,7 +336,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEEquivalentShunt() {
+    void microBEEquivalentShunt() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource(),
                 NetworkFactory.findDefault(), null);
 
@@ -339,7 +348,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEMissingShuntRegulatingControlId() {
+    void microBEMissingShuntRegulatingControlId() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog
                         .microGridBaseCaseBEMissingShuntRegulatingControlId().dataSource(), NetworkFactory.findDefault(), null);
         ShuntCompensator shunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
@@ -350,7 +359,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEUndefinedPatl() {
+    void microBEUndefinedPatl() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUndefinedPatl().dataSource(),
                 NetworkFactory.findDefault(), null);
         Line line = network.getLine("ffbabc27-1ccd-4fdc-b037-e341706c8d29");
@@ -361,7 +370,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEEquivalentInjectionRegulatingVoltage() {
+    void microBEEquivalentInjectionRegulatingVoltage() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentInjectionRegulatingVoltage().dataSource(),
                 NetworkFactory.findDefault(), null);
 
@@ -377,7 +386,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEConformNonConformLoads() {
+    void microBEConformNonConformLoads() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource(),
                 NetworkFactory.findDefault(), null);
         Load conformLoad = network.getLoad("cb459405-cc14-4215-a45c-416789205904");
@@ -397,7 +406,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBESwitchAtBoundary() {
+    void microBESwitchAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESwitchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
         DanglingLine dl = network.getDanglingLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
@@ -408,7 +417,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBETransformerAtBoundary() {
+    void microBETransformerAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBETransformerAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
         DanglingLine dl = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
@@ -420,7 +429,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEEquivalentBranchAtBoundary() {
+    void microBEEquivalentBranchAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchAtBoundary().dataSource(),
             NetworkFactory.findDefault(), null);
         DanglingLine dl = network.getDanglingLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
@@ -429,7 +438,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEEquivalentBranch() {
+    void microBEEquivalentBranch() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranch().dataSource(),
             NetworkFactory.findDefault(), null);
         Line l = network.getLine("b58bf21a-096a-4dae-9a01-3f03b60c24c7");
@@ -442,7 +451,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBELimits() {
+    void microBELimits() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELimits().dataSource(),
                 NetworkFactory.findDefault(), null);
         VoltageLevel vl = network.getVoltageLevel("469df5f7-058f-4451-a998-57a48e8a56fe");
@@ -460,7 +469,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEFixedMinPMaxP() {
+    void microBEFixedMinPMaxP() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseBEFixedMinPMaxP().dataSource(),
                 NetworkFactory.findDefault(), null);
         Generator generator = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
@@ -469,7 +478,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEIncorrectDate() {
+    void microBEIncorrectDate() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEIncorrectDate().dataSource(),
                 NetworkFactory.findDefault(), null);
         assertEquals(0, network.getForecastDistance());
@@ -480,7 +489,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEMissingLimitValue() {
+    void microBEMissingLimitValue() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingLimitValue().dataSource(),
                 NetworkFactory.findDefault(), null);
         DanglingLine line = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
@@ -490,7 +499,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEReactivePowerGen() {
+    void microBEReactivePowerGen() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactivePowerGen().dataSource(), NetworkFactory.findDefault(), null);
         Generator g = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
         RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
@@ -501,7 +510,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microAssembledSwitchAtBoundary() {
+    void microAssembledSwitchAtBoundary() {
         final double tolerance = 1e-10;
 
         InMemoryPlatformConfig platformConfigTieLines = new InMemoryPlatformConfig(fileSystem);
@@ -509,18 +518,18 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line m = network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        TieLine m = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
 
         assertEquals(1.02, m.getR(), tolerance);
         assertEquals(12.0, m.getX(), tolerance);
-        assertEquals(0.000015, m.getG1(), tolerance);
-        assertEquals(0.000015, m.getG2(), tolerance);
-        assertEquals(0.00007068585, m.getB1(), tolerance);
-        assertEquals(0.00007068585, m.getB2(), tolerance);
+        assertEquals(0.0, m.getG1(), tolerance);
+        assertEquals(0.0000299999, m.getG2(), tolerance);
+        assertEquals(0.0, m.getB1(), tolerance);
+        assertEquals(0.0001413717, m.getB2(), tolerance);
     }
 
     @Test
-    public void microAssembledTransformerAtBoundary() {
+    void microAssembledTransformerAtBoundary() {
         final double tolerance = 1e-10;
 
         InMemoryPlatformConfig platformConfigTieLines = new InMemoryPlatformConfig(fileSystem);
@@ -528,29 +537,29 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledTransformerAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line m = network.getLine("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13");
+        TieLine m = network.getTieLine("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13");
 
-        assertEquals(4.878525165580545, m.getR(), tolerance);
-        assertEquals(81.682436981089380, m.getX(), tolerance);
-        assertEquals(-0.000007804953422, m.getG1(), tolerance);
-        assertEquals(0.000310492400731, m.getB1(), tolerance);
-        assertEquals(0.000031997811967, m.getG2(), tolerance);
-        assertEquals(-0.000228620410553, m.getB2(), tolerance);
+        assertEquals(4.848348287766889, m.getR(), tolerance);
+        assertEquals(80.20069732770635, m.getX(), tolerance);
+        assertEquals(0.000006589225754810883, m.getG1(), tolerance);
+        assertEquals(-0.00003533205998631356, m.getB1(), tolerance);
+        assertEquals(0.00002420000000000048, m.getG2(), tolerance);
+        assertEquals(0.00008984950000000269, m.getB2(), tolerance);
     }
 
     @Test
-    public void microAssembledThreeLinesAtBoundary() {
+    void microAssembledThreeLinesAtBoundary() {
         InMemoryPlatformConfig platformConfigTieLines = new InMemoryPlatformConfig(fileSystem);
         platformConfigTieLines.createModuleConfig("import-export-parameters-default-value");
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledThreeLinesAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line line = network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        TieLine line = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
         assertNotNull(line);
     }
 
     @Test
-    public void microAssembledEquivalentBranchAtBoundary() {
+    void microAssembledEquivalentBranchAtBoundary() {
         final double tolerance = 1e-10;
 
         InMemoryPlatformConfig platformConfigTieLines = new InMemoryPlatformConfig(fileSystem);
@@ -558,17 +567,17 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEquivalentBranchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line m = network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        assertEquals(2.01664607413, m.getR(), tolerance);
-        assertEquals(21.991922797566996, m.getX(), tolerance);
-        assertEquals(0.000007923595325, m.getG1(), tolerance);
-        assertEquals(0.000022090405367, m.getG2(), tolerance);
-        assertEquals(0.000038600957962, m.getB1(), tolerance);
-        assertEquals(0.000102795699814, m.getB2(), tolerance);
+        TieLine m = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        assertEquals(2.02, m.getR(), tolerance);
+        assertEquals(22.0, m.getX(), tolerance);
+        assertEquals(0.0, m.getG1(), tolerance);
+        assertEquals(0.000029999999999998778, m.getG2(), tolerance);
+        assertEquals(0.0, m.getB1(), tolerance);
+        assertEquals(0.00014137169999998977, m.getB2(), tolerance);
     }
 
     @Test
-    public void microT4InvalidSvcMode() {
+    void microT4InvalidSvcMode() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
@@ -581,7 +590,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microT4ReactivePowerSvc() {
+    void microT4ReactivePowerSvc() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
@@ -598,7 +607,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microT4OffSvc() {
+    void microT4OffSvc() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
@@ -617,7 +626,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microT4SvcWithoutRegulatingControl() {
+    void microT4SvcWithoutRegulatingControl() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
@@ -632,7 +641,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microT4ReactivePowerSvcWithMissingRegulatingControl() {
+    void microT4ReactivePowerSvcWithMissingRegulatingControl() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
@@ -647,7 +656,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniBusBranchRtcRemoteRegulation() {
+    void miniBusBranchRtcRemoteRegulation() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchRtcRemoteRegulation().dataSource(), NetworkFactory.findDefault(), null);
 
         TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
@@ -667,7 +676,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniBusBranchT3xTwoRegulatingControlsEnabled() {
+    void miniBusBranchT3xTwoRegulatingControlsEnabled() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchT3xTwoRegulatingControlsEnabled().dataSource(), NetworkFactory.findDefault(), null);
 
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
@@ -685,7 +694,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniBusBranchExternalInjectionControl() {
+    void miniBusBranchExternalInjectionControl() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchExternalInjectionControl().dataSource(), NetworkFactory.findDefault(), null);
         // External network injections with shared control enabled
         // One external network injection has control enabled
@@ -698,7 +707,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerTestLimits() {
+    void miniNodeBreakerTestLimits() {
         // Original test case
         Network network0 = new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(), NetworkFactory.findDefault(), null);
         // The case has been manually modified to have OperationalLimits
@@ -750,7 +759,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerInvalidT2w() {
+    void miniNodeBreakerInvalidT2w() {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         platformConfig.createModuleConfig("import-export-parameters-default-value")
                 .setStringProperty("iidm.import.cgmes.convert-boundary", "true");
@@ -769,7 +778,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerSvInjection() {
+    void miniNodeBreakerSvInjection() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerSvInjection().dataSource(),
                         NetworkFactory.findDefault(), null);
@@ -781,7 +790,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerLoadBreakSwitch() {
+    void miniNodeBreakerLoadBreakSwitch() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerLoadBreakSwitch().dataSource(),
                         NetworkFactory.findDefault(), null);
@@ -792,7 +801,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerCimLine() {
+    void miniNodeBreakerCimLine() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource(),
                         NetworkFactory.findDefault(), null);
@@ -807,7 +816,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerProtectedSwitch() {
+    void miniNodeBreakerProtectedSwitch() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerProtectedSwitch().dataSource(),
                         NetworkFactory.findDefault(), null);
@@ -819,7 +828,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerSubstationNode() {
+    void miniNodeBreakerSubstationNode() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerSubstationNode().dataSource(),
                         NetworkFactory.findDefault(), null);
@@ -832,7 +841,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerMissingSubstationRegion() {
+    void miniNodeBreakerMissingSubstationRegion() {
         // Check that we fail with a powsybl exception instead of a NPE
         CgmesImport importer = new CgmesImport();
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.miniNodeBreakerMissingSubstationRegion().dataSource();
@@ -843,13 +852,13 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void smallBusBranchTieFlowWithoutControlArea() {
+    void smallBusBranchTieFlowWithoutControlArea() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallBusBranchTieFlowsWithoutControlArea().dataSource(), NetworkFactory.findDefault(), null);
         assertNull(network.getExtension(CgmesControlAreas.class));
     }
 
     @Test
-    public void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
+    void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
         // Small Grid Node Breaker HVDC modified so in the dcLine2
         // SVC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
         // SVC2 (that is at side 1 of the line) is interpreted as an inverter
@@ -857,44 +866,44 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
+    void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
         // Small Grid Node Breaker HVDC modified so in the dcLine
         // both converters have targetPpcc consistent with side 1 inverter side 2 rectifier
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier().dataSource(), NetworkFactory.findDefault(), null));
     }
 
     @Test
-    public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
+    void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
         // Small Grid Node Breaker HVDC modified so in the dcLine
         // both converters have targetPpcc consistent with side 1 rectifier side 2 inverter
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), NetworkFactory.findDefault(), null));
     }
 
     @Test
-    public void smallNodeBreakerHvdcVscReactiveQPcc() {
+    void smallNodeBreakerHvdcVscReactiveQPcc() {
         // Small Grid Node Breaker HVDC modified so VSC converter are regulating in reactive power and not in voltage
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcVscReactiveQPcc().dataSource(), NetworkFactory.findDefault(), null));
     }
 
     @Test
-    public void smallNodeBreakerHvdcNanTargetPpcc() {
+    void smallNodeBreakerHvdcNanTargetPpcc() {
         // Small Grid Node Breaker HVDC modified so targetPpcc are NaN
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNanTargetPpcc().dataSource(), NetworkFactory.findDefault(), null));
     }
 
     @Test
-    public void smallNodeBreakerHvdcMissingDCLineSegment() {
+    void smallNodeBreakerHvdcMissingDCLineSegment() {
         // Small Grid Node Breaker HVDC modified so there is not DC Line Segment
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment().dataSource(), NetworkFactory.findDefault(), null));
     }
 
     @Test
-    public void smallNodeBreakerVscControllerRemotePccTerminal() {
+    void smallNodeBreakerVscControllerRemotePccTerminal() {
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerVscConverterRemotePccTerminal().dataSource(), NetworkFactory.findDefault(), null));
     }
 
     @Test
-    public void miniNodeBreakerInternalLineZ0() {
+    void miniNodeBreakerInternalLineZ0() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerInternalLineZ0().dataSource(), NetworkFactory.findDefault(), null);
         // The internal z0 line named "INTERCONNECTOR22" has been converted to a switch
@@ -904,7 +913,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseAssembledEntsoeCategory() {
+    void microGridBaseCaseAssembledEntsoeCategory() {
         Properties params = new Properties();
         params.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEntsoeCategory().dataSource(), params);
@@ -916,7 +925,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseNLMultipleSlacks() {
+    void microGridBaseCaseNLMultipleSlacks() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLMultipleSlacks().dataSource(), null);
         Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e-bis");
         SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
@@ -925,21 +934,27 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseNLShuntCompensatorGP() {
+    void microGridBaseCaseNLShuntCompensatorGP() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLShuntCompensatorGP().dataSource(), null);
         assertEquals(0.0000123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getG(), 0.0);
         assertEquals(0.123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getTerminal().getP(), 0.0);
     }
 
     @Test
-    public void microGridBaseCaseBESingleFile() {
+    void microGridBaseCaseNLSwitchWithoutName() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLSwitchWithoutName().dataSource(), null);
+        assertNotNull(network.getSwitch("5f5d40ae-d52d-4631-9285-b3ceefff784c"));
+    }
+
+    @Test
+    void microGridBaseCaseBESingleFile() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), null);
         assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
         assertEquals(5, network.getDanglingLineCount());
     }
 
     @Test
-    public void smallNodeBreakerHvdcNoSequenceNumbers() {
+    void smallNodeBreakerHvdcNoSequenceNumbers() {
         Network networkSeq = Importers.importData("CGMES", CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null);
         Network networkNoSeq = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNoSequenceNumbers().dataSource(), null);
         // Make sure we have not lost any line, switch
@@ -957,7 +972,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microGridBaseBEStationSupply() {
+    void microGridBaseBEStationSupply() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBEStationSupply().dataSource(), null);
         Load l = network.getLoad("b1480a00-b427-4001-a26c-51954d2bb7e9_station_supply");
         assertNotNull(l);
@@ -967,7 +982,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microGridBaseBETargetDeadbandNegative() {
+    void microGridBaseBETargetDeadbandNegative() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBETargetDeadbandNegative().dataSource(), null);
         String transformerId;
 
@@ -980,6 +995,22 @@ public class CgmesConformity1ModifiedConversionTest {
         RatioTapChanger rtc = network.getTwoWindingsTransformer(transformerId).getRatioTapChanger();
         assertTrue(Double.isNaN(rtc.getTargetDeadband()));
         assertFalse(rtc.isRegulating());
+    }
+
+    @Test
+    void microGridBELineDisconnectedAtBoundaryNode() {
+        Properties importParams = new Properties();
+        String dlId = "17086487-56ba-4979-b8de-064025a6b4da";
+
+        importParams.setProperty(CgmesImport.DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED, "true");
+        Network be0 = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELineDisconnectedAtBoundaryNode().dataSource(), importParams);
+        Bus bus0 = be0.getDanglingLine(dlId).getTerminal().getBusView().getBus();
+        assertNull(bus0);
+
+        importParams.setProperty(CgmesImport.DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED, "false");
+        Network be1 = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELineDisconnectedAtBoundaryNode().dataSource(), importParams);
+        Bus bus1 = be1.getDanglingLine(dlId).getTerminal().getBusView().getBus();
+        assertNotNull(bus1);
     }
 
     private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {

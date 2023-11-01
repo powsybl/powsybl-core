@@ -6,19 +6,19 @@
  */
 package com.powsybl.commons.datasource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ResourcesDataSourceTest {
+class ResourcesDataSourceTest {
 
     @Test
-    public void test() {
+    void test() {
         ResourceDataSource dataSource = new ResourceDataSource("foo", new ResourceSet("/test/", "foo.txt"));
         assertEquals("foo", dataSource.getBaseName());
         assertTrue(dataSource.exists("foo.txt"));

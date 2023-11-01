@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.SubstationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class SubstationConversion extends AbstractIdentifiedObjectConversion {
 
@@ -46,7 +46,9 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
 
         String iidmSubstationId = context.substationIdMapping().substationIidm(id);
         Substation substation = context.network().getSubstation(iidmSubstationId);
-        assert substation == null;
+        if (substation != null) {
+            throw new IllegalStateException("Substation should be null");
+        }
         SubstationAdder adder = context.network().newSubstation()
                 .setId(iidmSubstationId)
                 .setName(iidmName())

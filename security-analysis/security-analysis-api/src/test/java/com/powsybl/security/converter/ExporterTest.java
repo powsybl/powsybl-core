@@ -21,8 +21,9 @@ import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
+import com.powsybl.security.strategy.ConditionalActions;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -31,14 +32,14 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ExporterTest extends AbstractConverterTest {
+class ExporterTest extends AbstractConverterTest {
 
-    private static final Network NETWORK = EurostagTutorialExample1Factory.createWithCurrentLimits();
+    private static final Network NETWORK = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
     private static SecurityAnalysisResult create() {
         // Create a LimitViolation(CURRENT) to ensure backward compatibility works
@@ -70,9 +71,13 @@ public class ExporterTest extends AbstractConverterTest {
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = List.of(new ThreeWindingsTransformerResult("threeWindingsTransformerId", 1, 2, 3, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2));
         List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
-        operatorStrategyResults.add(new OperatorStrategyResult(new OperatorStrategy("strategyId", "contingency1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")),
-                Collections.singletonList("actionId1")), PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList()),
-                new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
+        operatorStrategyResults.add(
+                new OperatorStrategyResult(
+                        new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"),
+                                List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
+                        PostContingencyComputationStatus.CONVERGED,
+                        new LimitViolationsResult(Collections.emptyList()),
+                        new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED,
                 Collections.singletonList(postContingencyResult),
                 preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults, operatorStrategyResults);
@@ -81,7 +86,7 @@ public class ExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testCompatibilityV1Deserialization() {
+    void testCompatibilityV1Deserialization() {
         LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.json"));
@@ -90,7 +95,7 @@ public class ExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testCompatibilityV12DeserializationFail() {
+    void testCompatibilityV12DeserializationFail() {
         InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.2fail.json");
         assertNotNull(inputStream);
         Assertions.assertThatThrownBy(() -> SecurityAnalysisResultDeserializer.read(inputStream))
@@ -99,20 +104,32 @@ public class ExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testCompatibilityV11Deserialization() {
+    void testCompatibilityV11Deserialization() {
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.1.json"));
         assertEquals(0, result.getOperatorStrategyResults().size());
         assertEquals(3.3, result.getPreContingencyResult().getNetworkResult().getBranchResult("branch1").getI2(), 0.01);
     }
 
     @Test
-    public void testCompatibilityV12Deserialization() {
+    void testCompatibilityV12Deserialization() {
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.2.json"));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
     }
 
     @Test
-    public void roundTripJson() throws IOException {
+    void testCompatibilityV13Deserialization() {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.3.json"));
+        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
+    }
+
+    @Test
+    void testCompatibilityV14Deserialization() {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.4.json"));
+        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
+    }
+
+    @Test
+    void roundTripJson() throws IOException {
         SecurityAnalysisResult result = create();
 
         roundTripTest(result, ExporterTest::writeJson, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
@@ -129,7 +146,7 @@ public class ExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripJsonWithProperties() throws IOException {
+    void roundTripJsonWithProperties() throws IOException {
         SecurityAnalysisResult result = create();
 
         roundTripTest(result, ExporterTest::writeJsonWithProperties, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");

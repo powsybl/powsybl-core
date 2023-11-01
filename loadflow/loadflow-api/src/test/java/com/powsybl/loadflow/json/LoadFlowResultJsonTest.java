@@ -11,23 +11,18 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
-public class LoadFlowResultJsonTest extends AbstractConverterTest {
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+class LoadFlowResultJsonTest extends AbstractConverterTest {
 
     private static Map<String, String> createMetrics() {
         return ImmutableMap.<String, String>builder().put("nbiter", "4")
@@ -52,18 +47,18 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripVersion13Test() throws IOException {
+    void roundTripVersion13Test() throws IOException {
         roundTripTest(createVersion13(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion13.json");
     }
 
     @Test
-    public void readJsonVersion12() throws IOException {
+    void readJsonVersion12() throws IOException {
         LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12.json"));
         assertTrue(Double.isNaN(result.getComponentResults().get(0).getDistributedActivePower()));
     }
 
     @Test
-    public void readJsonVersion11() throws IOException {
+    void readJsonVersion11() throws IOException {
         LoadFlowResult result11 = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11.json"));
         assertTrue(result11.isOk());
 
@@ -78,7 +73,7 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readJsonVersion10() throws IOException {
+    void readJsonVersion10() throws IOException {
         LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion10.json"));
         assertTrue(result.isOk());
         assertEquals(createMetrics(), result.getMetrics());
@@ -87,30 +82,27 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readJsonVersion11Exception() throws IOException {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. synchronousComponentNum is not valid for version 1.1. Version should be >= 1.2 ");
-        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11Exception.json"));
+    void readJsonVersion11Exception() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11Exception.json")));
+        assertTrue(e.getMessage().contains("com.powsybl.loadflow.json.LoadFlowResultDeserializer. synchronousComponentNum is not valid for version 1.1. Version should be >= 1.2 "));
     }
 
     @Test
-    public void readJsonVersion12Exception() throws IOException {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Connected component number field not found.");
-        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json"));
+    void readJsonVersion12Exception() throws IOException {
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json")));
+        assertTrue(e.getMessage().contains("Connected component number field not found."));
     }
 
     @Test
-    public void readJsonVersion12Exception2() throws IOException {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. componentNum is not valid for version 1.2. Version should be < 1.2 ");
-        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception2.json"));
+    void readJsonVersion12Exception2() throws IOException {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception2.json")));
+        assertTrue(e.getMessage().contains("com.powsybl.loadflow.json.LoadFlowResultDeserializer. componentNum is not valid for version 1.2. Version should be < 1.2 "));
     }
 
     @Test
-    public void handleErrorTest() throws IOException {
+    void handleErrorTest() throws IOException {
         try (var is = getClass().getResourceAsStream("/LoadFlowResultVersion10Error.json")) {
-            AssertionError e = assertThrows(AssertionError.class, () -> LoadFlowResultDeserializer.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> LoadFlowResultDeserializer.read(is));
             assertEquals("Unexpected field: alienAttribute", e.getMessage());
         }
     }

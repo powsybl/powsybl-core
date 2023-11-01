@@ -20,11 +20,11 @@ package com.powsybl.iidm.network;
  *        .add();
  *</pre>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see Generator
  * @see VoltageLevel
  */
-public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
+public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder> {
 
     GeneratorAdder setEnergySource(EnergySource energySource);
 
@@ -61,5 +61,6 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
      *      - ratedS is set and ratedS > 0
      * @return {@link Generator}
      */
+    @Override
     Generator add();
 }

@@ -13,9 +13,11 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransformer, TwoWindingsTransformerAdder> {
 
@@ -30,7 +32,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected boolean hasSubElements(TwoWindingsTransformer twt) {
-        throw new AssertionError("Should not be called");
+        throw new IllegalStateException("Should not be called");
     }
 
     @Override
@@ -39,7 +41,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("r", twt.getR(), context.getWriter());
         XmlUtil.writeDouble("x", twt.getX(), context.getWriter());
         XmlUtil.writeDouble("g", twt.getG(), context.getWriter());
@@ -56,7 +58,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeSubElements(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
             writeRatioTapChanger("ratioTapChanger", rtc, context);
@@ -98,18 +100,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected TwoWindingsTransformerAdder createAdder(Container<? extends Identifiable<?>> c) {
-        if (c instanceof Network) {
-            return ((Network) c).newTwoWindingsTransformer();
-        }
-        if (c instanceof Substation) {
-            return ((Substation) c).newTwoWindingsTransformer();
-        }
-        throw new AssertionError();
+    protected TwoWindingsTransformerAdder createAdder(Substation s) {
+        return s.newTwoWindingsTransformer();
     }
 
     @Override
-    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
+    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, Substation s, NetworkXmlReaderContext context) {
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
         double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
         double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");

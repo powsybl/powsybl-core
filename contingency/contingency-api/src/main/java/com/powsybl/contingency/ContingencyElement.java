@@ -11,7 +11,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface ContingencyElement {
 
@@ -46,6 +46,10 @@ public interface ContingencyElement {
             return new StaticVarCompensatorContingency(identifiable.getId());
         } else if (identifiable instanceof Battery) {
             return new BatteryContingency(identifiable.getId());
+        } else if (identifiable instanceof Bus) {
+            return new BusContingency(identifiable.getId());
+        } else if (identifiable instanceof TieLine) {
+            return new TieLineContingency(identifiable.getId());
         } else {
             throw new PowsyblException(identifiable.getId() + " can not be a ContingencyElement");
         }

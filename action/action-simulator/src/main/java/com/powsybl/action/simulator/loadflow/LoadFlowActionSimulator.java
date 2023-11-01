@@ -28,8 +28,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class LoadFlowActionSimulator implements ActionSimulator {
 
@@ -169,7 +169,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private RuleContext evaluateRule(Rule rule, RunningContext context) {
         if (rule.getCondition().getType() != ConditionType.EXPRESSION) {
-            throw new AssertionError("TODO");
+            throw new IllegalStateException("TODO");
         }
         ExpressionNode conditionExpr = ((ExpressionCondition) rule.getCondition()).getNode();
         EvaluationContext evalContext = new EvaluationContext() {
@@ -338,12 +338,12 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                     ExpressionNode conditionExpr = ((ExpressionCondition) rule.getCondition()).getNode();
                     return ActionExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
                 })
-                .collect(Collectors.toList());
+                .toList();
         List<String> testActionIds = activedRules.stream()
                                 .flatMap(r -> r.getActions().stream())
                                 .distinct()
                                 .filter(id -> !context.isTested(id))
-                                .collect(Collectors.toList());
+                                .toList();
 
         if (testActionIds.isEmpty()) {
             return;

@@ -7,17 +7,18 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
+import com.powsybl.commons.PowsyblException;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class DenseMatrixTest extends AbstractMatrixTest {
+class DenseMatrixTest extends AbstractMatrixTest {
 
     private final MatrixFactory matrixFactory = new DenseMatrixFactory();
 
@@ -29,17 +30,17 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Override
-    public MatrixFactory getOtherMatrixFactory() {
+    protected MatrixFactory getOtherMatrixFactory() {
         return otherMatrixFactory;
     }
 
     @Test
-    public void invalidBufferCapacity() {
+    void invalidBufferCapacity() {
         assertThrows(MatrixException.class, () -> new DenseMatrix(2, 2, () -> ByteBuffer.allocate(3)));
     }
 
     @Test
-    public void testDensePrint() throws IOException {
+    void testDensePrint() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
                 " 1.0 0.0",
@@ -51,7 +52,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    public void testDensePrintWithNames() throws IOException {
+    void testDensePrintWithNames() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
                 "     c1  c2",
@@ -63,7 +64,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    public void testCreateFromColumn() {
+    void testCreateFromColumn() {
         DenseMatrix a = Matrix.createFromColumn(new double[] {1d, 2d, 3d}, matrixFactory).toDense();
         assertEquals(3, a.getRowCount());
         assertEquals(1, a.getColumnCount());
@@ -73,7 +74,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    public void testCreateFromRow() {
+    void testCreateFromRow() {
         DenseMatrix a = Matrix.createFromRow(new double[] {1d, 2d, 3d}, matrixFactory).toDense();
         assertEquals(1, a.getRowCount());
         assertEquals(3, a.getColumnCount());
@@ -83,7 +84,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    public void testToSparse() {
+    void testToSparse() {
         DenseMatrix a = (DenseMatrix) createA(matrixFactory);
         SparseMatrix a2 = a.toSparse();
         assertNotNull(a2);
@@ -93,7 +94,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    public void testDenseMultiplication() {
+    void testDenseMultiplication() {
         DenseMatrix a = new DenseMatrix(2, 1);
         a.set(0, 0, 4);
         a.set(1, 0, 5);
@@ -106,5 +107,12 @@ public class DenseMatrixTest extends AbstractMatrixTest {
         assertEquals(15, c.get(1, 0), EPSILON);
         assertEquals(0, c.get(0, 1), EPSILON);
         assertEquals(0, c.get(1, 1), EPSILON);
+    }
+
+    @Test
+    void testTooManyElementDenseMatrix() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> new DenseMatrix(100000, 10000));
+        assertEquals("Too many elements for a dense matrix, maximum allowed is 268435455", e.getMessage());
+        assertEquals(268435455, DenseMatrix.MAX_ELEMENT_COUNT);
     }
 }

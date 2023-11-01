@@ -8,9 +8,9 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevelAdder> {
+public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevel, VoltageLevelAdder> {
 
     VoltageLevelAdder setNominalV(double nominalV);
 
@@ -22,5 +22,6 @@ public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevelAdder> 
 
     VoltageLevelAdder setTopologyKind(TopologyKind topologyKind);
 
+    @Override
     VoltageLevel add();
 }

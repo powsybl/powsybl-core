@@ -7,17 +7,17 @@
 package com.powsybl.ucte.network;
 
 import com.google.common.testing.EqualsTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class UcteElementIdTest {
+class UcteElementIdTest {
 
     @Test
-    public void test() {
+    void test() {
         UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.VL_380, '1');
         UcteNodeCode node2 = new UcteNodeCode(UcteCountryCode.BE, "BBBBB", UcteVoltageLevelCode.VL_380, '2');
         UcteElementId id = new UcteElementId(node1, node2, '3');
@@ -33,7 +33,7 @@ public class UcteElementIdTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.VL_380, '1');
         UcteNodeCode node2 = new UcteNodeCode(UcteCountryCode.BE, "BBBBB", UcteVoltageLevelCode.VL_380, '2');
         UcteElementId id1 = new UcteElementId(node1, node2, '3');

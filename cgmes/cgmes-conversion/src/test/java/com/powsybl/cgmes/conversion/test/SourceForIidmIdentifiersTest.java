@@ -14,20 +14,20 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.api.TripleStoreOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class SourceForIidmIdentifiersTest {
+class SourceForIidmIdentifiersTest {
 
     @Test
-    public void microGridMasterResourceIdsExplicit() {
+    void microGridMasterResourceIdsExplicit() {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.SOURCE_FOR_IIDM_ID, CgmesImport.SOURCE_FOR_IIDM_ID_MRID);
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), importParams);
@@ -35,13 +35,13 @@ public class SourceForIidmIdentifiersTest {
     }
 
     @Test
-    public void microGridMasterResourceIdsDefault() {
+    void microGridMasterResourceIdsDefault() {
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), null);
         network.getIdentifiables().forEach(idf -> assertFalse(idf.getId().startsWith("_")));
     }
 
     @Test
-    public void microGridRDFIds() {
+    void microGridRDFIds() {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.SOURCE_FOR_IIDM_ID, CgmesImport.SOURCE_FOR_IIDM_ID_RDFID);
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), importParams);
@@ -49,16 +49,20 @@ public class SourceForIidmIdentifiersTest {
     }
 
     @Test
-    public void tipleStoreOptions() {
+    void tipleStoreOptions() {
         TripleStoreOptions options0 = new TripleStoreOptions();
         assertTrue(options0.isRemoveInitialUnderscoreForIdentifiers());
-        TripleStoreOptions options1 = new TripleStoreOptions(true);
+        assertTrue(options0.unescapeIdentifiers());
+        TripleStoreOptions options1 = new TripleStoreOptions(true, true);
         assertTrue(options1.isRemoveInitialUnderscoreForIdentifiers());
-        TripleStoreOptions options2 = new TripleStoreOptions(false);
+        assertTrue(options1.unescapeIdentifiers());
+        TripleStoreOptions options2 = new TripleStoreOptions(false, false);
         assertFalse(options2.isRemoveInitialUnderscoreForIdentifiers());
+        assertFalse(options2.unescapeIdentifiers());
 
         TripleStore ts = TripleStoreFactory.create(options2);
         assertFalse(ts.getOptions().isRemoveInitialUnderscoreForIdentifiers());
+        assertFalse(ts.getOptions().unescapeIdentifiers());
     }
 
 }

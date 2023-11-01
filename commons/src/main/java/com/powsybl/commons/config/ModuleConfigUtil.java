@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class ModuleConfigUtil {
 
@@ -33,6 +33,10 @@ public final class ModuleConfigUtil {
 
     public static OptionalDouble getOptionalDoubleProperty(ModuleConfig moduleConfig, List<String> names) {
         return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalDoubleProperty, OptionalDouble::empty, OptionalDouble::isPresent);
+    }
+
+    public static OptionalInt getOptionalIntProperty(ModuleConfig moduleConfig, List<String> names) {
+        return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalIntProperty, OptionalInt::empty, OptionalInt::isPresent);
     }
 
     private static <T> Optional<T> getOptionalProperty(ModuleConfig moduleConfig, List<String> names, Function<String, Optional<T>> supplier) {

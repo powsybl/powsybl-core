@@ -14,20 +14,20 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class CgmesMeasurementsTest {
+class CgmesMeasurementsTest {
 
     @Test
-    public void testBusBranch() {
+    void testBusBranch() {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.post-processors", Collections.singletonList("measurements"));
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseMeasurements().dataSource(),
@@ -185,7 +185,7 @@ public class CgmesMeasurementsTest {
     }
 
     @Test
-    public void testNodeBreaker() {
+    void testNodeBreaker() {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.post-processors", Collections.singletonList("measurements"));
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerMeasurements().dataSource(),

@@ -8,19 +8,18 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.ListOfContingencyLists;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfContingencyLists> {
 
@@ -49,12 +48,11 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
 
                 case "contingencyLists":
                     parser.nextToken();
-                    contingencyLists = parser.readValueAs(new TypeReference<ArrayList<ContingencyList>>() {
-                    });
+                    contingencyLists = JsonUtil.readList(deserializationContext, parser, ContingencyList.class);
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new ListOfContingencyLists(name, contingencyLists);

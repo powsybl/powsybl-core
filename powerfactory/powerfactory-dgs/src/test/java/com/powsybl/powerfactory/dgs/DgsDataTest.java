@@ -12,22 +12,22 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import com.powsybl.powerfactory.model.StudyCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class DgsDataTest extends AbstractConverterTest {
+class DgsDataTest extends AbstractConverterTest {
 
     private String toJson(StudyCase studyCase) throws IOException {
         try (StringWriter writer = new StringWriter()) {
@@ -54,24 +54,34 @@ public class DgsDataTest extends AbstractConverterTest {
     }
 
     @Test
-    public void twoBusesTest() throws IOException {
+    void twoBusesTest() throws IOException {
         assertTrue(test("/TwoBuses.dgs", "/TwoBuses.json"));
     }
 
     @Test
-    public void towerTest() throws IOException {
+    void towerTest() throws IOException {
         assertTrue(test("/Tower.dgs", "/Tower.json"));
     }
 
     @Test
-    public void twoBusesCommaAsDecimalSeparatorTest() throws IOException {
+    void twoBusesCommaAsDecimalSeparatorTest() throws IOException {
         assertTrue(test("/TwoBusesCommaAsDecimalSeparator.dgs", "/TwoBusesCommaAsDecimalSeparator.json"));
     }
 
     @Test
-    public void emptyMatrixTest() throws IOException {
+    void emptyMatrixTest() throws IOException {
         PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> loadCase("/EmptyMatrix.dgs"));
         assertEquals("RealMatrix: Unexpected number of cols: 'GPScoords' rows: 1 cols: 1 expected cols: 2", e.getMessage());
+    }
+
+    @Test
+    void v6ErrorTest() {
+        assertThrows(PowerFactoryException.class, () -> loadCase("/ascii_v6.dgs"));
+    }
+
+    @Test
+    void v7ErrorTest() {
+        assertThrows(PowerFactoryException.class, () -> loadCase("/ascii_v7.dgs"));
     }
 
     private boolean test(String dgs, String json) throws IOException {

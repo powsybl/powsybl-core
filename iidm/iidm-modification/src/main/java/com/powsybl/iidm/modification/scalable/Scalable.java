@@ -6,18 +6,18 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
+
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Ameni Walha <ameni.walha at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
 public interface Scalable {
 
@@ -75,24 +75,6 @@ public interface Scalable {
     double minimumValue(Network n, ScalingConvention scalingConvention);
 
     /**
-     * @deprecated listGenerators should be replaced by filterInjections
-     */
-    @Deprecated
-    void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators);
-
-    /**
-     * @deprecated listGenerators should be replaced by filterInjections
-     */
-    @Deprecated
-    List<Generator> listGenerators(Network n, List<String> notFoundGenerators);
-
-    /**
-     * @deprecated listGenerators should be replaced by filterInjections
-     */
-    @Deprecated
-    List<Generator> listGenerators(Network n);
-
-    /**
      * Scans all the expected injections of the scalable.
      * If the injection can be found in given network, it is added the the injections list.
      * Otherwise, its identifier is added to the "notFound" list.
@@ -118,7 +100,7 @@ public interface Scalable {
 
     /**
      * Scans all the expected injections of the scalable.
-     * If the injection can be found in given network, it is added the the injections list.
+     * If the injection can be found in given network, it is added to the injections list.
      *
      * @param network network
      * @return network injections used in the scalable
@@ -127,58 +109,19 @@ public interface Scalable {
 
     /**
      * Scale the given network using Generator convention by default.
-     * The actual scaling value may be different to the one asked, if
-     * the Scalable limit is reached.
+     * The actual scaling value may be different to the one asked if
+     * the Scalable limit is reached. If the scalable is disconnected,
+     * the scaling value will be 0.
      *
      * @param n network
      * @param asked value asked to adjust the scalable active power
+     * @param parameters specific parameters used to scale
      * @return the actual value of the scalable active power adjustment
      */
-    double scale(Network n, double asked);
+    double scale(Network n, double asked, ScalingParameters parameters);
 
-    /**
-     * Scale the given network.
-     * The actual scaling value may be different to the one asked, if
-     * the Scalable limit is reached.
-     *
-     * @param n network
-     * @param asked value asked to adjust the scalable active power
-     * @param scalingConvention power convention used for scaling
-     * @return the actual value of the scalable active power adjustment
-     * @see ScalingConvention
-     */
-    double scale(Network n, double asked, ScalingConvention scalingConvention);
-
-    /**
-     * Scale the given network using Generator convention by default.
-     * If the object is a load, scaling is done with constant power factor.
-     * @param n network
-     * @param asked value asked to adjust the scalable active power and reactive power if load
-     * @return the actual value of the scalable active power adjustment
-     */
-    default double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scale(n, asked);
-    }
-
-    /**
-     * Scale the given network.
-     * The actual scaling value may be different to the one asked, if
-     * the Scalable limit is reached. If the Scalable is a load, the power factor is kept constant.
-     * @param n network
-     * @param asked value asked to adjust the scalable active power and reactive power if load
-     * @param scalingConvention power convention used for scaling
-     * @return the actual value of the scalable active power adjustment
-     */
-    default double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention);
-    }
-
-    /**
-     * @deprecated gen should be replaced by onGenerator
-     */
-    @Deprecated
-    static GeneratorScalable gen(String id) {
-        return new GeneratorScalable(id);
+    default double scale(Network n, double asked) {
+        return scale(n, asked, new ScalingParameters());
     }
 
     /**
@@ -247,40 +190,72 @@ public interface Scalable {
         return Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
     }
 
-    static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables) {
+    static ProportionalScalable proportional(List<? extends Injection> injections, ProportionalScalable.DistributionMode distributionMode) {
+        return new ProportionalScalable(injections, distributionMode);
+    }
+
+    static ProportionalScalable proportional(List<? extends Injection> injections, ProportionalScalable.DistributionMode distributionMode, double minValue, double maxValue) {
+        return new ProportionalScalable(injections, distributionMode, minValue, maxValue);
+    }
+
+    static ProportionalScalable proportional(List<Double> percentages, List<Scalable> scalables) {
         return new ProportionalScalable(percentages, scalables);
     }
 
-    static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
-        return new ProportionalScalable(percentages, scalables, iterative);
+    static ProportionalScalable proportional(List<Double> percentages, List<Scalable> scalables, double minValue, double maxValue) {
+        return new ProportionalScalable(percentages, scalables, minValue, maxValue);
     }
 
-    static ProportionalScalable proportional(float percentage, Scalable scalable) {
+    static ProportionalScalable proportional(double percentage, Scalable scalable) {
         return new ProportionalScalable(Collections.singletonList(percentage), Collections.singletonList(scalable));
     }
 
-    static ProportionalScalable proportional(float percentage1, Scalable scalable1, float percentage2, Scalable scalable2) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2),
                                         Arrays.asList(scalable1, scalable2));
     }
 
-    static ProportionalScalable proportional(float percentage1, Scalable scalable1, float percentage2, Scalable scalable2, float percentage3, Scalable scalable3) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3),
                                         Arrays.asList(scalable1, scalable2, scalable3));
     }
 
-    static ProportionalScalable proportional(float percentage1, Scalable scalable1, float percentage2, Scalable scalable2, float percentage3, Scalable scalable3, float percentage4, Scalable scalable4) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3, double percentage4, Scalable scalable4) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3, percentage4),
                                         Arrays.asList(scalable1, scalable2, scalable3, scalable4));
     }
 
-    static ProportionalScalable proportional(float percentage1, Scalable scalable1, float percentage2, Scalable scalable2, float percentage3, Scalable scalable3, float percentage4, Scalable scalable4, float percentage5, Scalable scalable5) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3, double percentage4, Scalable scalable4, double percentage5, Scalable scalable5) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3, percentage4, percentage5),
                                         Arrays.asList(scalable1, scalable2, scalable3, scalable4, scalable5));
     }
 
+    static StackScalable stack(Injection<?>... injections) {
+        List<Scalable> injectionScalables = Arrays.stream(injections).map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables);
+    }
+
+    static StackScalable stack(double minValue, double maxValue, Injection<?>... injections) {
+        List<Scalable> injectionScalables = Arrays.stream(injections).map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables, minValue, maxValue);
+    }
+
+    static StackScalable stack(List<? extends Injection<?>> injections) {
+        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables);
+    }
+
+    static StackScalable stack(List<? extends Injection<?>> injections, double minValue, double maxValue) {
+        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables, minValue, maxValue);
+    }
+
     static StackScalable stack(Scalable... scalables) {
         return new StackScalable(scalables);
+    }
+
+    static StackScalable stack(double minValue, double maxValue, Scalable... scalables) {
+        return new StackScalable(minValue, maxValue, scalables);
     }
 
     static StackScalable stack(String... ids) {
@@ -288,7 +263,38 @@ public interface Scalable {
         return new StackScalable(identifierScalables);
     }
 
+    static StackScalable stack(double minValue, double maxValue, String... ids) {
+        List<Scalable> identifierScalables = Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(identifierScalables, minValue, maxValue);
+    }
+
     static UpDownScalable upDown(Scalable upScalable, Scalable downScalable) {
         return new UpDownScalable(upScalable, downScalable);
     }
+
+    static UpDownScalable upDown(Scalable upScalable, Scalable downScalable, double minValue, double maxValue) {
+        return new UpDownScalable(upScalable, downScalable, minValue, maxValue);
+    }
+
+    /**
+     * Returns the value that has to be added to the network, depending on the type of variation chosen in the parameters
+     * @param scalingParameters Scaling parameters including a variation type (DELTA_P or TARGET_P)
+     * @param askedValue value of scaling asked on the scalable
+     * @param currentGlobalPower current global power in the network
+     * @return the variation value if the type is DELTA_P, else the difference between the variation value and the current global value sum
+     */
+    static double getVariationAsked(ScalingParameters scalingParameters, double askedValue, double currentGlobalPower) {
+        return scalingParameters.getScalingType() == DELTA_P
+            ? askedValue
+            : askedValue - currentGlobalPower;
+    }
+
+    /**
+     * Returns the current power value for the injections corresponding to this Scalable
+     * @param network Network in which the injections are defined
+     * @param asked value of scaling asked on the scalable. This is used to know in which direction we want to scale for UpDownScalables.
+     * @param scalingConvention The value is computed either with Generator or Load convention according to this parameter.
+     * @return the current power value
+     */
+    double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention);
 }

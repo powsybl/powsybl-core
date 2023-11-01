@@ -9,52 +9,52 @@ package com.powsybl.cgmes.conformity.test;
 
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.model.test.CgmesModelTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class Cgmes3Test {
+class Cgmes3Test {
 
     @Test
-    public void microGrid() throws IOException {
+    void microGrid() throws IOException {
         new CgmesModelTester(Cgmes3Catalog.microGrid()).test();
     }
 
     @Test
-    public void microGridWithoutTp() throws IOException {
+    void microGridWithoutTp() throws IOException {
         new CgmesModelTester(Cgmes3Catalog.microGridWithoutTpSv()).test();
     }
 
     @Test
-    public void miniGrid() throws IOException {
+    void miniGrid() throws IOException {
         new CgmesModelTester(Cgmes3Catalog.miniGrid()).test();
     }
 
     @Test
-    public void miniGridWithoutTp() throws IOException {
+    void miniGridWithoutTp() throws IOException {
         new CgmesModelTester(Cgmes3Catalog.miniGridWithoutTpSv()).test();
     }
 
     @Test
-    public void smallGrid() throws IOException {
+    void smallGrid() throws IOException {
         new CgmesModelTester(Cgmes3Catalog.smallGrid()).test();
     }
 
     @Test
-    public void smallGridWithoutTp() throws IOException {
+    void smallGridWithoutTp() throws IOException {
         new CgmesModelTester(Cgmes3Catalog.smallGridWithoutTpSv()).test();
     }
 
     @Test
-    public void svedala() throws IOException {
+    void svedala() throws IOException {
         new CgmesModelTester(Cgmes3Catalog.svedala()).test();
     }
 
     @Test
-    public void svedalaWithoutTp() throws IOException {
+    void svedalaWithoutTp() throws IOException {
         new CgmesModelTester(Cgmes3Catalog.svedalaWithoutTpSv()).test();
     }
 }

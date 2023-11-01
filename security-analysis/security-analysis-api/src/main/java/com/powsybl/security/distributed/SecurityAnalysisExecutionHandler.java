@@ -41,7 +41,7 @@ import static java.util.Objects.requireNonNull;
  *
  * <p>Specified {@link Network} variant is serialized as an XIIDM file.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandler<R> {
 
@@ -229,7 +229,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         options.strategiesFile(path);
         LOGGER.debug("Writing operator strategies to file {}", path);
         new OperatorStrategyList(operatorStrategies)
-                .writeFile(path);
+                .write(path);
     }
 
     /**

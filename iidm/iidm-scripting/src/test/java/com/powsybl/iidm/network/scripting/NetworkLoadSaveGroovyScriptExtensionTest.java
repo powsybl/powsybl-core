@@ -18,33 +18,33 @@ import com.powsybl.iidm.xml.XMLExporter;
 import com.powsybl.iidm.xml.XMLImporter;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import com.powsybl.scripting.test.AbstractGroovyScriptTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NetworkLoadSaveGroovyScriptExtensionTest extends AbstractGroovyScriptTest {
+class NetworkLoadSaveGroovyScriptExtensionTest extends AbstractGroovyScriptTest {
 
     private FileSystem fileSystem;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Network network = EurostagTutorialExample1Factory.create();
         NetworkXml.write(network, fileSystem.getPath("/work/n.xiidm"));
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
@@ -69,7 +69,7 @@ public class NetworkLoadSaveGroovyScriptExtensionTest extends AbstractGroovyScri
     }
 
     @Test
-    public void test() {
+    void test() {
         doTest();
         assertTrue(Files.exists(fileSystem.getPath("/work/n2.xiidm")));
     }

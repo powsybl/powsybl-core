@@ -19,7 +19,7 @@ import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimulationParameters> {
 
@@ -82,10 +82,10 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      */
     public DynamicSimulationParameters(int startTime, int stopTime) {
         if (startTime < 0) {
-            throw new AssertionError("Start time should be zero or positive");
+            throw new IllegalStateException("Start time should be zero or positive");
         }
         if (stopTime <= startTime) {
-            throw new AssertionError("Stop time should be greater than start time");
+            throw new IllegalStateException("Stop time should be greater than start time");
         }
         this.startTime = startTime;
         this.stopTime = stopTime;
@@ -113,7 +113,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      */
     public DynamicSimulationParameters setStartTime(int startTime) {
         if (startTime < 0) {
-            throw new AssertionError("Start time should be zero or positive");
+            throw new IllegalStateException("Start time should be zero or positive");
         }
         this.startTime = startTime;
         return this;
@@ -131,7 +131,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      */
     public DynamicSimulationParameters setStopTime(int stopTime) {
         if (stopTime <= startTime) {
-            throw new AssertionError("Stop time should be greater than start time");
+            throw new IllegalStateException("Stop time should be greater than start time");
         }
         this.stopTime = stopTime;
         return this;

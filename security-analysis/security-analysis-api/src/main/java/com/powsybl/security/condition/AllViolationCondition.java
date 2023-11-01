@@ -7,23 +7,29 @@
 package com.powsybl.security.condition;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.powsybl.security.LimitViolationType;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  *
  * simulate the associated action if there is all violation on any of those network elements
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class AllViolationCondition implements Condition {
+public class AllViolationCondition extends AbstractFilteredCondition {
 
     private final List<String> violationIds;
 
     public static final String NAME = "ALL_VIOLATION";
 
     public AllViolationCondition(List<String> violationIds) {
+        this(violationIds, Collections.emptySet());
+    }
+
+    public AllViolationCondition(List<String> violationIds, Set<LimitViolationType> conditionFilters) {
+        super(ImmutableSet.copyOf(Objects.requireNonNull(conditionFilters)));
         this.violationIds = ImmutableList.copyOf(Objects.requireNonNull(violationIds));
     }
 

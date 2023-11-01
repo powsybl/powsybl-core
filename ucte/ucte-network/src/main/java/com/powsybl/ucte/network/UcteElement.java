@@ -14,7 +14,7 @@ import java.util.Objects;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteElement implements UcteRecord {
 
@@ -166,7 +166,7 @@ public class UcteElement implements UcteRecord {
                 // nothing to do
                 break;
             default:
-                throw new AssertionError("Unexpected UcteElementStatus value: " + status);
+                throw new IllegalStateException("Unexpected UcteElementStatus value: " + status);
         }
         if (currentLimit == null) {
             LOGGER.info("Missing current limit for element '{}'", id);

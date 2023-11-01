@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class DanglingLineBoundaryImpl implements Boundary {
     // for SV use: side represents the network side, that is always
@@ -25,7 +25,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getV() {
-        if (valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return danglingLineData.getBoundaryBusU();
         }
@@ -37,7 +37,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getAngle() {
-        if (valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
@@ -48,7 +48,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getP() {
-        if (valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
             return -parent.getP0();
         }
         Terminal t = parent.getTerminal();
@@ -58,7 +58,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getQ() {
-        if (valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
             return -parent.getQ0();
         }
         Terminal t = parent.getTerminal();
@@ -67,12 +67,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
     }
 
     @Override
-    public Branch.Side getSide() {
-        return null;
-    }
-
-    @Override
-    public DanglingLine getConnectable() {
+    public DanglingLine getDanglingLine() {
         return parent;
     }
 

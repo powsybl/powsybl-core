@@ -10,7 +10,7 @@ package com.powsybl.commons.datasource;
  * This class provides a default empty implementation for the
  * <code>DataSourceObserver</code> interface.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DefaultDataSourceObserver implements DataSourceObserver {
 

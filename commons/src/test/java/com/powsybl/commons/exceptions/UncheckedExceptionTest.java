@@ -6,7 +6,7 @@
  */
 package com.powsybl.commons.exceptions;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -14,21 +14,21 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class UncheckedExceptionTest {
+class UncheckedExceptionTest {
 
     @Test
-    public void classCastExceptionTest() {
+    void classCastExceptionTest() {
         ClassCastException e = new ClassCastException();
         assertSame(e, new UncheckedClassCastExceptionException(e).getCause());
     }
 
     @Test
-    public void classCastExceptionMessageTest() {
+    void classCastExceptionMessageTest() {
         String message = "X of type Z cannot be converted to Y";
         UncheckedClassCastExceptionException exception = new UncheckedClassCastExceptionException(message);
         assertEquals(message, exception.getMessage());
@@ -36,55 +36,55 @@ public class UncheckedExceptionTest {
     }
 
     @Test
-    public void classNotFoundTest() {
+    void classNotFoundTest() {
         ClassNotFoundException e = new ClassNotFoundException();
         assertSame(e, new UncheckedClassNotFoundException(e).getCause());
     }
 
     @Test
-    public void illegalAccessTest() {
+    void illegalAccessTest() {
         IllegalAccessException e = new IllegalAccessException();
         assertSame(e, new UncheckedIllegalAccessException(e).getCause());
     }
 
     @Test
-    public void instantiationTest() {
+    void instantiationTest() {
         InstantiationException e = new InstantiationException();
         assertSame(e, new UncheckedInstantiationException(e).getCause());
     }
 
     @Test
-    public void interruptedTest() {
+    void interruptedTest() {
         InterruptedException e = new InterruptedException();
         assertSame(e, new UncheckedInterruptedException(e).getCause());
     }
 
     @Test
-    public void parserConfigurationTest() {
+    void parserConfigurationTest() {
         ParserConfigurationException e = new ParserConfigurationException();
         assertSame(e, new UncheckedParserConfigurationException(e).getCause());
     }
 
     @Test
-    public void saxTest() {
+    void saxTest() {
         SAXException e = new SAXException();
         assertSame(e, new UncheckedSaxException(e).getCause());
     }
 
     @Test
-    public void transformerTest() {
+    void transformerTest() {
         TransformerException e = new TransformerException("");
         assertSame(e, new UncheckedTransformerException(e).getCause());
     }
 
     @Test
-    public void xmlStreamTest() {
+    void xmlStreamTest() {
         XMLStreamException e = new XMLStreamException();
         assertSame(e, new UncheckedXmlStreamException(e).getCause());
     }
 
     @Test
-    public void uriSyntaxTest() {
+    void uriSyntaxTest() {
         URISyntaxException e = new URISyntaxException("", "");
         assertSame(e, new UncheckedUriSyntaxException(e).getCause());
     }

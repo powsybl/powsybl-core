@@ -8,17 +8,17 @@ package com.powsybl.security.impl.results;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class ThreeWindingsTransformerResultTest {
+class ThreeWindingsTransformerResultTest {
 
     @Test
-    public void test() {
+    void test() {
 
         ThreeWindingsTransformerResult threeWindingsTransformerResult = new ThreeWindingsTransformerResult("id1", 500, 200, 300, -500, 300, -300, 200, 300, 800);
         assertEquals("id1", threeWindingsTransformerResult.getThreeWindingsTransformerId());

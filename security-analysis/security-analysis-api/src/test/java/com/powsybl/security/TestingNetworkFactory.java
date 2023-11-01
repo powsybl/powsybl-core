@@ -9,14 +9,14 @@ package com.powsybl.security;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public final class TestingNetworkFactory {
+final class TestingNetworkFactory {
 
     private TestingNetworkFactory() {
     }
 
-    public static Network create() {
+    static Network create() {
         Network network = Network.create("test", "test");
 
         Substation s1 = network.newSubstation()

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class StackScalable extends AbstractCompoundScalable {
     private static final double EPSILON = 1e-5;
@@ -22,11 +22,21 @@ class StackScalable extends AbstractCompoundScalable {
     private final List<Scalable> scalables;
 
     StackScalable(Scalable... scalables) {
-        this(Arrays.asList(scalables));
+        this(Arrays.asList(scalables), -Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    StackScalable(double minValue, double maxValue, Scalable... scalables) {
+        this(Arrays.asList(scalables), minValue, maxValue);
     }
 
     StackScalable(List<Scalable> scalables) {
+        this(scalables, -Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    StackScalable(List<Scalable> scalables, double minValue, double maxValue) {
         this.scalables = Objects.requireNonNull(scalables);
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
 
     @Override
@@ -35,18 +45,31 @@ class StackScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
+    public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
 
+        // Compute the current power value
+        double currentGlobalPower = getSteadyStatePower(n, asked, parameters.getScalingConvention());
+
+        // Variation asked
+        double variationAsked = Scalable.getVariationAsked(parameters, asked, currentGlobalPower);
+
+        double boundedVariation = getBoundedVariation(variationAsked, currentGlobalPower, parameters.getScalingConvention());
+
         double done = 0;
-        double remaining = asked;
+        double remaining = boundedVariation;
         for (Scalable scalable : scalables) {
             if (Math.abs(remaining) > EPSILON) {
-                double v = scalable.scale(n, remaining, scalingConvention);
+                double v = scalable.scale(n, remaining, parameters);
                 done += v;
                 remaining -= v;
             }
         }
         return done;
+    }
+
+    @Override
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
+        return scalables.stream().mapToDouble(scalable -> scalable.getSteadyStatePower(network, asked, scalingConvention)).sum();
     }
 }

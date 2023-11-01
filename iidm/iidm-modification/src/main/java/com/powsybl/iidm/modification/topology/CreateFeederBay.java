@@ -19,37 +19,42 @@ import java.util.Optional;
  * the busbar section with a breaker and a closed disconnector. The injection is also connected to all
  * the parallel busbar sections, if any, with an open disconnector.
  *
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
 
-    private final InjectionAdder<?> injectionAdder;
-    private final String bbsId;
-    private final int injectionPositionOrder;
+    private final InjectionAdder<?, ?> injectionAdder;
+    private final String busOrBbsId;
+    private final Integer injectionPositionOrder;
     private final String injectionFeederName;
     private final ConnectablePosition.Direction injectionDirection;
 
     /**
      * @param injectionAdder         The injection adder.
-     * @param bbsId                  The ID of the existing busbar section where we want to connect the injection.
+     * @param busOrBbsId                  The ID of the existing busbar section where we want to connect the injection.
      *                               Please note that there will be switches between this busbar section and the connection point of the injection. This switch will be closed.
      * @param injectionPositionOrder The order of the injection to be attached from its extension {@link ConnectablePosition}.
      * @param injectionFeederName    The name of the feeder indicated in the extension {@link ConnectablePosition}.
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
-    CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, Integer injectionPositionOrder,
+    CreateFeederBay(InjectionAdder<?, ?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
                     String injectionFeederName, ConnectablePosition.Direction injectionDirection) {
         super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
-        this.bbsId = Objects.requireNonNull(bbsId);
+        this.busOrBbsId = Objects.requireNonNull(busOrBbsId);
         this.injectionPositionOrder = injectionPositionOrder;
         this.injectionFeederName = injectionFeederName;
         this.injectionDirection = Objects.requireNonNull(injectionDirection);
     }
 
     @Override
-    protected String getBbsId(int side) {
-        return bbsId;
+    protected String getBusOrBusbarSectionId(int side) {
+        return busOrBbsId;
+    }
+
+    @Override
+    protected void setBus(int side, Bus bus, String voltageLevelId) {
+        injectionAdder.setConnectableBus(bus.getId()).setBus(bus.getId());
     }
 
     @Override
@@ -57,27 +62,8 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
         injectionAdder.setNode(node);
     }
 
-    @Override
     protected Connectable<?> add() {
-        if (injectionAdder instanceof LoadAdder) {
-            return ((LoadAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof BatteryAdder) {
-            return ((BatteryAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof DanglingLineAdder) {
-            return ((DanglingLineAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof GeneratorAdder) {
-            return ((GeneratorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof ShuntCompensatorAdder) {
-            return ((ShuntCompensatorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof StaticVarCompensatorAdder) {
-            return ((StaticVarCompensatorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof LccConverterStationAdder) {
-            return ((LccConverterStationAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof VscConverterStationAdder) {
-            return ((VscConverterStationAdder) injectionAdder).add();
-        } else {
-            throw new AssertionError("Given InjectionAdder not supported: " + injectionAdder.getClass().getName());
-        }
+        return injectionAdder.add();
     }
 
     @Override
@@ -86,7 +72,7 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     }
 
     @Override
-    protected int getPositionOrder(int side) {
+    protected Integer getPositionOrder(int side) {
         return injectionPositionOrder;
     }
 

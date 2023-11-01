@@ -7,19 +7,19 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
-public class BatteryXmlTest extends AbstractXmlConverterTest {
+class BatteryXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void batteryRoundTripTest() throws IOException {
+    void batteryRoundTripTest() throws IOException {
         roundTripXmlTest(BatteryNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,

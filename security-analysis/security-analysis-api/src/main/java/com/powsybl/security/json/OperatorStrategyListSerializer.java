@@ -16,7 +16,7 @@ import java.io.IOException;
 import static com.powsybl.security.strategy.OperatorStrategyList.VERSION;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class OperatorStrategyListSerializer extends StdSerializer<OperatorStrategyList> {
 
@@ -28,7 +28,7 @@ public class OperatorStrategyListSerializer extends StdSerializer<OperatorStrate
     public void serialize(OperatorStrategyList operatorStrategyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeObjectField("operatorStrategies", operatorStrategyList.getOperatorStrategies());
+        serializerProvider.defaultSerializeField("operatorStrategies", operatorStrategyList.getOperatorStrategies(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

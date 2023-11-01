@@ -6,17 +6,17 @@
  */
 package com.powsybl.timeseries;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-public class CompressedDoubleDataChunkTest {
+class CompressedDoubleDataChunkTest {
 
     @Test
-    public void testConsistence() {
+    void testConsistence() {
         try {
             new CompressedDoubleDataChunk(0, 5, new double[]{3.0, 4.0}, new int[]{1, 1});
             fail();

@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -22,12 +23,15 @@ import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -35,23 +39,29 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class CgmesExportTest {
+class CgmesExportTest {
 
     @Test
-    public void testFromIidm() throws IOException {
+    void testFromIidm() throws IOException {
         // Test from IIDM with configuration that does not exist in CGMES (disconnected node on switch and HVDC line)
 
         Network network = FictitiousSwitchFactory.create();
         VoltageLevel vl = network.getVoltageLevel("C");
+
+        // set as WIND generator
+        network.getGenerator("CB").setEnergySource(EnergySource.WIND);
 
         // Add disconnected node on switch (side 2)
         vl.getNodeBreakerView().newSwitch().setId("TEST_SW")
@@ -99,7 +109,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testSynchronousMachinesWithSameGeneratingUnit() throws IOException {
+    void testSynchronousMachinesWithSameGeneratingUnit() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseBEGenUnitWithTwoSyncMachines().dataSource();
         Network n = Importers.importData("CGMES", ds, null);
         String exportFolder = "/test-gu-with-2sm";
@@ -125,7 +135,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testPhaseTapChangerFixedTapNotExported() throws IOException, XMLStreamException {
+    void testPhaseTapChangerFixedTapNotExported() throws IOException, XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         Network n = Importers.importData("CGMES", ds, null);
         TwoWindingsTransformer transformer = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
@@ -185,7 +195,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testPhaseTapChangerType16() throws IOException {
+    void testPhaseTapChangerType16() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         String transformerId = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
         String phaseTapChangerId = "6ebbef67-3061-4236-a6fd-6ccc4595f6c3";
@@ -194,7 +204,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testPhaseTapChangerType14() throws IOException {
+    void testPhaseTapChangerType14() throws IOException {
         ReadOnlyDataSource ds = Cim14SmallCasesCatalog.m7buses().dataSource();
         String transformerId = "FP.AND11-FTDPRA11-1_PT";
         String phaseTapChangerId = "FP.AND11-FTDPRA11-1_PTC_OR";
@@ -229,7 +239,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testDoNotExportFictitiousSwitchesCreatedForDisconnectedTerminals() throws IOException {
+    void testDoNotExportFictitiousSwitchesCreatedForDisconnectedTerminals() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerTerminalDisconnected().dataSource();
         Network network = Importers.importData("CGMES", ds, null);
 
@@ -292,19 +302,21 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testFromIidmDanglingLineBusBranch() throws IOException {
+    void testFromIidmBusBranch() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
 
         Network network = DanglingLineNetworkFactory.create();
         DanglingLine expected = network.getDanglingLine("DL");
+        Network merged = Network.merge(network, BatteryNetworkFactory.create()); // add battery
+        Battery battery = merged.getBattery("BAT");
 
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
         // For this test we chose the Conformity MicroGrid BaseCase
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         String boundaryTN = "d4affe50316740bdbbf4ae9c7cbf3cfd";
-        expected.addAlias(boundaryTN, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        expected.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, boundaryTN);
         // We also inform the identifiers of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66");
@@ -312,7 +324,7 @@ public class CgmesExportTest {
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
-            network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
+            merged.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             // To be able to import from the exported CGMES data we must add the external boundary definitions
             // For bus/branch we need both EQ and TP instance files of boundaries
@@ -327,11 +339,17 @@ public class CgmesExportTest {
             DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
             assertNotNull(actual);
             checkDanglingLineParams(expected, actual);
+            Generator generator = networkFromCgmes.getGenerator("BAT");
+            assertNotNull(generator);
+            assertEquals(battery.getTargetP(), generator.getTargetP(), 0.0);
+            assertEquals(battery.getTargetQ(), generator.getTargetQ(), 0.0);
+            assertEquals(battery.getMinP(), generator.getMinP(), 0.0);
+            assertEquals(battery.getMaxP(), generator.getMaxP(), 0.0);
         }
     }
 
     @Test
-    public void testFromIidmDanglingLineBusBranchNotBoundary() throws IOException {
+    void testFromIidmDanglingLineBusBranchNotBoundary() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
         // If we do not provide this information,
@@ -357,7 +375,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testFromIidmDanglingLineNodeBreaker() throws IOException {
+    void testFromIidmDanglingLineNodeBreaker() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
 
@@ -369,7 +387,7 @@ public class CgmesExportTest {
         // For this test we chose the Conformity MicroGrid BaseCase
         ResourceSet boundaries = Cgmes3Catalog.microGridBaseCaseBoundaries();
         String boundaryCN = "b675a570-cb6e-11e1-bcee-406c8f32ef58";
-        expected.addAlias(boundaryCN, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+        expected.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, boundaryCN);
         // We inform the identifier of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:536f9bf1-3f8f-a546-87e3-7af2272f29b7");
@@ -393,7 +411,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testFromIidmDanglingLineNodeBreakerNoBoundaries() throws IOException {
+    void testFromIidmDanglingLineNodeBreakerNoBoundaries() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
         // If we do not add boundary information
@@ -420,6 +438,71 @@ public class CgmesExportTest {
             checkDanglingLineEquivalentInjection(expected, actual);
             checkFictitiousContainerAtBoundary(expected, actual);
         }
+    }
+
+    @Test
+    void testLineContainersNotInBoundaries() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource();
+        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource());
+
+        String exportFolder = "/test-line-containers-not-in-boundaries";
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            // Export to CGMES and add boundary EQ for reimport
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            String baseName = "testLineContainersNotInBoundaries";
+            ReadOnlyDataSource exportedCgmes = exportAndAddBoundaries(network, tmpDir, baseName, ds);
+
+            // Check that the exported CGMES model contains a fictitious substation
+            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
+            assertTrue(cgmes.isNodeBreaker());
+            assertTrue(cgmes.substations().stream().anyMatch(sub -> sub.getLocal("name").contains("FICTITIOUS")));
+
+            // Verify that we re-import the exported CGMES data without problems
+            Network networkReimported = Network.read(exportedCgmes, null);
+            assertNotNull(networkReimported);
+        }
+    }
+
+    @Test
+    void testModelDescription() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        String modelDescription = "powsybl community";
+        Properties params = new Properties();
+        params.put(CgmesExport.MODEL_DESCRIPTION, modelDescription);
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            new CgmesExport().export(network, params, zip);
+            Network network2 = Network.read(tmpDir.resolve("output.zip"));
+            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            assertEquals(modelDescription, sshMetadata.getDescription());
+        }
+    }
+
+    @Test
+    void testModelDescriptionClosingXML() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        // Security test
+        // Checking that putting end-tag does not corrupt the file
+        String modelDescription = "powsybl community</md:Model.modelingAuthoritySet></md:FullModel>";
+        Properties params = new Properties();
+        params.put(CgmesExport.MODEL_DESCRIPTION, modelDescription);
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            new CgmesExport().export(network, params, zip);
+
+            // check network can be reimported and that ModelDescription still includes end-tag
+            Network network2 = Network.read(tmpDir.resolve("output.zip"));
+
+            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            assertEquals(modelDescription, sshMetadata.getDescription());
+        }
+
     }
 
     private static void checkDanglingLineParams(DanglingLine expected, DanglingLine actual) {

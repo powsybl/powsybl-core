@@ -7,18 +7,18 @@
 package com.powsybl.tools.autocompletion;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class OptionTypeMapperTest {
+class OptionTypeMapperTest {
 
     @Test
-    public void test() {
+    void test() {
         OptionTypeMapper mapper = new OptionTypeMapper()
             .addArgNameMapping("FILE", OptionType.FILE)
             .addOptionNameMapping(".*file", OptionType.FILE)
@@ -42,7 +42,7 @@ public class OptionTypeMapperTest {
     }
 
     @Test
-    public void defaultType() {
+    void defaultType() {
         OptionTypeMapper mapper = new OptionTypeMapper()
                 .setDefaultType(OptionType.DIRECTORY)
                 .addArgNameMapping("FILE", OptionType.FILE);

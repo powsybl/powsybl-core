@@ -26,7 +26,7 @@ import com.powsybl.loadflow.validation.ValidationType;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
 public abstract class AbstractValidationFormatterWriter implements ValidationWriter {
 
@@ -298,7 +298,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 writeTwts3wData();
                 break;
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + validationType);
+                throw new IllegalStateException("Unexpected ValidationType value: " + validationType);
         }
     }
 

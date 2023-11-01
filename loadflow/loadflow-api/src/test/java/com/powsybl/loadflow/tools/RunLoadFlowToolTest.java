@@ -11,7 +11,7 @@ import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -22,12 +22,12 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class RunLoadFlowToolTest extends AbstractConverterTest {
+class RunLoadFlowToolTest extends AbstractConverterTest {
 
     @Test
-    public void printLoadFlowResultTest() throws IOException {
+    void printLoadFlowResultTest() throws IOException {
         LoadFlowResult result = new LoadFlowResultImpl(true, Collections.emptyMap(), "",
                 Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 8, "mySlack", 0.01, 300.45)));
         try (StringWriter writer = new StringWriter()) {

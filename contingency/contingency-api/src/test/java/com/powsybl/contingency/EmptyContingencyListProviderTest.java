@@ -6,20 +6,20 @@
  */
 package com.powsybl.contingency;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class EmptyContingencyListProviderTest {
+class EmptyContingencyListProviderTest {
 
     @Test
-    public void test() {
+    void test() {
         ContingenciesProviderFactory factory = new EmptyContingencyListProviderFactory();
         ContingenciesProvider provider = factory.create();
 
-        Assert.assertTrue(provider instanceof EmptyContingencyListProvider);
-        Assert.assertEquals(0, provider.getContingencies(null).size());
+        assertTrue(provider instanceof EmptyContingencyListProvider);
+        assertEquals(0, provider.getContingencies(null).size());
     }
 }

@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class FaultResultSerializer extends StdSerializer<FaultResult> {
 
@@ -30,28 +30,52 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         Objects.requireNonNull(faultResult.getFault());
 
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeObjectField("fault", faultResult.getFault());
+        jsonGenerator.writeStringField("status", String.valueOf(faultResult.getStatus()));
+        serializerProvider.defaultSerializeField("fault", faultResult.getFault(), jsonGenerator);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "shortCircuitPower", faultResult.getShortCircuitPower());
         if (faultResult.getTimeConstant() != null) {
             jsonGenerator.writeStringField("timeConstant", faultResult.getTimeConstant().toString());
         }
-        if (!(faultResult.getFeederResults()).isEmpty()) {
-            jsonGenerator.writeObjectField("feederResult", faultResult.getFeederResults());
+        if (faultResult instanceof FortescueFaultResult fortescueFaultResult) {
+            fortescueResultSerialization(fortescueFaultResult, jsonGenerator, serializerProvider);
+
+        } else if (faultResult instanceof MagnitudeFaultResult) {
+            magnitudeResultSerialization(faultResult, jsonGenerator, serializerProvider);
         }
         if (!(faultResult.getLimitViolations()).isEmpty()) {
-            jsonGenerator.writeObjectField("limitViolations", faultResult.getLimitViolations());
-        }
-        if (faultResult.getCurrent() != null) {
-            jsonGenerator.writeObjectField("current", faultResult.getCurrent());
-        }
-        if (faultResult.getVoltage() != null) {
-            jsonGenerator.writeObjectField("voltage", faultResult.getVoltage());
+            serializerProvider.defaultSerializeField("limitViolations", faultResult.getLimitViolations(), jsonGenerator);
         }
         if (!(faultResult.getShortCircuitBusResults()).isEmpty()) {
-            jsonGenerator.writeObjectField("shortCircuitBusResults", faultResult.getShortCircuitBusResults());
+            serializerProvider.defaultSerializeField("shortCircuitBusResults", faultResult.getShortCircuitBusResults(), jsonGenerator);
         }
+
         JsonUtil.writeExtensions(faultResult, jsonGenerator, serializerProvider);
 
         jsonGenerator.writeEndObject();
     }
+
+    private void fortescueResultSerialization(FortescueFaultResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        if (!((result.getFeederResults()).isEmpty())) {
+            serializerProvider.defaultSerializeField("feederResult", result.getFeederResults(), jsonGenerator);
+        }
+        if (result.getCurrent() != null) {
+            serializerProvider.defaultSerializeField("current", result.getCurrent(), jsonGenerator);
+        }
+        if (result.getVoltage() != null) {
+            serializerProvider.defaultSerializeField("voltage", result.getVoltage(), jsonGenerator);
+        }
+    }
+
+    private void magnitudeResultSerialization(FaultResult faultResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        if (!((faultResult.getFeederResults()).isEmpty())) {
+            serializerProvider.defaultSerializeField("feederResult", faultResult.getFeederResults(), jsonGenerator);
+        }
+        if (!Double.isNaN(((MagnitudeFaultResult) faultResult).getCurrent())) {
+            serializerProvider.defaultSerializeField("currentMagnitude", ((MagnitudeFaultResult) faultResult).getCurrent(), jsonGenerator);
+        }
+        if (!Double.isNaN(((MagnitudeFaultResult) faultResult).getVoltage())) {
+            serializerProvider.defaultSerializeField("voltageMagnitude", ((MagnitudeFaultResult) faultResult).getVoltage(), jsonGenerator);
+        }
+    }
+
 }

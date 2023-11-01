@@ -13,7 +13,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class MaxNodeCalc extends AbstractMinMaxNodeCalc {
 
@@ -72,8 +72,8 @@ public class MaxNodeCalc extends AbstractMinMaxNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof MaxNodeCalc) {
-            return ((MaxNodeCalc) obj).child.equals(child) && ((MaxNodeCalc) obj).value == value;
+        if (obj instanceof MaxNodeCalc maxNodeCalc) {
+            return maxNodeCalc.child.equals(child) && maxNodeCalc.value == value;
         }
         return false;
     }

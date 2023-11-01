@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +16,7 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.LOAD;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class DanglingLineScalable extends AbstractInjectionScalable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DanglingLineScalable.class);
@@ -104,14 +101,15 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
-     * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
+     * <ul>
+     * <li>If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely.</li>
+     * <li>If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely.</li>
+     * </ul>
      */
     @Override
-    public double scale(Network n, double asked, Scalable.ScalingConvention scalingConvention) {
+    public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(scalingConvention);
+        Objects.requireNonNull(parameters);
 
         DanglingLine dl = n.getDanglingLine(id);
 
@@ -123,8 +121,13 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
 
         Terminal t = dl.getTerminal();
         if (!t.isConnected()) {
-            t.connect();
-            LOGGER.info("Connecting {}", dl.getId());
+            if (parameters.isReconnect()) {
+                t.connect();
+                LOGGER.info("Connecting {}", dl.getId());
+            } else {
+                LOGGER.info("Dangling line {} is not connected, discarded from scaling", dl.getId());
+                return 0.;
+            }
         }
 
         double oldP0 = dl.getP0();
@@ -138,7 +141,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         double availableDown = oldP0 - minValue;
         double availableUp = maxValue - oldP0;
 
-        if (scalingConvention == LOAD) {
+        if (parameters.getScalingConvention() == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             dl.setP0(oldP0 + done);
         } else {
@@ -163,7 +166,13 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
     }
 
     @Override
-    public double scale(Network n, double asked) {
-        return scale(n, asked, scalingConvention);
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
+        DanglingLine line = network.getDanglingLine(id);
+        if (line == null) {
+            LOGGER.warn("DanglingLine {} not found", id);
+            return 0.0;
+        } else {
+            return scalingConvention == LOAD ? line.getP0() : -line.getP0();
+        }
     }
 }

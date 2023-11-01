@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteNetworkExt implements UcteNetwork {
 
@@ -217,7 +217,7 @@ public class UcteNetworkExt implements UcteNetwork {
             Graph<UcteNodeCode, Object> graph = createSubstationGraph(network);
             for (Set<UcteNodeCode> substationNodes : new ConnectivityInspector<>(graph).connectedSets()) {
                 List<UcteNodeCode> sortedNodes = substationNodes.stream().sorted(UcteNetworkExt::compareUcteNodeCode).collect(Collectors.toList());
-                UcteNodeCode mainNode = sortedNodes.stream().findFirst().orElseThrow(AssertionError::new);
+                UcteNodeCode mainNode = sortedNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
 
                 Multimap<UcteVoltageLevelCode, UcteNodeCode> nodesByVoltageLevel
                         = Multimaps.index(sortedNodes, UcteNodeCode::getVoltageLevelCode);

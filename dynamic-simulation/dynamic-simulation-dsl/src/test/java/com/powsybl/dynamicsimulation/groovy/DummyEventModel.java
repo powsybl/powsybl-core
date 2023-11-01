@@ -12,18 +12,24 @@ import java.util.Objects;
 import com.powsybl.dynamicsimulation.EventModel;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class DummyEventModel implements EventModel {
 
     private final String id;
+    private final double startTime;
 
-    public DummyEventModel(String id) {
+    public DummyEventModel(String id, double startTime) {
         this.id = Objects.requireNonNull(id);
+        this.startTime = startTime;
     }
 
     public String getId() {
         return id;
     }
 
+    @Override
+    public double getStartTime() {
+        return startTime;
+    }
 }

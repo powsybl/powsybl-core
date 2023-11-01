@@ -11,7 +11,7 @@ import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptorExtension;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 @AutoService(SecurityAnalysisInterceptorExtension.class)
 public class SecurityAnalysisInterceptorMockExtension implements SecurityAnalysisInterceptorExtension {

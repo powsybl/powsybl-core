@@ -20,13 +20,14 @@ import com.powsybl.security.json.action.*;
 import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
+import com.powsybl.security.strategy.ConditionalActions;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
 
@@ -63,8 +64,10 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(OperatorStrategyResult.class, new OperatorStrategyResultSerializer());
         addSerializer(OperatorStrategy.class, new OperatorStrategySerializer());
         addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
+        addSerializer(ConditionalActions.class, new ConditionalActionsSerializer());
         addSerializer(ActionList.class, new ActionListSerializer());
         addSerializer(Condition.class, new ConditionSerializer());
+        addSerializer(ConnectivityResult.class, new ConnectivityResultSerializer());
 
         addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
         addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
@@ -79,9 +82,11 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(OperatorStrategyResult.class, new OperatorStrategyResultDeserializer());
         addDeserializer(OperatorStrategy.class, new OperatorStrategyDeserializer());
         addDeserializer(OperatorStrategyList.class, new OperatorStrategyListDeserializer());
+        addDeserializer(ConditionalActions.class, new ConditionalActionsDeserializer());
         addDeserializer(ActionList.class, new ActionListDeserializer());
         addDeserializer(Condition.class, new ConditionDeserializer());
         addDeserializer(NetworkResult.class, new NetworkResultDeserializer());
+        addDeserializer(ConnectivityResult.class, new ConnectivityResultDeserializer());
 
         configureActionsSerialization();
     }
@@ -96,10 +101,20 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
                 new MultipleActionsActionSerializer(), new MultipleActionsActionDeserializer());
         registerActionType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME,
                 new PhaseTapChangerTapPositionActionSerializer(), new PhaseTapChangerTapPositionActionDeserializer());
+        registerActionType(RatioTapChangerTapPositionAction.class, RatioTapChangerTapPositionAction.NAME,
+                new RatioTapChangerTapPositionActionSerializer(), new RatioTapChangerTapPositionActionDeserializer());
+        registerActionType(PhaseTapChangerRegulationAction.class, PhaseTapChangerRegulationAction.NAME,
+                new PhaseTapChangerRegulationActionSerializer(), new PhaseTapChangerRegulationActionDeserializer());
+        registerActionType(RatioTapChangerRegulationAction.class, RatioTapChangerRegulationAction.NAME,
+                new RatioTapChangerRegulationActionSerializer(), new RatioTapChangerRegulationActionDeserializer());
+        registerActionType(LoadAction.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionDeserializer());
+        registerActionType(HvdcAction.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionDeserializer());
         registerActionType(GeneratorAction.class, GeneratorAction.NAME,
                 new GeneratorActionSerializer(), new GeneratorActionDeserializer());
-        registerActionType(LoadAction.class, LoadAction.NAME,
-                new LoadActionSerializer(), new LoadActionDeserializer());
+        registerActionType(ShuntCompensatorPositionAction.class, ShuntCompensatorPositionAction.NAME,
+                new ShuntCompensatorPositionActionSerializer(), new ShuntCompensatorPositionActionDeserializer());
+        registerActionType(StaticVarCompensatorAction.class, StaticVarCompensatorAction.NAME,
+                new StaticVarCompensatorActionSerializer(), new StaticVarCompensatorActionDeserializer());
     }
 
     private <T> void registerActionType(Class<T> actionClass, String typeName, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {

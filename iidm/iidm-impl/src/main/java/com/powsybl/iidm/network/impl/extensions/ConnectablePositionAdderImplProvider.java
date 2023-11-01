@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 //Ideally this class should not be generic because it is used
 //through ServiceLoader which doesn't understand generics

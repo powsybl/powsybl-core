@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class StaticVarCompensatorConversion extends AbstractConductingEquipmentConversion {
 
@@ -30,8 +30,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         double inductiveRating = p.asDouble("inductiveRating", 0.0);
 
         StaticVarCompensatorAdder adder = voltageLevel().newStaticVarCompensator()
-            .setBmin(1 / inductiveRating)
-            .setBmax(1 / capacitiveRating);
+            .setBmin(getB(inductiveRating, "inductive"))
+            .setBmax(getB(capacitiveRating, "capacitive"));
         identify(adder);
         connect(adder);
         RegulatingControlMappingForStaticVarCompensators.initialize(adder);
@@ -44,6 +44,14 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         }
 
         context.regulatingControlMapping().forStaticVarCompensators().add(svc.getId(), p);
+    }
+
+    private double getB(double rating, String name) {
+        if (rating == 0.0) {
+            fixed(name + "Rating", "Undefined or equal to 0. Corresponding susceptance is Double.MAX_VALUE");
+            return name.equals("inductive") ? -Double.MAX_VALUE : Double.MAX_VALUE;
+        }
+        return 1 / rating;
     }
 
     private double checkSlope(double slope) {

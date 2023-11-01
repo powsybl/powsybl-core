@@ -31,7 +31,7 @@ import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 /**
  * Provides methods to read and write DynamicSimulationParameters from and to JSON.
  *
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class JsonDynamicSimulationParameters {
 

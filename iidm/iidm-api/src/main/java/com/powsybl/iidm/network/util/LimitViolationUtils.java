@@ -6,69 +6,93 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.*;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
  *
  * Helper methods for checking the occurence of overloads.
  *
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public final class LimitViolationUtils {
+
+    public static final String PERMANENT_LIMIT_NAME = "permanent";
 
     private LimitViolationUtils() {
     }
 
-    /**
-     * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Branch, Branch.Side, float, double, LimitType)} instead.
-     */
-    @Deprecated(since = "4.3.0")
-    public static Branch.Overload checkTemporaryLimits(Branch branch, Branch.Side side, float limitReduction, double i) {
-        return checkTemporaryLimits(branch, side, limitReduction, i, LimitType.CURRENT);
-    }
-
-    public static Branch.Overload checkTemporaryLimits(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
+    public static Overload checkTemporaryLimits(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
+        return branch.getLimits(type, side)
+                .map(limits -> getOverload(limits, i, limitReduction))
+                .orElse(null);
+    }
 
-        if (!Double.isNaN(i)) {
-            return branch.getLimits(type, side)
-                    .filter(l -> !Double.isNaN(l.getPermanentLimit()))
-                    .map(limits -> {
-                        String previousLimitName = null;
-                        double previousLimit = limits.getPermanentLimit();
-                        for (LoadingLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
-                            if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
-                                return new OverloadImpl(tl, previousLimitName, previousLimit);
-                            }
-                            previousLimitName = tl.getName();
-                            previousLimit = tl.getValue();
-                        }
-                        return null;
-                    })
-                    .orElse(null);
+    public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double i, LimitType type) {
+        Objects.requireNonNull(transformer);
+        Objects.requireNonNull(side);
+        return transformer.getLeg(side).getLimits(type)
+                .map(limits -> getOverload(limits, i, limitReduction))
+                .orElse(null);
+    }
+
+    private static OverloadImpl getOverload(LoadingLimits limits, double i, float limitReduction) {
+        double permanentLimit = limits.getPermanentLimit();
+        if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
+            return null;
+        }
+        Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limits.getTemporaryLimits();
+        String previousLimitName = PERMANENT_LIMIT_NAME;
+        double previousLimit = permanentLimit;
+        for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
+            if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
+                return new OverloadImpl(tl, previousLimitName, previousLimit);
+            }
+            previousLimitName = tl.getName();
+            previousLimit = tl.getValue();
         }
         return null;
     }
 
-    /**
-     * @deprecated Since 4.3.0, use {@link #checkPermanentLimit(Branch, Branch.Side, float, double, LimitType)} instead.
-     */
-    @Deprecated(since = "4.3.0")
-    public static boolean checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, double i) {
-        return checkPermanentLimit(branch, side, limitReduction, i, LimitType.CURRENT);
+    private static boolean checkPermanentLimitIfAny(LoadingLimits limits, double i, float limitReduction) {
+        double permanentLimit = limits.getPermanentLimit();
+        if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
+            return false;
+        }
+        return i >= permanentLimit * limitReduction;
     }
 
     public static boolean checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
         return branch.getLimits(type, side)
-                .map(l -> !Double.isNaN(l.getPermanentLimit()) &&
-                        !Double.isNaN(i) &&
-                        (i >= l.getPermanentLimit() * limitReduction))
+                .map(l -> checkPermanentLimitIfAny(l, i, limitReduction))
                 .orElse(false);
     }
 
+    public static boolean checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double i, LimitType type) {
+        return transformer.getLeg(side).getLimits(type)
+                .map(l -> checkPermanentLimitIfAny(l, i, limitReduction))
+                .orElse(false);
+    }
+
+    public static double getValueForLimit(Terminal t, LimitType type) {
+        return switch (type) {
+            case ACTIVE_POWER -> t.getP();
+            case APPARENT_POWER -> Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
+            case CURRENT -> t.getI();
+            default ->
+                    throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        };
+    }
+
+    public static boolean checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, LimitType type) {
+        return checkPermanentLimit(transformer, side, limitReduction, getValueForLimit(transformer.getTerminal(side), type), type);
+    }
+
+    public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, LimitType type) {
+        return checkTemporaryLimits(transformer, side, limitReduction, getValueForLimit(transformer.getTerminal(side), type), type);
+    }
 }

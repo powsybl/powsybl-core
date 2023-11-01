@@ -9,17 +9,17 @@ package com.powsybl.tools.test;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.PluginsInfoTool;
 import com.powsybl.tools.Tool;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class PluginsInfoToolTest extends AbstractToolTest {
+class PluginsInfoToolTest extends AbstractToolTest {
 
     @Override
     protected Iterable<Tool> getTools() {
@@ -38,7 +38,7 @@ public class PluginsInfoToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void run() throws Exception {
+    void run() throws Exception {
         assertCommand(new String[] {"plugins-info"}, CommandLineTools.COMMAND_OK_STATUS, "dummy", "");
     }
 }

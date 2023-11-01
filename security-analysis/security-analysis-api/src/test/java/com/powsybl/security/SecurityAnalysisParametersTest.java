@@ -11,22 +11,22 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
-public class SecurityAnalysisParametersTest {
+class SecurityAnalysisParametersTest {
 
     private static final double EPS = 10E-3;
 
     @Test
-    public void testExtensions() {
+    void testExtensions() {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
@@ -38,7 +38,7 @@ public class SecurityAnalysisParametersTest {
     }
 
     @Test
-    public void testNoExtensions() {
+    void testNoExtensions() {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
 
         assertEquals(0, parameters.getExtensions().size());
@@ -48,7 +48,7 @@ public class SecurityAnalysisParametersTest {
     }
 
     @Test
-    public void testExtensionFromConfig() {
+    void testExtensionFromConfig() {
         SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
@@ -56,7 +56,7 @@ public class SecurityAnalysisParametersTest {
     }
 
     @Test
-    public void testLoadFromFile() throws IOException {
+    void testLoadFromFile() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("security-analysis-default-parameters");
@@ -75,7 +75,7 @@ public class SecurityAnalysisParametersTest {
     }
 
     @Test
-    public void testIncreasedViolationsParameters() {
+    void testIncreasedViolationsParameters() {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
 
         assertEquals(0.1, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);

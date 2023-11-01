@@ -17,21 +17,21 @@ import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-public class SecurityAnalysisExecutionImplTest {
+class SecurityAnalysisExecutionImplTest {
 
     private static LimitViolationFilter filter;
     private static LimitViolationDetector detector;
@@ -42,8 +42,8 @@ public class SecurityAnalysisExecutionImplTest {
     private static ComputationManager computationManager;
     private static SecurityAnalysisExecutionInput input;
 
-    @BeforeClass
-    public static void setUpClass() {
+    @BeforeAll
+    static void setUpClass() {
         filter = Mockito.mock(LimitViolationFilter.class);
         detector = Mockito.mock(LimitViolationDetector.class);
         contingencies = Mockito.mock(ContingenciesProvider.class);
@@ -64,14 +64,14 @@ public class SecurityAnalysisExecutionImplTest {
     }
 
     @Test
-    public void checkExecutionCallAndArguments() {
-        assertThrows("run", PowsyblException.class, () -> execution.execute(computationManager, input));
+    void checkExecutionCallAndArguments() {
+        assertThrows(PowsyblException.class, () -> execution.execute(computationManager, input), "run");
     }
 
     @Test
-    public void checkExecutionWithLogCallAndArguments() {
+    void checkExecutionWithLogCallAndArguments() {
         input.setWithLogs(true);
-        assertThrows("run", PowsyblException.class, () -> execution.execute(computationManager, input));
+        assertThrows(PowsyblException.class, () -> execution.execute(computationManager, input), "run");
     }
 
     @AutoService(SecurityAnalysisProvider.class)

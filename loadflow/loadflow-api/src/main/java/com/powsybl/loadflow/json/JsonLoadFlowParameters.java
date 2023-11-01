@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * Provides methods to read and write LoadFlowParameters from and to JSON.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public final class JsonLoadFlowParameters {
 

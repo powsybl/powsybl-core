@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 
@@ -15,7 +16,7 @@ import javax.xml.stream.XMLStreamWriter;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class OperationalLimitTypeEq {
 
@@ -23,8 +24,8 @@ public final class OperationalLimitTypeEq {
     private static final String PATL = "patl";
     private static final String TATL = "tatl";
 
-    public static void writePatl(String id, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "PATL", cimNamespace, writer);
+    public static void writePatl(String id, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "PATL", cimNamespace, writer, context);
         writeDirection(cimNamespace, writer);
         writeKind(PATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
         if (writeInfiniteDuration) {
@@ -33,8 +34,9 @@ public final class OperationalLimitTypeEq {
         writer.writeEndElement();
     }
 
-    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, name, cimNamespace, writer);
+    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace,
+                                 String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, name, cimNamespace, writer, context);
         writeDirection(cimNamespace, writer);
         writeKind(TATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
         if (writeInfiniteDuration) {

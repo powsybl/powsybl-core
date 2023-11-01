@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
@@ -19,13 +20,13 @@ import java.util.function.Supplier;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, MultiVariantObject {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
     private final Ref<NetworkImpl> networkRef;
-    private boolean removed = false;
+    protected boolean removed = false;
 
     AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
         super(id, name, fictitious);
@@ -39,6 +40,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     public List<TerminalExt> getTerminals() {
         return terminals;
+    }
+
+    @Override
+    public NetworkExt getParentNetwork() {
+        // the parent network is the network that contains all terminals of the connectable.
+        List<NetworkExt> subnetworks = terminals.stream().map(t -> t.getVoltageLevel().getParentNetwork()).distinct().toList();
+        if (subnetworks.size() == 1) {
+            return subnetworks.get(0);
+        }
+        return getNetwork();
     }
 
     @Override
@@ -57,6 +68,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
         network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
+            terminal.removeAsRegulationPoint();
             VoltageLevelExt vl = terminal.getVoltageLevel();
             vl.detach(terminal);
         }
@@ -118,7 +130,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
     }
 
-    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, int node, String voltageLevelId) {
+    protected void move(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, int node, String voltageLevelId) {
         VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             throw new PowsyblException("Voltage level '" + voltageLevelId + "' not found");
@@ -133,15 +145,15 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the given voltage level and to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(voltageLevel.getNetworkRef(), this)
                 .setNode(node)
                 .build();
 
         // detach the terminal from its previous voltage level
-        attachTerminal(oldTerminal, oldConnectionInfo, voltageLevel, terminalExt);
+        attachTerminal(oldTerminal, oldTopologyPoint, voltageLevel, terminalExt);
     }
 
-    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, String busId, boolean connected) {
+    protected void move(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, String busId, boolean connected) {
         Bus bus = getNetwork().getBusBreakerView().getBus(busId);
         if (bus == null) {
             throw new PowsyblException("Bus '" + busId + "' not found");
@@ -155,16 +167,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(((VoltageLevelExt) bus.getVoltageLevel()).getNetworkRef(), this)
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build();
 
         // detach the terminal from its previous voltage level
-        attachTerminal(oldTerminal, oldConnectionInfo, (VoltageLevelExt) bus.getVoltageLevel(), terminalExt);
+        attachTerminal(oldTerminal, oldTopologyPoint, (VoltageLevelExt) bus.getVoltageLevel(), terminalExt);
     }
 
-    private void attachTerminal(TerminalExt oldTerminal, String oldConnectionInfo, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
+    private void attachTerminal(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
         // first, attach new terminal to connectable and to voltage level of destination, to ensure that the new terminal is valid
         terminalExt.setConnectable(this);
         voltageLevel.attach(terminalExt, false);
@@ -176,6 +188,6 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         int iSide = terminals.indexOf(oldTerminal);
         terminals.set(iSide, terminalExt);
 
-        notifyUpdate("terminal" + (iSide + 1), oldConnectionInfo, terminalExt.getConnectionInfo());
+        notifyUpdate("terminal" + (iSide + 1), oldTopologyPoint, terminalExt.getTopologyPoint());
     }
 }

@@ -9,12 +9,13 @@ package com.powsybl.iidm.network;
 /**
  * LCC converter station builder and adder.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public interface LccConverterStationAdder extends HvdcConverterStationAdder<LccConverterStationAdder> {
+public interface LccConverterStationAdder extends HvdcConverterStationAdder<LccConverterStation, LccConverterStationAdder> {
 
     LccConverterStationAdder setPowerFactor(float powerFactor);
 
+    @Override
     LccConverterStation add();
 }

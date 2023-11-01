@@ -9,23 +9,22 @@ package com.powsybl.timeseries;
 import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.commons.json.JsonUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class IrregularTimeSeriesIndexTest {
+class IrregularTimeSeriesIndexTest {
 
     @Test
-    public void test() {
+    void test() {
         List<Instant> instants = Arrays.asList(Instant.parse("2015-01-01T00:00:00Z"),
                                                Instant.parse("2015-01-01T01:00:00Z"));
         IrregularTimeSeriesIndex index = IrregularTimeSeriesIndex.create(instants);
@@ -54,7 +53,7 @@ public class IrregularTimeSeriesIndexTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         new EqualsTester()
                 .addEqualityGroup(IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T00:00:00Z")),
                                   IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T00:00:00Z")))
@@ -63,8 +62,8 @@ public class IrregularTimeSeriesIndexTest {
                 .testEquals();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testContructorError() {
-        IrregularTimeSeriesIndex.create();
+    @Test
+    void testContructorError() {
+        assertThrows(IllegalArgumentException.class, () -> IrregularTimeSeriesIndex.create());
     }
 }

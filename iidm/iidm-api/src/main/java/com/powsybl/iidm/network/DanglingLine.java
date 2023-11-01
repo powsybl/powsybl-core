@@ -6,7 +6,10 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 /**
  * A dangling line to model boundaries (X nodes).
@@ -15,10 +18,6 @@ import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
  * <div>
  *    <object data="doc-files/danglingLine.svg" type="image/svg+xml"></object>
  * </div>
- * Electrical characteritics (r, x, g, b) corresponding to a percent of the
- * orginal line.
- * <p>r, x, g, b have to be consistent with the declared length of the dangling
- * line.
  *
  * <p>
  *  Characteristics
@@ -101,23 +100,25 @@ import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
  *             <td style="border: 1px solid black">The shunt susceptance</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">UcteXnodeCode</td>
+ *             <td style="border: 1px solid black">PairingKey</td>
  *             <td style="border: 1px solid black">String</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">no</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The dangling line's UCTE Xnode code</td>
+ *             <td style="border: 1px solid black">The dangling line's pairing key</td>
  *         </tr>
  *     </tbody>
  * </table>
  *
  * <p>To create a dangling line, see {@link DanglingLineAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  * @see DanglingLineAdder
  */
 public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder {
+
+    Logger LOG = LoggerFactory.getLogger(DanglingLine.class);
 
     interface Generation extends ReactiveLimitsHolder {
         /**
@@ -198,6 +199,8 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
         Generation setTargetV(double targetV);
     }
 
+    boolean isPaired();
+
     /**
      * Get the constant active power in MW.
      * <p>Depends on the working variant.
@@ -271,13 +274,15 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     }
 
     /**
-     * Get the UCTE Xnode code corresponding to this dangling line in the case
+     * Get the pairing key corresponding to this dangling line in the case
      * where the line is a boundary, return null otherwise.
      */
-    String getUcteXnodeCode();
+    String getPairingKey();
 
-    default Boundary getBoundary() {
-        return new DanglingLineBoundaryImpl(this);
+    Boundary getBoundary();
+
+    default Optional<TieLine> getTieLine() {
+        return Optional.empty();
     }
 
     @Override

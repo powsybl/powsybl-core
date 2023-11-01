@@ -22,8 +22,8 @@ import com.powsybl.psse.model.PsseVersion;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseValidation {
 
@@ -222,7 +222,6 @@ public class PsseValidation {
             validateTransformerX(id, transformer.getX12(), "X12");
             validateTransformerRatio(id, transformer.getWinding1().getWindv(), "ratio");
             validateTransformerSbase(id, transformer.getCz(), transformer.getCm(), transformer.getSbase12(), "sbase12");
-            validateTransformerWindingNomV(id, transformer.getCw(), transformer.getCm(), transformer.getWinding1().getNomv(), "winding1 nomV");
             validateTransformerWindingVmiVma(id, transformer.getWinding1().getCod(), transformer.getWinding1().getVmi(), transformer.getWinding1().getVma(), "winding1 Vmi Vma");
             validateTransformerWindingRmiRma(id, transformer.getWinding1().getCod(), transformer.getWinding1().getRmi(), transformer.getWinding1().getRma(), "winding1 Rmi Rma");
             validateTransformerWindingCont(buses, id, transformer.getWinding1().getCod(), transformer.getWinding1().getCont(), "winding1 Cont");
@@ -254,10 +253,6 @@ public class PsseValidation {
             validateTransformerSbase(id, transformer.getCz(), transformer.getCm(), transformer.getSbase12(), "sbase12");
             validateTransformerSbase(id, transformer.getCz(), transformer.getCm(), transformer.getSbase23(), "sbase23");
             validateTransformerSbase(id, transformer.getCz(), transformer.getCm(), transformer.getSbase31(), "sbase31");
-
-            validateTransformerWindingNomV(id, transformer.getCz(), transformer.getCm(), transformer.getWinding1().getNomv(), "winding1 nomV");
-            validateTransformerWindingNomV(id, transformer.getCz(), transformer.getCm(), transformer.getWinding2().getNomv(), "winding2 nomV");
-            validateTransformerWindingNomV(id, transformer.getCz(), transformer.getCm(), transformer.getWinding3().getNomv(), "winding3 nomV");
 
             validateTransformerWindingVmiVma(id, transformer.getWinding1().getCod(), transformer.getWinding1().getVmi(), transformer.getWinding1().getVma(), "winding1 Vmi Vma");
             validateTransformerWindingVmiVma(id, transformer.getWinding2().getCod(), transformer.getWinding2().getVmi(), transformer.getWinding2().getVma(), "winding2 Vmi Vma");
@@ -312,13 +307,6 @@ public class PsseValidation {
         }
     }
 
-    private void validateTransformerWindingNomV(String id, int cw, int cm, double windingNomV, String windingNomVTag) {
-        if ((cw == 3 || cm == 2) && windingNomV <= 0.0) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f", id, windingNomVTag, windingNomV));
-            validCase = false;
-        }
-    }
-
     private void validateTransformerWindingVmiVma(String id, int cod, double windingVmi, double windingVma, String windingVmiVmaTag) {
         if (Math.abs(cod) == 1 && (windingVmi <= 0.0 || windingVma <= 0.0 || windingVma < windingVmi)) {
             warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f %.5f", id, windingVmiVmaTag, windingVmi, windingVma));
@@ -363,7 +351,11 @@ public class PsseValidation {
                 warnings.add(String.format("SwitchedShunt: %s Unexpected Swrem/Swreg: %d", id, regulatingBus));
                 validCase = false;
             }
-            if (switchedShunt.getModsw() != 0 && (switchedShunt.getVswlo() <= 0.0 || switchedShunt.getVswhi() <= 0.0 || switchedShunt.getVswhi() < switchedShunt.getVswlo())) {
+            if (switchedShunt.getModsw() != 0 && switchedShunt.getVswhi() < switchedShunt.getVswlo()) {
+                warnings.add(String.format(Locale.US, "SwitchedShunt: %s Unexpected Vswlo Vswhi: %.5f %.5f", id, switchedShunt.getVswlo(), switchedShunt.getVswhi()));
+                validCase = false;
+            }
+            if ((switchedShunt.getModsw() == 1 || switchedShunt.getModsw() == 2) && (switchedShunt.getVswlo() <= 0.0 || switchedShunt.getVswhi() <= 0.0)) {
                 warnings.add(String.format(Locale.US, "SwitchedShunt: %s Unexpected Vswlo Vswhi: %.5f %.5f", id, switchedShunt.getVswlo(), switchedShunt.getVswhi()));
                 validCase = false;
             }

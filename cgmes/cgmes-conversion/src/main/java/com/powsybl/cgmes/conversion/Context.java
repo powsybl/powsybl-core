@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class Context {
 
@@ -46,7 +46,7 @@ public class Context {
         // create buses directly from topological nodes,
         // the configuration says if we are performing the conversion
         // based on existing node-breaker info
-        nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
+        nodeBreaker = cgmes.isNodeBreaker() && !config.importNodeBreakerAsBusBreaker();
 
         namingStrategy = config.getNamingStrategy();
         cgmesBoundary = new CgmesBoundary(cgmes);
@@ -55,7 +55,7 @@ public class Context {
         dcMapping = new DcMapping(this);
         loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
-        nodeMapping = new NodeMapping();
+        nodeMapping = new NodeMapping(this);
 
         ratioTapChangerTables = new HashMap<>();
         phaseTapChangerTables = new HashMap<>();

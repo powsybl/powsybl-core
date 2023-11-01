@@ -10,12 +10,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> {
 
@@ -41,11 +42,11 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
 
                 case "type":
                     parser.nextToken();
-                    type = parser.readValueAs(ContingencyElementType.class);
+                    type = JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
@@ -84,8 +85,14 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case LOAD:
                     return new LoadContingency(id);
 
+                case BUS:
+                    return new BusContingency(id);
+
+                case TIE_LINE:
+                    return new TieLineContingency(id, voltageLevelId);
+
                 default:
-                    throw new AssertionError("Unexpected ContingencyElementType value: " + type);
+                    throw new IllegalStateException("Unexpected ContingencyElementType value: " + type);
             }
         }
 

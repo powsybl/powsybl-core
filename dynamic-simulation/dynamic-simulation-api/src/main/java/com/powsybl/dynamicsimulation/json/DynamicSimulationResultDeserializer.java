@@ -29,7 +29,7 @@ import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class DynamicSimulationResultDeserializer extends StdDeserializer<DynamicSimulationResult> {
 
@@ -73,7 +73,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

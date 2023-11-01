@@ -13,15 +13,15 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 
 import javax.xml.stream.XMLStreamException;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class CgmesLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSerializer<Line, CgmesLineBoundaryNode> {
+public class CgmesLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSerializer<TieLine, CgmesLineBoundaryNode> {
 
     public CgmesLineBoundaryNodeXmlSerializer() {
         super("cgmesLineBoundaryNode", "network", CgmesLineBoundaryNode.class,
@@ -43,7 +43,7 @@ public class CgmesLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSeri
     }
 
     @Override
-    public CgmesLineBoundaryNode read(Line extendable, XmlReaderContext context) {
+    public CgmesLineBoundaryNode read(TieLine extendable, XmlReaderContext context) {
         boolean isHvdc = XmlUtil.readBoolAttribute(context.getReader(), "isHvdc");
         String lineEnergyIdentificationCodeEic = context.getReader().getAttributeValue(null, "lineEnergyIdentificationCodeEic");
         extendable.newExtension(CgmesLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();

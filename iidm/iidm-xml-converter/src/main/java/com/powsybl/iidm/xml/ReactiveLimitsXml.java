@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class ReactiveLimitsXml {
 
@@ -48,7 +48,7 @@ public class ReactiveLimitsXml {
                 break;
 
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 

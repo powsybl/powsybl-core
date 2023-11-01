@@ -8,26 +8,26 @@ package com.powsybl.iidm.network;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-public class BusRefTest {
+class BusRefTest {
 
     private final Bus bvBus = mock(Bus.class);
     private final Bus bbvBus = mock(Bus.class);
 
     @Test
-    public void testIdBasedBusRef() throws JsonProcessingException {
+    void testIdBasedBusRef() throws JsonProcessingException {
         Network network = mock(Network.class);
         Network.BusView bv = mock(Network.BusView.class);
 
@@ -46,10 +46,10 @@ public class BusRefTest {
         final Set<Terminal> singleton = Collections.singleton(busTerminal);
         final Stream mock = singleton.stream();
         when(bvBus.getConnectedTerminalStream()).thenReturn(mock);
-        assertEquals(bvBus, busRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(AssertionError::new));
+        assertEquals(bvBus, busRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(IllegalStateException::new));
 
         when(network.getIdentifiable(eq("busId"))).thenReturn((Identifiable) bbvBus);
-        assertEquals(bbvBus, busRef.resolve(network, TopologyLevel.BUS_BREAKER).orElseThrow(AssertionError::new));
+        assertEquals(bbvBus, busRef.resolve(network, TopologyLevel.BUS_BREAKER).orElseThrow(IllegalStateException::new));
 
         assertFalse(new IdBasedBusRef("another").resolve(network, TopologyLevel.BUS_BRANCH).isPresent());
 
@@ -68,12 +68,12 @@ public class BusRefTest {
         when(terminal.getBusView()).thenReturn(tbv);
         when(tbv.getBus()).thenReturn(bvBus);
         final IdBasedBusRef busbarRef = new IdBasedBusRef("busbarId");
-        assertEquals(bvBus, busbarRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(AssertionError::new));
+        assertEquals(bvBus, busbarRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(IllegalStateException::new));
 
         Terminal.BusBreakerView bbv = mock(Terminal.BusBreakerView.class);
         when(terminal.getBusBreakerView()).thenReturn(bbv);
         when(bbv.getBus()).thenReturn(bbvBus);
-        assertEquals(bbvBus, busbarRef.resolve(network, TopologyLevel.BUS_BREAKER).orElseThrow(AssertionError::new));
+        assertEquals(bbvBus, busbarRef.resolve(network, TopologyLevel.BUS_BREAKER).orElseThrow(IllegalStateException::new));
 
         Identifiable branch = mock(Branch.class);
         when(network.getIdentifiable(eq("branchId"))).thenReturn(branch);
@@ -93,7 +93,7 @@ public class BusRefTest {
     }
 
     @Test
-    public void testBranch() throws JsonProcessingException {
+    void testBranch() throws JsonProcessingException {
         Network network = mock(Network.class);
         Branch branch = mock(Branch.class);
         when(network.getIdentifiable("branchId")).thenReturn(branch);
@@ -103,7 +103,7 @@ public class BusRefTest {
         when(terminal.getBusView()).thenReturn(bv);
         when(bv.getBus()).thenReturn(bvBus);
         final BusRef busRef = new IdBasedBusRef("branchId", Branch.Side.ONE);
-        assertEquals(bvBus, busRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(AssertionError::new));
+        assertEquals(bvBus, busRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(IllegalStateException::new));
         Terminal terminal2 = mock(Terminal.class);
         Terminal.BusView bv2 = mock(Terminal.BusView.class);
         when(branch.getTerminal2()).thenReturn(terminal2);
@@ -111,7 +111,7 @@ public class BusRefTest {
         Bus bus2 = mock(Bus.class);
         when(bv2.getBus()).thenReturn(bus2);
         final BusRef busRef2 = new IdBasedBusRef("branchId", Branch.Side.TWO);
-        assertEquals(bus2, busRef2.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(AssertionError::new));
+        assertEquals(bus2, busRef2.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(IllegalStateException::new));
 
         ObjectMapper objectMapper = new ObjectMapper();
         final String json = objectMapper.writeValueAsString(busRef);
@@ -123,7 +123,7 @@ public class BusRefTest {
     }
 
     @Test
-    public void testInvalidBranch() {
+    void testInvalidBranch() {
         Network network = mock(Network.class);
         when(network.getBranch("branchId")).thenReturn(null);
 

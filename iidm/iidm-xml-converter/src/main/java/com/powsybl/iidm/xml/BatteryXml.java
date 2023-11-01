@@ -14,10 +14,12 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
-class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLevel> {
+class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, VoltageLevel> {
 
     static final BatteryXml INSTANCE = new BatteryXml();
 
@@ -56,7 +58,7 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
     }
 
     @Override
-    protected Battery readRootElementAttributes(BatteryAdder adder, NetworkXmlReaderContext context) {
+    protected Battery readRootElementAttributes(BatteryAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(),
                 IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8));
         double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(),

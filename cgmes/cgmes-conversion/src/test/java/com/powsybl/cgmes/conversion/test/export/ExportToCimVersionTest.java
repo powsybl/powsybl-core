@@ -19,20 +19,20 @@ import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma <zamarrenolm at aia.es>
+ * @author Luma {@literal <zamarrenolm at aia.es>}
  */
-public class ExportToCimVersionTest extends AbstractConverterTest {
+class ExportToCimVersionTest extends AbstractConverterTest {
 
     @Test
-    public void testExportDataSourceEmptyBaseName() throws IOException {
+    void testExportDataSourceEmptyBaseName() throws IOException {
         MemDataSource ds = new MemDataSource();
         Network n = NetworkTest1Factory.create();
         // The export is not given baseName as parameter, and the data source has an empty basename
@@ -44,12 +44,12 @@ public class ExportToCimVersionTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExportIEEE14Cim14ToCim16() {
+    void testExportIEEE14Cim14ToCim16() {
         testExportToCim(ieee14Cim14(), "IEEE14", 16);
     }
 
     @Test
-    public void testExportIEEE14Cim14ToCim100() {
+    void testExportIEEE14Cim14ToCim100() {
         // Testing export to CGMES 3
         // TODO(Luma) verify that all classes and attributes are valid against profiles (using CIMdesk)
         // TODO(Luma) Check mRID is exported
@@ -62,7 +62,7 @@ public class ExportToCimVersionTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExportIEEE14ToCim100CheckIsNodeBreaker() {
+    void testExportIEEE14ToCim100CheckIsNodeBreaker() {
         // Testing export to CGMES 3 is interpreted as a node/breaker CGMES model
         // Input was a bus/branch model
 

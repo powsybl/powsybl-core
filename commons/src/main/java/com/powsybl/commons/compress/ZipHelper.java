@@ -12,9 +12,9 @@ import java.util.List;
 
 /**
  * @deprecated Use {@link ZipPackager} instead.
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-@Deprecated
+@Deprecated(since = "2.6.0")
 public final class ZipHelper {
 
     /**

@@ -32,6 +32,7 @@
                         <xs:attribute name="name" use="optional" type="xs:string"/>
                         <xs:attribute name="energyIdentificationCodeEic" use="optional" type="xs:string"/>
                         <xs:attribute name="netInterchange" use="optional" type="csm:nonEmptyString"/>
+                        <xs:attribute name="pTolerance" use="optional" type="csm:nonEmptyString"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>

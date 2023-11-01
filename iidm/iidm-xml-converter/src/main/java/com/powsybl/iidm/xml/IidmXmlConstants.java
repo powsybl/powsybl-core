@@ -7,13 +7,13 @@
 package com.powsybl.iidm.xml;
 
 /**
- * @author Yichen Tang <yichen.tang at rte-france.com>
+ * @author Yichen Tang {@literal <yichen.tang at rte-france.com>}
  */
 public final class IidmXmlConstants {
 
     public static final String INDENT = "    ";
 
-    public static final IidmXmlVersion CURRENT_IIDM_XML_VERSION = IidmXmlVersion.V_1_8;
+    public static final IidmXmlVersion CURRENT_IIDM_XML_VERSION = IidmXmlVersion.V_1_11;
 
     public static final String IIDM_PREFIX = "iidm";
 

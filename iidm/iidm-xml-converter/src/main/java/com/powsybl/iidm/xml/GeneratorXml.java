@@ -7,17 +7,16 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, VoltageLevel> {
+class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdder, VoltageLevel> {
 
     static final GeneratorXml INSTANCE = new GeneratorXml();
 
@@ -61,7 +60,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    protected Generator readRootElementAttributes(GeneratorAdder adder, NetworkXmlReaderContext context) {
+    protected Generator readRootElementAttributes(GeneratorAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         String energySourceStr = context.getReader().getAttributeValue(null, "energySource");
         EnergySource energySource = energySourceStr != null ? EnergySource.valueOf(energySourceStr) : null;
         double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "minP");
@@ -92,7 +91,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                 case "regulatingTerminal":
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getNetwork(), id, side)));
+                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.resolve(id, side, g.getNetwork())));
                     break;
 
                 case "reactiveCapabilityCurve":

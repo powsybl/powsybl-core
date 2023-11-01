@@ -21,8 +21,8 @@ import static java.util.Objects.requireNonNull;
  * Used to ease the creation of a {@link ComputationException}.
  * The builder provides methods to register logs and files from different sources.
  *
- * @author Yichen TANG <yichen.tang at rte-france.com>
- * @author Sylvain LECLERC <sylvain.leclerc at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
+ * @author Sylvain LECLERC {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class ComputationExceptionBuilder {
 

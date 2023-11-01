@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl.tck.extensions;
 import com.powsybl.iidm.network.tck.extensions.AbstractCoordinatedReactiveControlTest;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class CoordinatedReactiveControlTest extends AbstractCoordinatedReactiveControlTest {
+class CoordinatedReactiveControlTest extends AbstractCoordinatedReactiveControlTest {
 }

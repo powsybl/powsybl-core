@@ -13,19 +13,19 @@ import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.LimitViolations;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class LimitViolationDetectorTest {
+class LimitViolationDetectorTest {
 
     private Network network;
     private Branch line1;
@@ -36,6 +36,9 @@ public class LimitViolationDetectorTest {
     private VoltageLevel voltageLevel1;
     private VoltageLevel genVoltageLevel;
     private VoltageLevel loadVoltageLevel;
+    private VoltageAngleLimit voltageAngleLimit0;
+    private VoltageAngleLimit voltageAngleLimit1;
+    private VoltageAngleLimit voltageAngleLimit2;
     private List<LimitViolation> collectedViolations;
 
     private void doCheckCurrent(Contingency contingency, Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
@@ -98,6 +101,25 @@ public class LimitViolationDetectorTest {
         }
     }
 
+    private void doCheckVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
+        if (voltageAngleLimit == voltageAngleLimit0) {
+            consumer.accept(LimitViolations.highVoltageAngle()
+                .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
+                .side(Branch.Side.ONE)
+                .value(0.30)
+                .limit(0.25)
+                .build());
+        }
+        if (contingency == contingency1 && voltageAngleLimit == voltageAngleLimit1) {
+            consumer.accept(LimitViolations.lowVoltageAngle()
+                .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
+                .side(Branch.Side.ONE)
+                .value(-0.22)
+                .limit(0.20)
+                .build());
+        }
+    }
+
     private LimitViolationDetector contingencyBlindDetector() {
         return new AbstractContingencyBlindDetector() {
             @Override
@@ -106,8 +128,18 @@ public class LimitViolationDetectorTest {
             }
 
             @Override
+            public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not used in this test!");
+            }
+
+            @Override
             public void checkVoltage(Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
                 doCheckVoltage(null, bus, consumer);
+            }
+
+            @Override
+            public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double voltageAngleDifference, Consumer<LimitViolation> consumer) {
+                doCheckVoltageAngle(null, voltageAngleLimit, consumer);
             }
 
             @Override
@@ -116,6 +148,16 @@ public class LimitViolationDetectorTest {
 
             @Override
             public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            }
+
+            @Override
+            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not used in this test!");
+            }
+
+            @Override
+            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not used in this test!");
             }
         };
     }
@@ -133,6 +175,11 @@ public class LimitViolationDetectorTest {
             }
 
             @Override
+            public void checkVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, double voltageAngleDifference, Consumer<LimitViolation> consumer) {
+                doCheckVoltageAngle(contingency, voltageAngleLimit, consumer);
+            }
+
+            @Override
             public void checkActivePower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
             }
 
@@ -141,21 +188,34 @@ public class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkPermanentLimit(Branch<?> branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not used in this test!");
+            }
+
+            @Override
+            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not used in this test!");
+            }
+
+            @Override
+            public void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
 
             }
         };
     }
 
-    @Before
-    public void setUp() {
-        network = EurostagTutorialExample1Factory.create();
+    @BeforeEach
+    void setUp() {
+        network = EurostagTutorialExample1Factory.createWithVoltageAngleLimit();
         line1 = network.getBranch("NHV1_NHV2_1");
         line2 = network.getBranch("NHV1_NHV2_2");
         transformer = network.getBranch("NGEN_NHV1");
         voltageLevel1 = network.getVoltageLevel("VLHV1");
         genVoltageLevel = network.getVoltageLevel("VLGEN");
         loadVoltageLevel = network.getVoltageLevel("VLLOAD");
+        voltageAngleLimit0 = network.getVoltageAngleLimitsStream().toList().get(0);
+        voltageAngleLimit1 = network.getVoltageAngleLimitsStream().toList().get(1);
+        voltageAngleLimit2 = network.getVoltageAngleLimitsStream().toList().get(2);
         contingency1 = new Contingency("cont1");
         contingency2 = new Contingency("cont2");
 
@@ -163,76 +223,88 @@ public class LimitViolationDetectorTest {
     }
 
     @Test
-    public void networkHas5Violations() {
+    void networkHas6Violations() {
         contingencyBasedDetector().checkAll(network, collectedViolations::add);
-        assertEquals(5, collectedViolations.size());
+        assertEquals(6, collectedViolations.size());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
-        assertEquals(2, collectedViolations.stream().filter(l -> l.getSubjectId().equals("NHV1_NHV2_1")).count());
+        assertEquals(3, collectedViolations.stream().filter(l -> l.getSubjectId().equals("NHV1_NHV2_1")).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE).count());
     }
 
     @Test
-    public void branch1Has2Violations() {
+    void branch1Has2Violations() {
         contingencyBasedDetector().checkCurrent(network.getLine("NHV1_NHV2_1"), collectedViolations::add);
         assertEquals(2, collectedViolations.size());
     }
 
     @Test
-    public void branch2Has1Violation() {
+    void branch2Has1Violation() {
         contingencyBasedDetector().checkCurrent(network.getLine("NHV1_NHV2_2"), collectedViolations::add);
         assertEquals(1, collectedViolations.size());
     }
 
     @Test
-    public void voltageLevel1Has1Violation() {
+    void voltageLevel1Has1Violation() {
         contingencyBasedDetector().checkVoltage(network.getVoltageLevel("VLHV1"), collectedViolations::add);
         assertEquals(1, collectedViolations.size());
         assertSame(LimitViolationType.HIGH_VOLTAGE, collectedViolations.get(0).getLimitType());
     }
 
     @Test
-    public void voltageLevelGenHas1Violation() {
+    void voltageLevelGenHas1Violation() {
         contingencyBasedDetector().checkVoltage(network.getVoltageLevel("VLGEN"), collectedViolations::add);
         assertEquals(1, collectedViolations.size());
         assertSame(LimitViolationType.LOW_VOLTAGE, collectedViolations.get(0).getLimitType());
     }
 
     @Test
-    public void networkHas7ViolationsOnContingency1() {
+    void voltageAngleLimit0Has1Violation() {
+        contingencyBasedDetector().checkVoltageAngle(network.getVoltageAngleLimitsStream().toList().get(0), collectedViolations::add);
+        assertEquals(1, collectedViolations.size());
+        assertSame(LimitViolationType.HIGH_VOLTAGE_ANGLE, collectedViolations.get(0).getLimitType());
+    }
+
+    @Test
+    void networkHas9ViolationsOnContingency1() {
         contingencyBasedDetector().checkAll(contingency1, network, collectedViolations::add);
-        assertEquals(7, collectedViolations.size());
+        assertEquals(9, collectedViolations.size());
         assertEquals(4, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(2, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE_ANGLE).count());
     }
 
     @Test
-    public void networkHas5ViolationsOnContingency2() {
+    void networkHas5ViolationsOnContingency2() {
         contingencyBasedDetector().checkAll(contingency2, network, collectedViolations::add);
-        assertEquals(5, collectedViolations.size());
+        assertEquals(6, collectedViolations.size());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE).count());
     }
 
     @Test
-    public void networkHas5ViolationsOnContingency1WithContingencyBlindDetector() {
+    void networkHas5ViolationsOnContingency1WithContingencyBlindDetector() {
         contingencyBlindDetector().checkAll(contingency1, network, collectedViolations::add);
-        assertEquals(5, collectedViolations.size());
+        assertEquals(6, collectedViolations.size());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE).count());
     }
 
     @Test
-    public void transformerHas1ViolationOnContingency1() {
+    void transformerHas1ViolationOnContingency1() {
         contingencyBasedDetector().checkCurrent(contingency1, transformer, collectedViolations::add);
         assertEquals(1, collectedViolations.size());
     }
 
     @Test
-    public void transformerHasNoViolationOnContingency1WithContingencyBlindDetector() {
+    void transformerHasNoViolationOnContingency1WithContingencyBlindDetector() {
         LimitViolationDetector detector = contingencyBlindDetector();
         detector.checkCurrent(contingency1, transformer, collectedViolations::add);
         detector.checkCurrent(contingency1, transformer, Branch.Side.ONE, collectedViolations::add);
@@ -241,13 +313,24 @@ public class LimitViolationDetectorTest {
     }
 
     @Test
-    public void loadVoltageLevelHasNoViolationOnContingency1WithContingencyBlindDetector() {
+    void loadVoltageLevelHasNoViolationOnContingency1WithContingencyBlindDetector() {
         LimitViolationDetector detector = contingencyBlindDetector();
         detector.checkVoltage(contingency1, loadVoltageLevel, collectedViolations::add);
-        Bus loadBus = loadVoltageLevel.getBusView().getBusStream().findFirst().orElseThrow(AssertionError::new);
+        Bus loadBus = loadVoltageLevel.getBusView().getBusStream().findFirst().orElseThrow(IllegalStateException::new);
         detector.checkVoltage(contingency1, loadBus, collectedViolations::add);
         detector.checkVoltage(contingency1, loadBus, 500, collectedViolations::add);
         assertEquals(0, collectedViolations.size());
     }
 
+    @Test
+    void voltageAngleLimit1Has1ViolationOnContingency1() {
+        contingencyBasedDetector().checkVoltageAngle(contingency1, voltageAngleLimit1, collectedViolations::add);
+        assertEquals(1, collectedViolations.size());
+    }
+
+    @Test
+    void voltageAngleLimit2HasNoViolationOnContingency1() {
+        contingencyBasedDetector().checkVoltageAngle(contingency1, voltageAngleLimit2, collectedViolations::add);
+        assertEquals(0, collectedViolations.size());
+    }
 }

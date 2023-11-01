@@ -20,7 +20,7 @@ import java.util.Set;
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesOnDataSource {
     public CgmesOnDataSource(ReadOnlyDataSource ds) {

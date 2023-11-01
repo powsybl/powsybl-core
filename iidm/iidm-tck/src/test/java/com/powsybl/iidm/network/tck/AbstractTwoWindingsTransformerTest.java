@@ -9,9 +9,9 @@ package com.powsybl.iidm.network.tck;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransformerTest {
 
@@ -93,9 +93,30 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     @Test
+    public void testDefaultValuesTwoWindingTransformer() {
+        TwoWindingsTransformer twoWindingsTransformer = substation.newTwoWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setRatedS(7.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+
+        assertEquals(0.0, twoWindingsTransformer.getG(), 0.0);
+        assertEquals(0.0, twoWindingsTransformer.getB(), 0.0);
+
+        VoltageLevel vl1 = network.getVoltageLevel("vl1");
+        VoltageLevel vl2 = network.getVoltageLevel("vl2");
+        assertSame(vl1, twoWindingsTransformer.getTerminal1().getVoltageLevel());
+        assertSame(vl2, twoWindingsTransformer.getTerminal2().getVoltageLevel());
+        assertEquals(vl1.getNominalV(), twoWindingsTransformer.getRatedU1(), 0.0);
+        assertEquals(vl2.getNominalV(), twoWindingsTransformer.getRatedU2(), 0.0);
+    }
+
+    @Test
     public void invalidSubstationContainer() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': the 2 windings of the transformer shall belong to the substation 'sub'");
         network.newVoltageLevel()
                 .setId("no_substation")
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
@@ -104,7 +125,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setHighVoltageLimit(220.0)
                 .add()
                 .getBusBreakerView().newBus().setId("no_substation_bus").add();
-        substation.newTwoWindingsTransformer()
+        ValidationException e = assertThrows(ValidationException.class, () -> substation.newTwoWindingsTransformer()
                 .setId("twt")
                 .setName(TWT_NAME)
                 .setR(1.0)
@@ -118,77 +139,38 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setVoltageLevel2("vl2")
                 .setConnectableBus1("no_substation_bus")
                 .setConnectableBus2("busB")
-                .add();
-    }
-
-    @Test
-    public void missingSubstationContainer() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations");
-        network.newTwoWindingsTransformer()
-                .setId("twt")
-                .setName(TWT_NAME)
-                .setR(1.0)
-                .setX(2.0)
-                .setG(3.0)
-                .setB(4.0)
-                .setRatedU1(5.0)
-                .setRatedU2(6.0)
-                .setRatedS(7.0)
-                .setVoltageLevel1("vl1")
-                .setVoltageLevel2("vl2")
-                .setConnectableBus1("busA")
-                .setConnectableBus2("busB")
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("2 windings transformer 'twt': the 2 windings of the transformer shall belong to the substation 'sub'"));
     }
 
     @Test
     public void testInvalidR() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createTwoWindingTransformer(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0));
+        assertTrue(e.getMessage().contains("r is invalid"));
     }
 
     @Test
     public void testInvalidX() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createTwoWindingTransformer(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0));
+        assertTrue(e.getMessage().contains("x is invalid"));
     }
 
     @Test
     public void testInvalidG() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0));
+        assertTrue(e.getMessage().contains("g is invalid"));
     }
 
     @Test
     public void testInvalidB() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0);
-    }
-
-    @Test
-    public void testInvalidRatedU1() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated U1 is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0);
-    }
-
-    @Test
-    public void testInvalidRatedU2() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated U2 is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0));
+        assertTrue(e.getMessage().contains("b is invalid"));
     }
 
     @Test
     public void testInvalidRatedS() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("Invalid value of rated S 0.0");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0));
+        assertTrue(e.getMessage().contains("Invalid value of rated S 0.0"));
     }
 
     @Test
@@ -211,9 +193,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                     .setId("busC")
                     .setName("busC")
                 .add();
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("the 2 windings of the transformer shall belong to the substation");
-        substation.newTwoWindingsTransformer().setId("invalidTwt")
+        ValidationException e = assertThrows(ValidationException.class, () -> substation.newTwoWindingsTransformer().setId("invalidTwt")
                         .setName(TWT_NAME)
                         .setR(1.0)
                         .setX(2.0)
@@ -225,7 +205,8 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                         .setVoltageLevel2("vl3")
                         .setConnectableBus1("busA")
                         .setConnectableBus2("busC")
-                    .add();
+                    .add());
+        assertTrue(e.getMessage().contains("the 2 windings of the transformer shall belong to the substation"));
     }
 
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,

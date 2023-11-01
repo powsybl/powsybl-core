@@ -12,15 +12,15 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractNetworkRemoveTest {
 
@@ -30,12 +30,12 @@ public abstract class AbstractNetworkRemoveTest {
     private static final String VLLOAD = "VLLOAD";
     private Network network;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = EurostagTutorialExample1Factory.create();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         network = null;
     }

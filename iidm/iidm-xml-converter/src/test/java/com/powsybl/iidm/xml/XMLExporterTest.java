@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,16 +29,16 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine BENHAMED  {@literal <chamseddine.benhamed at rte-france.com>}
  */
 
-public class XMLExporterTest extends AbstractXmlConverterTest {
+class XMLExporterTest extends AbstractXmlConverterTest {
     private FileSystem fileSystem;
 
-    public void exporterTest(Network network, IidmXmlVersion version, String xmlFileName, Properties properties) throws IOException {
+    void exporterTest(Network network, IidmXmlVersion version, String xmlFileName, Properties properties) throws IOException {
         properties.put(XMLExporter.ANONYMISED, "false");
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
@@ -49,19 +49,19 @@ public class XMLExporterTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void exportTest() throws IOException {
+    void exportTest() throws IOException {
         exporterTest(MultipleExtensionsTestNetworkFactory.create(), CURRENT_IIDM_XML_VERSION, "multiple-extensions.xml", new Properties());
     }
 
     @Test
-    public void paramsTest() {
+    void paramsTest() {
         var xmlExporter = new XMLExporter();
         assertEquals(10, xmlExporter.getParameters().size());
         assertEquals("IIDM XML v" + CURRENT_IIDM_XML_VERSION.toString(".") + " exporter", xmlExporter.getComment());
     }
 
     @Test
-    public void exportOldVersionWithoutNewExtensions() throws IOException {
+    void exportOldVersionWithoutNewExtensions() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Path workingDir = fileSystem.getPath("/working-dir");
         Network network = EurostagTutorialExample1Factory.create();
@@ -90,7 +90,7 @@ public class XMLExporterTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testWriteXml() throws IOException {
+    void testWriteXml() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
         String voltageLevelId = "VLHV2";

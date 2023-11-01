@@ -7,19 +7,19 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ReactiveLimitsXmlTest extends AbstractXmlConverterTest {
+class ReactiveLimitsXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("reactiveLimitsRoundTripRef.xml");
 

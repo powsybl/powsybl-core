@@ -21,7 +21,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,14 +33,14 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class ImportExportPerformanceTest {
+class ImportExportPerformanceTest {
     // TODO We should build tests that check that re-imported exported models
     // are equivalent to the original models
 
     @Test
-    public void smallcase1() throws IOException {
+    void smallcase1() throws IOException {
         importExport(TripleStoreFactory.onlyDefaultImplementation(), Cim14SmallCasesCatalog.small1());
     }
 

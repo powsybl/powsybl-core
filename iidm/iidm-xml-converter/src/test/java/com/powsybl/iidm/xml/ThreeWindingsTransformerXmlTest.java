@@ -11,24 +11,19 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Luma Zamarreno <zamarrenolm at aia.es>
+ * @author Luma Zamarreno {@literal <zamarrenolm at aia.es>}
  */
-public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("threeWindingsTransformerRoundTripRef.xml");
 
@@ -39,7 +34,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void completeTwtTest() throws IOException {
+    void completeTwtTest() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");

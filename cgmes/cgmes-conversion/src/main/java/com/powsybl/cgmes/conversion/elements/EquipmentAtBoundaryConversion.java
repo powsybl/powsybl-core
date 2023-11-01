@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface EquipmentAtBoundaryConversion {
     void convertAtBoundary();

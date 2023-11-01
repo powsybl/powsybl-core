@@ -20,7 +20,7 @@ import com.powsybl.security.extensions.CurrentExtension;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 @AutoService(ExtensionJsonSerializer.class)
 public class CurrentExtensionSerializer implements ExtensionJsonSerializer<LimitViolation, CurrentExtension> {

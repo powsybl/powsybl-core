@@ -19,9 +19,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,15 +28,12 @@ import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-public class BranchObservabilityXmlTest extends AbstractConverterTest {
-
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
+class BranchObservabilityXmlTest extends AbstractConverterTest {
 
     private static List<IidmXmlVersion> fromMinToCurrentVersion(IidmXmlVersion min) {
         return Stream.of(IidmXmlVersion.values())
@@ -47,13 +42,13 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         for (var version : fromMinToCurrentVersion(IidmXmlVersion.V_1_6)) {
             testVersion(version);
         }
     }
 
-    public void testVersion(IidmXmlVersion version) throws IOException {
+    void testVersion(IidmXmlVersion version) throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2022-08-09T17:00:00.000Z"));
         Line line1 = network.getLine("NHV1_NHV2_1");
@@ -91,7 +86,7 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
                 (n, path) -> NetworkXml.writeAndValidate(n, options, path),
                 NetworkXml::validateAndRead,
                 getVersionedNetworkPath("/branchObservabilityRoundTripRef.xml", version));
-        } catch (AssertionError err) {
+        } catch (IllegalStateException err) {
             NetworkXml.write(network, options, System.out);
             throw err;
         }
@@ -131,10 +126,8 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
     }
 
     @Test
-    public void invalidTest() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Unexpected element: qualityV");
-
-        NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION)));
+    void invalidTest() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
+        assertTrue(e.getMessage().contains("Unexpected element: qualityV"));
     }
 }

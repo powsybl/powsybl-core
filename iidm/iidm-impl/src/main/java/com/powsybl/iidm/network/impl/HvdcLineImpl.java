@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -14,8 +15,8 @@ import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
@@ -73,6 +74,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public NetworkImpl getNetwork() {
+        return networkRef.get();
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        // the parent network is the network that contains both terminals of converter stations.
+        Network subnetwork1 = converterStation1.getParentNetwork();
+        Network subnetwork2 = converterStation2.getParentNetwork();
+        if (subnetwork1 == subnetwork2) {
+            return subnetwork1;
+        }
         return networkRef.get();
     }
 

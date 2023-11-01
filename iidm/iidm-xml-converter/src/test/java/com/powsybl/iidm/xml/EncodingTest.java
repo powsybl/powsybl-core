@@ -8,7 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,12 +17,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @author imagrid team <rte-mco-imagrid at rte-france.com>
+ * @author imagrid team {@literal <rte-mco-imagrid at rte-france.com>}
  */
-public class EncodingTest {
+class EncodingTest {
 
     @Test
-    public void testEncodingISO88591ToISO88591() throws IOException {
+    void testEncodingISO88591ToISO88591() throws IOException {
         Network network = NetworkXml.read(getClass().getResourceAsStream("/encoding/network.xml"));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ExportOptions options = new ExportOptions();
@@ -33,7 +33,7 @@ public class EncodingTest {
     }
 
     @Test
-    public void testEncodingISO88591ToUTF8() throws IOException {
+    void testEncodingISO88591ToUTF8() throws IOException {
         Network network = NetworkXml.read(getClass().getResourceAsStream("/encoding/network.xml"));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ExportOptions options = new ExportOptions();

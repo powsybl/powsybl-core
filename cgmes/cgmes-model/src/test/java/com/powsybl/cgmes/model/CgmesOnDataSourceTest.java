@@ -6,18 +6,18 @@
  */
 package com.powsybl.cgmes.model;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
-public class CgmesOnDataSourceTest {
+class CgmesOnDataSourceTest {
 
     private static void doTestExists(String filename, String cimVersion, boolean expectedExists) {
         ReadOnlyDataSource dataSource = new ResourceDataSource("incomplete",
@@ -33,47 +33,47 @@ public class CgmesOnDataSourceTest {
     }
 
     @Test
-    public void testEQcim14() {
+    void testEQcim14() {
         doTestExistsEmpty("EQ", "14", true);
     }
 
     @Test
-    public void testEQcim16() {
+    void testEQcim16() {
         doTestExistsEmpty("EQ", "16", true);
     }
 
     @Test
-    public void testSVcim14() {
+    void testSVcim14() {
         doTestExistsEmpty("SV", "14", false);
     }
 
     @Test
-    public void testCimNoRdfcim16() {
+    void testCimNoRdfcim16() {
         doTestExists("validCim16InvalidContent_EQ.xml", "16", false);
     }
 
     @Test
-    public void testCimNoRdfcim14() {
+    void testCimNoRdfcim14() {
         doTestExists("validCim14InvalidContent_EQ.xml", "14", false);
     }
 
     @Test
-    public void testRdfNoCim16() {
+    void testRdfNoCim16() {
         doTestExists("validRdfInvalidContent_EQ.xml", "16", false);
     }
 
     @Test
-    public void testRdfNoCim14() {
+    void testRdfNoCim14() {
         doTestExists("validRdfInvalidContent_EQ.xml", "14", false);
     }
 
     @Test
-    public void testRdfCim16NotExistsCim14() {
+    void testRdfCim16NotExistsCim14() {
         doTestExists("empty_cim16_EQ.xml", "14", false);
     }
 
     @Test
-    public void testRdfCim14NotExistsCim16() {
+    void testRdfCim14NotExistsCim16() {
         doTestExists("empty_cim14_EQ.xml", "16", false);
     }
 }

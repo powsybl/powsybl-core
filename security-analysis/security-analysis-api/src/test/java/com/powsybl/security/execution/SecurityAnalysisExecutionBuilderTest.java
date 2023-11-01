@@ -21,9 +21,9 @@ import com.powsybl.security.distributed.ForwardedSecurityAnalysisExecution;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -31,26 +31,26 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class SecurityAnalysisExecutionBuilderTest {
+class SecurityAnalysisExecutionBuilderTest {
 
     private static AtomicReference<ContingenciesProvider> actualProvider;
     private SecurityAnalysisExecutionBuilder builder;
     private SecurityAnalysisExecutionInput input;
 
-    @BeforeClass
-    public static void setUpClass() {
+    @BeforeAll
+    static void setUpClass() {
         actualProvider = new AtomicReference<>();
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
 
         Contingency contingency = new Contingency("cont");
         ContingenciesProvider provider = network -> Collections.nCopies(10, contingency);
@@ -69,7 +69,7 @@ public class SecurityAnalysisExecutionBuilderTest {
     }
 
     @Test
-    public void checkLocal() {
+    void checkLocal() {
         SecurityAnalysisExecution execution = builder.build();
         assertTrue(execution instanceof SecurityAnalysisExecutionImpl);
 
@@ -80,26 +80,26 @@ public class SecurityAnalysisExecutionBuilderTest {
     }
 
     @Test
-    public void checkForwarded() {
+    void checkForwarded() {
         builder.forward(true);
         assertTrue(builder.build() instanceof ForwardedSecurityAnalysisExecution);
     }
 
     @Test
-    public void checkDistributedForwarded() {
+    void checkDistributedForwarded() {
         builder.forward(true)
                 .distributed(12);
         assertTrue(builder.build() instanceof ForwardedSecurityAnalysisExecution);
     }
 
     @Test
-    public void checkDistributed() {
+    void checkDistributed() {
         builder.distributed(12);
         assertTrue(builder.build() instanceof DistributedSecurityAnalysisExecution);
     }
 
     @Test
-    public void checkSubtaskHasOnly5Contingencies() {
+    void checkSubtaskHasOnly5Contingencies() {
         SecurityAnalysisExecution execution = builder.subTask(new Partition(1, 2)).build();
         assertTrue(execution instanceof SecurityAnalysisExecutionImpl);
 

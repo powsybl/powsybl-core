@@ -10,26 +10,21 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class SubNetworkPredicateTest {
-
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
+class SubNetworkPredicateTest {
 
     @Test
-    public void testEsgTuto() {
+    void testEsgTuto() {
         Network network = EurostagTutorialExample1Factory.create();
         NetworkPredicate predicate = new SubNetworkPredicate(network.getVoltageLevel("VLHV1"), 1);
         assertEquals(Arrays.asList("P1", "P2"), network.getSubstationStream().filter(predicate::test).map(Identifiable::getId).collect(Collectors.toList()));
@@ -37,7 +32,7 @@ public class SubNetworkPredicateTest {
     }
 
     @Test
-    public void test3wt() {
+    void test3wt() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         NetworkPredicate predicate = new SubNetworkPredicate(network.getVoltageLevel("VL_132"), 1);
         assertEquals(Collections.singletonList("SUBSTATION"), network.getSubstationStream().filter(predicate::test).map(Identifiable::getId).collect(Collectors.toList()));
@@ -45,10 +40,9 @@ public class SubNetworkPredicateTest {
     }
 
     @Test
-    public void shouldThrowInvalidMaxDepth() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Invalid max depth value: -2");
+    void shouldThrowInvalidMaxDepth() {
         Network network = EurostagTutorialExample1Factory.create();
-        new SubNetworkPredicate(network.getVoltageLevel("VLHV1"), -2);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new SubNetworkPredicate(network.getVoltageLevel("VLHV1"), -2));
+        assertTrue(e.getMessage().contains("Invalid max depth value: -2"));
     }
 }

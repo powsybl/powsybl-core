@@ -15,7 +15,7 @@ import com.powsybl.shortcircuit.FortescueValue;
 import java.io.IOException;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class FortescueValuesSerializer extends StdSerializer<FortescueValue> {
     public FortescueValuesSerializer() {
@@ -27,12 +27,12 @@ public class FortescueValuesSerializer extends StdSerializer<FortescueValue> {
         jsonGenerator.writeStartObject();
 
         // Fortescue components.
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "directMagnitude", value.getDirectMagnitude());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "directMagnitude", value.getPositiveMagnitude());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "zeroMagnitude", value.getZeroMagnitude());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "inverseMagnitude", value.getInverseMagnitude());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "directAngle", value.getDirectAngle());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "inverseMagnitude", value.getNegativeMagnitude());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "directAngle", value.getPositiveAngle());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "zeroAngle", value.getZeroAngle());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "inverseAngle", value.getInverseAngle());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "inverseAngle", value.getNegativeAngle());
 
         jsonGenerator.writeEndObject();
     }

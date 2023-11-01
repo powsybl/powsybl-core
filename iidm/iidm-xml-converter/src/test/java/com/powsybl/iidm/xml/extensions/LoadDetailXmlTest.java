@@ -14,7 +14,7 @@ import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,13 +22,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class LoadDetailXmlTest extends AbstractXmlConverterTest {
+class LoadDetailXmlTest extends AbstractXmlConverterTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -66,7 +66,7 @@ public class LoadDetailXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = createTestNetwork();
 
         LoadDetail detail = network.getLoad("L").getExtension(LoadDetail.class);
@@ -88,7 +88,7 @@ public class LoadDetailXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testOld() throws IOException {
+    void testOld() throws IOException {
         Network network = NetworkXml.read(getVersionedNetworkAsStream("loadDetailRef.xml", IidmXmlVersion.V_1_2));
 
         LoadDetail detail = network.getLoad("L").getExtension(LoadDetail.class);

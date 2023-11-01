@@ -6,16 +6,29 @@
  */
 package com.powsybl.security.condition;
 
+import com.google.common.collect.ImmutableSet;
+import com.powsybl.security.LimitViolationType;
+
+import java.util.*;
+
 /**
  *
  * simulate the associated action as soon there is any violation
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  *
  */
-public class AnyViolationCondition implements Condition {
+public class AnyViolationCondition extends AbstractFilteredCondition {
 
     public static final String NAME = "ANY_VIOLATION_CONDITION";
+
+    public AnyViolationCondition() {
+        this(Collections.emptySet());
+    }
+
+    public AnyViolationCondition(Set<LimitViolationType> conditionFilters) {
+        super(ImmutableSet.copyOf(Objects.requireNonNull(conditionFilters)));
+    }
 
     @Override
     public String getType() {

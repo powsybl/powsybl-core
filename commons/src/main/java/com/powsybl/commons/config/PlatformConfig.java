@@ -10,18 +10,19 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.ServiceLoader;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class PlatformConfig {
 
@@ -36,7 +37,7 @@ public class PlatformConfig {
     /**
      * @deprecated Directly pass <code>PlatformConfig</code> instance to the code you want to test.
      */
-    @Deprecated
+    @Deprecated(since = "2.2.0")
     public static synchronized void setDefaultConfig(PlatformConfig defaultConfig) {
         PlatformConfig.defaultConfig = defaultConfig;
     }
@@ -87,7 +88,7 @@ public class PlatformConfig {
 
     protected PlatformConfig(Supplier<ModuleConfigRepository> repositorySupplier, Path configDir) {
         this.repositorySupplier = Suppliers.memoize(Objects.requireNonNull(repositorySupplier));
-        this.configDir = configDir != null ? FileUtil.createDirectory(configDir) : null;
+        this.configDir = configDir;
     }
 
     public Optional<Path> getConfigDir() {
@@ -101,7 +102,7 @@ public class PlatformConfig {
     /**
      * @deprecated Use the <code>Optional</code> returned by {@link #getOptionalModuleConfig(String)}
      */
-    @Deprecated
+    @Deprecated(since = "4.9.0")
     public boolean moduleExists(String name) {
         return getOptionalModuleConfig(name).isPresent();
     }
@@ -109,7 +110,7 @@ public class PlatformConfig {
     /**
      * @deprecated Use {@link #getOptionalModuleConfig(String)} instead
      */
-    @Deprecated
+    @Deprecated(since = "4.9.0")
     public ModuleConfig getModuleConfig(String name) {
         return getRepository().getModuleConfig(name).orElseThrow(() -> new PowsyblException("Module " + name + " not found"));
     }

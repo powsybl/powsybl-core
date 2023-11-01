@@ -7,20 +7,25 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadModel;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.Optional;
+
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     private final Ref<? extends VariantManagerHolder> network;
 
     private LoadType loadType;
+
+    private LoadModel model;
 
     // attributes depending on the variant
 
@@ -29,10 +34,12 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     private final TDoubleArrayList q0;
 
     LoadImpl(Ref<NetworkImpl> networkRef,
-             String id, String name, boolean fictitious, LoadType loadType, double p0, double q0) {
+             String id, String name, boolean fictitious, LoadType loadType, LoadModel model,
+             double p0, double q0) {
         super(networkRef, id, name, fictitious);
         this.network = networkRef;
         this.loadType = loadType;
+        this.model = model;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.p0 = new TDoubleArrayList(variantArraySize);
         this.q0 = new TDoubleArrayList(variantArraySize);
@@ -98,6 +105,11 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
         n.invalidateValidationLevel();
         notifyUpdate("q0", variantId, oldValue, q0);
         return this;
+    }
+
+    @Override
+    public Optional<LoadModel> getModel() {
+        return Optional.ofNullable(model);
     }
 
     @Override

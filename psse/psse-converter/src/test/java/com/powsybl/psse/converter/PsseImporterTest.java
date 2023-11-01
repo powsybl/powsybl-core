@@ -6,10 +6,10 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -21,8 +21,7 @@ import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import org.joda.time.DateTime;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,15 +31,15 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
+ * @author JB Heyberger {@literal <jean-baptiste.heyberger at rte-france.com>}
  */
-public class PsseImporterTest extends AbstractConverterTest {
+class PsseImporterTest extends AbstractConverterTest {
 
     @Test
-    public void baseTest() {
+    void baseTest() {
         Importer importer = new PsseImporter();
         assertEquals("PSS/E", importer.getFormat());
         assertEquals("PSS/E Format to IIDM converter", importer.getComment());
@@ -58,7 +57,7 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void existsTest() {
+    void existsTest() {
         PsseImporter importer = new PsseImporter();
 
         // test with a valid raw/RAW file
@@ -70,96 +69,167 @@ public class PsseImporterTest extends AbstractConverterTest {
 
         // test with not supported content
         ResourceDataSource dsCaseFlag = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
-        Assert.assertFalse(importer.exists(dsCaseFlag));
+        assertFalse(importer.exists(dsCaseFlag));
 
         ResourceDataSource dsCaseVersion = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
-        Assert.assertFalse(importer.exists(dsCaseVersion));
+        assertFalse(importer.exists(dsCaseVersion));
 
         // test with a valid extension and an invalid content
         ResourceDataSource dsCaseInvalid = new ResourceDataSource("fake", new ResourceSet("/", "fake.raw"));
-        Assert.assertFalse(importer.exists(dsCaseInvalid));
+        assertFalse(importer.exists(dsCaseInvalid));
 
         // test with a valid extension and an invalid content
         ResourceDataSource dsCaseInvalidx = new ResourceDataSource("fake", new ResourceSet("/", "fake.rawx"));
-        Assert.assertFalse(importer.exists(dsCaseInvalidx));
+        assertFalse(importer.exists(dsCaseInvalidx));
     }
 
-    private void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+    private Network importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();
         properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource(basename, new ResourceSet("/", filename));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), properties);
         testNetwork(network);
+        return network;
     }
 
     @Test
-    public void importTest14() throws IOException {
+    void importTest14() throws IOException {
         importTest("IEEE_14_bus", "IEEE_14_bus.raw", false);
     }
 
     @Test
-    public void importTest24() throws IOException {
+    void importTest24() throws IOException {
         importTest("IEEE_24_bus", "IEEE_24_bus.raw", false);
     }
 
     @Test
-    public void importTest30() throws IOException {
+    void importTest30() throws IOException {
         importTest("IEEE_30_bus", "IEEE_30_bus.raw", false);
     }
 
     @Test
-    public void importTest57() throws IOException {
+    void importTest57() throws IOException {
         importTest("IEEE_57_bus", "IEEE_57_bus.raw", false);
     }
 
     @Test
-    public void importTest118() throws IOException {
+    void importTest118() throws IOException {
         importTest("IEEE_118_bus", "IEEE_118_bus.raw", false);
     }
 
     @Test
-    public void importTestT3W() throws IOException {
+    void importTestT3W() throws IOException {
         importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.raw", false);
     }
 
     @Test
-    public void importTestT3Wphase() throws IOException {
+    void importTestT3Wphase() throws IOException {
         importTest("ThreeMIB_T3W_phase", "ThreeMIB_T3W_phase.raw", false);
     }
 
     @Test
-    public void remoteControl() throws IOException {
+    void remoteControl() throws IOException {
         importTest("remoteControl", "remoteControl.raw", false);
     }
 
     @Test
-    public void exampleVersion32() throws IOException {
+    void exampleVersion32() throws IOException {
         importTest("ExampleVersion32", "ExampleVersion32.raw", false);
     }
 
     @Test
-    public void switchedShunt() throws IOException {
+    void switchedShunt() throws IOException {
         importTest("SwitchedShunt", "SwitchedShunt.raw", false);
     }
 
     @Test
-    public void importTest14IsolatedBuses() throws IOException {
+    void switchedShuntWithZeroVswlo() throws IOException {
+        importTest("SwitchedShuntWithZeroVswlo", "SwitchedShuntWithZeroVswlo.raw", false);
+    }
+
+    @Test
+    void importTest14IsolatedBuses() throws IOException {
         importTest("IEEE_14_isolated_buses", "IEEE_14_isolated_buses.raw", false);
     }
 
     @Test
-    public void twoTerminalDc() throws IOException {
+    void twoTerminalDc() throws IOException {
         importTest("twoTerminalDc", "twoTerminalDc.raw", false);
     }
 
     @Test
-    public void twoWindingsTransformerPhase() throws IOException {
+    void twoTerminalDcWithNegativeSetvl() throws IOException {
+        importTest("twoTerminalDc_with_negative_setvl", "twoTerminalDc_with_negative_setvl.raw", false);
+    }
+
+    @Test
+    void parallelTwoTerminalDcBetweenSameAcBuses() throws IOException {
+        importTest("parallelTwoTerminalDcBetweenSameAcBuses", "parallelTwoTerminalDcBetweenSameAcBuses.raw", false);
+    }
+
+    @Test
+    void twoWindingsTransformerPhase() throws IOException {
         importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
     }
 
     @Test
-    public void testRates() throws IOException {
+    void isolatedSlackBus() throws IOException {
+        importTest("IsolatedSlackBus", "IsolatedSlackBus.raw", false);
+    }
+
+    @Test
+    void transformersWithZeroNomV() throws IOException {
+        importTest("TransformersWithZeroNomV", "TransformersWithZeroNomV.raw", false);
+    }
+
+    @Test
+    void rawCaseWithSpecialCharacters() throws IOException {
+        importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
+    }
+
+    @Test
+    void rawxCaseWithSpecialCharacters() throws IOException {
+        importTest("RawxCaseWithSpecialCharacters", "RawxCaseWithSpecialCharacters.rawx", false);
+    }
+
+    @Test
+    void importTest14BusesDuplicateIds() throws IOException {
+        Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
+        assertNotNull(n.getLoad("B2-L1 "));
+        assertNotNull(n.getLoad("B2-L10"));
+        assertNotNull(n.getGenerator("B1-G1 "));
+        assertNotNull(n.getGenerator("B1-G10"));
+        assertNotNull(n.getShuntCompensator("B9-SH 1"));
+        assertNotNull(n.getShuntCompensator("B9-SH 0"));
+        assertNotNull(n.getLine("L-13-14-1 "));
+        assertNotNull(n.getLine("L-14-13-10"));
+        assertNotNull(n.getLine("L-13-14-11"));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
+        assertNotNull(n.getTwoWindingsTransformer("T-7-4-10"));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-11"));
+    }
+
+    @Test
+    void importTest14BusesDuplicateIdsV35() throws IOException {
+        Network n = importTest("IEEE_14_buses_duplicate_ids_rev35", "IEEE_14_buses_duplicate_ids_rev35.raw", false);
+        assertNotNull(n.getLoad("B2-L1 "));
+        assertNotNull(n.getLoad("B2-L10"));
+        assertNotNull(n.getGenerator("B1-G1 "));
+        assertNotNull(n.getGenerator("B1-G10"));
+        assertNotNull(n.getShuntCompensator("B9-SH 1"));
+        assertNotNull(n.getShuntCompensator("B9-SH 0"));
+        assertNotNull(n.getShuntCompensator("B1-SwSH1"));
+        assertNotNull(n.getShuntCompensator("B1-SwSH10"));
+        assertNotNull(n.getLine("L-1-2-1 "));
+        assertNotNull(n.getLine("L-1-2-10"));
+        assertNotNull(n.getLine("L-2-1-11"));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-10"));
+    }
+
+    @Test
+    void testRates() throws IOException {
         Context context = new Context();
         ReadOnlyDataSource ds = new ResourceDataSource("ThreeMIB_T3W_modified", new ResourceSet("/", "ThreeMIB_T3W_modified.raw"));
         PssePowerFlowModel model = new PowerFlowRawData33().read(ds, "raw", context);
@@ -184,7 +254,7 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test()
-    public void badModeTest() {
+    void badModeTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
         PsseImporter psseImporter = new PsseImporter();
         NetworkFactory networkFactory = new NetworkFactoryImpl();
@@ -194,7 +264,7 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void badVersionTest() {
+    void badVersionTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
         PsseImporter psseImporter = new PsseImporter();
         NetworkFactory networkFactory = new NetworkFactoryImpl();
@@ -204,7 +274,7 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void dataSourceExistsTest() {
+    void dataSourceExistsTest() {
         ReadOnlyDataSource dataSource;
 
         dataSource = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
@@ -215,5 +285,10 @@ public class PsseImporterTest extends AbstractConverterTest {
 
         dataSource = new ResourceDataSource("IEEE_14_bus_rev35", new ResourceSet("/", "IEEE_14_bus_rev35.rawx"));
         assertTrue(new PsseImporter().exists(dataSource));
+    }
+
+    @Test
+    void importTest14ZipLoad() throws IOException {
+        importTest("IEEE_14_buses_zip_load", "IEEE_14_buses_zip_load.raw", false);
     }
 }

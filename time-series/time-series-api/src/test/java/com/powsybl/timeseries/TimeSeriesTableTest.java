@@ -9,9 +9,7 @@ package com.powsybl.timeseries;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -23,16 +21,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class TimeSeriesTableTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+class TimeSeriesTableTest {
 
     private TimeSeriesTable createTimeSeriesTable(TimeSeriesIndex index) {
         TimeSeriesMetadata metadata1 = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
@@ -80,7 +74,7 @@ public class TimeSeriesTableTest {
     }
 
     @Test
-    public void testVersionedCSV() {
+    void testVersionedCSV() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         TimeSeriesTable table = createTimeSeriesTable(index);
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"));
@@ -97,7 +91,7 @@ public class TimeSeriesTableTest {
     }
 
     @Test
-    public void testUnversionedCSV() {
+    void testUnversionedCSV() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         TimeSeriesTable table = createTimeSeriesTable(index);
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.FRACTIONS_OF_SECOND);
@@ -113,7 +107,7 @@ public class TimeSeriesTableTest {
     }
 
     @Test
-    public void testMillisCSV() {
+    void testMillisCSV() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         TimeSeriesTable table = createTimeSeriesTable(index);
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS);
@@ -129,7 +123,7 @@ public class TimeSeriesTableTest {
     }
 
     @Test
-    public void testEmptyTable() {
+    void testEmptyTable() {
         // test empty table CSV export
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"));
         String emptyCsv = new TimeSeriesTable(0, 0, InfiniteTimeSeriesIndex.INSTANCE).toCsvString(timeSeriesCsvConfig);
@@ -137,7 +131,7 @@ public class TimeSeriesTableTest {
     }
 
     @Test
-    public void testConcurrent() throws Exception {
+    void testConcurrent() throws Exception {
         int threadCount = 16;
         int padLeftCount = (int) Math.floor(Math.log10(threadCount)) + 1;
         int timeSeriesLength = 100000;
@@ -212,19 +206,17 @@ public class TimeSeriesTableTest {
             }
             expected.add(line);
         }
-        assertEquals("Number of lines", expected.size(), actual.size());
+        assertEquals(expected.size(), actual.size(), "Number of lines");
         for (int i = 0; i < actual.size(); i++) {
-            assertEquals("Line " + i, expected.get(i), actual.get(i));
+            assertEquals(expected.get(i), actual.get(i), "Line " + i);
         }
     }
 
     @Test
-    public void testVersionError() {
-        exception.expect(TimeSeriesException.class);
-        exception.expectMessage("toVersion (0) is expected to be greater than fromVersion (1)");
-
+    void testVersionError() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         // load time series in the table
-        new TimeSeriesTable(1, 0, index);
+        TimeSeriesException e = assertThrows(TimeSeriesException.class, () -> new TimeSeriesTable(1, 0, index));
+        assertTrue(e.getMessage().contains("toVersion (0) is expected to be greater than fromVersion (1)"));
     }
 }

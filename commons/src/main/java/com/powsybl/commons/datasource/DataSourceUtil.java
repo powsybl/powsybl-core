@@ -12,7 +12,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface DataSourceUtil {
 
@@ -46,14 +46,18 @@ public interface DataSourceUtil {
             return new FileDataSource(directory, basename, observer);
         } else {
             switch (compressionExtension) {
-                case GZIP:
-                    return new GzFileDataSource(directory, basename, observer);
                 case BZIP2:
                     return new Bzip2FileDataSource(directory, basename, observer);
+                case GZIP:
+                    return new GzFileDataSource(directory, basename, observer);
+                case XZ:
+                    return new XZFileDataSource(directory, basename, observer);
                 case ZIP:
                     return new ZipFileDataSource(directory, basename, observer);
+                case ZSTD:
+                    return new ZstdFileDataSource(directory, basename, observer);
                 default:
-                    throw new AssertionError("Unexpected CompressionFormat value: " + compressionExtension);
+                    throw new IllegalStateException("Unexpected CompressionFormat value: " + compressionExtension);
             }
         }
     }
@@ -62,8 +66,12 @@ public interface DataSourceUtil {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(fileNameOrBaseName);
 
-        if (fileNameOrBaseName.endsWith(".zip")) {
+        if (fileNameOrBaseName.endsWith(".zst")) {
+            return new ZstdFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+        } else if (fileNameOrBaseName.endsWith(".zip")) {
             return new ZipFileDataSource(directory, fileNameOrBaseName, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+        } else if (fileNameOrBaseName.endsWith(".xz")) {
+            return new XZFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
         } else if (fileNameOrBaseName.endsWith(".gz")) {
             return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
         } else if (fileNameOrBaseName.endsWith(".bz2")) {

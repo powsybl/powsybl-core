@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import java.util.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
 
@@ -56,7 +56,7 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
         if (ol == null || limitClazz.isInstance(ol)) {
             return (L) ol;
         }
-        throw new AssertionError("Unexpected class for operational limits of type " + type + ". Expected: " + ol.getClass().getName() + ", actual: " + limitClazz.getName() + ".");
+        throw new IllegalStateException("Unexpected class for operational limits of type " + type + ". Expected: " + ol.getClass().getName() + ", actual: " + limitClazz.getName() + ".");
     }
 
     CurrentLimitsAdder newCurrentLimits() {

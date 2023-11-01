@@ -9,9 +9,9 @@ package com.powsybl.dynamicsimulation;
 import java.util.Collections;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-public final class DynamicModelsSupplierMock {
+final class DynamicModelsSupplierMock {
 
     private DynamicModelsSupplierMock() {
     }

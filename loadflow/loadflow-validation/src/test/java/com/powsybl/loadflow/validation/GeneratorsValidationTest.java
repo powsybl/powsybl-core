@@ -6,15 +6,15 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.output.NullWriter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Bus;
@@ -27,9 +27,9 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public class GeneratorsValidationTest extends AbstractValidationTest {
+class GeneratorsValidationTest extends AbstractValidationTest {
 
     private double p = -39.5056;
     private double q = 3.72344;
@@ -49,8 +49,8 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     private Terminal genTerminal;
     private Generator generator;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         super.setUp();
 
         Bus genBus = Mockito.mock(Bus.class);
@@ -83,7 +83,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkGeneratorsValues() {
+    void checkGeneratorsValues() {
         // active power should be equal to setpoint
         assertTrue(GeneratorsValidation.INSTANCE.checkGenerators("test", p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         p = -39.8;
@@ -170,7 +170,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkGenerators() {
+    void checkGenerators() {
         // active power should be equal to setpoint
         assertTrue(GeneratorsValidation.INSTANCE.checkGenerators(generator, strictConfig, NullWriter.NULL_WRITER));
         Mockito.when(genTerminal.getP()).thenReturn(-39.8);
@@ -182,7 +182,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkNetworkGenerators() throws IOException {
+    void checkNetworkGenerators() throws IOException {
         Bus genBus1 = Mockito.mock(Bus.class);
         Mockito.when(genBus1.getV()).thenReturn(v);
         Mockito.when(genBus1.isInMainConnectedComponent()).thenReturn(mainComponent);

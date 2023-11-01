@@ -17,7 +17,7 @@ import com.powsybl.security.action.LoadActionBuilder;
 import java.io.IOException;
 
 /**
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class LoadActionDeserializer extends StdDeserializer<LoadAction> {
 

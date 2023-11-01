@@ -9,22 +9,23 @@ package com.powsybl.commons.config;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
-public class PlatformConfigNamedProviderTest {
+class PlatformConfigNamedProviderTest {
 
     private static final String BAD_NAME = "xxxx";
 
@@ -49,21 +50,21 @@ public class PlatformConfigNamedProviderTest {
 
     private InMemoryPlatformConfig platformConfig;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     private static class TestProvider implements PlatformConfigNamedProvider {
         String name;
 
-        public TestProvider(String name) {
+        TestProvider(String name) {
             this.name = name;
         }
 
@@ -72,15 +73,15 @@ public class PlatformConfigNamedProviderTest {
         }
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testDefaultNoProvider() {
+    @Test
+    void testDefaultNoProvider() {
         // case without any provider, an exception is expected
-        PlatformConfigNamedProvider.Finder.find(null, MODULE, ImmutableList.of(),
-                ImmutableList.of(), platformConfig, PlatformConfigNamedProvider.class);
+        assertThrows(PowsyblException.class, () -> PlatformConfigNamedProvider.Finder.find(null, MODULE, ImmutableList.of(),
+                ImmutableList.of(), platformConfig, PlatformConfigNamedProvider.class));
     }
 
     @Test
-    public void testOneProvider() {
+    void testOneProvider() {
         // case with multiple providers without any config
         PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
                 null, MODULE, ImmutableList.of(), ImmutableList.of(new TestProvider("b")),
@@ -88,15 +89,15 @@ public class PlatformConfigNamedProviderTest {
         assertEquals(GOOD_NAME, provider.getName());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testDefaultTwoProviders() {
+    @Test
+    void testDefaultTwoProviders() {
         // case with 2 providers without any config, an exception is expected
-        PlatformConfigNamedProvider.Finder.find(null, MODULE, ImmutableList.of(),
-                MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
+        assertThrows(PowsyblException.class, () -> PlatformConfigNamedProvider.Finder.find(null, MODULE, ImmutableList.of(),
+                MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class));
     }
 
     @Test
-    public void testDefaultMultipleProvidersPlatformConfig() {
+    void testDefaultMultipleProvidersPlatformConfig() {
         // case with multiple providers without any config but specifying which one to
         // use in platform config
         platformConfig.createModuleConfig(MODULE)
@@ -106,18 +107,18 @@ public class PlatformConfigNamedProviderTest {
         assertEquals(GOOD_NAME, provider.getName());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testOneProviderAndMistakeInPlatformConfig() {
+    @Test
+    void testOneProviderAndMistakeInPlatformConfig() {
         // case with 1 provider with config but with a name that is not the one of
         // provider.
         platformConfig.createModuleConfig(MODULE)
                 .setStringProperty(DEFAULT_IMPL_NAME_PROPERTY, BAD_NAME);
-        PlatformConfigNamedProvider.Finder.find(null, MODULE, DEFAULT_PROPERTY_LIST,
-                ImmutableList.of(new TestProvider("a")), platformConfig, PlatformConfigNamedProvider.class);
+        assertThrows(PowsyblException.class, () -> PlatformConfigNamedProvider.Finder.find(null, MODULE, DEFAULT_PROPERTY_LIST,
+                ImmutableList.of(new TestProvider("a")), platformConfig, PlatformConfigNamedProvider.class));
     }
 
     @Test
-    public void testNamedMultipleProviders() {
+    void testNamedMultipleProviders() {
         // case with multiple providers and specifying programmatically
         PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
                 GOOD_NAME, MODULE, DEFAULT_PROPERTY_LIST, MULTIPLE_PROVIDERS,
@@ -125,15 +126,15 @@ public class PlatformConfigNamedProviderTest {
         assertEquals(GOOD_NAME, provider.getName());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testBadNamedMultipleProviders() {
+    @Test
+    void testBadNamedMultipleProviders() {
         // case with multiple providers and specifying programmatically with an error
-        PlatformConfigNamedProvider.Finder.find(BAD_NAME, MODULE, ImmutableList.of(),
-                MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
+        assertThrows(PowsyblException.class, () -> PlatformConfigNamedProvider.Finder.find(BAD_NAME, MODULE, ImmutableList.of(),
+                MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class));
     }
 
     @Test
-    public void testDefaultMultipleProvidersPlatformConfigBackwardsCompatible1() {
+    void testDefaultMultipleProvidersPlatformConfigBackwardsCompatible1() {
         // case with multiple providers without any config but specifying which one to
         // use in platform config in backwards compatible mode with the new property
         platformConfig.createModuleConfig(MODULE)
@@ -144,7 +145,7 @@ public class PlatformConfigNamedProviderTest {
     }
 
     @Test
-    public void testDefaultMultipleProvidersPlatformConfigBackwardsCompatible2() {
+    void testDefaultMultipleProvidersPlatformConfigBackwardsCompatible2() {
         // case with multiple providers without any config but specifying which one to
         // use in platform config in backwards compatible mode with the old property
         platformConfig.createModuleConfig(MODULE)
@@ -155,7 +156,7 @@ public class PlatformConfigNamedProviderTest {
     }
 
     @Test
-    public void testDefaultMultipleProvidersPlatformConfigBackwardsCompatiblePriority1() {
+    void testDefaultMultipleProvidersPlatformConfigBackwardsCompatiblePriority1() {
         // case with multiple providers without any config but specifying which one to
         // use in platform config in backwards compatible mode with the new property
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig(MODULE);
@@ -166,36 +167,36 @@ public class PlatformConfigNamedProviderTest {
         assertEquals(GOOD_NAME, provider.getName());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testDefaultMultipleProvidersPlatformConfigBackwardsCompatiblePriority2() {
+    @Test
+    void testDefaultMultipleProvidersPlatformConfigBackwardsCompatiblePriority2() {
         // case with multiple providers without any config but specifying which one to
         // use in platform config in backwards compatible mode with the new property
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig(MODULE);
         moduleConfig.setStringProperty(DEFAULT_IMPL_NAME_PROPERTY, BAD_NAME);
         moduleConfig.setStringProperty(LEGACY_IMPL_NAME_PROPERTY, GOOD_NAME);
-        PlatformConfigNamedProvider.Finder.find(
-                null, MODULE, LEGACY_PROPERTY_LIST, MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
+        assertThrows(PowsyblException.class, () -> PlatformConfigNamedProvider.Finder.find(
+                null, MODULE, LEGACY_PROPERTY_LIST, MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class));
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testOneProviderAndMistakeInPlatformConfigBackwardsCompatible1() {
+    @Test
+    void testOneProviderAndMistakeInPlatformConfigBackwardsCompatible1() {
         // case with multiple providers without any config but specifying which one to
         // use in platform config with error
         platformConfig.createModuleConfig(MODULE)
                 .setStringProperty(LEGACY_IMPL_NAME_PROPERTY, BAD_NAME);
-        PlatformConfigNamedProvider.Finder.find(null, MODULE, LEGACY_PROPERTY_LIST,
-                ImmutableList.of(new TestProvider("a")), platformConfig, PlatformConfigNamedProvider.class);
+        assertThrows(PowsyblException.class, () -> PlatformConfigNamedProvider.Finder.find(null, MODULE, LEGACY_PROPERTY_LIST,
+                ImmutableList.of(new TestProvider("a")), platformConfig, PlatformConfigNamedProvider.class));
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testOneProviderAndMistakeInPlatformConfigBackwardsCompatible2() {
+    @Test
+    void testOneProviderAndMistakeInPlatformConfigBackwardsCompatible2() {
         // case with multiple providers without any config but specifying which one to
         // use in platform config with error
         platformConfig.createModuleConfig(MODULE)
                 .setStringProperty(DEFAULT_IMPL_NAME_PROPERTY, BAD_NAME);
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
+        assertThrows(PowsyblException.class, () -> PlatformConfigNamedProvider.Finder.find(
                 null, MODULE, LEGACY_PROPERTY_LIST,
-                ImmutableList.of(new TestProvider("a")), platformConfig, PlatformConfigNamedProvider.class);
+                ImmutableList.of(new TestProvider("a")), platformConfig, PlatformConfigNamedProvider.class));
     }
 
 }

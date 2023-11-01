@@ -9,21 +9,21 @@ package com.powsybl.iidm.modification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.tripping.BranchTripping;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class NetworkModificationListTest {
+class NetworkModificationListTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
-        Assert.assertTrue(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
-        Assert.assertTrue(network.getLine("NHV1_NHV2_1").getTerminal2().isConnected());
+        assertTrue(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
+        assertTrue(network.getLine("NHV1_NHV2_1").getTerminal2().isConnected());
 
         BranchTripping tripping1 = new BranchTripping("NHV1_NHV2_1", "VLHV1");
         BranchTripping tripping2 = new BranchTripping("NHV1_NHV2_1", "VLHV2");

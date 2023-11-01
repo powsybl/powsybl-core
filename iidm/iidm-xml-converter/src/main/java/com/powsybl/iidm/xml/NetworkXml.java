@@ -17,9 +17,9 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.joda.time.DateTime;
@@ -49,7 +49,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class NetworkXml {
 
@@ -63,6 +63,7 @@ public final class NetworkXml {
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
     private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
+    private static final String VOLTAGE_ANGLE_LIMIT_ELEMENT_NAME = "voltageAngleLimit";
 
     // cache to improve performance
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
@@ -78,15 +79,21 @@ public final class NetworkXml {
         try {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            int length = IidmXmlVersion.values().length;
+            int length = IidmXmlVersion.values().length + (int) Arrays.stream(IidmXmlVersion.values())
+                    .filter(IidmXmlVersion::supportEquipmentValidationLevel).count();
             Source[] sources = new Source[additionalSchemas.size() + length];
             int i = 0;
+            int j = 0;
             for (IidmXmlVersion version : IidmXmlVersion.values()) {
                 sources[i] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + version.getXsd()));
+                if (version.supportEquipmentValidationLevel()) {
+                    sources[j + IidmXmlVersion.values().length] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + version.getXsd(false)));
+                    j++;
+                }
                 i++;
             }
-            for (int j = 0; j < additionalSchemas.size(); j++) {
-                sources[j + length] = additionalSchemas.get(j);
+            for (int k = 0; k < additionalSchemas.size(); k++) {
+                sources[k + length] = additionalSchemas.get(k);
             }
             Schema schema = factory.newSchema(sources);
             Validator validator = schema.newValidator();
@@ -122,19 +129,19 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeExtensionNamespaces(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
         // Get the list of the serializers needed to export the current network
-        IidmXmlVersion networkVersion = getNetworkVersion(options);
+        IidmXmlVersion networkVersion = getNetworkVersion(context.getOptions());
         Set<ExtensionXmlSerializer<?, ?>> serializers = n.getIdentifiables().stream().flatMap(identifiable -> identifiable.getExtensions()
                         .stream()
-                        .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), networkVersion, options))
-                        .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension)))
+                        .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(context.getOptions(), e), networkVersion, context.getOptions()))
+                        .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(context.getOptions(), extension)))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         // Export the prefix and namespace of each serializer and ensure that there is no conflict
         for (ExtensionXmlSerializer<?, ?> extensionXmlSerializer : serializers) {
-            String namespaceUri = getNamespaceUri(extensionXmlSerializer, options, networkVersion);
+            String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), networkVersion);
             if (extensionUris.contains(namespaceUri)) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
@@ -146,8 +153,8 @@ public final class NetworkXml {
             } else {
                 extensionPrefixes.add(extensionXmlSerializer.getNamespacePrefix());
             }
-            writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
-            writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
+            context.getWriter().setPrefix(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
+            context.getWriter().writeNamespace(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
         }
     }
 
@@ -155,7 +162,7 @@ public final class NetworkXml {
         XMLStreamWriter writer = context.getWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(), extension);
         if (extensionXmlSerializer == null) {
-            throw new AssertionError("Extension XML Serializer of " + extension.getName() + " should not be null");
+            throw new IllegalStateException("Extension XML Serializer of " + extension.getName() + " should not be null");
         }
         String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), context.getVersion());
         if (extensionXmlSerializer.hasSubElements()) {
@@ -176,7 +183,7 @@ public final class NetworkXml {
                     ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName())
                     : EXTENSIONS_SUPPLIER.get().findProvider(extension.getName());
             if (extensionXmlSerializer == null) {
-                String message = "XmlSerializer for" + extension.getName() + "not found";
+                String message = "XmlSerializer for " + extension.getName() + " not found";
                 throwExceptionIfOption(options, message);
             } else if (!extensionXmlSerializer.isSerializable(extension)) {
                 return null;
@@ -192,8 +199,7 @@ public final class NetworkXml {
     }
 
     private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options, IidmXmlVersion networkVersion) {
-        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer) {
-            AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer = (AbstractVersionableNetworkExtensionXmlSerializer) extensionXmlSerializer;
+        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer<?, ?> networkExtensionXmlSerializer) {
             return options.getExtensionVersion(networkExtensionXmlSerializer.getExtensionName())
                     .map(extensionVersion -> {
                         networkExtensionXmlSerializer.checkWritingCompatibility(extensionVersion, networkVersion);
@@ -206,23 +212,29 @@ public final class NetworkXml {
                 .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
-    private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
-
-        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), options)) {
-            if (!context.isExportedEquipment(identifiable)) {
-                continue;
+    private static void writeVoltageAngleLimits(Network n, NetworkXmlWriterContext context) {
+        if (!n.getVoltageAngleLimitsStream().findAny().isEmpty()) {
+            for (VoltageAngleLimit voltageAngleLimit : n.getVoltageAngleLimits()) {
+                VoltageAngleLimitXml.write(voltageAngleLimit, context);
             }
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), context.getVersion(), context.getOptions()))
-                    .collect(Collectors.toList());
+        }
+    }
 
-            if (!extensions.isEmpty()) {
-                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), EXTENSION_ELEMENT_NAME);
-                context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-                for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
-                    writeExtension(extension, context);
+    private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), context.getOptions())) {
+            if (context.isExportedEquipment(identifiable) && isElementWrittenInsideNetwork(identifiable, n, context)) {
+                Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
+                        .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(context.getOptions(), e), context.getVersion(), context.getOptions()))
+                        .collect(Collectors.toList());
+
+                if (!extensions.isEmpty()) {
+                    context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), EXTENSION_ELEMENT_NAME);
+                    context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+                    for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, context.getOptions())) {
+                        writeExtension(extension, context);
+                    }
+                    context.getWriter().writeEndElement();
                 }
-                context.getWriter().writeEndElement();
             }
         }
     }
@@ -232,8 +244,7 @@ public final class NetworkXml {
             return false;
         }
         boolean versionExist = true;
-        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer) {
-            AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer = (AbstractVersionableNetworkExtensionXmlSerializer) extensionXmlSerializer;
+        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer<?, ?> networkExtensionXmlSerializer) {
             versionExist = networkExtensionXmlSerializer.versionExists(version);
         }
         if (!versionExist) {
@@ -244,53 +255,57 @@ public final class NetworkXml {
         return versionExist;
     }
 
-    private static void writeMainAttributes(Network n, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute(ID, n.getId());
+    private static void writeMainAttributes(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        XMLStreamWriter writer = context.getWriter();
+        writer.writeAttribute(ID, context.getAnonymizer().anonymizeString(n.getId()));
         writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
         writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
         writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
     }
 
-    private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+    private static void writeRootElement(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        ExportOptions options = context.getOptions();
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
         String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        writer.setPrefix(IIDM_PREFIX, namespaceUri);
         IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
-        writer.writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
-        writer.writeNamespace(IIDM_PREFIX, namespaceUri);
-        if (!options.withNoExtension()) {
-            writeExtensionNamespaces(n, options, writer);
+
+        context.getWriter().setPrefix(IIDM_PREFIX, namespaceUri);
+        context.getWriter().writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
+        if (n.getParentNetwork() == n) { // is root network
+            context.getWriter().writeNamespace(IIDM_PREFIX, namespaceUri);
+            if (!options.withNoExtension()) {
+                writeExtensionNamespaces(n, context);
+            }
         }
-        writeMainAttributes(n, writer);
-        return writer;
+        writeMainAttributes(n, context);
     }
 
-    private static NetworkXmlWriterContext writeBaseNetwork(Network n, XMLStreamWriter writer, ExportOptions options) throws XMLStreamException {
-        BusFilter filter = BusFilter.create(n, options);
-        Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
-        IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
-
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> writer.writeAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel().toString()));
-
-        // Consider the network has been exported so its extensions will be written also
-        context.addExportedEquipment(n);
+    private static void writeBaseNetwork(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> context.getWriter().writeAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel().toString()));
 
         AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> writeSubnetworks(n, context));
+
         writeVoltageLevels(n, context);
         writeSubstations(n, context);
-        writeTransformers(filter, n, context);
-        writeLines(filter, n, context);
-        writeHvdcLines(filter, n, context);
-        return context;
+        writeLines(n, context);
+        writeTieLines(n, context);
+        writeHvdcLines(n, context);
+    }
+
+    private static void writeSubnetworks(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (Network subnetwork : IidmXmlUtil.sorted(n.getSubnetworks(), context.getOptions())) {
+            IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
+                    IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
+            write(subnetwork, context);
+        }
     }
 
     private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (VoltageLevel voltageLevel : IidmXmlUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
-            if (voltageLevel.getSubstation().isEmpty()) {
+            if (isElementWrittenInsideNetwork(voltageLevel, n, context) && voltageLevel.getSubstation().isEmpty()) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
                         IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
                 VoltageLevelXml.INSTANCE.write(voltageLevel, n, context);
@@ -300,61 +315,90 @@ public final class NetworkXml {
 
     private static void writeSubstations(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
-            SubstationXml.INSTANCE.write(s, n, context);
-        }
-    }
-
-    private static void writeTransformers(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (TwoWindingsTransformer twt : IidmXmlUtil.sorted(n.getTwoWindingsTransformers(), context.getOptions())) {
-            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                TwoWindingsTransformerXml.INSTANCE.write(twt, n, context);
-            }
-        }
-        for (ThreeWindingsTransformer twt : IidmXmlUtil.sorted(n.getThreeWindingsTransformers(), context.getOptions())) {
-            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                ThreeWindingsTransformerXml.INSTANCE.write(twt, n, context);
+            if (isElementWrittenInsideNetwork(s, n, context)) {
+                SubstationXml.INSTANCE.write(s, n, context);
             }
         }
     }
 
-    private static void writeLines(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        BusFilter filter = context.getFilter();
         for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
-            if (!filter.test(l)) {
-                continue;
-            }
-            if (l.isTieLine()) {
-                TieLineXml.INSTANCE.write((TieLine) l, n, context);
-            } else {
+            if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
                 LineXml.INSTANCE.write(l, n, context);
             }
         }
     }
 
-    private static void writeHvdcLines(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
-            if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
-                continue;
+    private static void writeTieLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        BusFilter filter = context.getFilter();
+        for (TieLine l : IidmXmlUtil.sorted(n.getTieLines(), context.getOptions())) {
+            if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
+                TieLineXml.INSTANCE.write(l, n, context);
             }
-            HvdcLineXml.INSTANCE.write(l, n, context);
         }
+    }
+
+    private static void writeHvdcLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        BusFilter filter = context.getFilter();
+        for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
+            if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l.getConverterStation1()) && filter.test(l.getConverterStation2())) {
+                HvdcLineXml.INSTANCE.write(l, n, context);
+            }
+        }
+    }
+
+    private static void write(Network network, NetworkXmlWriterContext context) throws XMLStreamException {
+        // consider the network has been exported so its extensions will be written
+        // (should be done before extensions are written)
+        context.addExportedEquipment(network);
+        writeRootElement(network, context);
+        writeBaseNetwork(network, context);
+        writeVoltageAngleLimits(network, context);
+        writeExtensions(network, context);
+        context.getWriter().writeEndElement();
     }
 
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
         try {
-            NetworkXmlWriterContext context = writeBaseNetwork(n, initializeWriter(n, os, options), options);
-            // write extensions
-            writeExtensions(n, context, options);
-            context.getWriter().writeEndElement();
+            XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
+            NetworkXmlWriterContext context = createContext(n, options, writer);
+            write(n, context);
             context.getWriter().writeEndDocument();
             context.getWriter().close();
             return context.getAnonymizer();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    /**
+     * Return true if the given element has to be written in the given network, false otherwise
+     */
+    private static boolean isElementWrittenInsideNetwork(Identifiable<?> element, Network n, NetworkXmlWriterContext context) {
+        // if subnetworks not supported, all elements need to be written in the root network (in that case this is only called with n being the root network)
+        if (!supportSubnetworksExport(context)) {
+            return true;
+        }
+        // corner case: if the element is the given network, it is considered as written within that network, as extensions have to be written within the network
+        if (n.getId().equals(element.getId())) {
+            return true;
+        }
+        // Main case: the element has to be written
+        // - if the element is directly in the network (not in one of its subnetworks)
+        // - and if it's not a network itself (linked to previous corner case)
+        return element.getParentNetwork() == n && element.getType() != IdentifiableType.NETWORK;
+    }
+
+    private static boolean supportSubnetworksExport(NetworkXmlWriterContext context) {
+        return context.getVersion().compareTo(IidmXmlVersion.V_1_11) >= 0;
+    }
+
+    private static NetworkXmlWriterContext createContext(Network n, ExportOptions options, XMLStreamWriter writer) {
+        BusFilter filter = BusFilter.create(n, options);
+        Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
+        IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
+        return new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     public static Anonymizer write(Network n, OutputStream os) {
@@ -414,89 +458,20 @@ public final class NetworkXml {
             }
 
             IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(reader.getNamespaceURI());
-
-            String id = reader.getAttributeValue(null, ID);
-            DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
-            int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
-            String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
-
-            Network network = networkFactory.createNetwork(id, sourceFormat);
-            network.setCaseDate(date);
-            network.setForecastDistance(forecastDistance);
-
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
-            ValidationLevel[] minValidationLevel = new ValidationLevel[1];
-            minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> minValidationLevel[0] = ValidationLevel.valueOf(reader.getAttributeValue(null, MINIMUM_VALIDATION_LEVEL)));
-
-            IidmXmlUtil.assertMinimumVersionIfNotDefault(minValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, context);
-            network.setMinimumAcceptableValidationLevel(minValidationLevel[0]);
+            Network network = initNetwork(networkFactory, context, reader, null);
 
             if (!config.withNoExtension()) {
                 context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
             }
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
+            Deque<Network> networks = new ArrayDeque<>(2);
+            networks.push(network);
 
-            XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
-                switch (reader.getLocalName()) {
-                    case AliasesXml.ALIAS:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                        AliasesXml.read(network, context);
-                        break;
-
-                    case PropertiesXml.PROPERTY:
-                        PropertiesXml.read(network, context);
-                        break;
-
-                    case VoltageLevelXml.ROOT_ELEMENT_NAME:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
-                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                        VoltageLevelXml.INSTANCE.read(network, context);
-                        break;
-
-                    case SubstationXml.ROOT_ELEMENT_NAME:
-                        SubstationXml.INSTANCE.read(network, context);
-                        break;
-
-                    case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                        TwoWindingsTransformerXml.INSTANCE.read(network, context);
-                        break;
-
-                    case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                        ThreeWindingsTransformerXml.INSTANCE.read(network, context);
-                        break;
-
-                    case LineXml.ROOT_ELEMENT_NAME:
-                        LineXml.INSTANCE.read(network, context);
-                        break;
-
-                    case TieLineXml.ROOT_ELEMENT_NAME:
-                        TieLineXml.INSTANCE.read(network, context);
-                        break;
-
-                    case HvdcLineXml.ROOT_ELEMENT_NAME:
-                        HvdcLineXml.INSTANCE.read(network, context);
-                        break;
-
-                    case EXTENSION_ELEMENT_NAME:
-                        String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
-                        Identifiable identifiable = network.getIdentifiable(id2);
-                        if (identifiable == null) {
-                            throw new PowsyblException("Identifiable " + id2 + " not found");
-                        }
-                        readExtensions(identifiable, context, extensionNamesNotFound);
-                        break;
-
-                    default:
-                        throw new AssertionError();
-                }
-            });
+            XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader,
+                () -> readElements(networks, networkFactory, reader, context, extensionNamesNotFound));
 
             checkExtensionsNotFound(context, extensionNamesNotFound);
 
@@ -507,6 +482,84 @@ public final class NetworkXml {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private static void readElements(Deque<Network> networks, NetworkFactory networkFactory, XMLStreamReader reader, NetworkXmlReaderContext context,
+                                     Set<String> extensionNamesNotFound) throws XMLStreamException {
+        String localName = reader.getLocalName();
+        switch (localName) {
+            case AliasesXml.ALIAS -> checkSupportedAndReadAlias(networks.peek(), context);
+            case PropertiesXml.PROPERTY -> PropertiesXml.read(networks.peek(), context);
+            case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, reader, context, extensionNamesNotFound);
+            case VoltageLevelXml.ROOT_ELEMENT_NAME -> checkSupportedAndReadVoltageLevel(context, networks);
+            case SubstationXml.ROOT_ELEMENT_NAME -> SubstationXml.INSTANCE.read(networks.peek(), context);
+            case LineXml.ROOT_ELEMENT_NAME -> LineXml.INSTANCE.read(networks.peek(), context);
+            case TieLineXml.ROOT_ELEMENT_NAME -> TieLineXml.INSTANCE.read(networks.peek(), context);
+            case HvdcLineXml.ROOT_ELEMENT_NAME -> HvdcLineXml.INSTANCE.read(networks.peek(), context);
+            case VOLTAGE_ANGLE_LIMIT_ELEMENT_NAME -> VoltageAngleLimitXml.read(networks.peek(), context);
+            case EXTENSION_ELEMENT_NAME -> findExtendableAndReadExtension(networks.peek(), reader, context, extensionNamesNotFound);
+            default -> throw new IllegalStateException();
+        }
+    }
+
+    private static void checkSupportedAndReadAlias(Network network, NetworkXmlReaderContext context) throws XMLStreamException {
+        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+        AliasesXml.read(network, context);
+    }
+
+    private static void checkSupportedAndReadSubnetwork(Deque<Network> networks, NetworkFactory networkFactory, XMLStreamReader reader, NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) throws XMLStreamException {
+        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME,
+                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
+        if (networks.size() > 1) {
+            throw new PowsyblException("Only one level of subnetworks is currently supported.");
+        }
+        // Create a new subnetwork and push it in the deque to be used as the network to update
+        Network subnetwork = initNetwork(networkFactory, context, reader, networks.peek());
+        networks.push(subnetwork);
+        // Read subnetwork content
+        XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader,
+                () -> readElements(networks, networkFactory, reader, context, extensionNamesNotFound));
+        // Pop the subnetwork. We will now work with its parent.
+        networks.pop();
+    }
+
+    private static void checkSupportedAndReadVoltageLevel(NetworkXmlReaderContext context, Deque<Network> networks) throws XMLStreamException {
+        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
+                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+        VoltageLevelXml.INSTANCE.read(networks.peek(), context);
+    }
+
+    private static void findExtendableAndReadExtension(Network network, XMLStreamReader reader, NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) throws XMLStreamException {
+        String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
+        Identifiable identifiable = network.getIdentifiable(id2);
+        if (identifiable == null) {
+            throw new PowsyblException("Identifiable " + id2 + " not found");
+        }
+        readExtensions(identifiable, context, extensionNamesNotFound);
+    }
+
+    private static Network initNetwork(NetworkFactory networkFactory, NetworkXmlReaderContext context, XMLStreamReader reader, Network rootNetwork) {
+        String id = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, ID));
+        DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
+        int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
+        String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
+
+        Network network;
+        if (rootNetwork == null) {
+            network = networkFactory.createNetwork(id, sourceFormat);
+        } else {
+            network = rootNetwork.createSubnetwork(id, id, sourceFormat);
+        }
+        network.setCaseDate(date);
+        network.setForecastDistance(forecastDistance);
+
+        ValidationLevel[] minValidationLevel = new ValidationLevel[1];
+        minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> minValidationLevel[0] = ValidationLevel.valueOf(reader.getAttributeValue(null, MINIMUM_VALIDATION_LEVEL)));
+
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(minValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, context);
+        network.setMinimumAcceptableValidationLevel(minValidationLevel[0]);
+        return network;
     }
 
     private static void checkExtensionsNotFound(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) {
@@ -592,35 +645,32 @@ public final class NetworkXml {
                     case VoltageLevelXml.ROOT_ELEMENT_NAME:
                         updateVoltageLevel(reader, network, vl);
                         break;
-
                     case BusXml.ROOT_ELEMENT_NAME:
                         updateBus(reader, vl);
                         break;
-
-                    case GeneratorXml.ROOT_ELEMENT_NAME:
-                    case BatteryXml.ROOT_ELEMENT_NAME:
-                    case LoadXml.ROOT_ELEMENT_NAME:
-                    case ShuntXml.ROOT_ELEMENT_NAME:
-                    case DanglingLineXml.ROOT_ELEMENT_NAME:
-                    case LccConverterStationXml.ROOT_ELEMENT_NAME:
-                    case VscConverterStationXml.ROOT_ELEMENT_NAME:
+                    case GeneratorXml.ROOT_ELEMENT_NAME,
+                            BatteryXml.ROOT_ELEMENT_NAME,
+                            LoadXml.ROOT_ELEMENT_NAME,
+                            ShuntXml.ROOT_ELEMENT_NAME,
+                            DanglingLineXml.ROOT_ELEMENT_NAME,
+                            LccConverterStationXml.ROOT_ELEMENT_NAME,
+                            VscConverterStationXml.ROOT_ELEMENT_NAME:
                         updateInjection(reader, network);
                         break;
-
-                    case LineXml.ROOT_ELEMENT_NAME:
-                    case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
+                    case LineXml.ROOT_ELEMENT_NAME,
+                            TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
                         updateBranch(reader, network);
                         break;
-
-                    case HvdcLineXml.ROOT_ELEMENT_NAME:
+                    case HvdcLineXml.ROOT_ELEMENT_NAME,
+                            NetworkXml.NETWORK_ROOT_ELEMENT_NAME:
                         // Nothing to do
                         break;
 
                     case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                        throw new AssertionError();
+                        throw new IllegalStateException();
 
                     default:
-                        throw new AssertionError("Unexpected element: " + reader.getLocalName());
+                        throw new IllegalStateException("Unexpected element: " + reader.getLocalName());
                 }
             });
         } catch (XMLStreamException e) {

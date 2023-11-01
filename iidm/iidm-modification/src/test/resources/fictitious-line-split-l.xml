@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_11" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:voltageLevel id="VLTEST" nominalV="380.0" topologyKind="NODE_BREAKER">
         <iidm:nodeBreakerTopology>
             <iidm:busbarSection id="bbs" node="0"/>
             <iidm:switch id="CJ_BREAKER" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
-            <iidm:switch id="CJ_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="0"/>
+            <iidm:switch id="CJ_DISCONNECTOR_2_0" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="0"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:voltageLevel id="CJ_VL" fictitious="true" nominalV="225.0" topologyKind="NODE_BREAKER">

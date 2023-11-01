@@ -12,12 +12,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public enum CompressionFormat {
-    GZIP("gz"),
     BZIP2("bz2"),
-    ZIP("zip");
+    GZIP("gz"),
+    XZ("xz"),
+    ZIP("zip"),
+    ZSTD("zst");
 
     CompressionFormat(String extension) {
         this.extension = Objects.requireNonNull(extension);

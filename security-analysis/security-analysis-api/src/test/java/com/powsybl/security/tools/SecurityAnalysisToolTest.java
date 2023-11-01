@@ -35,8 +35,8 @@ import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,20 +49,20 @@ import java.util.concurrent.CompletionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class SecurityAnalysisToolTest extends AbstractToolTest {
+class SecurityAnalysisToolTest extends AbstractToolTest {
 
     private static final String OUTPUT_LOG_FILENAME = "out.zip";
 
     private SecurityAnalysisTool tool;
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         tool = new SecurityAnalysisTool();
@@ -92,20 +92,20 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         assertCommand();
     }
 
     private static CommandLine mockCommandLine(Map<String, String> options, Set<String> flags) {
         CommandLine cli = mock(CommandLine.class);
-        when(cli.hasOption(any())).thenReturn(false);
-        when(cli.getOptionValue(any())).thenReturn(null);
+        when(cli.hasOption(anyString())).thenReturn(false);
+        when(cli.getOptionValue(anyString())).thenReturn(null);
         options.forEach((k, v) -> {
             when(cli.getOptionValue(k)).thenReturn(v);
             when(cli.hasOption(k)).thenReturn(true);
         });
         flags.forEach(f -> when(cli.hasOption(f)).thenReturn(true));
-        when(cli.getOptionProperties(any())).thenReturn(new Properties());
+        when(cli.getOptionProperties(anyString())).thenReturn(new Properties());
         return cli;
     }
 
@@ -122,7 +122,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void parseInputs() throws IOException {
+    void parseInputs() throws IOException {
         ToolOptions options = emptyOptions();
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
@@ -155,7 +155,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void buildPreprocessedInput() {
+    void buildPreprocessedInput() {
         SecurityAnalysisExecutionInput executionInput = new SecurityAnalysisExecutionInput()
                 .setNetworkVariant(mock(Network.class), "")
                 .setParameters(new SecurityAnalysisParameters());
@@ -179,7 +179,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void readNetwork() throws IOException {
+    void readNetwork() throws IOException {
         ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
                 mock(ComputationManager.class), mock(ComputationManager.class));
 
@@ -188,7 +188,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void testRunWithLog() throws Exception {
+    void testRunWithLog() throws Exception {
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream();
              ByteArrayOutputStream berr = new ByteArrayOutputStream();
              PrintStream out = new PrintStream(bout);
@@ -244,7 +244,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void testRunWithBuilderCreation() throws Exception {
+    void testRunWithBuilderCreation() throws Exception {
 
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream();
              ByteArrayOutputStream berr = new ByteArrayOutputStream();

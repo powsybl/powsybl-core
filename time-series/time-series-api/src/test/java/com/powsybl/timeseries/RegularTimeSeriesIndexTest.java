@@ -9,7 +9,7 @@ package com.powsybl.timeseries;
 import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.commons.json.JsonUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -19,16 +19,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class RegularTimeSeriesIndexTest {
+class RegularTimeSeriesIndexTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
                                                                      Duration.ofMinutes(15));
 
@@ -68,7 +67,7 @@ public class RegularTimeSeriesIndexTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         new EqualsTester()
                 .addEqualityGroup(RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"), Duration.ofMinutes(15)),
                                   RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"), Duration.ofMinutes(15)))
@@ -77,26 +76,26 @@ public class RegularTimeSeriesIndexTest {
                 .testEquals();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testContructorError() {
-        RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:10:00Z"),
-                                      Duration.ofMinutes(15));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testContructorErrorPointCount() {
-        RegularTimeSeriesIndex.create(Interval.parse("2000-01-01T00:00:00Z/2100-01-01T00:10:00Z"),
-                                      Duration.ofSeconds(1));
+    @Test
+    void testContructorError() {
+        assertThrows(IllegalArgumentException.class, () -> RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:10:00Z"),
+                                      Duration.ofMinutes(15)));
     }
 
     @Test
-    public void testPointCountSimple() {
+    void testContructorErrorPointCount() {
+        assertThrows(IllegalArgumentException.class, () -> RegularTimeSeriesIndex.create(Interval.parse("2000-01-01T00:00:00Z/2100-01-01T00:10:00Z"),
+                                      Duration.ofSeconds(1)));
+    }
+
+    @Test
+    void testPointCountSimple() {
         //2 data points at 0 and 10
         assertEquals(2, new RegularTimeSeriesIndex(0, 10, 10).getPointCount());
     }
 
     @Test
-    public void testPointCountRounded() {
+    void testPointCountRounded() {
         //We allow some imprecision to simplify calendar dates
         assertEquals(3, new RegularTimeSeriesIndex(0, 19, 10).getPointCount());
         assertEquals(3, new RegularTimeSeriesIndex(0, 20, 10).getPointCount());
@@ -114,7 +113,7 @@ public class RegularTimeSeriesIndexTest {
     }
 
     @Test
-    public void testPointCountHuge() {
+    void testPointCountHuge() {
         // 1 data every 30 seconds for ~30years, ~30years+30s, ~30years+60s
         assertEquals(30 * 365 * 24 * 120 + 1, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 0 * 30 * 1000, 30 * 1000).getPointCount());
         assertEquals(30 * 365 * 24 * 120 + 2, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 1 * 30 * 1000, 30 * 1000).getPointCount());

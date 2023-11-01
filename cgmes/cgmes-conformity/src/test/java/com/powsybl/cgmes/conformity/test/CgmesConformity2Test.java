@@ -8,15 +8,15 @@ package com.powsybl.cgmes.conformity.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity2Catalog;
 import com.powsybl.cgmes.model.test.CgmesModelTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class CgmesConformity2Test {
+class CgmesConformity2Test {
 
     @Test
-    public void microGridType2Assembled() {
+    void microGridType2Assembled() {
         new CgmesModelTester(CgmesConformity2Catalog.microGridType2Assembled()).test();
     }
 }

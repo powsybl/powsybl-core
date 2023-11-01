@@ -6,28 +6,35 @@
  */
 package com.powsybl.contingency;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationList;
-import org.junit.Test;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ContingencyTest {
+class ContingencyTest {
 
     @Test
-    public void test() {
+    void test() {
         Contingency contingency = Contingency.builder("contingency")
                 .addBranch("line")
                 .addGenerator("generator")
@@ -57,7 +64,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTest() {
+    void validationTest() {
         Network network = EurostagTutorialExample1Factory.create();
         Contingency generatorContingency = Contingency.builder("GEN contingency").addGenerator("GEN").build();
         Contingency generatorInvalidContingency = Contingency.builder("GEN invalid contingency").addGenerator("GE").build();
@@ -79,7 +86,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTestForShunt() {
+    void validationTestForShunt() {
         Network network = HvdcTestNetwork.createLcc();
         Contingency shuntCompensatorContingency = Contingency.builder("Shunt contingency").addShuntCompensator("C1_Filter1").build();
         Contingency shuntCompensatorInvalidContingency = Contingency.builder("Shunt invalid contingency").addShuntCompensator("C_Filter").build();
@@ -100,7 +107,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTestForSVC() {
+    void validationTestForSVC() {
         Network network = SvcTestCaseFactory.create();
         Contingency staticVarCompensatorContingency = Contingency.builder("SVC contingency").addStaticVarCompensator("SVC2").build();
         Contingency staticVarCompensatorInvalidContingency = Contingency.builder("SVC invalid contingency").addStaticVarCompensator("SVC").build();
@@ -120,7 +127,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTestForDL() {
+    void validationTestForDL() {
         Network network = DanglingLineNetworkFactory.create();
         Contingency danglingLineContingency = Contingency.builder("DL contingency").addDanglingLine("DL").build();
         Contingency danglingLineInvalidContingency = Contingency.builder("DL invalid contingency").addDanglingLine("DL_THAT_DO_NOT_EXIST").build();
@@ -140,7 +147,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTestForTwt3() {
+    void validationTestForTwt3() {
         var network = ThreeWindingsTransformerNetworkFactory.create();
         var twt3Contingency = Contingency.builder("Twt3 contingency").addThreeWindingsTransformer("3WT").build();
         var invalidContingency = Contingency.builder("Twt3 invalid contingency").addThreeWindingsTransformer("3WT_THAT_DO_NOT_EXIST").build();
@@ -153,5 +160,65 @@ public class ContingencyTest {
                         .stream()
                         .map(Contingency::getId)
                         .collect(Collectors.toList()));
+    }
+
+    @Test
+    void testIdentifiableBuilder() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Contingency generatorContingency = Contingency.builder("GEN contingency").addIdentifiable("GEN", network).build();
+        Contingency loadContingency = Contingency.builder("LOAD contingency").addIdentifiable("LOAD", network).build();
+        Contingency lineContingency = Contingency.builder("NHV1_NHV2_1 contingency").addIdentifiable("NHV1_NHV2_1", network).build();
+        Contingency twtContingency = Contingency.builder("NGEN_NHV1 contingency").addIdentifiable("NGEN_NHV1", network).build();
+        Contingency multipleContingency = Contingency.builder("N-2 contingency").addIdentifiable("NHV1_NHV2_2", network).addIdentifiable("NHV2_NLOAD", network).build();
+
+        List<Contingency> validContingencies = ContingencyList.of(generatorContingency, loadContingency, lineContingency, twtContingency, multipleContingency)
+            .getContingencies(network);
+        List<String> expectedValidIds = Arrays.asList("GEN contingency", "LOAD contingency", "NHV1_NHV2_1 contingency", "NGEN_NHV1 contingency", "N-2 contingency");
+
+        assertEquals(expectedValidIds,
+            validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+
+        assertEquals(expectedValidIds,
+            ContingencyList.getValidContingencies(Arrays.asList(generatorContingency, loadContingency, lineContingency, twtContingency, multipleContingency), network)
+                .stream()
+                .map(Contingency::getId)
+                .collect(Collectors.toList()));
+    }
+
+    @Test
+    void testIdentifiableBuilderOtherProposition() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Identifiable<?> generator = network.getIdentifiable("GEN");
+        Contingency generatorContingency = Contingency.builder("GEN contingency").addIdentifiable(generator).build();
+        Identifiable<?> load = network.getIdentifiable("LOAD");
+        Contingency loadContingency = Contingency.builder("LOAD contingency").addIdentifiable(load).build();
+        Identifiable<?> line = network.getLine("NHV1_NHV2_1");
+        Contingency lineContingency = Contingency.builder("NHV1_NHV2_1 contingency").addIdentifiable(line).build();
+        Identifiable<?> twt = network.getIdentifiable("NGEN_NHV1");
+        Contingency twtContingency = Contingency.builder("NGEN_NHV1 contingency").addIdentifiable(twt).build();
+        Identifiable<?> line2 = network.getIdentifiable("NHV1_NHV2_2");
+        Identifiable<?> twt2 = network.getIdentifiable("NHV2_NLOAD");
+        Contingency multipleContingency = Contingency.builder("N-2 contingency").addIdentifiable(line2).addIdentifiable(twt2).build();
+
+        List<Contingency> validContingencies = ContingencyList.of(generatorContingency, loadContingency, lineContingency, twtContingency, multipleContingency)
+            .getContingencies(network);
+        List<String> expectedValidIds = Arrays.asList("GEN contingency", "LOAD contingency", "NHV1_NHV2_1 contingency", "NGEN_NHV1 contingency", "N-2 contingency");
+
+        assertEquals(expectedValidIds,
+            validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+
+        assertEquals(expectedValidIds,
+            ContingencyList.getValidContingencies(Arrays.asList(generatorContingency, loadContingency, lineContingency, twtContingency, multipleContingency), network)
+                .stream()
+                .map(Contingency::getId)
+                .collect(Collectors.toList()));
+    }
+
+    @Test
+    void testNotValidIdentifiableBuilder() {
+        Network network = EurostagTutorialExample1Factory.create();
+        ContingencyBuilder contingencyBuilder = Contingency.builder("Invalid contingency");
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> contingencyBuilder.addIdentifiable("Unknown", network));
+        assertEquals("Element Unknown has not been found in the network", exception.getMessage());
     }
 }

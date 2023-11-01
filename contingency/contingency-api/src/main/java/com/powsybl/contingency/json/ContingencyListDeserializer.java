@@ -14,7 +14,7 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ContingencyListDeserializer extends StdDeserializer<ContingencyList> {
 
@@ -50,7 +50,7 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
                         ListOfContingencyListsDeserializer listOfContingencyListsDeserializer = new ListOfContingencyListsDeserializer();
                         return listOfContingencyListsDeserializer.deserialize(parser, deserializationContext);
                     default:
-                        throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                        throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
             parser.nextToken();

@@ -11,7 +11,7 @@ import com.powsybl.timeseries.DoubleMultiPoint;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoint> {
 
@@ -54,7 +54,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
             case GREATER_THAN_OR_EQUALS_TO: return leftValue >= rightValue ? 1d : 0d;
             case EQUALS: return leftValue == rightValue ? 1d : 0d;
             case NOT_EQUALS: return leftValue != rightValue ? 1d : 0d;
-            default: throw new AssertionError("Unexpected operator value: " + nodeCalc.getOperator());
+            default: throw new IllegalStateException("Unexpected operator value: " + nodeCalc.getOperator());
         }
     }
 
@@ -70,7 +70,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
             case ABS: return Math.abs(childValue);
             case NEGATIVE: return -childValue;
             case POSITIVE: return childValue;
-            default: throw new AssertionError("Unexpected operator value: " + nodeCalc.getOperator());
+            default: throw new IllegalStateException("Unexpected operator value: " + nodeCalc.getOperator());
         }
     }
 
@@ -114,13 +114,13 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     @Override
     public Double visit(TimeSeriesNumNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         if (multiPoint == null) {
-            throw new AssertionError("Multi point is null");
+            throw new IllegalStateException("Multi point is null");
         }
         return multiPoint.getValue(nodeCalc.getTimeSeriesNum());
     }
 
     @Override
     public Double visit(TimeSeriesNameNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
-        throw new AssertionError("NodeCalc should have been resolved before");
+        throw new IllegalStateException("NodeCalc should have been resolved before");
     }
 }

@@ -10,19 +10,19 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class FictitiousInjectionsXmlTest extends AbstractXmlConverterTest {
+class FictitiousInjectionsXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void testBb() throws IOException {
+    void testBb() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00+01:00"));
         network.getBusBreakerView().getBus("NGEN").setFictitiousP0(1.0).setFictitiousQ0(2.0);
@@ -38,7 +38,7 @@ public class FictitiousInjectionsXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testNb() throws IOException {
+    void testNb() throws IOException {
         Network network = FictitiousSwitchFactory.create();
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.getVoltageLevel("C").getNodeBreakerView()

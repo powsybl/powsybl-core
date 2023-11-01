@@ -12,9 +12,11 @@ import org.joda.time.DateTime;
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class ShuntTestCaseFactory {
+
+    private static final String SHUNT = "SHUNT";
 
     private ShuntTestCaseFactory() {
     }
@@ -23,27 +25,46 @@ public final class ShuntTestCaseFactory {
         return create(NetworkFactory.findDefault());
     }
 
+    public static Network create(double bPerSection) {
+        return create(NetworkFactory.findDefault(), bPerSection);
+    }
+
     public static Network create(NetworkFactory networkFactory) {
+        return create(networkFactory, 1e-5);
+    }
+
+    public static Network create(NetworkFactory networkFactory, double bPerSection) {
         Network network = createBase(networkFactory);
 
         network.getVoltageLevel("VL1")
                 .newShuntCompensator()
-                    .setId("SHUNT")
-                    .setBus("B1")
-                    .setConnectableBus("B1")
-                    .setSectionCount(1)
-                    .setVoltageRegulatorOn(true)
-                    .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
-                    .setTargetV(200)
-                    .setTargetDeadband(5.0)
-                    .newLinearModel()
-                        .setMaximumSectionCount(1)
-                        .setBPerSection(1e-5)
-                    .add()
+                .setId(SHUNT)
+                .setBus("B1")
+                .setConnectableBus("B1")
+                .setSectionCount(1)
+                .setVoltageRegulatorOn(true)
+                .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
+                .setTargetV(200)
+                .setTargetDeadband(5.0)
+                .newLinearModel()
+                .setMaximumSectionCount(1)
+                .setBPerSection(bPerSection)
+                .add()
                 .add()
                 .addAlias("Alias");
 
         return network;
+    }
+
+    public static Network createWithActivePower(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+        ShuntCompensator s = network.getShuntCompensator(SHUNT);
+        s.getTerminal().setP(1.0);
+        return network;
+    }
+
+    public static Network createWithActivePower() {
+        return createWithActivePower(NetworkFactory.findDefault());
     }
 
     public static Network createNonLinear() {
@@ -55,7 +76,7 @@ public final class ShuntTestCaseFactory {
 
         network.getVoltageLevel("VL1")
                 .newShuntCompensator()
-                    .setId("SHUNT")
+                    .setId(SHUNT)
                     .setBus("B1")
                     .setConnectableBus("B1")
                     .setSectionCount(1)

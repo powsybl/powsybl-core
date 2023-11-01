@@ -11,8 +11,8 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Branch;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class BoundaryLine {
 
@@ -54,7 +54,7 @@ public class BoundaryLine {
         return name;
     }
 
-    String getModelIidmVoltageLevelId() {
+    public String getModelIidmVoltageLevelId() {
         return modelIidmVoltageLevelId;
     }
 

@@ -7,52 +7,52 @@
 package com.powsybl.commons.plugins;
 
 import com.powsybl.commons.util.ServiceLoaderCache;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
-public class PluginInfoTest {
+class PluginInfoTest {
 
     private PluginInfo<A> pluginInfo;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         pluginInfo = Plugins.getPluginInfoByName(PluginInfoA.PLUGIN_NAME);
     }
 
     @Test
-    public void testPlugins() {
+    void testPlugins() {
         assertEquals(1, Plugins.getPluginInfos().stream().map(PluginInfo::getPluginName).filter(PluginInfoA.PLUGIN_NAME::equals).count());
     }
 
     @Test
-    public void testPluginExist() {
+    void testPluginExist() {
         assertNotNull(pluginInfo);
         assertNotNull(pluginInfo.toString());
     }
 
     @Test
-    public void testPluginDetails() {
+    void testPluginDetails() {
         new ServiceLoaderCache<>(A.class).getServices().forEach(a ->
                 assertNotNull(pluginInfo.getId(a))
         );
     }
 
     @Test
-    public void testPluginNotExist() {
+    void testPluginNotExist() {
         assertNull(Plugins.getPluginInfoByName("DOES_NOT_EXIST"));
     }
 
     @Test
-    public void testGetPluginImplementationsIds() {
+    void testGetPluginImplementationsIds() {
         List<String> testPluginsIds = Arrays.asList("A1", "A2");
         Collection<String> pluginImplementationsIds = Plugins.getPluginImplementationsIds(pluginInfo);
         assertEquals(testPluginsIds.size(), pluginImplementationsIds.size());
@@ -60,7 +60,7 @@ public class PluginInfoTest {
     }
 
     @Test
-    public void testGetPluginInfoId() {
+    void testGetPluginInfoId() {
         A1 a1 = new A1();
         A2 a2 = new A2();
         assertEquals("A1", pluginInfo.getId(a1));
@@ -68,7 +68,7 @@ public class PluginInfoTest {
     }
 
     @Test
-    public void testGetPluginInfoIdDefault() {
+    void testGetPluginInfoIdDefault() {
         PluginInfo<B> pluginInfoB = Plugins.getPluginInfoByName(PluginInfoB.PLUGIN_NAME);
         B b1 = () -> "B1";
         String bPluginID = pluginInfoB.getId(b1);

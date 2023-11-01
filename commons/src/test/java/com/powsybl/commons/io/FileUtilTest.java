@@ -8,29 +8,29 @@ package com.powsybl.commons.io;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FileUtilTest {
+class FileUtilTest {
 
     FileSystem fsFoo;
     FileSystem fsBar;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fsFoo = Jimfs.newFileSystem(Configuration.unix());
         fsBar = Jimfs.newFileSystem(Configuration.unix());
     }
 
     @Test
-    public void testCopyDir() throws IOException {
+    void testCopyDir() throws IOException {
         Path initPaths = fsFoo.getPath("/tmp/a/b/c");
         Files.createDirectories(initPaths);
 

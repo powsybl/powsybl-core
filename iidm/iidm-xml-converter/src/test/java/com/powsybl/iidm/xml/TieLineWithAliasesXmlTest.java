@@ -7,17 +7,17 @@
 
 package com.powsybl.iidm.xml;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey@rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class TieLineWithAliasesXmlTest extends AbstractXmlConverterTest {
+class TieLineWithAliasesXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         roundTripVersionedXmlTest("tielineWithAliases.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
 
         // Tests for backward compatibility

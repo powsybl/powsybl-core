@@ -6,25 +6,24 @@
  */
 package com.powsybl.security.comparator;
 
+import com.powsybl.commons.io.table.Column;
+import com.powsybl.commons.io.table.CsvTableFormatterFactory;
+import com.powsybl.commons.io.table.TableFormatter;
+import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.commons.io.table.Column;
-import com.powsybl.commons.io.table.CsvTableFormatterFactory;
-import com.powsybl.commons.io.table.TableFormatter;
-import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
-
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public class SecurityAnalysisResultComparisonWriter implements AutoCloseable {
 
@@ -111,7 +110,7 @@ public class SecurityAnalysisResultComparisonWriter implements AutoCloseable {
         return violation1 == null ? violation2.getSubjectId() : violation1.getSubjectId();
     }
 
-    private Branch.Side getEnd(LimitViolation violation1, LimitViolation violation2) {
+    private ThreeSides getEnd(LimitViolation violation1, LimitViolation violation2) {
         return violation1 == null ? violation2.getSide() : violation1.getSide();
     }
 

@@ -10,16 +10,18 @@ package com.powsybl.iidm.comparator;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,13 +29,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NetworkStateComparatorTest {
+class NetworkStateComparatorTest {
 
     private static final double EPS = Math.pow(10, -15);
 
@@ -41,8 +43,8 @@ public class NetworkStateComparatorTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         network = EurostagTutorialExample1Factory.create();
         network.getBusView().getBus("VLGEN_0").setV(24.5).setAngle(2.33);
@@ -61,13 +63,13 @@ public class NetworkStateComparatorTest {
         network.getLoad("LOAD").getTerminal().setP(600).setQ(200);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "other");
         network.getVariantManager().setWorkingVariant("other");
         network.getBusView().getBus("VLGEN_0").setV(25.5);
@@ -80,10 +82,11 @@ public class NetworkStateComparatorTest {
 
         try (InputStream is = Files.newInputStream(xlsFile)) {
             Workbook wb = new XSSFWorkbook(is);
-            assertEquals(8, wb.getNumberOfSheets());
+            assertEquals(9, wb.getNumberOfSheets());
             Sheet busesSheet = wb.getSheet("Buses");
             Sheet linesSheet = wb.getSheet("Lines");
-            Sheet transformersSheet = wb.getSheet("Transformers");
+            Sheet twoWindingsTransformersSheet = wb.getSheet("2WindingsTransformers");
+            Sheet threeWindingsTransformersSheet = wb.getSheet("3WindingsTransformers");
             Sheet generatorsSheet = wb.getSheet("Generators");
             Sheet hvdcConverterStationsSheet = wb.getSheet("HVDC converter stations");
             Sheet loadsSheet = wb.getSheet("Loads");
@@ -91,7 +94,8 @@ public class NetworkStateComparatorTest {
             Sheet svcsSheet = wb.getSheet("Static VAR Compensators");
             assertNotNull(busesSheet);
             assertNotNull(linesSheet);
-            assertNotNull(transformersSheet);
+            assertNotNull(twoWindingsTransformersSheet);
+            assertNotNull(threeWindingsTransformersSheet);
             assertNotNull(hvdcConverterStationsSheet);
             assertNotNull(generatorsSheet);
             assertNotNull(loadsSheet);
@@ -104,80 +108,121 @@ public class NetworkStateComparatorTest {
             // check buses sheet content
 
             // other state, v
-            CellReference c3 = new CellReference("C3");
-            CellReference c4 = new CellReference("C4");
-            CellReference c5 = new CellReference("C5");
-            CellReference c6 = new CellReference("C6");
-            assertEquals(25.5, busesSheet.getRow(c3.getRow()).getCell(c3.getCol()).getNumericCellValue(), EPS);
-            assertEquals(402.14, busesSheet.getRow(c4.getRow()).getCell(c4.getCol()).getNumericCellValue(), EPS);
-            assertEquals(389.95, busesSheet.getRow(c5.getRow()).getCell(c5.getCol()).getNumericCellValue(), EPS);
-            assertEquals(147.58, busesSheet.getRow(c6.getRow()).getCell(c6.getCol()).getNumericCellValue(), EPS);
+            assertNumericCellEquals(busesSheet, "C3", 25.5);
+            assertNumericCellEquals(busesSheet, "C4", 402.14);
+            assertNumericCellEquals(busesSheet, "C5", 389.95);
+            assertNumericCellEquals(busesSheet, "C6", 147.58);
 
             // other state, angle
-            CellReference d3 = new CellReference("D3");
-            CellReference d4 = new CellReference("D4");
-            CellReference d5 = new CellReference("D5");
-            CellReference d6 = new CellReference("D6");
-            assertEquals(2.33, busesSheet.getRow(d3.getRow()).getCell(d3.getCol()).getNumericCellValue(), EPS);
-            assertEquals(0, busesSheet.getRow(d4.getRow()).getCell(d4.getCol()).getNumericCellValue(), EPS);
-            assertEquals(-3.4, busesSheet.getRow(d5.getRow()).getCell(d5.getCol()).getNumericCellValue(), EPS);
-            assertEquals(9, busesSheet.getRow(d6.getRow()).getCell(d6.getCol()).getNumericCellValue(), EPS);
+            assertNumericCellEquals(busesSheet, "D3", 2.33);
+            assertNumericCellEquals(busesSheet, "D4", 0);
+            assertNumericCellEquals(busesSheet, "D5", -3.4);
+            assertNumericCellEquals(busesSheet, "D6", 9);
 
             // initial state, v
-            CellReference e3 = new CellReference("E3");
-            CellReference e4 = new CellReference("E4");
-            CellReference e5 = new CellReference("E5");
-            CellReference e6 = new CellReference("E6");
-            assertEquals(24.5, busesSheet.getRow(e3.getRow()).getCell(e3.getCol()).getNumericCellValue(), EPS);
-            assertEquals(402.14, busesSheet.getRow(e4.getRow()).getCell(e4.getCol()).getNumericCellValue(), EPS);
-            assertEquals(389.95, busesSheet.getRow(e5.getRow()).getCell(e5.getCol()).getNumericCellValue(), EPS);
-            assertEquals(147.58, busesSheet.getRow(e6.getRow()).getCell(e6.getCol()).getNumericCellValue(), EPS);
+            assertNumericCellEquals(busesSheet, "E3", 24.5);
+            assertNumericCellEquals(busesSheet, "E4", 402.14);
+            assertNumericCellEquals(busesSheet, "E5", 389.95);
+            assertNumericCellEquals(busesSheet, "E6", 147.58);
 
             // initial state, angle
-            CellReference f3 = new CellReference("F3");
-            CellReference f4 = new CellReference("F4");
-            CellReference f5 = new CellReference("F5");
-            CellReference f6 = new CellReference("F6");
-            assertEquals(2.33, busesSheet.getRow(f3.getRow()).getCell(f3.getCol()).getNumericCellValue(), EPS);
-            assertEquals(0, busesSheet.getRow(f4.getRow()).getCell(f4.getCol()).getNumericCellValue(), EPS);
-            assertEquals(-3.5, busesSheet.getRow(f5.getRow()).getCell(f5.getCol()).getNumericCellValue(), EPS);
-            assertEquals(9.61, busesSheet.getRow(f6.getRow()).getCell(f6.getCol()).getNumericCellValue(), EPS);
+            assertNumericCellEquals(busesSheet, "F3", 2.33);
+            assertNumericCellEquals(busesSheet, "F4", 0);
+            assertNumericCellEquals(busesSheet, "F5", -3.5);
+            assertNumericCellEquals(busesSheet, "F6", 9.61);
 
             // diff, v
-            CellReference g3 = new CellReference("G3");
-            CellReference g4 = new CellReference("G4");
-            CellReference g5 = new CellReference("G5");
-            CellReference g6 = new CellReference("G6");
-            assertEquals(1, busesSheet.getRow(g3.getRow()).getCell(g3.getCol()).getNumericCellValue(), EPS);
-            assertEquals(0, busesSheet.getRow(g4.getRow()).getCell(g4.getCol()).getNumericCellValue(), EPS);
-            assertEquals(0, busesSheet.getRow(g5.getRow()).getCell(g5.getCol()).getNumericCellValue(), EPS);
-            assertEquals(0, busesSheet.getRow(g6.getRow()).getCell(g6.getCol()).getNumericCellValue(), EPS);
+            assertNumericCellEquals(busesSheet, "G3", 1);
+            assertNumericCellEquals(busesSheet, "G4", 0);
+            assertNumericCellEquals(busesSheet, "G5", 0);
+            assertNumericCellEquals(busesSheet, "G6", 0);
 
             // diff, angle
-            CellReference h3 = new CellReference("H3");
-            CellReference h4 = new CellReference("H4");
-            CellReference h5 = new CellReference("H5");
-            CellReference h6 = new CellReference("H6");
-            assertEquals(0, busesSheet.getRow(h3.getRow()).getCell(h3.getCol()).getNumericCellValue(), EPS);
-            assertEquals(0, busesSheet.getRow(h4.getRow()).getCell(h4.getCol()).getNumericCellValue(), EPS);
-            assertEquals(0.1, busesSheet.getRow(h5.getRow()).getCell(h5.getCol()).getNumericCellValue(), EPS);
-            assertEquals(0.6099999999999994, busesSheet.getRow(h6.getRow()).getCell(h6.getCol()).getNumericCellValue(), EPS);
+            assertNumericCellEquals(busesSheet, "H3", 0);
+            assertNumericCellEquals(busesSheet, "H4", 0);
+            assertNumericCellEquals(busesSheet, "H5", 0.1);
+            assertNumericCellEquals(busesSheet, "H6", 0.6099999999999994);
 
             // statistics footer, v
-            CellReference g7 = new CellReference("G7");
-            CellReference g8 = new CellReference("G8");
-            CellReference g9 = new CellReference("G9");
-            assertEquals(1, busesSheet.getRow(g7.getRow()).getCell(g7.getCol()).getNumericCellValue(), EPS); // max
-            assertEquals(0, busesSheet.getRow(g8.getRow()).getCell(g8.getCol()).getNumericCellValue(), EPS); // min
-            assertEquals(0.25, busesSheet.getRow(g9.getRow()).getCell(g9.getCol()).getNumericCellValue(), EPS); // average
+            assertNumericCellEquals(busesSheet, "G7", 1); // max
+            assertNumericCellEquals(busesSheet, "G8", 0); // min
+            assertNumericCellEquals(busesSheet, "G9", 0.25); // average
 
             // statistics footer, angle
-            CellReference h7 = new CellReference("H7");
-            CellReference h8 = new CellReference("H8");
-            CellReference h9 = new CellReference("H9");
-            assertEquals(0.6099999999999994, busesSheet.getRow(h7.getRow()).getCell(h7.getCol()).getNumericCellValue(), EPS); // max
-            assertEquals(0, busesSheet.getRow(h8.getRow()).getCell(h8.getCol()).getNumericCellValue(), EPS); // min
-            assertEquals(0.17749999999999988, busesSheet.getRow(h9.getRow()).getCell(h9.getCol()).getNumericCellValue(), EPS); // average
+            assertNumericCellEquals(busesSheet, "H7", 0.6099999999999994); // max
+            assertNumericCellEquals(busesSheet, "H8", 0); // min
+            assertNumericCellEquals(busesSheet, "H9", 0.17749999999999988); // average
         }
+    }
+
+    @Test
+    void testThreeWindings() throws IOException {
+        Network threeWindingsTransformersNetwork = ThreeWindingsTransformerNetworkFactory.create();
+        var twt = threeWindingsTransformersNetwork.getThreeWindingsTransformer("3WT");
+        twt.getLeg1().newPhaseTapChanger().setTapPosition(0)
+                .beginStep()
+                .setR(0)
+                .setX(0.1f)
+                .setG(0)
+                .setB(0)
+                .setRho(1)
+                .setAlpha(1)
+                .endStep()
+                .beginStep()
+                .setR(0)
+                .setX(0.1f)
+                .setG(0)
+                .setB(0)
+                .setRho(1.01)
+                .setAlpha(2)
+                .endStep()
+                .add();
+        // values set below are only for test and do not reflect any physical reality
+        twt.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(1).setQ(2);
+        twt.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(3).setQ(4);
+        twt.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(5).setQ(6);
+        twt.getLeg1().getPhaseTapChanger().setTapPosition(1);
+        twt.getLeg2().getRatioTapChanger().setTapPosition(0);
+        twt.getLeg3().getRatioTapChanger().setTapPosition(0);
+
+        threeWindingsTransformersNetwork.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "other");
+        threeWindingsTransformersNetwork.getVariantManager().setWorkingVariant("other");
+        twt.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(10).setQ(20);
+        twt.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(30).setQ(40);
+        twt.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(50).setQ(50);
+        twt.getLeg1().getPhaseTapChanger().setTapPosition(0);
+        twt.getLeg2().getRatioTapChanger().setTapPosition(1);
+        twt.getLeg3().getRatioTapChanger().setTapPosition(2);
+        Path xlsFile = fileSystem.getPath("/work/test3wt.xls");
+        new NetworkStateComparator(threeWindingsTransformersNetwork, VariantManagerConstants.INITIAL_VARIANT_ID)
+                .generateXls(xlsFile);
+
+        try (InputStream is = Files.newInputStream(xlsFile)) {
+            Workbook wb = new XSSFWorkbook(is);
+            FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+            evaluator.evaluateAll();
+            Sheet threeWindingsTransformersSheet = wb.getSheet("3WindingsTransformers");
+            assertNotNull(threeWindingsTransformersSheet);
+            assertNumericCellEquals(threeWindingsTransformersSheet, "C3", 10.0); // p1, other
+            assertNumericCellEquals(threeWindingsTransformersSheet, "O3", 1.0); // p1, init
+            assertNumericCellEquals(threeWindingsTransformersSheet, "AA3", 9.0); // p1, diff
+
+            assertNumericCellEquals(threeWindingsTransformersSheet, "D3", 30.0); // q1, other
+            assertNumericCellEquals(threeWindingsTransformersSheet, "P3", 3.0); // q1, init
+            assertNumericCellEquals(threeWindingsTransformersSheet, "AB3", 27.0); // q1, diff
+
+            assertNumericCellEquals(threeWindingsTransformersSheet, "L3", 0.0); // ptc1, other
+            assertNumericCellEquals(threeWindingsTransformersSheet, "X3", 1.0); // ptc1, init
+            assertNumericCellEquals(threeWindingsTransformersSheet, "AJ3", 1.0); // ptc1, diff
+
+            assertNumericCellEquals(threeWindingsTransformersSheet, "K3", 2.0); // rtc3, other
+            assertNumericCellEquals(threeWindingsTransformersSheet, "W3", 0.0); // rtc3, init
+            assertNumericCellEquals(threeWindingsTransformersSheet, "AI3", 2.0); // rtc3, diff
+        }
+    }
+
+    private static void assertNumericCellEquals(Sheet sheet, String cell, double expected) {
+        CellReference c = new CellReference(cell);
+        assertEquals(expected, sheet.getRow(c.getRow()).getCell(c.getCol()).getNumericCellValue(), EPS);
     }
 }

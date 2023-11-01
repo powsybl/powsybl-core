@@ -6,17 +6,17 @@
  */
 package com.powsybl.commons.util.trove;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class TBooleanArrayListTest {
+class TBooleanArrayListTest {
 
     @Test
-    public void test() {
+    void test() {
         TBooleanArrayList list = new TBooleanArrayList(1);
         assertEquals(0, list.size());
         list.add(false);

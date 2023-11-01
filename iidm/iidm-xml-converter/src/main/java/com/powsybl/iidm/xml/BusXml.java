@@ -16,9 +16,9 @@ import javax.xml.stream.XMLStreamException;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
+class BusXml extends AbstractSimpleIdentifiableXml<Bus, BusAdder, VoltageLevel> {
 
     static final BusXml INSTANCE = new BusXml();
 
@@ -55,7 +55,7 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
     }
 
     @Override
-    protected Bus readRootElementAttributes(BusAdder adder, NetworkXmlReaderContext context) {
+    protected Bus readRootElementAttributes(BusAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
         double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
         Bus b = adder.add();

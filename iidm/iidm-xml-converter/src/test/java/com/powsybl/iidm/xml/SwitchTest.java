@@ -7,20 +7,20 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class SwitchTest extends AbstractXmlConverterTest {
+class SwitchTest extends AbstractXmlConverterTest {
 
     @Test
-    public void readAndDiscardSwitchWithSameNodeAtBothEnds() {
+    void readAndDiscardSwitchWithSameNodeAtBothEnds() {
         //Network n = NetworkXml.read(getVersionedNetworkAsStream("switchWithSameNodeAtBothEnds.xml", CURRENT_IIDM_XML_VERSION));
         Network n = NetworkXml.read(getNetworkAsStream("/switches/switchWithSameNodeAtBothEnds.xiidm"));
 
@@ -30,7 +30,7 @@ public class SwitchTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void readAndDiscardSwitchWithSameBusAtBothEnds() {
+    void readAndDiscardSwitchWithSameBusAtBothEnds() {
         Network n = NetworkXml.read(getNetworkAsStream("/switches/switchWithSameBusAtBothEnds.xiidm"));
 
         // Check that the "looped-switch" has been discarded

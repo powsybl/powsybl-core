@@ -6,16 +6,19 @@
  */
 package com.powsybl.commons.config;
 
+import com.powsybl.commons.io.FileUtil;
+
 import java.nio.file.FileSystem;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class InMemoryPlatformConfig extends PlatformConfig {
 
     public InMemoryPlatformConfig(FileSystem fileSystem) {
-        super(new InMemoryModuleConfigRepository(fileSystem), fileSystem.getPath("inmemory").toAbsolutePath());
+        super(new InMemoryModuleConfigRepository(fileSystem),
+                FileUtil.createDirectory(fileSystem.getPath("inmemory").toAbsolutePath()));
     }
 
     public MapModuleConfig createModuleConfig(String name) {

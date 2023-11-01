@@ -1,0 +1,7 @@
+[ {
+  "version" : "1.1",
+  "id" : "f00",
+  "withFeederResult" : true,
+  "studyType" : "STEADY_STATE",
+  "minVoltageDropProportionalThreshold" : 20.0
+} ]

@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadFlowActionSimulatorObserver {
 
@@ -67,8 +67,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
             Objects.requireNonNull(runningContext.getContingency());
             postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(), PostContingencyComputationStatus.CONVERGED,
                     violations,
-                    getPostContingencyActions(runningContext.getContingency())
-            ));
+                    getPostContingencyActions(runningContext.getContingency())));
         }
     }
 

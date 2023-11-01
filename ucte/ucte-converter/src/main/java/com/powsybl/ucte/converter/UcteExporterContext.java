@@ -10,17 +10,24 @@ package com.powsybl.ucte.converter;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public class UcteExporterContext {
 
     private final NamingStrategy namingStrategy;
 
-    public UcteExporterContext(NamingStrategy namingStrategy) {
+    private final boolean combinePhaseAngleRegulation;
+
+    public UcteExporterContext(NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation) {
         this.namingStrategy = Objects.requireNonNull(namingStrategy);
+        this.combinePhaseAngleRegulation = Objects.requireNonNull(combinePhaseAngleRegulation);
     }
 
     public NamingStrategy getNamingStrategy() {
         return namingStrategy;
+    }
+
+    public boolean withCombinePhaseAngleRegulation() {
+        return combinePhaseAngleRegulation;
     }
 }

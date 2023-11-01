@@ -1,31 +1,16 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 /**
- * To create a dangling line, from a <code>VoltageLevel</code> instance call
- * the {@link VoltageLevel#newDanglingLine()} method to get a dangling line
- * builder instance.
- * <p>
- * Example:
- *<pre>
- *    VoltageLevel vl = ...
- *    DanglingLine dl = vl.newDanglingLine()
- *            .setId("dl1")
- *            ...
- *        .add();
- *</pre>
- *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
- * @see DanglingLine
- * @see VoltageLevel
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder> {
+public interface DanglingLineAdder extends InjectionAdder<DanglingLine, DanglingLineAdder> {
 
     interface GenerationAdder {
 
@@ -56,12 +41,12 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder> {
 
     DanglingLineAdder setB(double b);
 
-    DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode);
+    DanglingLineAdder setPairingKey(String pairingKey);
 
     default GenerationAdder newGeneration() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     DanglingLine add();
-
 }

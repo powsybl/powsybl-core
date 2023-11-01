@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * Provides implementation for methods of {@link ModuleConfig}.
  * Implementations can focus on implementing the core getOptional* methods.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractModuleConfig implements ModuleConfig {
 

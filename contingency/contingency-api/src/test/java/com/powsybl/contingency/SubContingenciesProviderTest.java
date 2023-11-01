@@ -9,7 +9,7 @@ package com.powsybl.contingency;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.computation.Partition;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -17,16 +17,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
-public class SubContingenciesProviderTest {
+class SubContingenciesProviderTest {
 
     @Test
-    public void test() {
+    void test() {
         ContingenciesProvider provider = n -> IntStream.range(1, 5)
                 .mapToObj(i -> new Contingency("contingency-" + i))
                 .collect(Collectors.toList());
@@ -46,7 +46,7 @@ public class SubContingenciesProviderTest {
     }
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         ContingenciesProvider provider = n -> Collections.emptyList();
 
         Network network = Mockito.mock(Network.class);

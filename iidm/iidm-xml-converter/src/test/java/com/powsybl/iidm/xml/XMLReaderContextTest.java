@@ -7,15 +7,17 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.test.AbstractConverterTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class XMLReaderContextTest extends AbstractConverterTest {
+class XMLReaderContextTest extends AbstractConverterTest {
 
-    @Test(expected = NullPointerException.class)
-    public void xmlReaderContextExceptionTest() {
-        new NetworkXmlReaderContext(null, null);
+    @Test
+    void xmlReaderContextExceptionTest() {
+        NullPointerException e = assertThrows(NullPointerException.class, () -> new NetworkXmlReaderContext(null, null));
     }
 }
