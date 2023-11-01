@@ -21,6 +21,7 @@ public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccCon
     static final LccConverterStationXml INSTANCE = new LccConverterStationXml();
 
     static final String ROOT_ELEMENT_NAME = "lccConverterStation";
+    static final String ARRAY_ELEMENT_NAME = "lccConverterStations";
 
     @Override
     protected String getRootElementName() {

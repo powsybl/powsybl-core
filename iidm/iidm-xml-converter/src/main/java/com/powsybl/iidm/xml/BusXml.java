@@ -20,6 +20,7 @@ class BusXml extends AbstractSimpleIdentifiableXml<Bus, BusAdder, VoltageLevel> 
     static final BusXml INSTANCE = new BusXml();
 
     static final String ROOT_ELEMENT_NAME = "bus";
+    static final String ARRAY_ELEMENT_NAME = "buses";
 
     @Override
     protected String getRootElementName() {

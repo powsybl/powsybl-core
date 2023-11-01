@@ -21,6 +21,7 @@ class BusbarSectionXml extends AbstractSimpleIdentifiableXml<BusbarSection, Busb
     static final BusbarSectionXml INSTANCE = new BusbarSectionXml();
 
     static final String ROOT_ELEMENT_NAME = "busbarSection";
+    static final String ARRAY_ELEMENT_NAME = "busbarSections";
 
     @Override
     protected String getRootElementName() {

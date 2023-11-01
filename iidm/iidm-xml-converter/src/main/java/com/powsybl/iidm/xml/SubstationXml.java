@@ -22,6 +22,7 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
     static final SubstationXml INSTANCE = new SubstationXml();
 
     static final String ROOT_ELEMENT_NAME = "substation";
+    static final String ARRAY_ELEMENT_NAME = "substations";
 
     private static final String COUNTRY = "country";
 
@@ -46,13 +47,13 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
 
     @Override
     protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) {
-        context.getWriter().writeStartNodes("voltageLevels");
+        context.getWriter().writeStartNodes(VoltageLevelXml.ARRAY_ELEMENT_NAME);
         for (VoltageLevel vl : IidmXmlUtil.sorted(s.getVoltageLevels(), context.getOptions())) {
             VoltageLevelXml.INSTANCE.write(vl, null, context);
         }
         context.getWriter().writeEndNodes();
 
-        context.getWriter().writeStartNodes("twoWindingsTransformers");
+        context.getWriter().writeStartNodes(TwoWindingsTransformerXml.ARRAY_ELEMENT_NAME);
         Iterable<TwoWindingsTransformer> twts = IidmXmlUtil.sorted(s.getTwoWindingsTransformers(), context.getOptions());
         for (TwoWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt)) {
@@ -100,20 +101,13 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
     protected void readSubElements(Substation s, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> {
             switch (context.getReader().getNodeName()) {
-                case VoltageLevelXml.ROOT_ELEMENT_NAME:
-                    VoltageLevelXml.INSTANCE.read(s, context);
-                    break;
-
-                case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                    TwoWindingsTransformerXml.INSTANCE.read(s, context);
-                    break;
-
-                case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                    ThreeWindingsTransformerXml.INSTANCE.read(s, context);
-                    break;
-
-                default:
-                    super.readSubElements(s, context);
+                case VoltageLevelXml.ROOT_ELEMENT_NAME, VoltageLevelXml.ARRAY_ELEMENT_NAME
+                        -> VoltageLevelXml.INSTANCE.read(s, context);
+                case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ARRAY_ELEMENT_NAME
+                        -> TwoWindingsTransformerXml.INSTANCE.read(s, context);
+                case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ARRAY_ELEMENT_NAME
+                        -> ThreeWindingsTransformerXml.INSTANCE.read(s, context);
+                default -> super.readSubElements(s, context);
             }
         });
     }

@@ -21,6 +21,7 @@ class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdd
     static final GeneratorXml INSTANCE = new GeneratorXml();
 
     static final String ROOT_ELEMENT_NAME = "generator";
+    static final String ARRAY_ELEMENT_NAME = "generators";
 
     @Override
     protected String getRootElementName() {

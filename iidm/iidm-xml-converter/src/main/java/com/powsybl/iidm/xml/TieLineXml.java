@@ -25,6 +25,7 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
     static final TieLineXml INSTANCE = new TieLineXml();
 
     static final String ROOT_ELEMENT_NAME = "tieLine";
+    static final String ARRAY_ELEMENT_NAME = "tieLines";
 
     @Override
     protected String getRootElementName() {

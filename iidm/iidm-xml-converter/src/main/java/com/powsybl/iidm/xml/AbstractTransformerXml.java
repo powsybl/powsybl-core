@@ -19,6 +19,7 @@ import java.util.function.DoubleConsumer;
 abstract class AbstractTransformerXml<T extends Connectable<T>, A extends IdentifiableAdder<T, A>> extends AbstractSimpleIdentifiableXml<T, A, Substation> {
 
     private interface StepConsumer {
+
         void accept(double r, double x, double g, double b, double rho);
     }
 
@@ -26,7 +27,8 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
     private static final String ATTR_TAP_POSITION = "tapPosition";
     private static final String ATTR_REGULATING = "regulating";
     private static final String ELEM_TERMINAL_REF = "terminalRef";
-    private static final String ELEM_STEP = "step";
+    private static final String STEP_ROOT_ELEMENT_NAME = "step";
+    private static final String STEP_ARRAY_ELEMENT_NAME = "steps";
     private static final String TARGET_DEADBAND = "targetDeadband";
     private static final String RATIO_TAP_CHANGER = "ratioTapChanger";
     private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
@@ -82,10 +84,10 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
             TerminalRefXml.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
 
-        context.getWriter().writeStartNodes("steps");
+        context.getWriter().writeStartNodes(STEP_ARRAY_ELEMENT_NAME);
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
-            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_STEP);
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), STEP_ROOT_ELEMENT_NAME);
             writeTapChangerStep(rtcs, context.getWriter());
             context.getWriter().writeEndNode();
         }
@@ -96,32 +98,32 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
 
     protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkXmlReaderContext context) {
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
+        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context);
         boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute("loadTapChangingCapabilities");
+        Boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING);
         double targetV = context.getReader().readDoubleAttribute("targetV");
+
         adder.setLowTapPosition(lowTapPosition)
                 .setTargetDeadband(targetDeadband)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
                 .setTargetV(targetV);
-        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
         if (tapPosition != null) {
             adder.setTapPosition(tapPosition);
         }
-        Boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING);
         if (regulating != null) {
             adder.setRegulating(regulating);
         }
+
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readUntilEndNode(elementName, () -> {
             switch (context.getReader().getNodeName()) {
-                case ELEM_TERMINAL_REF:
+                case ELEM_TERMINAL_REF ->
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
                         adder.setRegulationTerminal(TerminalRefXml.resolve(id, side, terminal.getVoltageLevel().getNetwork()));
                         adder.add();
                     });
-                    break;
-
-                case ELEM_STEP:
+                case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME ->
                     readSteps(context, (r, x, g, b, rho) -> adder.beginStep()
                             .setR(r)
                             .setX(x)
@@ -129,10 +131,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                             .setB(b)
                             .setRho(rho)
                             .endStep());
-                    break;
-
-                default:
-                    throw new IllegalStateException();
+                default -> throw new IllegalStateException();
             }
         });
         if (!hasTerminalRef[0]) {
@@ -164,10 +163,10 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
             TerminalRefXml.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
 
-        context.getWriter().writeStartNodes("steps");
+        context.getWriter().writeStartNodes(STEP_ARRAY_ELEMENT_NAME);
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);
-            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_STEP);
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), STEP_ROOT_ELEMENT_NAME);
             writeTapChangerStep(ptcs, context.getWriter());
             context.getWriter().writeDoubleAttribute("alpha", ptcs.getAlpha());
             context.getWriter().writeEndNode();
@@ -205,7 +204,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                     });
                     break;
 
-                case ELEM_STEP:
+                case STEP_ROOT_ELEMENT_NAME:
                     PhaseTapChangerAdder.StepAdder stepAdder = adder.beginStep();
                     readSteps(context, (r, x, g, b, rho) -> stepAdder.setR(r)
                             .setX(x)

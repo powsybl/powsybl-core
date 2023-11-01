@@ -19,6 +19,7 @@ class HvdcLineXml extends AbstractSimpleIdentifiableXml<HvdcLine, HvdcLineAdder,
     static final HvdcLineXml INSTANCE = new HvdcLineXml();
 
     static final String ROOT_ELEMENT_NAME = "hvdcLine";
+    static final String ARRAY_ELEMENT_NAME = "hvdcLines";
 
     @Override
     protected String getRootElementName() {

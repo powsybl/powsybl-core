@@ -22,13 +22,13 @@ abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, 
     protected abstract T readRootElementAttributes(A adder, P parent, NetworkXmlReaderContext context);
 
     protected void readSubElements(T identifiable, NetworkXmlReaderContext context) {
-        if (context.getReader().getNodeName().equals(PropertiesXml.PROPERTY)) {
-            PropertiesXml.read(identifiable, context);
-        } else if (context.getReader().getNodeName().equals(AliasesXml.ALIAS)) {
-            IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-            AliasesXml.read(identifiable, context);
-        } else {
-            throw new PowsyblException("Unknown element name <" + context.getReader().getNodeName() + "> in <" + identifiable.getId() + ">");
+        switch (context.getReader().getNodeName()) {
+            case PropertiesXml.ROOT_ELEMENT_NAME, PropertiesXml.ARRAY_ELEMENT_NAME -> PropertiesXml.read(identifiable, context);
+            case AliasesXml.ROOT_ELEMENT_NAME, AliasesXml.ARRAY_ELEMENT_NAME -> {
+                IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                AliasesXml.read(identifiable, context);
+            }
+            default -> throw new PowsyblException("Unknown element name '" + context.getReader().getNodeName() + "' in '" + identifiable.getId() + "'");
         }
     }
 

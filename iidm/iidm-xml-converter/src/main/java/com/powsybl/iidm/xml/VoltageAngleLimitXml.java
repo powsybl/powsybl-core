@@ -21,7 +21,8 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
  */
 public final class VoltageAngleLimitXml {
 
-    private static final String VOLTAGE_ANGLE_LIMIT = "voltageAngleLimit";
+    static final String ROOT_ELEMENT_NAME = "voltageAngleLimit";
+    static final String ARRAY_ELEMENT_NAME = "voltageAngleLimits";
     private static final String ID = "id";
     private static final String LOW_LIMIT = "lowLimit";
     private static final String HIGH_LIMIT = "highLimit";
@@ -30,7 +31,7 @@ public final class VoltageAngleLimitXml {
 
     public static void write(VoltageAngleLimit voltageAngleLimit, NetworkXmlWriterContext context) {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
-            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), VOLTAGE_ANGLE_LIMIT);
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
             context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(voltageAngleLimit.getId()));
             voltageAngleLimit.getLowLimit().ifPresent(low -> context.getWriter().writeDoubleAttribute(LOW_LIMIT, low));
             voltageAngleLimit.getHighLimit().ifPresent(high -> context.getWriter().writeDoubleAttribute(HIGH_LIMIT, high));
@@ -55,7 +56,7 @@ public final class VoltageAngleLimitXml {
             if (!Double.isNaN(highLimit)) {
                 adder.setHighLimit(highLimit);
             }
-            context.getReader().readUntilEndNode(VOLTAGE_ANGLE_LIMIT, () -> {
+            context.getReader().readUntilEndNode(ROOT_ELEMENT_NAME, () -> {
                 if (context.getReader().getNodeName().equals(FROM)) {
                     Terminal from = TerminalRefXml.readTerminal(context, network);
                     adder.from(from);

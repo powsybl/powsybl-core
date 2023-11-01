@@ -19,17 +19,18 @@ import java.util.function.Consumer;
  */
 public final class PropertiesXml {
 
-    static final String PROPERTY = "property";
+    static final String ROOT_ELEMENT_NAME = "property";
+    static final String ARRAY_ELEMENT_NAME = "properties";
 
     static final String NAME = "name";
     static final String VALUE = "value";
 
     public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) {
         if (identifiable.hasProperty()) {
-            context.getWriter().writeStartNodes("properties");
+            context.getWriter().writeStartNodes(ARRAY_ELEMENT_NAME);
             for (String name : IidmXmlUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
-                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), PROPERTY);
+                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), ROOT_ELEMENT_NAME);
                 context.getWriter().writeStringAttribute(NAME, name);
                 context.getWriter().writeStringAttribute(VALUE, value);
                 context.getWriter().writeEndNode();
@@ -47,7 +48,7 @@ public final class PropertiesXml {
     }
 
     private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
-        if (!context.getReader().getNodeName().equals(PROPERTY)) {
+        if (!context.getReader().getNodeName().equals(ROOT_ELEMENT_NAME)) {
             throw new IllegalStateException();
         }
         String name = context.getReader().readStringAttribute(NAME);

@@ -21,6 +21,7 @@ class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, Vo
     static final BatteryXml INSTANCE = new BatteryXml();
 
     static final String ROOT_ELEMENT_NAME = "battery";
+    static final String ARRAY_ELEMENT_NAME = "batteries";
 
     @Override
     protected String getRootElementName() {

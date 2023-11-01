@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
@@ -17,14 +18,14 @@ import java.util.function.Consumer;
  */
 public final class AliasesXml {
 
-    static final String ALIASES = "aliases";
-    static final String ALIAS = "alias";
+    static final String ARRAY_ELEMENT_NAME = "aliases";
+    static final String ROOT_ELEMENT_NAME = "alias";
 
     public static void write(Identifiable<?> identifiable, String rootElementName, NetworkXmlWriterContext context) {
-        IidmXmlUtil.assertMinimumVersionIfNotDefault(!identifiable.getAliases().isEmpty(), rootElementName, ALIAS, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-        context.getWriter().writeStartNodes(ALIASES);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(!identifiable.getAliases().isEmpty(), rootElementName, ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+        context.getWriter().writeStartNodes(ARRAY_ELEMENT_NAME);
         for (String alias : identifiable.getAliases()) {
-            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ALIAS);
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> identifiable.getAliasType(alias).ifPresent(type -> {
                 context.getWriter().writeStringAttribute("type", type);
             }));
@@ -43,8 +44,9 @@ public final class AliasesXml {
     }
 
     private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
-        if (!context.getReader().getNodeName().equals(ALIAS)) {
-            throw new IllegalStateException();
+        String nodeName = context.getReader().getNodeName();
+        if (!nodeName.equals(ROOT_ELEMENT_NAME) && !nodeName.equals(ARRAY_ELEMENT_NAME)) {
+            throw new PowsyblException("Unknown element name '" + nodeName + "' in alias");
         }
         String[] aliasType = new String[1];
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().readStringAttribute("type"));

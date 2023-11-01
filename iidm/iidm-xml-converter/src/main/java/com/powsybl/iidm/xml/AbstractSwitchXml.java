@@ -18,6 +18,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 abstract class AbstractSwitchXml<A extends IdentifiableAdder<Switch, A>> extends AbstractSimpleIdentifiableXml<Switch, A, VoltageLevel> {
 
     static final String ROOT_ELEMENT_NAME = "switch";
+    static final String ARRAY_ELEMENT_NAME = "switches";
 
     @Override
     protected String getRootElementName() {

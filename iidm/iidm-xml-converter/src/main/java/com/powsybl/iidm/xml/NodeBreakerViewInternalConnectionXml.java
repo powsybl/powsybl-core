@@ -15,6 +15,7 @@ public class NodeBreakerViewInternalConnectionXml {
 
     static final NodeBreakerViewInternalConnectionXml INSTANCE = new NodeBreakerViewInternalConnectionXml();
     static final String ROOT_ELEMENT_NAME = "internalConnection";
+    static final String ARRAY_ELEMENT_NAME = "internalConnections";
 
     protected String getRootElementName() {
         return ROOT_ELEMENT_NAME;

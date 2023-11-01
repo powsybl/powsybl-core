@@ -28,6 +28,7 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
 
     static final String ROOT_ELEMENT_NAME = "danglingLine";
+    static final String ARRAY_ELEMENT_NAME = "danglingLines";
 
     @Override
     protected String getRootElementName() {

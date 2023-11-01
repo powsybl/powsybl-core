@@ -22,6 +22,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     static final ThreeWindingsTransformerXml INSTANCE = new ThreeWindingsTransformerXml();
 
     static final String ROOT_ELEMENT_NAME = "threeWindingsTransformer";
+    static final String ARRAY_ELEMENT_NAME = "threeWindingsTransformers";
 
     private static final String RATIO_TAP_CHANGER_1 = "ratioTapChanger1";
     private static final String PHASE_TAP_CHANGER_1 = "phaseTapChanger1";

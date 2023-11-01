@@ -21,6 +21,7 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
     static final StaticVarCompensatorXml INSTANCE = new StaticVarCompensatorXml();
 
     static final String ROOT_ELEMENT_NAME = "staticVarCompensator";
+    static final String ARRAY_ELEMENT_NAME = "staticVarCompensators";
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
 

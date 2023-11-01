@@ -24,6 +24,7 @@ class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterS
     static final VscConverterStationXml INSTANCE = new VscConverterStationXml();
 
     static final String ROOT_ELEMENT_NAME = "vscConverterStation";
+    static final String ARRAY_ELEMENT_NAME = "vscConverterStations";
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
 

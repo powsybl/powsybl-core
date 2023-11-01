@@ -28,12 +28,15 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
     static final ShuntXml INSTANCE = new ShuntXml();
 
     static final String ROOT_ELEMENT_NAME = "shunt";
+    static final String ARRAY_ELEMENT_NAME = "shunts";
 
     private static final String B_PER_SECTION = "bPerSection";
     private static final String MAXIMUM_SECTION_COUNT = "maximumSectionCount";
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String SHUNT_LINEAR_MODEL = "shuntLinearModel";
     private static final String SHUNT_NON_LINEAR_MODEL = "shuntNonLinearModel";
+    private static final String SECTION_ARRAY_ELEMENT_NAME = "sections";
+    private static final String SECTION_ROOT_ELEMENT_NAME = "section";
 
     @Override
     protected String getRootElementName() {
@@ -111,9 +114,9 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
-                context.getWriter().writeStartNodes("sections");
+                context.getWriter().writeStartNodes(SECTION_ARRAY_ELEMENT_NAME);
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
-                    context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "section");
+                    context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SECTION_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute("b", s.getB());
                     context.getWriter().writeDoubleAttribute("g", s.getG());
                     context.getWriter().writeEndNode();
@@ -183,7 +186,8 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                     ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
                     context.getReader().readUntilEndNode(SHUNT_NON_LINEAR_MODEL, () -> {
-                        if ("section".equals(context.getReader().getNodeName())) {
+                        String nodeName = context.getReader().getNodeName();
+                        if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName) || SECTION_ARRAY_ELEMENT_NAME.equals(nodeName)) {
                             double b = context.getReader().readDoubleAttribute("b");
                             double g = context.getReader().readDoubleAttribute("g");
                             modelAdder.beginSection()
@@ -191,7 +195,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                                     .setG(g)
                                     .endSection();
                         } else {
-                            throw new PowsyblException("Unknown element name <" + context.getReader().getNodeName() + "> in <" + id + ">");
+                            throw new PowsyblException("Unknown element name '" + nodeName + "' in '" + id + "'");
                         }
                     });
                     modelAdder.add();

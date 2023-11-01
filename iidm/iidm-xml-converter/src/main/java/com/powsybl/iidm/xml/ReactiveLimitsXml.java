@@ -22,15 +22,17 @@ public class ReactiveLimitsXml {
     private static final String ELEM_MIN_MAX_REACTIVE_LIMITS = "minMaxReactiveLimits";
     private static final String ATTR_MIN_Q = "minQ";
     private static final String ATTR_MAX_Q = "maxQ";
+    public static final String POINT_ARRAY_ELEMENT_NAME = "points";
+    public static final String POINT_ROOT_ELEMENT_NAME = "point";
 
     public void write(ReactiveLimitsHolder holder, NetworkXmlWriterContext context) {
         switch (holder.getReactiveLimits().getKind()) {
             case CURVE:
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_CURVE);
-                context.getWriter().writeStartNodes("points");
+                context.getWriter().writeStartNodes(POINT_ARRAY_ELEMENT_NAME);
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "point");
+                    context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), POINT_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute("p", point.getP());
                     context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, point.getMinQ());
                     context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, point.getMaxQ());
@@ -58,7 +60,7 @@ public class ReactiveLimitsXml {
             case ELEM_REACTIVE_CAPABILITY_CURVE:
                 ReactiveCapabilityCurveAdder curveAdder = holder.newReactiveCapabilityCurve();
                 context.getReader().readUntilEndNode(ELEM_REACTIVE_CAPABILITY_CURVE, () -> {
-                    if (context.getReader().getNodeName().equals("point")) {
+                    if (context.getReader().getNodeName().equals(POINT_ROOT_ELEMENT_NAME)) {
                         double p = context.getReader().readDoubleAttribute("p");
                         double minQ = context.getReader().readDoubleAttribute(ATTR_MIN_Q);
                         double maxQ = context.getReader().readDoubleAttribute(ATTR_MAX_Q);

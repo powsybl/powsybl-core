@@ -22,6 +22,7 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
     static final LineXml INSTANCE = new LineXml();
 
     static final String ROOT_ELEMENT_NAME = "line";
+    static final String ARRAY_ELEMENT_NAME = "lines";
 
     @Override
     protected String getRootElementName() {

@@ -17,6 +17,9 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
  */
 public final class ConnectableXmlUtil {
 
+    private static final String TEMPORARY_LIMITS_ARRAY_ELEMENT_NODE = "temporaryLimits";
+    private static final String TEMPORARY_LIMITS_ROOT_ELEMENT_NODE = "temporaryLimit";
+
     private ConnectableXmlUtil() {
     }
 
@@ -182,7 +185,8 @@ public final class ConnectableXmlUtil {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
         reader.readUntilEndNode(type + indexToString(index), () -> {
-            if ("temporaryLimit".equals(reader.getNodeName())) {
+            String nodeName = reader.getNodeName();
+            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NODE.equals(nodeName) || TEMPORARY_LIMITS_ARRAY_ELEMENT_NODE.equals(nodeName)) {
                 String name = reader.readStringAttribute("name");
                 int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
@@ -234,9 +238,9 @@ public final class ConnectableXmlUtil {
                 || !limits.getTemporaryLimits().isEmpty()) {
             writer.writeStartNode(nsUri, type + indexToString(index));
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
-            writer.writeStartNodes("temporaryLimits");
+            writer.writeStartNodes(TEMPORARY_LIMITS_ARRAY_ELEMENT_NODE);
             for (LoadingLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                writer.writeStartNode(version.getNamespaceURI(valid), "temporaryLimit");
+                writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NODE);
                 writer.writeStringAttribute("name", tl.getName());
                 writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
                 writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);

@@ -22,6 +22,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     static final TwoWindingsTransformerXml INSTANCE = new TwoWindingsTransformerXml();
 
     static final String ROOT_ELEMENT_NAME = "twoWindingsTransformer";
+    static final String ARRAY_ELEMENT_NAME = "twoWindingsTransformers";
 
     @Override
     protected String getRootElementName() {

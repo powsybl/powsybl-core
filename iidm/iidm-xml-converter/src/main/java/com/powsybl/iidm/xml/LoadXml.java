@@ -24,6 +24,7 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
     static final LoadXml INSTANCE = new LoadXml();
 
     static final String ROOT_ELEMENT_NAME = "load";
+    static final String ARRAY_ELEMENT_NAME = "loads";
     public static final String MODEL = "model";
     private static final String EXPONENTIAL_MODEL = "exponentialModel";
     private static final String ZIP_MODEL = "zipModel";
