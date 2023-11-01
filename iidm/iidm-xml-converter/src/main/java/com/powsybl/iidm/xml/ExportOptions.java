@@ -47,7 +47,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = THROW_EXCEPTION;
 
-    private Map<String, String> extensionsVersions = new HashMap<>();
+    private final Map<String, String> extensionsVersions = new HashMap<>();
 
     private Charset charset = StandardCharsets.UTF_8;
 
