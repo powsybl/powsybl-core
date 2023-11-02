@@ -9,7 +9,7 @@ package com.powsybl.shortcircuit;
 import java.util.Objects;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 abstract class AbstractShortCircuitBusResults implements ShortCircuitBusResults {
 

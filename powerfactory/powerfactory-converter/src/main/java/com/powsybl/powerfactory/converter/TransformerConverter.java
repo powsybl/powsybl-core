@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 
 class TransformerConverter extends AbstractConverter {

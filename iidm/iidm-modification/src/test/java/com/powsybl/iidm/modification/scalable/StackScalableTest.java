@@ -43,18 +43,18 @@ class StackScalableTest {
     void setUp() {
 
         network = createNetworkwithDanglingLineAndBattery();
-        g1 = Scalable.onGenerator("g1");
-        g2 = Scalable.onGenerator("g2");
-        g3 = Scalable.onGenerator("g3", -10, 80);
-        s = Scalable.onGenerator("s");
+        g1 = Scalable.onGenerator("g1"); //initial targetP : 80MW
+        g2 = Scalable.onGenerator("g2"); //initial targetP : 50MW
+        g3 = Scalable.onGenerator("g3", -10, 80); //initial targetP : 30MW
+        s = Scalable.onGenerator("s"); //initial targetP : 0MW
         unknownGenerator = Scalable.onGenerator("unknown");
 
-        l1 = Scalable.onLoad("l1");
-        l2 = Scalable.onLoad("l2", 20, 80);
-        l3 = Scalable.onLoad("l3", -50, 100);
+        l1 = Scalable.onLoad("l1"); //initial P0 : 100MW
+        l2 = Scalable.onLoad("l2", 20, 80); //initial P0 : 80MW
+        l3 = Scalable.onLoad("l3", -50, 100); //initial P0 : 50MW
         unknownLoad = Scalable.onLoad("unknown");
         unknownDanglingLine = Scalable.onDanglingLine("unknown");
-        dl1 = Scalable.onDanglingLine("dl1", 20, 80);
+        dl1 = Scalable.onDanglingLine("dl1", 20, 80); //initial P0 : 50MW
     }
 
     private void reset() {
@@ -121,6 +121,54 @@ class StackScalableTest {
             100.0, variationDone);
         assertEquals(-60.0, variationDone, 1e-5);
         assertEquals(20.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(50.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(30.0, network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
+    }
+
+    @Test
+    void testMaxValueBoundsScalingUp() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, ONESHOT, true, DELTA_P);
+
+        double initialValue = generatorList.stream().mapToDouble(Generator::getTargetP).sum();
+        double maxValue = initialValue + 75.0;
+
+        // Proportional to Target P
+        StackScalable stackScalable = Scalable.stack(generatorList, -Double.MAX_VALUE, maxValue);
+        double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            scalingParameters.getScalingType(),
+            100.0, variationDone);
+        assertEquals(75.0, variationDone, 1e-5);
+        assertEquals(150.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(55.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(30.0, network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
+    }
+
+    @Test
+    void testMinValueBoundsScalingDown() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, ONESHOT, true, DELTA_P);
+
+        double initialValue = generatorList.stream().mapToDouble(Generator::getTargetP).sum();
+        double minValue = initialValue - 75.0;
+
+        // Proportional to Target P
+        StackScalable stackScalable = Scalable.stack(generatorList, minValue, Double.MAX_VALUE);
+        double variationDone = stackScalable.scale(network, -100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            scalingParameters.getScalingType(),
+            -100.0, variationDone);
+        assertEquals(-75.0, variationDone, 1e-5);
+        assertEquals(5.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(50.0, network.getGenerator("g2").getTargetP(), 1e-5);
         assertEquals(30.0, network.getGenerator("g3").getTargetP(), 1e-5);
         reset();

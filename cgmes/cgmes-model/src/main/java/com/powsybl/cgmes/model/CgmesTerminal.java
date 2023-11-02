@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import java.util.Objects;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesTerminal {
 

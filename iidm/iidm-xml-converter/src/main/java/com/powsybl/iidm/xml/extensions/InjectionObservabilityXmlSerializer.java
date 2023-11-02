@@ -22,7 +22,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends AbstractExtensionXmlSerializer<T, InjectionObservability<T>> {

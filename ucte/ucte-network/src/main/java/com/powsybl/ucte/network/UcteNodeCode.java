@@ -16,7 +16,7 @@ import static com.powsybl.ucte.network.UcteVoltageLevelCode.isVoltageLevelCode;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteNodeCode implements Comparable<UcteNodeCode> {
 

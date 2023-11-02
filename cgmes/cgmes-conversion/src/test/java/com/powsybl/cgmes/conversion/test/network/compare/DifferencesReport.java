@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class DifferencesReport implements Differences {
 

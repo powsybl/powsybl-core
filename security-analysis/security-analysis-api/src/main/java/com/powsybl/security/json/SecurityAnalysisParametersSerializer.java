@@ -16,7 +16,7 @@ import com.powsybl.security.SecurityAnalysisParameters;
 import java.io.IOException;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisParametersSerializer extends StdSerializer<SecurityAnalysisParameters> {
 

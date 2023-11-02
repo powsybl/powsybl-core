@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
  * LoadFlow main API. It is a utility class (so with only static methods) used as an entry point for running
  * a loadflow allowing to choose either a specific find implementation or just to rely on default one.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class LoadFlow {
 

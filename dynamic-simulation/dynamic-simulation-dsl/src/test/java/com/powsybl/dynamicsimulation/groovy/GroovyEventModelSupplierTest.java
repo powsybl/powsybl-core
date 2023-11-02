@@ -26,7 +26,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 class GroovyEventModelSupplierTest {
 

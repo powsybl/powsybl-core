@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 class CgmesControlAreasAdderImpl extends AbstractExtensionAdder<Network, CgmesControlAreas> implements CgmesControlAreasAdder {
 

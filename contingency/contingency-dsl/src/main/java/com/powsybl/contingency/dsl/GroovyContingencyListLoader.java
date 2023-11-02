@@ -14,7 +14,7 @@ import com.powsybl.contingency.ContingencyListLoader;
 import java.io.InputStream;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 @AutoService(ContingencyListLoader.class)
 public class GroovyContingencyListLoader implements ContingencyListLoader {

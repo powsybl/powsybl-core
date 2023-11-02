@@ -9,7 +9,7 @@ package com.powsybl.commons.parameters;
 import java.util.List;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum ParameterType {
     BOOLEAN(Boolean.class, Boolean.class),

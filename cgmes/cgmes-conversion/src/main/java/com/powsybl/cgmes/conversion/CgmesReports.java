@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Substation;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class CgmesReports {
 

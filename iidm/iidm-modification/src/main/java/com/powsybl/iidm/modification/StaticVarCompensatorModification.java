@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 /**
  * Simple {@link NetworkModification} for a static var compensator.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class StaticVarCompensatorModification extends AbstractSetpointModification<StaticVarCompensator> {
 

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class LoadDetailAdderImplProvider implements ExtensionAdderProvider<Load, LoadDetail, LoadDetailAdderImpl> {

@@ -13,7 +13,7 @@ package com.powsybl.commons.extensions;
  * implementation of the {@link Extendable}. {@link #getAdderClass} is used to
  * specify the adder class.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  *
  * @param <T> The extendable
  * @param <E> The extension

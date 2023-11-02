@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNull
 import static org.junit.jupiter.api.Assertions.assertSame
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class TwoWindingsTransformerExtensionTest {
 

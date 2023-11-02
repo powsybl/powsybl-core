@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 

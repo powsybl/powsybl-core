@@ -9,7 +9,7 @@ package com.powsybl.contingency;
 import com.google.auto.service.AutoService;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 @AutoService(ContingenciesProviderFactory.class)
 public class EmptyContingencyListProviderFactory implements ContingenciesProviderFactory {

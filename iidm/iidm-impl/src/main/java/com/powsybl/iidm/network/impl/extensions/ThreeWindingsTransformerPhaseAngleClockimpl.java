@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class ThreeWindingsTransformerPhaseAngleClockimpl extends AbstractExtension<ThreeWindingsTransformer> implements ThreeWindingsTransformerPhaseAngleClock {
 

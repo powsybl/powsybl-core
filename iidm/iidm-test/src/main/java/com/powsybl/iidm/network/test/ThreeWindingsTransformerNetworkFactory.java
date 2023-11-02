@@ -12,7 +12,7 @@ import org.joda.time.DateTime;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class ThreeWindingsTransformerNetworkFactory {
 
@@ -478,6 +478,110 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endTemporaryLimit()
                 .add();
 
+        return network;
+    }
+
+    public static Network createWithApparentPowerLimits() {
+        Network network = create();
+
+        network.getThreeWindingsTransformer("3WT").getLeg1().newApparentPowerLimits()
+                .setPermanentLimit(1000.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setValue(1200.0)
+                .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setValue(1400.0)
+                .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        network.getThreeWindingsTransformer("3WT").getLeg2().newApparentPowerLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setValue(140.0)
+                .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        network.getThreeWindingsTransformer("3WT").getLeg3().newApparentPowerLimits()
+                .setPermanentLimit(10.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setValue(12.0)
+                .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setValue(14.0)
+                .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        return network;
+    }
+
+    public static Network createWithActivePowerLimits() {
+        Network network = create();
+
+        network.getThreeWindingsTransformer("3WT").getLeg1().newActivePowerLimits()
+                .setPermanentLimit(1000.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setValue(1200.0)
+                .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setValue(1400.0)
+                .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        network.getThreeWindingsTransformer("3WT").getLeg2().newActivePowerLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setValue(140.0)
+                .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        network.getThreeWindingsTransformer("3WT").getLeg3().newActivePowerLimits()
+                .setPermanentLimit(10.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setValue(12.0)
+                .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setValue(14.0)
+                .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        return network;
+    }
+
+    public static Network createWithCurrentLimitsAndTerminalsPAndQ() {
+        Network network = createWithCurrentLimits();
+        network.getThreeWindingsTransformer("3WT").getLeg1().getTerminal().setP(1400.0).setQ(400.0);
+        network.getThreeWindingsTransformer("3WT").getLeg2().getTerminal().setP(1400.0).setQ(400.0);
+        network.getThreeWindingsTransformer("3WT").getLeg3().getTerminal().setP(1400.0).setQ(400.0);
         return network;
     }
 

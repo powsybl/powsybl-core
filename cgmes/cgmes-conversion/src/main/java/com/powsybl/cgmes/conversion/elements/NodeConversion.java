@@ -23,7 +23,7 @@ import static com.powsybl.cgmes.conversion.CgmesReports.invalidAngleVoltageBusRe
 import static com.powsybl.cgmes.conversion.CgmesReports.invalidAngleVoltageNodeReport;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class NodeConversion extends AbstractIdentifiedObjectConversion {
 

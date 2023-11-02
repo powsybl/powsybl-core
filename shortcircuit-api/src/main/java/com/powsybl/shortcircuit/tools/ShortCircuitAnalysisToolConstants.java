@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit.tools;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public final class ShortCircuitAnalysisToolConstants {
 

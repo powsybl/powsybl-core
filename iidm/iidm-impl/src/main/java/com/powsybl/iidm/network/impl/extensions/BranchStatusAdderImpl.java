@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.extensions.BranchStatusAdder;
 import java.util.Objects;
 
 /**
- * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
 public class BranchStatusAdderImpl<C extends Connectable<C>> extends AbstractExtensionAdder<C, BranchStatus<C>>
         implements BranchStatusAdder<C> {

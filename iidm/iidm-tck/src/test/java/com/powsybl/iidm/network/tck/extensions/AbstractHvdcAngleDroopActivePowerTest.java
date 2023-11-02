@@ -25,7 +25,7 @@ import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_I
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 public abstract class AbstractHvdcAngleDroopActivePowerTest {
 

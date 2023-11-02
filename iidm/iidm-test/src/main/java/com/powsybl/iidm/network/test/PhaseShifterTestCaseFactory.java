@@ -21,7 +21,7 @@ import java.util.Objects;
  *        --------B3-------
  *           PS1       L2
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class PhaseShifterTestCaseFactory {
 

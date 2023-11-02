@@ -39,7 +39,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
+ * @author JB Heyberger {@literal <jean-baptiste.heyberger at rte-france.com>}
  */
 @AutoService(Importer.class)
 public class PsseImporter implements Importer {

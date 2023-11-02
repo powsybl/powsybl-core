@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 class FaultResultDeserializer {
 

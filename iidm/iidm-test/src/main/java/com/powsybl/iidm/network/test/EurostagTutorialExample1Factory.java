@@ -12,7 +12,7 @@ import org.joda.time.DateTime;
 /**
  * This is a network test based on Eurostag tutorial example 1.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class EurostagTutorialExample1Factory {
 

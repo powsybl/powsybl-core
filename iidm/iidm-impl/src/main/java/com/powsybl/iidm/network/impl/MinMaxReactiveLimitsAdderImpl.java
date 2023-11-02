@@ -12,8 +12,8 @@ import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class MinMaxReactiveLimitsAdderImpl<OWNER extends ReactiveLimitsOwner & Validable> implements MinMaxReactiveLimitsAdder {
 

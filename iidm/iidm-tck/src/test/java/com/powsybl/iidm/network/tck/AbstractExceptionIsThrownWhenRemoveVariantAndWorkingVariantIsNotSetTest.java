@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest {
 

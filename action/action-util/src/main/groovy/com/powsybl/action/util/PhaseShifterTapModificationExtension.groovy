@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.NetworkModification
 import com.powsybl.iidm.modification.PhaseShifterShiftTap
 
 /**
- * @author Hamou AMROUN <hamou.amroun at rte-france.com>
+ * @author Hamou AMROUN {@literal <hamou.amroun at rte-france.com>}
  */
 @AutoService(DslModificationExtension.class)
 class PhaseShifterTapModificationExtension implements DslModificationExtension {

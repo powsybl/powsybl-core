@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public interface SlackTerminalAdder extends ExtensionAdder<VoltageLevel, SlackTerminal> {
 

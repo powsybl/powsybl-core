@@ -20,7 +20,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 @AutoService(ImportPostProcessor.class)
 public class LoadFlowResultsCompletionPostProcessor implements ImportPostProcessor {

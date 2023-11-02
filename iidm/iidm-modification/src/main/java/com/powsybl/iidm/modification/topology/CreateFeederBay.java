@@ -19,7 +19,7 @@ import java.util.Optional;
  * the busbar section with a breaker and a closed disconnector. The injection is also connected to all
  * the parallel busbar sections, if any, with an open disconnector.
  *
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
 

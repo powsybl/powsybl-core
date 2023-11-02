@@ -10,13 +10,15 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.Overload;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public final class BranchUtil {
 
@@ -59,23 +61,13 @@ public final class BranchUtil {
         throw new IllegalStateException("Unexpected side: " + side);
     }
 
-    static int getOverloadDuration(Branch.Overload o1, Branch.Overload o2) {
+    static int getOverloadDuration(Overload o1, Overload o2) {
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);
     }
 
     static double getValueForLimit(Terminal t, LimitType type) {
-        switch (type) {
-            case ACTIVE_POWER:
-                return t.getP();
-            case APPARENT_POWER:
-                return Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
-            case CURRENT:
-                return t.getI();
-            case VOLTAGE:
-            default:
-                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
-        }
+        return LimitViolationUtils.getValueForLimit(t, type);
     }
 }

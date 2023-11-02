@@ -9,8 +9,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.PhaseTapChanger;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 interface PhaseTapChangerParent extends TapChangerParent {
 

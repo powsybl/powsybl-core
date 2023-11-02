@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 

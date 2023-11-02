@@ -12,7 +12,7 @@ import java.io.Writer;
 import java.util.Properties;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface SecurityAnalysisResultExporter {
 

@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Terminal;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class Z0BusGroup {
 

@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * {@inheritDoc}
  *
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> implements BatteryAdder {
 
