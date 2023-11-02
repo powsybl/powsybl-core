@@ -160,6 +160,14 @@ public interface Terminal {
     boolean connect();
 
     /**
+     * Try to connect the terminal.
+     * <p>Depends on the working variant.
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+
+    /**
      * Disconnect the terminal.
      * <p>Depends on the working variant.
      * @return true if terminal has been disconnected, false otherwise

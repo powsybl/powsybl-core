@@ -158,10 +158,23 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
+
+
+    /**
+     * Try to connect the terminal.
+     * <p>Depends on the working variant.
+     * @param isTypeSwitchToOperate Predicate telling if a switch is operable according to conditions. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        return voltageLevel.connect(this);
+        return voltageLevel.connect(this, isTypeSwitchToOperate);
     }
 
     @Override

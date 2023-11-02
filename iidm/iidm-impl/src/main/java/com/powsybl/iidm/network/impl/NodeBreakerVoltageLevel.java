@@ -1166,16 +1166,29 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return t != null && t.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION;
     }
 
+    private boolean checkNonClosableSwitches(SwitchImpl sw, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
+        return SwitchPredicates.IS_OPEN.test(sw) && isTypeSwitchToOperate.negate().test(sw);
+    }
+
+
+    /**
+     * Connect the terminal to a busbar section in its voltage level.
+     * The switches that can be operated are the non-fictional breakers.
+     * @param terminal Terminal to connect
+     * @return true if the terminal has been connected, false if it hasn't or if it was already connected
+     */
     @Override
     public boolean connect(TerminalExt terminal) {
         // Only keep the closed non-fictional breakers in the nominal case
         return connect(terminal, SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
 
-    private boolean checkNonClosableSwitches(SwitchImpl sw, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
-        return SwitchPredicates.IS_OPEN.test(sw) && isTypeSwitchToOperate.negate().test(sw);
-    }
-
+    /**
+     * Connect the terminal to a busbar section in its voltage level.
+     * @param terminal Terminal to connect
+     * @param isTypeSwitchToOperate Predicate used to identify the switches that can be operated on. <b>Warning:</b> do not include a test to see if the switch is opened, it is already done in this method
+     * @return true if the terminal has been connected, false if it hasn't or if it was already connected
+     */
     @Override
     public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
         if (!(terminal instanceof NodeTerminal)) {
@@ -1187,22 +1200,25 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a busbar section that does not contain either an open
-        // disconnector, an opened load break switch or an opened fictional breaker
-        // Paths are already sorted
+        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
+        // that is not of the type of switch the user wants to operate
+        // Paths are already sorted by the number of open switches and by the size of the paths
         List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, sw -> checkNonClosableSwitches(sw, isTypeSwitchToOperate), SwitchPredicates.IS_OPEN);
         boolean connected = false;
         if (!paths.isEmpty()) {
-            // the shorted path is the best, close all opened breakers of the path
+            // the shortest path is the best
             TIntArrayList shortestPath = paths.get(0);
+
+            // close all open switches on the path
             for (int i = 0; i < shortestPath.size(); i++) {
                 int e = shortestPath.get(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
-                if (SwitchPredicates.IS_OPEN.test(sw) && isTypeSwitchToOperate.test(sw)) {
+                if (SwitchPredicates.IS_OPEN.test(sw)) {
+                    // Since the paths were constructed using the method checkNonClosableSwitches, only operable switches can be open
                     sw.setOpen(false);
                 }
             }
-            // Check that the terminal is connected
+            // Check that the terminal is connected (it should always be true, given how the paths are found)
             if (terminal.isConnected()) {
                 connected = true;
             }

@@ -281,7 +281,7 @@ public abstract class AbstractSwitchPredicatesTest {
         Network network = createNetwork();
 
         // Predicate to test
-        Predicate<Switch> predicate = SwitchPredicates.IS_OPEN_DISCONNECTOR;
+        Predicate<Switch> predicate = SwitchPredicates.IS_OPEN;
 
         // Tests
         assertFalse(predicate.test(null));
