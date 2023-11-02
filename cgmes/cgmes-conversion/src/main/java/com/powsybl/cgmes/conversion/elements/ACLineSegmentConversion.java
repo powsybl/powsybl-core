@@ -17,8 +17,8 @@ import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class ACLineSegmentConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 
@@ -160,6 +160,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                 .setX(boundaryLine.getX())
                 .setG(boundaryLine.getG1() + boundaryLine.getG2())
                 .setB(boundaryLine.getB1() + boundaryLine.getB2())
-                .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
+                .setPairingKey(findPairingKey(context, boundaryNode));
     }
 }

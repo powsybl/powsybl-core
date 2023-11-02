@@ -12,9 +12,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 
@@ -23,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
 
@@ -44,7 +46,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         double limit = Double.NaN;
         float limitReduction = Float.NaN;
         double value = Double.NaN;
-        Branch.Side side = null;
+        ThreeSides side = null;
 
         List<Extension<LimitViolation>> extensions = Collections.emptyList();
 
@@ -89,7 +91,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "side":
                     parser.nextToken();
-                    side = JsonUtil.readValue(deserializationContext, parser, Branch.Side.class);
+                    side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
                     break;
 
                 case "extensions":

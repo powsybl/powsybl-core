@@ -26,7 +26,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.network.util.TieLineUtil.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ReplaceTieLinesByLines extends AbstractNetworkModification {
 
@@ -71,7 +71,7 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
                     dl1::getApparentPowerLimits, dl1::getCurrentLimits);
             TopologyModificationUtils.LoadingLimitsBags limits2 = new TopologyModificationUtils.LoadingLimitsBags(dl2::getActivePowerLimits,
                     dl2::getApparentPowerLimits, dl2::getCurrentLimits);
-            String xNode = tl.getUcteXnodeCode();
+            String pairingKey = tl.getPairingKey();
             double p1 = dl1.getTerminal().getP();
             double q1 = dl1.getTerminal().getQ();
             double p2 = dl2.getTerminal().getP();
@@ -98,14 +98,14 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             line.getTerminal2().setP(p2).setQ(q2);
             addLoadingLimits(line, limits1, Branch.Side.ONE);
             addLoadingLimits(line, limits2, Branch.Side.TWO);
-            // Add previous dangling lines ID and Xnode
+            // Add previous dangling lines ID and pairing key
             line.addAlias(dl1Id, "danglingLine1Id");
             line.addAlias(dl2Id, "danglingLine2Id");
-            if (xNode != null) {
-                line.addAlias(xNode, "xNode");
+            if (pairingKey != null) {
+                line.addAlias(pairingKey, "pairingKey");
             }
-            LOG.info("Removed tie line {} and associated dangling lines {} and {} at X-node {}. Created line {}", line.getId(), dl1Id, dl2Id, xNode, line.getId());
-            removedTieLineAndAssociatedDanglingLines(reporter, line.getId(), dl1Id, dl2Id, xNode);
+            LOG.info("Removed tie line {} and associated dangling lines {} and {} with pairing key {}. Created line {}", line.getId(), dl1Id, dl2Id, pairingKey, line.getId());
+            removedTieLineAndAssociatedDanglingLines(reporter, line.getId(), dl1Id, dl2Id, pairingKey);
             createdLineReport(reporter, line.getId());
         }
     }

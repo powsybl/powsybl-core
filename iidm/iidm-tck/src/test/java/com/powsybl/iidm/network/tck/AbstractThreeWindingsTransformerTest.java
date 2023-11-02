@@ -62,6 +62,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         // leg1 adder
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+        assertEquals(ThreeSides.ONE, leg1.getSide());
         assertEquals(1.3, leg1.getR(), 0.0);
         assertEquals(1.4, leg1.getX(), 0.0);
         assertEquals(1.1, leg1.getRatedU(), 0.0);
@@ -82,7 +83,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         // leg2/3 adder
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+        assertEquals(ThreeSides.TWO, leg2.getSide());
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+        assertEquals(ThreeSides.THREE, leg3.getSide());
         assertEquals(2.03, leg2.getR(), 0.0);
         assertEquals(2.04, leg2.getX(), 0.0);
         assertEquals(2.05, leg2.getRatedU(), 0.0);
@@ -285,45 +288,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .add()
                 .add());
         assertTrue(e.getMessage().contains("3 windings transformer 'twt': the 3 windings of the transformer shall belong to the substation 'sub'"));
-    }
-
-    @Test
-    public void missingSubstationContainer() {
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newThreeWindingsTransformer()
-                .setId("twt")
-                .setName(TWT_NAME)
-                .newLeg1()
-                .setR(1.3)
-                .setX(1.4)
-                .setG(1.6)
-                .setB(1.7)
-                .setRatedU(1.1)
-                .setRatedS(1.2)
-                .setVoltageLevel("vl1")
-                .setBus("busA")
-                .add()
-                .newLeg2()
-                .setR(2.03)
-                .setX(2.04)
-                .setG(0.0)
-                .setB(0.0)
-                .setRatedU(2.05)
-                .setRatedS(2.06)
-                .setVoltageLevel("vl2")
-                .setBus("busB")
-                .add()
-                .newLeg3()
-                .setR(3.3)
-                .setX(3.4)
-                .setG(0.0)
-                .setB(0.0)
-                .setRatedU(3.5)
-                .setRatedS(3.6)
-                .setVoltageLevel("vl2")
-                .setBus("busB")
-                .add()
-                .add());
-        assertTrue(e.getMessage().contains("3 windings transformer 'twt': the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations"));
     }
 
     @Test
@@ -1024,6 +988,15 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void validLeg3Arguments() {
         //Verify that other invalidLeg3Arguments* tests are not throwing when arguments are ok
         createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, 5.3);
+    }
+
+    @Test
+    public void getSideFromLeg() {
+        ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
+        ThreeWindingsTransformer transformer = transformerAdder.add();
+        assertSame(ThreeSides.ONE, transformer.getLeg1().getSide());
+        assertSame(ThreeSides.TWO, transformer.getLeg2().getSide());
+        assertSame(ThreeSides.THREE, transformer.getLeg3().getSide());
     }
 
     private void createThreeWindingsTransformerWithLeg3(double r, double x, double g, double b, double ratedU) {

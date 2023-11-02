@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import java.util.*;
 
 /**
- * @author Anis Touri <anis-1.touri@rte-france.com>
+ * @author Anis Touri {@literal <anis-1.touri@rte-france.com>}
  */
 
 public class RemoveHvdcLineBuilder {

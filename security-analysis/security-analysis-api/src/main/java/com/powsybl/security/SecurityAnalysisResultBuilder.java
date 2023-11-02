@@ -23,7 +23,7 @@ import java.util.*;
  * Encapsulates filtering of limit violations with a provided {@link LimitViolationFilter},
  * as well as notifications to {@link SecurityAnalysisInterceptor}s.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisResultBuilder {
 

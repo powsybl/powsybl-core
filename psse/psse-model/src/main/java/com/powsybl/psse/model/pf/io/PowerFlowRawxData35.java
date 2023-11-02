@@ -26,8 +26,8 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
 

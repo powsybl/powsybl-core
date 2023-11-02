@@ -46,7 +46,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
@@ -229,6 +229,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return id2bus.values();
         }
 
+        private int getBusCount() {
+            return id2bus.size();
+        }
+
         private CalculatedBus getBus(int node) {
             return node2bus[node];
         }
@@ -319,6 +323,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         Collection<CalculatedBus> getBuses() {
             updateCache();
             return busCache.getBuses();
+        }
+
+        int getBusCount() {
+            updateCache();
+            return busCache.getBusCount();
         }
 
         CalculatedBus getBus(int node) {
@@ -513,9 +522,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     NodeBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> ref,
-                            double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, ref, nominalV, lowVoltageLimit, highVoltageLimit);
-        variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
+                            Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+        super(id, name, fictitious, substation, ref, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+        variants = new VariantArray<>(ref, VariantImpl::new);
         graph.addListener(new DefaultUndirectedGraphListener<>() {
 
             private static final String INTERNAL_CONNECTION = "internalConnection";
@@ -983,6 +992,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public Stream<Bus> getBusStream() {
             return variants.get().calculatedBusBreakerTopology.getBuses().stream().map(Function.identity());
+        }
+
+        @Override
+        public int getBusCount() {
+            return variants.get().calculatedBusBreakerTopology.getBusCount();
         }
 
         @Override

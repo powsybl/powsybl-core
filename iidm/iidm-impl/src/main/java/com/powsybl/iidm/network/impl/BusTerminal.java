@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * A terminal connected to a bus/breaker topology.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class BusTerminal extends AbstractTerminal {
 
@@ -69,10 +69,10 @@ class BusTerminal extends AbstractTerminal {
             vl.getBus(busId, true);
 
             vl.detach(BusTerminal.this);
-            int variantIndex = network.get().getVariantIndex();
+            int variantIndex = getVariantManagerHolder().getVariantIndex();
             String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
             vl.attach(BusTerminal.this, false);
-            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
             getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, busId);
         }
 
@@ -134,9 +134,9 @@ class BusTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
         String oldValue = this.connectableBusId.set(variantIndex, connectableBusId);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, connectableBusId);
     }
 
@@ -144,16 +144,16 @@ class BusTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
         }
-        return this.connectableBusId.get(network.get().getVariantIndex());
+        return this.connectableBusId.get(getVariantManagerHolder().getVariantIndex());
     }
 
     void setConnected(boolean connected) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         getConnectable().notifyUpdate("connected", variantId, oldValue, connected);
     }
 
@@ -162,7 +162,7 @@ class BusTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException("Cannot access connectivity status of removed equipment " + connectable.id);
         }
-        return this.connected.get(network.get().getVariantIndex());
+        return this.connected.get(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override

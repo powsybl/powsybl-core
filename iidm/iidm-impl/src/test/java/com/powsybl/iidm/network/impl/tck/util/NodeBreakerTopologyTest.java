@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl.tck.util;
 import com.powsybl.iidm.network.tck.util.AbstractNodeBreakerTopologyTest;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeBreakerTopologyTest extends AbstractNodeBreakerTopologyTest {
 }

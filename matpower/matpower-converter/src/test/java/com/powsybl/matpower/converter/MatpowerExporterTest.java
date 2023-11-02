@@ -14,6 +14,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -35,7 +36,7 @@ import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class MatpowerExporterTest extends AbstractConverterTest {
 
@@ -126,5 +127,66 @@ class MatpowerExporterTest extends AbstractConverterTest {
                 .setVoltageRegulatorOn(false)
                 .add();
         exportToMatAndCompareTo(network, "/sim1-with-non-regulating-gen.json");
+    }
+
+    @Test
+    void testWithCurrentLimits() throws IOException {
+        var network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        exportToMatAndCompareTo(network, "/sim1-with-current-limits.json");
+    }
+
+    @Test
+    void testWithCurrentLimits2() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        Line line = network.getLine("NHV1_NHV2_1");
+        line.newCurrentLimits1()
+                .setPermanentLimit(1000)
+                .beginTemporaryLimit()
+                    .setName("20'")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(1100)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("10'")
+                    .setAcceptableDuration(10 * 60)
+                    .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("1'")
+                    .setAcceptableDuration(60)
+                    .setValue(1300)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("N/A")
+                    .setAcceptableDuration(0)
+                    .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+        exportToMatAndCompareTo(network, "/sim1-with-current-limits2.json");
+    }
+
+    @Test
+    void testWithApparentPowerLimits() throws IOException {
+        var network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        var l = network.getLine("NHV1_NHV2_1");
+        l.newApparentPowerLimits1()
+                .setPermanentLimit(1000)
+                .beginTemporaryLimit()
+                    .setName("1'")
+                    .setAcceptableDuration(60)
+                    .setValue(1500)
+                .endTemporaryLimit()
+                .add();
+        l.newCurrentLimits2()
+                .setPermanentLimit(1000)
+                .add();
+        exportToMatAndCompareTo(network, "/sim1-with-apparent-power-limits.json");
+    }
+
+    @Test
+    void testNanTargetQIssue() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        network.getGenerator("GEN").setTargetQ(Double.NaN);
+        exportToMatAndCompareTo(network, "/sim1-with-nan-target-q.json");
     }
 }

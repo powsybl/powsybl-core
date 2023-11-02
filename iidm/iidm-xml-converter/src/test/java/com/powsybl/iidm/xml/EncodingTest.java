@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @author imagrid team <rte-mco-imagrid at rte-france.com>
+ * @author imagrid team {@literal <rte-mco-imagrid at rte-france.com>}
  */
 class EncodingTest {
 

@@ -16,7 +16,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 import java.util.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine {
 
@@ -240,7 +240,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private double b;
 
-    private final String ucteXnodeCode;
+    private final String pairingKey;
 
     private final GenerationImpl generation;
 
@@ -253,7 +253,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final DanglingLineBoundaryImpl boundary;
 
-    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
+    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -267,7 +267,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.x = x;
         this.g = g;
         this.b = b;
-        this.ucteXnodeCode = ucteXnodeCode;
+        this.pairingKey = pairingKey;
         this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
         this.boundary = new DanglingLineBoundaryImpl(this);
         this.generation = generation != null ? generation.attach(this) : null;
@@ -410,8 +410,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public String getUcteXnodeCode() {
-        return ucteXnodeCode;
+    public String getPairingKey() {
+        return pairingKey;
     }
 
     @Override

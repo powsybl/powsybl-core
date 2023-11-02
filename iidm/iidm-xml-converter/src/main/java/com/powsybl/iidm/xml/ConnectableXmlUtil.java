@@ -16,7 +16,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class ConnectableXmlUtil {
 
@@ -269,21 +269,5 @@ public final class ConnectableXmlUtil {
                 writer.writeEndElement();
             }
         }
-    }
-
-    /**
-     * @deprecated Use {@link TerminalRefXml#writeTerminalRef(Terminal, NetworkXmlWriterContext, String)} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
-        TerminalRefXml.writeTerminalRef(t, context, elementName);
-    }
-
-    /**
-     * @deprecated Use {@link TerminalRefXml#readTerminalRef(Network, String, String)} instead.
-     */
-    @Deprecated(since = "5.2.0")
-    public static Terminal readTerminalRef(Network network, String id, String side) {
-        return TerminalRefXml.readTerminalRef(network, id, side);
     }
 }

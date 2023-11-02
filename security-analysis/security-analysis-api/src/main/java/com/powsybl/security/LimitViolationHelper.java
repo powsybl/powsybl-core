@@ -6,13 +6,14 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class LimitViolationHelper {
 
@@ -23,9 +24,17 @@ public final class LimitViolationHelper {
         Objects.requireNonNull(network);
         Objects.requireNonNull(limitViolation);
 
-        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        Identifiable<?> identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (limitViolation.getLimitType() == LimitViolationType.LOW_VOLTAGE_ANGLE || limitViolation.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE) {
+            VoltageAngleLimit limit = network.getVoltageAngleLimit(limitViolation.getSubjectId());
+            if (limit != null) {
+                return limit.getTerminalFrom().getVoltageLevel();
+            } else {
+                throw new PowsyblException("Limit from limit violation is not in the network.");
+            }
+        }
         if (identifiable instanceof Branch<?> branch) {
-            return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
+            return branch.getTerminal(limitViolation.getBranchSide()).getVoltageLevel();
         } else if (identifiable instanceof Injection<?> injection) {
             return injection.getTerminal().getVoltageLevel();
         } else if (identifiable instanceof VoltageLevel voltageLevel) {

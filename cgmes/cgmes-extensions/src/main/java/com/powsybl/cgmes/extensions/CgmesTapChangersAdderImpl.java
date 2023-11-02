@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CgmesTapChangersAdderImpl<C extends Connectable<C>> extends AbstractExtensionAdder<C, CgmesTapChangers<C>> implements CgmesTapChangersAdder<C> {
 

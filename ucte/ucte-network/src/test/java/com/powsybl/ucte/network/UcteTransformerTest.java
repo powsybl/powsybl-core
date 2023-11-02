@@ -14,7 +14,7 @@ import static com.powsybl.ucte.network.UcteElementStatus.REAL_ELEMENT_IN_OPERATI
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class UcteTransformerTest extends AbstractUcteElementTest {
 

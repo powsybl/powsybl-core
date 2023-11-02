@@ -11,7 +11,7 @@ package com.powsybl.iidm.network.impl.tck.extensions;
 import com.powsybl.iidm.network.tck.extensions.AbstractHvdcAngleDroopActivePowerTest;
 
 /**
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 class HvdcAngleDroopActivePowerControlTest extends AbstractHvdcAngleDroopActivePowerTest {
 }

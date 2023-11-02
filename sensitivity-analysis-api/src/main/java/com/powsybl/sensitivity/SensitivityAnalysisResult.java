@@ -37,7 +37,7 @@ import java.util.*;
  *  For example, you can retrieve a sensitivity value as a double given the ID of a contingency, the ID of a variable
  *  and the ID of a function.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see SensitivityValue
  */
 public class SensitivityAnalysisResult {

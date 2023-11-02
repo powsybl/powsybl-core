@@ -7,11 +7,12 @@
 package com.powsybl.iidm.network;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public enum LimitType {
     ACTIVE_POWER,
     APPARENT_POWER,
     CURRENT,
-    VOLTAGE
+    VOLTAGE,
+    VOLTAGE_ANGLE
 }

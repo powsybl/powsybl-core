@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 
 /**
  *
- * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<ShortCircuitAnalysisResult> {
 
@@ -50,22 +50,16 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
+                case "version" -> {
                     parser.nextToken();
                     version = parser.readValueAs(String.class);
-                    break;
-
-                case "faultResults":
-                    faultResults = new FaultResultDeserializer().deserialize(parser, ctx, version);
-                    break;
-
-                case "extensions":
+                }
+                case "faultResults" -> faultResults = new FaultResultDeserializer().deserialize(parser, ctx, version);
+                case "extensions" -> {
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, ctx, SUPPLIER.get());
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults);

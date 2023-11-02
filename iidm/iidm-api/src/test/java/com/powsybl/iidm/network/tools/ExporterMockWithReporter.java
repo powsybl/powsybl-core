@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Properties;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 @AutoService(Exporter.class)
 public class ExporterMockWithReporter implements Exporter {

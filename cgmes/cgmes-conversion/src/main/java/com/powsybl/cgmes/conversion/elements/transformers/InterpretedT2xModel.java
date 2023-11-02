@@ -11,8 +11,8 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class InterpretedT2xModel {
 
@@ -21,6 +21,7 @@ public class InterpretedT2xModel {
     final TapChangerConversion.InterpretedEnd end1;
     final TapChangerConversion.InterpretedEnd end2;
     final boolean structuralRatioAtEnd2;
+    final Double ratedS;
 
     /**
      * Maps Cgmes ratioTapChangers, phaseTapChangers, shuntAdmittances and
@@ -43,6 +44,7 @@ public class InterpretedT2xModel {
             interpretedTapChanger.ratioTapChanger2, interpretedTapChanger.phaseTapChanger2,
             cgmesT2xModel.end2.ratedU, cgmesT2xModel.end2.terminal);
         this.structuralRatioAtEnd2 = structuralRatioAlternative(cgmesT2xModel, alternative);
+        this.ratedS = cgmesT2xModel.ratedS;
     }
 
     /**

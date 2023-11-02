@@ -100,8 +100,8 @@ package com.powsybl.iidm.network;
  *     </tbody>
  * </table>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface HvdcLine extends Identifiable<HvdcLine> {
 
@@ -117,12 +117,6 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
         SIDE_1_RECTIFIER_SIDE_2_INVERTER,
         SIDE_1_INVERTER_SIDE_2_RECTIFIER
     }
-
-    /**
-     * Get the network this HVDC line belongs.
-     * @return the network this HVDC line belongs
-     */
-    Network getNetwork();
 
     /**
      * Get converters mode.

@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.Objects;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 class CriterionContingencyListJsonTest extends AbstractConverterTest {
 

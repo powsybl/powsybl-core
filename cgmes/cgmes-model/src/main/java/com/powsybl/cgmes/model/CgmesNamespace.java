@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class CgmesNamespace {
 
@@ -273,7 +273,8 @@ public final class CgmesNamespace {
         }
 
         private Cim16() {
-            super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE, "value",
+            super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE,
+                    "value",
                     "OperationalLimitType.limitType", "LimitTypeKind",
                     Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
                     CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV",
@@ -300,7 +301,8 @@ public final class CgmesNamespace {
         }
 
         private Cim100() {
-            super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE, "normalValue",
+            super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE,
+                    "normalValue",
                     "OperationalLimitType.kind", "LimitKind",
                     Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,
                     "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE,

@@ -28,7 +28,7 @@ import com.powsybl.security.results.PreContingencyResult;
  * This can also be helpful to guarantee thread safety, if the result builder is used concurrently.
  *
  *
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface SecurityAnalysisInterceptor {
 

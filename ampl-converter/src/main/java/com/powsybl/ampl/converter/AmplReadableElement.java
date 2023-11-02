@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * This enum maps elements to their reading function in {@link AmplNetworkReader}
  *
- * @author Nicolas Pierre < nicolas.pierre@artelys.com >
+ * @author Nicolas Pierre {@literal < nicolas.pierre@artelys.com >}
  */
 public enum AmplReadableElement {
     BATTERY(AmplNetworkReader::readBatteries),

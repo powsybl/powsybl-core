@@ -15,7 +15,7 @@ import com.powsybl.security.results.ConnectivityResult;
 import java.io.IOException;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class ConnectivityResultSerializer extends StdSerializer<ConnectivityResult> {
 

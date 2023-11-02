@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
  * based on an underlying {@link com.powsybl.security.SecurityAnalysis} implementation,
  * or be forwarded to external processes through a {@link com.powsybl.computation.ComputationManager}.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public interface SecurityAnalysisExecution {
 

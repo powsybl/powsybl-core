@@ -6,14 +6,18 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractConverterTest;
@@ -27,26 +31,22 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import javax.xml.stream.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class StateVariablesExportTest extends AbstractConverterTest {
 
@@ -235,6 +235,192 @@ class StateVariablesExportTest extends AbstractConverterTest {
         String sv = exportSvAsString(network, 2);
         String hiddenTapChangerId = "_6ebbef67-3061-4236-a6fd-6ccc4595f6c3-x";
         assertTrue(sv.contains(hiddenTapChangerId));
+    }
+
+    @Test
+    void equivalentShuntTest() throws XMLStreamException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+
+        String sv = exportSvAsString(network, 2);
+
+        String equivalentShuntId = "d771118f-36e9-4115-a128-cc3d9ce3e3da";
+        assertNotNull(network.getShuntCompensator(equivalentShuntId));
+        SvShuntCompensatorSections svShuntCompensatorSections = readSvShuntCompensatorSections(sv);
+        assertFalse(svShuntCompensatorSections.map.isEmpty());
+        assertFalse(svShuntCompensatorSections.map.containsKey(equivalentShuntId));
+    }
+
+    private static SvShuntCompensatorSections readSvShuntCompensatorSections(String sv) {
+        final String svShuntCompensatorSections = "SvShuntCompensatorSections";
+        final String svShuntCompensatorSectionsSections = "SvShuntCompensatorSections.sections";
+        final String svShuntCompensatorSectionsShuntCompensator = "SvShuntCompensatorSections.ShuntCompensator";
+        final String attrResource = "resource";
+
+        SvShuntCompensatorSections svdata = new SvShuntCompensatorSections();
+        try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            Integer sections = null;
+            String shuntCompensatorId = null;
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(svShuntCompensatorSections)) {
+                        sections = null;
+                        shuntCompensatorId = null;
+                    } else if (reader.getLocalName().equals(svShuntCompensatorSectionsSections)) {
+                        String text = reader.getElementText();
+                        sections = Integer.parseInt(text);
+                    } else if (reader.getLocalName().equals(svShuntCompensatorSectionsShuntCompensator)) {
+                        shuntCompensatorId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
+                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT) {
+                    if (reader.getLocalName().equals(svShuntCompensatorSections) && sections != null) {
+                        svdata.add(shuntCompensatorId, sections);
+                    }
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return svdata;
+    }
+
+    private static final class SvShuntCompensatorSections {
+        private final Map<String, Integer> map = new HashMap<>();
+
+        void add(String shuntCompensatorId, int sections) {
+            map.put(shuntCompensatorId, sections);
+        }
+    }
+
+    @Test
+    void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws XMLStreamException {
+
+        Network network = ConversionUtil.networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
+
+        // Add a PTC
+        TwoWindingsTransformer t2wt = network.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        t2wt.newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                .setR(0.0)
+                .setX(0.0)
+                .setB(0)
+                .setG(0)
+                .setRho(1.0)
+                .setAlpha(20)
+                .endStep()
+                .add();
+        // Change the RTC tap position and add a PTC
+        ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+        t3wt.getLeg1().newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(1)
+                .beginStep()
+                .setR(0.0)
+                .setX(0.0)
+                .setB(0)
+                .setG(0)
+                .setRho(1.0)
+                .setAlpha(10)
+                .endStep()
+                .beginStep()
+                .setR(0.0)
+                .setX(0.0)
+                .setB(0)
+                .setG(0)
+                .setRho(1.0)
+                .setAlpha(20)
+                .endStep()
+                .add();
+
+        String expected = buildNetworkSvTapStepsString(network);
+        String sv = exportSvAsString(network, 2);
+        String actual = readSvTapSteps(sv).toSortedString();
+        assertEquals(expected, actual);
+    }
+
+    private static String buildNetworkSvTapStepsString(Network network) {
+        SvTapSteps svTapSteps = new SvTapSteps();
+        network.getTwoWindingsTransformers().forEach(twt -> {
+            twt.getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1, rtc.getTapPosition(), svTapSteps));
+            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1, ptc.getTapPosition(), svTapSteps));
+        });
+        network.getThreeWindingsTransformers().forEach(twt -> {
+            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1, rtc.getTapPosition(), svTapSteps));
+            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1, ptc.getTapPosition(), svTapSteps));
+            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2, rtc.getTapPosition(), svTapSteps));
+            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2, ptc.getTapPosition(), svTapSteps));
+            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 3, rtc.getTapPosition(), svTapSteps));
+            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 3, ptc.getTapPosition(), svTapSteps));
+        });
+        return svTapSteps.toSortedString();
+    }
+
+    private static void obtainAndRecordTapChangerId(Identifiable<?> eq, String aliasType, int tapPosition, SvTapSteps svTapSteps) {
+        Optional<String> optionalTapChangerId = eq.getAliasFromType(aliasType);
+        String tapChangerId;
+        if (optionalTapChangerId.isPresent()) {
+            tapChangerId = optionalTapChangerId.get();
+        } else {
+            tapChangerId = CgmesExportUtil.getUniqueId();
+            eq.addAlias(tapChangerId, aliasType);  // record as alias to be used when the sv file is exported
+        }
+        svTapSteps.add(tapChangerId, tapPosition);
+    }
+
+    private static SvTapSteps readSvTapSteps(String sv) {
+        final String svTapStep = "SvTapStep";
+        final String svTapStepPosition = "SvTapStep.position";
+        final String svTapStepTapChanger = "SvTapStep.TapChanger";
+        final String attrResource = "resource";
+
+        SvTapSteps svTapSteps = new SvTapSteps();
+        try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            Integer position = null;
+            String tapChangerId = null;
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(svTapStep)) {
+                        position = null;
+                        tapChangerId = null;
+                    } else if (reader.getLocalName().equals(svTapStepPosition)) {
+                        String text = reader.getElementText();
+                        position = Integer.parseInt(text);
+                    } else if (reader.getLocalName().equals(svTapStepTapChanger)) {
+                        tapChangerId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
+                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT) {
+                    if (reader.getLocalName().equals(svTapStep) && position != null) {
+                        svTapSteps.add(tapChangerId, position);
+                    }
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return svTapSteps;
+    }
+
+    private static final class SvTapSteps {
+        private final Map<String, Integer> svTapSteps = new HashMap<>();
+
+        void add(String tapChangerId, int position) {
+            svTapSteps.put(tapChangerId, position);
+        }
+
+        String toSortedString() {
+            return svTapSteps.entrySet().stream()
+                    .map(e -> String.format("%50s %05d", e.getKey(), e.getValue()))
+                    .sorted()
+                    .collect(Collectors.joining("\n"));
+        }
     }
 
     private static Network importNetwork(ReadOnlyDataSource ds) {

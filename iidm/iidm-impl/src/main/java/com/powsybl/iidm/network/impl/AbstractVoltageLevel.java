@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
 
@@ -31,6 +31,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
 
     private final Ref<NetworkImpl> networkRef;
+    private Ref<SubnetworkImpl> subnetworkRef;
 
     private final SubstationImpl substation;
 
@@ -43,10 +44,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     private boolean removed = false;
 
     AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
-                         double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+                         Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, fictitious);
         this.substation = substation;
         this.networkRef = networkRef;
+        this.subnetworkRef = subnetworkRef;
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
@@ -57,6 +59,16 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             .getOptionalModuleConfig("iidm")
             .map(moduleConfig -> moduleConfig.getIntProperty("node-index-limit", DEFAULT_NODE_INDEX_LIMIT))
             .orElse(DEFAULT_NODE_INDEX_LIMIT);
+    }
+
+    @Override
+    public String getSubnetworkId() {
+        return Optional.ofNullable(subnetworkRef.get()).map(Identifiable::getId).orElse(null);
+    }
+
+    @Override
+    public Ref<NetworkImpl> getNetworkRef() {
+        return networkRef;
     }
 
     @Override
@@ -87,6 +99,12 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                 .orElseGet(() -> Optional.ofNullable(substation)
                         .map(SubstationImpl::getNetwork)
                         .orElseThrow(() -> new PowsyblException(String.format("Voltage level %s has no container", id))));
+    }
+
+    @Override
+    public NetworkExt getParentNetwork() {
+        SubnetworkImpl subnetwork = subnetworkRef.get();
+        return subnetwork != null ? subnetwork : getNetwork();
     }
 
     private void notifyUpdate(String attribute, Object oldValue, Object newValue) {

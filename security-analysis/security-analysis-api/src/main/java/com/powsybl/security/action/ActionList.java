@@ -25,7 +25,7 @@ import java.util.Objects;
  * A container for a list of actions.
  * The JSON representation of this object is versioned.
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ActionList {
     private final List<Action> actions;

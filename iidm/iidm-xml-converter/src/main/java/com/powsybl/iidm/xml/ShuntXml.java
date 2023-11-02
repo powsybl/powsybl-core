@@ -21,7 +21,7 @@ import static com.powsybl.iidm.xml.ConnectableXmlUtil.readNodeOrBus;
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.writeNodeOrBus;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
 
@@ -169,7 +169,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                 case REGULATING_TERMINAL:
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String regSide = context.getReader().getAttributeValue(null, "side");
-                    toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getNetwork(), regId, regSide))));
+                    toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.resolve(regId, regSide, sc.getNetwork()))));
                     break;
                 case SHUNT_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);

@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Abstract class for matrix that provides an implementation for common methods.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractMatrix implements Matrix {
 

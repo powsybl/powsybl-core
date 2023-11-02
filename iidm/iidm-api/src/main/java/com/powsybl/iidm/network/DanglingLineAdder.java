@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface DanglingLineAdder extends InjectionAdder<DanglingLine, DanglingLineAdder> {
 
@@ -41,7 +41,7 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLine, Dangling
 
     DanglingLineAdder setB(double b);
 
-    DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode);
+    DanglingLineAdder setPairingKey(String pairingKey);
 
     default GenerationAdder newGeneration() {
         throw new UnsupportedOperationException();

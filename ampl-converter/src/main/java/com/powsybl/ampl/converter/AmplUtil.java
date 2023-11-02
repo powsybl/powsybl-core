@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class AmplUtil {
 
@@ -62,11 +62,11 @@ public final class AmplUtil {
     }
 
     public static String getXnodeBusId(TieLine tieLine) {
-        return tieLine.getUcteXnodeCode();
+        return tieLine.getPairingKey();
     }
 
     public static String getXnodeVoltageLevelId(TieLine tieLine) {
-        return tieLine.getUcteXnodeCode();
+        return tieLine.getPairingKey();
     }
 
     public static String getThreeWindingsTransformerMiddleBusId(ThreeWindingsTransformer twt) {

@@ -34,7 +34,7 @@ import com.powsybl.cgmes.model.CgmesModel;
  * @see java.util.ServiceLoader
  * @see com.google.auto.service.AutoService
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface CgmesImportPreProcessor {
 

@@ -11,7 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 /**
  * Loads an extension from platform configuration.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public interface ExtensionConfigLoader<T extends Extendable, E extends Extension<T> > extends ExtensionProvider<T, E> {
 

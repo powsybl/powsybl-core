@@ -20,13 +20,14 @@ import com.powsybl.security.json.action.*;
 import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
+import com.powsybl.security.strategy.ConditionalActions;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
 
@@ -63,6 +64,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(OperatorStrategyResult.class, new OperatorStrategyResultSerializer());
         addSerializer(OperatorStrategy.class, new OperatorStrategySerializer());
         addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
+        addSerializer(ConditionalActions.class, new ConditionalActionsSerializer());
         addSerializer(ActionList.class, new ActionListSerializer());
         addSerializer(Condition.class, new ConditionSerializer());
         addSerializer(ConnectivityResult.class, new ConnectivityResultSerializer());
@@ -80,6 +82,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(OperatorStrategyResult.class, new OperatorStrategyResultDeserializer());
         addDeserializer(OperatorStrategy.class, new OperatorStrategyDeserializer());
         addDeserializer(OperatorStrategyList.class, new OperatorStrategyListDeserializer());
+        addDeserializer(ConditionalActions.class, new ConditionalActionsDeserializer());
         addDeserializer(ActionList.class, new ActionListDeserializer());
         addDeserializer(Condition.class, new ConditionDeserializer());
         addDeserializer(NetworkResult.class, new NetworkResultDeserializer());

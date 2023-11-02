@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:cgmbp="http://entsoe.eu/CIM/Extensions/CGM-BP/2020#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <md:FullModel rdf:about="urn:uuid:99999999-cfff-4252-a5a8-1784fb5a4514">
+    <md:Model.created>2023-08-12T13:00:00.000000Z</md:Model.created>
+    <md:Model.scenarioTime>2023-08-14T00:00:00Z</md:Model.scenarioTime>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.description>Sample for testing reference data provider</md:Model.description>
+    <md:Model.modelingAuthoritySet>http://www.entsoe.eu/OperationalPlanning</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundary/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundaryOperation/3/1</md:Model.profile>
+  </md:FullModel>
+  <cim:GeographicalRegion rdf:ID="_7e6dab44-5e92-4698-92d1-dcc3421cce1a">
+    <cim:IdentifiedObject.description>Geographical Region of ENTSO-E</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>EU</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.shortName>EU</entsoe:IdentifiedObject.shortName>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10Y1001C--00037Z</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cgmbp:MARegion.ModelingAuthority rdf:resource="#_6f010c0a-a735-49ec-99b1-76fed42ea948"/>
+    <cgmbp:NetworkRegion.sourcingActor>ENTSOE</cgmbp:NetworkRegion.sourcingActor>
+    <cgmbp:NetworkRegion.masUri>http://www.entsoe.eu/OperationalPlanning</cgmbp:NetworkRegion.masUri>
+  </cim:GeographicalRegion>
+  <cim:SubGeographicalRegion rdf:ID="_d81cedde-fca0-4ab8-9604-33e4a8839325">
+    <cim:SubGeographicalRegion.Region rdf:resource="#_7e6dab44-5e92-4698-92d1-dcc3421cce1a"/>
+    <cim:IdentifiedObject.description>SubGeographical Region of ENTSO-E</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>ENTSO-E</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.shortName>ENTSO-E</entsoe:IdentifiedObject.shortName>
+    <cgmbp:MARegion.ModelingAuthority rdf:resource="#_6f010c0a-a735-49ec-99b1-76fed42ea948"/>
+    <cgmbp:NetworkRegion.sourcingActor>ENTSOE</cgmbp:NetworkRegion.sourcingActor>
+    <cgmbp:NetworkRegion.masUri>http://www.entsoe.eu/OperationalPlanning</cgmbp:NetworkRegion.masUri>
+  </cim:SubGeographicalRegion>
+  <cim:BaseVoltage rdf:ID="_65dd04e792584b3b912374e35dec032e">
+    <cim:BaseVoltage.nominalVoltage>400</cim:BaseVoltage.nominalVoltage>
+    <cim:IdentifiedObject.name>AC-400</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.shortName>AC-400</entsoe:IdentifiedObject.shortName>
+    <cim:IdentifiedObject.description>Base voltage defined by ENTSO-E 400 kV</cim:IdentifiedObject.description>
+  </cim:BaseVoltage>
+  <cim:GeographicalRegion rdf:ID="_952f0d5f-cf4d-40fc-932c-1c973266bd90">
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10YBE----------2</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:IdentifiedObject.name>BE</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Belgium</cim:IdentifiedObject.description>
+    <entsoe:IdentifiedObject.shortName>BE</entsoe:IdentifiedObject.shortName>
+    <cgmbp:MARegion.ModelingAuthority rdf:resource="#_07d471b4-2d16-473d-9b98-8cbc22a2f7cf"/>
+    <cgmbp:NetworkRegion.sourcingActor>ELIA</cgmbp:NetworkRegion.sourcingActor>
+    <cgmbp:NetworkRegion.masUri>http://www.elia.be/OperationalPlanning</cgmbp:NetworkRegion.masUri>
+  </cim:GeographicalRegion>
+  <cgmbp:ModelingAuthority rdf:ID="_07d471b4-2d16-473d-9b98-8cbc22a2f7cf">
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10X1001A1001A094</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:IdentifiedObject.name>ELIA</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Elia Transmission Belgium</cim:IdentifiedObject.description>
+    <cgmbp:Party.sourceName>ELIA</cgmbp:Party.sourceName>
+    <cgmbp:Party.uri>http://www.elia.be</cgmbp:Party.uri>
+  </cgmbp:ModelingAuthority>
+</rdf:RDF>

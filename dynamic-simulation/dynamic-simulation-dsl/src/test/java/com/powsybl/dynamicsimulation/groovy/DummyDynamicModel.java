@@ -12,7 +12,7 @@ import java.util.Objects;
 import com.powsybl.dynamicsimulation.DynamicModel;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 class DummyDynamicModel implements DynamicModel {
 

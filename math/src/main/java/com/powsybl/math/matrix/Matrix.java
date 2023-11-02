@@ -15,7 +15,7 @@ import java.util.Objects;
  * sparse matrix implementations. In the case of sparse matrix additional usage constraint could be added and specified
  * in the javadoc for instance in the order a matrix has to be filled.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Matrix {
 

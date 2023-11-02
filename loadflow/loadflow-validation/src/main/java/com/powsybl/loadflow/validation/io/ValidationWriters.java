@@ -21,7 +21,7 @@ import com.powsybl.loadflow.validation.ValidationUtils;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public class ValidationWriters implements AutoCloseable {
 

@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface CgmesModel {
 
@@ -58,6 +58,10 @@ public interface CgmesModel {
     PropertyBags boundaryNodes();
 
     PropertyBags baseVoltages();
+
+    PropertyBags countrySourcingActors(String countryName);
+
+    PropertyBags sourcingActor(String sourcingActor);
 
     PropertyBags substations();
 

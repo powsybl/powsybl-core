@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * A terminal connected to a node breaker topology.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeTerminal extends AbstractTerminal {
 
@@ -142,7 +142,7 @@ class NodeTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException("Cannot access v of removed equipment " + connectable.id);
         }
-        return v.get(network.get().getVariantIndex());
+        return v.get(getVariantManagerHolder().getVariantIndex());
     }
 
     void setV(double v) {
@@ -152,9 +152,9 @@ class NodeTerminal extends AbstractTerminal {
         if (v < 0) {
             throw new ValidationException(connectable, "voltage cannot be < 0");
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
         double oldValue = this.v.set(variantIndex, v);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("v", variantId, oldValue, v);
     }
 
@@ -162,16 +162,16 @@ class NodeTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException("Cannot access angle of removed equipment " + connectable.id);
         }
-        return angle.get(network.get().getVariantIndex());
+        return angle.get(getVariantManagerHolder().getVariantIndex());
     }
 
     void setAngle(double angle) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
         double oldValue = this.angle.set(variantIndex, angle);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("angle", variantId, oldValue, angle);
     }
 
@@ -179,16 +179,16 @@ class NodeTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException("Cannot access connected component of removed equipment " + connectable.id);
         }
-        return connectedComponentNumber.get(network.get().getVariantIndex());
+        return connectedComponentNumber.get(getVariantManagerHolder().getVariantIndex());
     }
 
     void setConnectedComponentNumber(int connectedComponentNumber) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
         int oldValue = this.connectedComponentNumber.set(variantIndex, connectedComponentNumber);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("connectedComponentNumber", variantId, oldValue, connectedComponentNumber);
     }
 
@@ -196,16 +196,16 @@ class NodeTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException("Cannot access synchronous component of removed equipment " + connectable.id);
         }
-        return synchronousComponentNumber.get(network.get().getVariantIndex());
+        return synchronousComponentNumber.get(getVariantManagerHolder().getVariantIndex());
     }
 
     void setSynchronousComponentNumber(int componentNumber) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
         int oldValue = this.synchronousComponentNumber.set(variantIndex, componentNumber);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("synchronousComponentNumber", variantId, oldValue, componentNumber);
     }
 

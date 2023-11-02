@@ -30,7 +30,7 @@ import java.util.*;
  * therefore some fields are fully serializable business objects
  * while others are more in their "source" format as they do not support serialization out of the box.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisExecutionInput {
 

@@ -38,7 +38,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 final class ExportXmlCompare {
 
@@ -285,6 +285,19 @@ final class ExportXmlCompare {
 
     static ComparisonResult noKnownDiffs(Comparison comparison, ComparisonResult result) {
         // No previously known differences that should be filtered
+        return result;
+    }
+
+    static ComparisonResult ignoringCgmesSshMetadataId(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE
+                    && control.getNodeName().equals("id")) {
+                if (comparison.getControlDetails().getXPath().contains("cgmesSshMetadata")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
         return result;
     }
 

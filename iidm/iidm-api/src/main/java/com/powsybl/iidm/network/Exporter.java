@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  *
  * @see java.util.ServiceLoader
  * @see Exporters
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Exporter {
 

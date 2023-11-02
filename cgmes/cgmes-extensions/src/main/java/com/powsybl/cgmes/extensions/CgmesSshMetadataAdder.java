@@ -6,14 +6,19 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public interface CgmesSshMetadataAdder extends ExtensionAdder<Network, CgmesSshMetadata> {
+
+    default CgmesSshMetadataAdder setId(String id) {
+        throw new PowsyblException("Unsupported method");
+    }
 
     CgmesSshMetadataAdder setDescription(String description);
 

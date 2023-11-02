@@ -15,10 +15,7 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static com.powsybl.iidm.modification.util.ModificationLogs.busOrBbsDoesNotExist;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
@@ -29,7 +26,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * disconnectors to connect the breaker to every parallel busbar section, else does not create them.
  * If there are exactly two busbar sections and
  * that they must have the same sectionIndex, then no open disconnector is created.
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateCouplingDevice extends AbstractNetworkModification {
 
@@ -109,49 +106,110 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             createBusBreakerSwitch(busOrBbsId1, busOrBbsId2, switchPrefixId, "", voltageLevel1.getBusBreakerView());
         } else if (busOrBbs1 instanceof BusbarSection bbs1 && busOrBbs2 instanceof BusbarSection bbs2) {
             // busbar sections exist: voltage level is NODE_BREAKER
-            int breakerNode1 = voltageLevel1.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            int breakerNode2 = breakerNode1 + 1;
-            int bbs1Node = bbs1.getTerminal().getNodeBreakerView().getNode();
-            int bbs2Node = bbs2.getTerminal().getNodeBreakerView().getNode();
-
-            createNBBreaker(breakerNode1, breakerNode2, "", switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
-            createNBDisconnector(bbs1Node, breakerNode1, "_" + bbs1Node, switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
-            createNBDisconnector(bbs2Node, breakerNode2, "_" + bbs2Node, switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
-
-            BusbarSectionPosition position1 = bbs1.getExtension(BusbarSectionPosition.class);
-            BusbarSectionPosition position2 = bbs2.getExtension(BusbarSectionPosition.class);
-            if (position1 != null) {
-                if (position2 != null) {
-                    List<BusbarSection> bbsList1 = voltageLevel1.getNodeBreakerView().getBusbarSectionStream()
-                            .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                            .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position1.getSectionIndex())
-                            .filter(b -> !b.getId().equals(busOrBbsId1)).collect(Collectors.toList());
-                    List<BusbarSection> bbsList2 = voltageLevel2.getNodeBreakerView().getBusbarSectionStream()
-                            .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                            .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position2.getSectionIndex())
-                            .filter(b -> !b.getId().equals(busOrBbsId2)).collect(Collectors.toList());
-
-                    // if both busbar are in same section and there is only 2 busbars in this section, then we do not add more disconnectors
-                    // otherwise the coupler is on each side attached to all busbars of the corresponding section
-                    int nbOpenDisconnectors = 0;
-                    if (bbsList1.size() != 1 || position1.getSectionIndex() != position2.getSectionIndex()) {
-                        nbOpenDisconnectors = bbsList1.size() * 2;
-                        createTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, switchPrefixId, bbsList1);
-                        createTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, switchPrefixId, bbsList2);
-                        LOGGER.info("{} open disconnectors created on parallel busbar section in voltage level {}", nbOpenDisconnectors, voltageLevel1.getId());
-                        openDisconnectorsAddedReport(reporter, voltageLevel1.getId(), nbOpenDisconnectors);
-                    }
-                } else {
-                    LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs2.getId());
-                    noBusbarSectionPositionExtensionReport(reporter, bbs2);
-                }
-            } else {
-                LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs1.getId());
-                noBusbarSectionPositionExtensionReport(reporter, bbs1);
-            }
+            applyOnBusbarSections(voltageLevel1, voltageLevel2, bbs1, bbs2, reporter);
         }
         LOGGER.info("New coupling device was added to voltage level {} between {} and {}", voltageLevel1.getId(), busOrBbs1, busOrBbs2);
         newCouplingDeviceAddedReport(reporter, voltageLevel1.getId(), busOrBbsId1, busOrBbsId2);
+    }
+
+    /**
+     * Apply the modification on the two specified busbar sections
+     */
+    private void applyOnBusbarSections(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, BusbarSection bbs1, BusbarSection bbs2, Reporter reporter) {
+        // busbar sections exist: voltage level is NODE_BREAKER
+        int breakerNode1 = voltageLevel1.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        int breakerNode2 = breakerNode1 + 1;
+        int nbOpenDisconnectors = 0;
+
+        // Breaker
+        createNBBreaker(breakerNode1, breakerNode2, "", switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
+
+        // Positions
+        BusbarSectionPosition position1 = bbs1.getExtension(BusbarSectionPosition.class);
+        BusbarSectionPosition position2 = bbs2.getExtension(BusbarSectionPosition.class);
+        boolean bbsOnSameSection = position1 != null && position2 != null && position1.getSectionIndex() == position2.getSectionIndex();
+
+        // If the positions are defined and on the same section, check if the first side is on the first bar or the second side on the last bar.
+        // If true, the last bar will not be connected on the first side nor the first bar on the second side.
+        // If false, it will be the opposite.
+        boolean avoidLastBarOnFirstSide = bbsOnSameSection && checkSides(voltageLevel1, position1, position2);
+
+        // Disconnectors
+        if (position1 != null) {
+
+            // List of the bars for the first section and creation of the topology
+            List<BusbarSection> bbsList1 = computeBbsListAndCreateTopology(voltageLevel1, position1, bbs1, bbsOnSameSection, breakerNode1, avoidLastBarOnFirstSide);
+
+            nbOpenDisconnectors += bbsList1.size() - 1;
+        } else {
+            createDisconnectorTopology(voltageLevel1, breakerNode1, switchPrefixId, List.of(bbs1), bbs1);
+            LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs1.getId());
+            noBusbarSectionPositionExtensionReport(reporter, bbs1);
+        }
+        if (position2 != null) {
+            // List of the bars for the second section and creation of the topology
+            List<BusbarSection> bbsList2 = computeBbsListAndCreateTopology(voltageLevel2, position2, bbs2, bbsOnSameSection, breakerNode2, !avoidLastBarOnFirstSide);
+
+            nbOpenDisconnectors += bbsList2.size() - 1;
+        } else {
+            createDisconnectorTopology(voltageLevel2, breakerNode2, switchPrefixId, List.of(bbs2), bbs2);
+            LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs2.getId());
+            noBusbarSectionPositionExtensionReport(reporter, bbs2);
+        }
+
+        if (nbOpenDisconnectors > 0) {
+            LOGGER.info("{} open disconnectors created on parallel busbar section in voltage level {}", nbOpenDisconnectors, voltageLevel1.getId());
+            openDisconnectorsAddedReport(reporter, voltageLevel1.getId(), nbOpenDisconnectors);
+        }
+    }
+
+    /**
+     * Check if the first side is on the first bar or the second side on the last bar
+     * @param voltageLevel Voltage level in which the busbar sections are located
+     * @param position1 Position on the first side
+     * @param position2 Position on the second side
+     * @return True if the first side is on the first bar or the second side is on the last bar, else False
+     */
+    private boolean checkSides(VoltageLevel voltageLevel, BusbarSectionPosition position1, BusbarSectionPosition position2) {
+        // Check if the first side is on the first bar or the second side on the last bar
+        OptionalInt minBbsIndex = getParallelBusbarSections(voltageLevel, position1).stream()
+            .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).min();
+        OptionalInt maxBbsIndex = getParallelBusbarSections(voltageLevel, position2).stream()
+            .mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).max();
+        return position1.getBusbarIndex() == minBbsIndex.orElseThrow()
+            || position2.getBusbarIndex() == maxBbsIndex.orElseThrow();
+    }
+
+    /**
+     * Computes the list of the bars on which to connect the coupling device for the current side and creates the
+     * disconnectors for the different parallel busbar sections.
+     * @param voltageLevel Voltage level in which the busbar sections are located
+     * @param position Position of the current bar
+     * @param bbs Current bar
+     * @param bbsOnSameSection True if the two busbar sections are located on the same section
+     * @param breakerNode Node on the current site of the breaker
+     * @param avoidLastBar If true, the last bar will not be connected, if false the first one will not be connected.
+     * @return List of the busbar sections on which a connection was made
+     */
+    private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSectionPosition position, BusbarSection bbs, boolean bbsOnSameSection, int breakerNode, boolean avoidLastBar) {
+
+        // List of the bars parallel to the given position
+        List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
+
+        // If the two busbarsections are in the same section, avoid the last bar if avoidLastBar is true, else the first one
+        if (bbsOnSameSection) {
+            if (avoidLastBar) {
+                int maxBbsIndex = bbsList.stream().mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).max().orElseThrow();
+                bbsList = bbsList.stream().filter(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex() != maxBbsIndex).toList();
+            } else {
+                int minBbsIndex = bbsList.stream().mapToInt(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex()).min().orElseThrow();
+                bbsList = bbsList.stream().filter(b -> b.getExtension(BusbarSectionPosition.class).getBusbarIndex() != minBbsIndex).toList();
+            }
+        }
+
+        // Disconnectors
+        createDisconnectorTopology(voltageLevel, breakerNode, switchPrefixId, bbsList, bbs);
+        return bbsList;
     }
 
     private boolean failBbs(Identifiable<?> bbs1, Identifiable<?> bbs2, Reporter reporter, boolean throwException) {

@@ -14,7 +14,7 @@ import com.powsybl.commons.extensions.Extendable;
  * An object that is part of the network model and that is identified uniquely
  * by a <code>String</code> id.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
@@ -22,6 +22,13 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      * Get the network associated to the object.
      */
     Network getNetwork();
+
+    /**
+     * Get the parent network, i.e. the smallest network containing the object.
+     */
+    default Network getParentNetwork() {
+        return getNetwork();
+    }
 
     /**
      * Get the unique identifier of the object.

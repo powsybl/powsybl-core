@@ -11,8 +11,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.psse.model.io.Context;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public interface PsseConversionContextExtension extends Extension<Network> {
 
