@@ -63,7 +63,7 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
         }
         context.getWriter().writeEndNodes();
 
-        context.getWriter().writeStartNodes("threeWindingsTransformers");
+        context.getWriter().writeStartNodes(ThreeWindingsTransformerXml.ARRAY_ELEMENT_NAME);
         Iterable<ThreeWindingsTransformer> twts2 = IidmXmlUtil.sorted(s.getThreeWindingsTransformers(), context.getOptions());
         for (ThreeWindingsTransformer twt : twts2) {
             if (!context.getFilter().test(twt)) {

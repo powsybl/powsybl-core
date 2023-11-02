@@ -266,6 +266,10 @@ public class JsonReader implements TreeDataReader {
                     case VALUE_STRING -> text = parser.getText();
                 }
             }
+            // Exiting the while means currentJsonToken == JsonToken.END_OBJECT && depth == 0
+            // As it could be nested within another readUntilEndNodeWithDepth, the token should not be consumed,
+            // for the depth to be decreased in the calling readUntilEndNodeWithDepth
+
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
