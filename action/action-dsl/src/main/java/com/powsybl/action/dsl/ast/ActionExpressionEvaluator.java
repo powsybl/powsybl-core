@@ -8,11 +8,9 @@ package com.powsybl.action.dsl.ast;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dsl.GroovyUtil;
-import com.powsybl.dsl.ast.*;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.dsl.ast.ExpressionEvaluator;
+import com.powsybl.dsl.ast.ExpressionNode;
+import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,8 +114,8 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
         }
 
         private static int compare(BranchAndSide branchAndSide1, BranchAndSide branchAndSide2) {
-            Branch.Overload overload1 = branchAndSide1.getBranch().checkTemporaryLimits(branchAndSide1.getSide(), LimitType.CURRENT);
-            Branch.Overload overload2 = branchAndSide2.getBranch().checkTemporaryLimits(branchAndSide2.getSide(), LimitType.CURRENT);
+            Overload overload1 = branchAndSide1.getBranch().checkTemporaryLimits(branchAndSide1.getSide(), LimitType.CURRENT);
+            Overload overload2 = branchAndSide2.getBranch().checkTemporaryLimits(branchAndSide2.getSide(), LimitType.CURRENT);
             double i1 = branchAndSide1.getBranch().getTerminal(branchAndSide1.getSide()).getI();
             double i2 = branchAndSide2.getBranch().getTerminal(branchAndSide2.getSide()).getI();
             double permanentLimit1 = getPermanentLimit(branchAndSide1.getBranch(), branchAndSide1.getSide());
