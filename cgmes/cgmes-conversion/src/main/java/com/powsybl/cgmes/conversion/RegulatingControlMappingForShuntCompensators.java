@@ -77,7 +77,6 @@ public class RegulatingControlMappingForShuntCompensators {
         // But no regulating control information has been found
         // We create default regulation data
         if (rcId == null) {
-            // No need to report as missing, just log a message
             LOG.trace("Regulating control Id not present for shunt compensator {}", shuntCompensator.getId());
             setDefaultRegulatingControl(shuntCompensator);
             return;
