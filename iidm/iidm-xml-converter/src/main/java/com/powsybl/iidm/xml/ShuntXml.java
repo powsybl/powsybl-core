@@ -131,14 +131,6 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
 
     @Override
     protected void readRootElementAttributes(ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
-            double targetV = context.getReader().readDoubleAttribute("targetV");
-            double targetDeadband = context.getReader().readDoubleAttribute("targetDeadband");
-            adder.setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband)
-                    .setVoltageRegulatorOn(voltageRegulatorOn);
-        });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> adder.setVoltageRegulatorOn(false));
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
             double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
@@ -155,6 +147,14 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
             if (sectionCount != null) {
                 adder.setSectionCount(sectionCount);
             }
+        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+            double targetV = context.getReader().readDoubleAttribute("targetV");
+            double targetDeadband = context.getReader().readDoubleAttribute("targetDeadband");
+            adder.setTargetV(targetV)
+                    .setTargetDeadband(targetDeadband)
+                    .setVoltageRegulatorOn(voltageRegulatorOn);
         });
         readNodeOrBus(adder, context);
         double p = context.getReader().readDoubleAttribute("p");

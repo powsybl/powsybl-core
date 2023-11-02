@@ -178,6 +178,10 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
 
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkXmlReaderContext context) {
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
+        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
+        if (tapPosition != null) {
+            adder.setTapPosition(tapPosition);
+        }
         double targetDeadband = readTargetDeadband(context);
         PhaseTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", PhaseTapChanger.RegulationMode.class);
         double regulationValue = context.getReader().readDoubleAttribute("regulationValue");
@@ -186,10 +190,6 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                 .setTargetDeadband(targetDeadband)
                 .setRegulationMode(regulationMode)
                 .setRegulationValue(regulationValue);
-        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
-        if (tapPosition != null) {
-            adder.setTapPosition(tapPosition);
-        }
         Boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING);
         if (regulating != null) {
             adder.setRegulating(regulating);
@@ -204,7 +204,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                     });
                     break;
 
-                case STEP_ROOT_ELEMENT_NAME:
+                case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME:
                     PhaseTapChangerAdder.StepAdder stepAdder = adder.beginStep();
                     readSteps(context, (r, x, g, b, rho) -> stepAdder.setR(r)
                             .setX(x)

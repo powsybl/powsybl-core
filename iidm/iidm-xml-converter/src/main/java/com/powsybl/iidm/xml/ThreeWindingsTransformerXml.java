@@ -123,37 +123,45 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, Substation s, NetworkXmlReaderContext context) {
+        LegAdder legAdder1 = adder.newLeg1();
+        LegAdder legAdder2 = adder.newLeg2();
+        LegAdder legAdder3 = adder.newLeg3();
+
         double r1 = context.getReader().readDoubleAttribute("r1");
         double x1 = context.getReader().readDoubleAttribute("x1");
         double g1 = context.getReader().readDoubleAttribute("g1");
         double b1 = context.getReader().readDoubleAttribute("b1");
         double ratedU1 = context.getReader().readDoubleAttribute("ratedU1");
+        legAdder1.setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> readRatedS("ratedS1", context, legAdder1::setRatedS));
+
         double r2 = context.getReader().readDoubleAttribute("r2");
         double x2 = context.getReader().readDoubleAttribute("x2");
-        double ratedU2 = context.getReader().readDoubleAttribute("ratedU2");
-        double r3 = context.getReader().readDoubleAttribute("r3");
-        double x3 = context.getReader().readDoubleAttribute("x3");
-        double ratedU3 = context.getReader().readDoubleAttribute("ratedU3");
-        LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
-        LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
-        LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> {
-            double ratedU0 = context.getReader().readDoubleAttribute("ratedU0");
-            adder.setRatedU0(ratedU0);
-
             double g2 = context.getReader().readDoubleAttribute("g2");
             double b2 = context.getReader().readDoubleAttribute("b2");
             legAdder2.setG(g2).setB(b2);
+        });
+        double ratedU2 = context.getReader().readDoubleAttribute("ratedU2");
+        legAdder2.setR(r2).setX(x2).setRatedU(ratedU2);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> readRatedS("ratedS2", context, legAdder2::setRatedS));
 
+        double r3 = context.getReader().readDoubleAttribute("r3");
+        double x3 = context.getReader().readDoubleAttribute("x3");
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> {
             double g3 = context.getReader().readDoubleAttribute("g3");
             double b3 = context.getReader().readDoubleAttribute("b3");
             legAdder3.setG(g3).setB(b3);
         });
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            readRatedS("ratedS1", context, legAdder1::setRatedS);
-            readRatedS("ratedS2", context, legAdder2::setRatedS);
-            readRatedS("ratedS3", context, legAdder3::setRatedS);
+        double ratedU3 = context.getReader().readDoubleAttribute("ratedU3");
+        legAdder3.setR(r3).setX(x3).setRatedU(ratedU3);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> readRatedS("ratedS3", context, legAdder3::setRatedS));
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> {
+            double ratedU0 = context.getReader().readDoubleAttribute("ratedU0");
+            adder.setRatedU0(ratedU0);
         });
+
         readNodeOrBus(1, legAdder1, context);
         readNodeOrBus(2, legAdder2, context);
         readNodeOrBus(3, legAdder3, context);
