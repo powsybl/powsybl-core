@@ -72,7 +72,6 @@ public class RegulatingControlMappingForGenerators {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            // No need to report as missing, just log a message
             LOG.trace("Regulating control Id not present for generator {}", gen.getId());
             return;
         }
