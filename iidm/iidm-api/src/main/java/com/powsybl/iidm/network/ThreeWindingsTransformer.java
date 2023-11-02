@@ -116,7 +116,15 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     enum Side {
         ONE,
         TWO,
-        THREE
+        THREE;
+
+        public ThreeSides toThreeSides() {
+            return switch (this) {
+                case ONE -> ThreeSides.ONE;
+                case TWO -> ThreeSides.TWO;
+                case THREE -> ThreeSides.THREE;
+            };
+        }
     }
 
     /**
@@ -296,6 +304,8 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Get side of the leg on the three windings transformer
          */
         ThreeSides getSide();
+
+        Optional<? extends LoadingLimits> getLimits(LimitType type);
     }
 
     Terminal getTerminal(Side side);
@@ -362,4 +372,48 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     default IdentifiableType getType() {
         return IdentifiableType.THREE_WINDINGS_TRANSFORMER;
     }
+
+    /**
+     * Only checks overloading for LimitType.Current and permanent limits
+     */
+    boolean isOverloaded();
+
+    /**
+     * Only checks overloading for LimitType.Current and permanent limits
+     */
+    boolean isOverloaded(float limitReduction);
+
+    int getOverloadDuration();
+
+    boolean checkPermanentLimit(Side side, float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit(Side side, LimitType type);
+
+    boolean checkPermanentLimit1(float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit1(LimitType type);
+
+    boolean checkPermanentLimit2(float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit2(LimitType type);
+
+    boolean checkPermanentLimit3(float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit3(LimitType type);
+
+    Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits(Side side, LimitType type);
+
+    Overload checkTemporaryLimits1(float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits1(LimitType type);
+
+    Overload checkTemporaryLimits2(float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits2(LimitType type);
+
+    Overload checkTemporaryLimits3(float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits3(LimitType type);
 }

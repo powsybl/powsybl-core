@@ -36,7 +36,6 @@ import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -49,6 +48,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

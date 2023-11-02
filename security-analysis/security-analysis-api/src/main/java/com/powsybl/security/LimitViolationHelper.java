@@ -34,7 +34,7 @@ public final class LimitViolationHelper {
             }
         }
         if (identifiable instanceof Branch<?> branch) {
-            return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
+            return branch.getTerminal(limitViolation.getBranchSide()).getVoltageLevel();
         } else if (identifiable instanceof Injection<?> injection) {
             return injection.getTerminal().getVoltageLevel();
         } else if (identifiable instanceof VoltageLevel voltageLevel) {

@@ -102,30 +102,14 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     enum Side {
         ONE,
-        TWO
-    }
+        TWO;
 
-    /**
-     * Represents a current overload on a {@link Branch}.
-     */
-    interface Overload {
-
-        /**
-         * The temporary limit under which the current is.
-         * In particular, it determines the duration during which
-         * the current current value may be sustained.
-         */
-        CurrentLimits.TemporaryLimit getTemporaryLimit();
-
-        /**
-         * The value of the current limit which has been overloaded, in Amperes.
-         */
-        double getPreviousLimit();
-
-        /**
-         * The name of the current limit which has been overloaded.
-         */
-        String getPreviousLimitName();
+        public ThreeSides toThreeSides() {
+            return switch (this) {
+                case ONE -> ThreeSides.ONE;
+                case TWO -> ThreeSides.TWO;
+            };
+        }
     }
 
     /**
