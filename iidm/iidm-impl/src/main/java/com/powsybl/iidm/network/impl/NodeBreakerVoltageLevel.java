@@ -1232,38 +1232,42 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return false;
         }
 
-        // Each path is visited and for each, the first openable switch found is opened
+        // Set of switch that are opened
+        Set<SwitchImpl> openedSwitches = new HashSet<>(paths.size());
+
+        // Boolean becomes false if a path cannot be opened
+        boolean pathsOpen = true;
+
+        // Each path is visited and for each, the first openable switch found is added in the set of switches to open
         for (TIntArrayList path : paths) {
             // Open the first openable switch
-            boolean pathOpen = openPath(path, isSwitchOpenable);
-
-            // Checks
-            if (!pathOpen) {
-                // Getting here meant no openable switch was found and therefor the terminal cannot be disconnected
-                return false;
-            }
-            if (!terminal.isConnected()) {
-                // Stop the loop here if opening the switch on this path disconnected the terminal
-                break;
-            }
+            pathsOpen = openPath(path, isSwitchOpenable, openedSwitches) && pathsOpen;
         }
-        return true;
+
+        // The switches are opened if and only if every path can be opened
+        if (pathsOpen) {
+            openedSwitches.forEach(sw -> sw.setOpen(true));
+            return true;
+        }
+        return false;
     }
 
     /**
-     * Opens the first openable switch in the given path
+     * Add the first openable switch in the given path to the set of switch to open
      * @param path the path to open
      * @param isSwitchOpenable predicate used to know if the switches can be opened
+     * @param openedSwitches set of switch to be opened
      * @return true if the path has been opened, else false
      */
-    boolean openPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable) {
+    boolean openPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> openedSwitches) {
         for (int i = 0; i < path.size(); i++) {
             int e = path.get(i);
             SwitchImpl sw = graph.getEdgeObject(e);
-            if (isSwitchOpenable.test(sw)) {
-                if (!sw.isOpen()) {
-                    sw.setOpen(true);
-                }
+            if (openedSwitches.contains(sw)) {
+                // A switch in the path has already been opened
+                return true;
+            } else if (isSwitchOpenable.test(sw)) {
+                openedSwitches.add(sw);
                 // just one open breaker is enough to disconnect the terminal, so we can stop
                 return true;
             }

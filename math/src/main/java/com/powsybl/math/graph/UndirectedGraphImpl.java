@@ -642,7 +642,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
         Vertex<V> obj1or2 = vertices.get(v1or2);
         path.add(e);
-        if (pathComplete.apply(obj1or2.getObject())) {
+        if (Boolean.TRUE.equals(pathComplete.apply(obj1or2.getObject()))) {
             paths.add(path);
             return true;
         } else {
