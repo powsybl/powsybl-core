@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Map;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface BaseVoltageMapping extends Extension<Network> {
 

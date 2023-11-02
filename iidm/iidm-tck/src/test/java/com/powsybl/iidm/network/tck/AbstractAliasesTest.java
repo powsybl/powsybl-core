@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public abstract class AbstractAliasesTest {
 

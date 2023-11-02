@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @see java.util.ServiceLoader
  * @see Importers
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Importer {
 

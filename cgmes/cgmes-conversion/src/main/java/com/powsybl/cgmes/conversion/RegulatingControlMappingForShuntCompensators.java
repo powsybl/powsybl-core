@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class RegulatingControlMappingForShuntCompensators {
 

@@ -25,7 +25,7 @@ import java.util.Set;
 import static com.powsybl.loadflow.json.JsonLoadFlowParameters.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
 

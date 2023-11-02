@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 /**
  * This test network is constituted the same as the one in FourSubstationsNodeBreakerFactory.
  * Only the position extensions for busbar sections and connectables are added.
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public final class FourSubstationsNodeBreakerWithExtensionsFactory {
 

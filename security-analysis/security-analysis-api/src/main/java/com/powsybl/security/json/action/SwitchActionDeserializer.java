@@ -16,7 +16,7 @@ import com.powsybl.security.action.SwitchAction;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class SwitchActionDeserializer extends StdDeserializer<SwitchAction> {
 

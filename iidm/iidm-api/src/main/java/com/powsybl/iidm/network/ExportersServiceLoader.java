@@ -11,7 +11,7 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import java.util.List;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ExportersServiceLoader implements ExportersLoader {
 

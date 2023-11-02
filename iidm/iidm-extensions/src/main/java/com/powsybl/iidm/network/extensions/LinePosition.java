@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public interface LinePosition<T extends Identifiable<T>> extends Extension<T> {
 

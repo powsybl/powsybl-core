@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  * Study case loader that is able to connect to PowerFactory DB using C++ API.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(PowerFactoryDataLoader.class)
 public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {

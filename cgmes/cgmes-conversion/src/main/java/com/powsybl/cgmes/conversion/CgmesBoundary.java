@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 
 public class CgmesBoundary {

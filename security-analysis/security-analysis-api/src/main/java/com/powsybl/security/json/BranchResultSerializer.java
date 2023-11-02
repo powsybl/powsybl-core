@@ -15,7 +15,7 @@ import com.powsybl.security.results.BranchResult;
 import java.io.IOException;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class BranchResultSerializer extends StdSerializer<BranchResult> {
 

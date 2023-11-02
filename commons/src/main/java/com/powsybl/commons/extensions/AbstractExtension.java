@@ -9,7 +9,7 @@ package com.powsybl.commons.extensions;
 import com.powsybl.commons.PowsyblException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractExtension<T> implements Extension<T> {
 

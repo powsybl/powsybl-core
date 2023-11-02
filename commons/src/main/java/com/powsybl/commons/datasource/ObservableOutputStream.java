@@ -14,7 +14,7 @@ import java.io.OutputStream;
  * An output stream wrapper that allows notification when the stream is opened
  * and closed.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class ObservableOutputStream extends ForwardingOutputStream<OutputStream> {
 

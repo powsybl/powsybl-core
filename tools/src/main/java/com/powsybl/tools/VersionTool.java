@@ -14,7 +14,7 @@ import org.apache.commons.cli.Options;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(Tool.class)
 public class VersionTool implements Tool {

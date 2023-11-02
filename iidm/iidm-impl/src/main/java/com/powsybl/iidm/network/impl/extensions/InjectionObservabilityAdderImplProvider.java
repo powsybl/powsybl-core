@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class InjectionObservabilityAdderImplProvider<I extends Injection<I>> implements

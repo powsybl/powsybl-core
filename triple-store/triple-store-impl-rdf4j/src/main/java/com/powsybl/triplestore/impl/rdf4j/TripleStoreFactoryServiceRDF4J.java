@@ -13,7 +13,7 @@ import com.powsybl.triplestore.api.TripleStoreFactoryService;
 import com.powsybl.triplestore.api.TripleStoreOptions;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 @AutoService(TripleStoreFactoryService.class)
 public class TripleStoreFactoryServiceRDF4J implements TripleStoreFactoryService {

@@ -20,7 +20,7 @@ import javax.xml.stream.XMLStreamException;
 
 /**
  *
- * @author Coline Piloquet <coline.piloquet@rte-france.fr>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class IdentifiableShortCircuitXmlSerializer<I extends Identifiable<I>> extends AbstractExtensionXmlSerializer<I, IdentifiableShortCircuit<I>> {

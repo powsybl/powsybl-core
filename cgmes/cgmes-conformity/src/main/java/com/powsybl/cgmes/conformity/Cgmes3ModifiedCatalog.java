@@ -13,8 +13,8 @@ import com.powsybl.commons.datasource.ResourceSet;
 import static com.powsybl.cgmes.conformity.CgmesCatalogsConstants.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public final class Cgmes3ModifiedCatalog {
 

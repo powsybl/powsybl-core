@@ -18,7 +18,7 @@ import java.io.IOException;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Luma Zamarreno <zamarrenolm at aia.es>
+ * @author Luma Zamarreno {@literal <zamarrenolm at aia.es>}
  */
 class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
 

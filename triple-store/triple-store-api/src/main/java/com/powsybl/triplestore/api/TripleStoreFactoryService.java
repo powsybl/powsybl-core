@@ -10,7 +10,7 @@ package com.powsybl.triplestore.api;
 /**
 * A factory service that allows creation of Triplestore databases.
 *
-* @author Luma Zamarreño <zamarrenolm at aia.es>
+* @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
 */
 public interface TripleStoreFactoryService {
 

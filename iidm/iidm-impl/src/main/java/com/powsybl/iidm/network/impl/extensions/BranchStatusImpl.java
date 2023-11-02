@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.BranchStatus;
 import java.util.Objects;
 
 /**
- * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
 public class BranchStatusImpl<C extends Connectable<C>> extends AbstractExtension<C> implements BranchStatus<C> {
 

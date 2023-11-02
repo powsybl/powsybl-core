@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAd
 import javax.xml.stream.XMLStreamException;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractExtensionXmlSerializer<TwoWindingsTransformer, TwoWindingsTransformerToBeEstimated>

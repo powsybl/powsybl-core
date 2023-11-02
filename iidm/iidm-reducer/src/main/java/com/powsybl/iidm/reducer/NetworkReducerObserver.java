@@ -9,7 +9,7 @@ package com.powsybl.iidm.reducer;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface NetworkReducerObserver {
 

@@ -14,7 +14,7 @@ import com.powsybl.commons.extensions.Extendable;
  * An object that is part of the network model and that is identified uniquely
  * by a <code>String</code> id.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 

@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import java.util.Objects;
 
 /**
- * @author Thomas ADAM <tadam at silicom.fr>
+ * @author Thomas ADAM {@literal <tadam at silicom.fr>}
  */
 class SynchronousComponentImpl extends AbstractSynchronousComponent {
 

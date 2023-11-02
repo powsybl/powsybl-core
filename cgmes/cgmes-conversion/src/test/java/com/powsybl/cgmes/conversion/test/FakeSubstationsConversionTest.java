@@ -21,7 +21,7 @@ import com.powsybl.cgmes.model.InMemoryCgmesModel;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class FakeSubstationsConversionTest {
     @Test

@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.components;
 import com.powsybl.iidm.network.Component;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public abstract class AbstractSynchronousComponentsManager<C extends Component> extends AbstractComponentsManager<C> {
 

@@ -12,7 +12,7 @@ import com.powsybl.security.LimitViolation;
 /**
  * Extension to handle pre-contingency voltage value for a voltage limit violation
  *
- * @author Olivier Bretteville <olivier.bretteville at rte-france.com>
+ * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
  */
 public class VoltageExtension extends AbstractPrecontingencyValueExtension<LimitViolation> {
 

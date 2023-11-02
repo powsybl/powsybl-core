@@ -16,7 +16,7 @@ import com.powsybl.contingency.*;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> {
 

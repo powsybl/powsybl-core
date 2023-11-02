@@ -16,8 +16,8 @@ import java.util.OptionalDouble;
 /**
  * An action modifying the regulation of a phase-shifting transformer
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulationAction {
 

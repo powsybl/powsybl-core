@@ -19,7 +19,7 @@ import java.io.IOException;
 import static com.powsybl.shortcircuit.FaultParameters.VERSION;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
 

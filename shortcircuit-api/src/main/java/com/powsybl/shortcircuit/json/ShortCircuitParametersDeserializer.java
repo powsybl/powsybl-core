@@ -113,6 +113,11 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setVoltageRanges(JsonUtil.readList(deserializationContext, parser, VoltageRange.class));
                 }
+                case "detailedReport" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.3");
+                    parser.nextToken();
+                    parameters.setDetailedReport(parser.readValueAs(Boolean.class));
+                }
                 case "extensions" -> {
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);

@@ -11,7 +11,7 @@ import gnu.trove.list.array.TByteArrayList;
 /**
  * TBooleanArrayList implement (not provided by trove4j) based on TByteArrayList.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TBooleanArrayList {
 

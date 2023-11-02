@@ -75,14 +75,24 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     private final List<ScalablePercentage> scalablePercentageList;
 
     ProportionalScalable(List<Double> percentages, List<Scalable> scalables) {
+        this(percentages, scalables, -Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    ProportionalScalable(List<Double> percentages, List<Scalable> scalables, double minValue, double maxValue) {
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < scalables.size(); i++) {
             this.scalablePercentageList.add(new ScalablePercentage(scalables.get(i), percentages.get(i)));
         }
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
 
     public ProportionalScalable(List<? extends Injection> injections, DistributionMode distributionMode) {
+        this(injections, distributionMode, -Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    public ProportionalScalable(List<? extends Injection> injections, DistributionMode distributionMode, double minValue, double maxValue) {
         // Create the scalable for each injection
         List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
 
@@ -117,6 +127,9 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         for (int i = 0; i < injectionScalables.size(); i++) {
             this.scalablePercentageList.add(new ScalablePercentage(injectionScalables.get(i), percentages.get(i)));
         }
+
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
 
     private double computeTotalDistribution(List<? extends Injection> injections, DistributionMode distributionMode) {
@@ -263,16 +276,18 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         // Variation asked
         double variationAsked = Scalable.getVariationAsked(parameters, asked, currentGlobalPower);
 
+        double boundedVariation = getBoundedVariation(variationAsked, currentGlobalPower, parameters.getScalingConvention());
+
         // Adapt the asked value if needed - only used in RESPECT_OF_DISTRIBUTION mode
         if (parameters.getPriority() == RESPECT_OF_DISTRIBUTION) {
-            variationAsked = resizeAskedForFixedDistribution(n, variationAsked, parameters);
+            boundedVariation = resizeAskedForFixedDistribution(n, boundedVariation, parameters);
         }
 
         reinitIterationPercentage();
         if (parameters.getPriority() == RESPECT_OF_VOLUME_ASKED) {
-            return iterativeScale(n, variationAsked, parameters);
+            return iterativeScale(n, boundedVariation, parameters);
         } else {
-            return scaleIteration(n, variationAsked, parameters);
+            return scaleIteration(n, boundedVariation, parameters);
         }
     }
 

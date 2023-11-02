@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Generator;
 
 /**
  *
- * @author Coline Piloquet <coline.piloquet@rte-france.fr>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 public interface GeneratorShortCircuitAdder extends ExtensionAdder<Generator, GeneratorShortCircuit> {
 

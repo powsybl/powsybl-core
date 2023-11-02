@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 public final class Plugins {
 
