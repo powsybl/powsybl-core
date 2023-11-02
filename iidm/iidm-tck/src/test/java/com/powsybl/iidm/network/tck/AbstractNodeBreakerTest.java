@@ -403,7 +403,6 @@ public abstract class AbstractNodeBreakerTest {
     @Test
     public void failToDisconnectWhenAlreadyDisconnected() {
         Network network = createNetwork();
-
         Generator g1 = network.getGenerator("G1");
 
         // disconnect the generator
@@ -411,10 +410,8 @@ public abstract class AbstractNodeBreakerTest {
     }
 
     @Test
-    public void failToDisconnectDurToPredicate() {
+    public void failToDisconnectDueToPredicate() {
         Network network = createNetwork();
-
-        VoltageLevel.NodeBreakerView topo = network.getVoltageLevel("VL1").getNodeBreakerView();
         Generator g2 = network.getGenerator("G2");
 
         // disconnect the generator
