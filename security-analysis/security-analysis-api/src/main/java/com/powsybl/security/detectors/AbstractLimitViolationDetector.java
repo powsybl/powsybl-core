@@ -27,6 +27,11 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     @Override
+    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+        checkCurrent(null, transformer, side, currentValue, consumer);
+    }
+
+    @Override
     public void checkVoltage(Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
         checkVoltage(null, bus, voltageValue, consumer);
     }
@@ -37,7 +42,8 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     /**
-     * This implementation takes the current value to be checked from the Network.
+     * {@inheritDoc}
+     * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
     public void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
@@ -45,7 +51,17 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     /**
-     * This implementation takes the voltage value to be checked from the Network.
+     * {@inheritDoc}
+     * <p>This implementation takes the current value to be checked from the Network.</p>
+     */
+    @Override
+    public void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer) {
+        checkCurrent(contingency, transformer, side, transformer.getTerminal(side).getI(), consumer);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>This implementation takes the voltage value to be checked from the Network.</p>
      */
     @Override
     public void checkVoltage(Contingency contingency, Bus bus, Consumer<LimitViolation> consumer) {
@@ -76,8 +92,16 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     @Override
+    public void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, Consumer<LimitViolation> consumer) {
+        checkCurrent(contingency, transformer, ThreeWindingsTransformer.Side.ONE, consumer);
+        checkCurrent(contingency, transformer, ThreeWindingsTransformer.Side.TWO, consumer);
+        checkCurrent(contingency, transformer, ThreeWindingsTransformer.Side.THREE, consumer);
+    }
+
+    @Override
     public void checkAll(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrent(contingency, b, consumer));
+        network.getThreeWindingsTransformerStream().forEach(t -> checkCurrent(contingency, t, consumer));
         network.getVoltageLevelStream()
                 .flatMap(v -> v.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(contingency, b, consumer));

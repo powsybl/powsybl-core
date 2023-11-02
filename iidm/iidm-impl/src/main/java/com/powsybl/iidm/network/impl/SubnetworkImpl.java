@@ -100,7 +100,8 @@ public class SubnetworkImpl extends AbstractNetwork {
         return getNetwork().getSubstationStream()
                 .filter(this::contains)
                 .map(s -> s.getCountry().orElse(null))
-                .filter(Objects::nonNull);
+                .filter(Objects::nonNull)
+                .distinct();
     }
 
     @Override
