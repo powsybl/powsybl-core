@@ -64,7 +64,7 @@ public abstract class AbstractReferenceTerminalsTest {
         lineS2S3.getExtension(ReferenceTerminals.class)
                 .newReferenceTerminal()
                 .setTerminal(lineS2S3.getTerminal2())
-                .setPriority(4)
+                .setPriority(0)
                 .add();
     }
 
@@ -85,9 +85,17 @@ public abstract class AbstractReferenceTerminalsTest {
         assertEquals(lineS2S3.getTerminal1(), lineS2S3RefTerminals.get(0).getTerminal());
         assertEquals(3, lineS2S3RefTerminals.get(0).getPriority());
         assertEquals(lineS2S3.getTerminal2(), lineS2S3RefTerminals.get(1).getTerminal());
-        assertEquals(4, lineS2S3RefTerminals.get(1).getPriority());
+        assertEquals(0, lineS2S3RefTerminals.get(1).getPriority());
 
         assertNull(lineS3S4.getExtension(ReferenceTerminals.class));
+
+        assertEquals(4, ReferenceTerminals.getReferenceTerminals(network).size());
+    }
+
+    @Test
+    void testDeleteAll() {
+        ReferenceTerminals.deleteReferenceTerminals(network);
+        assertEquals(0, ReferenceTerminals.getReferenceTerminals(network).size());
     }
 
     @Test
