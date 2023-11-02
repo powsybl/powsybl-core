@@ -289,7 +289,7 @@ class DefaultNetworkReducerTest {
         // Set voltageRegulatorOn to false
         HvdcLine hvdcLine = network.getHvdcLine("L");
         HvdcConverterStation hvdcConverterStation = hvdcLine.getConverterStation1();
-        assertEquals(hvdcConverterStation.getHvdcType().name(), "VSC");
+        assertEquals("VSC", hvdcConverterStation.getHvdcType().name());
         VscConverterStation vscConverterStation = (VscConverterStation) hvdcConverterStation;
         vscConverterStation.setReactivePowerSetpoint(45.0);
         vscConverterStation.setVoltageRegulatorOn(false);
