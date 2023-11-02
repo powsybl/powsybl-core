@@ -1,0 +1,179 @@
+/**
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.network;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * An overload management system.
+ *
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
+ */
+public interface OverloadManagementSystem extends AutomationSystem<OverloadManagementSystem> {
+
+    interface Tripping {
+        enum Type {
+            BRANCH_TRIPPING,
+            THREE_WINDINGS_TRANSFORMER_TRIPPING,
+            SWITCH_TRIPPING
+        }
+
+        Type getType();
+
+        /**
+         * Get the unique key of the tripping.
+         * <p>This key is unique for a single overload management system, but it can be reused
+         * for another overload management system).</p>
+         * @return the tripping key
+         */
+        String getKey();
+
+        /**
+         * Set the unique key of the tripping.
+         * <p>This key is unique for a single overload management system, but it can be reused
+         * for another overload management system).</p>
+         * @param key the tripping key
+         */
+        Tripping setKey(String key);
+
+        /**
+         * Get the name (if available) or the key of the tripping.
+         * <p>This method result is used for reporting purposes.</p>
+         * @return the name (if available) or the key of the tripping
+         */
+        String getNameOrKey();
+
+        /**
+         * Set the name of the tripping.
+         * <p>This name is facultative. It is used only for reporting purposes.</p>
+         * @param name the name of the tripping
+         * @see #getNameOrKey()
+         */
+        Tripping setName(String name);
+
+        /**
+         * Tell if the tripping is active or not.
+         * @return <code>true</code> is the tripping is enabled
+         */
+        boolean isEnabled();
+
+        /**
+         * Change the state of the tripping.
+         * @param enabled <code>true</code> to enable it
+         */
+        Tripping setEnabled(boolean enabled);
+
+        /**
+         * Return the minimum acceptable current value (in A).
+         * @return the minimum current value, or `Optional.empty()` if no low limit is defined
+         */
+        Optional<Double> getLowLimit();
+
+        Tripping setLowLimit(Double lowLimit);
+
+        /**
+         * Return the maximum acceptable current value (in A).
+         * @return the maximum current value, or `Optional.empty()` if no high limit is defined
+         */
+        Optional<Double> getHighLimit();
+
+        Tripping setHighLimit(Double highLimit);
+
+        /**
+         * Tell if the tripping operation consists in opening (<code>true</code>) or closing (<code>false</code>)
+         * the element (branch, three windings transformer or switch) to operate.
+         * @return <code>true</code> it the operation consists in opening the element, else <code>false</code>.
+         */
+        boolean isOpenAction();
+
+        Tripping setOpenAction(boolean open);
+    }
+
+    interface SwitchTripping extends Tripping {
+        @Override
+        default Type getType() {
+            return Type.SWITCH_TRIPPING;
+        }
+
+        Switch getSwitchToOperate();
+
+        SwitchTripping setSwitchToOperate(Switch switchToOperate);
+    }
+
+    interface BranchTripping extends Tripping {
+        @Override
+        default Type getType() {
+            return Type.BRANCH_TRIPPING;
+        }
+
+        Branch getBranchToOperate();
+
+        BranchTripping setBranchToOperate(Branch<?> branch);
+
+        ThreeSides getBranchToOperateSide();
+
+        BranchTripping setBranchToOperateSide(ThreeSides side);
+    }
+
+    interface ThreeWindingsTransformerTripping extends Tripping {
+        @Override
+        default Type getType() {
+            return Type.THREE_WINDINGS_TRANSFORMER_TRIPPING;
+        }
+
+        ThreeWindingsTransformer getThreeWindingsTransformerToOperate();
+
+        ThreeWindingsTransformerTripping setThreeWindingsTransformerToOperate(ThreeWindingsTransformer threeWindingsTransformer);
+
+        ThreeSides getSideToOperate();
+
+        ThreeWindingsTransformerTripping setSideToOperateSide(ThreeSides side);
+
+        default ThreeWindingsTransformer.Leg getLegToOperate() {
+            //TODO(op) This should be simplified once the sides' refactoring is merged
+            return getThreeWindingsTransformerToOperate().getLeg(getSideToOperate().toThreeWindingsTransformerSide());
+        }
+    }
+
+    /**
+     * Get the parent substation.
+     * @return the parent substation
+     */
+    Substation getSubstation();
+
+    /**
+     * Get the id of the element (branch or three windings transformer) which is monitored
+     * @return the id of the monitored element
+     */
+    String getMonitoredElementId();
+
+    /**
+     * Get the monitored side of the element.
+     * @return the side
+     * @see #getMonitoredElementId()
+     */
+    ThreeSides getMonitoredSide();
+
+    /**
+     * Add a tripping (operation to perform when the current is out of an acceptable interval)
+     * @param tripping the tripping to add
+     */
+    void addTripping(Tripping tripping);
+
+    /**
+     * Return the list of the defined trippings.
+     * @return the trippings
+     */
+    List<Tripping> getTrippings();
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.OVERLOAD_MANAGEMENT_SYSTEM;
+    }
+}
