@@ -424,6 +424,19 @@ public abstract class AbstractSubnetworksCreationTest {
         assertTrue(e.getMessage().contains("Create this VoltageAngleLimit from the parent network"));
     }
 
+    @Test
+    public void subnetworksWithSubstationFromSameCountry() {
+        addSubstation(subnetwork1, "substation1");
+        addSubstation(subnetwork1, "substation2");
+        assertEquals(1, subnetwork1.getCountryCount());
+
+        subnetwork1.newSubstation()
+                .setId("substation3")
+                .setCountry(Country.AD)
+                .add();
+        assertEquals(2, subnetwork1.getCountryCount());
+    }
+
     void assertValidationLevels(ValidationLevel expected) {
         // The validation level must be the same between the root network and its subnetworks
         assertEquals(expected, network.getValidationLevel());
