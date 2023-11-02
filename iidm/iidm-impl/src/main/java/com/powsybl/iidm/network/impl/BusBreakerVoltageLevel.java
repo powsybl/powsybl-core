@@ -928,6 +928,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
+    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
+        return connect(terminal);
+    }
+
+    @Override
     public boolean disconnect(TerminalExt terminal) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());

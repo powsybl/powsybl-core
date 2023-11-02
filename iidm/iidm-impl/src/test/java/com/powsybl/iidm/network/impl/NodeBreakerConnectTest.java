@@ -166,7 +166,10 @@ class NodeBreakerConnectTest {
         Network network = createDiamondNetwork();
         Load l = network.getLoad("L");
         assertTrue(l.getTerminal().isConnected());
-        l.getTerminal().disconnect();
+        if (l.getTerminal() instanceof TerminalExt terminal) {
+            NodeBreakerVoltageLevel voltageLevel = (NodeBreakerVoltageLevel) network.getVoltageLevel("VL");
+            voltageLevel.disconnect(terminal);
+        }
         assertFalse(l.getTerminal().isConnected());
     }
 }

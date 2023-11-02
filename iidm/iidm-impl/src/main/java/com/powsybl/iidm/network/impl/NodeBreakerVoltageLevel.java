@@ -1166,16 +1166,18 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return t != null && t.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION;
     }
 
-    private static boolean isOpenedDisconnector(Switch s) {
-        return s != null && s.getKind() == SwitchKind.DISCONNECTOR && s.isOpen();
+    @Override
+    public boolean connect(TerminalExt terminal) {
+        // Only keep the closed non-fictional breakers in the nominal case
+        return connect(terminal, SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
 
-    private static boolean isOpenedDisconnectorOpenLoadBreakSwitchOrOpenedFictitiousBreaker(Switch s) {
-        return s != null && s.isOpen() && (s.getKind() != SwitchKind.BREAKER || s.isFictitious());
+    private boolean checkNonClosableSwitches(SwitchImpl sw, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
+        return SwitchPredicates.IS_OPEN.test(sw) && isTypeSwitchToOperate.negate().test(sw);
     }
 
     @Override
-    public boolean connect(TerminalExt terminal) {
+    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
         }
@@ -1188,7 +1190,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // find all paths starting from the current terminal to a busbar section that does not contain either an open
         // disconnector, an opened load break switch or an opened fictional breaker
         // Paths are already sorted
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnectorOpenLoadBreakSwitchOrOpenedFictitiousBreaker, SwitchPredicates.IS_OPEN);
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, sw -> checkNonClosableSwitches(sw, isTypeSwitchToOperate), SwitchPredicates.IS_OPEN);
         boolean connected = false;
         if (!paths.isEmpty()) {
             // the shorted path is the best, close all opened breakers of the path
@@ -1196,7 +1198,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             for (int i = 0; i < shortestPath.size(); i++) {
                 int e = shortestPath.get(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw != null && sw.getKind() == SwitchKind.BREAKER && sw.isOpen()) {
+                if (SwitchPredicates.IS_OPEN.test(sw) && isTypeSwitchToOperate.test(sw)) {
                     sw.setOpen(false);
                 }
             }

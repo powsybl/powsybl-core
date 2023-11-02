@@ -56,6 +56,8 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     boolean connect(TerminalExt terminal);
 
+    boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate);
+
     boolean disconnect(TerminalExt terminal);
 
     boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable);
