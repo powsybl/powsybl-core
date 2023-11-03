@@ -14,6 +14,9 @@ import com.powsybl.iidm.network.SwitchKind;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+/**
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
+ */
 public final class SwitchPredicates {
 
     private SwitchPredicates() { }
