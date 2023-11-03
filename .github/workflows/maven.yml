@@ -25,6 +25,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
 
       - name: Build with Maven (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
