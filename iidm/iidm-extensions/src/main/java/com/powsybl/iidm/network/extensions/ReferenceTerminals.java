@@ -10,9 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -21,19 +19,16 @@ public interface ReferenceTerminals<C extends Connectable<C>> extends Extension<
 
     String NAME = "referenceTerminals";
 
-    Comparator<ReferenceTerminal> DEFAULT_CONNECTABLE_TYPE_COMPARATOR = Comparator.comparing(rt -> rt.getTerminal().getConnectable().getType(), (t1, t2) -> {
-        // favor generators over loads, loads over busbar sections, all others at the end
-        if (t1 == t2) {
-            return 0;
-        } else if (t1 == IdentifiableType.GENERATOR || t2 == IdentifiableType.GENERATOR) {
-            return t1 == IdentifiableType.GENERATOR ? -1 : 1;
-        } else if (t1 == IdentifiableType.LOAD || t2 == IdentifiableType.LOAD) {
-            return t1 == IdentifiableType.LOAD ? -1 : 1;
-        } else if (t1 == IdentifiableType.BUSBAR_SECTION || t2 == IdentifiableType.BUSBAR_SECTION) {
-            return t1 == IdentifiableType.BUSBAR_SECTION ? -1 : 1;
-        }
-        return 0;
-    });
+    EnumMap<IdentifiableType, Integer> DEFAULT_CONNECTABLE_TYPE_PRIORITIES = new EnumMap<>(
+            Map.of(
+                    IdentifiableType.GENERATOR, 1,
+                    IdentifiableType.LOAD, 2,
+                    IdentifiableType.BUSBAR_SECTION, 3
+            )
+    );
+
+    Comparator<ReferenceTerminal> DEFAULT_CONNECTABLE_TYPE_COMPARATOR =
+            Comparator.comparing(rt -> DEFAULT_CONNECTABLE_TYPE_PRIORITIES.getOrDefault(rt.getTerminal().getConnectable().getType(), Integer.MAX_VALUE));
 
     static List<ReferenceTerminal> get(Network network, Comparator<ReferenceTerminal> connectableComparator) {
         return network.getConnectableStream().filter(c -> c.getExtension(ReferenceTerminals.class) != null)
@@ -65,7 +60,7 @@ public interface ReferenceTerminals<C extends Connectable<C>> extends Extension<
 
     static int getPriority(Branch<?> branch, Branch.Side side) {
         ReferenceTerminals ext = branch.getExtension(ReferenceTerminals.class);
-        if (ext == null || ext.getReferenceTerminals().isEmpty()) {
+        if (ext == null) {
             return 0;
         }
         Optional<ReferenceTerminal> refTerminal = ((List<ReferenceTerminal>) (ext.getReferenceTerminals())).stream()
@@ -76,7 +71,7 @@ public interface ReferenceTerminals<C extends Connectable<C>> extends Extension<
 
     static int getPriority(ThreeWindingsTransformer threeWindingsTransformer, ThreeWindingsTransformer.Side side) {
         ReferenceTerminals ext = threeWindingsTransformer.getExtension(ReferenceTerminals.class);
-        if (ext == null || ext.getReferenceTerminals().isEmpty()) {
+        if (ext == null) {
             return 0;
         }
         Optional<ReferenceTerminal> refTerminal = ((List<ReferenceTerminal>) (ext.getReferenceTerminals())).stream()
