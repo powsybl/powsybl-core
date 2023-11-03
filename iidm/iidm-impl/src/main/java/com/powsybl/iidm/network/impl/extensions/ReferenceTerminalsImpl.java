@@ -21,7 +21,7 @@ import java.util.*;
  */
 class ReferenceTerminalsImpl<C extends Connectable<C>> extends AbstractExtension<C> implements ReferenceTerminals<C> {
 
-    private final Map<Terminal, ReferenceTerminal> referenceTerminals = new HashMap<>();
+    private final Map<Terminal, ReferenceTerminal> referenceTerminals = new LinkedHashMap<>();
 
     ReferenceTerminalsImpl<C> add(ReferenceTerminal referenceTerminal) {
         if (!getExtendable().getTerminals().contains(referenceTerminal.getTerminal())) {

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferenceTerminal;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.ReferenceTerminalsAdder;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerWithExtensionsFactory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public abstract class AbstractReferenceTerminalsTest {
 
     @BeforeEach
     void setUp() {
-        network = FourSubstationsNodeBreakerWithExtensionsFactory.create();
+        network = FourSubstationsNodeBreakerFactory.create();
         bbs1 = network.getBusbarSection("S1VL1_BBS");
         bbs2 = network.getBusbarSection("S2VL1_BBS");
         bbs3 = network.getBusbarSection("S3VL1_BBS");
