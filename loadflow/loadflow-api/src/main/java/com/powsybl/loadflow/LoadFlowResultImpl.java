@@ -16,6 +16,27 @@ import java.util.Objects;
  */
 public class LoadFlowResultImpl implements LoadFlowResult {
 
+    public static class SlackResultImpl implements SlackResult {
+
+        private final String busId;
+        private final double activePowerMismatch;
+
+        public SlackResultImpl(String busId, double activePowerMismatch) {
+            this.busId = Objects.requireNonNull(busId);
+            this.activePowerMismatch = activePowerMismatch;
+        }
+
+        @Override
+        public String getBusId() {
+            return busId;
+        }
+
+        @Override
+        public double getBusActivePowerMismatch() {
+            return activePowerMismatch;
+        }
+    }
+
     public static class ComponentResultImpl implements ComponentResult {
 
         private final int connectedComponentNum;
@@ -24,22 +45,39 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         private final Status status;
 
+        private final Map<String, String> metrics;
+
         private final int iterationCount;
 
-        private final String slackBusId;
+        private final String referenceBusId;
 
-        private final double slackBusActivePowerMismatch;
+        private final List<SlackResult> slackResults;
 
         private final double distributedActivePower;
 
+        @Deprecated(since = "6.1.0")
         public ComponentResultImpl(int connectedComponentNum, int synchronousComponentNum, Status status, int iterationCount,
                                    String slackBusId, double slackBusActivePowerMismatch, double distributedActivePower) {
             this.connectedComponentNum = checkComponentNum(connectedComponentNum);
             this.synchronousComponentNum = checkComponentNum(synchronousComponentNum);
             this.status = Objects.requireNonNull(status);
+            this.metrics = Collections.emptyMap();
             this.iterationCount = checkIterationCount(iterationCount);
-            this.slackBusId = Objects.requireNonNull(slackBusId);
-            this.slackBusActivePowerMismatch = slackBusActivePowerMismatch;
+            this.referenceBusId = null;
+            this.slackResults = Collections.singletonList(new SlackResultImpl(slackBusId, slackBusActivePowerMismatch));
+            this.distributedActivePower = distributedActivePower;
+        }
+
+        public ComponentResultImpl(int connectedComponentNum, int synchronousComponentNum, Status status,
+                                   Map<String, String> metrics, int iterationCount, String referenceBusId,
+                                   List<SlackResult> slackResults, double distributedActivePower) {
+            this.connectedComponentNum = checkComponentNum(connectedComponentNum);
+            this.synchronousComponentNum = checkComponentNum(synchronousComponentNum);
+            this.status = Objects.requireNonNull(status);
+            this.metrics = Objects.requireNonNull(metrics);
+            this.iterationCount = checkIterationCount(iterationCount);
+            this.referenceBusId = referenceBusId; // allowed to be null
+            this.slackResults = Objects.requireNonNull(slackResults);
             this.distributedActivePower = distributedActivePower;
         }
 
@@ -73,18 +111,45 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         }
 
         @Override
+        public Map<String, String> getMetrics() {
+            return metrics;
+        }
+
+        @Override
         public int getIterationCount() {
             return iterationCount;
         }
 
         @Override
+        public String getReferenceBusId() {
+            return referenceBusId;
+        }
+
+        @Override
+        public List<SlackResult> getSlackResults() {
+            return Collections.unmodifiableList(slackResults);
+        }
+
+        @Override
         public String getSlackBusId() {
-            return slackBusId;
+            if (slackResults.isEmpty()) {
+                return "";
+            } else if (slackResults.size() == 1) {
+                return slackResults.get(0).getBusId();
+            } else {
+                throw new IllegalStateException("Deprecated method: cannot return a value in the case of multiple slack results. Please migrate to new API.");
+            }
         }
 
         @Override
         public double getSlackBusActivePowerMismatch() {
-            return slackBusActivePowerMismatch;
+            if (slackResults.isEmpty()) {
+                return 0;
+            } else if (slackResults.size() == 1) {
+                return slackResults.get(0).getBusActivePowerMismatch();
+            } else {
+                throw new IllegalStateException("Deprecated method: cannot return a value in the case of multiple slack results. Please migrate to new API.");
+            }
         }
 
         @Override

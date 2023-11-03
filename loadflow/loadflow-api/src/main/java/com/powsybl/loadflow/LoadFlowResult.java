@@ -18,15 +18,51 @@ import java.util.Map;
 public interface LoadFlowResult {
 
     /**
+     * Result for one slack bus
+     */
+    interface SlackResult {
+        /**
+         * Get the slack bus id.
+         * @return the slack bus id
+         */
+        String getBusId();
+
+        /**
+         * Get slack bus active power mismatch in MW.
+         * @return the slack bus active power mismatch in MW
+         */
+        double getBusActivePowerMismatch();
+    }
+
+    /**
      * Result for one component
      */
     interface ComponentResult {
 
+        /**
+         * Calculation status
+         */
         enum Status {
+            /**
+             * Loadflow converged
+             */
             CONVERGED,
+            /**
+             * Non-convergence by iteration limit
+             */
             MAX_ITERATION_REACHED,
+            /**
+             * Non-convergence by solver failure
+             */
             SOLVER_FAILED,
-            FAILED
+            /**
+             * Non-convergence
+             */
+            FAILED,
+            /**
+             * Component was not calculated, e.g. component does not have any PV node
+             */
+            NOT_CALCULATED
         }
 
         /**
@@ -48,21 +84,43 @@ public interface LoadFlowResult {
         Status getStatus();
 
         /**
+         * Get metrics. Metrics are generic key/value pairs and are specific to a loadflow implementation.
+         * @return the metrics for this component
+         */
+        Map<String, String> getMetrics();
+
+        /**
          * Get iteration count.
          * @return the iteration count
          */
         int getIterationCount();
 
         /**
+         * Get the reference bus id (angle reference)
+         * @return the reference bus id
+         */
+        String getReferenceBusId();
+
+        /**
+         * get slack results of all slack buses
+         * @return list of slack results
+         */
+        List<SlackResult> getSlackResults();
+
+        /**
          * Get the slack bus id.
          * @return the slack bus id
+         * @deprecated use {@link #getSlackResults()} instead
          */
+        @Deprecated(since = "6.1.0")
         String getSlackBusId();
 
         /**
          * Get slack bus active power mismatch in MW.
          * @return the slack bus active power mismatch in MW
+         * @deprecated use {@link #getSlackResults()} instead
          */
+        @Deprecated(since = "6.1.0")
         double getSlackBusActivePowerMismatch();
 
         /**
@@ -74,7 +132,9 @@ public interface LoadFlowResult {
     }
 
     /**
-     * Get the global status. It is expected to be ok if at least one component has converged.
+     * Get the global status. Must be set to true/ok if <b>at least one</b> component has converged.
+     * Note that when computing multiple components (islands), it is preferable to evaluate
+     * the individual component status using {@link ComponentResult#getStatus()}.
      * @return the global status
      */
     boolean isOk();
