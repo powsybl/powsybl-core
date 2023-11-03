@@ -9,25 +9,25 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ReferenceTerminal;
 import com.powsybl.iidm.network.extensions.ReferenceTerminalAdder;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 class ReferenceTerminalsImpl<C extends Connectable<C>> extends AbstractExtension<C> implements ReferenceTerminals<C> {
 
-    private final List<ReferenceTerminal> referenceTerminals = new ArrayList<>();
+    private final Map<Terminal, ReferenceTerminal> referenceTerminals = new HashMap<>();
 
     ReferenceTerminalsImpl<C> add(ReferenceTerminal referenceTerminal) {
         if (!getExtendable().getTerminals().contains(referenceTerminal.getTerminal())) {
-            throw new PowsyblException("The provided terminal does not below to this connectable");
+            throw new PowsyblException("The provided terminal does not belong to this connectable");
         }
-        referenceTerminals.add(referenceTerminal);
+        referenceTerminals.put(referenceTerminal.getTerminal(), referenceTerminal);
         return this;
     }
 
@@ -38,6 +38,6 @@ class ReferenceTerminalsImpl<C extends Connectable<C>> extends AbstractExtension
 
     @Override
     public List<ReferenceTerminal> getReferenceTerminals() {
-        return referenceTerminals;
+        return referenceTerminals.values().stream().toList();
     }
 }
