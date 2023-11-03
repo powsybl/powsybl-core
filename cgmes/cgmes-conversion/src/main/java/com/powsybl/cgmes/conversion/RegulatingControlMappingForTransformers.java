@@ -329,8 +329,6 @@ public class RegulatingControlMappingForTransformers {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            // A tap changer may not have an associated tap changer control,
-            // We do not need to report this as missing
             LOG.trace("Regulating control Id not present for tap changer {}", rc.id);
             return null;
         }
