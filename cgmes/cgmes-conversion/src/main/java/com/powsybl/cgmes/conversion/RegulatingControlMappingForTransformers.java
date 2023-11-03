@@ -10,6 +10,8 @@ import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -327,7 +329,7 @@ public class RegulatingControlMappingForTransformers {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing("Regulating control ID not defined");
+            LOG.trace("Regulating control Id not present for tap changer {}", rc.id);
             return null;
         }
 
@@ -365,7 +367,7 @@ public class RegulatingControlMappingForTransformers {
         return controlMode != null && controlMode.endsWith("fixed");
     }
 
-    private static class CgmesRegulatingControlForThreeWindingsTransformer {
+    private static final class CgmesRegulatingControlForThreeWindingsTransformer {
         CgmesRegulatingControlRatio ratioTapChanger1;
         CgmesRegulatingControlPhase phaseTapChanger1;
         CgmesRegulatingControlRatio ratioTapChanger2;
@@ -374,7 +376,7 @@ public class RegulatingControlMappingForTransformers {
         CgmesRegulatingControlPhase phaseTapChanger3;
     }
 
-    private static class CgmesRegulatingControlForTwoWindingsTransformer {
+    private static final class CgmesRegulatingControlForTwoWindingsTransformer {
         CgmesRegulatingControlRatio ratioTapChanger;
         CgmesRegulatingControlPhase phaseTapChanger;
     }
@@ -397,4 +399,6 @@ public class RegulatingControlMappingForTransformers {
     private final Context context;
     private final Map<String, CgmesRegulatingControlForTwoWindingsTransformer> t2xMapping;
     private final Map<String, CgmesRegulatingControlForThreeWindingsTransformer> t3xMapping;
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegulatingControlMappingForTransformers.class);
 }
