@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +35,13 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
                 .build();
     }
 
+    private static Map<String, String> createComponentMetrics() {
+        return ImmutableMap.<String, String>builder()
+                .put("metric1", "aa")
+                .put("metric2", "bb")
+                .build();
+    }
+
     private static LoadFlowResult createVersion10() {
         return new LoadFlowResultImpl(true, createMetrics(), "");
     }
@@ -46,9 +54,42 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
         return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3, 356.78)));
     }
 
+    private static LoadFlowResult createVersion14() {
+        return new LoadFlowResultImpl(
+                true,
+                createMetrics(),
+                "",
+                Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(
+                        0,
+                        0,
+                        LoadFlowResult.ComponentResult.Status.CONVERGED,
+                        createComponentMetrics(),
+                        7,
+                        "bus0",
+                        List.of(
+                                new LoadFlowResultImpl.SlackResultImpl("bus1", 123.4),
+                                new LoadFlowResultImpl.SlackResultImpl("bus2", 234.5)
+                        ),
+                        356.78)
+                )
+        );
+    }
+
     @Test
-    void roundTripVersion13Test() throws IOException {
-        roundTripTest(createVersion13(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion13.json");
+    void roundTripVersion14Test() throws IOException {
+        roundTripTest(createVersion14(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion14.json");
+    }
+
+    @Test
+    void readJsonVersion13() throws IOException {
+        LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion13.json"));
+        LoadFlowResult.ComponentResult componentResult = result.getComponentResults().get(0);
+        assertEquals("bus1", componentResult.getReferenceBusId());
+        assertTrue(componentResult.getMetrics().isEmpty());
+        assertEquals(1, componentResult.getSlackResults().size());
+        LoadFlowResult.SlackResult slackResult = componentResult.getSlackResults().get(0);
+        assertEquals("bus1", slackResult.getBusId());
+        assertEquals(235.3, slackResult.getBusActivePowerMismatch());
     }
 
     @Test
@@ -88,15 +129,36 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    void readJsonVersion12Exception() throws IOException {
+    void readJsonVersion12Exception() {
         IllegalStateException e = assertThrows(IllegalStateException.class, () -> LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json")));
         assertTrue(e.getMessage().contains("Connected component number field not found."));
     }
 
     @Test
-    void readJsonVersion12Exception2() throws IOException {
+    void readJsonVersion12Exception2() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception2.json")));
         assertTrue(e.getMessage().contains("com.powsybl.loadflow.json.LoadFlowResultDeserializer. componentNum is not valid for version 1.2. Version should be < 1.2 "));
+    }
+
+    @Test
+    void version10apiBackwardCompatibility() {
+        LoadFlowResult result = createVersion10();
+        assertTrue(result.getComponentResults().isEmpty());
+        assertTrue(result.isOk());
+        assertEquals("", result.getLogs());
+    }
+
+    @Test
+    void version13apiBackwardCompatibility() {
+        LoadFlowResult result = createVersion13();
+        LoadFlowResult.ComponentResult componentResult = result.getComponentResults().get(0);
+        assertEquals("bus1", componentResult.getReferenceBusId());
+        assertTrue(componentResult.getMetrics().isEmpty());
+        assertEquals(1, componentResult.getSlackResults().size());
+        LoadFlowResult.SlackResult slackResult = componentResult.getSlackResults().get(0);
+        assertEquals("bus1", slackResult.getBusId());
+        assertEquals(235.3, slackResult.getBusActivePowerMismatch());
+
     }
 
     @Test

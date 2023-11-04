@@ -1,0 +1,31 @@
+{
+  "version" : "1.4",
+  "isOK" : true,
+  "metrics" : {
+    "nbiter" : "4",
+    "dureeCalcul" : "0.02",
+    "cause" : "0",
+    "contraintes" : "0",
+    "statut" : "OK",
+    "csprMarcheForcee" : "0"
+  },
+  "componentResults" : [ {
+    "connectedComponentNum" : 0,
+    "synchronousComponentNum" : 0,
+    "status" : "CONVERGED",
+    "metrics" : {
+      "metric1" : "aa",
+      "metric2" : "bb"
+    },
+    "iterationCount" : 7,
+    "referenceBusId" : "bus0",
+    "slackResults" : [ {
+      "busId" : "bus1",
+      "busActivePowerMismatch" : 123.4
+    }, {
+      "busId" : "bus2",
+      "busActivePowerMismatch" : 234.5
+    } ],
+    "distributedActivePower" : 356.78
+  } ]
+}

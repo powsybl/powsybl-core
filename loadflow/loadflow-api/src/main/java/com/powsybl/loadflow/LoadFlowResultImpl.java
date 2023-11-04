@@ -55,7 +55,6 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         private final double distributedActivePower;
 
-        @Deprecated(since = "6.1.0")
         public ComponentResultImpl(int connectedComponentNum, int synchronousComponentNum, Status status, int iterationCount,
                                    String slackBusId, double slackBusActivePowerMismatch, double distributedActivePower) {
             this.connectedComponentNum = checkComponentNum(connectedComponentNum);
@@ -63,7 +62,7 @@ public class LoadFlowResultImpl implements LoadFlowResult {
             this.status = Objects.requireNonNull(status);
             this.metrics = Collections.emptyMap();
             this.iterationCount = checkIterationCount(iterationCount);
-            this.referenceBusId = null;
+            this.referenceBusId = slackBusId;
             this.slackResults = Collections.singletonList(new SlackResultImpl(slackBusId, slackBusActivePowerMismatch));
             this.distributedActivePower = distributedActivePower;
         }

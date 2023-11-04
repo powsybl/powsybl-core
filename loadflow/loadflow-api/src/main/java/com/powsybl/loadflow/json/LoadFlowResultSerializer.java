@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
-    private static final String VERSION = "1.3";
+    private static final String VERSION = "1.4";
 
     LoadFlowResultSerializer() {
         super(LoadFlowResult.class);
@@ -44,22 +44,38 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
             jsonGenerator.writeFieldName("componentResults");
             jsonGenerator.writeStartArray();
             for (LoadFlowResult.ComponentResult componentResult : componentResults) {
-                serialize(componentResult, jsonGenerator);
+                serialize(componentResult, jsonGenerator, serializerProvider);
             }
             jsonGenerator.writeEndArray();
         }
         jsonGenerator.writeEndObject();
     }
 
-    public void serialize(LoadFlowResult.ComponentResult componentResult, JsonGenerator jsonGenerator) throws IOException {
+    public void serialize(LoadFlowResult.ComponentResult componentResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("connectedComponentNum", componentResult.getConnectedComponentNum());
         jsonGenerator.writeNumberField("synchronousComponentNum", componentResult.getSynchronousComponentNum());
         jsonGenerator.writeStringField("status", componentResult.getStatus().name());
+        serializerProvider.defaultSerializeField("metrics", componentResult.getMetrics(), jsonGenerator);
         jsonGenerator.writeNumberField("iterationCount", componentResult.getIterationCount());
-        jsonGenerator.writeStringField("slackBusId", componentResult.getSlackBusId());
-        jsonGenerator.writeNumberField("slackBusActivePowerMismatch", componentResult.getSlackBusActivePowerMismatch());
+        jsonGenerator.writeStringField("referenceBusId", componentResult.getReferenceBusId());
+        List<LoadFlowResult.SlackResult> slackResults = componentResult.getSlackResults();
+        if (!slackResults.isEmpty()) {
+            jsonGenerator.writeFieldName("slackResults");
+            jsonGenerator.writeStartArray();
+            for (LoadFlowResult.SlackResult slackResult : slackResults) {
+                serialize(slackResult, jsonGenerator);
+            }
+            jsonGenerator.writeEndArray();
+        }
         jsonGenerator.writeNumberField("distributedActivePower", componentResult.getDistributedActivePower());
+        jsonGenerator.writeEndObject();
+    }
+
+    public void serialize(LoadFlowResult.SlackResult slackResult, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField("busId", slackResult.getBusId());
+        jsonGenerator.writeNumberField("busActivePowerMismatch", slackResult.getBusActivePowerMismatch());
         jsonGenerator.writeEndObject();
     }
 

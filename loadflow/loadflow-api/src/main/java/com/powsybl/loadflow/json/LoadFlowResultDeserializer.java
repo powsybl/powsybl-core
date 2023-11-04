@@ -28,6 +28,7 @@ import java.util.*;
 public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> {
 
     private static final String CONTEXT_NAME = "LoadFlowResult";
+    public static final String UNEXPECTED_FIELD = "Unexpected field: ";
 
     LoadFlowResultDeserializer() {
         super(LoadFlowResult.class);
@@ -37,59 +38,70 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         Integer connectedComponentNum = null;
         Integer synchronousComponentNum = null;
         LoadFlowResult.ComponentResult.Status status = null;
+        Map<String, String> metrics = Collections.emptyMap();
         Integer iterationCount = null;
+        List<LoadFlowResult.SlackResult> slackResults = new ArrayList<>();
+        String referenceBusId = null;
         String slackBusId = null;
         Double slackBusActivePowerMismatch = null;
         Double distributedActivePower = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "connectedComponentNum":
+                case "connectedComponentNum" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     connectedComponentNum = parser.getValueAsInt();
-                    break;
-
-                case "synchronousComponentNum":
+                }
+                case "synchronousComponentNum" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     synchronousComponentNum = parser.getValueAsInt();
-                    break;
-
-                case "componentNum":
+                }
+                case "componentNum" -> {
                     JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     synchronousComponentNum = parser.getValueAsInt();
-                    break;
-
-                case "status":
+                }
+                case "status" -> {
                     parser.nextToken();
                     status = LoadFlowResult.ComponentResult.Status.valueOf(parser.getValueAsString());
-                    break;
-
-                case "iterationCount":
+                }
+                case "metrics" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: metrics", version, "1.4");
+                    parser.nextToken();
+                    metrics = parser.readValueAs(HashMap.class);
+                }
+                case "iterationCount" -> {
                     parser.nextToken();
                     iterationCount = parser.getValueAsInt();
-                    break;
-
-                case "slackBusId":
+                }
+                case "referenceBusId" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: referenceBusId", version, "1.4");
+                    parser.nextToken();
+                    referenceBusId = parser.getValueAsString();
+                }
+                case "slackResults" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: slackResults", version, "1.4");
+                    parser.nextToken();
+                    deserializeSlackResults(parser, slackResults);
+                }
+                case "slackBusId" -> {
+                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.4");
                     parser.nextToken();
                     slackBusId = parser.getValueAsString();
-                    break;
-
-                case "slackBusActivePowerMismatch":
+                }
+                case "slackBusActivePowerMismatch" -> {
+                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.4");
                     parser.nextToken();
                     slackBusActivePowerMismatch = parser.getValueAsDouble();
-                    break;
-
-                case "distributedActivePower":
+                }
+                case "distributedActivePower" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.3");
                     parser.nextToken();
                     distributedActivePower = parser.getValueAsDouble();
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.getCurrentName());
             }
         }
 
@@ -107,9 +119,6 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         if (iterationCount == null) {
             throw new IllegalStateException("Iteration count field not found.");
         }
-        if (slackBusActivePowerMismatch == null) {
-            throw new IllegalStateException("Slack bus active power mismatch field not found.");
-        }
         if (distributedActivePower == null) {
             if (version.compareTo("1.3") < 0) {
                 distributedActivePower = Double.NaN;
@@ -117,13 +126,57 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                 throw new IllegalStateException("Distributed active power field not found.");
             }
         }
+        if (version.compareTo("1.4") < 0) {
+            if (slackBusId == null) {
+                throw new IllegalStateException("Slack bus id field not found.");
+            }
+            if (slackBusActivePowerMismatch == null) {
+                throw new IllegalStateException("Slack bus active power mismatch field not found.");
+            }
+            referenceBusId = slackBusId;
+            slackResults = List.of(new LoadFlowResultImpl.SlackResultImpl(slackBusId, slackBusActivePowerMismatch));
+        }
 
-        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch, distributedActivePower);
+        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, metrics, iterationCount, referenceBusId, slackResults, distributedActivePower);
+    }
+
+    public LoadFlowResult.SlackResult deserializeSlackResult(JsonParser parser) throws IOException {
+        String busId = null;
+        Double busActivePowerMismatch = null;
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            switch (parser.getCurrentName()) {
+                case "busId" -> {
+                    parser.nextToken();
+                    busId = parser.getValueAsString();
+                }
+                case "busActivePowerMismatch" -> {
+                    parser.nextToken();
+                    busActivePowerMismatch = parser.getValueAsDouble();
+                }
+                default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.getCurrentName());
+            }
+        }
+
+        if (busId == null) {
+            throw new IllegalStateException("Slack bus id field not found.");
+        }
+        if (busActivePowerMismatch == null) {
+            throw new IllegalStateException("Slack bus active power mismatch field not found.");
+        }
+
+        return new LoadFlowResultImpl.SlackResultImpl(busId, busActivePowerMismatch);
     }
 
     public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults, String version) throws IOException {
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             componentResults.add(deserializeComponentResult(parser, version));
+        }
+    }
+
+    public void deserializeSlackResults(JsonParser parser, List<LoadFlowResult.SlackResult> slackResults) throws IOException {
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            slackResults.add(deserializeSlackResult(parser));
         }
     }
 
@@ -137,29 +190,24 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
+                case "version" -> {
                     parser.nextToken();
                     version = parser.getValueAsString();
-                    break;
-
-                case "isOK":
+                }
+                case "isOK" -> {
                     parser.nextToken();
                     ok = parser.readValueAs(Boolean.class);
-                    break;
-
-                case "metrics":
+                }
+                case "metrics" -> {
                     parser.nextToken();
                     metrics = parser.readValueAs(HashMap.class);
-                    break;
-
-                case "componentResults":
+                }
+                case "componentResults" -> {
                     JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: componentResults", version, "1.0");
                     parser.nextToken();
                     deserializeComponentResults(parser, componentResults, version);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.getCurrentName());
             }
         }
 
