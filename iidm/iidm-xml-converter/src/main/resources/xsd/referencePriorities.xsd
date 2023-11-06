@@ -10,7 +10,7 @@
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:iidm="http://www.powsybl.org/schema/iidm/1_11"
-           targetNamespace="http://www.powsybl.org/schema/iidm/ext/referencePriorities/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/reference_priorities/1_0"
            elementFormDefault="qualified">
     <xs:import namespace="http://www.powsybl.org/schema/iidm/1_11" schemaLocation="iidm_V1_11.xsd"/>
     <xs:element name="referencePriorities">

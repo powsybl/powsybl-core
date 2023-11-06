@@ -35,7 +35,7 @@ public class ReferencePrioritiesXmlSerializer<C extends Connectable<C>> extends 
 
     public ReferencePrioritiesXmlSerializer() {
         super("referencePriorities", "network", ReferencePriorities.class, true, "referencePriorities.xsd",
-                "http://www.powsybl.org/schema/iidm/ext/referencePriorities/1_0", "refpri");
+                "http://www.powsybl.org/schema/iidm/ext/reference_priorities/1_0", "refpri");
     }
 
     @Override
@@ -43,10 +43,9 @@ public class ReferencePrioritiesXmlSerializer<C extends Connectable<C>> extends 
         XMLStreamWriter writer = context.getWriter();
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         for (ReferencePriority referencePriority : extension.getReferencePriorities()) {
-            writer.writeStartElement(getNamespaceUri(), "referencePriority"); // FIXME should writeEmptyElement instead
+            writer.writeEmptyElement(getNamespaceUri(), "referencePriority");
             XmlUtil.writeInt("priority", referencePriority.getPriority(), writer);
             TerminalRefXml.writeTerminalRefAttribute(referencePriority.getTerminal(), networkContext);
-            writer.writeEndElement();
         }
     }
 
