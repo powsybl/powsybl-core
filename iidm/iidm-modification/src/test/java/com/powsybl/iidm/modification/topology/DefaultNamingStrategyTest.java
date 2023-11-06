@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
+ */
 class DefaultNamingStrategyTest {
     @Test
     void testName() {

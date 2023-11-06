@@ -20,7 +20,7 @@ import java.util.List;
  * ({@link com.powsybl.iidm.modification.topology.DefaultNamingStrategy}) or a new implementation of the present class
  * provided by the user.
  *
- * @author Nicolas Rol <nicolas.rol@rte-france.com>
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public interface NamingStrategy {
 

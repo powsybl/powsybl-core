@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Default naming strategy used if no other naming strategy is specified.
- * @author Nicolas Rol <nicolas.rol@rte-france.com>
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class DefaultNamingStrategy implements NamingStrategy {
 
