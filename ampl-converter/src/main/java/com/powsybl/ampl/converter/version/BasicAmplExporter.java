@@ -28,8 +28,8 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  * Legacy exporter that must be retrocompatible,
  * and only fixes should be made on this class.
  *
- * @author Nicolas Pierre <nicolas.pierre at artelys.com> for the refactor
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com> for the original code
+ * @author Nicolas Pierre {@literal <nicolas.pierre at artelys.com>} for the refactor
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>} for the original code
  */
 public class BasicAmplExporter implements AmplColumnsExporter {
 
