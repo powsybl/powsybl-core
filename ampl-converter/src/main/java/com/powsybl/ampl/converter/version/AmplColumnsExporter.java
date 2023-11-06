@@ -60,7 +60,7 @@ public interface AmplColumnsExporter {
 
     void writeRtcToFormatter(TableFormatter formatter) throws IOException;
 
-    void writePtcToFormatter(TableFormatter formatter);
+    void writePtcToFormatter(TableFormatter formatter) throws IOException;
 
     void writeTwoWindingsTransformerTapChangerTableToFormatter(TableFormatter formatter,
                                                                TwoWindingsTransformer twt) throws IOException;
