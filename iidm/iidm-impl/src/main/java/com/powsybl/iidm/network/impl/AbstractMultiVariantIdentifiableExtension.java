@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public abstract class AbstractMultiVariantIdentifiableExtension<T extends Identifiable<T>> extends AbstractExtension<T> implements MultiVariantObject {
 

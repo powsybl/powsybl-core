@@ -17,8 +17,8 @@ import java.util.Comparator;
 import java.util.function.Supplier;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 
 public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder {
@@ -183,7 +183,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
                 angle = (step - neutralStep) * stepPhaseShiftIncrement;
             } else {
                 double dy = (step - neutralStep) * (stepVoltageIncrement / 100.0);
-                angle = Math.toDegrees(2 * Math.asin(dy / 2));
+                angle = Math.toDegrees(2 * Math.atan(dy / 2));
             }
             tapChanger.beginStep()
                 .setRatio(1.0)

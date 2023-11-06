@@ -16,7 +16,7 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 
 /**
- * @author Coline Piloquet <coline.piloquet@rte-france.fr>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 public class ScalingParameters {
 

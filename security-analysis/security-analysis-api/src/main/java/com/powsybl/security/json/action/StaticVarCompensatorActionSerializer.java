@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class StaticVarCompensatorActionSerializer extends StdSerializer<StaticVarCompensatorAction> {
 

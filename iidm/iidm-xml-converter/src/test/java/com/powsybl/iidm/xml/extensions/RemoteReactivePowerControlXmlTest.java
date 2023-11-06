@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Damien Jeandemange <damien.jeandemange at artelys.com>
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 class RemoteReactivePowerControlXmlTest extends AbstractXmlConverterTest {
 

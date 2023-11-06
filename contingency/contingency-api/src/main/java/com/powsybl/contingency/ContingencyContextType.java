@@ -8,8 +8,8 @@
 package com.powsybl.contingency;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  *
  * Define for a contingencyContext the type of information asked.
  * It can be a pre-contingency state, a post-contingency state on a specific contingency (SPECIFIC) or both (ALL)

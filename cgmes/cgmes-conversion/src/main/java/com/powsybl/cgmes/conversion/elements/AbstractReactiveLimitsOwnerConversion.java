@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractConductingEquipmentConversion {
 

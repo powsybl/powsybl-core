@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.GeneratorFortescue;
 import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class GeneratorFortescueAdderImplProvider

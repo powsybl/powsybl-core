@@ -17,9 +17,9 @@ import java.util.Optional;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
@@ -349,34 +349,34 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
         return BranchUtil.getFromSide(side,
             () -> checkTemporaryLimits1(limitReduction, type),
             () -> checkTemporaryLimits2(limitReduction, type));
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits(Side side, LimitType type) {
+    public Overload checkTemporaryLimits(Side side, LimitType type) {
         return checkTemporaryLimits(side, 1f, type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits1(LimitType type) {
+    public Overload checkTemporaryLimits1(LimitType type) {
         return checkTemporaryLimits1(1f, type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits2(LimitType type) {
+    public Overload checkTemporaryLimits2(LimitType type) {
         return checkTemporaryLimits2(1f, type);
     }
 

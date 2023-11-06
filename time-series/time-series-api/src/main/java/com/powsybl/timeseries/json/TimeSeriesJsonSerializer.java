@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.timeseries.TimeSeries;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TimeSeriesJsonSerializer extends StdSerializer<TimeSeries> {
 

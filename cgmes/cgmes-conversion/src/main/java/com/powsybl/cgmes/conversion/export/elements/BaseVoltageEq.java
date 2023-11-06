@@ -13,7 +13,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class BaseVoltageEq {
 

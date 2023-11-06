@@ -17,7 +17,7 @@ import javax.xml.stream.XMLStreamException;
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, VoltageLevel> {
 

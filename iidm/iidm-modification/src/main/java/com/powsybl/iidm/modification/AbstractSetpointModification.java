@@ -23,7 +23,7 @@ import java.util.OptionalDouble;
  * converter stations. Note that a VSC converter station follows a generator
  * convention but SVCs follow a load convention.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public abstract class AbstractSetpointModification<T> extends AbstractNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSetpointModification.class);

@@ -18,7 +18,7 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLineConnectionModification<M extends AbstractLineConnectionModification<M>> extends AbstractNetworkModification {
 

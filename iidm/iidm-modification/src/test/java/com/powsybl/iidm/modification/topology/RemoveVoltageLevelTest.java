@@ -28,7 +28,7 @@ import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbN
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Etienne Homer <etienne.homer at rte-france.com>
+ * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
 class RemoveVoltageLevelTest extends AbstractConverterTest {
 

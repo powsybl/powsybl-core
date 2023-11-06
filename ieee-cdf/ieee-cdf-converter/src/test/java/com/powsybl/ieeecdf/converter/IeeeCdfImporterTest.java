@@ -31,7 +31,7 @@ import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class IeeeCdfImporterTest extends AbstractConverterTest {
 

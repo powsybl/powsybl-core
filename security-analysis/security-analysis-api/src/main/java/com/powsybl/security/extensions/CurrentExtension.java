@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.AbstractPrecontingencyValueExtension;
 import com.powsybl.security.LimitViolation;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class CurrentExtension extends AbstractPrecontingencyValueExtension<LimitViolation> {
 

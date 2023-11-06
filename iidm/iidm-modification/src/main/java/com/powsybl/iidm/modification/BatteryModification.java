@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * Simple {@link NetworkModification} for a battery.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class BatteryModification extends AbstractNetworkModification {
 

@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class LimitViolationHelper {
 
@@ -34,7 +34,7 @@ public final class LimitViolationHelper {
             }
         }
         if (identifiable instanceof Branch<?> branch) {
-            return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
+            return branch.getTerminal(limitViolation.getBranchSide()).getVoltageLevel();
         } else if (identifiable instanceof Injection<?> injection) {
             return injection.getTerminal().getVoltageLevel();
         } else if (identifiable instanceof VoltageLevel voltageLevel) {

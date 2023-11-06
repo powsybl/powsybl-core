@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * A class that stores coefficients to be applied to every nominal voltage in a range. This is used to define the configured initial voltage profile
  * for short circuit calculation.
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class VoltageRange {
     private final Range<Double> range;

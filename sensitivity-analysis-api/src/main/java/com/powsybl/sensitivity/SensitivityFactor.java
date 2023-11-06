@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * network in a given contingency context. Usually we compute the impact of an injection increase on a branch flow or current,
  * the impact of a shift of a phase tap changer on a branch flow or current or the impact of a voltage target increase on a bus voltage.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SensitivityFactor {
 

@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.util.BranchData;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class DebugPhaseTapChanger {
 

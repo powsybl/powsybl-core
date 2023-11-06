@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * @author Anis Touri <anis-1.touri@rte-france.com>
+ * @author Anis Touri {@literal <anis-1.touri@rte-france.com>}
  */
 public class RemoveHvdcLine extends AbstractNetworkModification {
 

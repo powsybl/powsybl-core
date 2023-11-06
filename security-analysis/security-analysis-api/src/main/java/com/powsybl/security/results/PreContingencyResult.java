@@ -12,7 +12,7 @@ import com.powsybl.security.LimitViolationsResult;
 import java.util.*;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class PreContingencyResult extends AbstractContingencyResult {
 

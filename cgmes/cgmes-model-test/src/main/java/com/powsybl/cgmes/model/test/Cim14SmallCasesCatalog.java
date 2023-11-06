@@ -13,7 +13,7 @@ import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class Cim14SmallCasesCatalog {
 

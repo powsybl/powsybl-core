@@ -12,7 +12,7 @@ import com.powsybl.security.SecurityAnalysisInput;
  * In charge of transforming an execution input to an actual
  * security analysis input. Will typically be defined as a lambda.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 @FunctionalInterface
 public interface SecurityAnalysisInputBuildStrategy {

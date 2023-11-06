@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * Warning : a NetworkReducer must not be considered reusable nor thread-safe.
  *
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface NetworkReducer {
 

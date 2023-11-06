@@ -14,9 +14,11 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractCompoundScalable extends AbstractScalable {
+    protected double minValue = -Double.MAX_VALUE;
+    protected double maxValue = Double.MAX_VALUE;
 
     abstract Collection<Scalable> getScalables();
 
@@ -52,7 +54,7 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         for (Scalable scalable : getScalables()) {
             value += scalable.maximumValue(n, powerConvention);
         }
-        return value;
+        return (powerConvention == ScalingConvention.GENERATOR) ? Math.min(maxValue, value) : Math.min(-minValue, value);
     }
 
     @Override
@@ -68,7 +70,7 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         for (Scalable scalable : getScalables()) {
             value += scalable.minimumValue(n, powerConvention);
         }
-        return value;
+        return (powerConvention == ScalingConvention.GENERATOR) ? Math.max(minValue, value) : Math.max(-maxValue, value);
     }
 
     @Override
@@ -76,5 +78,18 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         for (Scalable scalable : getScalables()) {
             scalable.filterInjections(n, injections, notFoundInjections);
         }
+    }
+
+    /**
+     * Returns the value of scaling asked, bounded by the minValue and maxValue.
+     * @param variationAsked unbounded value of scaling asked on the scalable
+     * @param currentGlobalPower current global power in the network
+     * @param scalingConvention This is required because the minValue and maxValue are in GENERATOR convention, so we need to know wwhat convention we use for the scaling.
+     * @return the value of scaling asked bounded by the minValue and maxValue, according to the scalingConvention.
+     */
+    protected double getBoundedVariation(double variationAsked, double currentGlobalPower, ScalingConvention scalingConvention) {
+        double minWithConvention = scalingConvention == ScalingConvention.GENERATOR ? minValue : -maxValue;
+        double maxWithConvention = scalingConvention == ScalingConvention.GENERATOR ? maxValue : -minValue;
+        return Math.min(maxWithConvention - currentGlobalPower, Math.max(minWithConvention - currentGlobalPower, variationAsked));
     }
 }

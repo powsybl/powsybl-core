@@ -16,7 +16,7 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 
 /**
- * @author Ameni Walha <ameni.walha at rte-france.com>
+ * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
 class LoadScalable extends AbstractInjectionScalable {
 

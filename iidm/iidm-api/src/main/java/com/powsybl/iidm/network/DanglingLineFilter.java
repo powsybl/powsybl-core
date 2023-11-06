@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 import java.util.function.Predicate;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public enum DanglingLineFilter {
     /** All dangling lines, that is, no filtering */

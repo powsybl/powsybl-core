@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface TwoWindingsTransformerToBeEstimatedAdder extends ExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerToBeEstimated> {
 

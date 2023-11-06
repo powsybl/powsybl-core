@@ -37,7 +37,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class LocalComputationManager implements ComputationManager {
 

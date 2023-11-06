@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.HvdcLine;
 
 /**
 *
-* @author Ferrari Giovanni <giovanni.ferrari@techrain.eu>
+* @author Ferrari Giovanni {@literal <giovanni.ferrari@techrain.eu>}
 */
 public class FooExtension extends AbstractExtension<HvdcLine> {
 

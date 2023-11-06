@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class NetworkModificationListTest {
 

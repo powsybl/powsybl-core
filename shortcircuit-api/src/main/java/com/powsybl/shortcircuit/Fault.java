@@ -22,7 +22,7 @@ import java.util.List;
  * Interface to describe the characteristics of the fault to be simulated.
  * Used for elementary short-circuit calculation only.
  *
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 public interface Fault {
 

@@ -18,7 +18,7 @@ import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.iidm.network.Country;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class CountryConversionTest {
     @Test

@@ -14,7 +14,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import java.util.Optional;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public abstract class AbstractBranchConversion extends AbstractConductingEquipmentConversion {
 

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 class MatpowerReaderWriterTest {
 

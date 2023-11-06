@@ -22,7 +22,7 @@ import java.util.List;
 import static com.powsybl.security.json.JsonSecurityAnalysisParameters.getExtensionSerializers;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
 

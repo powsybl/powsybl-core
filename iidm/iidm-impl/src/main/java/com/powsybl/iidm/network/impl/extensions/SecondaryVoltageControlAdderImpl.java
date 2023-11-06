@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SecondaryVoltageControlAdderImpl extends AbstractExtensionAdder<Network, SecondaryVoltageControl> implements SecondaryVoltageControlAdder {
 

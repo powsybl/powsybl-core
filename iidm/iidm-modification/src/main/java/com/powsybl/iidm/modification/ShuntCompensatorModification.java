@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * Simple {@link NetworkModification} to (dis)connect a shunt compensator and/or change its section.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class ShuntCompensatorModification extends AbstractNetworkModification {
 

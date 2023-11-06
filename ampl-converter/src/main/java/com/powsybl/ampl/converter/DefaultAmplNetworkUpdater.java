@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * This class implements the default behavior of applying changes to the network. <br>
  *
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  * @see AmplNetworkReader
  * @see AmplNetworkUpdater
  */

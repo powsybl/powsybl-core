@@ -8,7 +8,7 @@
 package com.powsybl.dynamicsimulation;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public interface Curve {
 }

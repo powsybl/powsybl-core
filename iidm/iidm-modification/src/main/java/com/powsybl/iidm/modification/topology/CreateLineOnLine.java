@@ -29,7 +29,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFi
  * <br/>This method cuts an existing line in two, creating a fictitious voltage level between them (the tee point). Then it links an existing voltage level to
  * this fictitious voltage level in creating a new line from a given line adder.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateLineOnLine extends AbstractLineConnectionModification<CreateLineOnLine> {
 

@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 class GroovyContingencyListTest {
     private FileSystem fileSystem;

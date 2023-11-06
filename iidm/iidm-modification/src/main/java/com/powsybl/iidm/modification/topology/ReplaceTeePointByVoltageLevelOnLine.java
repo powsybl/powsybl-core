@@ -40,7 +40,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * VL1 ------------ VL3 switching ------------ VL2
  *      (newLine1)                (newLine2)</pre>
  *
- * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
 public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModification {
 

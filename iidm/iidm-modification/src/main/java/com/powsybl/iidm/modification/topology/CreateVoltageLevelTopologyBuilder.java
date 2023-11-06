@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateVoltageLevelTopologyBuilder {
 

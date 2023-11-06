@@ -19,7 +19,7 @@ import javax.xml.stream.XMLStreamWriter;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class StaticVarCompensatorEq {
 

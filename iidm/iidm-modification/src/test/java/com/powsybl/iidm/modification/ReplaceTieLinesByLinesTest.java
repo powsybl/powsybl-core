@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
 

@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class StaticVarCompensatorConversion extends AbstractConductingEquipmentConversion {
 

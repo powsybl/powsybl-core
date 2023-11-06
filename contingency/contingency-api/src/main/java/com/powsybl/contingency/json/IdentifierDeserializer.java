@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdentifier> {
     private static final String CONTEXT_NAME = "Identifier";

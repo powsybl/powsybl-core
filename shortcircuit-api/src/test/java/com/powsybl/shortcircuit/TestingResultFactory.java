@@ -18,7 +18,7 @@ import java.util.List;
 import static com.powsybl.shortcircuit.FaultResult.Status.SUCCESS;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class TestingResultFactory {
 

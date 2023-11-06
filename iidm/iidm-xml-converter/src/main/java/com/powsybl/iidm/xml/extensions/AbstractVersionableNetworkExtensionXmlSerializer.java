@@ -18,7 +18,7 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import java.util.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> implements ExtensionXmlSerializer<T, E> {
 

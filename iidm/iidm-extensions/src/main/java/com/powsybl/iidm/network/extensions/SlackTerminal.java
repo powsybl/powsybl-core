@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.util.TerminalFinder;
 import java.util.Objects;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public interface SlackTerminal extends Extension<VoltageLevel> {
 

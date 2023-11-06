@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import java.util.Map;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at rte-france.com>
+ * @author Luma Zamarreño {@literal <zamarrenolm at rte-france.com>}
  */
 public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
 

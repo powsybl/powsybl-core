@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public final class ModificationLogs {
 

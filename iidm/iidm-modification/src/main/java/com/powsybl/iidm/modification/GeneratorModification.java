@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Objects;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class GeneratorModification extends AbstractNetworkModification {
 

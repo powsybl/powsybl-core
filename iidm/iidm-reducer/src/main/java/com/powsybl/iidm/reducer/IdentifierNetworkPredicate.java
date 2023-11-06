@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import java.util.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class IdentifierNetworkPredicate implements NetworkPredicate {
 

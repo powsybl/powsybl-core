@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * A utility class to work with security analysis result exporters
  *
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class SecurityAnalysisResultExporters {
 

@@ -20,7 +20,7 @@ import com.powsybl.security.extensions.VoltageExtension;
 import java.io.IOException;
 
 /**
- * @author Olivier Bretteville <olivier.bretteville at rte-france.com>
+ * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
  */
 @AutoService(ExtensionJsonSerializer.class)
 public class VoltageExtensionSerializer implements ExtensionJsonSerializer<LimitViolation, VoltageExtension> {
