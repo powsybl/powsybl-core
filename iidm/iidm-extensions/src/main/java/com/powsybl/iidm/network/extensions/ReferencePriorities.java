@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.extensions;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 
@@ -46,73 +45,6 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
 
     static void delete(Network network) {
         network.getConnectableStream().forEach(c -> c.removeExtension(ReferencePriorities.class));
-    }
-
-    static int getPriority(Connectable<?> connectable) {
-        if (connectable.getTerminals().size() != 1) {
-            throw new PowsyblException("This method can only be used on a connectable having a single Terminal");
-        }
-        ReferencePriorities ext = connectable.getExtension(ReferencePriorities.class);
-        if (ext == null || ext.getReferencePriorities().isEmpty()) {
-            return 0;
-        }
-        return ((ReferencePriority) (ext.getReferencePriorities().get(0))).getPriority();
-    }
-
-    static int getPriority(Branch<?> branch, Branch.Side side) {
-        ReferencePriorities ext = branch.getExtension(ReferencePriorities.class);
-        if (ext == null) {
-            return 0;
-        }
-        Optional<ReferencePriority> refTerminal = ((List<ReferencePriority>) (ext.getReferencePriorities())).stream()
-                .filter(rt -> rt.getTerminal().equals(branch.getTerminal(side)))
-                .findFirst();
-        return refTerminal.map(ReferencePriority::getPriority).orElse(0);
-    }
-
-    static int getPriority(ThreeWindingsTransformer threeWindingsTransformer, ThreeWindingsTransformer.Side side) {
-        ReferencePriorities ext = threeWindingsTransformer.getExtension(ReferencePriorities.class);
-        if (ext == null) {
-            return 0;
-        }
-        Optional<ReferencePriority> refTerminal = ((List<ReferencePriority>) (ext.getReferencePriorities())).stream()
-                .filter(rt -> rt.getTerminal().equals(threeWindingsTransformer.getTerminal(side)))
-                .findFirst();
-        return refTerminal.map(ReferencePriority::getPriority).orElse(0);
-    }
-
-    static void setPriority(Connectable<?> connectable, int priority) {
-        if (connectable.getTerminals().size() != 1) {
-            throw new PowsyblException("This method can only be used on a connectable having a single Terminal");
-        }
-        connectable.newExtension(ReferencePrioritiesAdder.class).add();
-        connectable.getExtension(ReferencePriorities.class)
-                .newReferencePriority()
-                .setTerminal(connectable.getTerminals().get(0))
-                .setPriority(priority)
-                .add();
-    }
-
-    static void setPriority(Branch<?> branch, Branch.Side side, int priority) {
-        if (branch.getExtension(ReferencePriorities.class) == null) {
-            branch.newExtension(ReferencePrioritiesAdder.class).add();
-        }
-        branch.getExtension(ReferencePriorities.class)
-                .newReferencePriority()
-                .setTerminal(branch.getTerminal(side))
-                .setPriority(priority)
-                .add();
-    }
-
-    static void setPriority(ThreeWindingsTransformer threeWindingsTransformer, ThreeWindingsTransformer.Side side, int priority) {
-        if (threeWindingsTransformer.getExtension(ReferencePriorities.class) == null) {
-            threeWindingsTransformer.newExtension(ReferencePrioritiesAdder.class).add();
-        }
-        threeWindingsTransformer.getExtension(ReferencePriorities.class)
-                .newReferencePriority()
-                .setTerminal(threeWindingsTransformer.getTerminal(side))
-                .setPriority(priority)
-                .add();
     }
 
     @Override

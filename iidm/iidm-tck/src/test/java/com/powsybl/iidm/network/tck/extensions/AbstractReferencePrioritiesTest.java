@@ -53,32 +53,32 @@ public abstract class AbstractReferencePrioritiesTest {
         lineS2S3 = network.getLine("LINE_S2S3");
         lineS3S4 = network.getLine("LINE_S3S4");
 
-        ReferencePriorities.setPriority(bbs1, 3);
-        ReferencePriorities.setPriority(bbs2, 8);
-        ReferencePriorities.setPriority(bbs3, 9);
-        ReferencePriorities.setPriority(gh1, 1);
-        ReferencePriorities.setPriority(gh2, 2);
-        ReferencePriorities.setPriority(gh3, 3);
-        ReferencePriorities.setPriority(ld1, 2);
-        ReferencePriorities.setPriority(ld2, 5);
-        ReferencePriorities.setPriority(ld3, 6);
-        ReferencePriorities.setPriority(lineS2S3, Branch.Side.ONE, 3);
-        ReferencePriorities.setPriority(lineS2S3, Branch.Side.TWO, 0);
+        ReferencePriority.set(bbs1, 3);
+        ReferencePriority.set(bbs2, 8);
+        ReferencePriority.set(bbs3, 9);
+        ReferencePriority.set(gh1, 1);
+        ReferencePriority.set(gh2, 2);
+        ReferencePriority.set(gh3, 3);
+        ReferencePriority.set(ld1, 2);
+        ReferencePriority.set(ld2, 5);
+        ReferencePriority.set(ld3, 6);
+        ReferencePriority.set(lineS2S3, Branch.Side.ONE, 3);
+        ReferencePriority.set(lineS2S3, Branch.Side.TWO, 0);
     }
 
     @Test
     void test() {
-        assertEquals(3, ReferencePriorities.getPriority(bbs1));
-        assertEquals(8, ReferencePriorities.getPriority(bbs2));
-        assertEquals(9, ReferencePriorities.getPriority(bbs3));
-        assertEquals(1, ReferencePriorities.getPriority(gh1));
-        assertEquals(2, ReferencePriorities.getPriority(gh2));
-        assertEquals(3, ReferencePriorities.getPriority(gh3));
-        assertEquals(2, ReferencePriorities.getPriority(ld1));
-        assertEquals(5, ReferencePriorities.getPriority(ld2));
-        assertEquals(6, ReferencePriorities.getPriority(ld3));
-        assertEquals(3, ReferencePriorities.getPriority(lineS2S3, Branch.Side.ONE));
-        assertEquals(0, ReferencePriorities.getPriority(lineS2S3, Branch.Side.TWO));
+        assertEquals(3, ReferencePriority.get(bbs1));
+        assertEquals(8, ReferencePriority.get(bbs2));
+        assertEquals(9, ReferencePriority.get(bbs3));
+        assertEquals(1, ReferencePriority.get(gh1));
+        assertEquals(2, ReferencePriority.get(gh2));
+        assertEquals(3, ReferencePriority.get(gh3));
+        assertEquals(2, ReferencePriority.get(ld1));
+        assertEquals(5, ReferencePriority.get(ld2));
+        assertEquals(6, ReferencePriority.get(ld3));
+        assertEquals(3, ReferencePriority.get(lineS2S3, Branch.Side.ONE));
+        assertEquals(0, ReferencePriority.get(lineS2S3, Branch.Side.TWO));
 
         assertNull(lineS3S4.getExtension(ReferencePriorities.class));
 
@@ -98,9 +98,9 @@ public abstract class AbstractReferencePrioritiesTest {
 
     @Test
     void testThrowsMultipleTerminals() {
-        Throwable thrownGet = assertThrows(PowsyblException.class, () -> ReferencePriorities.getPriority(lineS2S3));
+        Throwable thrownGet = assertThrows(PowsyblException.class, () -> ReferencePriority.get(lineS2S3));
         assertEquals("This method can only be used on a connectable having a single Terminal", thrownGet.getMessage());
-        Throwable thrownSet = assertThrows(PowsyblException.class, () -> ReferencePriorities.setPriority(lineS2S3, 1));
+        Throwable thrownSet = assertThrows(PowsyblException.class, () -> ReferencePriority.set(lineS2S3, 1));
         assertEquals("This method can only be used on a connectable having a single Terminal", thrownSet.getMessage());
     }
 
@@ -108,21 +108,21 @@ public abstract class AbstractReferencePrioritiesTest {
     void testThreeWindingsTransformer() {
         network = ThreeWindingsTransformerNetworkFactory.create();
         ThreeWindingsTransformer t3wf = network.getThreeWindingsTransformer("3WT");
-        assertEquals(0, ReferencePriorities.getPriority(t3wf, ThreeWindingsTransformer.Side.ONE));
-        assertEquals(0, ReferencePriorities.getPriority(t3wf, ThreeWindingsTransformer.Side.TWO));
-        assertEquals(0, ReferencePriorities.getPriority(t3wf, ThreeWindingsTransformer.Side.THREE));
+        assertEquals(0, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.ONE));
+        assertEquals(0, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.TWO));
+        assertEquals(0, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.THREE));
 
-        ReferencePriorities.setPriority(t3wf, ThreeWindingsTransformer.Side.ONE, 4);
-        ReferencePriorities.setPriority(t3wf, ThreeWindingsTransformer.Side.TWO, 5);
-        ReferencePriorities.setPriority(t3wf, ThreeWindingsTransformer.Side.THREE, 6);
+        ReferencePriority.set(t3wf, ThreeWindingsTransformer.Side.ONE, 4);
+        ReferencePriority.set(t3wf, ThreeWindingsTransformer.Side.TWO, 5);
+        ReferencePriority.set(t3wf, ThreeWindingsTransformer.Side.THREE, 6);
 
-        assertEquals(4, ReferencePriorities.getPriority(t3wf, ThreeWindingsTransformer.Side.ONE));
-        assertEquals(5, ReferencePriorities.getPriority(t3wf, ThreeWindingsTransformer.Side.TWO));
-        assertEquals(6, ReferencePriorities.getPriority(t3wf, ThreeWindingsTransformer.Side.THREE));
+        assertEquals(4, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.ONE));
+        assertEquals(5, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.TWO));
+        assertEquals(6, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.THREE));
 
-        Throwable thrownGet = assertThrows(PowsyblException.class, () -> ReferencePriorities.getPriority(t3wf));
+        Throwable thrownGet = assertThrows(PowsyblException.class, () -> ReferencePriority.get(t3wf));
         assertEquals("This method can only be used on a connectable having a single Terminal", thrownGet.getMessage());
-        Throwable thrownSet = assertThrows(PowsyblException.class, () -> ReferencePriorities.setPriority(t3wf, 1));
+        Throwable thrownSet = assertThrows(PowsyblException.class, () -> ReferencePriority.set(t3wf, 1));
         assertEquals("This method can only be used on a connectable having a single Terminal", thrownSet.getMessage());
     }
 
@@ -130,10 +130,10 @@ public abstract class AbstractReferencePrioritiesTest {
     void testDeleteAll() {
         ReferencePriorities.delete(network);
         assertEquals(0, ReferencePriorities.get(network).size());
-        assertEquals(0, ReferencePriorities.getPriority(bbs1));
-        assertEquals(0, ReferencePriorities.getPriority(gh1));
-        assertEquals(0, ReferencePriorities.getPriority(ld1));
-        assertEquals(0, ReferencePriorities.getPriority(lineS2S3, Branch.Side.ONE));
+        assertEquals(0, ReferencePriority.get(bbs1));
+        assertEquals(0, ReferencePriority.get(gh1));
+        assertEquals(0, ReferencePriority.get(ld1));
+        assertEquals(0, ReferencePriority.get(lineS2S3, Branch.Side.ONE));
     }
 
     @Test
