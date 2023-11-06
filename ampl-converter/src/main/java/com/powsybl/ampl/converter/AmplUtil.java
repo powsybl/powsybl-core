@@ -7,7 +7,6 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
@@ -251,15 +250,11 @@ public final class AmplUtil {
 
     public static String getLegSuffix(ThreeWindingsTransformer.Side leg) {
         Objects.requireNonNull(leg);
-        switch (leg) {
-            case ONE:
-                return AmplConstants.LEG1_SUFFIX;
-            case TWO:
-                return AmplConstants.LEG2_SUFFIX;
-            case THREE:
-                return AmplConstants.LEG3_SUFFIX;
-        }
-        throw new PowsyblException("Unsupported three windings leg.");
+        return switch (leg) {
+            case ONE -> AmplConstants.LEG1_SUFFIX;
+            case TWO -> AmplConstants.LEG2_SUFFIX;
+            case THREE -> AmplConstants.LEG3_SUFFIX;
+        };
     }
 
 }
