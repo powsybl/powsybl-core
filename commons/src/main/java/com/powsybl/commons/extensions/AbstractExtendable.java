@@ -24,9 +24,9 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     public <E extends Extension<T>> void addExtension(Class<? super E> type, E extension) {
         Objects.requireNonNull(type);
         Objects.requireNonNull(extension);
-        extension.setExtendable((T) this);
         // remove any existing, which will trigger extension own cleanup if any
         this.removeExtension((Class<E>) type);
+        extension.setExtendable((T) this);
         extensions.put(type, extension);
         extensionsByName.put(extension.getName(), extension);
     }
