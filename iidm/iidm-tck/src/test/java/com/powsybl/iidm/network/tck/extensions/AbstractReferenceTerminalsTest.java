@@ -14,8 +14,10 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -144,6 +146,46 @@ public abstract class AbstractReferenceTerminalsTest {
         ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
         PowsyblException ex2 = assertThrows(PowsyblException.class, () -> ext.addReferenceTerminal(terminal));
         assertEquals("Terminal given is not in the right Network (sim1 instead of fourSubstations)", ex2.getMessage());
+    }
+
+    @Test
+    void testRemoveEquipment() {
+        network.newExtension(ReferenceTerminalsAdder.class)
+                .withTerminals(Set.of(gh1.getTerminal(), gh2.getTerminal()))
+                .add();
+        ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
+        assertEquals(2, ext.getReferenceTerminals().size());
+        assertTrue(ext.getReferenceTerminals().containsAll(Set.of(gh1.getTerminal(), gh2.getTerminal())));
+        // remove equipment
+        gh1.remove();
+        // check terminal removed from extension
+        assertTrue(ext.getReferenceTerminals().contains(gh2.getTerminal()));
+    }
+
+    @Test
+    void testCleanup() {
+        Network net = Mockito.spy(EurostagTutorialExample1Factory.create());
+
+        net.newExtension(ReferenceTerminalsAdder.class)
+                .withTerminals(Collections.emptySet())
+                .add();
+        // check listener added
+        Mockito.verify(net, Mockito.times(1)).addListener(Mockito.any());
+        Mockito.verify(net, Mockito.times(0)).removeListener(Mockito.any());
+
+        // overwrite existing extension
+        net.newExtension(ReferenceTerminalsAdder.class)
+                .withTerminals(Collections.emptySet())
+                .add();
+        // check old listener removed and new listener added
+        Mockito.verify(net, Mockito.times(2)).addListener(Mockito.any());
+        Mockito.verify(net, Mockito.times(1)).removeListener(Mockito.any());
+
+        // remove extension
+        net.removeExtension(ReferenceTerminals.class);
+        // check all clean
+        Mockito.verify(net, Mockito.times(2)).addListener(Mockito.any());
+        Mockito.verify(net, Mockito.times(2)).removeListener(Mockito.any());
     }
 
 }

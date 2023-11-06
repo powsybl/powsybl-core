@@ -8,8 +8,7 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 
@@ -20,6 +19,17 @@ import java.util.*;
  */
 class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<Network> implements ReferenceTerminals {
 
+    private final class ReferenceTerminalsListener extends DefaultNetworkListener {
+        @Override
+        public void beforeRemoval(Identifiable identifiable) {
+            if (identifiable instanceof Connectable<?> connectable) {
+                // if connectable removed from network, remove its terminals from this extension
+                terminalsPerVariant.forEach(referenceTerminals -> connectable.getTerminals().forEach(referenceTerminals::remove));
+            }
+        }
+    }
+
+    private final NetworkListener referenceTerminalsListener;
     private final ArrayList<Set<Terminal>> terminalsPerVariant;
 
     public ReferenceTerminalsImpl(Network network, Set<Terminal> terminals) {
@@ -27,6 +37,13 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
         this.terminalsPerVariant = new ArrayList<>(
                 Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), null));
         setReferenceTerminals(terminals);
+        this.referenceTerminalsListener = new ReferenceTerminalsListener();
+        network.addListener(this.referenceTerminalsListener);
+    }
+
+    @Override
+    protected void cleanup() {
+        getExtendable().removeListener(this.referenceTerminalsListener);
     }
 
     @Override
