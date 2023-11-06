@@ -63,8 +63,8 @@ public class AmplExporter implements Exporter {
         Arrays.stream(AmplExportVersionImpl.values()).map(Enum::name).collect(Collectors.toList()));
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(EXPORT_SCOPE_PARAMETER, EXPORT_XNODES_PARAMETER,
-        EXPORT_ACTION_TYPE_PARAMETER,
-        EXPORT_RATIOTAPCHANGER_VT_PARAMETER, TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER, EXPORT_VERSION_PARAMETER);
+        EXPORT_ACTION_TYPE_PARAMETER, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER,
+        EXPORT_VERSION_PARAMETER);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
