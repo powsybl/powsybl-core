@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck.util;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Predicate;
@@ -22,7 +23,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public abstract class AbstractSwitchPredicatesTest {
 
-    private Network createNetwork() {
+    private static Network network;
+
+    @BeforeAll
+    static void setUpClass() {
+        network = createNetwork();
+    }
+
+    private static Network createNetwork() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
             .setId("S1")
@@ -204,9 +212,6 @@ public abstract class AbstractSwitchPredicatesTest {
 
     @Test
     public void testNonFictionalClosedBreakers() {
-        // Network
-        Network network = createNetwork();
-
         // Predicate to test
         Predicate<Switch> predicate = SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER;
 
@@ -220,9 +225,6 @@ public abstract class AbstractSwitchPredicatesTest {
 
     @Test
     public void testNonFictionalBreakers() {
-        // Network
-        Network network = createNetwork();
-
         // Predicate to test
         Predicate<Switch> predicate = SwitchPredicates.IS_NONFICTIONAL_BREAKER;
 
@@ -235,9 +237,6 @@ public abstract class AbstractSwitchPredicatesTest {
 
     @Test
     public void testClosedBreakers() {
-        // Network
-        Network network = createNetwork();
-
         // Predicate to test
         Predicate<Switch> predicate = SwitchPredicates.IS_CLOSED_BREAKER;
 
@@ -250,9 +249,6 @@ public abstract class AbstractSwitchPredicatesTest {
 
     @Test
     public void testBreakerOrDisconnector() {
-        // Network
-        Network network = createNetwork();
-
         // Predicate to test
         Predicate<Switch> predicate = SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR;
 
@@ -265,9 +261,6 @@ public abstract class AbstractSwitchPredicatesTest {
 
     @Test
     public void testOpenDisconnector() {
-        // Network
-        Network network = createNetwork();
-
         // Predicate to test
         Predicate<Switch> predicate = SwitchPredicates.IS_OPEN_DISCONNECTOR;
 
@@ -280,9 +273,6 @@ public abstract class AbstractSwitchPredicatesTest {
 
     @Test
     public void testOpen() {
-        // Network
-        Network network = createNetwork();
-
         // Predicate to test
         Predicate<Switch> predicate = SwitchPredicates.IS_OPEN;
 
@@ -294,9 +284,6 @@ public abstract class AbstractSwitchPredicatesTest {
 
     @Test
     public void testNonNull() {
-        // Network
-        Network network = createNetwork();
-
         // Predicate to test
         Predicate<Switch> predicate = SwitchPredicates.IS_NON_NULL;
 

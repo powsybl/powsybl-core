@@ -7,7 +7,6 @@
 package com.powsybl.math.graph;
 
 import com.google.common.base.Predicates;
-import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
@@ -613,11 +612,14 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         BitSet encountered = new BitSet(vertices.size());
         TIntArrayList path = new TIntArrayList(1);
         findAllPaths(from, pathComplete, pathCancelled, path, encountered, paths);
+
+        // Comparator
+        Comparator<TIntArrayList> comparator = Comparator
+            .comparing((TIntArrayList o) -> filteredSize(o, filteringPredicateForSize))
+            .thenComparing(TIntArrayList::size);
+
         // sort paths by size according to the given predicate then by actual size
-        paths.sort((o1, o2) -> ComparisonChain.start()
-            .compare(filteredSize(o1, filteringPredicateForSize), filteredSize(o2, filteringPredicateForSize))
-            .compare(o1.size(), o2.size())
-            .result());
+        paths.sort(comparator);
         return paths;
     }
 

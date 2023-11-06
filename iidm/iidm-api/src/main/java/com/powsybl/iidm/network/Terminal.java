@@ -168,8 +168,8 @@ public interface Terminal {
     boolean connect(Predicate<Switch> isTypeSwitchToOperate);
 
     /**
-     * Disconnect the terminal.
-     * <p>Depends on the working variant.
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
