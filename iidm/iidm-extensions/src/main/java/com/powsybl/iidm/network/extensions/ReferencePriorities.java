@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.*;
 import java.util.*;
 
 /**
- * ReferencePriorities iIDM extension allow to specify priorities among network equipments terminals for the selection
+ * ReferencePriorities iIDM extension allows specifying priorities among network equipments terminals for the selection
  * of a reference bus, for example the angle reference in the context of a load flow.<br/>
  * The extension is attached to a {@link Connectable}, i.e. any equipment with Terminals.<br/>
  * A priority level can be defined, as an integer, for each Terminal of the connectable.<br/>
@@ -36,6 +36,11 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
 
     Comparator<ReferencePriority> DEFAULT_CONNECTABLE_TYPE_COMPARATOR =
             Comparator.comparing(rt -> DEFAULT_CONNECTABLE_TYPE_PRIORITIES.getOrDefault(rt.getTerminal().getConnectable().getType(), Integer.MAX_VALUE));
+
+    @Override
+    default String getName() {
+        return NAME;
+    }
 
     /**
      * Gets the reference priorities defined in the network,
@@ -78,11 +83,6 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
      */
     static void delete(Network network) {
         network.getConnectableStream().forEach(c -> c.removeExtension(ReferencePriorities.class));
-    }
-
-    @Override
-    default String getName() {
-        return NAME;
     }
 
     ReferencePriorityAdder newReferencePriority();
