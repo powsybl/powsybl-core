@@ -14,6 +14,13 @@ import com.powsybl.iidm.network.*;
 import java.util.*;
 
 /**
+ * ReferencePriorities iIDM extension allow to specify priorities among network equipments terminals for the selection
+ * of a reference bus, for example the angle reference in the context of a load flow.<br/>
+ * The extension is attached to a {@link Connectable}, i.e. any equipment with Terminals.<br/>
+ * A priority level can be defined, as an integer, for each Terminal of the connectable.<br/>
+ * A priority 0 means should not be used.
+ * 1 is highest priority for selection.
+ * 2 is second highest priority, etc ...
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface ReferencePriorities<C extends Connectable<C>> extends Extension<C> {
@@ -30,6 +37,17 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
     Comparator<ReferencePriority> DEFAULT_CONNECTABLE_TYPE_COMPARATOR =
             Comparator.comparing(rt -> DEFAULT_CONNECTABLE_TYPE_PRIORITIES.getOrDefault(rt.getTerminal().getConnectable().getType(), Integer.MAX_VALUE));
 
+    /**
+     * Gets the reference priorities defined in the network,
+     * sorted by decreasing priority (i.e. higher priorities are first in the list).
+     * Priorities 0 are filtered out.
+     * The connectableComparator is used to control the sorting of equal priority values.
+     * Note that this method provides "raw" priorities, API users would typically want to
+     * check whether the terminals are connected, in which SynchronousComponent the Terminal belongs to, etc ...
+     * @param network network from which reference priorities should be listed
+     * @param connectableComparator comparator to
+     * @param network network from which reference priorities should be listed
+     */
     static List<ReferencePriority> get(Network network, Comparator<ReferencePriority> connectableComparator) {
         return network.getConnectableStream().filter(c -> c.getExtension(ReferencePriorities.class) != null)
                 .map(c -> (ReferencePriorities) (c.getExtension(ReferencePriorities.class)))
@@ -39,10 +57,25 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
                 .toList();
     }
 
+    /**
+     * Gets the reference priorities defined in the network,
+     * sorted by decreasing priority (i.e. higher priorities are first in the list).
+     * Priorities 0 are filtered out.
+     * In case of equal priority between different equipment types, generators are put first, loads second, busbar sections third,
+     * and all other equipment types last.
+     * Note that this method provides "raw" priorities, API users would typically want to
+     * check whether the terminals are connected, in which SynchronousComponent the Terminal belongs to, etc ...
+     * @param network network from which reference priorities should be listed
+     * @return list of sorted reference priorities
+     */
     static List<ReferencePriority> get(Network network) {
         return get(network, DEFAULT_CONNECTABLE_TYPE_COMPARATOR);
     }
 
+    /**
+     * Deletes all defined reference priorities in the network
+     * @param network network whose reference priorities should be deleted
+     */
     static void delete(Network network) {
         network.getConnectableStream().forEach(c -> c.removeExtension(ReferencePriorities.class));
     }

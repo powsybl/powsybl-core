@@ -16,10 +16,33 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * ReferencePriority iIDM extension allow to specify priority for a Terminal.
+ * A priority 0 means should not be used.
+ * 1 is highest priority for selection.
+ * 2 is second highest priority, etc ...
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
+ * @see ReferencePriorities
  */
 public interface ReferencePriority {
 
+    /**
+     * get the terminal having a reference priority defined
+     * @return the terminal
+     */
+    Terminal getTerminal();
+
+    /**
+     * get the terminal reference priority
+     * @return reference priority value
+     */
+    int getPriority();
+
+    /**
+     * Get the reference priority of a connectable with only one terminal.
+     * @param connectable a connectable
+     * @return reference priority value
+     * @throws PowsyblException if the connectable has multiple terminals
+     */
     static int get(Connectable<?> connectable) {
         if (connectable.getTerminals().size() != 1) {
             throw new PowsyblException("This method can only be used on a connectable having a single Terminal");
@@ -31,6 +54,12 @@ public interface ReferencePriority {
         return ((ReferencePriority) (ext.getReferencePriorities().get(0))).getPriority();
     }
 
+    /**
+     * Get the priority of a branch side.
+     * @param branch a branch
+     * @param side side to get priority from
+     * @return reference priority value
+     */
     static int get(Branch<?> branch, Branch.Side side) {
         ReferencePriorities ext = branch.getExtension(ReferencePriorities.class);
         if (ext == null) {
@@ -42,6 +71,12 @@ public interface ReferencePriority {
         return refTerminal.map(ReferencePriority::getPriority).orElse(0);
     }
 
+    /**
+     * Get the priority of a three windings transformer side.
+     * @param threeWindingsTransformer a three windings transformer
+     * @param side side to get priority from
+     * @return reference priority value
+     */
     static int get(ThreeWindingsTransformer threeWindingsTransformer, ThreeWindingsTransformer.Side side) {
         ReferencePriorities ext = threeWindingsTransformer.getExtension(ReferencePriorities.class);
         if (ext == null) {
@@ -53,6 +88,12 @@ public interface ReferencePriority {
         return refTerminal.map(ReferencePriority::getPriority).orElse(0);
     }
 
+    /**
+     * Set the reference priority of a connectable with only one terminal.
+     * @param connectable a connectable
+     * @param priority priority value to set
+     * @throws PowsyblException if the connectable has multiple terminals
+     */
     static void set(Connectable<?> connectable, int priority) {
         if (connectable.getTerminals().size() != 1) {
             throw new PowsyblException("This method can only be used on a connectable having a single Terminal");
@@ -65,6 +106,12 @@ public interface ReferencePriority {
                 .add();
     }
 
+    /**
+     * Set the reference priority of a branch side.
+     * @param branch a branch
+     * @param side side to set priority to
+     * @param priority priority value to set
+     */
     static void set(Branch<?> branch, Branch.Side side, int priority) {
         if (branch.getExtension(ReferencePriorities.class) == null) {
             branch.newExtension(ReferencePrioritiesAdder.class).add();
@@ -76,6 +123,12 @@ public interface ReferencePriority {
                 .add();
     }
 
+    /**
+     * Set the reference priority of a three windings transformer side.
+     * @param threeWindingsTransformer a three windings transformer
+     * @param side side to set priority to
+     * @param priority priority value to set
+     */
     static void set(ThreeWindingsTransformer threeWindingsTransformer, ThreeWindingsTransformer.Side side, int priority) {
         if (threeWindingsTransformer.getExtension(ReferencePriorities.class) == null) {
             threeWindingsTransformer.newExtension(ReferencePrioritiesAdder.class).add();
@@ -86,8 +139,4 @@ public interface ReferencePriority {
                 .setPriority(priority)
                 .add();
     }
-
-    Terminal getTerminal();
-
-    int getPriority();
 }
