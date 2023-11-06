@@ -86,7 +86,6 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
         for (int i = 0; i < number; i++) {
             terminalsPerVariant.remove(terminalsPerVariant.size() - 1); // remove elements from the top to avoid moves inside the array
         }
-
     }
 
     @Override

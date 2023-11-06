@@ -22,6 +22,6 @@ class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractExt
 
     @Override
     protected ReferencePriorities<C> createExtension(C extendable) {
-        return new ReferencePrioritiesImpl<>();
+        return new ReferencePrioritiesImpl<>(extendable);
     }
 }

@@ -51,7 +51,6 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
      * check whether the terminals are connected, in which SynchronousComponent the Terminal belongs to, etc ...
      * @param network network from which reference priorities should be listed
      * @param connectableComparator comparator to
-     * @param network network from which reference priorities should be listed
      */
     static List<ReferencePriority> get(Network network, Comparator<ReferencePriority> connectableComparator) {
         return network.getConnectableStream().filter(c -> c.getExtension(ReferencePriorities.class) != null)
@@ -63,7 +62,7 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
     }
 
     /**
-     * Gets the reference priorities defined in the network,
+     * Gets the reference priorities defined in the network for the current variant,
      * sorted by decreasing priority (i.e. higher priorities are first in the list).
      * Priorities 0 are filtered out.
      * In case of equal priority between different equipment types, generators are put first, loads second, busbar sections third,
@@ -78,15 +77,18 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
     }
 
     /**
-     * Deletes all defined reference priorities in the network
+     * Deletes all defined reference priorities in the network for the current variant
      * @param network network whose reference priorities should be deleted
      */
     static void delete(Network network) {
-        network.getConnectableStream().forEach(c -> c.removeExtension(ReferencePriorities.class));
+        network.getConnectableStream().filter(c -> c.getExtension(ReferencePriorities.class) != null)
+                .forEach(c -> ((ReferencePriorities) c.getExtension(ReferencePriorities.class)).deleteReferencePriorities());
     }
 
     ReferencePriorityAdder newReferencePriority();
 
     List<ReferencePriority> getReferencePriorities();
+
+    void deleteReferencePriorities();
 
 }
