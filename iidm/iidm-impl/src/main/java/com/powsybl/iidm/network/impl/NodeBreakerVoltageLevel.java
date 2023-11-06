@@ -1166,7 +1166,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return t != null && t.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION;
     }
 
-    private boolean checkNonClosableSwitches(SwitchImpl sw, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
+    /**
+     * Check if a switch is open and cannot be operated (according to the given predicate)
+     * @param sw the switch to test
+     * @param isTypeSwitchToOperate the predicate defining if a switch can be operated
+     * @return <code>true</code> if the switch is open and cannot be operated
+     */
+    private boolean checkNonClosableSwitch(SwitchImpl sw, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
         return SwitchPredicates.IS_OPEN.test(sw) && isTypeSwitchToOperate.negate().test(sw);
     }
 
@@ -1175,7 +1181,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
      * Connect the terminal to a busbar section in its voltage level.
      * The switches that can be operated are the non-fictional breakers.
      * @param terminal Terminal to connect
-     * @return true if the terminal has been connected, false if it hasn't or if it was already connected
+     * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
      */
     @Override
     public boolean connect(TerminalExt terminal) {
@@ -1187,7 +1193,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
      * Connect the terminal to a busbar section in its voltage level.
      * @param terminal Terminal to connect
      * @param isTypeSwitchToOperate Predicate used to identify the switches that can be operated on. <b>Warning:</b> do not include a test to see if the switch is opened, it is already done in this method
-     * @return true if the terminal has been connected, false if it hasn't or if it was already connected
+     * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
      */
     @Override
     public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
@@ -1203,7 +1209,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // find all paths starting from the current terminal to a busbar section that does not contain an open switch
         // that is not of the type of switch the user wants to operate
         // Paths are already sorted by the number of open switches and by the size of the paths
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, sw -> checkNonClosableSwitches(sw, isTypeSwitchToOperate), SwitchPredicates.IS_OPEN);
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isTypeSwitchToOperate), SwitchPredicates.IS_OPEN);
         boolean connected = false;
         if (!paths.isEmpty()) {
             // the shortest path is the best
@@ -1219,9 +1225,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
             }
             // Check that the terminal is connected (it should always be true, given how the paths are found)
-            if (terminal.isConnected()) {
-                connected = true;
-            }
+            connected = terminal.isConnected();
         }
         return connected;
     }
@@ -1243,8 +1247,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
-        // (because otherwise there is nothing we can do to connected the terminal using only breakers)
+        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
         List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, SwitchPredicates.IS_OPEN::test);
         if (paths.isEmpty()) {
             return false;
@@ -1258,8 +1261,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         // Each path is visited and for each, the first openable switch found is added in the set of switches to open
         for (TIntArrayList path : paths) {
-            // Open the first openable switch
-            pathsOpen = openPath(path, isSwitchOpenable, openedSwitches) && pathsOpen;
+            // Identify the first openable switch on the path
+            pathsOpen = pathsOpen && identifySwitchToOpenPath(path, isSwitchOpenable, openedSwitches);
         }
 
         // The switches are opened if and only if every path can be opened
@@ -1277,7 +1280,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
      * @param openedSwitches set of switch to be opened
      * @return true if the path has been opened, else false
      */
-    boolean openPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> openedSwitches) {
+    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> openedSwitches) {
         for (int i = 0; i < path.size(); i++) {
             int e = path.get(i);
             SwitchImpl sw = graph.getEdgeObject(e);
