@@ -6,16 +6,16 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface ReferenceTerminalsAdder<C extends Connectable<C>> extends ExtensionAdder<C, ReferenceTerminals<C>> {
+public interface ReferencePriorityAdder {
 
-    @Override
-    default Class<ReferenceTerminals> getExtensionClass() {
-        return ReferenceTerminals.class;
-    }
+    ReferencePriorityAdder setTerminal(Terminal terminal);
+
+    ReferencePriorityAdder setPriority(int priority);
+
+    ReferencePriority add();
 }

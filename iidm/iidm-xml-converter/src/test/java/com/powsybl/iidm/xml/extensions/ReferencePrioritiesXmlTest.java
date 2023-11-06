@@ -15,17 +15,14 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Properties;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-class ReferenceTerminalsXmlTest extends AbstractXmlConverterTest {
+class ReferencePrioritiesXmlTest extends AbstractXmlConverterTest {
 
     @Test
     void test() throws IOException {
-
         // network for serialization test purposes only, no load-flow would converge on this.
         Network network = Network.create("test", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
@@ -62,15 +59,13 @@ class ReferenceTerminalsXmlTest extends AbstractXmlConverterTest {
                 .setR(0).setX(1).setB1(0).setB2(0).setG1(0).setG2(0)
                 .add();
 
-        ReferenceTerminals.setPriority(gen, 1);
-        ReferenceTerminals.setPriority(line, Branch.Side.ONE, 2);
-        ReferenceTerminals.setPriority(line, Branch.Side.TWO, 0);
-
-        network.write("XIIDM", new Properties(), Paths.get("toto.xiidm"));
+        ReferencePriorities.setPriority(gen, 1);
+        ReferencePriorities.setPriority(line, Branch.Side.ONE, 2);
+        ReferencePriorities.setPriority(line, Branch.Side.TWO, 0);
 
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,
-                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "referenceTerminalsRef.xiidm");
+                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "referencePrioritiesRef.xiidm");
     }
 }

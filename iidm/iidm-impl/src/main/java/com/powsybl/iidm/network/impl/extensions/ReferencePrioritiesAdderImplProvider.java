@@ -9,14 +9,14 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.ReferenceTerminals;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
-public class ReferenceTerminalsAdderImplProvider<C extends Connectable<C>> implements ExtensionAdderProvider<C,
-        ReferenceTerminals<C>, ReferenceTerminalsAdderImpl<C>> {
+public class ReferencePrioritiesAdderImplProvider<C extends Connectable<C>> implements ExtensionAdderProvider<C,
+        ReferencePriorities<C>, ReferencePrioritiesAdderImpl<C>> {
     @Override
     public String getImplementationName() {
         return "Default";
@@ -24,16 +24,16 @@ public class ReferenceTerminalsAdderImplProvider<C extends Connectable<C>> imple
 
     @Override
     public String getExtensionName() {
-        return ReferenceTerminals.NAME;
+        return ReferencePriorities.NAME;
     }
 
     @Override
-    public Class<? super ReferenceTerminalsAdderImpl<C>> getAdderClass() {
-        return ReferenceTerminalsAdderImpl.class;
+    public Class<? super ReferencePrioritiesAdderImpl<C>> getAdderClass() {
+        return ReferencePrioritiesAdderImpl.class;
     }
 
     @Override
-    public ReferenceTerminalsAdderImpl<C> newAdder(C extendable) {
-        return new ReferenceTerminalsAdderImpl<>(extendable);
+    public ReferencePrioritiesAdderImpl<C> newAdder(C extendable) {
+        return new ReferencePrioritiesAdderImpl<>(extendable);
     }
 }

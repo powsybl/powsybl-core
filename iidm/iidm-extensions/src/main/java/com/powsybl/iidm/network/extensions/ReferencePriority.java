@@ -4,12 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl.tck.extensions;
+package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.iidm.network.tck.extensions.AbstractReferenceTerminalsTest;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-class ReferenceTerminalsTest extends AbstractReferenceTerminalsTest {
+public interface ReferencePriority {
+
+    Terminal getTerminal();
+
+    int getPriority();
 }

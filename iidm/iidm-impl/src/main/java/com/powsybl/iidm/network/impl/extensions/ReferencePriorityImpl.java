@@ -8,22 +8,22 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.ReferenceTerminal;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 
 import java.util.Objects;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-class ReferenceTerminalImpl implements ReferenceTerminal {
+class ReferencePriorityImpl implements ReferencePriority {
 
     private final Terminal terminal;
     private final int priority;
 
-    ReferenceTerminalImpl(Terminal terminal, int priority) {
-        this.terminal = Objects.requireNonNull(terminal, "Terminal needs to be set for ReferenceTerminal extension");
+    ReferencePriorityImpl(Terminal terminal, int priority) {
+        this.terminal = Objects.requireNonNull(terminal, "Terminal needs to be set for ReferencePriority extension");
         if (priority < 0) {
-            throw new PowsyblException("Priority should be zero or positive for ReferenceTerminal extension");
+            throw new PowsyblException("Priority should be zero or positive for ReferencePriority extension");
         }
         this.priority = priority;
     }
