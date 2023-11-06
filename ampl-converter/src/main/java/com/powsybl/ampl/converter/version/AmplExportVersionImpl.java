@@ -22,6 +22,7 @@ public enum AmplExportVersionImpl implements AmplExportVersion {
         this.factory = factory;
     }
 
+    @Override
     public AmplExportVersion.Factory getColumnsExporter() {
         return factory;
     }
