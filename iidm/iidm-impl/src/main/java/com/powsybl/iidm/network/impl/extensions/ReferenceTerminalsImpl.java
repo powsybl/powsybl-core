@@ -55,12 +55,12 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     public void setReferenceTerminals(Set<Terminal> terminals) {
         Objects.requireNonNull(terminals);
         terminals.forEach(t -> checkTerminalInNetwork(t, getExtendable()));
-        terminalsPerVariant.set(getVariantIndex(), new HashSet<>(terminals));
+        terminalsPerVariant.set(getVariantIndex(), new LinkedHashSet<>(terminals));
     }
 
     @Override
     public ReferenceTerminals clear() {
-        terminalsPerVariant.set(getVariantIndex(), new HashSet<>());
+        terminalsPerVariant.set(getVariantIndex(), new LinkedHashSet<>());
         return this;
     }
 
@@ -77,7 +77,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
         terminalsPerVariant.ensureCapacity(terminalsPerVariant.size() + number);
         Set<Terminal> sourceTerminals = terminalsPerVariant.get(sourceIndex);
         for (int i = 0; i < number; ++i) {
-            terminalsPerVariant.add(new HashSet<>(sourceTerminals));
+            terminalsPerVariant.add(new LinkedHashSet<>(sourceTerminals));
         }
     }
 
@@ -98,7 +98,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         Set<Terminal> sourceTerminals = terminalsPerVariant.get(sourceIndex);
         for (int index : indexes) {
-            terminalsPerVariant.set(index, new HashSet<>(sourceTerminals));
+            terminalsPerVariant.set(index, new LinkedHashSet<>(sourceTerminals));
         }
     }
 
