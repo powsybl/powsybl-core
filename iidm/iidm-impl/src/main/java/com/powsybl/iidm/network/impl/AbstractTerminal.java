@@ -163,8 +163,8 @@ abstract class AbstractTerminal implements TerminalExt {
 
 
     /**
-     * Try to connect the terminal.
-     * <p>Depends on the working variant.
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
      * @param isTypeSwitchToOperate Predicate telling if a switch is operable according to conditions. Examples of predicates are available in the class {@link SwitchPredicates}
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
