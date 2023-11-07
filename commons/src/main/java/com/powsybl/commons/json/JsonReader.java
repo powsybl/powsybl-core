@@ -43,10 +43,10 @@ public class JsonReader implements TreeDataReader {
     @Override
     public Map<String, String> readVersions() {
         try {
-            String nameRead = parser.nextFieldName();
-            if (!EXTENSION_VERSIONS_NAME.equals(nameRead)) {
-                throw createUnexpectedNameException(EXTENSION_VERSIONS_NAME, nameRead);
+            if (!(getNextToken() == JsonToken.FIELD_NAME && EXTENSION_VERSIONS_NAME.equals(parser.currentName()))) {
+                return Collections.emptyMap();
             }
+            currentJsonToken = null;
             Map<String, String> versions = new HashMap<>();
             JsonUtil.parseObjectArray(parser, ve -> versions.put(ve.name(), ve.version()), this::parseVersionedExtension);
             return versions;
