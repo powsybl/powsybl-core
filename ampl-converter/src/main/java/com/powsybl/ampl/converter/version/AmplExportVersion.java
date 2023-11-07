@@ -15,11 +15,24 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Nicolas Pierre {@literal <nicolas.pierre at artelys.com>}
  */
-public interface AmplExportVersion {
-    interface Factory {
+public enum AmplExportVersion {
+    /**
+     * Legacy export
+     */
+    V1_LEGACY(BasicAmplExporter.getFactory());
+
+    public interface Factory {
         AmplColumnsExporter create(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,
                                    int variantIndex, int faultNum, int actionNum);
     }
 
-    Factory getColumnsExporter();
+    private final Factory factory;
+
+    AmplExportVersion(Factory factory) {
+        this.factory = factory;
+    }
+
+    public Factory getColumnsExporter() {
+        return factory;
+    }
 }

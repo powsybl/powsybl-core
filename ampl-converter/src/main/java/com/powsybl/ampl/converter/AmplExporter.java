@@ -9,7 +9,6 @@ package com.powsybl.ampl.converter;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.ampl.converter.version.AmplExportVersion;
-import com.powsybl.ampl.converter.version.AmplExportVersionImpl;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.parameters.Parameter;
@@ -59,8 +58,8 @@ public class AmplExporter implements Exporter {
 
     private static final Parameter EXPORT_VERSION_PARAMETER = new Parameter(EXPORT_VERSION, ParameterType.STRING,
         "The version of the export.",
-        AmplExportVersionImpl.V1_LEGACY.name(),
-        Arrays.stream(AmplExportVersionImpl.values()).map(Enum::name).collect(Collectors.toList()));
+        AmplExportVersion.V1_LEGACY.name(),
+        Arrays.stream(AmplExportVersion.values()).map(Enum::name).collect(Collectors.toList()));
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(EXPORT_SCOPE_PARAMETER, EXPORT_XNODES_PARAMETER,
         EXPORT_ACTION_TYPE_PARAMETER, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER,
@@ -97,7 +96,7 @@ public class AmplExporter implements Exporter {
             boolean exportRatioTapChangerVoltageTarget = Parameter.readBoolean(getFormat(), parameters, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, defaultValueConfig);
             boolean twtSplitShuntAdmittance = Parameter.readBoolean(getFormat(), parameters,
                 TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER, defaultValueConfig);
-            AmplExportVersion exportVersion = AmplExportVersionImpl.valueOf(
+            AmplExportVersion exportVersion = AmplExportVersion.valueOf(
                 Parameter.readString(getFormat(), parameters, EXPORT_VERSION_PARAMETER, defaultValueConfig));
 
             AmplExportConfig config = new AmplExportConfig(scope, exportXnodes, actionType,
