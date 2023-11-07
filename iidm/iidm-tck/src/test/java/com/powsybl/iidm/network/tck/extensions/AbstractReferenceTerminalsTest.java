@@ -158,6 +158,7 @@ public abstract class AbstractReferenceTerminalsTest {
         // remove equipment
         gh1.remove();
         // check terminal removed from extension
+        assertEquals(1, ext.getReferenceTerminals().size());
         assertTrue(ext.getReferenceTerminals().contains(gh2.getTerminal()));
     }
 
