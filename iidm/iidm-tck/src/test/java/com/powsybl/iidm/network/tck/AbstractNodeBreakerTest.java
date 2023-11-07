@@ -318,7 +318,7 @@ public abstract class AbstractNodeBreakerTest {
         Generator g1 = network.getGenerator("G1");
         Generator g2 = network.getGenerator("G2");
 
-        // generator 2 is connected, load and generator 1 are disconnected
+        // generator 1 is disconnected, load and generator 2 are connected
         assertTrue(topo.getOptionalTerminal(4).isPresent());
         assertTrue(topo.getOptionalTerminal(5).isPresent());
         assertTrue(topo.getOptionalTerminal(6).isPresent());
