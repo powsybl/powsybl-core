@@ -373,13 +373,13 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
-            String id = twt.getId() + RATIO_TABLE;
+            String id = twt.getId() + RATIO_TABLE_SUFFIX;
             writeRatioTapChanger(formatter, id, zb2, twt.getX(), rtc);
         }
 
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
         if (ptc != null) {
-            String id = twt.getId() + PHASE_TABLE;
+            String id = twt.getId() + PHASE_TABLE_SUFFIX;
             writePhaseTapChanger(formatter, id, zb2, twt.getX(), ptc);
         }
     }
@@ -394,12 +394,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             double vb = twt.getRatedU0();
             double zb = vb * vb / AmplConstants.SB;
             if (rtc != null) {
-                String id = twt.getId() + "_leg" + legNumber + RATIO_TABLE;
+                String id = twt.getId() + "_leg" + legNumber + RATIO_TABLE_SUFFIX;
                 writeRatioTapChanger(formatter, id, zb, leg.getX(), rtc);
             }
             PhaseTapChanger ptc = leg.getPhaseTapChanger();
             if (ptc != null) {
-                String id = twt.getId() + "_leg" + legNumber + PHASE_TABLE;
+                String id = twt.getId() + "_leg" + legNumber + PHASE_TABLE_SUFFIX;
                 writePhaseTapChanger(formatter, id, zb, leg.getX(), ptc);
             }
         }
@@ -577,7 +577,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     private void writePhaseTapChanger(TableFormatter formatter, Identifiable<?> twt, PhaseTapChanger ptc, String leg) {
         try {
             String ptcId = twt.getId() + leg;
-            String tcsId = twt.getId() + leg + PHASE_TABLE;
+            String tcsId = twt.getId() + leg + PHASE_TABLE_SUFFIX;
             int ptcNum = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
@@ -595,7 +595,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     private void writeRatioTapChanger(TableFormatter formatter, Identifiable<?> twt, RatioTapChanger rtc, String leg) {
         try {
             String rtcId = twt.getId() + leg;
-            String tcsId = twt.getId() + leg + RATIO_TABLE;
+            String tcsId = twt.getId() + leg + RATIO_TABLE_SUFFIX;
             int rtcNum = mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, rtcId);
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
