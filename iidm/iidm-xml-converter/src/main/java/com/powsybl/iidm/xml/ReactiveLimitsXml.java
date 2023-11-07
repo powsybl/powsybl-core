@@ -60,7 +60,8 @@ public class ReactiveLimitsXml {
             case ELEM_REACTIVE_CAPABILITY_CURVE:
                 ReactiveCapabilityCurveAdder curveAdder = holder.newReactiveCapabilityCurve();
                 context.getReader().readUntilEndNode(ELEM_REACTIVE_CAPABILITY_CURVE, () -> {
-                    if (context.getReader().getNodeName().equals(POINT_ROOT_ELEMENT_NAME)) {
+                    String nodeName = context.getReader().getNodeName();
+                    if (nodeName.equals(POINT_ROOT_ELEMENT_NAME) || nodeName.equals(POINT_ARRAY_ELEMENT_NAME)) {
                         double p = context.getReader().readDoubleAttribute("p");
                         double minQ = context.getReader().readDoubleAttribute(ATTR_MIN_Q);
                         double maxQ = context.getReader().readDoubleAttribute(ATTR_MAX_Q);

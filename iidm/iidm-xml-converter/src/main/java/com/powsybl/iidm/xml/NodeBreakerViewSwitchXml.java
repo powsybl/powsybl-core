@@ -45,9 +45,9 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
 
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
-        boolean open = context.getReader().readBooleanAttribute("open");
         SwitchKind kind = context.getReader().readEnumAttribute("kind", SwitchKind.class);
         boolean retained = context.getReader().readBooleanAttribute("retained");
+        boolean open = context.getReader().readBooleanAttribute("open");
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
             boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
             adder.setFictitious(fictitious);
