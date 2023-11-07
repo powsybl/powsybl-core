@@ -56,7 +56,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.*;
-import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
+import static com.powsybl.iidm.xml.AbstractTreeDataImporter.SUFFIX_MAPPING;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
