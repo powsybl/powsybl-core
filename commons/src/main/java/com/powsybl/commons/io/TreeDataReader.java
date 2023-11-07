@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.io;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,6 +58,8 @@ public interface TreeDataReader extends AutoCloseable {
     String readContent();
 
     String readText(String endNodeName);
+
+    List<Integer> readIntArrayAttribute(String name);
 
     String readUntilEndNode(String endElementName, EventHandler eventHandler);
 

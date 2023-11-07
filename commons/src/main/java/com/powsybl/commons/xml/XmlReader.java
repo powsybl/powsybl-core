@@ -16,10 +16,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -138,6 +135,14 @@ public class XmlReader implements TreeDataReader {
     @Override
     public String readText(String endNodeName) {
         return readUntilEndNode(endNodeName, () -> { });
+    }
+
+    @Override
+    public List<Integer> readIntArrayAttribute(String name) {
+        String arrayString = readStringAttribute(name);
+        return Arrays.stream(arrayString.split(","))
+                .map(Integer::parseInt)
+                .toList();
     }
 
     @Override

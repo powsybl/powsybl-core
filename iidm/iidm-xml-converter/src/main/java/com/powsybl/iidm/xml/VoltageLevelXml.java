@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -353,7 +354,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
         IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BusXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         double v = context.getReader().readDoubleAttribute("v");
         double angle = context.getReader().readDoubleAttribute("angle");
-        String nodesString = context.getReader().readStringAttribute("nodes");
+        List<Integer> busNodes = context.getReader().readIntArrayAttribute("nodes");
         Map<String, String> properties = new HashMap<>();
         context.getReader().readUntilEndNode(BusXml.ROOT_ELEMENT_NAME, () -> {
             if (context.getReader().getNodeName().equals(PropertiesXml.ROOT_ELEMENT_NAME)) {
@@ -365,8 +366,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
             }
         });
         context.getEndTasks().add(() -> {
-            for (String str : nodesString.split(",")) {
-                int node = Integer.parseInt(str);
+            for (int node : busNodes) {
                 Terminal terminal = vl.getNodeBreakerView().getTerminal(node);
                 if (terminal != null) {
                     Bus b = terminal.getBusView().getBus();

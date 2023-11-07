@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.json;
 
@@ -99,9 +100,10 @@ public class JsonReader implements TreeDataReader {
     }
 
     private String readStringAttribute(String name, boolean throwException) {
+        Objects.requireNonNull(name);
         try {
             String fieldName = getFieldName();
-            if (!Objects.requireNonNull(name).equals(fieldName)) {
+            if (!name.equals(fieldName)) {
                 if (throwException) {
                     throw createUnexpectedNameException(name, fieldName);
                 }
@@ -209,6 +211,17 @@ public class JsonReader implements TreeDataReader {
     @Override
     public String readText(String endNodeName) {
         return readUntilEndNode(endNodeName, () -> { });
+    }
+
+    @Override
+    public List<Integer> readIntArrayAttribute(String name) {
+        Objects.requireNonNull(name);
+        String fieldName = getFieldName();
+        currentJsonToken = null;
+        if (!name.equals(fieldName)) {
+            throw createUnexpectedNameException(name, fieldName);
+        }
+        return JsonUtil.parseIntegerArray(parser);
     }
 
     @Override
