@@ -787,20 +787,12 @@ public final class NetworkXml {
         });
     }
 
-    public static void update(Network network, Path xmlFile) {
+    public static void update(Network network, Path xmlFile, ImportOptions config) {
         try (InputStream is = Files.newInputStream(xmlFile)) {
-            ImportOptions config = new ImportOptions()
-                    .setFormat(getFormatFromPathName(xmlFile));
             update(network, is, config);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private static TreeDataFormat getFormatFromPathName(Path file) {
-        String filename = file.getFileName().toString();
-        String fileExtension = filename.substring(filename.lastIndexOf(".")).toLowerCase();
-        return ".json".equals(fileExtension) ? TreeDataFormat.JSON : TreeDataFormat.XML;
     }
 
     private static void updateVoltageLevel(TreeDataReader reader, Network network, VoltageLevel[] vl) {
