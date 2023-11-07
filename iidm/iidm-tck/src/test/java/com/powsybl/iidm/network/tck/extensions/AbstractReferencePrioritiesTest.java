@@ -16,8 +16,10 @@ import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -26,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class AbstractReferencePrioritiesTest {
 
     Network network;
+    VariantManager variantManager;
     BusbarSection bbs1;
     BusbarSection bbs2;
     BusbarSection bbs3;
@@ -41,6 +44,7 @@ public abstract class AbstractReferencePrioritiesTest {
     @BeforeEach
     void setUp() {
         network = FourSubstationsNodeBreakerFactory.create();
+        variantManager = network.getVariantManager();
         bbs1 = network.getBusbarSection("S1VL1_BBS");
         bbs2 = network.getBusbarSection("S2VL1_BBS");
         bbs3 = network.getBusbarSection("S3VL1_BBS");
@@ -134,6 +138,59 @@ public abstract class AbstractReferencePrioritiesTest {
         assertEquals(0, ReferencePriority.get(gh1));
         assertEquals(0, ReferencePriority.get(ld1));
         assertEquals(0, ReferencePriority.get(lineS2S3, Branch.Side.ONE));
+    }
+
+    @Test
+    void testVariants() {
+        // create variants
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+        List<String> targetVariantIds = Arrays.asList(variant1, variant2);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
+
+        // add gh2 priority to 20 in variant1
+        variantManager.setWorkingVariant(variant1);
+        ReferencePriority.set(gh2, 20);
+        // add gh3 priority to 0 in variant2
+        variantManager.setWorkingVariant(variant2);
+        ReferencePriority.set(gh3, 0);
+
+        // initial variant unmodified
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertEquals(2, ReferencePriority.get(gh2));
+        assertEquals(3, ReferencePriority.get(gh3));
+
+        // check variant 1 as expected
+        variantManager.setWorkingVariant(variant1);
+        assertEquals(20, ReferencePriority.get(gh2));
+
+        // check variant 2 as expected
+        variantManager.setWorkingVariant(variant2);
+        assertEquals(0, ReferencePriority.get(gh3));
+
+        // clear variant 1
+        variantManager.setWorkingVariant(variant1);
+        ReferencePriorities.delete(network);
+
+        // check variant 1 empty
+        assertTrue(ReferencePriorities.get(network).isEmpty());
+
+        // check other variants unchanged
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertEquals(10, ReferencePriorities.get(network).size());
+        variantManager.setWorkingVariant(variant2);
+        assertEquals(9, ReferencePriorities.get(network).size());
+
+        // test variant recycling in array
+        String variant3 = "variant3";
+        variantManager.removeVariant(variant1);
+        variantManager.cloneVariant(variant2, variant3);
+        variantManager.setWorkingVariant(variant3);
+        assertEquals(9, ReferencePriorities.get(network).size());
+        assertEquals(0, ReferencePriority.get(gh3));
+
+        // test array resize for coverage completeness
+        variantManager.removeVariant(variant2);
     }
 
     @Test

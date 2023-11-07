@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class AbstractReferenceTerminalsTest {
 
     Network network;
-
     VariantManager variantManager;
     Generator gh1;
     Generator gh2;
@@ -83,7 +82,6 @@ public abstract class AbstractReferenceTerminalsTest {
         // create variants
         String variant1 = "variant1";
         String variant2 = "variant2";
-        String variant3 = "variant3";
         List<String> targetVariantIds = Arrays.asList(variant1, variant2);
         variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
 
@@ -123,6 +121,7 @@ public abstract class AbstractReferenceTerminalsTest {
         assertTrue(ext.getReferenceTerminals().containsAll(Set.of(gh1.getTerminal(), gh3.getTerminal())));
 
         // test variant recycling in array
+        String variant3 = "variant3";
         variantManager.removeVariant(variant1);
         variantManager.cloneVariant(variant2, variant3);
         variantManager.setWorkingVariant(variant3);

@@ -98,7 +98,9 @@ public interface ReferencePriority {
         if (connectable.getTerminals().size() != 1) {
             throw new PowsyblException("This method can only be used on a connectable having a single Terminal");
         }
-        connectable.newExtension(ReferencePrioritiesAdder.class).add();
+        if (connectable.getExtension(ReferencePriorities.class) == null) {
+            connectable.newExtension(ReferencePrioritiesAdder.class).add();
+        }
         connectable.getExtension(ReferencePriorities.class)
                 .newReferencePriority()
                 .setTerminal(connectable.getTerminals().get(0))
