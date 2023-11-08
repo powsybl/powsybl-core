@@ -145,12 +145,12 @@ public class FullModel {
         try {
             XMLStreamReader xmlReader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilStartElement(new String[] {"/", CgmesNames.RDF, CgmesNames.FULL_MODEL}, xmlReader, () -> {
+                XmlUtil.readUntilStartElement(new String[] {"/", CgmesNames.RDF, CgmesNames.FULL_MODEL}, xmlReader, elementName1 -> {
                     context.id = xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.ABOUT);
                     try {
-                        XmlUtil.readUntilEndElement(CgmesNames.FULL_MODEL, xmlReader, () -> {
+                        XmlUtil.readUntilEndElement(CgmesNames.FULL_MODEL, xmlReader, subElementName -> {
                             try {
-                                switch (xmlReader.getLocalName()) {
+                                switch (subElementName) {
                                     case CgmesNames.SCENARIO_TIME:
                                         context.scenarioTime = ZonedDateTime.parse(XmlUtil.readText(CgmesNames.SCENARIO_TIME, xmlReader));
                                         break;

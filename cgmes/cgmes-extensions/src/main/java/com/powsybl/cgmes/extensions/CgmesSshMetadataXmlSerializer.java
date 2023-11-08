@@ -54,11 +54,11 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
                 .setId(reader.readStringAttribute("id"))
                 .setSshVersion(reader.readIntAttribute("sshVersion"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
-        reader.readUntilEndNode("cgmesSshMetadata", () -> {
-            if (reader.getNodeName().equals("dependentOn")) {
+        reader.readUntilEndNode("cgmesSshMetadata", elementName -> {
+            if (elementName.equals("dependentOn")) {
                 adder.addDependency(reader.readContent());
             } else {
-                throw new PowsyblException("Unknown element name <" + reader.getNodeName() + "> in <cgmesSshMetadata>");
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesSshMetadata'");
             }
         });
         adder.add();

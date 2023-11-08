@@ -36,7 +36,7 @@ public final class ConnectableXmlUtil {
     static final String ACTIVE_POWER_LIMITS_3 = "activePowerLimits3";
     static final String APPARENT_POWER_LIMITS_3 = "apparentPowerLimits3";
 
-    private static final String CURRENT_LIMITS = "currentLimits";
+    static final String CURRENT_LIMITS = "currentLimits";
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
@@ -184,9 +184,8 @@ public final class ConnectableXmlUtil {
     private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, TreeDataReader reader) {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
-        reader.readUntilEndNode(type + indexToString(index), () -> {
-            String nodeName = reader.getNodeName();
-            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NODE.equals(nodeName) || TEMPORARY_LIMITS_ARRAY_ELEMENT_NODE.equals(nodeName)) {
+        reader.readUntilEndNode(type + indexToString(index), elementName -> {
+            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NODE.equals(elementName) || TEMPORARY_LIMITS_ARRAY_ELEMENT_NODE.equals(elementName)) {
                 String name = reader.readStringAttribute("name");
                 int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);

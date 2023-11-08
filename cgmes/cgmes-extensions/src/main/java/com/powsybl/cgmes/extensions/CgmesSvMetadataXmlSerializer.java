@@ -51,11 +51,11 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
         adder.setDescription(reader.readStringAttribute("description"))
                 .setSvVersion(reader.readIntAttribute("svVersion"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
-        reader.readUntilEndNode("cgmesSvMetadata", () -> {
-            if (reader.getNodeName().equals("dependentOn")) {
+        reader.readUntilEndNode("cgmesSvMetadata", elementName -> {
+            if (elementName.equals("dependentOn")) {
                 adder.addDependency(reader.readContent());
             } else {
-                throw new PowsyblException("Unknown element name <" + reader.getNodeName() + "> in <cgmesSvMetadata>");
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesSvMetadata'");
             }
         });
         adder.add();

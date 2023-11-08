@@ -89,8 +89,8 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
         checkReadingCompatibility(networkContext);
 
         TerminalMockExt terminalMockExt = new TerminalMockExt(extendable);
-        networkContext.getReader().readUntilEndNode(getExtensionName(), () -> {
-            if (networkContext.getReader().getNodeName().equals("terminal")) {
+        networkContext.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+            if (elementName.equals("terminal")) {
                 String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().readStringAttribute("id"));
                 String side = networkContext.getReader().readStringAttribute("side");
                 networkContext.getEndTasks().add(() -> {
@@ -98,7 +98,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                     terminalMockExt.setTerminal(TerminalRefXml.resolve(id, side, network));
                 });
             } else {
-                throw new IllegalStateException("Unexpected element: " + networkContext.getReader().getNodeName());
+                throw new IllegalStateException("Unexpected element: " + elementName);
             }
         });
         return terminalMockExt;

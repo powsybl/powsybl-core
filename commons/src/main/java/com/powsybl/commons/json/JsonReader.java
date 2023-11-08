@@ -197,20 +197,13 @@ public class JsonReader implements TreeDataReader {
     }
 
     @Override
-    public String getNodeName() {
-        return Optional.ofNullable(nodeChain.peekLast())
-                .map(Node::name)
-                .orElseThrow(() -> new PowsyblException("JSON reader reached EOF"));
-    }
-
-    @Override
     public String readContent() {
         return readStringAttribute("content");
     }
 
     @Override
     public String readText(String endNodeName) {
-        return readUntilEndNode(endNodeName, () -> { });
+        return readUntilEndNode(endNodeName, null);
     }
 
     @Override
@@ -226,9 +219,9 @@ public class JsonReader implements TreeDataReader {
 
     @Override
     public String readUntilEndNode(String endElementName, EventHandler eventHandler) {
-        return readUntilEndNodeWithDepth(endElementName, elementDepth -> {
+        return readUntilEndNodeWithDepth(endElementName, (elementName, elementDepth) -> {
             if (eventHandler != null) {
-                eventHandler.onStartElement();
+                eventHandler.onStartElement(elementName);
             }
         });
     }
@@ -242,7 +235,13 @@ public class JsonReader implements TreeDataReader {
             while (!(getNextToken() == JsonToken.END_OBJECT && depth == 0)) {
                 currentJsonToken = null; // the token will be consumed in all cases below
                 switch (parser.currentToken()) {
-                    case FIELD_NAME -> nodeChain.add(new Node(parser.currentName(), JsonNodeType.NULL));
+                    case FIELD_NAME -> {
+                        if (parser.currentName().equals("content")) {
+                            text = parser.nextTextValue();
+                        } else {
+                            nodeChain.add(new Node(parser.currentName(), JsonNodeType.NULL));
+                        }
+                    }
                     case START_ARRAY -> {
                         Node arrayNode = Optional.ofNullable(nodeChain.pollLast())
                                 .filter(n -> n.jsonNodeType() == JsonNodeType.NULL)
@@ -258,7 +257,7 @@ public class JsonReader implements TreeDataReader {
                             nodeChain.add(new Node(arrayNode.name(), JsonNodeType.OBJECT));
                         }
                         if (eventHandler != null) {
-                            eventHandler.onStartElement(depth);
+                            eventHandler.onStartElement(nodeChain.getLast().name(), depth);
                         }
                         depth++;
                     }
@@ -276,7 +275,6 @@ public class JsonReader implements TreeDataReader {
                             throw new PowsyblException("JSON parsing: array end reached without a preceding start");
                         }
                     }
-                    case VALUE_STRING -> text = parser.getText();
                 }
             }
             // Exiting the while means currentJsonToken == JsonToken.END_OBJECT && depth == 0

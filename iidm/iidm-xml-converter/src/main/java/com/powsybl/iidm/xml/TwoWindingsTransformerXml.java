@@ -117,46 +117,29 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected void readSubElements(TwoWindingsTransformer twt, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), () -> {
-            switch (context.getReader().getNodeName()) {
-                case ACTIVE_POWER_LIMITS_1:
+        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+            switch (elementName) {
+                case ACTIVE_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, twt.newActivePowerLimits1(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_1:
+                }
+                case APPARENT_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, twt.newApparentPowerLimits1(), context.getReader()));
-                    break;
-
-                case "currentLimits1":
-                    readCurrentLimits(1, twt.newCurrentLimits1(), context.getReader());
-                    break;
-
-                case ACTIVE_POWER_LIMITS_2:
+                }
+                case "currentLimits1" -> readCurrentLimits(1, twt.newCurrentLimits1(), context.getReader());
+                case ACTIVE_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, twt.newActivePowerLimits2(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_2:
+                }
+                case APPARENT_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, twt.newApparentPowerLimits2(), context.getReader()));
-                    break;
-
-                case "currentLimits2":
-                    readCurrentLimits(2, twt.newCurrentLimits2(), context.getReader());
-                    break;
-
-                case "ratioTapChanger":
-                    readRatioTapChanger(twt, context);
-                    break;
-
-                case "phaseTapChanger":
-                    readPhaseTapChanger(twt, context);
-                    break;
-
-                default:
-                    super.readSubElements(twt, context);
+                }
+                case "currentLimits2" -> readCurrentLimits(2, twt.newCurrentLimits2(), context.getReader());
+                case "ratioTapChanger" -> readRatioTapChanger(twt, context);
+                case "phaseTapChanger" -> readPhaseTapChanger(twt, context);
+                default -> readSubElement(elementName, twt, context);
             }
         });
     }

@@ -306,8 +306,8 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     @Override
     protected void readSubElements(VoltageLevel vl, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), () -> {
-            switch (context.getReader().getNodeName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+            switch (elementName) {
                 case NODE_BREAKER_TOPOLOGY_ELEMENT_NAME -> readNodeBreakerTopology(vl, context);
                 case BUS_BREAKER_TOPOLOGY_ELEMENT_NAME -> readBusBreakerTopology(vl, context);
                 case GeneratorXml.ROOT_ELEMENT_NAME, GeneratorXml.ARRAY_ELEMENT_NAME
@@ -326,15 +326,15 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                         -> VscConverterStationXml.INSTANCE.read(vl, context);
                 case LccConverterStationXml.ROOT_ELEMENT_NAME, LccConverterStationXml.ARRAY_ELEMENT_NAME
                         -> LccConverterStationXml.INSTANCE.read(vl, context);
-                default -> super.readSubElements(vl, context);
+                default -> readSubElement(elementName, vl, context);
             }
         });
     }
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) {
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored."));
-        context.getReader().readUntilEndNode(NODE_BREAKER_TOPOLOGY_ELEMENT_NAME, () -> {
-            switch (context.getReader().getNodeName()) {
+        context.getReader().readUntilEndNode(NODE_BREAKER_TOPOLOGY_ELEMENT_NAME, elementName -> {
+            switch (elementName) {
                 case BusbarSectionXml.ROOT_ELEMENT_NAME, BusbarSectionXml.ARRAY_ELEMENT_NAME
                         -> BusbarSectionXml.INSTANCE.read(vl, context);
                 case AbstractSwitchXml.ROOT_ELEMENT_NAME, AbstractSwitchXml.ARRAY_ELEMENT_NAME
@@ -345,7 +345,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                         -> readCalculatedBus(vl, context);
                 case INJ_ROOT_ELEMENT_NAME, INJ_ARRAY_ELEMENT_NAME
                         -> readFictitiousInjection(vl, context);
-                default -> throw new IllegalStateException(UNEXPECTED_ELEMENT + context.getReader().getNodeName());
+                default -> throw new IllegalStateException(UNEXPECTED_ELEMENT + elementName);
             }
         });
     }
@@ -356,13 +356,13 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
         double angle = context.getReader().readDoubleAttribute("angle");
         List<Integer> busNodes = context.getReader().readIntArrayAttribute("nodes");
         Map<String, String> properties = new HashMap<>();
-        context.getReader().readUntilEndNode(BusXml.ROOT_ELEMENT_NAME, () -> {
-            if (context.getReader().getNodeName().equals(PropertiesXml.ROOT_ELEMENT_NAME)) {
+        context.getReader().readUntilEndNode(BusXml.ROOT_ELEMENT_NAME, elementName -> {
+            if (elementName.equals(PropertiesXml.ROOT_ELEMENT_NAME)) {
                 String name = context.getReader().readStringAttribute(NAME);
                 String value = context.getReader().readStringAttribute(VALUE);
                 properties.put(name, value);
             } else {
-                throw new IllegalStateException(UNEXPECTED_ELEMENT + context.getReader().getNodeName());
+                throw new IllegalStateException(UNEXPECTED_ELEMENT + elementName);
             }
         });
         context.getEndTasks().add(() -> {
@@ -394,13 +394,13 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
     }
 
     private void readBusBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(BUS_BREAKER_TOPOLOGY_ELEMENT_NAME, () -> {
-            switch (context.getReader().getNodeName()) {
+        context.getReader().readUntilEndNode(BUS_BREAKER_TOPOLOGY_ELEMENT_NAME, elementName -> {
+            switch (elementName) {
                 case BusXml.ROOT_ELEMENT_NAME,
                         BusXml.ARRAY_ELEMENT_NAME -> BusXml.INSTANCE.read(vl, context);
                 case AbstractSwitchXml.ROOT_ELEMENT_NAME,
                         AbstractSwitchXml.ARRAY_ELEMENT_NAME -> BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
-                default -> throw new IllegalStateException(UNEXPECTED_ELEMENT + context.getReader().getNodeName());
+                default -> throw new IllegalStateException(UNEXPECTED_ELEMENT + elementName);
             }
         });
     }

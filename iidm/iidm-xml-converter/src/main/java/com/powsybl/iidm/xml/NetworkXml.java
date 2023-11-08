@@ -548,12 +548,13 @@ public final class NetworkXml {
         return namespaceVersionMap;
     }
 
-    private static void readElements(Deque<Network> networks, NetworkFactory networkFactory, TreeDataReader reader, NetworkXmlReaderContext context,
-                                     Set<String> extensionNamesNotFound) {
-        String localName = reader.getNodeName();
-        switch (localName) {
-            case AliasesXml.ROOT_ELEMENT_NAME -> checkSupportedAndReadAlias(networks.peek(), context);
-            case PropertiesXml.ROOT_ELEMENT_NAME -> PropertiesXml.read(networks.peek(), context);
+    private static void readElement(String elementName, Deque<Network> networks, NetworkFactory networkFactory, TreeDataReader reader, NetworkXmlReaderContext context,
+                                    Set<String> extensionNamesNotFound) {
+        switch (elementName) {
+            case AliasesXml.ROOT_ELEMENT_NAME, AliasesXml.ARRAY_ELEMENT_NAME
+                    -> checkSupportedAndReadAlias(networks.peek(), context);
+            case PropertiesXml.ROOT_ELEMENT_NAME, PropertiesXml.ARRAY_ELEMENT_NAME
+                    -> PropertiesXml.read(networks.peek(), context);
             case NETWORK_ROOT_ELEMENT_NAME, NETWORK_ARRAY_ELEMENT_NAME
                     -> checkSupportedAndReadSubnetwork(networks, networkFactory, reader, context, extensionNamesNotFound);
             case VoltageLevelXml.ROOT_ELEMENT_NAME, VoltageLevelXml.ARRAY_ELEMENT_NAME
@@ -569,7 +570,7 @@ public final class NetworkXml {
             case VoltageAngleLimitXml.ROOT_ELEMENT_NAME, VoltageAngleLimitXml.ARRAY_ELEMENT_NAME
                     -> VoltageAngleLimitXml.read(networks.peek(), context);
             case EXTENSION_ROOT_ELEMENT_NAME, EXTENSION_ARRAY_ELEMENT_NAME
-                    -> findExtendableAndReadExtension(networks.peek(), reader, context, extensionNamesNotFound);
+                    -> findExtendableAndReadExtension(networks.getFirst(), reader, context, extensionNamesNotFound);
             default -> throw new IllegalStateException();
         }
     }
@@ -590,7 +591,7 @@ public final class NetworkXml {
         networks.push(subnetwork);
         // Read subnetwork content
         reader.readUntilEndNode(NETWORK_ROOT_ELEMENT_NAME,
-                () -> readElements(networks, networkFactory, reader, context, extensionNamesNotFound));
+                elementName -> readElement(elementName, networks, networkFactory, reader, context, extensionNamesNotFound));
         // Pop the subnetwork. We will now work with its parent.
         networks.pop();
     }
@@ -648,7 +649,7 @@ public final class NetworkXml {
         Deque<Network> networks = new ArrayDeque<>(2);
         networks.push(network);
 
-        reader.readUntilEndNode(NETWORK_ROOT_ELEMENT_NAME, () -> readElements(networks, networkFactory, reader, context, extensionNamesNotFound));
+        reader.readUntilEndNode(NETWORK_ROOT_ELEMENT_NAME, elementName -> readElement(elementName, networks, networkFactory, reader, context, extensionNamesNotFound));
 
         checkExtensionsNotFound(context, extensionNamesNotFound);
 
@@ -706,12 +707,11 @@ public final class NetworkXml {
     private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
                                        Set<String> extensionNamesNotFound) {
 
-        context.getReader().readUntilEndNodeWithDepth(EXTENSION_ROOT_ELEMENT_NAME, elementDepth -> {
+        context.getReader().readUntilEndNodeWithDepth(EXTENSION_ROOT_ELEMENT_NAME, (extensionName, elementDepth) -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore in case of
             // missing extension serializer, we must not check for an extension in sub elements.
             if (elementDepth == 0) {
-                String extensionName = context.getReader().getNodeName();
                 if (!context.getOptions().withExtension(extensionName)) {
                     return;
                 }
@@ -737,9 +737,9 @@ public final class NetworkXml {
 
         VoltageLevel[] vl = new VoltageLevel[1];
 
-        reader.readUntilEndNode(NETWORK_ROOT_ELEMENT_NAME, () -> {
+        reader.readUntilEndNode(NETWORK_ROOT_ELEMENT_NAME, elementName -> {
 
-            switch (reader.getNodeName()) {
+            switch (elementName) {
                 case VoltageLevelXml.ROOT_ELEMENT_NAME,
                         VoltageLevelXml.ARRAY_ELEMENT_NAME:
                     updateVoltageLevel(reader, network, vl);
@@ -782,7 +782,7 @@ public final class NetworkXml {
                     throw new IllegalStateException();
 
                 default:
-                    throw new IllegalStateException("Unexpected element: " + reader.getNodeName());
+                    throw new IllegalStateException("Unexpected element: " + elementName);
             }
         });
     }

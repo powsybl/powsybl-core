@@ -115,27 +115,13 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     @Override
     public ConnectablePosition<C> read(C connectable, XmlReaderContext context) {
         ConnectablePositionAdder<C> adder = connectable.newExtension(ConnectablePositionAdder.class);
-        context.getReader().readUntilEndNode(getExtensionName(), () -> {
-
-            switch (context.getReader().getNodeName()) {
-                case "feeder":
-                    readPosition(context, adder.newFeeder());
-                    break;
-
-                case "feeder1":
-                    readPosition(context, adder.newFeeder1());
-                    break;
-
-                case "feeder2":
-                    readPosition(context, adder.newFeeder2());
-                    break;
-
-                case "feeder3":
-                    readPosition(context, adder.newFeeder3());
-                    break;
-
-                default:
-                    throw new IllegalStateException();
+        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+            switch (elementName) {
+                case "feeder" -> readPosition(context, adder.newFeeder());
+                case "feeder1" -> readPosition(context, adder.newFeeder1());
+                case "feeder2" -> readPosition(context, adder.newFeeder2());
+                case "feeder3" -> readPosition(context, adder.newFeeder3());
+                default -> throw new IllegalStateException();
             }
         });
         return adder.add();

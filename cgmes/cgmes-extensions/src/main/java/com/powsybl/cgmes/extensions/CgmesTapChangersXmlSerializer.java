@@ -55,8 +55,8 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
         TreeDataReader reader = networkContext.getReader();
         extendable.newExtension(CgmesTapChangersAdder.class).add();
         CgmesTapChangers<C> tapChangers = extendable.getExtension(CgmesTapChangers.class);
-        reader.readUntilEndNode(getExtensionName(), () -> {
-            if (reader.getNodeName().equals("tapChanger")) {
+        reader.readUntilEndNode(getExtensionName(), elementName -> {
+            if (elementName.equals("tapChanger")) {
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
                         .setId(reader.readStringAttribute("id"))
                         .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
@@ -69,7 +69,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
                 }
                 adder.add();
             } else {
-                throw new PowsyblException("Unknown element name <" + reader.getNodeName() + "> in <cgmesTapChangers>");
+                throw new PowsyblException("Unknown element name '" + elementName + "'>' in 'cgmesTapChangers'");
             }
         });
         return extendable.getExtension(CgmesTapChangers.class);

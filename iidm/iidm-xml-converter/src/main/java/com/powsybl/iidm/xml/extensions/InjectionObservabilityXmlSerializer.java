@@ -60,32 +60,14 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
         InjectionObservabilityAdder<T> adder = identifiable.newExtension(InjectionObservabilityAdder.class)
                 .withObservable(observable);
 
-        context.getReader().readUntilEndNode(getExtensionName(), () -> {
-            switch (context.getReader().getNodeName()) {
-                case QUALITY_P: {
-                    var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
-                    adder.withStandardDeviationP(standardDeviation)
-                            .withRedundantP(redundant);
-                    break;
-                }
-                case QUALITY_Q: {
-                    var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
-                    adder.withStandardDeviationQ(standardDeviation)
-                            .withRedundantQ(redundant);
-                    break;
-                }
-                case QUALITY_V: {
-                    var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
-                    adder.withStandardDeviationV(standardDeviation)
-                            .withRedundantV(redundant);
-                    break;
-                }
-                default: {
-                    throw new PowsyblException("Unexpected element: " + context.getReader().getNodeName());
-                }
+        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+            var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
+            var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
+            switch (elementName) {
+                case QUALITY_P -> adder.withStandardDeviationP(standardDeviation).withRedundantP(redundant);
+                case QUALITY_Q -> adder.withStandardDeviationQ(standardDeviation).withRedundantQ(redundant);
+                case QUALITY_V -> adder.withStandardDeviationV(standardDeviation).withRedundantV(redundant);
+                default -> throw new PowsyblException("Unexpected element: " + elementName);
             }
         });
 

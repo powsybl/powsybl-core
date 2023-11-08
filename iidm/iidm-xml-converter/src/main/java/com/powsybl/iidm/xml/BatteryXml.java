@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+import static com.powsybl.iidm.xml.ReactiveLimitsXml.ELEM_MIN_MAX_REACTIVE_LIMITS;
+import static com.powsybl.iidm.xml.ReactiveLimitsXml.ELEM_REACTIVE_CAPABILITY_CURVE;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -70,15 +72,11 @@ class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, Vo
 
     @Override
     protected void readSubElements(Battery b, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), () -> {
-            switch (context.getReader().getNodeName()) {
-                case "reactiveCapabilityCurve":
-                case "minMaxReactiveLimits":
-                    ReactiveLimitsXml.INSTANCE.read(b, context);
-                    break;
-
-                default:
-                    super.readSubElements(b, context);
+        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+            switch (elementName) {
+                case ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsXml.INSTANCE.readReactiveCapabilityCurve(b, context);
+                case ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsXml.INSTANCE.readMinMaxReactiveLimits(b, context);
+                default -> readSubElement(elementName, b, context);
             }
         });
     }

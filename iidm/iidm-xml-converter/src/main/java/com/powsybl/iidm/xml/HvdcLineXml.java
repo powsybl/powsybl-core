@@ -63,6 +63,6 @@ class HvdcLineXml extends AbstractSimpleIdentifiableXml<HvdcLine, HvdcLineAdder,
 
     @Override
     protected void readSubElements(HvdcLine l, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), () -> HvdcLineXml.super.readSubElements(l, context));
+        context.getReader().readUntilEndNode(getRootElementName(), elementName -> readSubElement(elementName, l, context));
     }
 }

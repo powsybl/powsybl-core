@@ -75,20 +75,17 @@ class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterS
 
     @Override
     protected void readSubElements(VscConverterStation cs, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), () -> {
-            switch (context.getReader().getNodeName()) {
-                case "reactiveCapabilityCurve":
-                case "minMaxReactiveLimits":
-                    ReactiveLimitsXml.INSTANCE.read(cs, context);
-                    break;
-                case REGULATING_TERMINAL:
+        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+            switch (elementName) {
+                case ReactiveLimitsXml.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsXml.INSTANCE.readReactiveCapabilityCurve(cs, context);
+                case ReactiveLimitsXml.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsXml.INSTANCE.readMinMaxReactiveLimits(cs, context);
+                case REGULATING_TERMINAL -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                     String side = context.getReader().readStringAttribute("side");
                     context.getEndTasks().add(() -> cs.setRegulatingTerminal(TerminalRefXml.resolve(id, side, cs.getNetwork())));
-                    break;
-                default:
-                    super.readSubElements(cs, context);
+                }
+                default -> readSubElement(elementName, cs, context);
             }
         });
     }

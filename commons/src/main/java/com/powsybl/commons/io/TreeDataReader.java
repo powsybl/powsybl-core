@@ -16,7 +16,7 @@ public interface TreeDataReader extends AutoCloseable {
 
     interface EventHandler {
 
-        void onStartElement();
+        void onStartElement(String elementName);
     }
 
     /**
@@ -24,7 +24,7 @@ public interface TreeDataReader extends AutoCloseable {
      */
     interface EventHandlerWithDepth {
 
-        void onStartElement(int elementDepth);
+        void onStartElement(String elementName, int elementDepth);
     }
 
     String readRootVersion();
@@ -52,8 +52,6 @@ public interface TreeDataReader extends AutoCloseable {
     <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz);
 
     <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue);
-
-    String getNodeName();
 
     String readContent();
 

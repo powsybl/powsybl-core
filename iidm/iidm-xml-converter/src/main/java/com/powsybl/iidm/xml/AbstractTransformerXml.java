@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -116,8 +117,8 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
         }
 
         boolean[] hasTerminalRef = new boolean[1];
-        context.getReader().readUntilEndNode(elementName, () -> {
-            switch (context.getReader().getNodeName()) {
+        context.getReader().readUntilEndNode(elementName, subElementName -> {
+            switch (subElementName) {
                 case ELEM_TERMINAL_REF ->
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
                         adder.setRegulationTerminal(TerminalRefXml.resolve(id, side, terminal.getVoltageLevel().getNetwork()));
@@ -195,16 +196,14 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
             adder.setRegulating(regulating);
         }
         boolean[] hasTerminalRef = new boolean[1];
-        context.getReader().readUntilEndNode(name, () -> {
-            switch (context.getReader().getNodeName()) {
-                case ELEM_TERMINAL_REF:
+        context.getReader().readUntilEndNode(name, elementName -> {
+            switch (elementName) {
+                case ELEM_TERMINAL_REF ->
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
                         adder.setRegulationTerminal(TerminalRefXml.resolve(id, side, terminal.getVoltageLevel().getNetwork()));
                         adder.add();
                     });
-                    break;
-
-                case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME:
+                case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME -> {
                     PhaseTapChangerAdder.StepAdder stepAdder = adder.beginStep();
                     readSteps(context, (r, x, g, b, rho) -> stepAdder.setR(r)
                             .setX(x)
@@ -214,10 +213,8 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                     double alpha = context.getReader().readDoubleAttribute("alpha");
                     stepAdder.setAlpha(alpha)
                             .endStep();
-                    break;
-
-                default:
-                    throw new IllegalStateException();
+                }
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in '" + name + "'");
             }
         });
         if (!hasTerminalRef[0]) {

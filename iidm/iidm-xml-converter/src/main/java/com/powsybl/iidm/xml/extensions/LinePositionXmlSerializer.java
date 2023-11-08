@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
@@ -24,6 +25,8 @@ import java.util.List;
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class LinePositionXmlSerializer<T extends Identifiable<T>> extends AbstractExtensionXmlSerializer<T, LinePosition<T>> {
+
+    private static final String COORDINATE_ROOT_NODE = "coordinate";
 
     public LinePositionXmlSerializer() {
         super(LinePosition.NAME, "network", LinePosition.class, "linePosition.xsd",
@@ -43,7 +46,10 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
     @Override
     public LinePosition<T> read(T line, XmlReaderContext context) {
         List<Coordinate> coordinates = new ArrayList<>();
-        context.getReader().readUntilEndNode(getExtensionName(), () -> {
+        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+            if (!elementName.equals(COORDINATE_ROOT_NODE)) {
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'substationPosition'");
+            }
             double longitude = context.getReader().readDoubleAttribute("longitude");
             double latitude = context.getReader().readDoubleAttribute("latitude");
             coordinates.add(new Coordinate(latitude, longitude));

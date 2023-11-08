@@ -84,8 +84,8 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
         TreeDataReader reader = networkContext.getReader();
         extendable.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas mapping = extendable.getExtension(CgmesControlAreas.class);
-        reader.readUntilEndNode(getExtensionName(), () -> {
-            if (reader.getNodeName().equals(CONTROL_AREA)) {
+        reader.readUntilEndNode(getExtensionName(), elementName -> {
+            if (elementName.equals(CONTROL_AREA)) {
                 CgmesControlArea cgmesControlArea = mapping.newCgmesControlArea()
                         .setId(reader.readStringAttribute("id"))
                         .setName(reader.readStringAttribute("name"))
@@ -95,17 +95,17 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                         .add();
                 readBoundariesAndTerminals(networkContext, reader, cgmesControlArea, extendable);
             } else {
-                throw new PowsyblException("Unknown element name <" + reader.getNodeName() + "> in <cgmesControlArea>");
+                throw new PowsyblException("Unknown element name <" + elementName + "> in <cgmesControlArea>");
             }
         });
         return extendable.getExtension(CgmesControlAreas.class);
     }
 
     private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, TreeDataReader reader, CgmesControlArea cgmesControlArea, Network network) {
-        reader.readUntilEndNode(CONTROL_AREA, () -> {
+        reader.readUntilEndNode(CONTROL_AREA, elementName -> {
             String id;
             String side;
-            switch (reader.getNodeName()) {
+            switch (elementName) {
                 case "boundary":
                     id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().readStringAttribute("id"));
                     Identifiable identifiable = network.getIdentifiable(id);
@@ -124,7 +124,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                     cgmesControlArea.add(TerminalRefXml.resolve(id, side, network));
                     break;
                 default:
-                    throw new PowsyblException("Unknown element name <" + reader.getNodeName() + "> in <controlArea>");
+                    throw new PowsyblException("Unknown element name '" + elementName + "' in 'controlArea'");
             }
         });
     }

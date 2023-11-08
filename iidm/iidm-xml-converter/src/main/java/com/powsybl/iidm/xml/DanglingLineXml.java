@@ -173,26 +173,26 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
 
     @Override
     protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), () -> {
-            switch (context.getReader().getNodeName()) {
-                case ACTIVE_POWER_LIMITS:
+        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+            switch (elementName) {
+                case ACTIVE_POWER_LIMITS -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(null, dl.newActivePowerLimits(), context.getReader()));
-                    break;
-                case APPARENT_POWER_LIMITS:
+                }
+                case APPARENT_POWER_LIMITS -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(null, dl.newApparentPowerLimits(), context.getReader()));
-                    break;
-                case "currentLimits":
-                    readCurrentLimits(null, dl.newCurrentLimits(), context.getReader());
-                    break;
-                case "reactiveCapabilityCurve":
-                case "minMaxReactiveLimits":
+                }
+                case CURRENT_LIMITS -> readCurrentLimits(null, dl.newCurrentLimits(), context.getReader());
+                case ReactiveLimitsXml.ELEM_REACTIVE_CAPABILITY_CURVE -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME + ".generation", "reactiveLimits", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    ReactiveLimitsXml.INSTANCE.read(dl.getGeneration(), context);
-                    break;
-                default:
-                    super.readSubElements(dl, context);
+                    ReactiveLimitsXml.INSTANCE.readReactiveCapabilityCurve(dl.getGeneration(), context);
+                }
+                case ReactiveLimitsXml.ELEM_MIN_MAX_REACTIVE_LIMITS -> {
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME + ".generation", "reactiveLimits", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                    ReactiveLimitsXml.INSTANCE.readMinMaxReactiveLimits(dl.getGeneration(), context);
+                }
+                default -> readSubElement(elementName, dl, context);
             }
         });
     }

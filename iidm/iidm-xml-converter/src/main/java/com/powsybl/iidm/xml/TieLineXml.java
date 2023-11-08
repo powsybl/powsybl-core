@@ -181,44 +181,37 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
 
     @Override
     protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), () -> {
-            switch (context.getReader().getNodeName()) {
-                case ACTIVE_POWER_LIMITS_1:
+        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+            switch (elementName) {
+                case ACTIVE_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, tl.getDanglingLine1().newActivePowerLimits(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_1:
+                }
+                case APPARENT_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, tl.getDanglingLine1().newApparentPowerLimits(), context.getReader()));
-                    break;
-
-                case "currentLimits1":
+                }
+                case "currentLimits1" -> {
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
                     readCurrentLimits(1, tl.getDanglingLine1().newCurrentLimits(), context.getReader());
-                    break;
-
-                case ACTIVE_POWER_LIMITS_2:
+                }
+                case ACTIVE_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, tl.getDanglingLine2().newActivePowerLimits(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_2:
+                }
+                case APPARENT_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, tl.getDanglingLine2().newApparentPowerLimits(), context.getReader()));
-                    break;
-
-                case "currentLimits2":
+                }
+                case "currentLimits2" -> {
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
                     readCurrentLimits(2, tl.getDanglingLine2().newCurrentLimits(), context.getReader());
-                    break;
-
-                default:
-                    super.readSubElements(tl, context);
+                }
+                default -> readSubElement(elementName, tl, context);
             }
         });
     }

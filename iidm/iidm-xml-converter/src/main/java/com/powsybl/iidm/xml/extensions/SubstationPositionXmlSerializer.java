@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
@@ -22,6 +23,8 @@ import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 @AutoService(ExtensionXmlSerializer.class)
 public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSerializer<Substation, SubstationPosition> {
 
+    private static final String COORDINATE_ROOT_NODE = "coordinate";
+
     public SubstationPositionXmlSerializer() {
         super(SubstationPosition.NAME, "network", SubstationPosition.class, "substationPosition.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/substation_position/1_0", "sp");
@@ -29,7 +32,7 @@ public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSeriali
 
     @Override
     public void write(SubstationPosition substationPosition, XmlWriterContext context) {
-        context.getWriter().writeStartNode(getNamespaceUri(), "coordinate");
+        context.getWriter().writeStartNode(getNamespaceUri(), COORDINATE_ROOT_NODE);
         context.getWriter().writeDoubleAttribute("longitude", substationPosition.getCoordinate().getLongitude());
         context.getWriter().writeDoubleAttribute("latitude", substationPosition.getCoordinate().getLatitude());
         context.getWriter().writeEndNode();
@@ -38,7 +41,10 @@ public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSeriali
     @Override
     public SubstationPosition read(Substation substation, XmlReaderContext context) {
         Coordinate[] coordinate = new Coordinate[1];
-        context.getReader().readUntilEndNode(getExtensionName(), () -> {
+        context.getReader().readUntilEndNode(getExtensionName(), e -> {
+            if (!e.equals(COORDINATE_ROOT_NODE)) {
+                throw new PowsyblException("Unknown element name '" + e + "' in 'substationPosition'");
+            }
             double longitude = context.getReader().readDoubleAttribute("longitude");
             double latitude = context.getReader().readDoubleAttribute("latitude");
             coordinate[0] = new Coordinate(latitude, longitude);

@@ -61,8 +61,8 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
         MeasurementsAdder<C> measurementsAdder = extendable.newExtension(MeasurementsAdder.class);
         Measurements<C> measurements = measurementsAdder.add();
         var reader = context.getReader();
-        reader.readUntilEndNode(getExtensionName(), () -> {
-            if (reader.getNodeName().equals(MEASUREMENT)) {
+        reader.readUntilEndNode(getExtensionName(), elementName -> {
+            if (elementName.equals(MEASUREMENT)) {
                 MeasurementAdder adder = measurements.newMeasurement()
                         .setId(reader.readStringAttribute("id"))
                         .setType(reader.readEnumAttribute("type", Measurement.Type.class))
@@ -70,17 +70,17 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
                         .setStandardDeviation(reader.readDoubleAttribute("standardDeviation"))
                         .setValid(reader.readBooleanAttribute("valid"))
                         .setSide(reader.readEnumAttribute("side", Measurement.Side.class));
-                reader.readUntilEndNode(MEASUREMENT, () -> {
-                    if (reader.getNodeName().equals("property")) {
+                reader.readUntilEndNode(MEASUREMENT, subElementName -> {
+                    if (subElementName.equals("property")) {
                         adder.putProperty(reader.readStringAttribute("name"),
                                 reader.readStringAttribute(VALUE));
                     } else {
-                        throw new PowsyblException("Unexpected element: " + reader.getNodeName());
+                        throw new PowsyblException("Unexpected element: " + subElementName);
                     }
                 });
                 adder.add();
             } else {
-                throw new PowsyblException("Unexpected element: " + reader.getNodeName());
+                throw new PowsyblException("Unexpected element: " + elementName);
             }
         });
         return measurements;

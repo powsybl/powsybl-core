@@ -71,12 +71,11 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     public DiscreteMeasurements<I> read(I extendable, XmlReaderContext context) {
         DiscreteMeasurementsAdder<I> adder = extendable.newExtension(DiscreteMeasurementsAdder.class);
         DiscreteMeasurements<I> discreteMeasurements = adder.add();
-        TreeDataReader reader = context.getReader();
-        reader.readUntilEndNode(getExtensionName(), () -> {
-            if (reader.getNodeName().equals(DISCRETE_MEASUREMENT)) {
-                readDiscreteMeasurement(discreteMeasurements, reader);
+        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+            if (elementName.equals(DISCRETE_MEASUREMENT)) {
+                readDiscreteMeasurement(discreteMeasurements, context.getReader());
             } else {
-                throw new PowsyblException("Unexpected element: " + reader.getNodeName());
+                throw new PowsyblException("Unexpected element: " + elementName);
             }
         });
         return discreteMeasurements;
@@ -105,12 +104,12 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
                     throw new PowsyblException("Unsupported value type: " + valueType);
             }
         }
-        reader.readUntilEndNode(DISCRETE_MEASUREMENT, () -> {
-            if (reader.getNodeName().equals("property")) {
+        reader.readUntilEndNode(DISCRETE_MEASUREMENT, elementName -> {
+            if (elementName.equals("property")) {
                 adder.putProperty(reader.readStringAttribute("name"),
                         reader.readStringAttribute(VALUE));
             } else {
-                throw new PowsyblException("Unexpected element: " + reader.getNodeName());
+                throw new PowsyblException("Unexpected element: " + elementName);
             }
         });
         adder.add();

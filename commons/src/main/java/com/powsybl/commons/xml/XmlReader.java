@@ -119,11 +119,6 @@ public class XmlReader implements TreeDataReader {
     }
 
     @Override
-    public String getNodeName() {
-        return reader.getLocalName();
-    }
-
-    @Override
     public String readContent() {
         try {
             return reader.getElementText();
@@ -134,7 +129,7 @@ public class XmlReader implements TreeDataReader {
 
     @Override
     public String readText(String endNodeName) {
-        return readUntilEndNode(endNodeName, () -> { });
+        return readUntilEndNode(endNodeName, (String elementName) -> { });
     }
 
     @Override

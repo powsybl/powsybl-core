@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
@@ -44,10 +43,6 @@ public final class AliasesXml {
     }
 
     private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
-        String nodeName = context.getReader().getNodeName();
-        if (!nodeName.equals(ROOT_ELEMENT_NAME) && !nodeName.equals(ARRAY_ELEMENT_NAME)) {
-            throw new PowsyblException("Unknown element name '" + nodeName + "' in alias");
-        }
         String[] aliasType = new String[1];
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().readStringAttribute("type"));
         String alias = context.getAnonymizer().deanonymizeString(context.getReader().readContent());

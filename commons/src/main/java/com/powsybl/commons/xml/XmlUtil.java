@@ -51,7 +51,7 @@ public final class XmlUtil {
             }
         }
         if (handler != null) {
-            handler.onStartElement();
+            handler.onStartElement(elements[elements.length - 1]);
         }
     }
 
@@ -82,9 +82,9 @@ public final class XmlUtil {
     }
 
     public static String readUntilEndElement(String endElementName, XMLStreamReader reader, TreeDataReader.EventHandler eventHandler) throws XMLStreamException {
-        return readUntilEndElementWithDepth(endElementName, reader, elementDepth -> {
+        return readUntilEndElementWithDepth(endElementName, reader, (elementName, elementDepth) -> {
             if (eventHandler != null) {
-                eventHandler.onStartElement();
+                eventHandler.onStartElement(elementName);
             }
         });
     }
@@ -103,7 +103,7 @@ public final class XmlUtil {
                 case XMLStreamConstants.START_ELEMENT:
                     if (eventHandler != null) {
                         String startLocalName = reader.getLocalName();
-                        eventHandler.onStartElement(depth);
+                        eventHandler.onStartElement(startLocalName, depth);
                         // if handler has already consumed end element we must decrease the depth
                         if (reader.getEventType() == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(startLocalName)) {
                             depth--;
@@ -128,7 +128,7 @@ public final class XmlUtil {
     }
 
     public static String readText(String endElementName, XMLStreamReader reader) throws XMLStreamException {
-        return readUntilEndElement(endElementName, reader, () -> { });
+        return readUntilEndElement(endElementName, reader, (String elementName) -> { });
     }
 
     public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {

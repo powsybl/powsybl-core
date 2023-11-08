@@ -48,14 +48,14 @@ public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSeriali
         BaseVoltageMappingAdder mappingAdder = extendable.newExtension(BaseVoltageMappingAdder.class);
         mappingAdder.add();
         BaseVoltageMapping mapping = extendable.getExtension(BaseVoltageMapping.class);
-        context.getReader().readUntilEndNode(getName(), () -> {
-            if (context.getReader().getNodeName().equals("baseVoltage")) {
+        context.getReader().readUntilEndNode(getName(), elementName -> {
+            if (elementName.equals("baseVoltage")) {
                 double nominalV = context.getReader().readDoubleAttribute("nominalVoltage");
                 String sourceBV = context.getReader().readStringAttribute("source");
                 String baseVoltageId = context.getReader().readStringAttribute("id");
                 mapping.addBaseVoltage(nominalV, baseVoltageId, Source.valueOf(sourceBV));
             } else {
-                throw new PowsyblException("Unknown element name <" + context.getReader().getNodeName() + "> in <baseVoltageMapping>");
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'baseVoltageMapping'");
             }
         });
         return mapping;

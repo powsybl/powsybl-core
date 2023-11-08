@@ -25,14 +25,14 @@ abstract class AbstractComplexIdentifiableXml<T extends Identifiable<T>, A exten
 
     protected abstract void readRootElementAttributes(A adder, List<Consumer<T>> toApply, NetworkXmlReaderContext context);
 
-    protected void readSubElements(String id, List<Consumer<T>> toApply, NetworkXmlReaderContext context) {
-        switch (context.getReader().getNodeName()) {
+    protected void readSubElement(String elementName, String id, List<Consumer<T>> toApply, NetworkXmlReaderContext context) {
+        switch (elementName) {
             case PropertiesXml.ROOT_ELEMENT_NAME, PropertiesXml.ARRAY_ELEMENT_NAME -> PropertiesXml.read(toApply, context);
             case AliasesXml.ROOT_ELEMENT_NAME, AliasesXml.ARRAY_ELEMENT_NAME -> {
                 IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                 AliasesXml.read(toApply, context);
             }
-            default -> throw new PowsyblException("Unknown element name '" + context.getReader().getNodeName() + "' in '" + id + "'");
+            default -> throw new PowsyblException("Unknown element name '" + elementName + "' in '" + id + "'");
         }
     }
 

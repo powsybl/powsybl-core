@@ -36,6 +36,6 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<Switch, A>> extends
 
     @Override
     protected void readSubElements(Switch s, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), () -> AbstractSwitchXml.super.readSubElements(s, context));
+        context.getReader().readUntilEndNode(getRootElementName(), elementName -> readSubElement(elementName, s, context));
     }
 }

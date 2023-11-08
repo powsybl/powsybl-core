@@ -42,7 +42,7 @@ class XmlUtilTest {
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilEndElementWithDepth("a", xmlReader, elementDepth -> depths.put(xmlReader.getLocalName(), elementDepth));
+                XmlUtil.readUntilEndElementWithDepth("a", xmlReader, (elementName, elementDepth) -> depths.put(elementName, elementDepth));
             } finally {
                 xmlReader.close();
             }
@@ -56,13 +56,12 @@ class XmlUtilTest {
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilEndElementWithDepth("a", xmlReader, elementDepth -> {
-                    depths.put(xmlReader.getLocalName(), elementDepth);
+                XmlUtil.readUntilEndElementWithDepth("a", xmlReader, (elementName, elementDepth) -> {
+                    depths.put(elementName, elementDepth);
                     // consume b and c
-                    if (xmlReader.getLocalName().equals("b")) {
+                    if (elementName.equals("b")) {
                         try {
-                            XmlUtil.readUntilEndElement("b", xmlReader, () -> {
-                            });
+                            XmlUtil.readUntilEndElement("b", xmlReader, null);
                         } catch (XMLStreamException e) {
                             throw new UncheckedXmlStreamException(e);
                         }
@@ -95,7 +94,7 @@ class XmlUtilTest {
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilStartElement(path, xmlReader, () -> assertEquals(expected, xmlReader.getLocalName()));
+                XmlUtil.readUntilStartElement(path, xmlReader, (String elementName) -> assertEquals(expected, xmlReader.getLocalName()));
             } finally {
                 xmlReader.close();
             }

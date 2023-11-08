@@ -48,10 +48,6 @@ public final class PropertiesXml {
     }
 
     private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
-        String nodeName = context.getReader().getNodeName();
-        if (!nodeName.equals(ROOT_ELEMENT_NAME) && !nodeName.equals(ARRAY_ELEMENT_NAME)) {
-            throw new IllegalStateException();
-        }
         String name = context.getReader().readStringAttribute(NAME);
         String value = context.getReader().readStringAttribute(VALUE);
         return identifiable -> identifiable.setProperty(name, value);

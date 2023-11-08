@@ -164,14 +164,14 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
 
     @Override
     protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), () -> {
-            switch (context.getReader().getNodeName()) {
-                case REGULATING_TERMINAL:
+        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+            switch (elementName) {
+                case REGULATING_TERMINAL -> {
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                     String regSide = context.getReader().readStringAttribute("side");
                     toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.resolve(regId, regSide, sc.getNetwork()))));
-                    break;
-                case SHUNT_LINEAR_MODEL:
+                }
+                case SHUNT_LINEAR_MODEL -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                     double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
                     double gPerSection = context.getReader().readDoubleAttribute("gPerSection");
@@ -181,12 +181,11 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                             .setGPerSection(gPerSection)
                             .setMaximumSectionCount(maximumSectionCount)
                             .add();
-                    break;
-                case SHUNT_NON_LINEAR_MODEL:
+                }
+                case SHUNT_NON_LINEAR_MODEL -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                     ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
-                    context.getReader().readUntilEndNode(SHUNT_NON_LINEAR_MODEL, () -> {
-                        String nodeName = context.getReader().getNodeName();
+                    context.getReader().readUntilEndNode(SHUNT_NON_LINEAR_MODEL, nodeName -> {
                         if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName) || SECTION_ARRAY_ELEMENT_NAME.equals(nodeName)) {
                             double b = context.getReader().readDoubleAttribute("b");
                             double g = context.getReader().readDoubleAttribute("g");
@@ -199,9 +198,8 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                         }
                     });
                     modelAdder.add();
-                    break;
-                default:
-                    super.readSubElements(id, toApply, context);
+                }
+                default -> readSubElement(elementName, id, toApply, context);
             }
         });
     }
