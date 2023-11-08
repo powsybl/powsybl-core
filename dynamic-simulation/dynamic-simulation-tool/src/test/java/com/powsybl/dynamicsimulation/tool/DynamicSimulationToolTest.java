@@ -32,10 +32,11 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     }
 
     @Override
+    @Test
     public void assertCommand() {
         Command command = tool.getCommand();
 
-        assertCommand(command, "dynamic-simulation", 8, 2);
+        assertCommand(command, "dynamic-simulation", 9, 2);
         assertEquals("Computation", command.getTheme());
         assertEquals("Run dynamic simulation", command.getDescription());
         assertNull(command.getUsageFooter());
@@ -44,6 +45,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "event-models-file", false, true);
         assertOption(command.getOptions(), "curves-file", false, true);
         assertOption(command.getOptions(), "output-file", false, true);
+        assertOption(command.getOptions(), "output-log-file", false, true);
     }
 
     @BeforeEach

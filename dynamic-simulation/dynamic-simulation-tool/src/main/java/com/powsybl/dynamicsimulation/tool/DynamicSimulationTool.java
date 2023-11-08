@@ -56,6 +56,7 @@ public class DynamicSimulationTool implements Tool {
     private static final String CURVES_FILE = "curves-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
+    private static final String OUTPUT_LOG_FILE = "output-log-file";
 
     @Override
     public Command getCommand() {
@@ -111,6 +112,11 @@ public class DynamicSimulationTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_LOG_FILE)
+                    .desc("dynamic simulation logs output path")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 options.addOption(ConversionToolUtils.createImportParametersFileOption());
                 options.addOption(ConversionToolUtils.createImportParameterOption());
                 return options;
@@ -127,12 +133,9 @@ public class DynamicSimulationTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
-        Path outputFile = null;
-
         // process a single network: output-file/output-format options available
-        if (line.hasOption(OUTPUT_FILE)) {
-            outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
-        }
+        Path outputFile = line.hasOption(OUTPUT_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE)) : null;
+        Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
@@ -166,6 +169,12 @@ public class DynamicSimulationTool implements Tool {
 
         ReporterModel reporter = new ReporterModel("dynamicSimulationTool", "Dynamic Simulation Tool");
         DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reporter);
+
+        if (outputLogFile != null) {
+            reporter.export(outputLogFile);
+        } else {
+            reporter.export(new OutputStreamWriter(context.getOutputStream()));
+        }
 
         if (outputFile != null) {
             exportResult(result, context, outputFile);
