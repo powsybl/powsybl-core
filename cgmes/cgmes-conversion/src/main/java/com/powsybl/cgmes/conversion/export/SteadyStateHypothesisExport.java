@@ -322,6 +322,14 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
+    private static boolean isValidSvcVolatgeSetpoint(double v) {
+        return Double.isFinite(v) && v > 0;
+    }
+
+    private static boolean isValidSvcReactivePowerSetpoint(double q) {
+        return Double.isFinite(q);
+    }
+
     private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
@@ -343,10 +351,10 @@ public final class SteadyStateHypothesisExport {
                 // Regulating control could be reactive power or voltage
                 double targetValue;
                 String multiplier;
-                if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE) {
+                if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE || isValidSvcVolatgeSetpoint(svc.getVoltageSetpoint())) {
                     targetValue = svc.getVoltageSetpoint();
                     multiplier = "k";
-                } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
+                } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER || isValidSvcReactivePowerSetpoint(svc.getReactivePowerSetpoint())) {
                     targetValue = svc.getReactivePowerSetpoint();
                     multiplier = "M";
                 } else {
@@ -778,7 +786,7 @@ public final class SteadyStateHypothesisExport {
         REGULATING_CONTROL, TAP_CHANGER_CONTROL
     }
 
-    private static class GeneratingUnit {
+    private static final class GeneratingUnit {
         String id;
         String className;
         double participationFactor;
