@@ -285,7 +285,7 @@ public final class EquipmentExport {
                     // As negative loads are not allowed, they are modeled as energy source.
                     // Note that negative loads can be the result of network reduction and could be modeled
                     // as equivalent injections.
-                    writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
+                    writeEnergySource(loadId, load.getNameOrId(), context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
                 } else {
                     String loadGroup = loadGroups.groupFor(className);
                     EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
@@ -294,8 +294,9 @@ public final class EquipmentExport {
         }
     }
 
-    public static void writeEnergySource(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void writeEnergySource(String id, String name, String equipmentContainer, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("EnergySource", id, name, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
