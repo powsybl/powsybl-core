@@ -9,8 +9,11 @@ package com.powsybl.math.graph;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.io.PrintStream;
+import java.util.BitSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -307,6 +310,18 @@ public interface UndirectedGraph<V, E> {
      * @return a list that contains the index of the traversed edges.
      */
     List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled);
+
+    /**
+     * Find all paths from the specified vertex.
+     * This method relies on two functions to stop the traverse when the target vertex is found or when an edge must not be traversed.
+     *
+     * @param from the vertex index where the traverse has to start.
+     * @param pathComplete a function that returns true when the target vertex is found.
+     * @param pathCancelled a function that returns true when the edge must not be traversed.
+     * @param comparator a comparator used to sort the paths
+     * @return a list that contains the index of the traversed edges.
+     */
+    List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled, Comparator<TIntArrayList> comparator);
 
     /**
      * Add a {@link UndirectedGraphListener} to get notified when the graph changes.

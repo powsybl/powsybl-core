@@ -1209,7 +1209,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // find all paths starting from the current terminal to a busbar section that does not contain an open switch
         // that is not of the type of switch the user wants to operate
         // Paths are already sorted by the number of open switches and by the size of the paths
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isTypeSwitchToOperate), SwitchPredicates.IS_OPEN);
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isTypeSwitchToOperate),
+            Comparator.comparing((TIntArrayList o) -> o.grep(idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
+                .thenComparing(TIntArrayList::size));
         boolean connected = false;
         if (!paths.isEmpty()) {
             // the shortest path is the best
@@ -1284,10 +1286,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         for (int i = 0; i < path.size(); i++) {
             int e = path.get(i);
             SwitchImpl sw = graph.getEdgeObject(e);
-            if (openedSwitches.contains(sw)) {
-                // A switch in the path has already been opened
-                return true;
-            } else if (isSwitchOpenable.test(sw)) {
+            if (isSwitchOpenable.test(sw)) {
                 openedSwitches.add(sw);
                 // just one open breaker is enough to disconnect the terminal, so we can stop
                 return true;

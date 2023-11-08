@@ -174,7 +174,7 @@ public interface Terminal {
     /**
      * Disconnect the terminal.<br/>
      * Depends on the working variant.
-     * @param isSwitchOpenable function telling if a switch is openable according to conditions
+     * @param isSwitchOpenable predicate telling if a switch is considered openable
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */

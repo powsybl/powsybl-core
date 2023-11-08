@@ -161,11 +161,10 @@ abstract class AbstractTerminal implements TerminalExt {
         return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
 
-
     /**
      * Try to connect the terminal.<br/>
      * Depends on the working variant.
-     * @param isTypeSwitchToOperate Predicate telling if a switch is operable according to conditions. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @param isTypeSwitchToOperate Predicate telling if a switch is considered operable. Examples of predicates are available in the class {@link SwitchPredicates}
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
      */
@@ -182,11 +181,10 @@ abstract class AbstractTerminal implements TerminalExt {
         return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
     }
 
-
     /**
      * Disconnect the terminal.<br/>
      * Depends on the working variant.
-     * @param isSwitchOpenable Predicate telling if a switch is openable according to conditions. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @param isSwitchOpenable Predicate telling if a switch is considered openable. Examples of predicates are available in the class {@link SwitchPredicates}
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
