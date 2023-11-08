@@ -9,11 +9,9 @@ package com.powsybl.math.graph;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.io.PrintStream;
-import java.util.BitSet;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
