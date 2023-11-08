@@ -106,7 +106,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         boolean okSet = false;
         if (!control.enabled && rc.controlEnabled) {
             context.fixed("SVCControlEnabledStatus", () -> String.format("Regulating control of %s is disabled but controlEnabled property is set to true." +
-                    "Equipment and regulatin control properties are used to set local default regulation if local default regulation is reactive power. Else, regulation is disabled.", svc.getId()));
+                    "Equipment and regulating control properties are used to set local default regulation if local default regulation is reactive power. Else, regulation is disabled.", svc.getId()));
             setDefaultRegulatingControl(rc, svc, true, control);
             return false;
         }
