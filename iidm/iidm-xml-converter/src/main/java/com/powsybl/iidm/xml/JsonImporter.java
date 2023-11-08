@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.json.JsonReader;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Importer;

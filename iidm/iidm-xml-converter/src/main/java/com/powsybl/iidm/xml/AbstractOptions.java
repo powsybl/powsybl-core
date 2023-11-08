@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.io.TreeDataFormat;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;

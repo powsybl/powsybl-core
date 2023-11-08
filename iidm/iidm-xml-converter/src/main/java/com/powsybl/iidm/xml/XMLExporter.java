@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.Exporter;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
