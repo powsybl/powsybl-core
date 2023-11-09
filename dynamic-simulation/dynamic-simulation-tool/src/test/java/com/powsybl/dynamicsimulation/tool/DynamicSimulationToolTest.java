@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -53,7 +54,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        Files.copy(getClass().getResourceAsStream("/network.xiidm"), fileSystem.getPath("/network.xiidm"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/network.xiidm")), fileSystem.getPath("/network.xiidm"));
         Files.createFile(fileSystem.getPath("/dynamicModels.groovy"));
         Files.createFile(fileSystem.getPath("/eventModels.groovy"));
         Files.createFile(fileSystem.getPath("/curves.groovy"));
@@ -75,6 +76,50 @@ class DynamicSimulationToolTest extends AbstractToolTest {
 
         // Run with curves
         assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, expectedOut, "");
+    }
+
+    @Test
+    void testDynamicSimulationWithOutputFile() throws IOException {
+        String expectedOut = String.join(System.lineSeparator(),
+                "Loading network '/network.xiidm'",
+                "+ Dynamic Simulation Tool\n");
+        String expectedOutputFile = """
+                {
+                  "version" : "1.0",
+                  "isOK" : true,
+                  "logs" : null,
+                  "curves" : [ ],
+                  "timeLine" : {
+                    "metadata" : {
+                      "name" : "timeLine",
+                      "dataType" : "STRING",
+                      "tags" : [ ],
+                      "regularIndex" : {
+                        "startTime" : 0,
+                        "endTime" : 0,
+                        "spacing" : 0
+                      }
+                    },
+                    "chunks" : [ ]
+                  }
+                }""";
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-file", "outputTest"}, 0, expectedOut, "");
+        assertEquals(expectedOutputFile, Files.readString(fileSystem.getPath("outputTest")));
+    }
+
+    @Test
+    void testDynamicSimulationWithOutputLogFile() throws IOException {
+        String expectedOut = String.join(System.lineSeparator(),
+                "Loading network '/network.xiidm'",
+                "dynamic simulation results:",
+                "+--------+",
+                "| Result |",
+                "+--------+",
+                "| true   |",
+                "+--------+");
+        String expectedOutputFile = "+ Dynamic Simulation Tool\n";
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-log-file", "outputTest"}, 0, expectedOut, "");
+        assertEquals(expectedOutputFile, Files.readString(fileSystem.getPath("outputTest")));
     }
 
     @Test
