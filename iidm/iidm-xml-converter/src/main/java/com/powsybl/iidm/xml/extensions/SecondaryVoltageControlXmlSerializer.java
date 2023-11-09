@@ -76,10 +76,10 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
                         case PILOT_POINT_ELEMENT ->
                                 targetV.setValue(context.getReader().readDoubleAttribute("targetV"));
                         case BUSBAR_SECTION_OR_BUS_ID_ELEMENT ->
-                                busbarSectionsOrBusesIds.add(context.getReader().readText(BUSBAR_SECTION_OR_BUS_ID_ELEMENT));
+                                busbarSectionsOrBusesIds.add(context.getReader().readContent());
                         case CONTROL_UNIT_ELEMENT -> {
                             boolean participate = context.getReader().readBooleanAttribute("participate");
-                            String id = context.getReader().readText(CONTROL_UNIT_ELEMENT);
+                            String id = context.getReader().readContent();
                             controlUnits.add(new ControlUnit(id, participate));
                         }
                         default -> throw new IllegalStateException("Unexpected element " + elementName2);

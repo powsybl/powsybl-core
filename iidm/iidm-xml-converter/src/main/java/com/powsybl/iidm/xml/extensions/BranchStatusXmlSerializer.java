@@ -34,7 +34,7 @@ public class BranchStatusXmlSerializer<C extends Connectable<C>> extends Abstrac
 
     @Override
     public BranchStatus<C> read(C connectable, XmlReaderContext context) {
-        BranchStatus.Status status = BranchStatus.Status.valueOf(context.getReader().readUntilEndNode("branchStatus", null));
+        BranchStatus.Status status = BranchStatus.Status.valueOf(context.getReader().readContent());
         BranchStatusAdder<C> adder = connectable.newExtension(BranchStatusAdder.class);
         return adder.withStatus(status)
                 .add();

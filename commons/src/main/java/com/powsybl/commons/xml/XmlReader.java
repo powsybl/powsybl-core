@@ -128,11 +128,6 @@ public class XmlReader implements TreeDataReader {
     }
 
     @Override
-    public String readText(String endNodeName) {
-        return readUntilEndNode(endNodeName, (String elementName) -> { });
-    }
-
-    @Override
     public List<Integer> readIntArrayAttribute(String name) {
         String arrayString = readStringAttribute(name);
         return Arrays.stream(arrayString.split(","))
@@ -141,18 +136,18 @@ public class XmlReader implements TreeDataReader {
     }
 
     @Override
-    public String readUntilEndNode(String endNodeName, EventHandler eventHandler) {
+    public void readUntilEndNode(String endNodeName, EventHandler eventHandler) {
         try {
-            return XmlUtil.readUntilEndElement(endNodeName, reader, eventHandler);
+            XmlUtil.readUntilEndElement(endNodeName, reader, eventHandler);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
     @Override
-    public String readUntilEndNodeWithDepth(String endNodeName, EventHandlerWithDepth eventHandler) {
+    public void readUntilEndNodeWithDepth(String endNodeName, EventHandlerWithDepth eventHandler) {
         try {
-            return XmlUtil.readUntilEndElementWithDepth(endNodeName, reader, eventHandler);
+            XmlUtil.readUntilEndElementWithDepth(endNodeName, reader, eventHandler);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }

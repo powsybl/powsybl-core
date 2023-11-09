@@ -33,7 +33,7 @@ public class GeneratorEntsoeCategoryXmlSerializer extends AbstractExtensionXmlSe
 
     @Override
     public GeneratorEntsoeCategory read(Generator generator, XmlReaderContext context) {
-        int code = Integer.parseInt(context.getReader().readUntilEndNode(getExtensionName(), null));
+        int code = Integer.parseInt(context.getReader().readContent());
         return generator.newExtension(GeneratorEntsoeCategoryAdder.class)
                 .withCode(code)
                 .add();

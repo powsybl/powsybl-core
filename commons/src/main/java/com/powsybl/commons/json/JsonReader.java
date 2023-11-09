@@ -202,11 +202,6 @@ public class JsonReader implements TreeDataReader {
     }
 
     @Override
-    public String readText(String endNodeName) {
-        return readUntilEndNode(endNodeName, null);
-    }
-
-    @Override
     public List<Integer> readIntArrayAttribute(String name) {
         Objects.requireNonNull(name);
         String fieldName = getFieldName();
@@ -218,8 +213,8 @@ public class JsonReader implements TreeDataReader {
     }
 
     @Override
-    public String readUntilEndNode(String endElementName, EventHandler eventHandler) {
-        return readUntilEndNodeWithDepth(endElementName, (elementName, elementDepth) -> {
+    public void readUntilEndNode(String endElementName, EventHandler eventHandler) {
+        readUntilEndNodeWithDepth(endElementName, (elementName, elementDepth) -> {
             if (eventHandler != null) {
                 eventHandler.onStartElement(elementName);
             }
@@ -227,20 +222,15 @@ public class JsonReader implements TreeDataReader {
     }
 
     @Override
-    public String readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler) {
+    public void readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler) {
         Objects.requireNonNull(endElementName);
         int depth = 0;
-        String text = null;
         try {
             while (!(getNextToken() == JsonToken.END_OBJECT && depth == 0)) {
                 currentJsonToken = null; // the token will be consumed in all cases below
                 switch (parser.currentToken()) {
                     case FIELD_NAME -> {
-                        if (parser.currentName().equals("content")) {
-                            text = parser.nextTextValue();
-                        } else {
-                            nodeChain.add(new Node(parser.currentName(), JsonNodeType.NULL));
-                        }
+                        nodeChain.add(new Node(parser.currentName(), JsonNodeType.NULL));
                     }
                     case START_ARRAY -> {
                         Node arrayNode = Optional.ofNullable(nodeChain.pollLast())
@@ -284,7 +274,6 @@ public class JsonReader implements TreeDataReader {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return text;
     }
 
     private JsonToken getNextToken() throws IOException {

@@ -31,7 +31,7 @@ public class EntsoeAreaXmlSerializer extends AbstractExtensionXmlSerializer<Subs
 
     @Override
     public EntsoeArea read(Substation substation, XmlReaderContext context) {
-        EntsoeGeographicalCode code = EntsoeGeographicalCode.valueOf(context.getReader().readUntilEndNode(getExtensionName(), null));
+        EntsoeGeographicalCode code = EntsoeGeographicalCode.valueOf(context.getReader().readContent());
         substation.newExtension(EntsoeAreaAdder.class).withCode(code).add();
         return substation.getExtension(EntsoeArea.class);
     }

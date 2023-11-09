@@ -55,13 +55,11 @@ public interface TreeDataReader extends AutoCloseable {
 
     String readContent();
 
-    String readText(String endNodeName);
-
     List<Integer> readIntArrayAttribute(String name);
 
-    String readUntilEndNode(String endElementName, EventHandler eventHandler);
+    void readUntilEndNode(String endElementName, EventHandler eventHandler);
 
-    String readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler);
+    void readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler);
 
     @Override
     void close();
