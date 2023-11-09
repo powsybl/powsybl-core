@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class BusCriterion extends AbstractNetworkElementCriterion implements NetworkElementCriterion {
 
-    SingleCountryCriterion singleCountryCriterion = new SingleCountryCriterion(null);
-    SingleNominalVoltageCriterion singleNominalVoltageCriterion = new SingleNominalVoltageCriterion(null);
+    SingleCountryCriterion singleCountryCriterion;
+    SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
     public BusCriterion(Set<String> networkElementIds) {
         super(networkElementIds);

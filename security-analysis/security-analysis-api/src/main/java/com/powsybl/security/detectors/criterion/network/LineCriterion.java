@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class LineCriterion extends AbstractNetworkElementCriterion implements BranchCriterion {
 
-    TwoCountriesCriterion twoCountriesCriterion = new TwoCountriesCriterion(null);
-    SingleNominalVoltageCriterion singleNominalVoltageCriterion = new SingleNominalVoltageCriterion(null);
+    TwoCountriesCriterion twoCountriesCriterion;
+    SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
     public LineCriterion(Set<String> networkElementIds) {
         super(networkElementIds);

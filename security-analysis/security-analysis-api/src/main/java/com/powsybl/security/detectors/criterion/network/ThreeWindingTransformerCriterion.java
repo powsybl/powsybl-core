@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class ThreeWindingTransformerCriterion extends AbstractNetworkElementCriterion implements BranchCriterion {
 
-    SingleCountryCriterion singleCountryCriterion = new SingleCountryCriterion(null);
+    SingleCountryCriterion singleCountryCriterion;
     ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(null, null, null);
 
     public ThreeWindingTransformerCriterion(Set<String> networkElementIds) {
