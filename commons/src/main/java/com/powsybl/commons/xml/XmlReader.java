@@ -121,7 +121,7 @@ public class XmlReader implements TreeDataReader {
     @Override
     public String readContent() {
         try {
-            return reader.getElementText();
+            return XmlUtil.readText(reader);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }

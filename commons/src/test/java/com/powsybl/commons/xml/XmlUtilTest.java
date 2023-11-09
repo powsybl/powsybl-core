@@ -11,10 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.*;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -115,7 +112,14 @@ class XmlUtilTest {
         try (StringReader reader = new StringReader(xml)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                assertEquals("hello", XmlUtil.readText("a", xmlReader));
+                String text = null;
+                while (xmlReader.hasNext()) {
+                    int next = xmlReader.next();
+                    if (next == XMLStreamConstants.START_ELEMENT && xmlReader.getLocalName().equals("a")) {
+                        text = XmlUtil.readText(xmlReader);
+                    }
+                }
+                assertEquals("hello", text);
             } finally {
                 xmlReader.close();
             }

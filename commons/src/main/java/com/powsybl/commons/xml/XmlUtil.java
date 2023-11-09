@@ -81,24 +81,22 @@ public final class XmlUtil {
         throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");
     }
 
-    public static String readUntilEndElement(String endElementName, XMLStreamReader reader, TreeDataReader.EventHandler eventHandler) throws XMLStreamException {
-        return readUntilEndElementWithDepth(endElementName, reader, (elementName, elementDepth) -> {
+    public static void readUntilEndElement(String endElementName, XMLStreamReader reader, TreeDataReader.EventHandler eventHandler) throws XMLStreamException {
+        readUntilEndElementWithDepth(endElementName, reader, (elementName, elementDepth) -> {
             if (eventHandler != null) {
                 eventHandler.onStartElement(elementName);
             }
         });
     }
 
-    public static String readUntilEndElementWithDepth(String endElementName, XMLStreamReader reader, TreeDataReader.EventHandlerWithDepth eventHandler) throws XMLStreamException {
+    public static void readUntilEndElementWithDepth(String endElementName, XMLStreamReader reader, TreeDataReader.EventHandlerWithDepth eventHandler) throws XMLStreamException {
         Objects.requireNonNull(endElementName);
         Objects.requireNonNull(reader);
 
-        String text = null;
         int event;
         int depth = 0;
         while (!((event = reader.next()) == XMLStreamConstants.END_ELEMENT
                 && reader.getLocalName().equals(endElementName))) {
-            text = null;
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
                     if (eventHandler != null) {
@@ -116,19 +114,15 @@ public final class XmlUtil {
                     depth--;
                     break;
 
-                case XMLStreamConstants.CHARACTERS:
-                    text = reader.getText();
-                    break;
-
                 default:
                     break;
             }
         }
-        return text;
     }
 
-    public static String readText(String endElementName, XMLStreamReader reader) throws XMLStreamException {
-        return readUntilEndElement(endElementName, reader, (String elementName) -> { });
+    public static String readText(XMLStreamReader reader) throws XMLStreamException {
+        String text = reader.getElementText();
+        return text.isEmpty() ? null : text;
     }
 
     public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
