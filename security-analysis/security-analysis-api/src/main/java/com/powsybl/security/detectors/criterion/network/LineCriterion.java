@@ -5,18 +5,13 @@ import com.powsybl.iidm.network.util.criterion.TwoCountriesCriterion;
 
 import java.util.Set;
 
-public class LineCriterion extends AbstractNetworkElementCriterion implements BranchCriterion {
+public class LineCriterion extends AbstractNetworkElementCriterion {
 
     TwoCountriesCriterion twoCountriesCriterion;
     SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
     public LineCriterion(Set<String> networkElementIds) {
         super(networkElementIds);
-    }
-
-    @Override
-    public NetworkElementCriterionType getNetworkElementCriterionType() {
-        return NetworkElementCriterionType.BRANCH;
     }
 
     @Override

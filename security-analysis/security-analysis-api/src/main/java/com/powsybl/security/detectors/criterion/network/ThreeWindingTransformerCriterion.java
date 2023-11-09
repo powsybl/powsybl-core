@@ -5,18 +5,13 @@ import com.powsybl.iidm.network.util.criterion.ThreeNominalVoltageCriterion;
 
 import java.util.Set;
 
-public class ThreeWindingTransformerCriterion extends AbstractNetworkElementCriterion implements BranchCriterion {
+public class ThreeWindingTransformerCriterion extends AbstractNetworkElementCriterion {
 
     SingleCountryCriterion singleCountryCriterion;
     ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(null, null, null);
 
     public ThreeWindingTransformerCriterion(Set<String> networkElementIds) {
         super(networkElementIds);
-    }
-
-    @Override
-    public NetworkElementCriterionType getNetworkElementCriterionType() {
-        return NetworkElementCriterionType.BRANCH;
     }
 
     @Override

@@ -11,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion;
-import com.powsybl.security.detectors.criterion.network.NetworkElementCriterion;
+import com.powsybl.security.detectors.criterion.network.AbstractNetworkElementCriterion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class LimitReductionDefinitionList {
         private double limitReduction = 1d;
         private LimitType limitType;
         private List<ContingencyContext> contingencyContexts = List.of(ContingencyContext.all());
-        private List<NetworkElementCriterion> networkElementCriteria = new ArrayList<>();
+        private List<AbstractNetworkElementCriterion> networkElementCriteria = new ArrayList<>();
         private List<LimitDurationCriterion> durationCriteria = new ArrayList<>();
 
         private boolean isSupportedLimitType(LimitType limitType) {
@@ -49,6 +49,10 @@ public class LimitReductionDefinitionList {
             }
         }
 
+        public LimitType getLimitType() {
+            return limitType;
+        }
+
         public LimitReductionDefinition setLimitReduction(double limitReduction) {
             this.limitReduction = limitReduction;
             return this;
@@ -59,7 +63,7 @@ public class LimitReductionDefinitionList {
             return this;
         }
 
-        public LimitReductionDefinition setNetworkElementCriteria(List<NetworkElementCriterion> criteria) {
+        public LimitReductionDefinition setNetworkElementCriteria(List<AbstractNetworkElementCriterion> criteria) {
             this.networkElementCriteria = criteria;
             return this;
         }
