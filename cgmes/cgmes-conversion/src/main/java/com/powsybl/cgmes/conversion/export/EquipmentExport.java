@@ -283,7 +283,7 @@ public final class EquipmentExport {
                     case CgmesNames.ASYNCHRONOUS_MACHINE ->
                             writeAsynchronousMachine(loadId, load.getNameOrId(), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
-                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, "StationSupply" -> {
+                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
                         String loadGroup = loadGroups.groupFor(className);
                         String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load, cimNamespace, writer, context);
                         EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), loadResponseCharacteristicId, cimNamespace, writer, context);
