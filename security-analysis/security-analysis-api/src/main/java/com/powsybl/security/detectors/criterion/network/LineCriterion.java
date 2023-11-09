@@ -15,8 +15,8 @@ public class LineCriterion extends AbstractNetworkElementCriterion {
     }
 
     @Override
-    public BranchCriterionType getBranchCriterionType() {
-        return BranchCriterionType.LINE;
+    public NetworkElementCriterionType getNetworkElementCriterionType() {
+        return NetworkElementCriterionType.LINE;
     }
 
     public TwoCountriesCriterion getTwoCountriesCriterion() {

@@ -15,8 +15,8 @@ public class ThreeWindingTransformerCriterion extends AbstractNetworkElementCrit
     }
 
     @Override
-    public BranchCriterionType getBranchCriterionType() {
-        return BranchCriterionType.THREE_WINDING_TRANSFORMER;
+    public NetworkElementCriterionType getNetworkElementCriterionType() {
+        return NetworkElementCriterionType.THREE_WINDING_TRANSFORMER;
     }
 
     public SingleCountryCriterion getSingleCountryCriterion() {

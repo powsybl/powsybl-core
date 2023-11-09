@@ -15,8 +15,8 @@ public class TwoWindingTransformerCriterion extends AbstractNetworkElementCriter
     }
 
     @Override
-    public BranchCriterionType getBranchCriterionType() {
-        return BranchCriterionType.TWO_WINDING_TRANSFORMER;
+    public NetworkElementCriterionType getNetworkElementCriterionType() {
+        return NetworkElementCriterionType.TWO_WINDING_TRANSFORMER;
     }
 
     public SingleCountryCriterion getSingleCountryCriterion() {

@@ -5,7 +5,7 @@ import java.util.Set;
 
 public abstract class AbstractNetworkElementCriterion {
 
-    enum BranchCriterionType {
+    enum NetworkElementCriterionType {
         LINE,
         TWO_WINDING_TRANSFORMER,
         THREE_WINDING_TRANSFORMER
@@ -21,6 +21,6 @@ public abstract class AbstractNetworkElementCriterion {
         return networkElementIds;
     }
 
-    protected abstract BranchCriterionType getBranchCriterionType();
+    protected abstract NetworkElementCriterionType getNetworkElementCriterionType();
 
 }
