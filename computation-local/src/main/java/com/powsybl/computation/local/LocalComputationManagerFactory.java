@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class LocalComputationManagerFactory implements ComputationManagerFactory {
 

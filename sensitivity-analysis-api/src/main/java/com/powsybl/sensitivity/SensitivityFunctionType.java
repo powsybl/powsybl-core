@@ -22,19 +22,10 @@ import java.util.OptionalInt;
  * use {@link #BRANCH_REACTIVE_POWER_3} to monitor the reactive power in MVar of the leg 3 (network side).</li>
  *     <li>{@link #BUS_VOLTAGE} if you want to monitor the voltage in KV of a specific network bus.</li>
  * </ul>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum SensitivityFunctionType {
-    /**
-     * in MW
-     * @deprecated Use {@link #BRANCH_ACTIVE_POWER_1} instead.
-     */
-    @Deprecated BRANCH_ACTIVE_POWER,
-    /**
-     * in A
-     * @deprecated Use {@link #BRANCH_CURRENT_1} instead.
-     */
-    @Deprecated BRANCH_CURRENT,
+
     /** in MW */
     BRANCH_ACTIVE_POWER_1(1),
     /** in A */

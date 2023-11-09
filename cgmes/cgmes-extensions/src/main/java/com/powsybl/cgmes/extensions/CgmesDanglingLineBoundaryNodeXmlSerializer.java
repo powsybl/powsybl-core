@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.DanglingLine;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSerializer<DanglingLine, CgmesDanglingLineBoundaryNode> {

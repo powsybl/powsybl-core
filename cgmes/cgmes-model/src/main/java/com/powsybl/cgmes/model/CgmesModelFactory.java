@@ -16,7 +16,7 @@ import com.powsybl.triplestore.api.*;
 import java.util.Objects;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class CgmesModelFactory {
 
@@ -56,21 +56,36 @@ public final class CgmesModelFactory {
         Objects.requireNonNull(reporter);
         Objects.requireNonNull(tripleStoreOptions);
 
-        CgmesModel cgmes = createImplementation(implementation, tripleStoreOptions, mainDataSource);
+        CgmesModel cgmes = createImplementation(implementation, tripleStoreOptions, mainDataSource, alternativeDataSourceForBoundary);
         cgmes.read(mainDataSource, alternativeDataSourceForBoundary, reporter);
         return cgmes;
     }
 
-    private static CgmesModel createImplementation(String implementation, TripleStoreOptions tripleStoreOptions, ReadOnlyDataSource ds) {
+    private static CgmesModel createImplementation(String implementation, TripleStoreOptions tripleStoreOptions, ReadOnlyDataSource ds, ReadOnlyDataSource alternativeDataSourceForBoundary) {
         // Only triple store implementations are available
         TripleStore tripleStore = TripleStoreFactory.create(implementation, tripleStoreOptions);
-        String cimNamespace = new CgmesOnDataSource(ds).cimNamespace();
+        String cimNamespace = obtainCimNamespace(ds, alternativeDataSourceForBoundary);
         return new CgmesModelTripleStore(cimNamespace, tripleStore);
     }
 
+    private static String obtainCimNamespace(ReadOnlyDataSource ds, ReadOnlyDataSource dsBoundary) {
+        try {
+            return new CgmesOnDataSource(ds).cimNamespace();
+        } catch (CgmesModelException x) {
+            if (dsBoundary != null) {
+                try {
+                    return new CgmesOnDataSource(dsBoundary).cimNamespace();
+                } catch (CgmesModelException x2) {
+                    throw x;
+                }
+            } else {
+                throw x;
+            }
+        }
+    }
+
     public static CgmesModel copy(CgmesModel cgmes) {
-        if (cgmes instanceof CgmesModelTripleStore) {
-            CgmesModelTripleStore cgmests = (CgmesModelTripleStore) cgmes;
+        if (cgmes instanceof CgmesModelTripleStore cgmests) {
             TripleStore tripleStore = TripleStoreFactory.copy(cgmests.tripleStore());
             CgmesModel cgmesCopy = new CgmesModelTripleStore(cgmests.getCimNamespace(), tripleStore);
             cgmesCopy.setBasename(cgmes.getBasename());

@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DoublePoint extends AbstractPoint {
 
@@ -32,10 +32,10 @@ public class DoublePoint extends AbstractPoint {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DoublePoint) {
-            DoublePoint other = (DoublePoint) obj;
+        if (obj instanceof DoublePoint other) {
             return index == other.index && time == other.time
-                    && ((Double.isNaN(value) && Double.isNaN(other.value)) || value == other.value);
+                    && (Double.isNaN(value) && Double.isNaN(other.value)
+                        || value == other.value);
         }
         return false;
     }

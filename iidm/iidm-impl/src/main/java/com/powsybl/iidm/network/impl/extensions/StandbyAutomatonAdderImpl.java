@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class StandbyAutomatonAdderImpl extends AbstractExtensionAdder<StaticVarCompensator, StandbyAutomaton>
         implements StandbyAutomatonAdder {

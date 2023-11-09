@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
@@ -82,6 +82,11 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     @Override
     public NetworkImpl getNetwork() {
         return (NetworkImpl) getVoltageLevel().getNetwork();
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        return getVoltageLevel().getParentNetwork();
     }
 
     @Override

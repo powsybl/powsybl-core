@@ -15,7 +15,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 import java.util.List;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMultiVariantIdentifiableExtension<T>
         implements ActivePowerControl<T> {

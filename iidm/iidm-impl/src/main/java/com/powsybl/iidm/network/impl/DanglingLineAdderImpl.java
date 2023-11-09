@@ -8,11 +8,12 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  *
  */
 class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
@@ -31,7 +32,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private double b = 0.0;
 
-    private String ucteXnodeCode;
+    private String pairingKey;
 
     private GenerationAdderImpl generationAdder;
 
@@ -90,9 +91,18 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode) {
-        this.ucteXnodeCode = ucteXnodeCode;
+    public DanglingLineAdder setPairingKey(String pairingKey) {
+        this.pairingKey = pairingKey;
         return this;
+    }
+
+    @Override
+    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
+        return getNetworkRef();
+    }
+
+    private Ref<NetworkImpl> getNetworkRef() {
+        return voltageLevel.getNetworkRef();
     }
 
     @Override
@@ -118,7 +128,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             generation = generationAdder.build();
         }
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         network.getIndex().checkAndAdd(danglingLine);

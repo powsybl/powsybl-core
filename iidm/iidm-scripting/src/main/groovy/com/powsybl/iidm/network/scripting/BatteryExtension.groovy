@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.scripting
 import com.powsybl.iidm.network.Battery
 
 /**
- * @author Miora VEDELAGO <miora.ralambotiana at rte-france.com>
+ * @author Miora VEDELAGO {@literal <miora.ralambotiana at rte-france.com>}
  */
 class BatteryExtension {
     static double getP0(Battery self) {

@@ -17,7 +17,7 @@ package com.powsybl.math.matrix;
  *
  * @see <a href="https://en.wikipedia.org/wiki/LU_decomposition">https://en.wikipedia.org/wiki/LU_decomposition</a>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface LUDecomposition extends AutoCloseable {
 

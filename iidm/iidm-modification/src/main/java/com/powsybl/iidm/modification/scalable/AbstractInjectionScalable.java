@@ -17,7 +17,7 @@ import java.util.Objects;
  * Base class for scalables that consist in a unique injection with minimum and maximum
  * power value.
  *
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 abstract class AbstractInjectionScalable extends AbstractScalable {
 
@@ -43,8 +43,8 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
 
     private Injection getInjectionOrNull(Network n) {
         Identifiable identifiable = n.getIdentifiable(id);
-        if (identifiable instanceof Injection) {
-            return (Injection) identifiable;
+        if (identifiable instanceof Injection<?> injection) {
+            return injection;
         } else {
             return null;
         }

@@ -8,15 +8,19 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public final class TerminalRefXml {
+
+    private static final String ID = "id";
+    private static final String SIDE = "side";
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
         writeTerminalRef(t, context, context.getVersion().getNamespaceURI(context.isValid()), elementName);
@@ -47,37 +51,33 @@ public final class TerminalRefXml {
                     t.getConnectable().getId()));
         }
         writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
-        if (c.getTerminals().size() > 1) {
-            if (c instanceof Injection) {
-                // nothing to do
-            } else if (c instanceof Branch) {
-                Branch branch = (Branch) c;
-                writer.writeAttribute("side", branch.getSide(t).name());
-            } else if (c instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
-                writer.writeAttribute("side", twt.getSide(t).name());
-            } else {
-                throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
+
+        Terminal.getConnectableSide(t).ifPresent(side -> {
+            try {
+                writer.writeAttribute("side", side.name());
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
             }
-        }
+        });
     }
 
-    public static Terminal readTerminalRef(Network network, String id, String side) {
-        Identifiable identifiable = network.getIdentifiable(id);
+    public static Terminal readTerminal(NetworkXmlReaderContext context, Network n) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, ID));
+        String side = context.getReader().getAttributeValue(null, SIDE);
+        return TerminalRefXml.resolve(id, side, n);
+    }
+
+    public static Terminal resolve(String id, String sideText, Network network) {
+        ThreeSides side = sideText == null ? ThreeSides.ONE : ThreeSides.valueOf(sideText);
+        return TerminalRefXml.resolve(id, side, network);
+    }
+
+    public static Terminal resolve(String id, ThreeSides side, Network network) {
+        Identifiable<?> identifiable = network.getIdentifiable(id);
         if (identifiable == null) {
             throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
         }
-        if (identifiable instanceof Injection) {
-            return ((Injection) identifiable).getTerminal();
-        } else if (identifiable instanceof Branch) {
-            return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
-                    : ((Branch) identifiable).getTerminal2();
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
-            return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
-        } else {
-            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
-        }
+        return Terminal.getTerminal(identifiable, side);
     }
 
     private TerminalRefXml() {

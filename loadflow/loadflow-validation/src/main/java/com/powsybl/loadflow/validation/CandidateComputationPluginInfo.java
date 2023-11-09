@@ -12,7 +12,7 @@ import com.powsybl.commons.plugins.PluginInfo;
 import java.util.Objects;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 @AutoService(PluginInfo.class)
 public class CandidateComputationPluginInfo extends PluginInfo<CandidateComputation> {

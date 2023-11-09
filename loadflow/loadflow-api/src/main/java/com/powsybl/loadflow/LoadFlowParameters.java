@@ -23,7 +23,7 @@ import java.util.*;
  * Parameters for loadflow computation.
  * Extensions may be added, for instance for implementation-specific parameters.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
@@ -232,7 +232,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     /**
      * @deprecated Use {@link #isUseReactiveLimits} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.1.0")
     public boolean isNoGeneratorReactiveLimits() {
         return !useReactiveLimits;
     }
@@ -240,7 +240,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     /**
      * @deprecated Use {@link #setNoGeneratorReactiveLimits} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.1.0")
     public LoadFlowParameters setNoGeneratorReactiveLimits(boolean noGeneratorReactiveLimits) {
         this.useReactiveLimits = !noGeneratorReactiveLimits;
         return this;
@@ -267,7 +267,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     /**
      * @deprecated Use {@link #isShuntCompensatorVoltageControlOn()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "4.7.0")
     public boolean isSimulShunt() {
         return isShuntCompensatorVoltageControlOn();
     }
@@ -279,7 +279,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     /**
      * @deprecated Use {@link #setShuntCompensatorVoltageControlOn(boolean)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "4.7.0")
     public LoadFlowParameters setSimulShunt(boolean simulShunt) {
         return setShuntCompensatorVoltageControlOn(simulShunt);
     }

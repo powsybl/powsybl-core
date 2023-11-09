@@ -31,7 +31,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.CGMES_EQ_3_OR_GREATER_PREFI
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesModelTripleStore extends AbstractCgmesModel {
 
@@ -337,6 +337,16 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags baseVoltages() {
         return namedQuery("baseVoltages");
+    }
+
+    @Override
+    public PropertyBags countrySourcingActors(String countryName) {
+        return namedQuery("countrySourcingActors", countryName);
+    }
+
+    @Override
+    public PropertyBags sourcingActor(String sourcingActor) {
+        return namedQuery("sourcingActor", sourcingActor);
     }
 
     @Override
@@ -685,8 +695,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             .findFirst().orElse(def).getNamespace();
     }
 
-    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16 = Pattern.compile("^.*CIM-schema-cim([0-9]+)#$");
-    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_FROM_100 = Pattern.compile("^.*/CIM([0-9]+)#$");
+    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16 = Pattern.compile("^.*CIM-schema-cim(\\d+)#$");
+    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_FROM_100 = Pattern.compile("^.*/CIM(\\d+)#$");
 
     private static int cimVersionFromCimNamespace(String cimNamespace) {
         Matcher m = CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16.matcher(cimNamespace);

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class ShortCircuitBusResultsDeserializer {
 
@@ -38,41 +38,34 @@ class ShortCircuitBusResultsDeserializer {
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
                 switch (parser.getCurrentName()) {
-                    case "voltageLevelId":
+                    case "voltageLevelId" -> {
                         parser.nextToken();
                         voltageLevelId = parser.readValueAs(String.class);
-                        break;
-
-                    case "busId":
+                    }
+                    case "busId" -> {
                         parser.nextToken();
                         busId = parser.readValueAs(String.class);
-                        break;
-
-                    case "initialVoltageMagnitude":
+                    }
+                    case "initialVoltageMagnitude" -> {
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageMagnitude", version, "1.1");
                         parser.nextToken();
                         initialVoltageMagnitude = parser.readValueAs(Double.class);
-                        break;
-
-                    case "voltage":
+                    }
+                    case "voltage" -> {
                         parser.nextToken();
                         voltage = parser.readValueAs(FortescueValue.class);
-                        break;
-
-                    case "voltageMagnitude":
+                    }
+                    case "voltageMagnitude" -> {
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMagnitude", version, "1.1");
                         parser.nextToken();
                         voltageMagnitude = parser.readValueAs(Double.class);
-                        break;
-
-                    case "voltageDropProportional":
+                    }
+                    case "voltageDropProportional" -> {
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageDropProportional", version, "1.1");
                         parser.nextToken();
                         voltageDropProportional = parser.readValueAs(Double.class);
-                        break;
-
-                    default:
-                        throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    }
+                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
             if (voltage != null) {

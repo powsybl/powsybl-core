@@ -12,9 +12,9 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
- * @author Yichen Tang <yichen.tang at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Yichen Tang {@literal <yichen.tang at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class Partition {
 

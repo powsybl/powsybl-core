@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractConnectedComponentWithTieLineBugTest {
 
@@ -69,7 +69,7 @@ public abstract class AbstractConnectedComponentWithTieLineBugTest {
                 .setX(1.0)
                 .setG(0.0)
                 .setB(0.0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         DanglingLine dl2 = vl2.newDanglingLine()
                 .setBus("b2")
@@ -80,7 +80,7 @@ public abstract class AbstractConnectedComponentWithTieLineBugTest {
                 .setX(1.0)
                 .setG(0.0)
                 .setB(0.0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         n.newTieLine()
                 .setId("l1 + l2")

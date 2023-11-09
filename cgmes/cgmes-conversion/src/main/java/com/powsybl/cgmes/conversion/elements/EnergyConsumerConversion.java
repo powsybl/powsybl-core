@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
@@ -16,19 +17,19 @@ import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class EnergyConsumerConversion extends AbstractConductingEquipmentConversion {
 
     public EnergyConsumerConversion(PropertyBag ec, Context context) {
         super("EnergyConsumer", ec, context);
-        loadKind = ec.get("type");
+        loadKind = ec.getLocal("type");
     }
 
     @Override
     public void convert() {
         LoadType loadType;
-        if (loadKind.endsWith("StationSupply")) {
+        if (loadKind.equals("StationSupply")) {
             loadType = LoadType.AUXILIARY;
         } else if (id.contains("fict")) {
             loadType = LoadType.FICTITIOUS;
@@ -46,6 +47,12 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
         setLoadDetail(loadKind, load);
+
+        addSpecificProperties(load, loadKind);
+    }
+
+    private static void addSpecificProperties(Load load, String loadKind) {
+        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, loadKind);
     }
 
     private void model(LoadAdder adder) {
@@ -103,14 +110,14 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     private static void setLoadDetail(String type, Load load) {
-        if (type.endsWith("#ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
+        if (type.equals("ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
             load.newExtension(LoadDetailAdder.class)
                     .withFixedActivePower(0)
                     .withFixedReactivePower(0)
                     .withVariableActivePower((float) load.getP0())
                     .withVariableReactivePower((float) load.getQ0())
                     .add();
-        } else if (type.endsWith("#NonConformLoad")) { // does not participate in scaling
+        } else if (type.equals("NonConformLoad")) { // does not participate in scaling
             load.newExtension(LoadDetailAdder.class)
                     .withFixedActivePower((float) load.getP0())
                     .withFixedReactivePower((float) load.getQ0())

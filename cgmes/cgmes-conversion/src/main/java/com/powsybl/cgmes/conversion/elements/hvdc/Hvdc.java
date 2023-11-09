@@ -13,15 +13,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEnd;
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class Hvdc {
     private final List<HvdcEquipment> hvdcData;
@@ -49,7 +48,7 @@ class Hvdc {
         Associations associations = new Associations();
         islandEndHvdc1.getHvdc().forEach(hvdcEnd -> {
             List<HvdcEnd> associatedEnd2 = islandEndHvdc2.getHvdc().stream()
-                .filter(otherHvdcEnd -> otherHvdcEnd.isAssociatedWith(hvdcEnd)).collect(Collectors.toList());
+                .filter(otherHvdcEnd -> otherHvdcEnd.isAssociatedWith(hvdcEnd)).toList();
 
             associatedEnd2.forEach(otherHvdcEnd -> associations.add(hvdcEnd, otherHvdcEnd));
         });

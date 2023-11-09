@@ -14,7 +14,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class DoublePointTest {
 
@@ -32,8 +32,9 @@ class DoublePointTest {
         new EqualsTester()
                 .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d),
                         new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d))
-                .addEqualityGroup(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), 8d),
-                        new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), 8d))
+                .addEqualityGroup(new DoublePoint(1, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d))
+                .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T11:11:11Z").toEpochMilli(), 10d))
+                .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 8d))
                 .testEquals();
     }
 }

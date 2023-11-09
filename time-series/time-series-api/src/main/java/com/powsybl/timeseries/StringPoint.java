@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class StringPoint extends AbstractPoint {
 
@@ -32,8 +32,7 @@ public class StringPoint extends AbstractPoint {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof StringPoint) {
-            StringPoint other = (StringPoint) obj;
+        if (obj instanceof StringPoint other) {
             return index == other.index && time == other.time && Objects.equals(value, other.value);
         }
         return false;

@@ -18,7 +18,7 @@ import java.util.Objects;
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 class PreContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PreContingencyResult> {
 

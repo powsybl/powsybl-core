@@ -22,7 +22,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DataObject {
 
@@ -577,23 +577,23 @@ public class DataObject {
     }
 
     private static boolean writeValue(JsonGenerator generator, Object value) throws IOException {
-        if (value instanceof String) {
-            generator.writeString((String) value);
+        if (value instanceof String stringValue) {
+            generator.writeString(stringValue);
             return true;
-        } else if (value instanceof Integer) {
-            generator.writeNumber((Integer) value);
+        } else if (value instanceof Integer integerValue) {
+            generator.writeNumber(integerValue);
             return true;
-        } else if (value instanceof Long) {
-            generator.writeNumber((Long) value);
+        } else if (value instanceof Long longValue) {
+            generator.writeNumber(longValue);
             return true;
-        } else if (value instanceof Float) {
-            generator.writeNumber((Float) value);
+        } else if (value instanceof Float floatValue) {
+            generator.writeNumber(floatValue);
             return true;
-        } else if (value instanceof Double) {
-            generator.writeNumber((Double) value);
+        } else if (value instanceof Double doubleValue) {
+            generator.writeNumber(doubleValue);
             return true;
-        } else if (value instanceof DataObjectRef) {
-            generator.writeNumber(((DataObjectRef) value).getId());
+        } else if (value instanceof DataObjectRef dataObjectRef) {
+            generator.writeNumber(dataObjectRef.getId());
             return true;
         }
         return false;

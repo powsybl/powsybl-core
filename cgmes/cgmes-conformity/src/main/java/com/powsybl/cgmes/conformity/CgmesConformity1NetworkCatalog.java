@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class CgmesConformity1NetworkCatalog {
 
@@ -118,7 +118,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(69.0)
                 .setG(5.75e-5)
                 .setB(2.1677e-5)
-                .setUcteXnodeCode("TN_Border_ST24")
+                .setPairingKey("TN_Border_ST24")
                 .add();
         be7.newCurrentLimits().setPermanentLimit(1180)
                 .beginTemporaryLimit()
@@ -144,7 +144,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(68.2)
                 .setG(3.08e-5)
                 .setB(8.2938E-5)
-                .setUcteXnodeCode("TN_Border_ST23")
+                .setPairingKey("TN_Border_ST23")
                 .add();
 
         Bus busBrussels225 = vlBrussels225.getBusBreakerView().newBus()
@@ -212,7 +212,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(12.0)
                 .setG(6e-5)
                 .setB(1.49854e-4)
-                .setUcteXnodeCode("TN_Border_AL11")
+                .setPairingKey("TN_Border_AL11")
                 .add();
         be3.newCurrentLimits().setPermanentLimit(1371)
                 .beginTemporaryLimit()
@@ -238,7 +238,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(6.3)
                 .setG(4.2e-5)
                 .setB(6.59734E-5)
-                .setUcteXnodeCode("TN_Border_GY11")
+                .setPairingKey("TN_Border_GY11")
                 .add();
         be5.newCurrentLimits().setPermanentLimit(1804)
                 .beginTemporaryLimit()
@@ -264,7 +264,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(2.0)
                 .setG(4e-5)
                 .setB(2.51956e-5)
-                .setUcteXnodeCode("TN_Border_MA11")
+                .setPairingKey("TN_Border_MA11")
                 .add();
         be4.newCurrentLimits().setPermanentLimit(1226)
                 .beginTemporaryLimit()
@@ -1179,7 +1179,7 @@ public final class CgmesConformity1NetworkCatalog {
                 LOG.debug("EXPECTED    n,dx,dy,angle,ratio  {} {} {} {} {}", n, dx, dy, angle, ratio);
             } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
-                angle = 2 * Math.asin(dy);
+                angle = 2 * Math.atan(dy);
                 ratio = 1.0;
                 LOG.debug("EXPECTED    n,dy,angle,ratio  {} {} {} {}", n, dy, angle, ratio);
             } else {

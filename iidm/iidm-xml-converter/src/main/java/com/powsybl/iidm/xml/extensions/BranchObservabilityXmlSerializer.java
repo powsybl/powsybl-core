@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends AbstractExtensionXmlSerializer<T, BranchObservability<T>> {

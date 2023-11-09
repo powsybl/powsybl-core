@@ -10,7 +10,7 @@ package com.powsybl.commons.extensions;
 /**
  * Abstract extension for Voltage and Current Extensions
  *
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 
 public abstract class AbstractPrecontingencyValueExtension<T> extends AbstractExtension<T> {

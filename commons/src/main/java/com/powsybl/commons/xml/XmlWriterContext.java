@@ -9,7 +9,7 @@ package com.powsybl.commons.xml;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface XmlWriterContext {
 
@@ -18,7 +18,7 @@ public interface XmlWriterContext {
     /**
      * @deprecated Use {@link #getWriter()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "4.0.0")
     default XMLStreamWriter getExtensionsWriter() {
         return getWriter();
     }

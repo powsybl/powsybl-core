@@ -9,7 +9,7 @@ package com.powsybl.commons.reporter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class ReporterModelJsonModule extends SimpleModule {
 

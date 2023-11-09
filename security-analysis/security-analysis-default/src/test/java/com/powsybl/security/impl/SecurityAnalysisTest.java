@@ -36,7 +36,6 @@ import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -50,10 +49,12 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 class SecurityAnalysisTest {
 
@@ -63,6 +64,7 @@ class SecurityAnalysisTest {
             network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
             network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
             network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
+            ((Bus) network.getIdentifiable("NHV2")).setV(380.0).setAngle(-0.10);
         }
     }
 
@@ -84,8 +86,8 @@ class SecurityAnalysisTest {
     @Test
     void run() {
         Network network = EurostagTutorialExample1Factory.create();
-        ((Bus) network.getIdentifiable("NHV1")).setV(380.0);
-        ((Bus) network.getIdentifiable("NHV2")).setV(380.0);
+        ((Bus) network.getIdentifiable("NHV1")).setV(380.0).setAngle(0.25);
+        ((Bus) network.getIdentifiable("NHV2")).setV(380.0).setAngle(0.20);
         network.getLine("NHV1_NHV2_1").getTerminal1().setP(560.0).setQ(550.0);
         network.getLine("NHV1_NHV2_1").getTerminal2().setP(560.0).setQ(550.0);
         network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(1500.0).add();
@@ -97,6 +99,13 @@ class SecurityAnalysisTest {
                 .setValue(1300.0)
                 .endTemporaryLimit()
                 .add();
+        network.newVoltageAngleLimit()
+            .setId("VoltageAngleLimit_NHV1_NHV2_1")
+            .from(network.getLine("NHV1_NHV2_1").getTerminal1())
+            .to(network.getLine("NHV1_NHV2_1").getTerminal2())
+            .setLowLimit(-0.25)
+            .setHighLimit(0.25)
+            .add();
 
         ComputationManager computationManager = createMockComputationManager();
 
@@ -131,7 +140,7 @@ class SecurityAnalysisTest {
         assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         PostContingencyResult postcontingencyResult = result.getPostContingencyResults().get(0);
         assertSame(PostContingencyComputationStatus.CONVERGED, postcontingencyResult.getStatus());
-        assertEquals(1, postcontingencyResult.getLimitViolationsResult().getLimitViolations().size());
+        assertEquals(2, postcontingencyResult.getLimitViolationsResult().getLimitViolations().size());
         LimitViolation violation = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(0);
         assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
         assertEquals("NHV1_NHV2_1", violation.getSubjectId());
@@ -144,6 +153,11 @@ class SecurityAnalysisTest {
         CurrentExtension extension2 = violation.getExtension(CurrentExtension.class);
         assertNotNull(extension2);
         assertEquals(1192.5631358010583, extension2.getPreContingencyValue(), 0.0);
+
+        LimitViolation violation1 = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(1);
+        assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, violation1.getLimitType());
+        assertEquals("VoltageAngleLimit_NHV1_NHV2_1", violation1.getSubjectId());
+        assertEquals(null, violation1.getSide());
 
         assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
         assertEquals(1, interceptorMock.getOnPreContingencyResultCount());

@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy {
 
@@ -93,8 +93,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         // Tap changers of power transformers
         String id;
         Identifiable<?> realIdentifiable = identifiable;
-        if (identifiable instanceof DanglingLine) {
-            DanglingLine dl = (DanglingLine) identifiable;
+        if (identifiable instanceof DanglingLine dl) {
             id = identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
             if (dl.isPaired()) {
                 realIdentifiable = dl.getTieLine().orElseThrow(IllegalStateException::new);

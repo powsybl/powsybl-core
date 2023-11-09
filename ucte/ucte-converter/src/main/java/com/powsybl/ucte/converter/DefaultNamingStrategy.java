@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * A {@link NamingStrategy} implementation that ensures the conformity of IDs with the UCTE-DEF format
  *
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 @AutoService(NamingStrategy.class)
 public class DefaultNamingStrategy implements NamingStrategy {
@@ -44,7 +44,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     @Override
     public UcteNodeCode getUcteNodeCode(DanglingLine danglingLine) {
-        return getUcteNodeCode(danglingLine.getUcteXnodeCode());
+        return getUcteNodeCode(danglingLine.getPairingKey());
     }
 
     @Override

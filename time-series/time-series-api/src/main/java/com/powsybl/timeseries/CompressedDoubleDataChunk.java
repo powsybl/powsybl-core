@@ -17,7 +17,7 @@ import java.util.stream.StreamSupport;
 /**
  * RLE (Run-Length encoding) compressed double data chunk.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk implements DoubleDataChunk {
 
@@ -208,8 +208,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CompressedDoubleDataChunk) {
-            CompressedDoubleDataChunk other = (CompressedDoubleDataChunk) obj;
+        if (obj instanceof CompressedDoubleDataChunk other) {
             return offset == other.offset &&
                     uncompressedLength == other.uncompressedLength &&
                     Arrays.equals(stepLengths, other.stepLengths) &&

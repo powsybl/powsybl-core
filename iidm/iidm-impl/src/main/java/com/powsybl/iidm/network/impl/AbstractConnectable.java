@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, MultiVariantObject {
 
@@ -40,6 +40,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     public List<TerminalExt> getTerminals() {
         return terminals;
+    }
+
+    @Override
+    public NetworkExt getParentNetwork() {
+        // the parent network is the network that contains all terminals of the connectable.
+        List<NetworkExt> subnetworks = terminals.stream().map(t -> t.getVoltageLevel().getParentNetwork()).distinct().toList();
+        if (subnetworks.size() == 1) {
+            return subnetworks.get(0);
+        }
+        return getNetwork();
     }
 
     @Override
@@ -135,7 +145,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the given voltage level and to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(voltageLevel.getNetworkRef(), this)
                 .setNode(node)
                 .build();
 
@@ -157,7 +167,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(((VoltageLevelExt) bus.getVoltageLevel()).getNetworkRef(), this)
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build();

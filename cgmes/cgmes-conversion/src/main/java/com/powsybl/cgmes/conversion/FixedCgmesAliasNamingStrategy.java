@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion;
 import java.util.Map;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at rte-france.com>
+ * @author Luma Zamarreño {@literal <zamarrenolm at rte-france.com>}
  */
 public class FixedCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
 

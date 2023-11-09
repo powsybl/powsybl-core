@@ -64,7 +64,7 @@ import java.util.zip.ZipOutputStream;
  *     The user may edit the generated files and reuse them in successive imports.
  * </p>
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 @AutoService(CgmesImportPreProcessor.class)
 public class CreateMissingContainersPreProcessor implements CgmesImportPreProcessor {
@@ -170,10 +170,10 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         Network network = NetworkFactory.findDefault().createNetwork("empty", "CGMES");
         // We ensure that the fixes are exported to CGMES files with the same version of the input files
         // To achieve it, we set the CIM characteristics of the empty Network created
-        if (cgmes instanceof CgmesModelTripleStore) {
+        if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
             network.newExtension(CimCharacteristicsAdder.class)
                     .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
-                    .setCimVersion(((CgmesModelTripleStore) cgmes).getCimVersion())
+                    .setCimVersion(cgmesModelTripleStore.getCimVersion())
                     .add();
         }
         return network;

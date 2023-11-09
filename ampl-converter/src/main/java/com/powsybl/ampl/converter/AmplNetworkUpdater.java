@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.*;
  * <p>
  * Default implementation in {@link DefaultAmplNetworkUpdater}.
  *
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  * @see AmplNetworkReader
  * @see AbstractAmplNetworkUpdater
  * @see DefaultAmplNetworkUpdater

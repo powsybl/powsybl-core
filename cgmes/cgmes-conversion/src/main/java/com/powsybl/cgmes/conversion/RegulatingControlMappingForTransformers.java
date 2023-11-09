@@ -10,6 +10,8 @@ import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +21,8 @@ import static com.powsybl.cgmes.conversion.CgmesReports.badTargetDeadbandRegulat
 import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 
 public class RegulatingControlMappingForTransformers {
@@ -133,19 +135,23 @@ public class RegulatingControlMappingForTransformers {
 
         rtcRegulating1 = checkOnlyOneEnabled(twt.getId(), rtcRegulating1, regulatingSet, "ratioTapChanger at Leg1");
         setRatioTapChangerControl(rtcRegulating1, rc.ratioTapChanger1, rtcControl1, twt.getLeg1().getRatioTapChanger());
-        regulatingSet = regulatingSet || (twt.getLeg1().hasRatioTapChanger() && twt.getLeg1().getRatioTapChanger().isRegulating());
+        regulatingSet = regulatingSet
+                || twt.getLeg1().hasRatioTapChanger() && twt.getLeg1().getRatioTapChanger().isRegulating();
 
         ptcRegulating2 = checkOnlyOneEnabled(twt.getId(), ptcRegulating2, regulatingSet, "phaseTapChanger at Leg2");
         setPhaseTapChangerControl(ptcRegulating2, rc.phaseTapChanger2, ptcControl2, twt.getLeg2().getPhaseTapChanger());
-        regulatingSet = regulatingSet || (twt.getLeg2().hasPhaseTapChanger() && twt.getLeg2().getPhaseTapChanger().isRegulating());
+        regulatingSet = regulatingSet
+                || twt.getLeg2().hasPhaseTapChanger() && twt.getLeg2().getPhaseTapChanger().isRegulating();
 
         rtcRegulating2 = checkOnlyOneEnabled(twt.getId(), rtcRegulating2, regulatingSet, "ratioTapChanger at Leg2");
         setRatioTapChangerControl(rtcRegulating2, rc.ratioTapChanger2, rtcControl2, twt.getLeg2().getRatioTapChanger());
-        regulatingSet = regulatingSet || (twt.getLeg2().hasRatioTapChanger() && twt.getLeg2().getRatioTapChanger().isRegulating());
+        regulatingSet = regulatingSet
+                || twt.getLeg2().hasRatioTapChanger() && twt.getLeg2().getRatioTapChanger().isRegulating();
 
         ptcRegulating3 = checkOnlyOneEnabled(twt.getId(), ptcRegulating3, regulatingSet, "phaseTapChanger at Leg3");
         setPhaseTapChangerControl(ptcRegulating3, rc.phaseTapChanger3, ptcControl3, twt.getLeg3().getPhaseTapChanger());
-        regulatingSet = regulatingSet || (twt.getLeg3().hasPhaseTapChanger() && twt.getLeg3().getPhaseTapChanger().isRegulating());
+        regulatingSet = regulatingSet
+                || twt.getLeg3().hasPhaseTapChanger() && twt.getLeg3().getPhaseTapChanger().isRegulating();
 
         rtcRegulating3 = checkOnlyOneEnabled(twt.getId(), rtcRegulating3, regulatingSet, "ratioTapChanger at Leg3");
         setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
@@ -323,7 +329,7 @@ public class RegulatingControlMappingForTransformers {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing("Regulating control ID not defined");
+            LOG.trace("Regulating control Id not present for tap changer {}", rc.id);
             return null;
         }
 
@@ -361,7 +367,7 @@ public class RegulatingControlMappingForTransformers {
         return controlMode != null && controlMode.endsWith("fixed");
     }
 
-    private static class CgmesRegulatingControlForThreeWindingsTransformer {
+    private static final class CgmesRegulatingControlForThreeWindingsTransformer {
         CgmesRegulatingControlRatio ratioTapChanger1;
         CgmesRegulatingControlPhase phaseTapChanger1;
         CgmesRegulatingControlRatio ratioTapChanger2;
@@ -370,7 +376,7 @@ public class RegulatingControlMappingForTransformers {
         CgmesRegulatingControlPhase phaseTapChanger3;
     }
 
-    private static class CgmesRegulatingControlForTwoWindingsTransformer {
+    private static final class CgmesRegulatingControlForTwoWindingsTransformer {
         CgmesRegulatingControlRatio ratioTapChanger;
         CgmesRegulatingControlPhase phaseTapChanger;
     }
@@ -393,4 +399,6 @@ public class RegulatingControlMappingForTransformers {
     private final Context context;
     private final Map<String, CgmesRegulatingControlForTwoWindingsTransformer> t2xMapping;
     private final Map<String, CgmesRegulatingControlForThreeWindingsTransformer> t3xMapping;
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegulatingControlMappingForTransformers.class);
 }

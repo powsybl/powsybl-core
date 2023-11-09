@@ -24,8 +24,8 @@ import java.util.stream.Stream;
  * The mapping has to take into account if the controlled magnitude corresponds to a node (voltage)
  * or if it is a flow (active/reactive power)
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 final class RegulatingTerminalMapper {
 

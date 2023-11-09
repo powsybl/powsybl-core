@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -24,7 +24,7 @@ import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class RemoveFeederBayTest {
 
@@ -99,7 +99,7 @@ class RemoveFeederBayTest {
 
         new RemoveFeederBay("load2").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("SW1", "load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        Set<String> removedIdentifiables = Set.of("SW1", "load2", "load2_DISCONNECTOR_6_0", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
         assertEquals(removedIdentifiables, removedObjects);
     }
@@ -114,7 +114,7 @@ class RemoveFeederBayTest {
 
         new RemoveFeederBay("load2").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR_6_0", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
         assertEquals(removedIdentifiables, removedObjects);
     }
@@ -130,7 +130,7 @@ class RemoveFeederBayTest {
 
         new RemoveFeederBay("load2").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR_6_0", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
         assertEquals(removedIdentifiables, removedObjects);
         assertNotNull(network.getSwitch("SW1")); // Not removed as connect load1 with load3
@@ -139,9 +139,11 @@ class RemoveFeederBayTest {
     @Test
     void testRemoveBbs() {
         Network network = createNetwork2Feeders();
+        ReporterModel reporter = new ReporterModel("reportTestRemoveBbs", "Testing reporter when trying to remove a busbar section");
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, Reporter.NO_OP));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reporter));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
+        assertEquals("removeBayBusbarSectionConnectable", reporter.getReports().iterator().next().getReportKey());
     }
 
     private Network createNetwork2Feeders() {

@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends AbstractVersionableNetworkExtensionXmlSerializer<C, ConnectablePosition<C>> {
@@ -50,6 +50,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                         .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_11, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(V_1_0, "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0")

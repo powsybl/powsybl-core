@@ -16,11 +16,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.powsybl.iidm.xml.PropertiesXml.NAME;
+import static com.powsybl.iidm.xml.PropertiesXml.VALUE;
+
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, VoltageLevelAdder, Container<? extends Identifiable<?>>> {
 
@@ -33,6 +37,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
     private static final String NODE_BREAKER_TOPOLOGY_ELEMENT_NAME = "nodeBreakerTopology";
     private static final String BUS_BREAKER_TOPOLOGY_ELEMENT_NAME = "busBreakerTopology";
     private static final String NODE_COUNT = "nodeCount";
+    private static final String UNEXPECTED_ELEMENT = "Unexpected element: ";
 
     @Override
     protected String getRootElementName() {
@@ -121,10 +126,19 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     private static void writeCalculatedBus(Bus bus, Set<Integer> nodes, NetworkXmlWriterContext context) {
         try {
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "bus");
+            boolean writeProperties = context.getVersion().compareTo(IidmXmlVersion.V_1_11) >= 0 && bus.hasProperty();
+            if (writeProperties) {
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), "bus");
+            } else {
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "bus");
+            }
             XmlUtil.writeDouble("v", bus.getV(), context.getWriter());
             XmlUtil.writeDouble("angle", bus.getAngle(), context.getWriter());
             context.getWriter().writeAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
+            if (writeProperties) {
+                PropertiesXml.write(bus, context);
+                context.getWriter().writeEndElement();
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -204,7 +218,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     private void writeDanglingLines(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         for (DanglingLine dl : IidmXmlUtil.sorted(vl.getDanglingLines(DanglingLineFilter.ALL), context.getOptions())) {
-            if (!context.getFilter().test(dl) || (context.getVersion().compareTo(IidmXmlVersion.V_1_10) < 0 && dl.isPaired())) {
+            if (!context.getFilter().test(dl) || context.getVersion().compareTo(IidmXmlVersion.V_1_10) < 0 && dl.isPaired()) {
                 continue;
             }
             DanglingLineXml.INSTANCE.write(dl, vl, context);
@@ -240,11 +254,11 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     @Override
     protected VoltageLevelAdder createAdder(Container<? extends Identifiable<?>> c) {
-        if (c instanceof Network) {
-            return ((Network) c).newVoltageLevel();
+        if (c instanceof Network network) {
+            return network.newVoltageLevel();
         }
-        if (c instanceof Substation) {
-            return ((Substation) c).newVoltageLevel();
+        if (c instanceof Substation substation) {
+            return substation.newVoltageLevel();
         }
         throw new IllegalStateException();
     }
@@ -338,16 +352,26 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected element: " + context.getReader().getLocalName());
+                    throw new IllegalStateException(UNEXPECTED_ELEMENT + context.getReader().getLocalName());
             }
         });
     }
 
-    private void readCalculatedBus(VoltageLevel vl, NetworkXmlReaderContext context) {
+    private void readCalculatedBus(VoltageLevel vl, NetworkXmlReaderContext context) throws XMLStreamException {
         IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BusXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
         double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
         String nodesString = context.getReader().getAttributeValue(null, "nodes");
+        Map<String, String> properties = new HashMap<>();
+        XmlUtil.readUntilEndElement(BusXml.ROOT_ELEMENT_NAME, context.getReader(), () -> {
+            if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
+                String name = context.getReader().getAttributeValue(null, NAME);
+                String value = context.getReader().getAttributeValue(null, VALUE);
+                properties.put(name, value);
+            } else {
+                throw new IllegalStateException(UNEXPECTED_ELEMENT + context.getReader().getLocalName());
+            }
+        });
         context.getEndTasks().add(() -> {
             for (String str : nodesString.split(",")) {
                 int node = Integer.parseInt(str);
@@ -356,6 +380,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                     Bus b = terminal.getBusView().getBus();
                     if (b != null) {
                         b.setV(v).setAngle(angle);
+                        properties.forEach(b::setProperty);
                         break;
                     }
                 }
@@ -388,7 +413,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected element: " + context.getReader().getLocalName());
+                    throw new IllegalStateException(UNEXPECTED_ELEMENT + context.getReader().getLocalName());
             }
         });
     }

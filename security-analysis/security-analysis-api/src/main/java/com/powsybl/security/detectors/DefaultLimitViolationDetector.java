@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 /**
  * Implements the default behaviour for limit violation detection.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetector {
 
@@ -50,15 +50,31 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     @Override
+    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
+
+        checkLimitViolation(transformer, side, value, consumer, LimitType.CURRENT);
+    }
+
+    @Override
     public void checkActivePower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(branch, side, value, consumer, LimitType.ACTIVE_POWER);
     }
 
     @Override
+    public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
+        checkLimitViolation(transformer, side, value, consumer, LimitType.ACTIVE_POWER);
+    }
+
+    @Override
     public void checkApparentPower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(branch, side, value, consumer, LimitType.APPARENT_POWER);
+    }
+
+    @Override
+    public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
+        checkLimitViolation(transformer, side, value, consumer, LimitType.APPARENT_POWER);
     }
 
     @Override
@@ -75,12 +91,42 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         }
     }
 
+    @Override
+    public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double value, Consumer<LimitViolation> consumer) {
+        if (Double.isNaN(value)) {
+            return;
+        }
+        voltageAngleLimit.getLowLimit().ifPresent(
+            lowLimit -> {
+                if (value <= lowLimit) {
+                    consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.LOW_VOLTAGE_ANGLE, lowLimit,
+                            limitReduction, value));
+                }
+            });
+        voltageAngleLimit.getHighLimit().ifPresent(
+            highLimit -> {
+                if (value >= highLimit) {
+                    consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.HIGH_VOLTAGE_ANGLE, highLimit,
+                            limitReduction, value));
+                }
+            });
+    }
+
     public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
-        if (currentLimitTypes.contains(LoadingLimitType.TATL) && (overload != null)) {
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
+        if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
             checkTemporary(branch, side, limitReduction, value, consumer, type);
         } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             checkPermanentLimit(branch, side, limitReduction, value, consumer, type);
+        }
+    }
+
+    public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReduction, value, type);
+        if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
+            checkTemporary(transformer, side, limitReduction, value, consumer, type);
+        } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
+            checkPermanentLimit(transformer, side, limitReduction, value, consumer, type);
         }
     }
 }

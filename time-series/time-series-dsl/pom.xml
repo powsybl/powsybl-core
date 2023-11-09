@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-time-series</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>5.4.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-time-series-dsl</artifactId>
@@ -45,7 +45,7 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
+            <groupId>org.apache.groovy</groupId>
             <artifactId>groovy</artifactId>
         </dependency>
 

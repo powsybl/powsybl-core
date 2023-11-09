@@ -10,7 +10,7 @@ import java.io.Writer;
 import java.util.List;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public interface BashCompletionGenerator {
 

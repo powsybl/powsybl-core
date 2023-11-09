@@ -7,21 +7,15 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class OperationalLimitConversion extends AbstractIdentifiedObjectConversion {
 
@@ -61,8 +55,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 Identifiable<?> i = context.network().getIdentifiable(equipmentId);
                 if (i == null) {
                     vl = context.network().getVoltageLevel(p.getId("EquipmentContainer")); // happens in BusBranch when the voltage limit is linked to a busbarSection
-                } else if (i instanceof Injection) {
-                    vl = ((Injection) i).getTerminal().getVoltageLevel();
+                } else if (i instanceof Injection<?> injection) {
+                    vl = injection.getTerminal().getVoltageLevel();
                 }
             }
         } else {
@@ -162,12 +156,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             } else {
                 createLimitsAdder(terminalNumber, limitSubClass, b);
             }
-        } else if (identifiable instanceof DanglingLine) {
-            DanglingLine danglingLine = (DanglingLine) identifiable;
+        } else if (identifiable instanceof DanglingLine danglingLine) {
             loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(danglingLine.getId() + "_" + limitSubClass,
                     getLoadingLimitAdderSupplier(limitSubClass, danglingLine));
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+        } else if (identifiable instanceof ThreeWindingsTransformer twt) {
             if (terminalNumber == -1) {
                 context.ignored(limitSubClass, "Defined for Equipment ThreeWindingsTransformer. Should be defined for one Terminal of Three");
                 notAssigned(twt);

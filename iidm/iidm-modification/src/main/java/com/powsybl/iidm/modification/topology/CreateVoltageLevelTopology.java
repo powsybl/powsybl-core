@@ -28,7 +28,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
  *
  * See {@link CreateVoltageLevelTopologyBuilder}.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 
@@ -75,7 +75,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     private boolean checkCountAttributes(int lowBusOrBusbarIndex, int alignedBusesOrBusbarCount, int lowSectionIndex,
                                          int sectionCount, boolean throwException, Reporter reporter) {
         return checkCountAttributes(lowBusOrBusbarIndex, "low busbar index", 0, reporter, throwException) &&
-        checkCountAttributes(alignedBusesOrBusbarCount, "busBar count", 1, reporter, throwException) &&
+        checkCountAttributes(alignedBusesOrBusbarCount, "busbar count", 1, reporter, throwException) &&
         checkCountAttributes(lowSectionIndex, "low section index", 0, reporter, throwException) &&
         checkCountAttributes(sectionCount, "section count", 1, reporter, throwException);
     }

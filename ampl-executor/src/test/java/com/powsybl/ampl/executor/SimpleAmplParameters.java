@@ -9,16 +9,16 @@ package com.powsybl.ampl.executor;
 import com.powsybl.ampl.converter.AmplSubset;
 import com.powsybl.commons.util.StringToIntMapper;
 
-import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public class SimpleAmplParameters implements AmplParameters {
 
@@ -33,8 +33,9 @@ public class SimpleAmplParameters implements AmplParameters {
             }
 
             @Override
-            public InputStream getParameterFileAsStream(StringToIntMapper<AmplSubset> networkAmplMapper) {
-                return new ByteArrayInputStream("some_content".getBytes());
+            public void write(BufferedWriter writer, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException {
+                writer.write("some_content");
+                writer.flush();
             }
         });
     }
@@ -42,15 +43,18 @@ public class SimpleAmplParameters implements AmplParameters {
     @Override
     public Collection<AmplOutputFile> getOutputParameters(boolean hasConverged) {
         if (hasConverged) {
-            return List.of(new AmplOutputFile() {
+            return List.of(new AbstractMandatoryOutputFile() {
                 @Override
                 public String getFileName() {
                     return "simple_output.txt";
                 }
 
                 @Override
-                public void read(Path outputPath, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException {
-                    readingDone = Files.readString(outputPath).equals("test");
+                public void read(BufferedReader reader, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException {
+                    readingDone = true;
+                    assertTrue(reader.readLine()
+                            .equals("This file must be encoded in UTF-8 ! éèà") && reader.readLine() == null,
+                        "The content of the file is not read properly.");
                 }
             });
         }

@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * Simplified option model for completion script generation.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at gmail.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at gmail.com>}
  */
 public class BashOption {
 
@@ -93,8 +93,8 @@ public class BashOption {
     }
 
     public Object[] getPossibleValues() {
-        if (type instanceof OptionType.Enumeration) {
-            return ((OptionType.Enumeration) type).getClazz().getEnumConstants();
+        if (type instanceof OptionType.Enumeration optionType) {
+            return optionType.getClazz().getEnumConstants();
         }
         return null;
     }

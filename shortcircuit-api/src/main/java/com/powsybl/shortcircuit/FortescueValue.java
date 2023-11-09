@@ -15,8 +15,8 @@ import org.apache.commons.math3.util.Pair;
  * The aim of this class is to store the magnitude and angle of current or voltage on the three phases, and
  * the magnitude and angle of current or voltage for the Fortescue positive, zero and negative components.
  *
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
- * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
+ * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
  */
 public class FortescueValue {
 
@@ -112,7 +112,7 @@ public class FortescueValue {
         return negativeAngle;
     }
 
-    ThreePhaseValue toThreePhaseValue() {
+    public ThreePhaseValue toThreePhaseValue() {
 
         // [G1]   [ 1  1  1 ]   [Gh]
         // [G2] = [ 1  a²  a] * [Gd]

@@ -32,10 +32,10 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.importedCgmesNetworkReport;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * TwoWindingsTransformer Interpretation
@@ -75,8 +75,8 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  * END2. Structural ratio at the network side of legs 1 and 3. RatedU0 = RatedU2 <br>
  * END3. Structural ratio at the network side of legs 1 and 2. RatedU0 = RatedU2 <br>
  * <p>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  *
  */
 public class Conversion {
@@ -240,6 +240,8 @@ public class Conversion {
         }
 
         // apply post-processors
+        handleDangingLineDisconnectedAtBoundary(network, context);
+        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, context);
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
             // FIXME generic cgmes models may not have an underlying triplestore
             // TODO maybe pass the properties to the post processors
@@ -257,6 +259,68 @@ public class Conversion {
 
         importedCgmesNetworkReport(context.getReporter(), network.getId());
         return network;
+    }
+
+    private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
+        if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
+            for (DanglingLine dl : network.getDanglingLines()) {
+                String terminalBoundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElse(null);
+                if (terminalBoundaryId == null) {
+                    LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
+                } else {
+                    CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
+                    if (terminalBoundary == null) {
+                        LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
+                    } else {
+                        if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
+                            LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
+                            CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReporter(), dl.getId());
+                            dl.getTerminal().disconnect();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(Network network, Context context) {
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                .filter(dl -> dl.getTerminal().isConnected())
+                .collect(groupingBy(Conversion::getDanglingLineBoundaryNode))
+                .values().stream()
+                // Only perform adjustment for the groups with more than one connected dangling line
+                .filter(dls -> dls.size() > 1)
+                .forEach(dls -> adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(dls, context));
+    }
+
+    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(List<DanglingLine> dls, Context context) {
+        // All dangling lines will have same value for p0, q0. Take it from the first one
+        double p0 = dls.get(0).getP0();
+        double q0 = dls.get(0).getQ0();
+        // Divide this value between all connected dangling lines
+        // This method is called only if there is more than 1 connected dangling line
+        long count = dls.size();
+        final double p0Adjusted = p0 / count;
+        final double q0Adjusted = q0 / count;
+        dls.forEach(dl -> {
+            LOG.warn("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for dangling line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
+            CgmesReports.multipleUnpairedDanglingLinesAtSameBoundaryReport(context.getReporter(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
+            dl.setP0(p0Adjusted);
+            dl.setQ0(q0Adjusted);
+        });
+    }
+
+    public static String getDanglingLineBoundaryNode(DanglingLine dl) {
+        String node;
+        node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+        if (node == null) {
+            node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        }
+        if (node == null) {
+            LOG.warn("Dangling line {} does not have a boundary node identifier.", dl.getId());
+            node = "unknown";
+        }
+        return node;
     }
 
     private Source isBoundaryBaseVoltage(String graph) {
@@ -282,6 +346,7 @@ public class Conversion {
                 .setName(ca.getLocal("name"))
                 .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
                 .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
+                .setPTolerance(ca.asDouble("pTolerance", Double.NaN))
                 .add();
     }
 
@@ -386,6 +451,7 @@ public class Conversion {
         PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
         if (sshDescription != null && !sshDescription.isEmpty()) {
             CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
+                    .setId(sshDescription.get(0).get("FullModel"))
                     .setDescription(sshDescription.get(0).get("description"))
                     .setSshVersion(readVersion(sshDescription, context))
                     .setModelingAuthoritySet(sshDescription.get(0).get("modelingAuthoritySet"));
@@ -404,10 +470,10 @@ public class Conversion {
     }
 
     private void addCimCharacteristics(Network network) {
-        if (cgmes instanceof CgmesModelTripleStore) {
+        if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
             network.newExtension(CimCharacteristicsAdder.class)
                     .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
-                    .setCimVersion(((CgmesModelTripleStore) cgmes).getCimVersion())
+                    .setCimVersion(cgmesModelTripleStore.getCimVersion())
                     .add();
         }
     }
@@ -621,11 +687,11 @@ public class Conversion {
             // In some TYNDP there are three acLineSegments at the boundary node,
             // one of them disconnected. The two connected acLineSegments are imported.
             List<BoundaryEquipment> connectedBeqs = beqs.stream()
-                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).collect(Collectors.toList());
+                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).toList();
             if (connectedBeqs.size() == 2) {
                 convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
                 // There can be multiple disconnected ACLineSegment to the same X-node (for example, for planning purposes)
-                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).collect(Collectors.toList())
+                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).toList()
                     .forEach(beq -> {
                         context.fixed("convertEquipmentAtBoundaryNode",
                                 String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a dangling line.", node, beq.getAcLineSegmentId()));
@@ -687,7 +753,7 @@ public class Conversion {
         network.getHvdcConverterStationStream()
                 .filter(converter -> converter.getHvdcLine() == null)
                 .peek(converter -> context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found."))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(Connectable::remove);
     }
 
@@ -728,8 +794,13 @@ public class Conversion {
             return this;
         }
 
-        public boolean useNodeBreaker() {
-            return true;
+        public boolean importNodeBreakerAsBusBreaker() {
+            return importNodeBreakerAsBusBreaker;
+        }
+
+        public Config setImportNodeBreakerAsBusBreaker(boolean importNodeBreakerAsBusBreaker) {
+            this.importNodeBreakerAsBusBreaker = importNodeBreakerAsBusBreaker;
+            return this;
         }
 
         public double lowImpedanceLineR() {
@@ -907,6 +978,15 @@ public class Conversion {
             return this;
         }
 
+        public Config setDisconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected(boolean b) {
+            disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected = b;
+            return this;
+        }
+
+        public boolean disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected() {
+            return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -924,6 +1004,8 @@ public class Conversion {
 
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
+        private boolean importNodeBreakerAsBusBreaker = false;
+        private boolean disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected = true;
 
         private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
@@ -935,7 +1017,6 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
-
     }
 
     private final CgmesModel cgmes;
@@ -952,4 +1033,6 @@ public class Conversion {
 
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
+    public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
+    public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
 }

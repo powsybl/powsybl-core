@@ -17,7 +17,7 @@ import java.io.Writer;
 /**
  * A SecurityAnalysisResultExporter implementation which export the result in JSON
  *
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 @AutoService(SecurityAnalysisResultExporter.class)
 public class JsonSecurityAnalysisResultExporter implements SecurityAnalysisResultExporter {

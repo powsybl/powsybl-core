@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class InMemoryCgmesModel implements CgmesModel {
     private final Properties properties;
@@ -325,6 +325,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags allObjectsOfType(String type) {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags countrySourcingActors(String countryName) {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags sourcingActor(String sourcingActor) {
         return new PropertyBags();
     }
 

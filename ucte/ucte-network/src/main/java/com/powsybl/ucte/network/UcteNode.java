@@ -16,7 +16,7 @@ import java.util.Objects;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
@@ -387,16 +387,16 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         //   - or active limits are both defined (min and max), one is non null and there are not equal
         //   - or reactive limits are both defined (min and max), one is non null and there are not equal
         return isRegulatingVoltage()
-                || (!Double.isNaN(activePowerGeneration) && activePowerGeneration != 0)
-                || (!Double.isNaN(reactivePowerGeneration) && reactivePowerGeneration != 0)
-                || (!Double.isNaN(minimumPermissibleActivePowerGeneration)
+                || !Double.isNaN(activePowerGeneration) && activePowerGeneration != 0
+                || !Double.isNaN(reactivePowerGeneration) && reactivePowerGeneration != 0
+                || !Double.isNaN(minimumPermissibleActivePowerGeneration)
                     && !Double.isNaN(maximumPermissibleActivePowerGeneration)
                     && (minimumPermissibleActivePowerGeneration != 0 || maximumPermissibleActivePowerGeneration != 0)
-                    && minimumPermissibleActivePowerGeneration != maximumPermissibleActivePowerGeneration)
-                || (!Double.isNaN(minimumPermissibleReactivePowerGeneration)
+                    && minimumPermissibleActivePowerGeneration != maximumPermissibleActivePowerGeneration
+                || !Double.isNaN(minimumPermissibleReactivePowerGeneration)
                     && !Double.isNaN(maximumPermissibleReactivePowerGeneration)
                     && (minimumPermissibleReactivePowerGeneration != 0 || maximumPermissibleReactivePowerGeneration != 0)
-                    && minimumPermissibleReactivePowerGeneration != maximumPermissibleReactivePowerGeneration);
+                    && minimumPermissibleReactivePowerGeneration != maximumPermissibleReactivePowerGeneration;
     }
 
     public boolean isRegulatingVoltage() {
@@ -575,8 +575,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof UcteNode) {
-            UcteNode ucteNode = (UcteNode) obj;
+        if (obj instanceof UcteNode ucteNode) {
             return this.compareTo(ucteNode) == 0;
         }
         return false;

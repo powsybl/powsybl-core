@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends AbstractVersionableNetworkExtensionXmlSerializer<T, ActivePowerControl<T>> {
@@ -42,6 +42,7 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
                         .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_11, ImmutableSortedSet.of("1.0", "1.1"))
                         .build(),
                 new ImmutableMap.Builder<String, String>()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0")

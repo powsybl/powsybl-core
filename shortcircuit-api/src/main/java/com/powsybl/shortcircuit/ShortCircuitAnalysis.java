@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * API for elementary short-circuit computations.
  *
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 public final class ShortCircuitAnalysis {
 
@@ -54,6 +54,7 @@ public final class ShortCircuitAnalysis {
             Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
             Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
             Objects.requireNonNull(reporter, "Reporter should not be null");
+            validateParameters(parameters);
             return provider.run(network, faults, parameters, computationManager, faultParameters, reporter);
         }
 
@@ -66,7 +67,12 @@ public final class ShortCircuitAnalysis {
             Objects.requireNonNull(faults, NOT_NULL_FAULT_MESSAGE);
             Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
             Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
+            validateParameters(parameters);
             return provider.run(network, faults, parameters, computationManager, faultParameters);
+        }
+
+        private void validateParameters(ShortCircuitParameters shortCircuitParameters) {
+            shortCircuitParameters.validate();
         }
 
         public ShortCircuitAnalysisResult run(Network network, List<Fault> faults,

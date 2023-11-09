@@ -19,7 +19,7 @@ import com.powsybl.commons.json.JsonUtil;
 import java.io.IOException;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionJsonSerializer.class)
 public class BarExtSerializer implements ExtensionJsonSerializer<Foo, BarExt> {

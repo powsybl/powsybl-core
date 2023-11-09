@@ -17,7 +17,7 @@ import java.io.IOException;
 import static com.powsybl.shortcircuit.ShortCircuitAnalysisResult.VERSION;
 
 /**
- * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class ShortCircuitAnalysisResultSerializer extends StdSerializer<ShortCircuitAnalysisResult> {
 

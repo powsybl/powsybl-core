@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, ShuntCompensatorNonLinearModel {
 

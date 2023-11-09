@@ -12,7 +12,7 @@ import com.powsybl.iidm.xml.NetworkXml;
 import java.util.Objects;
 
 /**
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 class DeepCopyStrategy implements NetworkCopyStrategy {
     private final byte[] compressedBytes;

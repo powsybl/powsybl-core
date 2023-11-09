@@ -6,20 +6,20 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.Comparator;
 
 /**
  * Utility methods for {@link LimitViolation}s, in particular to ease their building and comparison.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public final class LimitViolations {
 
     private static final Comparator<LimitViolation> COMPARATOR = Comparator.comparing(LimitViolation::getLimitType)
             .thenComparing(LimitViolation::getSubjectId)
-            .thenComparing(LimitViolation::getSide, Comparator.nullsFirst(Branch.Side::compareTo))
+            .thenComparing(LimitViolation::getSide, Comparator.nullsFirst(ThreeSides::compareTo))
             .thenComparing(LimitViolation::getLimitName, Comparator.nullsFirst(String::compareTo))
             .thenComparing(LimitViolation::getAcceptableDuration)
             .thenComparing(LimitViolation::getLimit)
@@ -55,6 +55,20 @@ public final class LimitViolations {
      */
     public static LimitViolationBuilder lowVoltage() {
         return new LimitViolationBuilder().type(LimitViolationType.LOW_VOLTAGE);
+    }
+
+    /**
+     * A builder for low voltageAngle limit violations.
+     */
+    public static LimitViolationBuilder lowVoltageAngle() {
+        return new LimitViolationBuilder().type(LimitViolationType.LOW_VOLTAGE_ANGLE);
+    }
+
+    /**
+     * A builder for high voltageAngle limit violations.
+     */
+    public static LimitViolationBuilder highVoltageAngle() {
+        return new LimitViolationBuilder().type(LimitViolationType.HIGH_VOLTAGE_ANGLE);
     }
 
     /**

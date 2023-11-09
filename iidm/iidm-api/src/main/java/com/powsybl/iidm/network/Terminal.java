@@ -6,12 +6,17 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
+
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * An equipment connection point in a substation topology.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Terminal {
 
@@ -108,59 +113,72 @@ public interface Terminal {
     Connectable getConnectable();
 
     /**
-     * Get the active power in MW injected at the terminal.
-     * <p>
+     * Get the active power in MW injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getP();
 
     /**
-     * Set the active power in MW injected at the terminal.
-     * <p>
+     * Set the active power in MW injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     Terminal setP(double p);
 
     /**
-     * Get the reactive power in MVAR injected at the terminal.
-     * <p>
+     * Get the reactive power in MVAR injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getQ();
 
     /**
-     * Set the reactive power in MVAR injected at the terminal.
-     * <p>
+     * Set the reactive power in MVAR injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     Terminal setQ(double q);
 
     /**
-     * Get the current in A at the terminal.
-     * <p>Depends on the working variant.
+     * Get the current in A at the terminal.<br/>
+     * Depends on the working variant.
      * @see VariantManager
      */
     double getI();
 
     /**
-     * Try to connect the terminal.
-     * <p>Depends on the working variant.
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
      */
     boolean connect();
 
     /**
-     * Disconnect the terminal.
-     * <p>Depends on the working variant.
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
     boolean disconnect();
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isSwitchOpenable predicate telling if a switch is considered openable
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    boolean disconnect(Predicate<Switch> isSwitchOpenable);
 
     /**
      * Test if the terminal is connected.
@@ -173,6 +191,13 @@ public interface Terminal {
      * @param traverser traversal handler
      */
     void traverse(TopologyTraverser traverser);
+
+    /**
+     * Traverse the full network topology graph.
+     * @param traverser traversal handler
+     * @param traversalType traversal type
+     */
+    void traverse(TopologyTraverser traverser, TraversalType traversalType);
 
     /**
      * Topology traversal handler
@@ -198,5 +223,53 @@ public interface Terminal {
          */
         TraverseResult traverse(Switch aSwitch);
 
+    }
+
+    static Optional<ThreeSides> getConnectableSide(Terminal terminal) {
+        Connectable<?> c = terminal.getConnectable();
+        if (c instanceof Injection) {
+            return Optional.empty();
+        } else if (c instanceof Branch<?> branch) {
+            return Optional.of(toSide(branch.getSide(terminal)));
+        } else if (c instanceof ThreeWindingsTransformer transformer) {
+            return Optional.of(toSide(transformer.getSide(terminal)));
+        } else {
+            throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
+        }
+    }
+
+    private static ThreeSides toSide(Branch.Side side) {
+        return switch (side) {
+            case ONE -> ThreeSides.ONE;
+            case TWO -> ThreeSides.TWO;
+        };
+    }
+
+    private static ThreeSides toSide(ThreeWindingsTransformer.Side side) {
+        return switch (side) {
+            case ONE -> ThreeSides.ONE;
+            case TWO -> ThreeSides.TWO;
+            case THREE -> ThreeSides.THREE;
+        };
+    }
+
+    static Terminal getTerminal(Identifiable<?> identifiable, ThreeSides side) {
+        if (identifiable instanceof Injection<?> injection) {
+            return injection.getTerminal();
+        } else if (identifiable instanceof Branch<?> branch) {
+            return switch (side) {
+                case ONE -> branch.getTerminal1();
+                case TWO -> branch.getTerminal2();
+                case THREE -> throw new IllegalStateException("Unexpected Branch side: " + side.name());
+            };
+        } else if (identifiable instanceof ThreeWindingsTransformer transformer) {
+            return switch (side) {
+                case ONE -> transformer.getLeg1().getTerminal();
+                case TWO -> transformer.getLeg2().getTerminal();
+                case THREE -> transformer.getLeg3().getTerminal();
+            };
+        } else {
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
+        }
     }
 }

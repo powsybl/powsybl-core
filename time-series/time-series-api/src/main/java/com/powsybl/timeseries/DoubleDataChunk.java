@@ -9,7 +9,7 @@ package com.powsybl.timeseries;
 import java.nio.DoubleBuffer;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface DoubleDataChunk extends DataChunk<DoublePoint, DoubleDataChunk> {
 

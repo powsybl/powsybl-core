@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVariantObject {
 
@@ -40,6 +40,11 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     @Override
     public NetworkImpl getNetwork() {
         return voltageLevel.getNetwork();
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        return voltageLevel.getParentNetwork();
     }
 
     @Override

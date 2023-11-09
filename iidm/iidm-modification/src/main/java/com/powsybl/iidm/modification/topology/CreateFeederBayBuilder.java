@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.InjectionAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateFeederBayBuilder {
 

@@ -18,7 +18,7 @@ import java.io.Writer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
  */
 public abstract class AbstractNetworksTest {
 
