@@ -10,7 +10,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.AbstractTreeDataReader;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -21,7 +21,7 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XmlReader implements TreeDataReader {
+public class XmlReader extends AbstractTreeDataReader {
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
@@ -57,19 +57,9 @@ public class XmlReader implements TreeDataReader {
     }
 
     @Override
-    public double readDoubleAttribute(String name) {
-        return readDoubleAttribute(name, Double.NaN);
-    }
-
-    @Override
     public double readDoubleAttribute(String name, double defaultValue) {
         String attributeValue = reader.getAttributeValue(null, name);
         return attributeValue != null ? Double.parseDouble(attributeValue) : defaultValue;
-    }
-
-    @Override
-    public float readFloatAttribute(String name) {
-        return readFloatAttribute(name, Float.NaN);
     }
 
     @Override
@@ -108,17 +98,6 @@ public class XmlReader implements TreeDataReader {
     }
 
     @Override
-    public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz) {
-        return readEnumAttribute(name, clazz, null);
-    }
-
-    @Override
-    public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Enum.valueOf(clazz, attributeValue) : defaultValue;
-    }
-
-    @Override
     public String readContent() {
         try {
             return XmlUtil.readText(reader);
@@ -133,15 +112,6 @@ public class XmlReader implements TreeDataReader {
         return Arrays.stream(arrayString.split(","))
                 .map(Integer::parseInt)
                 .toList();
-    }
-
-    @Override
-    public void readUntilEndNode(String endNodeName, EventHandler eventHandler) {
-        try {
-            XmlUtil.readUntilEndElement(endNodeName, reader, eventHandler);
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
     }
 
     @Override

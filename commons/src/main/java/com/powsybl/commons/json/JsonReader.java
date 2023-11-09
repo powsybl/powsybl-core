@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.AbstractTreeDataReader;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -21,7 +21,7 @@ import java.util.*;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class JsonReader implements TreeDataReader {
+public class JsonReader extends AbstractTreeDataReader {
 
     public static final String VERSION_NAME = "version";
     public static final String EXTENSION_VERSIONS_NAME = "extensionVersions";
@@ -75,18 +75,8 @@ public class JsonReader implements TreeDataReader {
     }
 
     @Override
-    public double readDoubleAttribute(String name) {
-        return readDoubleAttribute(name, Double.NaN);
-    }
-
-    @Override
     public double readDoubleAttribute(String name, double defaultValue) {
         return Objects.requireNonNull(name).equals(getFieldName()) ? getDoubleValue() : defaultValue;
-    }
-
-    @Override
-    public float readFloatAttribute(String name) {
-        return readFloatAttribute(name, Float.NaN);
     }
 
     @Override
@@ -177,17 +167,6 @@ public class JsonReader implements TreeDataReader {
         }
     }
 
-    @Override
-    public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz) {
-        return readEnumAttribute(name, clazz, null);
-    }
-
-    @Override
-    public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue) {
-        String attributeValue = readStringAttribute(name);
-        return attributeValue != null ? Enum.valueOf(clazz, attributeValue) : defaultValue;
-    }
-
     public String getFieldName() {
         try {
             return getNextToken() == JsonToken.FIELD_NAME ? parser.currentName() : null;
@@ -210,15 +189,6 @@ public class JsonReader implements TreeDataReader {
             throw createUnexpectedNameException(name, fieldName);
         }
         return JsonUtil.parseIntegerArray(parser);
-    }
-
-    @Override
-    public void readUntilEndNode(String endElementName, EventHandler eventHandler) {
-        readUntilEndNodeWithDepth(endElementName, (elementName, elementDepth) -> {
-            if (eventHandler != null) {
-                eventHandler.onStartElement(elementName);
-            }
-        });
     }
 
     @Override
