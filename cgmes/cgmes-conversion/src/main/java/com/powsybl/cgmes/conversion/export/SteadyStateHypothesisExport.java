@@ -351,10 +351,12 @@ public final class SteadyStateHypothesisExport {
                 // Regulating control could be reactive power or voltage
                 double targetValue;
                 String multiplier;
-                if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE || isValidSvcVolatgeSetpoint(svc.getVoltageSetpoint())) {
+                if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE
+                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidSvcVolatgeSetpoint(svc.getVoltageSetpoint())) {
                     targetValue = svc.getVoltageSetpoint();
                     multiplier = "k";
-                } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER || isValidSvcReactivePowerSetpoint(svc.getReactivePowerSetpoint())) {
+                } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER
+                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidSvcReactivePowerSetpoint(svc.getReactivePowerSetpoint())) {
                     targetValue = svc.getReactivePowerSetpoint();
                     multiplier = "M";
                 } else {
