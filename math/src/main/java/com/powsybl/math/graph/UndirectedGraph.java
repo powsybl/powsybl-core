@@ -12,6 +12,7 @@ import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -307,7 +308,7 @@ public interface UndirectedGraph<V, E> {
      * @param pathCancelled a function that returns true when the edge must not be traversed.
      * @return a list that contains the index of the traversed edges.
      */
-    List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled);
+    List<TIntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled);
 
     /**
      * Find all paths from the specified vertex.
@@ -319,7 +320,7 @@ public interface UndirectedGraph<V, E> {
      * @param comparator a comparator used to sort the paths
      * @return a list that contains the index of the traversed edges.
      */
-    List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled, Comparator<TIntArrayList> comparator);
+    List<TIntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled, Comparator<TIntArrayList> comparator);
 
     /**
      * Add a {@link UndirectedGraphListener} to get notified when the graph changes.
