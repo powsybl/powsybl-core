@@ -10,19 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.dynamicsimulation.CurvesSupplier;
-import com.powsybl.dynamicsimulation.EventModelsSupplier;
-import com.powsybl.dynamicsimulation.DynamicSimulation;
-import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
-import com.powsybl.dynamicsimulation.DynamicSimulationResult;
-import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
-import com.powsybl.dynamicsimulation.groovy.CurveGroovyExtension;
-import com.powsybl.dynamicsimulation.groovy.EventModelGroovyExtension;
-import com.powsybl.dynamicsimulation.groovy.DynamicModelGroovyExtension;
-import com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier;
-import com.powsybl.dynamicsimulation.groovy.GroovyExtension;
-import com.powsybl.dynamicsimulation.groovy.GroovyEventModelsSupplier;
-import com.powsybl.dynamicsimulation.groovy.GroovyDynamicModelsSupplier;
+import com.powsybl.dynamicsimulation.*;
+import com.powsybl.dynamicsimulation.groovy.*;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.network.ImportConfig;
@@ -134,8 +123,6 @@ public class DynamicSimulationTool implements Tool {
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
         // process a single network: output-file/output-format options available
-        Path outputFile = line.hasOption(OUTPUT_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE)) : null;
-        Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
@@ -170,16 +157,18 @@ public class DynamicSimulationTool implements Tool {
         ReporterModel reporter = new ReporterModel("dynamicSimulationTool", "Dynamic Simulation Tool");
         DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reporter);
 
+        Path outputFile = line.hasOption(OUTPUT_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE)) : null;
+        Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
+        Writer writer = outputLogFile == null || outputFile == null ? new OutputStreamWriter(context.getOutputStream()) : null;
         if (outputLogFile != null) {
             reporter.export(outputLogFile);
         } else {
-            reporter.export(new OutputStreamWriter(context.getOutputStream()));
+            printLog(reporter, writer, outputFile != null);
         }
-
         if (outputFile != null) {
             exportResult(result, context, outputFile);
         } else {
-            printResult(result, context);
+            printResult(result, writer);
         }
     }
 
@@ -210,11 +199,17 @@ public class DynamicSimulationTool implements Tool {
         }
     }
 
-    private void printResult(DynamicSimulationResult result, ToolRunningContext context) {
-        Writer writer = new OutputStreamWriter(context.getOutputStream());
-
+    private void printResult(DynamicSimulationResult result, Writer writer) {
         AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
         printDynamicSimulationResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
+    }
+
+    private void printLog(ReporterModel reporter, Writer writer, boolean closeWriter) throws IOException {
+        reporter.export(writer);
+        writer.flush();
+        if (closeWriter) {
+            writer.close();
+        }
     }
 
     private void printDynamicSimulationResult(DynamicSimulationResult result, Writer writer,

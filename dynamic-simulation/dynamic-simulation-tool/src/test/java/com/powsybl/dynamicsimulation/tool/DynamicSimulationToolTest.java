@@ -64,6 +64,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     void testDynamicSimulation() throws IOException {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
+                "+ Dynamic Simulation Tool",
                 "dynamic simulation results:",
                 "+--------+",
                 "| Result |",
