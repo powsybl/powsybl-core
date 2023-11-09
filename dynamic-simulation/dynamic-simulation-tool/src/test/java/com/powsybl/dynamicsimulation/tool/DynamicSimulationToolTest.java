@@ -82,7 +82,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     void testDynamicSimulationWithOutputFile() throws IOException {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
-                "+ Dynamic Simulation Tool\n");
+                "+ Dynamic Simulation Tool" + System.lineSeparator());
         String expectedOutputFile = """
                 {
                   "version" : "1.0",
@@ -117,7 +117,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
                 "+--------+",
                 "| true   |",
                 "+--------+");
-        String expectedOutputFile = "+ Dynamic Simulation Tool\n";
+        String expectedOutputFile = "+ Dynamic Simulation Tool" + System.lineSeparator();
         assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-log-file", "outputTest"}, 0, expectedOut, "");
         assertEquals(expectedOutputFile, Files.readString(fileSystem.getPath("outputTest")));
     }
