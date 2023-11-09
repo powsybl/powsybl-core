@@ -7,10 +7,9 @@
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.LimitType;
 import com.powsybl.security.LimitViolation;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -20,34 +19,14 @@ import java.util.function.Consumer;
  */
 
 public class LimitViolationDetectorWithLimitReduction extends DefaultLimitViolationDetector {
-    private LimitReductionDefinitionList limitReductionDefinitionList;
 
-    public LimitViolationDetectorWithLimitReduction(LimitReductionDefinitionList limitReductionDefinitionList) {
-        this.limitReductionDefinitionList = limitReductionDefinitionList;
-    }
+    public void checkLimitViolationWithLimitReductions(LimitReductionDefinitionList limitReductionDefinitionList, Consumer<LimitViolation> consumer) {
+        List<LimitReductionDefinitionList.LimitReductionDefinition> limitReductionDefinitions = limitReductionDefinitionList.getLimitReductionDefinitions();
 
-    public void checkCurrent(LimitReductionDefinitionList limitReductionDefinitionList) {
-        //TODO
-    }
+        for (LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition : limitReductionDefinitions) {
 
-    public void checkActivePower(LimitReductionDefinitionList limitReductionDefinitionList) {
-        //TODO
-    }
+        }
 
-    public void checkApparentPower(LimitReductionDefinitionList limitReductionDefinitionList) {
-        //TODO
-    }
-
-    public void checkVoltage(LimitReductionDefinitionList limitReductionDefinitionList) {
-        //TODO
-    }
-
-    public void checkVoltageAngle(LimitReductionDefinitionList limitReductionDefinitionList) {
-        //TODO
-    }
-
-    public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        //TODO
     }
 
 }

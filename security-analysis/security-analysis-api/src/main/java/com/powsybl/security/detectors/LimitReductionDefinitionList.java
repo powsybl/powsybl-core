@@ -36,9 +36,7 @@ public class LimitReductionDefinitionList {
         private boolean isSupportedLimitType(LimitType limitType) {
             return limitType == LimitType.CURRENT
                     || limitType == LimitType.ACTIVE_POWER
-                    || limitType == LimitType.APPARENT_POWER
-                    || limitType == LimitType.VOLTAGE
-                    || limitType == LimitType.VOLTAGE_ANGLE;
+                    || limitType == LimitType.APPARENT_POWER;
         }
 
         public LimitReductionDefinition(LimitType limitType) {
