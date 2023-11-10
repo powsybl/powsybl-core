@@ -75,7 +75,7 @@ class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterS
 
     @Override
     protected void readSubElements(VscConverterStation cs, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case ReactiveLimitsXml.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsXml.INSTANCE.readReactiveCapabilityCurve(cs, context);
                 case ReactiveLimitsXml.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsXml.INSTANCE.readMinMaxReactiveLimits(cs, context);

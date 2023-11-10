@@ -184,7 +184,7 @@ public final class ConnectableXmlUtil {
     private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, TreeDataReader reader) {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
-        reader.readUntilEndNode(type + indexToString(index), elementName -> {
+        reader.readUntilEndNode(elementName -> {
             if (TEMPORARY_LIMITS_ROOT_ELEMENT_NODE.equals(elementName) || TEMPORARY_LIMITS_ARRAY_ELEMENT_NODE.equals(elementName)) {
                 String name = reader.readStringAttribute("name");
                 int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);

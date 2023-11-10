@@ -84,7 +84,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
         TreeDataReader reader = networkContext.getReader();
         extendable.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas mapping = extendable.getExtension(CgmesControlAreas.class);
-        reader.readUntilEndNode(getExtensionName(), elementName -> {
+        reader.readUntilEndNode(elementName -> {
             if (elementName.equals(CONTROL_AREA)) {
                 CgmesControlArea cgmesControlArea = mapping.newCgmesControlArea()
                         .setId(reader.readStringAttribute("id"))
@@ -102,7 +102,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
     }
 
     private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, TreeDataReader reader, CgmesControlArea cgmesControlArea, Network network) {
-        reader.readUntilEndNode(CONTROL_AREA, elementName -> {
+        reader.readUntilEndNode(elementName -> {
             String id;
             String side;
             switch (elementName) {

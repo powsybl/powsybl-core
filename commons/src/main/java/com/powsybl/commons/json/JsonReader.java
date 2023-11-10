@@ -192,8 +192,7 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public void readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler) {
-        Objects.requireNonNull(endElementName);
+    public void readUntilEndNodeWithDepth(EventHandlerWithDepth eventHandler) {
         int depth = 0;
         try {
             while (!(getNextToken() == JsonToken.END_OBJECT && depth == 0)) {

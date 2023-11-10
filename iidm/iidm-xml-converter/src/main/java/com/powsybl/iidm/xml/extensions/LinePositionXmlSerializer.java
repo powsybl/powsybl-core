@@ -46,7 +46,7 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
     @Override
     public LinePosition<T> read(T line, XmlReaderContext context) {
         List<Coordinate> coordinates = new ArrayList<>();
-        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             if (!elementName.equals(COORDINATE_ROOT_NODE)) {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'substationPosition'");
             }

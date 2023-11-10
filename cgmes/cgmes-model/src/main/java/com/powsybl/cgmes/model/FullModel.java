@@ -148,7 +148,7 @@ public class FullModel {
                 XmlUtil.readUntilStartElement(new String[] {"/", CgmesNames.RDF, CgmesNames.FULL_MODEL}, xmlReader, elementName1 -> {
                     context.id = xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.ABOUT);
                     try {
-                        XmlUtil.readUntilEndElement(CgmesNames.FULL_MODEL, xmlReader, subElementName -> readSubElement(subElementName, context, xmlReader));
+                        XmlUtil.readUntilEndElement(xmlReader, subElementName -> readSubElement(subElementName, context, xmlReader));
                     } catch (XMLStreamException e) {
                         throw new UncheckedXmlStreamException(e);
                     }

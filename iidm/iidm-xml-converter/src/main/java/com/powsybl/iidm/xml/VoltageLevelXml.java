@@ -306,7 +306,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     @Override
     protected void readSubElements(VoltageLevel vl, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case NODE_BREAKER_TOPOLOGY_ELEMENT_NAME -> readNodeBreakerTopology(vl, context);
                 case BUS_BREAKER_TOPOLOGY_ELEMENT_NAME -> readBusBreakerTopology(vl, context);
@@ -333,7 +333,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) {
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored."));
-        context.getReader().readUntilEndNode(NODE_BREAKER_TOPOLOGY_ELEMENT_NAME, elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case BusbarSectionXml.ROOT_ELEMENT_NAME, BusbarSectionXml.ARRAY_ELEMENT_NAME
                         -> BusbarSectionXml.INSTANCE.read(vl, context);
@@ -356,7 +356,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
         double angle = context.getReader().readDoubleAttribute("angle");
         List<Integer> busNodes = context.getReader().readIntArrayAttribute("nodes");
         Map<String, String> properties = new HashMap<>();
-        context.getReader().readUntilEndNode(BusXml.ROOT_ELEMENT_NAME, elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             if (elementName.equals(PropertiesXml.ROOT_ELEMENT_NAME)) {
                 String name = context.getReader().readStringAttribute(NAME);
                 String value = context.getReader().readStringAttribute(VALUE);
@@ -394,7 +394,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
     }
 
     private void readBusBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(BUS_BREAKER_TOPOLOGY_ELEMENT_NAME, elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case BusXml.ROOT_ELEMENT_NAME,
                         BusXml.ARRAY_ELEMENT_NAME -> BusXml.INSTANCE.read(vl, context);

@@ -64,7 +64,7 @@ public final class XmlUtil {
                         return true;
                     } else {
                         // Skip the current element
-                        readUntilEndElement(reader.getLocalName(), reader, null);
+                        readUntilEndElement(reader, null);
                     }
                     break;
 
@@ -81,22 +81,20 @@ public final class XmlUtil {
         throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");
     }
 
-    public static void readUntilEndElement(String endElementName, XMLStreamReader reader, TreeDataReader.EventHandler eventHandler) throws XMLStreamException {
-        readUntilEndElementWithDepth(endElementName, reader, (elementName, elementDepth) -> {
+    public static void readUntilEndElement(XMLStreamReader reader, TreeDataReader.EventHandler eventHandler) throws XMLStreamException {
+        readUntilEndElementWithDepth(reader, (elementName, elementDepth) -> {
             if (eventHandler != null) {
                 eventHandler.onStartElement(elementName);
             }
         });
     }
 
-    public static void readUntilEndElementWithDepth(String endElementName, XMLStreamReader reader, TreeDataReader.EventHandlerWithDepth eventHandler) throws XMLStreamException {
-        Objects.requireNonNull(endElementName);
+    public static void readUntilEndElementWithDepth(XMLStreamReader reader, TreeDataReader.EventHandlerWithDepth eventHandler) throws XMLStreamException {
         Objects.requireNonNull(reader);
 
         int event;
         int depth = 0;
-        while (!((event = reader.next()) == XMLStreamConstants.END_ELEMENT
-                && reader.getLocalName().equals(endElementName))) {
+        while (!((event = reader.next()) == XMLStreamConstants.END_ELEMENT && depth == 0)) {
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
                     if (eventHandler != null) {

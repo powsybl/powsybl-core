@@ -60,7 +60,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
         InjectionObservabilityAdder<T> adder = identifiable.newExtension(InjectionObservabilityAdder.class)
                 .withObservable(observable);
 
-        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
             var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
             switch (elementName) {

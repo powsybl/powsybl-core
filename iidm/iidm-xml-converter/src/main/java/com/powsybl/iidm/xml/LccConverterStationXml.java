@@ -56,6 +56,6 @@ public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccCon
 
     @Override
     protected void readSubElements(LccConverterStation cs, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), e -> readSubElement(e, cs, context));
+        context.getReader().readUntilEndNode(e -> readSubElement(e, cs, context));
     }
 }

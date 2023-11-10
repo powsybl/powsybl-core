@@ -64,6 +64,6 @@ class BusbarSectionXml extends AbstractSimpleIdentifiableXml<BusbarSection, Busb
 
     @Override
     protected void readSubElements(BusbarSection bs, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), e -> readSubElement(e, bs, context));
+        context.getReader().readUntilEndNode(e -> readSubElement(e, bs, context));
     }
 }

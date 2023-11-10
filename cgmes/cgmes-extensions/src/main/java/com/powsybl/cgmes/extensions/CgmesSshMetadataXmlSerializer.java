@@ -54,7 +54,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
                 .setId(reader.readStringAttribute("id"))
                 .setSshVersion(reader.readIntAttribute("sshVersion"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
-        reader.readUntilEndNode("cgmesSshMetadata", elementName -> {
+        reader.readUntilEndNode(elementName -> {
             if (elementName.equals("dependentOn")) {
                 adder.addDependency(reader.readContent());
             } else {

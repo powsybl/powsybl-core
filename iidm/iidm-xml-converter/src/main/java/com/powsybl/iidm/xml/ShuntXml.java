@@ -164,7 +164,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
 
     @Override
     protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case REGULATING_TERMINAL -> {
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
@@ -185,7 +185,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                 case SHUNT_NON_LINEAR_MODEL -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                     ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
-                    context.getReader().readUntilEndNode(SHUNT_NON_LINEAR_MODEL, nodeName -> {
+                    context.getReader().readUntilEndNode(nodeName -> {
                         if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName) || SECTION_ARRAY_ELEMENT_NAME.equals(nodeName)) {
                             double b = context.getReader().readDoubleAttribute("b");
                             double g = context.getReader().readDoubleAttribute("g");

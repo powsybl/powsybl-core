@@ -103,7 +103,7 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
 
     @Override
     protected void readSubElements(Line l, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case ACTIVE_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);

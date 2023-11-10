@@ -181,7 +181,7 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
 
     @Override
     protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case ACTIVE_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);

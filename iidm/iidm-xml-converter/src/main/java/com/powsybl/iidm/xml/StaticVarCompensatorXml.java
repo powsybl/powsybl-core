@@ -90,7 +90,7 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
 
     @Override
     protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             if (elementName.equals(REGULATING_TERMINAL)) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
                 String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));

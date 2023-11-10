@@ -71,7 +71,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     public DiscreteMeasurements<I> read(I extendable, XmlReaderContext context) {
         DiscreteMeasurementsAdder<I> adder = extendable.newExtension(DiscreteMeasurementsAdder.class);
         DiscreteMeasurements<I> discreteMeasurements = adder.add();
-        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             if (elementName.equals(DISCRETE_MEASUREMENT)) {
                 readDiscreteMeasurement(discreteMeasurements, context.getReader());
             } else {
@@ -104,7 +104,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
                     throw new PowsyblException("Unsupported value type: " + valueType);
             }
         }
-        reader.readUntilEndNode(DISCRETE_MEASUREMENT, elementName -> {
+        reader.readUntilEndNode(elementName -> {
             if (elementName.equals("property")) {
                 adder.putProperty(reader.readStringAttribute("name"),
                         reader.readStringAttribute(VALUE));

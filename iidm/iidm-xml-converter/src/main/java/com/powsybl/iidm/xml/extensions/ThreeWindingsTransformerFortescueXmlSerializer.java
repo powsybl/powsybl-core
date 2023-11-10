@@ -71,7 +71,7 @@ public class ThreeWindingsTransformerFortescueXmlSerializer extends AbstractExte
     public ThreeWindingsTransformerFortescue read(ThreeWindingsTransformer twt, XmlReaderContext context) {
         ThreeWindingsTransformerFortescueAdder fortescueAdder = twt.newExtension(ThreeWindingsTransformerFortescueAdder.class);
 
-        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case "leg1" -> readLeg(fortescueAdder.leg1(), context.getReader());
                 case "leg2" -> readLeg(fortescueAdder.leg2(), context.getReader());

@@ -81,7 +81,7 @@ class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdd
 
     @Override
     protected void readSubElements(Generator g, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(getRootElementName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case "regulatingTerminal" -> {
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));

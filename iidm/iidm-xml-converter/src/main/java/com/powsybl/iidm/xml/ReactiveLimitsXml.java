@@ -57,7 +57,7 @@ public class ReactiveLimitsXml {
 
     public void readReactiveCapabilityCurve(ReactiveLimitsHolder holder, NetworkXmlReaderContext context) {
         ReactiveCapabilityCurveAdder curveAdder = holder.newReactiveCapabilityCurve();
-        context.getReader().readUntilEndNode(ELEM_REACTIVE_CAPABILITY_CURVE, elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             if (elementName.equals(POINT_ROOT_ELEMENT_NAME) || elementName.equals(POINT_ARRAY_ELEMENT_NAME)) {
                 double p = context.getReader().readDoubleAttribute("p");
                 double minQ = context.getReader().readDoubleAttribute(ATTR_MIN_Q);

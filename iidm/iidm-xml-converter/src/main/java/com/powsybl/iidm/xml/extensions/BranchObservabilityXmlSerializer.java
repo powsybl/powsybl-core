@@ -71,7 +71,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         BranchObservabilityAdder<T> adder = identifiable.newExtension(BranchObservabilityAdder.class)
                 .withObservable(observable);
 
-        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case QUALITY_P -> {
                     var side = context.getReader().readEnumAttribute(SIDE, Side.class);

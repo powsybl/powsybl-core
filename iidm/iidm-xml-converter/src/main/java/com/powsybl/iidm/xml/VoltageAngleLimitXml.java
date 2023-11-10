@@ -56,7 +56,7 @@ public final class VoltageAngleLimitXml {
             if (!Double.isNaN(highLimit)) {
                 adder.setHighLimit(highLimit);
             }
-            context.getReader().readUntilEndNode(ROOT_ELEMENT_NAME, elementName -> {
+            context.getReader().readUntilEndNode(elementName -> {
                 Terminal terminal = TerminalRefXml.readTerminal(context, network);
                 switch (elementName) {
                     case FROM -> adder.from(terminal);

@@ -117,7 +117,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
         }
 
         boolean[] hasTerminalRef = new boolean[1];
-        context.getReader().readUntilEndNode(elementName, subElementName -> {
+        context.getReader().readUntilEndNode(subElementName -> {
             switch (subElementName) {
                 case ELEM_TERMINAL_REF ->
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
@@ -196,7 +196,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
             adder.setRegulating(regulating);
         }
         boolean[] hasTerminalRef = new boolean[1];
-        context.getReader().readUntilEndNode(name, elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case ELEM_TERMINAL_REF ->
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {

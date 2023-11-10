@@ -38,13 +38,14 @@ class XmlUtilTest {
         Map<String, Integer> depths = new HashMap<>();
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            xmlReader.next();
             try {
-                XmlUtil.readUntilEndElementWithDepth("a", xmlReader, (elementName, elementDepth) -> depths.put(elementName, elementDepth));
+                XmlUtil.readUntilEndElementWithDepth(xmlReader, (elementName, elementDepth) -> depths.put(elementName, elementDepth));
             } finally {
                 xmlReader.close();
             }
         }
-        assertEquals(ImmutableMap.of("a", 0, "b", 1, "c", 2, "d", 1), depths);
+        assertEquals(ImmutableMap.of("b", 0, "c", 1, "d", 0), depths);
     }
 
     @Test
@@ -53,12 +54,13 @@ class XmlUtilTest {
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilEndElementWithDepth("a", xmlReader, (elementName, elementDepth) -> {
+                xmlReader.next();
+                XmlUtil.readUntilEndElementWithDepth(xmlReader, (elementName, elementDepth) -> {
                     depths.put(elementName, elementDepth);
                     // consume b and c
                     if (elementName.equals("b")) {
                         try {
-                            XmlUtil.readUntilEndElement("b", xmlReader, null);
+                            XmlUtil.readUntilEndElement(xmlReader, null);
                         } catch (XMLStreamException e) {
                             throw new UncheckedXmlStreamException(e);
                         }
@@ -68,7 +70,7 @@ class XmlUtilTest {
                 xmlReader.close();
             }
         }
-        assertEquals(ImmutableMap.of("a", 0, "b", 1, "d", 1), depths);
+        assertEquals(ImmutableMap.of("b", 0, "d", 0), depths);
     }
 
     @Test

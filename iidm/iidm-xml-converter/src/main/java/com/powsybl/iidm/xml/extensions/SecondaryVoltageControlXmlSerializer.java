@@ -65,13 +65,13 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
     @Override
     public SecondaryVoltageControl read(Network network, XmlReaderContext context) {
         SecondaryVoltageControlAdder adder = network.newExtension(SecondaryVoltageControlAdder.class);
-        context.getReader().readUntilEndNode(getExtensionName(), elementName1 -> {
+        context.getReader().readUntilEndNode(elementName1 -> {
             if (elementName1.equals(CONTROL_ZONE_ELEMENT)) {
                 String name = context.getReader().readStringAttribute("name");
                 MutableDouble targetV = new MutableDouble(Double.NaN);
                 List<String> busbarSectionsOrBusesIds = new ArrayList<>();
                 List<ControlUnit> controlUnits = new ArrayList<>();
-                context.getReader().readUntilEndNode(CONTROL_ZONE_ELEMENT, elementName2 -> {
+                context.getReader().readUntilEndNode(elementName2 -> {
                     switch (elementName2) {
                         case PILOT_POINT_ELEMENT ->
                                 targetV.setValue(context.getReader().readDoubleAttribute("targetV"));

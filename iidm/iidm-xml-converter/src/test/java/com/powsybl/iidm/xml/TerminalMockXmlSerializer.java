@@ -89,7 +89,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
         checkReadingCompatibility(networkContext);
 
         TerminalMockExt terminalMockExt = new TerminalMockExt(extendable);
-        networkContext.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+        networkContext.getReader().readUntilEndNode(elementName -> {
             if (elementName.equals("terminal")) {
                 String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().readStringAttribute("id"));
                 String side = networkContext.getReader().readStringAttribute("side");

@@ -55,7 +55,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
         TreeDataReader reader = networkContext.getReader();
         extendable.newExtension(CgmesTapChangersAdder.class).add();
         CgmesTapChangers<C> tapChangers = extendable.getExtension(CgmesTapChangers.class);
-        reader.readUntilEndNode(getExtensionName(), elementName -> {
+        reader.readUntilEndNode(elementName -> {
             if (elementName.equals("tapChanger")) {
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
                         .setId(reader.readStringAttribute("id"))

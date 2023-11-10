@@ -57,9 +57,9 @@ public interface TreeDataReader extends AutoCloseable {
 
     List<Integer> readIntArrayAttribute(String name);
 
-    void readUntilEndNode(String endElementName, EventHandler eventHandler);
+    void readUntilEndNode(EventHandler eventHandler);
 
-    void readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler);
+    void readUntilEndNodeWithDepth(EventHandlerWithDepth eventHandler);
 
     @Override
     void close();

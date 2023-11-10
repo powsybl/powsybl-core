@@ -115,7 +115,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     @Override
     public ConnectablePosition<C> read(C connectable, XmlReaderContext context) {
         ConnectablePositionAdder<C> adder = connectable.newExtension(ConnectablePositionAdder.class);
-        context.getReader().readUntilEndNode(getExtensionName(), elementName -> {
+        context.getReader().readUntilEndNode(elementName -> {
             switch (elementName) {
                 case "feeder" -> readPosition(context, adder.newFeeder());
                 case "feeder1" -> readPosition(context, adder.newFeeder1());

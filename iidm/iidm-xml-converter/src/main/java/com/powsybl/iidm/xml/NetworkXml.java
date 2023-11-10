@@ -590,7 +590,7 @@ public final class NetworkXml {
         Network subnetwork = initNetwork(networkFactory, context, reader, networks.peek());
         networks.push(subnetwork);
         // Read subnetwork content
-        reader.readUntilEndNode(NETWORK_ROOT_ELEMENT_NAME,
+        reader.readUntilEndNode(
                 elementName -> readElement(elementName, networks, networkFactory, reader, context, extensionNamesNotFound));
         // Pop the subnetwork. We will now work with its parent.
         networks.pop();
@@ -649,7 +649,7 @@ public final class NetworkXml {
         Deque<Network> networks = new ArrayDeque<>(2);
         networks.push(network);
 
-        reader.readUntilEndNode(NETWORK_ROOT_ELEMENT_NAME, elementName -> readElement(elementName, networks, networkFactory, reader, context, extensionNamesNotFound));
+        reader.readUntilEndNode(elementName -> readElement(elementName, networks, networkFactory, reader, context, extensionNamesNotFound));
 
         checkExtensionsNotFound(context, extensionNamesNotFound);
 
@@ -707,7 +707,7 @@ public final class NetworkXml {
     private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
                                        Set<String> extensionNamesNotFound) {
 
-        context.getReader().readUntilEndNodeWithDepth(EXTENSION_ROOT_ELEMENT_NAME, (extensionName, elementDepth) -> {
+        context.getReader().readUntilEndNodeWithDepth((extensionName, elementDepth) -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore in case of
             // missing extension serializer, we must not check for an extension in sub elements.
@@ -737,7 +737,7 @@ public final class NetworkXml {
 
         VoltageLevel[] vl = new VoltageLevel[1];
 
-        reader.readUntilEndNode(NETWORK_ROOT_ELEMENT_NAME, elementName -> {
+        reader.readUntilEndNode(elementName -> {
 
             switch (elementName) {
                 case VoltageLevelXml.ROOT_ELEMENT_NAME,
