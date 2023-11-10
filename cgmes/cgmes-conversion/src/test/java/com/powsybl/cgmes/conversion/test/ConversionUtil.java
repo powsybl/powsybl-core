@@ -16,6 +16,15 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,5 +48,40 @@ public final class ConversionUtil {
 
         Conversion c = new Conversion(cgmes, config, postProcessors);
         return c.convert();
+    }
+
+    public static boolean xmlContains(Path xml, String clazz, String ns, String attr, String expectedValue) {
+        try (InputStream is = Files.newInputStream(xml)) {
+            return xmlContains(is, clazz, ns, attr, expectedValue);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean xmlContains(byte[] xml, String clazz, String ns, String attr, String expectedValue) {
+        try (InputStream is = new ByteArrayInputStream(xml)) {
+            return xmlContains(is, clazz, ns, attr, expectedValue);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean xmlContains(InputStream is, String clazz, String ns, String attr, String expectedValue) {
+        try {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            while (reader.hasNext()) {
+                if (reader.next() == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(clazz)) {
+                    String actualValue = reader.getAttributeValue(ns, attr);
+                    if (expectedValue.equals(actualValue)) {
+                        reader.close();
+                        return true;
+                    }
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
     }
 }
