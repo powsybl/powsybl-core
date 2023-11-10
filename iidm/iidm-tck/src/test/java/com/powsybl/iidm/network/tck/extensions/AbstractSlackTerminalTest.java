@@ -22,8 +22,8 @@ import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_I
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public abstract class AbstractSlackTerminalTest {
 

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
@@ -129,6 +129,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
             replaceHvdcLine(hvdcLine, vl2, terminal2, station2);
         } else {
             hvdcLine.remove();
+            station1.remove();
+            station2.remove();
         }
         observers.forEach(o -> o.hvdcLineRemoved(hvdcLine));
     }
@@ -208,6 +210,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
             VscConverterStation vscStation = (VscConverterStation) station;
             if (vscStation.isVoltageRegulatorOn()) {
                 replaceHvdcLineByGenerator(hvdcLine, vl, terminal);
+            } else {
+                replaceHvdcLineByLoad(hvdcLine, vl, terminal);
             }
         } else {
             replaceHvdcLineByLoad(hvdcLine, vl, terminal);

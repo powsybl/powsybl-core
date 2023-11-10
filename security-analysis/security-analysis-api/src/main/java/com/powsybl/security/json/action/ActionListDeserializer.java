@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class ActionListDeserializer extends StdDeserializer<ActionList> {
 

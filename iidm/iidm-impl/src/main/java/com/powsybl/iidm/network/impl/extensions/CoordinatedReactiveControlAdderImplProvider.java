@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 
 /**
- * @author Thomas ADAM <tadam at silicom.fr>
+ * @author Thomas ADAM {@literal <tadam at silicom.fr>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class CoordinatedReactiveControlAdderImplProvider implements

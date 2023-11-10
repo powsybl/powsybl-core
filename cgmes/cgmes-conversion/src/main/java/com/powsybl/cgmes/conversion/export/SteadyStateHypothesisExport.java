@@ -16,7 +16,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +27,16 @@ import java.util.*;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class SteadyStateHypothesisExport {
 
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
     private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
+    private static final String ROTATING_MACHINE_P = "RotatingMachine.p";
+    private static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
 
     private SteadyStateHypothesisExport() {
     }
@@ -51,7 +52,7 @@ public final class SteadyStateHypothesisExport {
                 CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);
             }
 
-            writeEnergyConsumers(network, cimNamespace, writer, context);
+            writeLoads(network, cimNamespace, writer, context);
             writeEquivalentInjections(network, cimNamespace, writer, context);
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer, context);
             writeSynchronousMachines(network, cimNamespace, regulatingControlViews, writer, context);
@@ -255,10 +256,10 @@ public final class SteadyStateHypothesisExport {
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.p");
+            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
             writer.writeCharacters(CgmesExportUtil.format(-g.getTargetP()));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.q");
+            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
             writer.writeCharacters(CgmesExportUtil.format(-g.getTargetQ()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
@@ -276,10 +277,10 @@ public final class SteadyStateHypothesisExport {
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
             writer.writeCharacters("false"); // TODO handle battery regulation
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.p");
+            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
             writer.writeCharacters(CgmesExportUtil.format(-b.getTargetP()));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.q");
+            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
             writer.writeCharacters(CgmesExportUtil.format(-b.getTargetQ()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
@@ -393,16 +394,18 @@ public final class SteadyStateHypothesisExport {
         if (cgmesTc != null && cgmesTc.getControlId() != null) {
             String controlId = cgmesTc.getControlId();
             RegulatingControlView rcv = null;
-            if (tc instanceof RatioTapChanger ratioTapChanger) {
+            if (tc instanceof RatioTapChanger ratioTapChanger
+                    && CgmesExportUtil.regulatingControlIsDefined(ratioTapChanger)) {
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
-                        tc.isRegulating(),
-                        tc.getTargetDeadband(),
+                        ratioTapChanger.isRegulating(),
+                        ratioTapChanger.getTargetDeadband(),
                         ratioTapChanger.getTargetV(),
                         // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
                         "k");
-            } else if (tc instanceof PhaseTapChanger phaseTapChanger) {
+            } else if (tc instanceof PhaseTapChanger phaseTapChanger
+                    && CgmesExportUtil.regulatingControlIsDefined(phaseTapChanger)) {
                 boolean valid;
                 String unitMultiplier;
                 switch (phaseTapChanger.getRegulationMode()) {
@@ -426,9 +429,9 @@ public final class SteadyStateHypothesisExport {
                     rcv = new RegulatingControlView(controlId,
                             RegulatingControlType.TAP_CHANGER_CONTROL,
                             true,
-                            tc.isRegulating(),
-                            tc.getTargetDeadband(),
-                            ((PhaseTapChanger) tc).getRegulationValue(),
+                            phaseTapChanger.isRegulating(),
+                            phaseTapChanger.getTargetDeadband(),
+                            phaseTapChanger.getRegulationValue(),
                             unitMultiplier);
                 }
             }
@@ -544,24 +547,42 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeLoads(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
-                if (load.getP0() < 0) {
-                    // As negative loads are not allowed, they are modeled as energy source.
-                    // Note that negative loads can be the result of network reduction and could be modeled
-                    // as equivalent injections.
-                    String cgmesId = context.getNamingStrategy().getCgmesId(load);
-                    writeEnergySource(cgmesId, load.getP0(), load.getQ0(), cimNamespace, writer, context);
-                } else {
-                    writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
+                String className = obtainLoadClassName(load, context);
+                switch (className) {
+                    case CgmesNames.ASYNCHRONOUS_MACHINE ->
+                            writeAsynchronousMachine(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), cimNamespace, writer, context);
+                    case CgmesNames.ENERGY_SOURCE ->
+                            writeEnergySource(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), cimNamespace, writer, context);
+                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY ->
+                            writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), className, load.getP0(), load.getQ0(), cimNamespace, writer, context);
+                    default -> throw new PowsyblException("Unexpected class name: " + className);
                 }
             }
         }
     }
 
+    // if EQ is not exported, the original class name is preserved
+    private static String obtainLoadClassName(Load load, CgmesExportContext context) {
+        String originalClassName = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        return (originalClassName != null && !context.isExportEquipment()) ? originalClassName : CgmesExportUtil.loadClassName(load);
+    }
+
+    private static void writeAsynchronousMachine(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(CgmesNames.ASYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
     private static void writeEnergySource(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout("EnergySource", id, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout(CgmesNames.ENERGY_SOURCE, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EnergySource.activePower");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
@@ -571,8 +592,8 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(CgmesExportUtil.loadClassName(loadDetail), id, cimNamespace, writer, context);
+    private static void writeSshEnergyConsumer(String id, String className, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(className, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();

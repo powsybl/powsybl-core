@@ -7,7 +7,7 @@
 package com.powsybl.commons.plugins;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 public interface A {
 

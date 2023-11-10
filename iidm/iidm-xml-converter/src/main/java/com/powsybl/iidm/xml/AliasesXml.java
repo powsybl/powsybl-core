@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public final class AliasesXml {
 

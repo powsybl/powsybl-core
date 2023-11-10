@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 final class TrippingTopologyTraverser {
 

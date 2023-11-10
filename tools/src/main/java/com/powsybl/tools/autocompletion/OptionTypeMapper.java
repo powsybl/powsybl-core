@@ -14,7 +14,7 @@ import java.util.Objects;
  * Tries to guess option argument type, to guide autocompletion.
  * Works based on option name or argument name.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at gmail.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at gmail.com>}
  */
 public class OptionTypeMapper {
 

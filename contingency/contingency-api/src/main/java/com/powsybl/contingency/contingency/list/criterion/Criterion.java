@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.IdentifiableType;
  * there are criteria to select one and two countries and to select one two
  * or three voltage levels (especially for three windings transformers)
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public interface Criterion {
 

@@ -19,7 +19,7 @@ import com.powsybl.timeseries.ast.TimeNodeCalc
 import com.powsybl.timeseries.ast.UnaryOperation
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeCalcGroovyExtensionModule {
 

@@ -18,7 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Hadrien Godard <hadrien.godard at artelys.com>
+ * @author Hadrien Godard {@literal <hadrien.godard at artelys.com>}
  */
 class LoadContingencyTest {
 

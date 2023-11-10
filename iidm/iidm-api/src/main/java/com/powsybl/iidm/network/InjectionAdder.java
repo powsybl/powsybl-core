@@ -8,7 +8,7 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface InjectionAdder<T extends Injection<? super T>, A extends InjectionAdder> extends IdentifiableAdder<T, A> {
 

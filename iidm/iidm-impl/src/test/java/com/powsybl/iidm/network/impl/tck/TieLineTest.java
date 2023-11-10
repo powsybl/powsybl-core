@@ -10,6 +10,6 @@ package com.powsybl.iidm.network.impl.tck;
 import com.powsybl.iidm.network.tck.AbstractTieLineTest;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class TieLineTest extends AbstractTieLineTest { }

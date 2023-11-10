@@ -12,8 +12,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  * <p>
  * provide the context to get information of the network after a security analysis
  * it contains a contingency's id and a context type. Context type defines

@@ -39,8 +39,8 @@ import java.util.Objects;
  * When tapChanger is moved the transmission impedance and shunt admittance corrections are managed as step correction
  * expressed as percentage deviation of nominal value.
  * <p>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class TapChangerConversion {
 

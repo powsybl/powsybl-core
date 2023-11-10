@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class ConditionalActionsDeserializer extends StdDeserializer<ConditionalActions> {
 

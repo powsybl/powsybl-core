@@ -17,7 +17,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import com.powsybl.iidm.network.Line;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class Z0Edge extends DefaultWeightedEdge {
 

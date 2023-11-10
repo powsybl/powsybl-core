@@ -7,6 +7,6 @@
 /**
  * Utilities to generate a shell autocompletion files for itools commands.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 package com.powsybl.tools.autocompletion;

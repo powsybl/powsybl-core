@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 
 /**
- * @author Coline Piloquet <coline.piloquet@rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.com>}
  */
 public class IdentifiableShortCircuitImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements IdentifiableShortCircuit<I> {
     private double ipMin; // Minimum allowable peak short-circuit current

@@ -38,7 +38,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 final class ExportXmlCompare {
 
@@ -565,10 +565,139 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringFullModelDependentOn(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath.contains("FullModel")) {
+            if (cxpath != null && cxpath.contains("FullModel")) {
                 if (cxpath.contains("Model.DependentOn")) {
                     return ComparisonResult.EQUAL;
                 }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringFullModelModelingAuthoritySet(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("FullModel") && cxpath.contains("Model.modelingAuthoritySet")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSubstationNumAttributes(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_NUM_ATTRIBUTES) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("network") && cxpath.contains("substation")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSubstationLookup(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("network") && cxpath.contains("substation")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringGeneratorAttributes(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("generator")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringLoadChildNodeListLength(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("load")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildNodeListLength(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringChildLookupNull(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            if (comparison.getControlDetails().getXPath() == null) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringTextValueShuntCompensatorControlEnabled(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("ShuntCompensator") && cxpath.contains("controlEnabled")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildLookupTerminal(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("Terminal")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildLookupEquivalentInjection(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("EquivalentInjection")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildLookupStaticVarCompensator(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("StaticVarCompensator")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildLookupRegulatingControl(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("RegulatingControl")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringTextValueTapChangerControlEnabled(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("TapChanger") && cxpath.contains("controlEnabled")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;

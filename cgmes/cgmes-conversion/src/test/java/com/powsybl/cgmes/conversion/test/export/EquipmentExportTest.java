@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -36,6 +38,7 @@ import com.powsybl.iidm.network.util.TwtData;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
+import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
@@ -51,7 +54,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 class EquipmentExportTest extends AbstractConverterTest {
 
@@ -519,6 +522,48 @@ class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
+    void microGridCgmesExportPreservingOriginalClassesOfLoads() throws IOException, XMLStreamException {
+        ReadOnlyDataSource dataSource = Cgmes3ModifiedCatalog.microGridBaseCaseAllTypesOfLoads().dataSource();
+        Properties properties = new Properties();
+        properties.setProperty("iidm.import.cgmes.convert-boundary", "true");
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network actual = exportImportNodeBreaker(expected, dataSource);
+
+        assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.ASYNCHRONOUS_MACHINE), loadsCreatedFromOriginalClassCount(actual, CgmesNames.ASYNCHRONOUS_MACHINE));
+        assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.ENERGY_SOURCE), loadsCreatedFromOriginalClassCount(actual, CgmesNames.ENERGY_SOURCE));
+        assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.SV_INJECTION), loadsCreatedFromOriginalClassCount(actual, CgmesNames.SV_INJECTION));
+        assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.ENERGY_CONSUMER), loadsCreatedFromOriginalClassCount(actual, CgmesNames.ENERGY_CONSUMER));
+        assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.CONFORM_LOAD), loadsCreatedFromOriginalClassCount(actual, CgmesNames.CONFORM_LOAD));
+        assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.NONCONFORM_LOAD), loadsCreatedFromOriginalClassCount(actual, CgmesNames.NONCONFORM_LOAD));
+        assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.STATION_SUPPLY), loadsCreatedFromOriginalClassCount(actual, CgmesNames.STATION_SUPPLY));
+
+        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        expected.getGenerators().forEach(expectedGenerator -> {
+            Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
+            actualGenerator.setTargetP(expectedGenerator.getTargetP());
+            actualGenerator.setTargetQ(expectedGenerator.getTargetQ());
+        });
+
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringSubstationNumAttributes,
+                ExportXmlCompare::ignoringSubstationLookup,
+                ExportXmlCompare::ignoringGeneratorAttributes,
+                ExportXmlCompare::ignoringLoadChildNodeListLength);
+        compareNetworksEQdata(expected, actual, knownDiffs);
+    }
+
+    private static long loadsCreatedFromOriginalClassCount(Network network, String originalClass) {
+        return network.getLoadStream().filter(load -> loadOriginalClass(load, originalClass)).count();
+    }
+
+    private static boolean loadOriginalClass(Load load, String originalClass) {
+        String cgmesClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        return cgmesClass != null && cgmesClass.equals(originalClass);
+    }
+
+    @Test
     void equivalentShuntTest() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
@@ -594,6 +639,179 @@ class EquipmentExportTest extends AbstractConverterTest {
             return false;
         }
         return expected.getProperty(propertyName).equals(actual.getProperty(propertyName));
+    }
+
+    @Test
+    void tapChangerControlDefineControlTest() throws IOException {
+        ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+
+        TwoWindingsTransformer twtNetwork = network.getTwoWindingsTransformer("e8a7eaec-51d6-4571-b3d9-c36d52073c33");
+        twtNetwork.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(75.24)
+                .setTargetDeadband(2.0)
+                .setRegulationTerminal(twtNetwork.getTerminal1());
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridTapChangerDefineControl";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("e8a7eaec-51d6-4571-b3d9-c36d52073c33");
+
+        assertEquals(twtNetwork.getPhaseTapChanger().getRegulationMode().name(), twtActual.getPhaseTapChanger().getRegulationMode().name());
+        assertEquals(twtNetwork.getPhaseTapChanger().getRegulationValue(), twtActual.getPhaseTapChanger().getRegulationValue());
+        assertEquals(twtNetwork.getPhaseTapChanger().getTargetDeadband(), twtActual.getPhaseTapChanger().getTargetDeadband());
+    }
+
+    @Test
+    void tapChangerControlDefineRatioTapChangerAndPhaseTapChangerTest() throws IOException {
+        ReadOnlyDataSource ds = Cgmes3Catalog.miniGrid().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+
+        TwoWindingsTransformer twtNetwork = network.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
+        twtNetwork.newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                .setRho(1.0)
+                .endStep()
+                .setTargetV(twtNetwork.getTerminal1().getVoltageLevel().getNominalV())
+                .setTargetDeadband(2.0)
+                .setRegulationTerminal(twtNetwork.getTerminal1())
+                .add();
+        twtNetwork.newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                .setRho(1.0)
+                .setAlpha(0)
+                .endStep()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(75.24)
+                .setTargetDeadband(2.0)
+                .setRegulationTerminal(twtNetwork.getTerminal1())
+                .add();
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChanger";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
+
+        assertEquals(twtNetwork.getRatioTapChanger().getTargetV(), twtActual.getRatioTapChanger().getTargetV());
+        assertEquals(twtNetwork.getRatioTapChanger().getTargetDeadband(), twtActual.getRatioTapChanger().getTargetDeadband());
+
+        assertEquals(twtNetwork.getPhaseTapChanger().getRegulationMode().name(), twtActual.getPhaseTapChanger().getRegulationMode().name());
+        assertEquals(twtNetwork.getPhaseTapChanger().getRegulationValue(), twtActual.getPhaseTapChanger().getRegulationValue());
+        assertEquals(twtNetwork.getPhaseTapChanger().getTargetDeadband(), twtActual.getPhaseTapChanger().getTargetDeadband());
+    }
+
+    @Test
+    void tapChangerControlDefineRatioTapChangerAndPhaseTapChangerT3wLeg1Test() throws IOException {
+        ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+
+        ThreeWindingsTransformer twtNetwork = network.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
+        addRatioTapChangerAndPhaseTapChanger(twtNetwork.getLeg1());
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChangerLeg1";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
+
+        checkLeg(twtNetwork.getLeg1(), twtActual.getLeg1());
+    }
+
+    @Test
+    void tapChangerControlDefineRatioTapChangerAndPhaseTapChangerT3wLeg2Test() throws IOException {
+        ReadOnlyDataSource ds = Cgmes3Catalog.miniGrid().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+        ThreeWindingsTransformer twtNetwork = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+        addRatioTapChangerAndPhaseTapChanger(twtNetwork.getLeg2());
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChangerLeg2";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+
+        checkLeg(twtNetwork.getLeg2(), twtActual.getLeg2());
+    }
+
+    @Test
+    void tapChangerControlDefineRatioTapChangerAndPhaseTapChangerT3wLeg3Test() throws IOException {
+        ReadOnlyDataSource ds = Cgmes3Catalog.miniGrid().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+        ThreeWindingsTransformer twtNetwork = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+        addRatioTapChangerAndPhaseTapChanger(twtNetwork.getLeg3());
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChangerLeg3";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+
+        checkLeg(twtNetwork.getLeg3(), twtActual.getLeg3());
+    }
+
+    private static void addRatioTapChangerAndPhaseTapChanger(ThreeWindingsTransformer.Leg leg) {
+        leg.newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                .setRho(1.0)
+                .endStep()
+                .setTargetV(leg.getTerminal().getVoltageLevel().getNominalV())
+                .setTargetDeadband(2.0)
+                .setRegulationTerminal(leg.getTerminal())
+                .add();
+        leg.newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                .setRho(1.0)
+                .setAlpha(0)
+                .endStep()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(75.24)
+                .setTargetDeadband(2.0)
+                .setRegulationTerminal(leg.getTerminal())
+                .add();
+    }
+
+    private static void checkLeg(ThreeWindingsTransformer.Leg legNetwork, ThreeWindingsTransformer.Leg legActual) {
+        assertEquals(legNetwork.getRatioTapChanger().getTargetV(), legActual.getRatioTapChanger().getTargetV());
+        assertEquals(legNetwork.getRatioTapChanger().getTargetDeadband(), legActual.getRatioTapChanger().getTargetDeadband());
+
+        assertEquals(legNetwork.getPhaseTapChanger().getRegulationMode().name(), legActual.getPhaseTapChanger().getRegulationMode().name());
+        assertEquals(legNetwork.getPhaseTapChanger().getRegulationValue(), legActual.getPhaseTapChanger().getRegulationValue());
+        assertEquals(legNetwork.getPhaseTapChanger().getTargetDeadband(), legActual.getPhaseTapChanger().getTargetDeadband());
     }
 
     private Network exportImportNodeBreaker(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
@@ -824,6 +1042,14 @@ class EquipmentExportTest extends AbstractConverterTest {
     }
 
     private void compareNetworksEQdata(Network expected, Network actual) throws IOException {
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ);
+        compareNetworksEQdata(expected, actual, knownDiffs);
+    }
+
+    private void compareNetworksEQdata(Network expected, Network actual, DifferenceEvaluator knownDiffs) throws IOException {
         Network expectedNetwork = prepareNetworkForEQComparison(expected);
         Network actualNetwork = prepareNetworkForEQComparison(actual);
 
@@ -835,10 +1061,7 @@ class EquipmentExportTest extends AbstractConverterTest {
         NetworkXml.writeAndValidate(actualNetwork, exportOptions, tmpDir.resolve("actual.xml"));
 
         // Compare
-        ExportXmlCompare.compareEQNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), DifferenceEvaluators.chain(
-                DifferenceEvaluators.Default,
-                ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringNonEQ));
+        ExportXmlCompare.compareEQNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffs);
 
         compareTemporaryLimits(Network.read(tmpDir.resolve("expected.xml")), Network.read(tmpDir.resolve("actual.xml")));
     }

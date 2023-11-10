@@ -10,8 +10,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Line;
 
 /**
- * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface LineFortescue extends Extension<Line> {
 

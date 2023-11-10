@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 
 /**
  *
- * @author Coline Piloquet <coline.piloquet@rte-france.fr>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 public class GeneratorShortCircuitAdderImpl extends AbstractExtensionAdder<Generator, GeneratorShortCircuit>
         implements GeneratorShortCircuitAdder {

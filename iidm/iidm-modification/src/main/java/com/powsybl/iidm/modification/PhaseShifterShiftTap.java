@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import java.util.Objects;
 
 /**
- * @author Hamou AMROUN <hamou.amroun at rte-france.com>
+ * @author Hamou AMROUN {@literal <hamou.amroun at rte-france.com>}
  */
 public class PhaseShifterShiftTap extends AbstractNetworkModification {
 

@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class ImportExportPerformanceTest {
     // TODO We should build tests that check that re-imported exported models

@@ -25,7 +25,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModification {
 

@@ -75,8 +75,8 @@ import static java.util.stream.Collectors.groupingBy;
  * END2. Structural ratio at the network side of legs 1 and 3. RatedU0 = RatedU2 <br>
  * END3. Structural ratio at the network side of legs 1 and 2. RatedU0 = RatedU2 <br>
  * <p>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  *
  */
 public class Conversion {
@@ -1034,4 +1034,5 @@ public class Conversion {
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
+    public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
 }

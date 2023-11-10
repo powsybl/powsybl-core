@@ -11,7 +11,7 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.util.Pair;
 
 /**
- * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
+ * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
  */
 public final class FortescueUtil {
 

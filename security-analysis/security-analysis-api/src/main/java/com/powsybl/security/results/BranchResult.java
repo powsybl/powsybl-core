@@ -15,7 +15,7 @@ import java.util.Objects;
  * it belongs to pre and post Contingency results.
  * it is the result of the branch id specified in StateMonitor.
  *
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class BranchResult extends AbstractExtendable<BranchResult> {
 

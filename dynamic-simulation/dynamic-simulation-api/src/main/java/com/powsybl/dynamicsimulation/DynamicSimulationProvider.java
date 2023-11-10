@@ -18,7 +18,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public interface DynamicSimulationProvider extends Versionable, PlatformConfigNamedProvider {
 

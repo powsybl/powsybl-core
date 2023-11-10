@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 @AutoService(LoadFlowProvider.class)
 public class LFMock implements LoadFlowProvider {

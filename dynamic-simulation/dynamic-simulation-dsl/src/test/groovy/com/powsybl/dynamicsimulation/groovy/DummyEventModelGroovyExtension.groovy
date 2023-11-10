@@ -15,7 +15,7 @@ import com.powsybl.dsl.DslException
 import com.powsybl.dynamicsimulation.EventModel
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 @AutoService(EventModelGroovyExtension.class)
 class DummyEventModelGroovyExtension implements EventModelGroovyExtension {

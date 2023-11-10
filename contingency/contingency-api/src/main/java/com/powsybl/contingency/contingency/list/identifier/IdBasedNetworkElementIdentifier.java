@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.*;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class IdBasedNetworkElementIdentifier implements NetworkElementIdentifier {
 

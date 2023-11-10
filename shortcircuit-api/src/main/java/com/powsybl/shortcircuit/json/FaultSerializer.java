@@ -16,7 +16,7 @@ import com.powsybl.shortcircuit.Fault;
 import java.io.IOException;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class FaultSerializer extends StdSerializer<Fault> {
 

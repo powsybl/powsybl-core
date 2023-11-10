@@ -13,7 +13,7 @@ import com.univocity.parsers.annotations.Parsed;
 
 /**
  *
- * @author Jean-Baptiste Heyberger <Jean-Baptiste.Heyberger at rte-france.com>
+ * @author Jean-Baptiste Heyberger {@literal <Jean-Baptiste.Heyberger at rte-france.com>}
  */
 public class PsseSwitchedShunt extends PsseVersioned {
 

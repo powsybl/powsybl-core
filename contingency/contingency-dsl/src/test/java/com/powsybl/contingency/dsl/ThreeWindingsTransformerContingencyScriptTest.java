@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 class ThreeWindingsTransformerContingencyScriptTest {
 

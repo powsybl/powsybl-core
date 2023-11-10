@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 class ShortCircuitAnalysisTest {
 

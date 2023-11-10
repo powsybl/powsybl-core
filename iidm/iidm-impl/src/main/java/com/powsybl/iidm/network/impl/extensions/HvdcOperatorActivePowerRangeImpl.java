@@ -17,8 +17,8 @@ import gnu.trove.list.array.TFloatArrayList;
 import java.util.Objects;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 public class HvdcOperatorActivePowerRangeImpl extends AbstractMultiVariantIdentifiableExtension<HvdcLine> implements HvdcOperatorActivePowerRange {
 

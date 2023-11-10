@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 class ShuntCompensatorTrippingTest {
 

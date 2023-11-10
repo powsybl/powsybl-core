@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.sensitivity.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SensitivityJsonModule extends SimpleModule {
 

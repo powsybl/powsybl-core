@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtension<StaticVarCompensator> implements StandbyAutomaton {
 

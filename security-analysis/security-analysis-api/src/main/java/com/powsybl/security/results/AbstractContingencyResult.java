@@ -11,7 +11,7 @@ import com.powsybl.security.LimitViolationsResult;
 import java.util.Objects;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public abstract class AbstractContingencyResult {
     private final LimitViolationsResult limitViolationsResult;

@@ -10,9 +10,9 @@ package com.powsybl.iidm.network;
 import java.util.OptionalDouble;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public interface VoltageAngleLimit extends OperationalLimits {
 

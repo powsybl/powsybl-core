@@ -15,7 +15,7 @@ import java.util.Objects;
 import static com.powsybl.triplestore.api.TripleStoreUtils.queryTripleStore;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CgmesMeasurementsModel {
 

@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
  *
  * Factory methods for security analysis execution handlers.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public final class SecurityAnalysisExecutionHandlers {
 

@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * Simplified command model for completion script generation.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at gmail.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at gmail.com>}
  */
 public class BashCommand {
 

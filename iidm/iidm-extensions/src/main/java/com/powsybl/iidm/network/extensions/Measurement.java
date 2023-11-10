@@ -12,7 +12,7 @@ import java.util.Set;
  * A measurement with a continuous numeric value (double) such as: angle, voltage, active power and so on.
  * Can have properties in addition of explicit fields to add precisions about the measurement if necessary.
  *
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface Measurement {
 

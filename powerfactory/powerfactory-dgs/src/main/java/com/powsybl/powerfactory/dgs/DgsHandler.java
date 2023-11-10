@@ -13,7 +13,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import com.powsybl.powerfactory.model.DataAttributeType;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface DgsHandler {
 

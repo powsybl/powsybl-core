@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 @AutoService(Tool.class)
 public class PluginsInfoTool implements Tool {

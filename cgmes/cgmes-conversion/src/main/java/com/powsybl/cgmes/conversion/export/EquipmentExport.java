@@ -14,7 +14,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,7 +27,7 @@ import java.util.*;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class EquipmentExport {
 
@@ -278,24 +277,73 @@ public final class EquipmentExport {
     private static void writeLoads(Network network, LoadGroups loadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
-                LoadDetail loadDetail = load.getExtension(LoadDetail.class);
-                String className = CgmesExportUtil.loadClassName(loadDetail);
+                String className = CgmesExportUtil.loadClassName(load);
                 String loadId = context.getNamingStrategy().getCgmesId(load);
-                if (load.getP0() < 0) {
-                    // As negative loads are not allowed, they are modeled as energy source.
-                    // Note that negative loads can be the result of network reduction and could be modeled
-                    // as equivalent injections.
-                    writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
-                } else {
-                    String loadGroup = loadGroups.groupFor(className);
-                    EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
+                switch (className) {
+                    case CgmesNames.ASYNCHRONOUS_MACHINE ->
+                            writeAsynchronousMachine(loadId, load.getNameOrId(), cimNamespace, writer, context);
+                    case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(), context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
+                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
+                        String loadGroup = loadGroups.groupFor(className);
+                        String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load, cimNamespace, writer, context);
+                        EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), loadResponseCharacteristicId, cimNamespace, writer, context);
+                    }
+                    default -> throw new PowsyblException("Unexpected class name: " + className);
                 }
             }
         }
     }
 
-    public static void writeEnergySource(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("EnergySource", id, name, cimNamespace, writer, context);
+    private static String writeLoadResponseCharacteristic(Load load, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        Optional<LoadModel> optionalLoadModel = load.getModel();
+
+        if (optionalLoadModel.isEmpty()) {
+            return null;
+        }
+        if (optionalLoadModel.get().getType() == LoadModelType.EXPONENTIAL) {
+            ExponentialLoadModel exponentialLoadModel = (ExponentialLoadModel) optionalLoadModel.get();
+            boolean exponentModel = exponentialLoadModel.getNp() != 0 || exponentialLoadModel.getNq() != 0;
+            return writeLoadResponseCharacteristicModel(load, exponentModel,
+                    exponentialLoadModel.getNp(),
+                    exponentialLoadModel.getNq(),
+                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                    cimNamespace, writer, context);
+        } else if (optionalLoadModel.get().getType() == LoadModelType.ZIP) {
+            ZipLoadModel zipLoadModel = (ZipLoadModel) optionalLoadModel.get();
+            return writeLoadResponseCharacteristicModel(load, false, 0.0, 0.0,
+                    zipLoadModel.getC0p(), zipLoadModel.getC0q(), zipLoadModel.getC1p(), zipLoadModel.getC1q(), zipLoadModel.getC2p(), zipLoadModel.getC2q(),
+                    cimNamespace, writer, context);
+        } else {
+            return null;
+        }
+    }
+
+    private static String writeLoadResponseCharacteristicModel(Load load,
+                                                               boolean exponentModel, double pVoltageExponent, double qVoltageExponent,
+                                                               double pConstantPower, double qConstantPower,
+                                                               double pConstantCurrent, double qConstantCurrent,
+                                                               double pConstantImpedance, double qConstantImpedance,
+                                                               String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String loadResponseId = CgmesExportUtil.getUniqueId();
+        String loadResponseName = "LRC_" + load.getNameOrId();
+
+        LoadResponseCharacteristicEq.write(loadResponseId, loadResponseName,
+                exponentModel, pVoltageExponent, qVoltageExponent,
+                pConstantPower, qConstantPower, pConstantCurrent,
+                qConstantCurrent, pConstantImpedance, qConstantImpedance,
+                cimNamespace, writer, context);
+
+        return loadResponseId;
+    }
+
+    private static void writeAsynchronousMachine(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(CgmesNames.ASYNCHRONOUS_MACHINE, id, name, cimNamespace, writer, context);
+        writer.writeEndElement();
+    }
+
+    public static void writeEnergySource(String id, String name, String equipmentContainer, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(CgmesNames.ENERGY_SOURCE, id, name, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
@@ -472,6 +520,8 @@ public final class EquipmentExport {
     private static void writeTwoWindingsTransformers(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace,
                                                     String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+            CgmesExportUtil.addUpdateCgmesTapChangerExtension(twt);
+
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(), twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
             String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 1);
 
@@ -494,7 +544,7 @@ public final class EquipmentExport {
             // We have to adjust the aliases for potential original tap changers coming from end 1 or end 2.
             // Potential tc2 is always converted to a tc at end 1.
             // If both tc1 and tc2 were present, tc2 was combined during import (fixed at current step) with tc1. Steps from tc1 were kept.
-            // If we only had tc2, it mas moved to end 1.
+            // If we only had tc2, it was moved to end 1.
             //
             // When we had only tc2, the alias for tc1 if we do EQ export should contain the identifier of original tc2.
             // In the rest of situations, we keep the same id under alias for tc1.
@@ -528,6 +578,8 @@ public final class EquipmentExport {
     private static void writeThreeWindingsTransformers(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace,
                                                       String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            CgmesExportUtil.addUpdateCgmesTapChangerExtension(twt);
+
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(), twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
             double ratedU0 = twt.getRatedU0();
 
@@ -684,17 +736,14 @@ public final class EquipmentExport {
             int neutralStep = getPhaseTapChangerNeutralStep(ptc);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
-            if (regulatingControlId.isPresent()) {
+            if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
                 String mode = getPhaseTapChangerRegulationMode(ptc);
-                // Only export the regulating control if mode is valid
-                if (mode != null) {
-                    String controlName = twtName + "_PTC_RC";
-                    String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
-                    cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
-                    if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
-                        TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, mode, terminalId, cimNamespace, writer, context);
-                        regulatingControlsWritten.add(cgmesRegulatingControlId);
-                    }
+                String controlName = twtName + "_PTC_RC";
+                String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
+                cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
+                if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
+                    TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, mode, terminalId, cimNamespace, writer, context);
+                    regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
             }
             String phaseTapChangerTableId = CgmesExportUtil.getUniqueId();
@@ -702,13 +751,19 @@ public final class EquipmentExport {
             // We reset the phase tap changer type stored in the extensions
             String typeTabular = CgmesNames.PHASE_TAP_CHANGER_TABULAR;
             CgmesExportUtil.setCgmesTapChangerType(eq, tapChangerId, typeTabular);
-
-            TapChangerEq.writePhase(typeTabular, cgmesTapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, false, phaseTapChangerTableId, cgmesRegulatingControlId, cimNamespace, writer, context);
+            boolean ltcFlag = obtainPhaseTapChangerLtcFlag(ptc.getRegulationMode());
+            TapChangerEq.writePhase(typeTabular, cgmesTapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, ltcFlag, phaseTapChangerTableId, cgmesRegulatingControlId, cimNamespace, writer, context);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
                 TapChangerEq.writePhaseTablePoint(CgmesExportUtil.getUniqueId(), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(), step.getKey(), cimNamespace, writer, context);
             }
         }
+    }
+
+    // During the cgmes import process the regulationMode is only set to ACTIVE_POWER_CONTROL or CURRENT_LIMITER
+    // if ltcFlag is true. If ltcFlag is false the regulationMode is always imported as FIXED_TAP
+    private static boolean obtainPhaseTapChangerLtcFlag(PhaseTapChanger.RegulationMode regulationMode) {
+        return regulationMode == PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL || regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
     }
 
     private static <C extends Connectable<C>> Optional<String> getTapChangerControlId(C eq, String tcId) {
@@ -730,7 +785,7 @@ public final class EquipmentExport {
                 return PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER;
             case FIXED_TAP:
             default:
-                return null;
+                throw new PowsyblException("Unexpected regulation mode: " + ptc.getRegulationMode());
         }
     }
 
@@ -762,7 +817,7 @@ public final class EquipmentExport {
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             String controlMode = rtc.isRegulating() ? "volt" : "reactive";
-            if (regulatingControlId.isPresent()) {
+            if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(rtc)) {
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
                 cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());

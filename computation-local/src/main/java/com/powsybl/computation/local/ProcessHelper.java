@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 public final class ProcessHelper {
 

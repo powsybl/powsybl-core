@@ -31,7 +31,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class BranchObservabilityXmlTest extends AbstractConverterTest {
 

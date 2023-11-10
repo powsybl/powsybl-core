@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public abstract class AbstractThreeWindingsTransformerPhaseAngleClockTest {
 

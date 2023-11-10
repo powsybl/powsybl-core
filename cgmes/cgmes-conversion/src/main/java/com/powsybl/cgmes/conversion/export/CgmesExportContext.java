@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CgmesExportContext {
 
@@ -524,7 +524,7 @@ public class CgmesExportContext {
                 continue;
             }
             String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null) {
+            if (regulatingControlId == null && (shuntCompensator.isVoltageRegulatorOn() || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
                 shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }

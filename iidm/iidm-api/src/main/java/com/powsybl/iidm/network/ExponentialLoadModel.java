@@ -13,7 +13,7 @@ package com.powsybl.iidm.network;
  * q = q0 * (v / v0)^nq
  * with v0 the nominal voltage. np and nq are expected to be positive.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface ExponentialLoadModel extends LoadModel {
 

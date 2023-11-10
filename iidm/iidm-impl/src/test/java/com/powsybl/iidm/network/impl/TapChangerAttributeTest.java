@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class TapChangerAttributeTest {
 

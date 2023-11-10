@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conformity;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 final class CgmesCatalogsConstants {
 
@@ -99,6 +99,17 @@ final class CgmesCatalogsConstants {
     static final String SMALL_GRID_BD_TP = "SmallGridTestConfiguration_TP_BD_v3.0.0.xml";
 
     static final String CGMES_3_SMALL_GRID_EQ = "20210112T1742Z_1D_GB_EQ_001.xml";
+
+    static final String CGMES_3_MICRO_GRID_ASSEMBLED_DL = "20210209T1930Z_1D_ASSEMBLED_DL_9.xml";
+    static final String CGMES_3_MICRO_GRID_ASSEMBLED_TP = "20210209T2323Z_1D_ASSEMBLED_TP_9.xml";
+    static final String CGMES_3_MICRO_GRID_ASSEMBLED_SV = "20210209T1930Z_1D_ASSEMBLED_SV_9.xml";
+    static final String CGMES_3_MICRO_GRID_BE_EQ = "20210209T1930Z_1D_BE_EQ_9.xml";
+    static final String CGMES_3_MICRO_GRID_BE_GL = "20210209T1930Z_1D_BE_GL_9.xml";
+    static final String CGMES_3_MICRO_GRID_BE_SSH = "20210209T1930Z_1D_BE_SSH_9.xml";
+    static final String CGMES_3_MICRO_GRID_NL_EQ = "20210209T1930Z_1D_NL_EQ_9.xml";
+    static final String CGMES_3_MICRO_GRID_NL_GL = "20210209T1930Z_1D_NL_GL_9.xml";
+    static final String CGMES_3_MICRO_GRID_NL_SSH = "20210209T1930Z_1D_NL_SSH_9.xml";
+    static final String CGMES_3_MICRO_GRID_EQ_BD = "20171002T0930Z_ENTSO-E_EQ_BD_2.xml";
 
     private CgmesCatalogsConstants() {
     }

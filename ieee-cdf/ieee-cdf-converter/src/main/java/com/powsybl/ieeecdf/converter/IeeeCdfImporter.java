@@ -35,7 +35,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(Importer.class)
 public class IeeeCdfImporter implements Importer {

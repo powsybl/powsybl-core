@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 class LimitViolationBuilderTest {
 
@@ -49,7 +49,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.CURRENT, violation.getLimitType());
-        assertEquals(Branch.Side.ONE, violation.getSide());
+        assertEquals(Branch.Side.ONE, violation.getBranchSide());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -63,7 +63,7 @@ class LimitViolationBuilderTest {
                 .side2()
                 .duration(60)
                 .build();
-        assertEquals(Branch.Side.TWO, violation2.getSide());
+        assertEquals(Branch.Side.TWO, violation2.getBranchSide());
         assertEquals("name", violation2.getSubjectName());
         assertEquals("limitName", violation2.getLimitName());
         assertEquals(0.9f, violation2.getLimitReduction(), 0);
@@ -181,7 +181,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.ACTIVE_POWER, violation.getLimitType());
-        assertSame(Branch.Side.ONE, violation.getSide());
+        assertSame(Branch.Side.ONE, violation.getBranchSide());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -200,7 +200,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.APPARENT_POWER, violation.getLimitType());
-        assertSame(Branch.Side.TWO, violation.getSide());
+        assertSame(Branch.Side.TWO, violation.getBranchSide());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
