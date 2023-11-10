@@ -9,6 +9,7 @@ package com.powsybl.dynamicsimulation.tool;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.test.AbstractToolTest;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -83,26 +84,47 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
                 "+ Dynamic Simulation Tool" + System.lineSeparator());
-        String expectedOutputFile = """
-                {
-                  "version" : "1.0",
-                  "isOK" : true,
-                  "logs" : null,
-                  "curves" : [ ],
-                  "timeLine" : {
-                    "metadata" : {
-                      "name" : "timeLine",
-                      "dataType" : "STRING",
-                      "tags" : [ ],
-                      "regularIndex" : {
-                        "startTime" : 0,
-                        "endTime" : 0,
-                        "spacing" : 0
-                      }
-                    },
-                    "chunks" : [ ]
-                  }
-                }""";
+        String expectedOutputFile = SystemUtils.IS_OS_WINDOWS ?
+                        """
+                        {\r
+                          "version" : "1.0",\r
+                          "isOK" : true,\r
+                          "logs" : null,\r
+                          "curves" : [ ],\r
+                          "timeLine" : {\r
+                            "metadata" : {\r
+                              "name" : "timeLine",\r
+                              "dataType" : "STRING",\r
+                              "tags" : [ ],\r
+                              "regularIndex" : {\r
+                                "startTime" : 0,\r
+                                "endTime" : 0,\r
+                                "spacing" : 0\r
+                              }\r
+                            },\r
+                            "chunks" : [ ]\r
+                          }\r
+                        }"""
+                        : """
+                        {
+                          "version" : "1.0",
+                          "isOK" : true,
+                          "logs" : null,
+                          "curves" : [ ],
+                          "timeLine" : {
+                            "metadata" : {
+                              "name" : "timeLine",
+                              "dataType" : "STRING",
+                              "tags" : [ ],
+                              "regularIndex" : {
+                                "startTime" : 0,
+                                "endTime" : 0,
+                                "spacing" : 0
+                              }
+                            },
+                            "chunks" : [ ]
+                          }
+                        }""";
         assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-file", "outputTest"}, 0, expectedOut, "");
         assertEquals(expectedOutputFile, Files.readString(fileSystem.getPath("outputTest")));
     }
