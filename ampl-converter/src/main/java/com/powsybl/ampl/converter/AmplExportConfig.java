@@ -51,13 +51,13 @@ public class AmplExportConfig {
     private boolean twtSplitShuntAdmittance;
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType) {
-        this(exportScope, exportXNodes, actionType, false, false, AmplExportVersion.V1_LEGACY);
+        this(exportScope, exportXNodes, actionType, false, false, AmplExportVersion.V1_0);
     }
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType,
                             boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance) {
         this(exportScope, exportXNodes, actionType, exportRatioTapChangerVoltageTarget, twtSplitShuntAdmittance,
-            AmplExportVersion.V1_LEGACY);
+            AmplExportVersion.V1_0);
     }
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType,

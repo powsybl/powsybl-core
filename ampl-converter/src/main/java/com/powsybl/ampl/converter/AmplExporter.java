@@ -58,7 +58,7 @@ public class AmplExporter implements Exporter {
 
     private static final Parameter EXPORT_VERSION_PARAMETER = new Parameter(EXPORT_VERSION, ParameterType.STRING,
         "The version of the export.",
-        AmplExportVersion.V1_LEGACY.name(),
+        AmplExportVersion.V1_0.name(),
         Arrays.stream(AmplExportVersion.values()).map(Enum::name).collect(Collectors.toList()));
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(EXPORT_SCOPE_PARAMETER, EXPORT_XNODES_PARAMETER,

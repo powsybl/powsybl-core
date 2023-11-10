@@ -33,7 +33,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class BasicAmplExporter implements AmplColumnsExporter {
 
-    private static final String EXPORTER_ID = "V1_LEGACY";
+    private static final String EXPORTER_ID = "1.0";
     private final AmplExportConfig config;
     private final Network network;
     private final StringToIntMapper<AmplSubset> mapper;

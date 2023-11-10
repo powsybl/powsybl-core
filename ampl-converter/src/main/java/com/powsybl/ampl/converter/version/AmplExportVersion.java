@@ -19,7 +19,7 @@ public enum AmplExportVersion {
     /**
      * Legacy export
      */
-    V1_LEGACY(BasicAmplExporter.getFactory());
+    V1_0(BasicAmplExporter.getFactory());
 
     public interface Factory {
         AmplColumnsExporter create(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,
