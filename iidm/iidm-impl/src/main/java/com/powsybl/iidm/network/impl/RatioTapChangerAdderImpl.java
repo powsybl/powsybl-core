@@ -145,6 +145,14 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
+    public RatioTapChangerAdder setTargetV(double targetV) {
+        if (this.regulationMode == RatioTapChanger.RegulationMode.VOLTAGE) {
+            this.regulationValue = targetV;
+        }
+        return this;
+    }
+
+    @Override
     public RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;

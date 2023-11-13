@@ -18,8 +18,6 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
         REACTIVE_POWER_CONTROL
     }
 
-    // TODO : remount the methods in the parent class
-
     /**
      * Get the regulation mode.
      * @return the regulation mode
@@ -48,6 +46,24 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      * @see VariantManager
      */
     RatioTapChanger setRegulationValue(double regulationValue);
+
+
+    /**
+     * Get the target voltage in kV. Depends on the working variant.
+     * @see VariantManager
+     * @deprecated Use {@link RatioTapChanger#getRegulationValue()} instead.
+     */
+    @Deprecated(since = "6.1.0")
+    double getTargetV();
+
+
+    /**
+     * Set the target voltage in kV. Depends on the working variant.
+     * @see VariantManager
+     * @deprecated Use {@link RatioTapChanger#setRegulationValue(double)} ()} instead.
+     */
+    @Deprecated(since = "6.1.0")
+    RatioTapChanger setTargetV(double targetV);
 
     /**
      * Get the load tap changing capabilities status.

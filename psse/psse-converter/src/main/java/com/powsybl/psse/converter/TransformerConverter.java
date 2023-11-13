@@ -745,7 +745,7 @@ class TransformerConverter extends AbstractConverter {
 
     private static boolean defineVoltageControl(Network network, String id, PsseTransformerWinding winding, RatioTapChanger rtc,
         boolean regulatingForcedToOff) {
-        // TODO : remove this
+        // TODO : remove this ?
         if (Math.abs(winding.getCod()) == 2) {
             LOGGER.warn("Transformer {}. Reactive power control not supported", id);
             return false;

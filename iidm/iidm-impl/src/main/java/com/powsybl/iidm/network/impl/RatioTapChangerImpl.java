@@ -18,17 +18,13 @@ import java.util.function.Supplier;
  */
 class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, RatioTapChangerImpl, RatioTapChangerStepImpl> implements RatioTapChanger {
 
+    private boolean loadTapChangingCapabilities;
+
     private RatioTapChanger.RegulationMode regulationMode;
 
     // attributes depending on the variant
 
     private final TDoubleArrayList regulationValue;
-
-    private boolean loadTapChangingCapabilities;
-
-//    // attributes depending on the variant
-//
-//    private final TDoubleArrayList targetV;
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
@@ -101,6 +97,18 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         n.invalidateValidationLevel();
         notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, loadTapChangingCapabilities);
         return this;
+    }
+
+    @Override
+    public double getTargetV() {
+        // TODO : add check of regulation mode
+        return getRegulationValue();
+    }
+
+    @Override
+    public RatioTapChangerImpl setTargetV(double targetV) {
+        // TODO : add check of regulation mode
+        return setRegulationValue(targetV);
     }
 
     @Override
