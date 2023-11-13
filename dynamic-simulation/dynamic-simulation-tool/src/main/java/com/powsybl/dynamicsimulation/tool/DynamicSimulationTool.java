@@ -157,18 +157,18 @@ public class DynamicSimulationTool implements Tool {
         ReporterModel reporter = new ReporterModel("dynamicSimulationTool", "Dynamic Simulation Tool");
         DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reporter);
 
-        Path outputFile = line.hasOption(OUTPUT_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE)) : null;
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
-        Writer writer = outputLogFile == null || outputFile == null ? new OutputStreamWriter(context.getOutputStream()) : null;
         if (outputLogFile != null) {
-            reporter.export(outputLogFile);
+            exportLog(reporter, context, outputLogFile);
         } else {
-            printLog(reporter, writer, outputFile != null);
+            printLog(reporter, context);
         }
+
+        Path outputFile = line.hasOption(OUTPUT_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE)) : null;
         if (outputFile != null) {
             exportResult(result, context, outputFile);
         } else {
-            printResult(result, writer);
+            printResult(result, context);
         }
     }
 
@@ -199,17 +199,16 @@ public class DynamicSimulationTool implements Tool {
         }
     }
 
-    private void printResult(DynamicSimulationResult result, Writer writer) {
+    private void printResult(DynamicSimulationResult result, ToolRunningContext context) {
+        Writer writer = new OutputStreamWriter(context.getOutputStream());
         AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
         printDynamicSimulationResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
     }
 
-    private void printLog(ReporterModel reporter, Writer writer, boolean closeWriter) throws IOException {
+    private void printLog(ReporterModel reporter, ToolRunningContext context) throws IOException {
+        Writer writer = new OutputStreamWriter(context.getOutputStream());
         reporter.export(writer);
         writer.flush();
-        if (closeWriter) {
-            writer.close();
-        }
     }
 
     private void printDynamicSimulationResult(DynamicSimulationResult result, Writer writer,
@@ -228,5 +227,10 @@ public class DynamicSimulationTool implements Tool {
     private void exportResult(DynamicSimulationResult result, ToolRunningContext context, Path outputFile) {
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         DynamicSimulationResultSerializer.write(result, outputFile);
+    }
+
+    private void exportLog(ReporterModel reporter, ToolRunningContext context, Path outputLogFile) {
+        context.getOutputStream().println("Writing logs to '" + outputLogFile + "'");
+        reporter.export(outputLogFile);
     }
 }

@@ -83,7 +83,8 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     void testDynamicSimulationWithOutputFile() throws IOException {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
-                "+ Dynamic Simulation Tool" + System.lineSeparator());
+                "+ Dynamic Simulation Tool",
+                "Writing results to 'outputTest'" + System.lineSeparator());
         String expectedOutputFile = """
                         {
                           "version" : "1.0",
@@ -112,6 +113,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     void testDynamicSimulationWithOutputLogFile() throws IOException {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
+                "Writing logs to 'outputTest'",
                 "dynamic simulation results:",
                 "+--------+",
                 "| Result |",
