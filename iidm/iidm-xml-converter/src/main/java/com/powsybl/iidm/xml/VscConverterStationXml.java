@@ -81,10 +81,7 @@ class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterS
                 case ReactiveLimitsXml.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsXml.INSTANCE.readMinMaxReactiveLimits(cs, context);
                 case REGULATING_TERMINAL -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
-                    String side = context.getReader().readStringAttribute("side");
-                    context.getReader().readEndNode();
-                    context.getEndTasks().add(() -> cs.setRegulatingTerminal(TerminalRefXml.resolve(id, side, cs.getNetwork())));
+                    TerminalRefXml.readTerminalRef(context, cs.getNetwork(), cs::setRegulatingTerminal);
                 }
                 default -> readSubElement(elementName, cs, context);
             }

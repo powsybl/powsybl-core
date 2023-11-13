@@ -93,10 +93,7 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(REGULATING_TERMINAL)) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
-                String side = context.getReader().readStringAttribute("side");
-                context.getReader().readEndNode();
-                context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml.resolve(id, side, svc.getNetwork())));
+                TerminalRefXml.readTerminalRef(context, svc.getNetwork(), svc::setRegulatingTerminal);
             } else {
                 readSubElement(elementName, svc, context);
             }

@@ -11,7 +11,6 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import java.util.function.BiConsumer;
 import java.util.function.DoubleConsumer;
 
 /**
@@ -119,11 +118,13 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(subElementName -> {
             switch (subElementName) {
-                case ELEM_TERMINAL_REF ->
-                    readTerminalRef(context, hasTerminalRef, (id, side) -> {
-                        adder.setRegulationTerminal(TerminalRefXml.resolve(id, side, terminal.getVoltageLevel().getNetwork()));
+                case ELEM_TERMINAL_REF -> {
+                    hasTerminalRef[0] = true;
+                    TerminalRefXml.readTerminalRef(context, terminal.getVoltageLevel().getNetwork(), tRef -> {
+                        adder.setRegulationTerminal(tRef);
                         adder.add();
                     });
+                }
                 case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME -> {
                     readSteps(context, (r, x, g, b, rho) -> adder.beginStep()
                             .setR(r)
@@ -200,11 +201,13 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case ELEM_TERMINAL_REF ->
-                    readTerminalRef(context, hasTerminalRef, (id, side) -> {
-                        adder.setRegulationTerminal(TerminalRefXml.resolve(id, side, terminal.getVoltageLevel().getNetwork()));
+                case ELEM_TERMINAL_REF -> {
+                    hasTerminalRef[0] = true;
+                    TerminalRefXml.readTerminalRef(context, terminal.getVoltageLevel().getNetwork(), tRef -> {
+                        adder.setRegulationTerminal(tRef);
                         adder.add();
                     });
+                }
                 case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME -> {
                     PhaseTapChangerAdder.StepAdder stepAdder = adder.beginStep();
                     readSteps(context, (r, x, g, b, rho) -> stepAdder.setR(r)
@@ -231,14 +234,6 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
 
     protected static void readPhaseTapChanger(int leg, ThreeWindingsTransformer.Leg twl, NetworkXmlReaderContext context) {
         readPhaseTapChanger(PHASE_TAP_CHANGER + leg, twl.newPhaseTapChanger(), twl.getTerminal(), context);
-    }
-
-    private static void readTerminalRef(NetworkXmlReaderContext context, boolean[] hasTerminalRef, BiConsumer<String, String > consumer) {
-        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
-        String side = context.getReader().readStringAttribute("side");
-        context.getReader().readEndNode();
-        context.getEndTasks().add(() -> consumer.accept(id, side));
-        hasTerminalRef[0] = true;
     }
 
     private static void readSteps(NetworkXmlReaderContext context, StepConsumer consumer) {

@@ -11,6 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 
+import java.util.function.Consumer;
+
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
@@ -58,6 +60,16 @@ public final class TerminalRefXml {
         String side = context.getReader().readStringAttribute(SIDE);
         context.getReader().readEndNode();
         return TerminalRefXml.resolve(id, side, n);
+    }
+
+    public static void readTerminalRef(NetworkXmlReaderContext context, Network network, Consumer<Terminal> endTaskTerminalConsumer) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
+        String side = context.getReader().readStringAttribute(SIDE);
+        context.getReader().readEndNode();
+        context.getEndTasks().add(() -> {
+            Terminal t = resolve(id, side, network);
+            endTaskTerminalConsumer.accept(t);
+        });
     }
 
     public static Terminal resolve(String id, String sideText, Network network) {
