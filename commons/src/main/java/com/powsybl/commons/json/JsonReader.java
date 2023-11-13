@@ -199,31 +199,30 @@ public class JsonReader extends AbstractTreeDataReader {
                 currentJsonToken = null; // the token will be consumed in all cases below
                 switch (parser.currentToken()) {
                     case FIELD_NAME -> {
-                        nodeChain.add(new Node(parser.currentName(), JsonNodeType.NULL));
-                    }
-                    case START_ARRAY -> {
-                        Node arrayNode = Optional.ofNullable(nodeChain.pollLast())
-                                .filter(n -> n.jsonNodeType() == JsonNodeType.NULL)
-                                .orElseThrow(() -> new PowsyblException("JSON parsing: array started without a preceding field"));
-                        nodeChain.add(new Node(arrayNode.name(), JsonNodeType.ARRAY));
+                        switch (parser.nextToken()) {
+                            case START_ARRAY -> nodeChain.add(new Node(parser.currentName(), JsonNodeType.ARRAY));
+                            case START_OBJECT -> {
+                                nodeChain.add(new Node(parser.currentName(), JsonNodeType.OBJECT));
+                                if (eventHandler != null) {
+                                    eventHandler.onStartElement(nodeChain.getLast().name(), depth);
+                                }
+                                depth++;
+                            }
+                        }
                     }
                     case START_OBJECT -> {
                         Node arrayNode = Optional.ofNullable(nodeChain.peekLast())
-                                .filter(n -> n.jsonNodeType() == JsonNodeType.NULL || n.jsonNodeType() == JsonNodeType.ARRAY)
-                                .orElseThrow(() -> new PowsyblException("JSON parsing: object started without a preceding field"));
-                        if (arrayNode.jsonNodeType() == JsonNodeType.NULL) {
-                            nodeChain.removeLast();
-                            nodeChain.add(new Node(arrayNode.name(), JsonNodeType.OBJECT));
-                        }
+                                .filter(n -> n.jsonNodeType == JsonNodeType.ARRAY)
+                                .orElseThrow(() -> new PowsyblException("JSON parsing: unexpected object start"));
                         if (eventHandler != null) {
-                            eventHandler.onStartElement(nodeChain.getLast().name(), depth);
+                            eventHandler.onStartElement(arrayNode.name(), depth);
                         }
                         depth++;
                     }
                     case END_OBJECT -> {
                         depth--;
                         Node arrayNode = Optional.ofNullable(nodeChain.peekLast())
-                                .orElseThrow(() -> new PowsyblException("JSON parsing: object end reached without a preceding start"));
+                                .orElseThrow(() -> new PowsyblException("JSON parsing: unexpected object end"));
                         if (arrayNode.jsonNodeType() == JsonNodeType.OBJECT) {
                             nodeChain.removeLast();
                         }
