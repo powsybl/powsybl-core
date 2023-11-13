@@ -99,7 +99,7 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
 
     @Override
     protected void readSubElements(Substation s, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case VoltageLevelXml.ROOT_ELEMENT_NAME, VoltageLevelXml.ARRAY_ELEMENT_NAME
                         -> VoltageLevelXml.INSTANCE.read(s, context);

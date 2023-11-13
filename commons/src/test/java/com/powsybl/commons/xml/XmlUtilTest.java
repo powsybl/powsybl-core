@@ -8,7 +8,6 @@ package com.powsybl.commons.xml;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
@@ -40,7 +39,13 @@ class XmlUtilTest {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             xmlReader.next();
             try {
-                XmlUtil.readUntilEndElementWithDepth(xmlReader, (elementName, elementDepth) -> depths.put(elementName, elementDepth));
+                XmlUtil.readSubElements(xmlReader, elementName -> {
+                    depths.put(elementName, 0);
+                    XmlUtil.readSubElements(xmlReader, elementName1 -> {
+                        depths.put(elementName1, 1);
+                        XmlUtil.readSubElements(xmlReader);
+                    });
+                });
             } finally {
                 xmlReader.close();
             }
@@ -55,22 +60,21 @@ class XmlUtilTest {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
                 xmlReader.next();
-                XmlUtil.readUntilEndElementWithDepth(xmlReader, (elementName, elementDepth) -> {
-                    depths.put(elementName, elementDepth);
+                XmlUtil.readSubElements(xmlReader, elementName -> {
+                    depths.put(elementName, 0);
                     // consume b and c
                     if (elementName.equals("b")) {
-                        try {
-                            XmlUtil.readUntilEndElement(xmlReader, null);
-                        } catch (XMLStreamException e) {
-                            throw new UncheckedXmlStreamException(e);
-                        }
+                        XmlUtil.readSubElements(xmlReader, elementName1 -> {
+                            depths.put(elementName1, 1);
+                            XmlUtil.readSubElements(xmlReader);
+                        });
                     }
                 });
             } finally {
                 xmlReader.close();
             }
         }
-        assertEquals(ImmutableMap.of("b", 0, "d", 0), depths);
+        assertEquals(ImmutableMap.of("b", 0, "c", 1, "d", 0), depths);
     }
 
     @Test

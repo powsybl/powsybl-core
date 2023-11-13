@@ -47,6 +47,7 @@ public class GeneratorFortescueXmlSerializer extends AbstractExtensionXmlSeriali
         boolean toGround = context.getReader().readBooleanAttribute("grounded");
         double groundingR = context.getReader().readDoubleAttribute("groundingR", 0);
         double groundingX = context.getReader().readDoubleAttribute("groundingX", 0);
+        context.getReader().readEndNode();
         return generator.newExtension(GeneratorFortescueAdder.class)
                 .withRz(rz)
                 .withXz(xz)

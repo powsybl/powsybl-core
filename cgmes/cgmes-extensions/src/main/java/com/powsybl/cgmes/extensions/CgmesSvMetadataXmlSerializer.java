@@ -51,7 +51,7 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
         adder.setDescription(reader.readStringAttribute("description"))
                 .setSvVersion(reader.readIntAttribute("svVersion"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
-        reader.readUntilEndNode(elementName -> {
+        reader.readChildNodes(elementName -> {
             if (elementName.equals("dependentOn")) {
                 adder.addDependency(reader.readContent());
             } else {

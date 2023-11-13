@@ -44,6 +44,7 @@ public class LineFortescueXmlSerializer extends AbstractExtensionXmlSerializer<L
         boolean openPhaseA = context.getReader().readBooleanAttribute("openPhaseA", false);
         boolean openPhaseB = context.getReader().readBooleanAttribute("openPhaseB", false);
         boolean openPhaseC = context.getReader().readBooleanAttribute("openPhaseC", false);
+        context.getReader().readEndNode();
         return line.newExtension(LineFortescueAdder.class)
                 .withRz(rz)
                 .withXz(xz)

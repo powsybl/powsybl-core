@@ -14,17 +14,9 @@ import java.util.Map;
  */
 public interface TreeDataReader extends AutoCloseable {
 
-    interface EventHandler {
+    interface ChildNodeReader {
 
-        void onStartElement(String elementName);
-    }
-
-    /**
-     * An richer event handler which give element depth with each start event.
-     */
-    interface EventHandlerWithDepth {
-
-        void onStartElement(String elementName, int elementDepth);
+        void onStartNode(String nodeName);
     }
 
     String readRootVersion();
@@ -57,9 +49,11 @@ public interface TreeDataReader extends AutoCloseable {
 
     List<Integer> readIntArrayAttribute(String name);
 
-    void readUntilEndNode(EventHandler eventHandler);
+    void skipChildNodes();
 
-    void readUntilEndNodeWithDepth(EventHandlerWithDepth eventHandler);
+    void readChildNodes(ChildNodeReader childNodeReader);
+
+    void readEndNode();
 
     @Override
     void close();

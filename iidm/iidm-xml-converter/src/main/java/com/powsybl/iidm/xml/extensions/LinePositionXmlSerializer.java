@@ -46,12 +46,13 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
     @Override
     public LinePosition<T> read(T line, XmlReaderContext context) {
         List<Coordinate> coordinates = new ArrayList<>();
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             if (!elementName.equals(COORDINATE_ROOT_NODE)) {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'substationPosition'");
             }
             double longitude = context.getReader().readDoubleAttribute("longitude");
             double latitude = context.getReader().readDoubleAttribute("latitude");
+            context.getReader().readEndNode();
             coordinates.add(new Coordinate(latitude, longitude));
         });
         LinePositionAdder<T> adder = line.newExtension(LinePositionAdder.class);

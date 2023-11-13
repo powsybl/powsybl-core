@@ -65,30 +65,44 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
     @Override
     public SecondaryVoltageControl read(Network network, XmlReaderContext context) {
         SecondaryVoltageControlAdder adder = network.newExtension(SecondaryVoltageControlAdder.class);
-        context.getReader().readUntilEndNode(elementName1 -> {
-            if (elementName1.equals(CONTROL_ZONE_ELEMENT)) {
-                String name = context.getReader().readStringAttribute("name");
-                MutableDouble targetV = new MutableDouble(Double.NaN);
-                List<String> busbarSectionsOrBusesIds = new ArrayList<>();
-                List<ControlUnit> controlUnits = new ArrayList<>();
-                context.getReader().readUntilEndNode(elementName2 -> {
-                    switch (elementName2) {
-                        case PILOT_POINT_ELEMENT ->
-                                targetV.setValue(context.getReader().readDoubleAttribute("targetV"));
-                        case BUSBAR_SECTION_OR_BUS_ID_ELEMENT ->
-                                busbarSectionsOrBusesIds.add(context.getReader().readContent());
-                        case CONTROL_UNIT_ELEMENT -> {
-                            boolean participate = context.getReader().readBooleanAttribute("participate");
-                            String id = context.getReader().readContent();
-                            controlUnits.add(new ControlUnit(id, participate));
-                        }
-                        default -> throw new IllegalStateException("Unexpected element " + elementName2);
-                    }
-                });
-                PilotPoint pilotPoint = new PilotPoint(busbarSectionsOrBusesIds, targetV.getValue());
-                adder.addControlZone(new ControlZone(name, pilotPoint, controlUnits));
+        context.getReader().readChildNodes(elementName -> {
+            if (!elementName.equals(CONTROL_ZONE_ELEMENT)) {
+                throw new IllegalStateException("Unexpected element " + elementName);
             }
+            readControlZone(context, adder);
         });
         return adder.add();
+    }
+
+    private static void readControlZone(XmlReaderContext context, SecondaryVoltageControlAdder adder) {
+        String name = context.getReader().readStringAttribute("name");
+        MutableDouble targetV = new MutableDouble(Double.NaN);
+        List<String> busbarSectionsOrBusesIds = new ArrayList<>();
+        List<ControlUnit> controlUnits = new ArrayList<>();
+        context.getReader().readChildNodes(elementName2 -> {
+            switch (elementName2) {
+                case PILOT_POINT_ELEMENT -> readPilotPoint(context, targetV, busbarSectionsOrBusesIds);
+                case CONTROL_UNIT_ELEMENT -> readControlUnit(context, controlUnits);
+                default -> throw new IllegalStateException("Unexpected element " + elementName2);
+            }
+        });
+        PilotPoint pilotPoint = new PilotPoint(busbarSectionsOrBusesIds, targetV.getValue());
+        adder.addControlZone(new ControlZone(name, pilotPoint, controlUnits));
+    }
+
+    private static void readPilotPoint(XmlReaderContext context, MutableDouble targetV, List<String> busbarSectionsOrBusesIds) {
+        targetV.setValue(context.getReader().readDoubleAttribute("targetV"));
+        context.getReader().readChildNodes(elementName -> {
+            if (!elementName.equals(BUSBAR_SECTION_OR_BUS_ID_ELEMENT)) {
+                throw new IllegalStateException("Unexpected element " + elementName);
+            }
+            busbarSectionsOrBusesIds.add(context.getReader().readContent());
+        });
+    }
+
+    private static void readControlUnit(XmlReaderContext context, List<ControlUnit> controlUnits) {
+        boolean participate = context.getReader().readBooleanAttribute("participate");
+        String id = context.getReader().readContent();
+        controlUnits.add(new ControlUnit(id, participate));
     }
 }

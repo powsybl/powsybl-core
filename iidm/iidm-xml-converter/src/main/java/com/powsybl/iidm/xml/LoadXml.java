@@ -97,12 +97,13 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
 
     @Override
     protected void readSubElements(String id, LoadAdder adder, List<Consumer<Load>> toApply, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case EXPONENTIAL_MODEL -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_10, context);
                     double np = context.getReader().readDoubleAttribute("np");
                     double nq = context.getReader().readDoubleAttribute("nq");
+                    context.getReader().readEndNode();
                     adder.newExponentialModel()
                             .setNp(np)
                             .setNq(nq)
@@ -116,6 +117,7 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
                     double c0q = context.getReader().readDoubleAttribute("c0q");
                     double c1q = context.getReader().readDoubleAttribute("c1q");
                     double c2q = context.getReader().readDoubleAttribute("c2q");
+                    context.getReader().readEndNode();
                     adder.newZipModel()
                             .setC0p(c0p)
                             .setC1p(c1p)

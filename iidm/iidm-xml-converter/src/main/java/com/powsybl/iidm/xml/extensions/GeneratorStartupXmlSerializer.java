@@ -117,6 +117,7 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
         double marginalCost = context.getReader().readDoubleAttribute("marginalCost");
         double plannedOutageRate = context.getReader().readDoubleAttribute("plannedOutageRate");
         double forcedOutageRate = context.getReader().readDoubleAttribute("forcedOutageRate");
+        context.getReader().readEndNode();
         return generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(plannedActivePowerSetpoint)
                 .withStartupCost(startUpCost)

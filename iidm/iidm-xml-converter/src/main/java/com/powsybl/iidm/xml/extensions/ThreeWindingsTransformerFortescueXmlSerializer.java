@@ -59,6 +59,7 @@ public class ThreeWindingsTransformerFortescueXmlSerializer extends AbstractExte
         WindingConnectionType connectionType = reader.readEnumAttribute("connectionType", WindingConnectionType.class);
         double groundingR = reader.readDoubleAttribute("groundingR", 0);
         double groundingX = reader.readDoubleAttribute("groundingX", 0);
+        reader.readEndNode();
         legAdder.withRz(rz)
                 .withXz(xz)
                 .withFreeFluxes(freeFluxes)
@@ -71,7 +72,7 @@ public class ThreeWindingsTransformerFortescueXmlSerializer extends AbstractExte
     public ThreeWindingsTransformerFortescue read(ThreeWindingsTransformer twt, XmlReaderContext context) {
         ThreeWindingsTransformerFortescueAdder fortescueAdder = twt.newExtension(ThreeWindingsTransformerFortescueAdder.class);
 
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case "leg1" -> readLeg(fortescueAdder.leg1(), context.getReader());
                 case "leg2" -> readLeg(fortescueAdder.leg2(), context.getReader());

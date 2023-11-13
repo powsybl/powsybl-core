@@ -88,6 +88,7 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
 
         @Override
         public BusbarSectionExt read(BusbarSection busbarSection, XmlReaderContext context) {
+            context.getReader().readEndNode();
             return new BusbarSectionExt(busbarSection);
         }
     }

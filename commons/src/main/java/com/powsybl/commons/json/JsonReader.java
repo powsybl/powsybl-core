@@ -192,10 +192,11 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public void readUntilEndNodeWithDepth(EventHandlerWithDepth eventHandler) {
-        int depth = 0;
+    public void readChildNodes(ChildNodeReader childNodeReader) {
+        Objects.requireNonNull(childNodeReader);
         try {
-            while (!(getNextToken() == JsonToken.END_OBJECT && depth == 0)) {
+            int startChainSize = nodeChain.size();
+            while (!(getNextToken() == JsonToken.END_OBJECT && nodeChain.size() == startChainSize)) {
                 currentJsonToken = null; // the token will be consumed in all cases below
                 switch (parser.currentToken()) {
                     case FIELD_NAME -> {
@@ -203,10 +204,7 @@ public class JsonReader extends AbstractTreeDataReader {
                             case START_ARRAY -> nodeChain.add(new Node(parser.currentName(), JsonNodeType.ARRAY));
                             case START_OBJECT -> {
                                 nodeChain.add(new Node(parser.currentName(), JsonNodeType.OBJECT));
-                                if (eventHandler != null) {
-                                    eventHandler.onStartElement(nodeChain.getLast().name(), depth);
-                                }
-                                depth++;
+                                childNodeReader.onStartNode(nodeChain.getLast().name());
                             }
                         }
                     }
@@ -214,13 +212,9 @@ public class JsonReader extends AbstractTreeDataReader {
                         Node arrayNode = Optional.ofNullable(nodeChain.peekLast())
                                 .filter(n -> n.jsonNodeType == JsonNodeType.ARRAY)
                                 .orElseThrow(() -> new PowsyblException("JSON parsing: unexpected object start"));
-                        if (eventHandler != null) {
-                            eventHandler.onStartElement(arrayNode.name(), depth);
-                        }
-                        depth++;
+                        childNodeReader.onStartNode(arrayNode.name());
                     }
                     case END_OBJECT -> {
-                        depth--;
                         Node arrayNode = Optional.ofNullable(nodeChain.peekLast())
                                 .orElseThrow(() -> new PowsyblException("JSON parsing: unexpected object end"));
                         if (arrayNode.jsonNodeType() == JsonNodeType.OBJECT) {
@@ -239,6 +233,17 @@ public class JsonReader extends AbstractTreeDataReader {
             // As it could be nested within another readUntilEndNodeWithDepth, the token should not be consumed,
             // for the depth to be decreased in the calling readUntilEndNodeWithDepth
 
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void readEndNode() {
+        try {
+            if (getNextToken() != JsonToken.END_OBJECT) {
+                throw new PowsyblException("JSON parsing: unexpected end node");
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -40,6 +40,7 @@ public class GeneratorShortCircuitXmlSerializer extends AbstractExtensionXmlSeri
         double directSubtransX = context.getReader().readDoubleAttribute("directSubtransX");
         double directTransX = context.getReader().readDoubleAttribute("directTransX");
         double stepUpTransformerX = context.getReader().readDoubleAttribute("stepUpTransformerX");
+        context.getReader().readEndNode();
         return generator.newExtension(GeneratorShortCircuitAdder.class)
                 .withDirectSubtransX(directSubtransX)
                 .withDirectTransX(directTransX)

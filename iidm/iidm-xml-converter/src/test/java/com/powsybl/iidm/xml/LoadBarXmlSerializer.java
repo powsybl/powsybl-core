@@ -31,6 +31,7 @@ public class LoadBarXmlSerializer extends AbstractExtensionXmlSerializer<Load, L
 
     @Override
     public LoadBarExt read(Load load, XmlReaderContext context) {
+        context.getReader().readEndNode();
         return new LoadBarExt(load);
     }
 }

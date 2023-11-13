@@ -34,11 +34,7 @@ public abstract class AbstractTreeDataReader implements TreeDataReader {
     }
 
     @Override
-    public void readUntilEndNode(EventHandler eventHandler) {
-        readUntilEndNodeWithDepth((elementName, elementDepth) -> {
-            if (eventHandler != null) {
-                eventHandler.onStartElement(elementName);
-            }
-        });
+    public void skipChildNodes() {
+        readChildNodes(elementName -> skipChildNodes());
     }
 }

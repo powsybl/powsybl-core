@@ -38,6 +38,7 @@ public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensio
     public CgmesDanglingLineBoundaryNode read(DanglingLine extendable, XmlReaderContext context) {
         boolean isHvdc = context.getReader().readBooleanAttribute("isHvdc");
         String lineEnergyIdentificationCodeEic = context.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
+        context.getReader().readEndNode();
         extendable.newExtension(CgmesDanglingLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
         return extendable.getExtension(CgmesDanglingLineBoundaryNode.class);
     }

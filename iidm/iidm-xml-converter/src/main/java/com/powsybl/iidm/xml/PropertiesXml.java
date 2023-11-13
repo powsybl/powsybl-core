@@ -50,6 +50,7 @@ public final class PropertiesXml {
     private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
         String name = context.getReader().readStringAttribute(NAME);
         String value = context.getReader().readStringAttribute(VALUE);
+        context.getReader().readEndNode();
         return identifiable -> identifiable.setProperty(name, value);
     }
 

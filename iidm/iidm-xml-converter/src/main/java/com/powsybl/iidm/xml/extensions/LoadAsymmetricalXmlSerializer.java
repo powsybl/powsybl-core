@@ -48,6 +48,7 @@ public class LoadAsymmetricalXmlSerializer extends AbstractExtensionXmlSerialize
         double deltaQb = context.getReader().readDoubleAttribute("deltaQb", 0);
         double deltaPc = context.getReader().readDoubleAttribute("deltaPc", 0);
         double deltaQc = context.getReader().readDoubleAttribute("deltaQc", 0);
+        context.getReader().readEndNode();
         return load.newExtension(LoadAsymmetricalAdder.class)
                 .withConnectionType(connectionType)
                 .withDeltaPa(deltaPa)

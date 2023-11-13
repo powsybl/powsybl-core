@@ -38,6 +38,7 @@ public class CgmesLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSeri
     public CgmesLineBoundaryNode read(TieLine extendable, XmlReaderContext context) {
         boolean isHvdc = context.getReader().readBooleanAttribute("isHvdc");
         String lineEnergyIdentificationCodeEic = context.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
+        context.getReader().readEndNode();
         extendable.newExtension(CgmesLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
         return extendable.getExtension(CgmesLineBoundaryNode.class);
     }

@@ -45,6 +45,7 @@ public class StandbyAutomatonXmlSerializer extends AbstractExtensionXmlSerialize
         double highVoltageSetpoint = context.getReader().readDoubleAttribute("highVoltageSetPoint");
         double lowVoltageThreshold = context.getReader().readDoubleAttribute("lowVoltageThreshold");
         double highVoltageThreshold = context.getReader().readDoubleAttribute("highVoltageThreshold");
+        context.getReader().readEndNode();
         svc.newExtension(StandbyAutomatonAdder.class)
                 .withB0(b0)
                 .withStandbyStatus(standby)

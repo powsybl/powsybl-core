@@ -84,7 +84,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
         TreeDataReader reader = networkContext.getReader();
         extendable.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas mapping = extendable.getExtension(CgmesControlAreas.class);
-        reader.readUntilEndNode(elementName -> {
+        reader.readChildNodes(elementName -> {
             if (elementName.equals(CONTROL_AREA)) {
                 CgmesControlArea cgmesControlArea = mapping.newCgmesControlArea()
                         .setId(reader.readStringAttribute("id"))
@@ -93,7 +93,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                         .setNetInterchange(reader.readDoubleAttribute("netInterchange"))
                         .setPTolerance(reader.readDoubleAttribute("pTolerance"))
                         .add();
-                readBoundariesAndTerminals(networkContext, reader, cgmesControlArea, extendable);
+                readBoundariesAndTerminals(networkContext, cgmesControlArea, extendable);
             } else {
                 throw new PowsyblException("Unknown element name <" + elementName + "> in <cgmesControlArea>");
             }
@@ -101,26 +101,29 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
         return extendable.getExtension(CgmesControlAreas.class);
     }
 
-    private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, TreeDataReader reader, CgmesControlArea cgmesControlArea, Network network) {
-        reader.readUntilEndNode(elementName -> {
+    private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, CgmesControlArea cgmesControlArea, Network network) {
+        TreeDataReader reader = networkContext.getReader();
+        reader.readChildNodes(elementName -> {
             String id;
             String side;
             switch (elementName) {
                 case "boundary":
-                    id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().readStringAttribute("id"));
+                    id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
                     Identifiable identifiable = network.getIdentifiable(id);
                     if (identifiable instanceof DanglingLine dl) {
                         cgmesControlArea.add(dl.getBoundary());
                     } else if (identifiable instanceof TieLine tl) {
-                        side = networkContext.getReader().readStringAttribute("side");
+                        side = reader.readStringAttribute("side");
                         cgmesControlArea.add(tl.getDanglingLine(Branch.Side.valueOf(side)).getBoundary());
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
                     }
+                    reader.readEndNode();
                     break;
                 case "terminal":
-                    id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().readStringAttribute("id"));
-                    side = networkContext.getReader().readStringAttribute("side");
+                    id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
+                    side = reader.readStringAttribute("side");
+                    reader.readEndNode();
                     cgmesControlArea.add(TerminalRefXml.resolve(id, side, network));
                     break;
                 default:

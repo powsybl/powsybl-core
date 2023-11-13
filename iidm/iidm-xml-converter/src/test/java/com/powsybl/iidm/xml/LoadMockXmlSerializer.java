@@ -59,6 +59,7 @@ public class LoadMockXmlSerializer extends AbstractVersionableNetworkExtensionXm
     @Override
     public LoadMockExt read(Load extendable, XmlReaderContext context) {
         checkReadingCompatibility((NetworkXmlReaderContext) context);
+        context.getReader().readEndNode();
         return new LoadMockExt(extendable);
     }
 }

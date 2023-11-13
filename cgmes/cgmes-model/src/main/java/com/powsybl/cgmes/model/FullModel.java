@@ -147,11 +147,7 @@ public class FullModel {
             try {
                 XmlUtil.readUntilStartElement(new String[] {"/", CgmesNames.RDF, CgmesNames.FULL_MODEL}, xmlReader, elementName1 -> {
                     context.id = xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.ABOUT);
-                    try {
-                        XmlUtil.readUntilEndElement(xmlReader, subElementName -> readSubElement(subElementName, context, xmlReader));
-                    } catch (XMLStreamException e) {
-                        throw new UncheckedXmlStreamException(e);
-                    }
+                    XmlUtil.readSubElements(xmlReader, subElementName -> readSubElement(subElementName, context, xmlReader));
                 });
             } finally {
                 xmlReader.close();
@@ -176,8 +172,14 @@ public class FullModel {
                 case CgmesNames.DESCRIPTION -> context.description = XmlUtil.readText(xmlReader);
                 case CgmesNames.VERSION -> context.version = Integer.parseInt(xmlReader.getElementText());
                 case CgmesNames.PROFILE -> context.profiles.add(XmlUtil.readText(xmlReader));
-                case CgmesNames.DEPENDENT_ON -> context.dependentOn.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
-                case CgmesNames.SUPERSEDES -> context.supersedes.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
+                case CgmesNames.DEPENDENT_ON -> {
+                    context.dependentOn.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
+                    XmlUtil.readEndElementOrThrow(xmlReader);
+                }
+                case CgmesNames.SUPERSEDES -> {
+                    context.supersedes.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
+                    XmlUtil.readEndElementOrThrow(xmlReader);
+                }
                 case CgmesNames.MODELING_AUTHORITY_SET -> context.modelingAuthoritySet = XmlUtil.readText(xmlReader);
                 // default -> not yet interesting like superseded
             }

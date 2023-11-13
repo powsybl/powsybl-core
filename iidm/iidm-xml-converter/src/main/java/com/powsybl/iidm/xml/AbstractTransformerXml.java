@@ -117,14 +117,14 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
         }
 
         boolean[] hasTerminalRef = new boolean[1];
-        context.getReader().readUntilEndNode(subElementName -> {
+        context.getReader().readChildNodes(subElementName -> {
             switch (subElementName) {
                 case ELEM_TERMINAL_REF ->
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
                         adder.setRegulationTerminal(TerminalRefXml.resolve(id, side, terminal.getVoltageLevel().getNetwork()));
                         adder.add();
                     });
-                case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME ->
+                case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME -> {
                     readSteps(context, (r, x, g, b, rho) -> adder.beginStep()
                             .setR(r)
                             .setX(x)
@@ -132,6 +132,8 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                             .setB(b)
                             .setRho(rho)
                             .endStep());
+                    context.getReader().readEndNode();
+                }
                 default -> throw new IllegalStateException();
             }
         });
@@ -196,7 +198,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
             adder.setRegulating(regulating);
         }
         boolean[] hasTerminalRef = new boolean[1];
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case ELEM_TERMINAL_REF ->
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
@@ -211,6 +213,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                             .setB(b)
                             .setRho(rho));
                     double alpha = context.getReader().readDoubleAttribute("alpha");
+                    context.getReader().readEndNode();
                     stepAdder.setAlpha(alpha)
                             .endStep();
                 }
@@ -233,6 +236,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
     private static void readTerminalRef(NetworkXmlReaderContext context, boolean[] hasTerminalRef, BiConsumer<String, String > consumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
         String side = context.getReader().readStringAttribute("side");
+        context.getReader().readEndNode();
         context.getEndTasks().add(() -> consumer.accept(id, side));
         hasTerminalRef[0] = true;
     }

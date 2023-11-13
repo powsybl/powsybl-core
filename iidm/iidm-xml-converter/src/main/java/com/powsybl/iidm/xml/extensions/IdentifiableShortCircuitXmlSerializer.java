@@ -38,6 +38,7 @@ public class IdentifiableShortCircuitXmlSerializer<I extends Identifiable<I>> ex
     public IdentifiableShortCircuit read(I identifiable, XmlReaderContext context) {
         double ipMax = context.getReader().readDoubleAttribute("ipMax");
         double ipMin = context.getReader().readDoubleAttribute("ipMin");
+        context.getReader().readEndNode();
         IdentifiableShortCircuitAdder<I> adder = identifiable.newExtension(IdentifiableShortCircuitAdder.class);
         return adder.withIpMax(ipMax)
                 .withIpMin(ipMin)

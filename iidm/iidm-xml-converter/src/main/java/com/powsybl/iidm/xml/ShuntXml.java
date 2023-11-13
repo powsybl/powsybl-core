@@ -164,11 +164,12 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
 
     @Override
     protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case REGULATING_TERMINAL -> {
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                     String regSide = context.getReader().readStringAttribute("side");
+                    context.getReader().readEndNode();
                     toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.resolve(regId, regSide, sc.getNetwork()))));
                 }
                 case SHUNT_LINEAR_MODEL -> {
@@ -176,6 +177,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                     double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
                     double gPerSection = context.getReader().readDoubleAttribute("gPerSection");
                     int maximumSectionCount = context.getReader().readIntAttribute(MAXIMUM_SECTION_COUNT);
+                    context.getReader().readEndNode();
                     adder.newLinearModel()
                             .setBPerSection(bPerSection)
                             .setGPerSection(gPerSection)
@@ -185,7 +187,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                 case SHUNT_NON_LINEAR_MODEL -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                     ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
-                    context.getReader().readUntilEndNode(nodeName -> {
+                    context.getReader().readChildNodes(nodeName -> {
                         if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName) || SECTION_ARRAY_ELEMENT_NAME.equals(nodeName)) {
                             double b = context.getReader().readDoubleAttribute("b");
                             double g = context.getReader().readDoubleAttribute("g");
@@ -193,6 +195,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                                     .setB(b)
                                     .setG(g)
                                     .endSection();
+                            context.getReader().readEndNode();
                         } else {
                             throw new PowsyblException("Unknown element name '" + nodeName + "' in '" + id + "'");
                         }

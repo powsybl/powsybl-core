@@ -37,6 +37,7 @@ public class BusbarSectionPositionXmlSerializer extends AbstractExtensionXmlSeri
     public BusbarSectionPosition read(BusbarSection busbarSection, XmlReaderContext context) {
         int busbarIndex = context.getReader().readIntAttribute("busbarIndex");
         int sectionIndex = context.getReader().readIntAttribute("sectionIndex");
+        context.getReader().readEndNode();
         return busbarSection.newExtension(BusbarSectionPositionAdder.class)
             .withBusbarIndex(busbarIndex)
             .withSectionIndex(sectionIndex)

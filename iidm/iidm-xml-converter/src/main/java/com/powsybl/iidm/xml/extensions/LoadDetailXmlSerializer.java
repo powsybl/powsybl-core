@@ -54,6 +54,7 @@ public class LoadDetailXmlSerializer extends AbstractExtensionXmlSerializer<Load
         if (Double.isNaN(variableReactivePower)) {
             variableReactivePower = context.getReader().readDoubleAttribute("subLoad2ReactivePower");
         }
+        context.getReader().readEndNode();
         return load.newExtension(LoadDetailAdder.class)
                 .withFixedActivePower(fixedActivePower)
                 .withFixedReactivePower(fixedReactivePower)

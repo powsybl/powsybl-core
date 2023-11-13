@@ -41,12 +41,13 @@ public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSeriali
     @Override
     public SubstationPosition read(Substation substation, XmlReaderContext context) {
         Coordinate[] coordinate = new Coordinate[1];
-        context.getReader().readUntilEndNode(e -> {
+        context.getReader().readChildNodes(e -> {
             if (!e.equals(COORDINATE_ROOT_NODE)) {
                 throw new PowsyblException("Unknown element name '" + e + "' in 'substationPosition'");
             }
             double longitude = context.getReader().readDoubleAttribute("longitude");
             double latitude = context.getReader().readDoubleAttribute("latitude");
+            context.getReader().readEndNode();
             coordinate[0] = new Coordinate(latitude, longitude);
         });
         return substation.newExtension(SubstationPositionAdder.class)

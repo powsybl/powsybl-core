@@ -100,6 +100,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
         Optional.ofNullable(context.getReader().readIntAttribute("order")).
                 ifPresent(adder::withOrder);
         ConnectablePosition.Direction direction = context.getReader().readEnumAttribute("direction", ConnectablePosition.Direction.class);
+        context.getReader().readEndNode();
         if (name != null) {
             adder.withName(name);
         } else {
@@ -115,7 +116,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     @Override
     public ConnectablePosition<C> read(C connectable, XmlReaderContext context) {
         ConnectablePositionAdder<C> adder = connectable.newExtension(ConnectablePositionAdder.class);
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case "feeder" -> readPosition(context, adder.newFeeder());
                 case "feeder1" -> readPosition(context, adder.newFeeder1());

@@ -115,9 +115,14 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public void readUntilEndNodeWithDepth(EventHandlerWithDepth eventHandler) {
+    public void readChildNodes(ChildNodeReader childNodeReader) {
+        XmlUtil.readSubElements(reader, childNodeReader);
+    }
+
+    @Override
+    public void readEndNode() {
         try {
-            XmlUtil.readUntilEndElementWithDepth(reader, eventHandler);
+            XmlUtil.readEndElementOrThrow(reader);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }

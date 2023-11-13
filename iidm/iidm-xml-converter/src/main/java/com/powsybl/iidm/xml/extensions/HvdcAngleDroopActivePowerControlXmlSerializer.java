@@ -41,6 +41,7 @@ public class HvdcAngleDroopActivePowerControlXmlSerializer extends AbstractExten
         float p0 = context.getReader().readFloatAttribute("p0");
         float droop = context.getReader().readFloatAttribute("droop");
         boolean enabled = context.getReader().readBooleanAttribute("enabled");
+        context.getReader().readEndNode();
 
         return hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
                 .withP0(p0)

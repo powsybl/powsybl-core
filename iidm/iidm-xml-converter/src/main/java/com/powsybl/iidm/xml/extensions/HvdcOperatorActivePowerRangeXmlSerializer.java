@@ -41,6 +41,7 @@ public class HvdcOperatorActivePowerRangeXmlSerializer extends AbstractExtension
     public HvdcOperatorActivePowerRange read(HvdcLine hvdcLine, XmlReaderContext context) {
         float oprFromCS1toCS2 = context.getReader().readFloatAttribute("fromCS1toCS2");
         float oprFromCS2toCS1 = context.getReader().readFloatAttribute("fromCS2toCS1");
+        context.getReader().readEndNode();
         return hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class)
                 .withOprFromCS1toCS2(oprFromCS1toCS2)
                 .withOprFromCS2toCS1(oprFromCS2toCS1)

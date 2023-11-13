@@ -31,6 +31,7 @@ public class LoadFooXmlSerializer extends AbstractExtensionXmlSerializer<Load, L
 
     @Override
     public LoadFooExt read(Load load, XmlReaderContext context) {
+        context.getReader().readEndNode();
         return new LoadFooExt(load);
     }
 }

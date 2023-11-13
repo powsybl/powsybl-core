@@ -34,6 +34,7 @@ public class VoltagePerReactivePowerControlXmlSerializer extends AbstractExtensi
     @Override
     public VoltagePerReactivePowerControl read(StaticVarCompensator svc, XmlReaderContext context) {
         double slope = context.getReader().readDoubleAttribute("slope");
+        context.getReader().readEndNode();
         return svc.newExtension(VoltagePerReactivePowerControlAdder.class)
                 .withSlope(slope)
                 .add();

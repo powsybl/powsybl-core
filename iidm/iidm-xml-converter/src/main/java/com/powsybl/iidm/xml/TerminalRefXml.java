@@ -56,6 +56,7 @@ public final class TerminalRefXml {
     public static Terminal readTerminal(NetworkXmlReaderContext context, Network n) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         String side = context.getReader().readStringAttribute(SIDE);
+        context.getReader().readEndNode();
         return TerminalRefXml.resolve(id, side, n);
     }
 

@@ -40,10 +40,11 @@ public class CimCharacteristicsXmlSerializer extends AbstractExtensionXmlSeriali
     public CimCharacteristics read(Network extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         TreeDataReader reader = networkContext.getReader();
-        extendable.newExtension(CimCharacteristicsAdder.class)
+        var extension = extendable.newExtension(CimCharacteristicsAdder.class)
                 .setTopologyKind(reader.readEnumAttribute("topologyKind", CgmesTopologyKind.class))
                 .setCimVersion(reader.readIntAttribute("cimVersion"))
                 .add();
-        return extendable.getExtension(CimCharacteristics.class);
+        context.getReader().readEndNode();
+        return extension;
     }
 }

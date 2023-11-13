@@ -69,6 +69,6 @@ class BusXml extends AbstractSimpleIdentifiableXml<Bus, BusAdder, VoltageLevel> 
 
     @Override
     protected void readSubElements(Bus b, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(elementName -> readSubElement(elementName, b, context));
+        context.getReader().readChildNodes(elementName -> readSubElement(elementName, b, context));
     }
 }

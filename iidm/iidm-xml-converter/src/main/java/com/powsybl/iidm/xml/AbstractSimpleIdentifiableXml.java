@@ -39,6 +39,8 @@ abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, 
         T identifiable = readRootElementAttributes(adder, parent, context);
         if (identifiable != null) {
             readSubElements(identifiable, context);
+        } else {
+            context.getReader().skipChildNodes();
         }
     }
 

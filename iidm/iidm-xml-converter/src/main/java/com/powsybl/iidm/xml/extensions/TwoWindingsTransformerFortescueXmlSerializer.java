@@ -52,6 +52,7 @@ public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtens
         double groundingX1 = context.getReader().readDoubleAttribute("groundingX1", 0);
         double groundingR2 = context.getReader().readDoubleAttribute("groundingR2", 0);
         double groundingX2 = context.getReader().readDoubleAttribute("groundingX2", 0);
+        context.getReader().readEndNode();
         return twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
                 .withRz(rz)
                 .withXz(xz)

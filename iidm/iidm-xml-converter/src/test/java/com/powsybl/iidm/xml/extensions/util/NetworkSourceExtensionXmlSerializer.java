@@ -33,6 +33,7 @@ public class NetworkSourceExtensionXmlSerializer extends AbstractExtensionXmlSer
     @Override
     public NetworkSourceExtension read(Network extendable, XmlReaderContext context) {
         String sourceData = context.getReader().readStringAttribute("sourceData");
+        context.getReader().readEndNode();
         NetworkSourceExtensionImpl extension = new NetworkSourceExtensionImpl(sourceData);
         extendable.addExtension(NetworkSourceExtension.class, extension);
         return extension;

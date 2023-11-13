@@ -31,6 +31,7 @@ public class NodeBreakerViewInternalConnectionXml {
     protected void read(VoltageLevel vl, NetworkXmlReaderContext context) {
         int node1 = context.getReader().readIntAttribute("node1");
         int node2 = context.getReader().readIntAttribute("node2");
+        context.getReader().readEndNode();
         vl.getNodeBreakerView().newInternalConnection().setNode1(node1).setNode2(node2).add();
     }
 }

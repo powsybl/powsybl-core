@@ -35,9 +35,11 @@ public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractEx
 
     @Override
     public TwoWindingsTransformerToBeEstimated read(TwoWindingsTransformer extendable, XmlReaderContext context) {
-        return extendable.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
+        var extension = extendable.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
                 .withRatioTapChangerStatus(context.getReader().readBooleanAttribute("ratioTapChangerStatus"))
                 .withPhaseTapChangerStatus(context.getReader().readBooleanAttribute("phaseTapChangerStatus"))
                 .add();
+        context.getReader().readEndNode();
+        return extension;
     }
 }

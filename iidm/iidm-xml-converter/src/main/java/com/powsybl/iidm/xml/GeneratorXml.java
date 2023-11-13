@@ -81,11 +81,12 @@ class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdd
 
     @Override
     protected void readSubElements(Generator g, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case "regulatingTerminal" -> {
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                     String side = context.getReader().readStringAttribute("side");
+                    context.getReader().readEndNode();
                     context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.resolve(id, side, g.getNetwork())));
                 }
                 case ReactiveLimitsXml.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsXml.INSTANCE.readReactiveCapabilityCurve(g, context);

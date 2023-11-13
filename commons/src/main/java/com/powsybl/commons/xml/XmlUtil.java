@@ -8,6 +8,7 @@ package com.powsybl.commons.xml;
 
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.io.TreeDataReader;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.slf4j.Logger;
@@ -32,13 +33,13 @@ public final class XmlUtil {
     private XmlUtil() {
     }
 
-    public static void readUntilStartElement(String path, XMLStreamReader reader, TreeDataReader.EventHandler handler) throws XMLStreamException {
+    public static void readUntilStartElement(String path, XMLStreamReader reader, TreeDataReader.ChildNodeReader handler) throws XMLStreamException {
         Objects.requireNonNull(path);
         String[] elements = path.split("/");
         readUntilStartElement(elements, reader, handler);
     }
 
-    public static void readUntilStartElement(String[] elements, XMLStreamReader reader, TreeDataReader.EventHandler handler) throws XMLStreamException {
+    public static void readUntilStartElement(String[] elements, XMLStreamReader reader, TreeDataReader.ChildNodeReader handler) throws XMLStreamException {
         Objects.requireNonNull(elements);
         if (elements.length == 0) {
             throw new PowsyblException("Empty element list");
@@ -51,7 +52,7 @@ public final class XmlUtil {
             }
         }
         if (handler != null) {
-            handler.onStartElement(elements[elements.length - 1]);
+            handler.onStartNode(elements[elements.length - 1]);
         }
     }
 
@@ -64,7 +65,7 @@ public final class XmlUtil {
                         return true;
                     } else {
                         // Skip the current element
-                        readUntilEndElement(reader, null);
+                        readSubElements(reader);
                     }
                     break;
 
@@ -81,40 +82,23 @@ public final class XmlUtil {
         throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");
     }
 
-    public static void readUntilEndElement(XMLStreamReader reader, TreeDataReader.EventHandler eventHandler) throws XMLStreamException {
-        readUntilEndElementWithDepth(reader, (elementName, elementDepth) -> {
-            if (eventHandler != null) {
-                eventHandler.onStartElement(elementName);
-            }
-        });
+    public static void readSubElements(XMLStreamReader reader) {
+        readSubElements(reader, elementName -> readSubElements(reader));
     }
 
-    public static void readUntilEndElementWithDepth(XMLStreamReader reader, TreeDataReader.EventHandlerWithDepth eventHandler) throws XMLStreamException {
+    public static void readSubElements(XMLStreamReader reader, TreeDataReader.ChildNodeReader childNodeReader) {
         Objects.requireNonNull(reader);
+        Objects.requireNonNull(childNodeReader);
 
-        int event;
-        int depth = 0;
-        while (!((event = reader.next()) == XMLStreamConstants.END_ELEMENT && depth == 0)) {
-            switch (event) {
-                case XMLStreamConstants.START_ELEMENT:
-                    if (eventHandler != null) {
-                        String startLocalName = reader.getLocalName();
-                        eventHandler.onStartElement(startLocalName, depth);
-                        // if handler has already consumed end element we must decrease the depth
-                        if (reader.getEventType() == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(startLocalName)) {
-                            depth--;
-                        }
-                    }
-                    depth++;
-                    break;
-
-                case XMLStreamConstants.END_ELEMENT:
-                    depth--;
-                    break;
-
-                default:
-                    break;
+        try {
+            int event;
+            while (!((event = reader.next()) == XMLStreamConstants.END_ELEMENT)) {
+                if (event == XMLStreamConstants.START_ELEMENT) {
+                    childNodeReader.onStartNode(reader.getLocalName());
+                }
             }
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
@@ -165,6 +149,12 @@ public final class XmlUtil {
             xmlsr.close();
         } catch (XMLStreamException | IOException e) {
             LOGGER.error(e.toString(), e);
+        }
+    }
+
+    public static void readEndElementOrThrow(XMLStreamReader reader) throws XMLStreamException {
+        if (reader.next() != XMLStreamConstants.END_ELEMENT) {
+            throw new PowsyblException("XMLStreamConstants.END_ELEMENT expected but found another event (eventType = '" + reader.getEventType() + "')");
         }
     }
 }

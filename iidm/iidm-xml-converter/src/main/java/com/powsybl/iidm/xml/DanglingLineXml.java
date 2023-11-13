@@ -173,7 +173,7 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
 
     @Override
     protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) {
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case ACTIVE_POWER_LIMITS -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);

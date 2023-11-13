@@ -71,20 +71,14 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         BranchObservabilityAdder<T> adder = identifiable.newExtension(BranchObservabilityAdder.class)
                 .withObservable(observable);
 
-        context.getReader().readUntilEndNode(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
+            var side = context.getReader().readEnumAttribute(SIDE, Side.class);
+            var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
+            var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
+            context.getReader().readEndNode();
             switch (elementName) {
-                case QUALITY_P -> {
-                    var side = context.getReader().readEnumAttribute(SIDE, Side.class);
-                    var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
-                    readQualityP(standardDeviation, redundant, side, adder);
-                }
-                case QUALITY_Q -> {
-                    var side = context.getReader().readEnumAttribute(SIDE, Side.class);
-                    var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
-                    readQualityQ(standardDeviation, redundant, side, adder);
-                }
+                case QUALITY_P -> readQualityP(standardDeviation, redundant, side, adder);
+                case QUALITY_Q -> readQualityQ(standardDeviation, redundant, side, adder);
                 default -> throw new PowsyblException("Unexpected element: " + elementName);
             }
         });
