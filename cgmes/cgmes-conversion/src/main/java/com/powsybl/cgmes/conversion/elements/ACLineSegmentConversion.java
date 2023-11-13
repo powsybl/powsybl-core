@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -124,6 +125,17 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         }
     }
 
+    private static void addEquivalentInjectionReference(Context context, DanglingLine dl1, BoundaryLine boundaryLine, String boundaryNode) {
+        EquivalentInjectionConversion eqic = getEquivalentInjectionConversionForAssembledDanglingLine(context, boundaryNode, boundaryLine);
+        if (eqic != null) {
+            dl1.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", eqic.id);
+            CgmesTerminal cgmesTerminal = context.cgmes().terminal(eqic.terminalId());
+            if (cgmesTerminal != null) {
+                dl1.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
+            }
+        }
+    }
+
     private static TieLine createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
         DanglingLineAdder adder1 = getDanglingLineAdder(context, boundaryNode, boundaryLine1);
         DanglingLineAdder adder2 = getDanglingLineAdder(context, boundaryNode, boundaryLine2);
@@ -131,6 +143,11 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         connect(context, adder2, boundaryLine2.getModelBus(), boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
         DanglingLine dl1 = adder1.add();
         DanglingLine dl2 = adder2.add();
+
+        // Keep equivalent injection information of dangling lines inside tie lines
+        addEquivalentInjectionReference(context, dl1, boundaryLine1, boundaryNode);
+        addEquivalentInjectionReference(context, dl2, boundaryLine2, boundaryNode);
+
         TieLineAdder adder = context.network().newTieLine()
                 .setDanglingLine1(dl1.getId())
                 .setDanglingLine2(dl2.getId());

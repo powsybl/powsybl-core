@@ -236,8 +236,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connect(dlAdder, modelSide);
-        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(
-            boundaryNode);
+        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(boundaryNode);
         DanglingLine dl;
         if (equivalentInjectionConversion != null) {
             dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
@@ -348,6 +347,32 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             return null;
         } else {
             return new EquivalentInjectionConversion(eis.get(0), context);
+        }
+    }
+
+    protected static EquivalentInjectionConversion getEquivalentInjectionConversionForAssembledDanglingLine(Context context, String boundaryNode, BoundaryLine boundaryLine) {
+        List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
+        if (eis.isEmpty()) {
+            return null;
+        } else if (eis.size() == 1) {
+            // This should not happen
+            // We have decided to assemble a dangling line,
+            // so we have the two MAS at this boundary point,
+            // so there must be more than one equivalent injection
+            context.invalid("Boundary node " + boundaryNode,
+                    "Expected multiple equivalent injections at boundary node in assembled model and found only one");
+            return null;
+        } else {
+            // Select the EI thas is defined in the same EQ instance of the given line
+            String eqInstancePropertyName = "graph";
+            PropertyBag ei = eis.stream()
+                    .filter(eik -> eik.getId(eqInstancePropertyName).equals(boundaryLine.getEqInstance()))
+                    .findFirst().orElse(null);
+            if (ei == null) {
+                context.invalid("Boundary node " + boundaryNode,
+                        "Assembled model does not contain an equivalent injection in the same graph of line " + boundaryLine.getId());
+            }
+            return new EquivalentInjectionConversion(ei, context);
         }
     }
 
@@ -652,6 +677,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected BoundaryLine createBoundaryLine(String boundaryNode) {
+        // Keep the EQ instance where this equipment at boundary has been defined
+        // The equipment may be a transformer,
+        // in that case we have a list property bags,
+        // one for each of transformer end
+        String eqInstance = (p != null ? p : ps.get(0)).getId("graph");
+
         int modelEnd = 1;
         if (nodeId(1).equals(boundaryNode)) {
             modelEnd = 2;
@@ -668,7 +699,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             modelNode = iidmNode(modelEnd);
         }
         PowerFlow modelPowerFlow = powerFlowSV(modelEnd);
-        return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
+        return new BoundaryLine(eqInstance, id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
             modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, modelPowerFlow);
     }
 
