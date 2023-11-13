@@ -39,6 +39,7 @@ public interface RatioTapChangerAdder {
 
     RatioTapChangerAdder setRegulationValue(double regulationValue);
 
+    @Deprecated(since = "6.1.0")
     RatioTapChangerAdder setTargetV(double targetV);
 
     RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
