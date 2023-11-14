@@ -62,9 +62,9 @@ public interface LoadFlowResult {
              */
             FAILED,
             /**
-             * Component was not calculated, e.g. component does not have any PV node
+             * Component was not calculated, e.g. de-energized component without any voltage support
              */
-            NOT_CALCULATED
+            NO_CALCULATION
         }
 
         /**
