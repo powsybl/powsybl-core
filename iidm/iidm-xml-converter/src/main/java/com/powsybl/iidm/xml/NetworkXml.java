@@ -540,6 +540,7 @@ public final class NetworkXml {
                 Map.entry(BatteryXml.ARRAY_ELEMENT_NAME, BatteryXml.ROOT_ELEMENT_NAME),
                 Map.entry(BusXml.ARRAY_ELEMENT_NAME, BusXml.ROOT_ELEMENT_NAME),
                 Map.entry(BusbarSectionXml.ARRAY_ELEMENT_NAME, BusbarSectionXml.ROOT_ELEMENT_NAME),
+                Map.entry(ConnectableXmlUtil.TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME, ConnectableXmlUtil.TEMPORARY_LIMITS_ROOT_ELEMENT_NAME),
                 Map.entry(DanglingLineXml.ARRAY_ELEMENT_NAME, DanglingLineXml.ROOT_ELEMENT_NAME),
                 Map.entry(GeneratorXml.ARRAY_ELEMENT_NAME, GeneratorXml.ROOT_ELEMENT_NAME),
                 Map.entry(HvdcLineXml.ARRAY_ELEMENT_NAME, HvdcLineXml.ROOT_ELEMENT_NAME),

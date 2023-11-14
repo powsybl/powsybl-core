@@ -18,8 +18,8 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
  */
 public final class ConnectableXmlUtil {
 
-    private static final String TEMPORARY_LIMITS_ARRAY_ELEMENT_NODE = "temporaryLimits";
-    private static final String TEMPORARY_LIMITS_ROOT_ELEMENT_NODE = "temporaryLimit";
+    static final String TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME = "temporaryLimits";
+    static final String TEMPORARY_LIMITS_ROOT_ELEMENT_NAME = "temporaryLimit";
 
     private ConnectableXmlUtil() {
     }
@@ -186,7 +186,7 @@ public final class ConnectableXmlUtil {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
         reader.readChildNodes(elementName -> {
-            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NODE.equals(elementName)) {
+            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NAME.equals(elementName)) {
                 String name = reader.readStringAttribute("name");
                 int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
@@ -241,9 +241,9 @@ public final class ConnectableXmlUtil {
                 || !limits.getTemporaryLimits().isEmpty()) {
             writer.writeStartNode(nsUri, type + indexToString(index));
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
-            writer.writeStartNodes(TEMPORARY_LIMITS_ARRAY_ELEMENT_NODE);
+            writer.writeStartNodes(TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME);
             for (LoadingLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NODE);
+                writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
                 writer.writeStringAttribute("name", tl.getName());
                 writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
                 writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
