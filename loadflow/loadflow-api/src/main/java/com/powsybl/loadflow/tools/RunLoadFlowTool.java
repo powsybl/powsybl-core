@@ -35,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
 
@@ -195,23 +196,34 @@ public class RunLoadFlowTool implements Tool {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        final String csvSeparator = String.valueOf(formatterConfig.getCsvSeparator());
         if (!result.getComponentResults().isEmpty()) {
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Components results",
                     formatterConfig,
-                    new Column("Connected component number"),
-                    new Column("Synchronous component number"),
+                    new Column("Connected component"),
+                    new Column("Synchronous component"),
                     new Column("Status"),
+                    new Column("Status text"),
+                    new Column("Metrics"),
                     new Column("Iteration count"),
                     new Column("Slack bus ID"),
-                    new Column("Slack bus mismatch (MW)"))) {
+                    new Column("Slack bus mismatch (MW)"),
+                    new Column("Distributed Active Power (MW)"))) {
                 for (LoadFlowResult.ComponentResult componentResult : result.getComponentResults()) {
                     formatter.writeCell(componentResult.getConnectedComponentNum());
                     formatter.writeCell(componentResult.getSynchronousComponentNum());
                     formatter.writeCell(componentResult.getStatus().name());
+                    formatter.writeCell(componentResult.getStatusText());
+                    formatter.writeCell(componentResult.getMetrics().toString());
                     formatter.writeCell(componentResult.getIterationCount());
-                    formatter.writeCell(componentResult.getSlackBusId());
-                    formatter.writeCell(componentResult.getSlackBusActivePowerMismatch());
+                    formatter.writeCell(componentResult.getSlackBusResults().stream()
+                            .map(LoadFlowResult.SlackBusResult::getId)
+                            .collect(Collectors.joining(csvSeparator)));
+                    formatter.writeCell(componentResult.getSlackBusResults().stream()
+                            .map(sbr -> String.format(formatterConfig.getLocale(), "%.2f", sbr.getActivePowerMismatch()))
+                            .collect(Collectors.joining(csvSeparator)));
+                    formatter.writeCell(componentResult.getDistributedActivePower());
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
