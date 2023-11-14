@@ -84,7 +84,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
                 "+ Dynamic Simulation Tool",
-                "Writing results to 'outputTest'" + System.lineSeparator());
+                "Writing results to 'outputTest.json'" + System.lineSeparator());
         String expectedOutputFile = """
                         {
                           "version" : "1.0",
@@ -105,15 +105,15 @@ class DynamicSimulationToolTest extends AbstractToolTest {
                             "chunks" : [ ]
                           }
                         }""";
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-file", "outputTest"}, 0, expectedOut, "");
-        ComparisonUtils.compareTxt(Files.newInputStream(fileSystem.getPath("outputTest")), expectedOutputFile);
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-file", "outputTest.json"}, 0, expectedOut, "");
+        ComparisonUtils.compareTxt(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.json")));
     }
 
     @Test
     void testDynamicSimulationWithOutputLogFile() throws IOException {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
-                "Writing logs to 'outputTest'",
+                "Writing logs to 'outputTest.log'",
                 "dynamic simulation results:",
                 "+--------+",
                 "| Result |",
@@ -121,8 +121,8 @@ class DynamicSimulationToolTest extends AbstractToolTest {
                 "| true   |",
                 "+--------+");
         String expectedOutputFile = "+ Dynamic Simulation Tool\n";
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-log-file", "outputTest"}, 0, expectedOut, "");
-        ComparisonUtils.compareTxt(Files.newInputStream(fileSystem.getPath("outputTest")), expectedOutputFile);
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-log-file", "outputTest.log"}, 0, expectedOut, "");
+        ComparisonUtils.compareTxt(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
     }
 
     @Test
