@@ -16,7 +16,12 @@
     <xs:element name="referenceTerminals">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="referenceTerminal" minOccurs="0" maxOccurs="unbounded" type="iidm:TerminalRef"/>
+                <xs:element name="referenceTerminal"  minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+                        <xs:attribute name="side" type="iidm:Side"/>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

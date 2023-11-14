@@ -10,21 +10,19 @@
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:iidm="http://www.powsybl.org/schema/iidm/1_11"
-           xmlns:refpri="http://www.powsybl.org/schema/iidm/ext/reference_priorities/1_0"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/reference_priorities/1_0"
            elementFormDefault="qualified">
     <xs:import namespace="http://www.powsybl.org/schema/iidm/1_11" schemaLocation="iidm_V1_11.xsd"/>
-    <xs:complexType name="TerminalReferencePriority">
-        <xs:complexContent>
-            <xs:extension base="iidm:TerminalRef">
-                <xs:attribute name="priority" use="required" type="xs:nonNegativeInteger"/>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
     <xs:element name="referencePriorities">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="referencePriority"  minOccurs="0" maxOccurs="unbounded" type="refpri:TerminalReferencePriority"/>
+                <xs:element name="referencePriority"  minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+                        <xs:attribute name="side" type="iidm:Side"/>
+                        <xs:attribute name="priority" use="required" type="xs:nonNegativeInteger"/>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
