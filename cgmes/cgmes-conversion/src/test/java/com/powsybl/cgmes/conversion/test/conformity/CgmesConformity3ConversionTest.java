@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.test.conformity;
 
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
@@ -21,6 +22,9 @@ import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
 import java.io.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,6 +63,20 @@ class CgmesConformity3ConversionTest {
 
         // Check SV export contains tie line terminals
         checkExportSvTerminals(merge);
+    }
+
+    @Test
+    void microGridBaseCaseAssembled() {
+        Properties params = new Properties();
+        params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "true");
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
+        assertEquals(2, n.getSubnetworks().size());
+        assertEquals(List.of("BE", "NL"),
+                n.getSubnetworks().stream()
+                        .map(n1 -> n1.getSubstations().iterator().next().getCountry().map(Objects::toString).orElse(""))
+                        .sorted()
+                        .toList());
+        checkExportSvTerminals(n);
     }
 
     private void checkExportSvTerminals(Network network) {

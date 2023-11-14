@@ -132,16 +132,14 @@ public class CgmesImport implements Importer {
         return FORMAT;
     }
 
-    private static final boolean XXX_IMPORT_ASSEMBLED_AS_SUBNETWORKS = true;
-
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(reporter);
-        if (XXX_IMPORT_ASSEMBLED_AS_SUBNETWORKS) {
+        if (Parameter.readBoolean(getFormat(), p, IMPORT_ASSEMBLED_AS_SUBNETWORKS_PARAMETER, defaultValueConfig)) {
             Set<ReadOnlyDataSource> dss = AssembledChecker.separate(ds);
-            if (!dss.isEmpty()) {
+            if (dss.size() > 1) {
                 return Network.merge(dss.stream()
                         .map(ds1 -> importData1(ds1, networkFactory, p, reporter))
                         .toArray(Network[]::new));
@@ -466,6 +464,7 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
     public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
+    public static final String IMPORT_ASSEMBLED_AS_SUBNETWORKS = "iidm.import.cgmes.assembled-as-subnetworks";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -580,6 +579,11 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Force disconnection of dangling line network side if boundary side is disconnected",
             Boolean.TRUE);
+    private static final Parameter IMPORT_ASSEMBLED_AS_SUBNETWORKS_PARAMETER = new Parameter(
+            IMPORT_ASSEMBLED_AS_SUBNETWORKS,
+            ParameterType.BOOLEAN,
+            "Import assembled models as subnetworks",
+            Boolean.FALSE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -600,7 +604,8 @@ public class CgmesImport implements Importer {
             DECODE_ESCAPED_IDENTIFIERS_PARAMETER,
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
-            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER);
+            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+            IMPORT_ASSEMBLED_AS_SUBNETWORKS_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;
