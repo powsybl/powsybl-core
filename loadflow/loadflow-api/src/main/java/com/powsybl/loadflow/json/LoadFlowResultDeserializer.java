@@ -40,6 +40,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         Integer connectedComponentNum = null;
         Integer synchronousComponentNum = null;
         LoadFlowResult.ComponentResult.Status status = null;
+        String statusText = null;
         Map<String, String> metrics = Collections.emptyMap();
         Integer iterationCount = null;
         List<LoadFlowResult.SlackBusResult> slackBusResults = new ArrayList<>();
@@ -68,6 +69,11 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                 case "status" -> {
                     parser.nextToken();
                     status = LoadFlowResult.ComponentResult.Status.valueOf(parser.getValueAsString());
+                }
+                case "statusText" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: statusText", version, "1.4");
+                    parser.nextToken();
+                    statusText = parser.getValueAsString();
                 }
                 case "metrics" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: metrics", version, "1.4");
@@ -139,7 +145,11 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             slackBusResults = List.of(new LoadFlowResultImpl.SlackBusResultImpl(slackBusId, slackBusActivePowerMismatch));
         }
 
-        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, metrics, iterationCount, referenceBusId, slackBusResults, distributedActivePower);
+        return new LoadFlowResultImpl.ComponentResultImpl(
+            connectedComponentNum, synchronousComponentNum,
+            status, statusText, metrics, iterationCount,
+            referenceBusId, slackBusResults, distributedActivePower
+        );
     }
 
     public LoadFlowResult.SlackBusResult deserializeSlackBusResult(JsonParser parser) throws IOException {

@@ -65,6 +65,7 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
                         0,
                         0,
                         LoadFlowResult.ComponentResult.Status.CONVERGED,
+                        "Success",
                         createComponentMetrics(),
                         7,
                         "bus0",
@@ -87,6 +88,7 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
         LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion13.json"));
         LoadFlowResult.ComponentResult componentResult = result.getComponentResults().get(0);
         assertEquals("bus1", componentResult.getReferenceBusId());
+        assertEquals("CONVERGED", componentResult.getStatusText());
         assertTrue(componentResult.getMetrics().isEmpty());
         assertEquals(1, componentResult.getSlackBusResults().size());
         LoadFlowResult.SlackBusResult slackBusResult = componentResult.getSlackBusResults().get(0);

@@ -58,6 +58,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
         jsonGenerator.writeNumberField("connectedComponentNum", componentResult.getConnectedComponentNum());
         jsonGenerator.writeNumberField("synchronousComponentNum", componentResult.getSynchronousComponentNum());
         jsonGenerator.writeStringField("status", componentResult.getStatus().name());
+        jsonGenerator.writeStringField("statusText", componentResult.getStatusText());
         serializerProvider.defaultSerializeField("metrics", componentResult.getMetrics(), jsonGenerator);
         jsonGenerator.writeNumberField("iterationCount", componentResult.getIterationCount());
         jsonGenerator.writeStringField("referenceBusId", componentResult.getReferenceBusId());

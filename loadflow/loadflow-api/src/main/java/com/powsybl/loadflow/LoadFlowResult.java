@@ -86,6 +86,13 @@ public interface LoadFlowResult {
         Status getStatus();
 
         /**
+         * Get status text of the computation on this component. Status text is implementation specific
+         * and can be used to provide additional information about e.g. failed reason.
+         * @return the status text of the computation on this component
+         */
+        String getStatusText();
+
+        /**
          * Get metrics. Metrics are generic key/value pairs and are specific to a loadflow implementation.
          * @return the metrics for this component
          */

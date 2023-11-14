@@ -47,6 +47,8 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         private final Status status;
 
+        private final String statusText;
+
         private final Map<String, String> metrics;
 
         private final int iterationCount;
@@ -62,6 +64,7 @@ public class LoadFlowResultImpl implements LoadFlowResult {
             this.connectedComponentNum = checkComponentNum(connectedComponentNum);
             this.synchronousComponentNum = checkComponentNum(synchronousComponentNum);
             this.status = Objects.requireNonNull(status);
+            this.statusText = status.name();
             this.metrics = Collections.emptyMap();
             this.iterationCount = checkIterationCount(iterationCount);
             this.referenceBusId = slackBusId;
@@ -70,11 +73,13 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         }
 
         public ComponentResultImpl(int connectedComponentNum, int synchronousComponentNum, Status status,
-                                   Map<String, String> metrics, int iterationCount, String referenceBusId,
-                                   List<SlackBusResult> slackBusResults, double distributedActivePower) {
+                                   String statusText, Map<String, String> metrics, int iterationCount,
+                                   String referenceBusId, List<SlackBusResult> slackBusResults,
+                                   double distributedActivePower) {
             this.connectedComponentNum = checkComponentNum(connectedComponentNum);
             this.synchronousComponentNum = checkComponentNum(synchronousComponentNum);
             this.status = Objects.requireNonNull(status);
+            this.statusText = Objects.requireNonNullElse(statusText, status.name());
             this.metrics = Objects.requireNonNull(metrics);
             this.iterationCount = checkIterationCount(iterationCount);
             this.referenceBusId = referenceBusId; // allowed to be null
@@ -109,6 +114,11 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         @Override
         public Status getStatus() {
             return status;
+        }
+
+        @Override
+        public String getStatusText() {
+            return statusText;
         }
 
         @Override
