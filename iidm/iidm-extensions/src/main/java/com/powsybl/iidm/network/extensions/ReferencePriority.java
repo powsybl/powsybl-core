@@ -58,7 +58,8 @@ public interface ReferencePriority {
             return 0;
         }
         Optional<ReferencePriority> refTerminal = ((List<ReferencePriority>) (ext.getReferencePriorities())).stream()
-                .filter(rt -> rt.getTerminal().equals(branch.getTerminal(side)))
+                .filter(rt -> rt.getTerminal().getConnectable().getId().equals(branch.getId()))
+                .filter(rt -> side.toThreeSides().equals(Terminal.getConnectableSide(rt.getTerminal()).orElseThrow()))
                 .findFirst();
         return refTerminal.map(ReferencePriority::getPriority).orElse(0);
     }
@@ -75,7 +76,8 @@ public interface ReferencePriority {
             return 0;
         }
         Optional<ReferencePriority> refTerminal = ((List<ReferencePriority>) (ext.getReferencePriorities())).stream()
-                .filter(rt -> rt.getTerminal().equals(threeWindingsTransformer.getTerminal(side)))
+                .filter(rt -> rt.getTerminal().getConnectable().getId().equals(threeWindingsTransformer.getId()))
+                .filter(rt -> side.toThreeSides().equals(Terminal.getConnectableSide(rt.getTerminal()).orElseThrow()))
                 .findFirst();
         return refTerminal.map(ReferencePriority::getPriority).orElse(0);
     }
