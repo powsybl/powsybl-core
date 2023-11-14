@@ -12,8 +12,10 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.parameters.Parameter;
@@ -38,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -129,14 +132,120 @@ public class CgmesImport implements Importer {
         return FORMAT;
     }
 
+    private static final boolean XXX_IMPORT_ASSEMBLED_AS_SUBNETWORKS = true;
+
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(reporter);
+        if (XXX_IMPORT_ASSEMBLED_AS_SUBNETWORKS) {
+            Set<ReadOnlyDataSource> dss = AssembledChecker.separate(ds);
+            if (!dss.isEmpty()) {
+                return Network.merge(dss.stream()
+                        .map(ds1 -> importData1(ds1, networkFactory, p, reporter))
+                        .toArray(Network[]::new));
+            }
+        }
+        return importData1(ds, networkFactory, p, reporter);
+    }
+
+    private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
         CgmesModel cgmes = readCgmes(ds, p, reporter);
         Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
         return new Conversion(cgmes, config(ds, p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+    }
+
+    static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
+        private final ReadOnlyDataSource ds;
+        private final Predicate<String> filter;
+
+        FilteredReadOnlyDataSource(ReadOnlyDataSource ds, Predicate<String> filter) {
+            this.ds = ds;
+            this.filter = filter;
+        }
+
+        @Override
+        public String getBaseName() {
+            return ds.getBaseName();
+        }
+
+        @Override
+        public boolean exists(String suffix, String ext) throws IOException {
+            return filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext))
+                    && ds.exists(suffix, ext);
+        }
+
+        @Override
+        public boolean exists(String fileName) throws IOException {
+            return filter.test(fileName) && ds.exists(fileName);
+        }
+
+        @Override
+        public InputStream newInputStream(String suffix, String ext) throws IOException {
+            if (filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext))) {
+                return ds.newInputStream(suffix, ext);
+            }
+            throw new IOException(DataSourceUtil.getFileName(getBaseName(), suffix, ext) + " not found");
+        }
+
+        @Override
+        public InputStream newInputStream(String fileName) throws IOException {
+            if (filter.test(fileName)) {
+                return ds.newInputStream(fileName);
+            }
+            throw new IOException(fileName + " not found");
+        }
+
+        @Override
+        public Set<String> listNames(String regex) throws IOException {
+            return ds.listNames(regex).stream().filter(filter).collect(Collectors.toSet());
+        }
+    }
+
+    static final class AssembledChecker {
+        private AssembledChecker() {
+        }
+
+        private static Set<ReadOnlyDataSource> separate(ReadOnlyDataSource ds) {
+            // If it is a CGM,
+            // create a filtered dataset for each IGM.
+            // Here we obtain the IGM name from the EQ filenames,
+            // and rely on it to find related SSH, TP files,
+            // FIXME(Luma) we should read each EQ and obtain the Modeling Authority Set
+
+            Set<String> igmNames = new CgmesOnDataSource(ds).names().stream()
+                    .filter(CgmesSubset.EQUIPMENT::isValidName)
+                    // We rely on the CIMXML pattern:
+                    // <effectiveDateTime>_<businessProcess>_<sourcingActor>_<modelPart>_<fileVersion>
+                    // we define igmName := sourcingActor
+                    .map(name -> name.split("_")[2])
+                    .collect(Collectors.toSet());
+
+            // In the dataset for each IGM we include:
+            // - its own files (contain its name)
+            // - the boundaries (we will read the boundaries multiple times, one for each IGM)
+            // - any other shared instance files (files that do not contain the name of any IGMs identified)
+            // An example of shared file is the unique SV from a CGM solved case
+            // Shared files will be also loaded multiple times, one for each IGM
+            return igmNames.stream()
+                    .map(igmName -> new FilteredReadOnlyDataSource(ds, name -> name.contains(igmName)
+                            || isBoundary(name)
+                            || isShared(name, igmNames)))
+                    .collect(Collectors.toSet());
+        }
+
+        private static boolean isBoundary(String name) {
+            return CgmesSubset.EQUIPMENT_BOUNDARY.isValidName(name) || CgmesSubset.TOPOLOGY_BOUNDARY.isValidName(name);
+        }
+
+        private static boolean isShared(String name, Set<String> allIgmNames) {
+            // The name does not contain the name of one the IGMs
+            return allIgmNames.stream()
+                    .filter(name::contains)
+                    .findAny()
+                    .isEmpty();
+        }
     }
 
     public CgmesModel readCgmes(ReadOnlyDataSource ds, Properties p, Reporter reporter) {
