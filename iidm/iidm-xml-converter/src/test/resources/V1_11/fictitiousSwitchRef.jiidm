@@ -14,7 +14,7 @@
       "lowVoltageLimit" : 0.0,
       "topologyKind" : "NODE_BREAKER",
       "nodeBreakerTopology" : {
-        "busbarSection" : [ {
+        "busbarSections" : [ {
           "id" : "D",
           "name" : "E",
           "node" : 0
@@ -69,7 +69,7 @@
       "highVoltageLimit" : 245.00002,
       "topologyKind" : "NODE_BREAKER",
       "nodeBreakerTopology" : {
-        "busbarSection" : [ {
+        "busbarSections" : [ {
           "id" : "O",
           "name" : "E",
           "node" : 0
