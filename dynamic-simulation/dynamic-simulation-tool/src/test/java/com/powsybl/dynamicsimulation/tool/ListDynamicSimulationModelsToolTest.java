@@ -51,19 +51,19 @@ class ListDynamicSimulationModelsToolTest extends AbstractToolTest {
 
     @Test
     void testAllModels() throws IOException {
-        String expectedOut = String.join(System.lineSeparator(), "Dynamic models:", "Event models:");
-        assertCommand(new String[]{"list-dynamic-simulation-models"}, 0, expectedOut, "");
+        String expectedOut = String.join(System.lineSeparator(), "Dynamic models:", "Event models:" + System.lineSeparator());
+        assertCommandSuccessful(new String[]{"list-dynamic-simulation-models"}, expectedOut);
     }
 
     @Test
     void testDynamicModelsOnly() throws IOException {
-        String expectedOut = String.join(System.lineSeparator(), "Dynamic models:");
-        assertCommand(new String[]{"list-dynamic-simulation-models", "--dynamic-models"}, 0, expectedOut, "");
+        String expectedOut = String.join(System.lineSeparator(), "Dynamic models:" + System.lineSeparator());
+        assertCommandSuccessful(new String[]{"list-dynamic-simulation-models", "--dynamic-models"}, expectedOut);
     }
 
     @Test
     void testEventModelsOnly() throws IOException {
-        String expectedOut = String.join(System.lineSeparator(), "Event models:");
-        assertCommand(new String[]{"list-dynamic-simulation-models", "--event-models"}, 0, expectedOut, "");
+        String expectedOut = String.join(System.lineSeparator(), "Event models:" + System.lineSeparator());
+        assertCommandSuccessful(new String[]{"list-dynamic-simulation-models", "--event-models"}, expectedOut);
     }
 }

@@ -25,7 +25,7 @@ import java.util.Arrays;
  */
 class CommandLineToolsTest extends AbstractToolTest {
 
-    private class Tool1 implements Tool {
+    private static class Tool1 implements Tool {
 
         @Override
         public Command getCommand() {
@@ -71,7 +71,7 @@ class CommandLineToolsTest extends AbstractToolTest {
         }
     }
 
-    private class Tool2 implements Tool {
+    private static class Tool2 implements Tool {
 
         @Override
         public Command getCommand() {
@@ -153,19 +153,19 @@ class CommandLineToolsTest extends AbstractToolTest {
                 "    tool2                                    test tool2" + System.lineSeparator() +
                 System.lineSeparator();
 
-        assertCommand(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, "", usage);
+        assertCommandError(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, usage);
 
         // usage when command does not exist
-        assertCommand(new String[] {"tool3"}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, "", usage);
+        assertCommandError(new String[] {"tool3"}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, usage);
 
         // command success
-        assertCommand(new String[] {"tool1", "--option1", "file.txt"}, CommandLineTools.COMMAND_OK_STATUS, "result1", "");
+        assertCommandSuccessful(new String[] {"tool1", "--option1", "file.txt"}, "result1");
 
         // command failure
-        assertCommand(new String[] {"tool2"}, CommandLineTools.EXECUTION_ERROR_STATUS, "", "com.powsybl.commons.PowsyblException: error2.*");
+        assertCommandErrorMatch(new String[] {"tool2"}, "com.powsybl.commons.PowsyblException: error2.*");
 
         // invalid option
-        assertCommand(new String[] {"tool1", "--optionA", "file.txt"}, CommandLineTools.INVALID_COMMAND_STATUS, "",
+        assertCommandError(new String[] {"tool1", "--optionA", "file.txt"}, CommandLineTools.INVALID_COMMAND_STATUS,
                 "error: Unrecognized option: --optionA" + System.lineSeparator() +
                         "usage: itools [OPTIONS] tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
                         System.lineSeparator() +
@@ -178,7 +178,7 @@ class CommandLineToolsTest extends AbstractToolTest {
                         "footer1" + System.lineSeparator());
 
         // required option not specified
-        assertCommand(new String[] {"tool1"}, CommandLineTools.INVALID_COMMAND_STATUS, "",
+        assertCommandError(new String[] {"tool1"}, CommandLineTools.INVALID_COMMAND_STATUS,
                 "error: Missing required option: option1" + System.lineSeparator() +
                         "usage: itools [OPTIONS] tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
                         System.lineSeparator() +
@@ -191,7 +191,7 @@ class CommandLineToolsTest extends AbstractToolTest {
                         "footer1" + System.lineSeparator());
 
         // command help
-        assertCommand(new String[] {"tool1", "--help"}, CommandLineTools.COMMAND_OK_STATUS, "",
+        assertCommandError(new String[] {"tool1", "--help"}, CommandLineTools.COMMAND_OK_STATUS,
                         "usage: itools [OPTIONS] tool1 [--help] --option1 <FILE>" + System.lineSeparator() +
                         System.lineSeparator() +
                         scriptOptions +

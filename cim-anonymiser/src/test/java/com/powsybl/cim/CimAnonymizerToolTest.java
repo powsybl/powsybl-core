@@ -8,15 +8,15 @@
 package com.powsybl.cim;
 
 import com.google.common.io.ByteStreams;
-import com.powsybl.tools.test.AbstractToolTest;
-import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.test.AbstractToolTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -52,13 +52,13 @@ class CimAnonymizerToolTest extends AbstractToolTest {
         Path dictionaryFile = workDir.resolve("dic.csv");
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cimZipFile))) {
             zos.putNextEntry(new ZipEntry("sample_EQ.xml"));
-            zos.write(ByteStreams.toByteArray(getClass().getResourceAsStream("/sample_EQ.xml")));
+            zos.write(ByteStreams.toByteArray(Objects.requireNonNull(getClass().getResourceAsStream("/sample_EQ.xml"))));
         }
 
-        assertCommand(new String[] {"cim-anonymizer", "--cim-path", cimZipFile.toString(),
+        assertCommandSuccessful(new String[] {"cim-anonymizer", "--cim-path", cimZipFile.toString(),
                                     "--output-dir", anonymizedCimFileDir.toString(),
                                     "--mapping-file", dictionaryFile.toString()},
-                CommandLineTools.COMMAND_OK_STATUS, "Anonymizing work/sample.zip", "");
+                "Anonymizing work/sample.zip" + System.lineSeparator());
 
         assertTrue(Files.exists(anonymizedCimFileDir.resolve("sample.zip")));
         assertTrue(Files.exists(dictionaryFile));
