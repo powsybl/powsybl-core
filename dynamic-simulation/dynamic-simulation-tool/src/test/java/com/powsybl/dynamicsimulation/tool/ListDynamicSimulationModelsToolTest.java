@@ -13,7 +13,6 @@ import com.powsybl.tools.test.AbstractToolTest;
 import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
