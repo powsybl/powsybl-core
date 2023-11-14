@@ -18,11 +18,16 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
+import java.util.Map;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends AbstractExtensionXmlSerializer<C, CgmesTapChangers<C>> {
+
+    public static final String TAP_CHANGER_ROOT_ELEMENT = "tapChanger";
+    private static final String TAP_CHANGER_ARRAY_ELEMENT = "tapChangers";
 
     public CgmesTapChangersXmlSerializer() {
         super("cgmesTapChangers", "network", CgmesTapChangers.class,
@@ -31,11 +36,17 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
     }
 
     @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(TAP_CHANGER_ARRAY_ELEMENT, TAP_CHANGER_ROOT_ELEMENT);
+    }
+
+    @Override
     public void write(CgmesTapChangers<C> extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         TreeDataWriter writer = networkContext.getWriter();
+        writer.writeStartNodes(TAP_CHANGER_ARRAY_ELEMENT);
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
-            writer.writeStartNode(getNamespaceUri(), "tapChanger");
+            writer.writeStartNode(getNamespaceUri(), TAP_CHANGER_ROOT_ELEMENT);
             writer.writeStringAttribute("id", tapChanger.getId());
             writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             writer.writeStringAttribute("type", tapChanger.getType());
@@ -47,6 +58,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
             writer.writeStringAttribute("controlId", tapChanger.getControlId());
             writer.writeEndNode();
         }
+        writer.writeEndNodes();
     }
 
     @Override
@@ -56,7 +68,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
         extendable.newExtension(CgmesTapChangersAdder.class).add();
         CgmesTapChangers<C> tapChangers = extendable.getExtension(CgmesTapChangers.class);
         reader.readChildNodes(elementName -> {
-            if (elementName.equals("tapChanger")) {
+            if (elementName.equals(TAP_CHANGER_ROOT_ELEMENT)) {
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
                         .setId(reader.readStringAttribute("id"))
                         .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))

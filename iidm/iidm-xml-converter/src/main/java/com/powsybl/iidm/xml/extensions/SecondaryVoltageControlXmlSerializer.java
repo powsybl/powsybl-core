@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlUnit;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.mutable.MutableDouble;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -29,10 +31,13 @@ import java.util.List;
 @AutoService(ExtensionXmlSerializer.class)
 public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSerializer<Network, SecondaryVoltageControl> {
 
-    private static final String CONTROL_ZONE_ELEMENT = "controlZone";
+    private static final String CONTROL_ZONE_ROOT_ELEMENT = "controlZone";
+    private static final String CONTROL_ZONE_ARRAY_ELEMENT = "controlZones";
     private static final String PILOT_POINT_ELEMENT = "pilotPoint";
-    private static final String BUSBAR_SECTION_OR_BUS_ID_ELEMENT = "busbarSectionOrBusId";
-    private static final String CONTROL_UNIT_ELEMENT = "controlUnit";
+    private static final String BUSBAR_SECTION_OR_BUS_ID_ROOT_ELEMENT = "busbarSectionOrBusId";
+    private static final String BUSBAR_SECTION_OR_BUS_ID_ARRAY_ELEMENT = "busbarSectionOrBusIds";
+    private static final String CONTROL_UNIT_ROOT_ELEMENT = "controlUnit";
+    private static final String CONTROL_UNIT_ARRAY_ELEMENT = "controlUnits";
 
     public SecondaryVoltageControlXmlSerializer() {
         super(SecondaryVoltageControl.NAME, "network", SecondaryVoltageControl.class,
@@ -40,33 +45,54 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
     }
 
     @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(CONTROL_ZONE_ARRAY_ELEMENT, CONTROL_ZONE_ROOT_ELEMENT,
+                CONTROL_UNIT_ARRAY_ELEMENT, CONTROL_UNIT_ROOT_ELEMENT,
+                BUSBAR_SECTION_OR_BUS_ID_ARRAY_ELEMENT, BUSBAR_SECTION_OR_BUS_ID_ROOT_ELEMENT);
+    }
+
+    @Override
     public void write(SecondaryVoltageControl control, XmlWriterContext context) {
+        TreeDataWriter writer = context.getWriter();
+        writer.writeStartNodes(CONTROL_ZONE_ARRAY_ELEMENT);
         for (SecondaryVoltageControl.ControlZone controlZone : control.getControlZones()) {
-            context.getWriter().writeStartNode(getNamespaceUri(), CONTROL_ZONE_ELEMENT);
-            context.getWriter().writeStringAttribute("name", controlZone.getName());
-            context.getWriter().writeStartNode(getNamespaceUri(), PILOT_POINT_ELEMENT);
-            context.getWriter().writeDoubleAttribute("targetV", controlZone.getPilotPoint().getTargetV());
-            for (String busbarSectionOrBusId : controlZone.getPilotPoint().getBusbarSectionsOrBusesIds()) {
-                context.getWriter().writeStartNode(getNamespaceUri(), BUSBAR_SECTION_OR_BUS_ID_ELEMENT);
-                context.getWriter().writeNodeContent(busbarSectionOrBusId);
-                context.getWriter().writeEndNode();
-            }
-            context.getWriter().writeEndNode();
-            for (ControlUnit controlUnit : controlZone.getControlUnits()) {
-                context.getWriter().writeStartNode(getNamespaceUri(), CONTROL_UNIT_ELEMENT);
-                context.getWriter().writeBooleanAttribute("participate", controlUnit.isParticipate());
-                context.getWriter().writeNodeContent(controlUnit.getId());
-                context.getWriter().writeEndNode();
-            }
-            context.getWriter().writeEndNode();
+            writer.writeStartNode(getNamespaceUri(), CONTROL_ZONE_ROOT_ELEMENT);
+            writer.writeStringAttribute("name", controlZone.getName());
+            writePilotPoint(controlZone, writer);
+            writeControlUnits(controlZone.getControlUnits(), writer);
+            writer.writeEndNode();
         }
+        writer.writeEndNodes();
+    }
+
+    private void writePilotPoint(ControlZone controlZone, TreeDataWriter writer) {
+        writer.writeStartNode(getNamespaceUri(), PILOT_POINT_ELEMENT);
+        writer.writeDoubleAttribute("targetV", controlZone.getPilotPoint().getTargetV());
+        writer.writeStartNodes(BUSBAR_SECTION_OR_BUS_ID_ARRAY_ELEMENT);
+        for (String busbarSectionOrBusId : controlZone.getPilotPoint().getBusbarSectionsOrBusesIds()) {
+            writer.writeStartNode(getNamespaceUri(), BUSBAR_SECTION_OR_BUS_ID_ROOT_ELEMENT);
+            writer.writeNodeContent(busbarSectionOrBusId);
+            writer.writeEndNode();
+        }
+        writer.writeEndNode();
+    }
+
+    private void writeControlUnits(List<ControlUnit> controlUnits, TreeDataWriter writer) {
+        writer.writeStartNodes(CONTROL_UNIT_ARRAY_ELEMENT);
+        for (ControlUnit controlUnit : controlUnits) {
+            writer.writeStartNode(getNamespaceUri(), CONTROL_UNIT_ROOT_ELEMENT);
+            writer.writeBooleanAttribute("participate", controlUnit.isParticipate());
+            writer.writeNodeContent(controlUnit.getId());
+            writer.writeEndNode();
+        }
+        writer.writeEndNodes();
     }
 
     @Override
     public SecondaryVoltageControl read(Network network, XmlReaderContext context) {
         SecondaryVoltageControlAdder adder = network.newExtension(SecondaryVoltageControlAdder.class);
         context.getReader().readChildNodes(elementName -> {
-            if (!elementName.equals(CONTROL_ZONE_ELEMENT)) {
+            if (!elementName.equals(CONTROL_ZONE_ROOT_ELEMENT)) {
                 throw new IllegalStateException("Unexpected element " + elementName);
             }
             readControlZone(context, adder);
@@ -82,7 +108,7 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
         context.getReader().readChildNodes(elementName2 -> {
             switch (elementName2) {
                 case PILOT_POINT_ELEMENT -> readPilotPoint(context, targetV, busbarSectionsOrBusesIds);
-                case CONTROL_UNIT_ELEMENT -> readControlUnit(context, controlUnits);
+                case CONTROL_UNIT_ROOT_ELEMENT -> readControlUnit(context, controlUnits);
                 default -> throw new IllegalStateException("Unexpected element " + elementName2);
             }
         });
@@ -93,7 +119,7 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
     private static void readPilotPoint(XmlReaderContext context, MutableDouble targetV, List<String> busbarSectionsOrBusesIds) {
         targetV.setValue(context.getReader().readDoubleAttribute("targetV"));
         context.getReader().readChildNodes(elementName -> {
-            if (!elementName.equals(BUSBAR_SECTION_OR_BUS_ID_ELEMENT)) {
+            if (!elementName.equals(BUSBAR_SECTION_OR_BUS_ID_ROOT_ELEMENT)) {
                 throw new IllegalStateException("Unexpected element " + elementName);
             }
             busbarSectionsOrBusesIds.add(context.getReader().readContent());

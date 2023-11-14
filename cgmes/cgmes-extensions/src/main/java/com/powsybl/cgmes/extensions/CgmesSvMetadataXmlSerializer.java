@@ -18,15 +18,25 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
+import java.util.Map;
+
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesSvMetadata> {
 
+    public static final String DEPENDENCY_ROOT_ELEMENT = "dependentOn";
+    public static final String DEPENDENCY_ARRAY_ELEMENT = "dependencies";
+
     public CgmesSvMetadataXmlSerializer() {
         super("cgmesSvMetadata", "network", CgmesSvMetadata.class, "cgmesSvMetadata.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_sv_metadata/1_0", "csm");
+    }
+
+    @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(DEPENDENCY_ARRAY_ELEMENT, DEPENDENCY_ROOT_ELEMENT);
     }
 
     @Override
@@ -36,11 +46,13 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
         writer.writeStringAttribute("description", extension.getDescription());
         writer.writeIntAttribute("svVersion", extension.getSvVersion());
         writer.writeStringAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
+        writer.writeStartNodes(DEPENDENCY_ARRAY_ELEMENT);
         for (String dep : extension.getDependencies()) {
-            writer.writeStartNode(getNamespaceUri(), "dependentOn");
+            writer.writeStartNode(getNamespaceUri(), DEPENDENCY_ROOT_ELEMENT);
             writer.writeNodeContent(dep);
             writer.writeEndNode();
         }
+        writer.writeEndNodes();
     }
 
     @Override
@@ -52,7 +64,7 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
                 .setSvVersion(reader.readIntAttribute("svVersion"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
         reader.readChildNodes(elementName -> {
-            if (elementName.equals("dependentOn")) {
+            if (elementName.equals(DEPENDENCY_ROOT_ELEMENT)) {
                 adder.addDependency(reader.readContent());
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesSvMetadata'");

@@ -18,6 +18,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
+import java.util.Map;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -25,9 +27,17 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesSshMetadata> {
 
+    public static final String DEPENDENCY_ROOT_ELEMENT = "dependentOn";
+    public static final String DEPENDENCY_ARRAY_ELEMENT = "dependencies";
+
     public CgmesSshMetadataXmlSerializer() {
         super("cgmesSshMetadata", "network", CgmesSshMetadata.class, "cgmesSshMetadata.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_ssh_metadata/1_0", "csshm");
+    }
+
+    @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(DEPENDENCY_ARRAY_ELEMENT, DEPENDENCY_ROOT_ELEMENT);
     }
 
     @Override
@@ -38,11 +48,13 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
         writer.writeStringAttribute("description", extension.getDescription());
         writer.writeIntAttribute("sshVersion", extension.getSshVersion());
         writer.writeStringAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
+        writer.writeStartNodes(DEPENDENCY_ARRAY_ELEMENT);
         for (String dep : extension.getDependencies()) {
-            writer.writeStartNode(getNamespaceUri(), "dependentOn");
+            writer.writeStartNode(getNamespaceUri(), DEPENDENCY_ROOT_ELEMENT);
             writer.writeNodeContent(dep);
             writer.writeEndNode();
         }
+        writer.writeEndNodes();
     }
 
     @Override
@@ -55,7 +67,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
                 .setSshVersion(reader.readIntAttribute("sshVersion"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
         reader.readChildNodes(elementName -> {
-            if (elementName.equals("dependentOn")) {
+            if (elementName.equals(DEPENDENCY_ROOT_ELEMENT)) {
                 adder.addDependency(reader.readContent());
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesSshMetadata'");

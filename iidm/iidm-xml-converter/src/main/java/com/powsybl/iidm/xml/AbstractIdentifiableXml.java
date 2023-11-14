@@ -32,7 +32,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable<? super T>, A exte
         }
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         context.getWriter().writeStringAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-        ((Identifiable<?>) identifiable).getOptionalName().ifPresent(name -> {
+        identifiable.getOptionalName().ifPresent(name -> {
             context.getWriter().writeStringAttribute("name", context.getAnonymizer().anonymizeString(name));
         });
 

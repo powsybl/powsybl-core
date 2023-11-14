@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
 
 import java.util.LinkedHashMap;
@@ -24,23 +25,34 @@ import java.util.stream.Collectors;
 @AutoService(ExtensionXmlSerializer.class)
 public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSerializer<Network, BaseVoltageMapping> {
 
+    public static final String BASE_VOLTAGE_ARRAY_ELEMENT = "baseVoltages";
+    public static final String BASE_VOLTAGE_ROOT_ELEMENT = "baseVoltage";
+
     public BaseVoltageMappingXmlSerializer() {
         super(BaseVoltageMapping.NAME, "network", BaseVoltageMapping.class, "baseVoltageMapping.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/base_voltage_mapping/1_0", "bv");
     }
 
     @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(BASE_VOLTAGE_ARRAY_ELEMENT, BASE_VOLTAGE_ROOT_ELEMENT);
+    }
+
+    @Override
     public void write(BaseVoltageMapping extension, XmlWriterContext context) {
+        TreeDataWriter writer = context.getWriter();
         Map<Double, BaseVoltageMapping.BaseVoltageSource> sortedBaseVoltages = extension.getBaseVoltages().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        writer.writeStartNodes(BASE_VOLTAGE_ARRAY_ELEMENT);
         sortedBaseVoltages.forEach((nominalV, baseVoltageSource) -> {
-            context.getWriter().writeStartNode(getNamespaceUri(), "baseVoltage");
-            context.getWriter().writeDoubleAttribute("nominalVoltage", nominalV);
-            context.getWriter().writeEnumAttribute("source", baseVoltageSource.getSource());
-            context.getWriter().writeStringAttribute("id", baseVoltageSource.getId());
-            context.getWriter().writeEndNode();
+            writer.writeStartNode(getNamespaceUri(), BASE_VOLTAGE_ROOT_ELEMENT);
+            writer.writeDoubleAttribute("nominalVoltage", nominalV);
+            writer.writeEnumAttribute("source", baseVoltageSource.getSource());
+            writer.writeStringAttribute("id", baseVoltageSource.getId());
+            writer.writeEndNode();
         });
+        writer.writeEndNodes();
     }
 
     @Override
@@ -49,7 +61,7 @@ public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSeriali
         mappingAdder.add();
         BaseVoltageMapping mapping = extendable.getExtension(BaseVoltageMapping.class);
         context.getReader().readChildNodes(elementName -> {
-            if (elementName.equals("baseVoltage")) {
+            if (elementName.equals(BASE_VOLTAGE_ROOT_ELEMENT)) {
                 double nominalV = context.getReader().readDoubleAttribute("nominalVoltage");
                 String sourceBV = context.getReader().readStringAttribute("source");
                 String baseVoltageId = context.getReader().readStringAttribute("id");

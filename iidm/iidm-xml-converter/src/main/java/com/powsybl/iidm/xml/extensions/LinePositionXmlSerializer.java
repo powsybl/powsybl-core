@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.extensions.LinePositionAdder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
@@ -27,6 +28,7 @@ import java.util.List;
 public class LinePositionXmlSerializer<T extends Identifiable<T>> extends AbstractExtensionXmlSerializer<T, LinePosition<T>> {
 
     private static final String COORDINATE_ROOT_NODE = "coordinate";
+    private static final String COORDINATE_ARRAY_NODE = "coordinates";
 
     public LinePositionXmlSerializer() {
         super(LinePosition.NAME, "network", LinePosition.class, "linePosition.xsd",
@@ -34,13 +36,20 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
     }
 
     @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(COORDINATE_ARRAY_NODE, COORDINATE_ROOT_NODE);
+    }
+
+    @Override
     public void write(LinePosition<T> linePosition, XmlWriterContext context) {
+        context.getWriter().writeStartNodes(COORDINATE_ARRAY_NODE);
         for (Coordinate point : linePosition.getCoordinates()) {
-            context.getWriter().writeStartNode(getNamespaceUri(), "coordinate");
+            context.getWriter().writeStartNode(getNamespaceUri(), COORDINATE_ROOT_NODE);
             context.getWriter().writeDoubleAttribute("longitude", point.getLongitude());
             context.getWriter().writeDoubleAttribute("latitude", point.getLatitude());
             context.getWriter().writeEndNode();
         }
+        context.getWriter().writeEndNodes();
     }
 
     @Override

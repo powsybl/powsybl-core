@@ -20,14 +20,19 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 
+import java.util.Map;
+
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extends AbstractExtensionXmlSerializer<I, DiscreteMeasurements<I>> {
 
-    private static final String DISCRETE_MEASUREMENT = "discreteMeasurement";
+    private static final String DISCRETE_MEASUREMENT_ROOT = "discreteMeasurement";
+    private static final String DISCRETE_MEASUREMENT_ARRAY = "discreteMeasurements";
     private static final String VALUE = "value";
+    public static final String PROPERTY_ROOT = "property";
+    private static final String PROPERTY_ARRAY = "properties";
 
     public DiscreteMeasurementsXmlSerializer() {
         super("discreteMeasurements", "network", DiscreteMeasurements.class,
@@ -35,10 +40,17 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     }
 
     @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(DISCRETE_MEASUREMENT_ARRAY, DISCRETE_MEASUREMENT_ROOT,
+                PROPERTY_ARRAY, PROPERTY_ROOT);
+    }
+
+    @Override
     public void write(DiscreteMeasurements<I> extension, XmlWriterContext context) {
         TreeDataWriter writer = context.getWriter();
+        writer.writeStartNodes(DISCRETE_MEASUREMENT_ARRAY);
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
-            writer.writeStartNode(getNamespaceUri(), DISCRETE_MEASUREMENT);
+            writer.writeStartNode(getNamespaceUri(), DISCRETE_MEASUREMENT_ROOT);
             writer.writeStringAttribute("id", discreteMeasurement.getId());
             writer.writeEnumAttribute("type", discreteMeasurement.getType());
             writer.writeEnumAttribute("tapChanger", discreteMeasurement.getTapChanger());
@@ -57,14 +69,19 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
                     throw new PowsyblException("Unsupported serialization for value type: " + discreteMeasurement.getValueType());
             }
             writer.writeStringAttribute("valid", String.valueOf(discreteMeasurement.isValid()));
+
+            writer.writeStartNodes(PROPERTY_ARRAY);
             for (String name : discreteMeasurement.getPropertyNames()) {
-                writer.writeStartNode(getNamespaceUri(), "property");
+                writer.writeStartNode(getNamespaceUri(), PROPERTY_ROOT);
                 writer.writeStringAttribute("name", name);
                 writer.writeStringAttribute(VALUE, discreteMeasurement.getProperty(name));
                 writer.writeEndNode();
             }
+            writer.writeEndNodes();
+
             writer.writeEndNode();
         }
+        writer.writeEndNodes();
     }
 
     @Override
@@ -72,7 +89,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
         DiscreteMeasurementsAdder<I> adder = extendable.newExtension(DiscreteMeasurementsAdder.class);
         DiscreteMeasurements<I> discreteMeasurements = adder.add();
         context.getReader().readChildNodes(elementName -> {
-            if (elementName.equals(DISCRETE_MEASUREMENT)) {
+            if (elementName.equals(DISCRETE_MEASUREMENT_ROOT)) {
                 readDiscreteMeasurement(discreteMeasurements, context.getReader());
             } else {
                 throw new PowsyblException("Unexpected element: " + elementName);
@@ -105,7 +122,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
             }
         }
         reader.readChildNodes(elementName -> {
-            if (elementName.equals("property")) {
+            if (elementName.equals(PROPERTY_ROOT)) {
                 adder.putProperty(reader.readStringAttribute("name"),
                         reader.readStringAttribute(VALUE));
                 reader.readEndNode();

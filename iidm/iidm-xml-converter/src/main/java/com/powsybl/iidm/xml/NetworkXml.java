@@ -173,9 +173,11 @@ public final class NetworkXml {
 
     private static void writeVoltageAngleLimits(Network n, NetworkXmlWriterContext context) {
         if (n.getVoltageAngleLimitsStream().findAny().isPresent()) {
+            context.getWriter().writeStartNodes(VoltageAngleLimitXml.ARRAY_ELEMENT_NAME);
             for (VoltageAngleLimit voltageAngleLimit : n.getVoltageAngleLimits()) {
                 VoltageAngleLimitXml.write(voltageAngleLimit, context);
             }
+            context.getWriter().writeEndNodes();
         }
     }
 
@@ -338,11 +340,13 @@ public final class NetworkXml {
     }
 
     private static void writeSubnetworks(Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes(NETWORK_ARRAY_ELEMENT_NAME);
         for (Network subnetwork : IidmXmlUtil.sorted(n.getSubnetworks(), context.getOptions())) {
             IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
                     IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
             write(subnetwork, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) {
@@ -375,10 +379,12 @@ public final class NetworkXml {
                 LineXml.INSTANCE.write(l, n, context);
             }
         }
+        context.getWriter().writeEndNodes();
     }
 
     private static void writeTieLines(Network n, NetworkXmlWriterContext context) {
         BusFilter filter = context.getFilter();
+        context.getWriter().writeStartNodes(TieLineXml.ARRAY_ELEMENT_NAME);
         for (TieLine l : IidmXmlUtil.sorted(n.getTieLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
                 TieLineXml.INSTANCE.write(l, n, context);
