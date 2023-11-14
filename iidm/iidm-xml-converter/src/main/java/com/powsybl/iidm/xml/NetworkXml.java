@@ -602,8 +602,8 @@ public final class NetworkXml {
         return namespaceVersionMap;
     }
 
-    private static void readElement(String elementName, Deque<Network> networks, NetworkFactory networkFactory, NetworkXmlReaderContext context,
-                                    Set<String> extensionNamesNotFound) {
+    private static void readNetworkElement(String elementName, Deque<Network> networks, NetworkFactory networkFactory, NetworkXmlReaderContext context,
+                                           Set<String> extensionNamesNotFound) {
         switch (elementName) {
             case AliasesXml.ROOT_ELEMENT_NAME -> checkSupportedAndReadAlias(networks.peek(), context);
             case PropertiesXml.ROOT_ELEMENT_NAME -> PropertiesXml.read(networks.peek(), context);
@@ -615,7 +615,7 @@ public final class NetworkXml {
             case HvdcLineXml.ROOT_ELEMENT_NAME -> HvdcLineXml.INSTANCE.read(networks.peek(), context);
             case VoltageAngleLimitXml.ROOT_ELEMENT_NAME -> VoltageAngleLimitXml.read(networks.peek(), context);
             case EXTENSION_ROOT_ELEMENT_NAME -> findExtendableAndReadExtension(networks.getFirst(), context, extensionNamesNotFound);
-            default -> throw new IllegalStateException();
+            default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'network'");
         }
     }
 
@@ -635,7 +635,7 @@ public final class NetworkXml {
         networks.push(subnetwork);
         // Read subnetwork content
         context.getReader().readChildNodes(
-                elementName -> readElement(elementName, networks, networkFactory, context, extensionNamesNotFound));
+                elementName -> readNetworkElement(elementName, networks, networkFactory, context, extensionNamesNotFound));
         // Pop the subnetwork. We will now work with its parent.
         networks.pop();
     }
@@ -693,7 +693,8 @@ public final class NetworkXml {
         Deque<Network> networks = new ArrayDeque<>(2);
         networks.push(network);
 
-        reader.readChildNodes(elementName -> readElement(elementName, networks, networkFactory, context, extensionNamesNotFound));
+        reader.readChildNodes(elementName ->
+                readNetworkElement(elementName, networks, networkFactory, context, extensionNamesNotFound));
 
         checkExtensionsNotFound(context, extensionNamesNotFound);
 

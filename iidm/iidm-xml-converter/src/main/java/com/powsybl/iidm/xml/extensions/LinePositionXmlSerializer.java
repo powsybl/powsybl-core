@@ -57,7 +57,7 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
         List<Coordinate> coordinates = new ArrayList<>();
         context.getReader().readChildNodes(elementName -> {
             if (!elementName.equals(COORDINATE_ROOT_NODE)) {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in 'substationPosition'");
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'linePosition'");
             }
             double longitude = context.getReader().readDoubleAttribute("longitude");
             double latitude = context.getReader().readDoubleAttribute("latitude");

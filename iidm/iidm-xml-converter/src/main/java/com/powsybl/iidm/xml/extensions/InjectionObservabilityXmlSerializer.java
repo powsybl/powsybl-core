@@ -68,7 +68,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
                 case QUALITY_P -> adder.withStandardDeviationP(standardDeviation).withRedundantP(redundant);
                 case QUALITY_Q -> adder.withStandardDeviationQ(standardDeviation).withRedundantQ(redundant);
                 case QUALITY_V -> adder.withStandardDeviationV(standardDeviation).withRedundantV(redundant);
-                default -> throw new PowsyblException("Unexpected element: " + elementName);
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'injectionObservability'");
             }
         });
 

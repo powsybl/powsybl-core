@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
@@ -77,6 +78,7 @@ public class ThreeWindingsTransformerFortescueXmlSerializer extends AbstractExte
                 case "leg1" -> readLeg(fortescueAdder.leg1(), context.getReader());
                 case "leg2" -> readLeg(fortescueAdder.leg2(), context.getReader());
                 case "leg3" -> readLeg(fortescueAdder.leg3(), context.getReader());
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'threeWindingsTransformerFortescue'");
             }
         });
 

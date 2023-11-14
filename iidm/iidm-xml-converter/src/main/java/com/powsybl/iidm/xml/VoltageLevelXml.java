@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -35,7 +36,6 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
     private static final String NODE_BREAKER_TOPOLOGY_ELEMENT_NAME = "nodeBreakerTopology";
     private static final String BUS_BREAKER_TOPOLOGY_ELEMENT_NAME = "busBreakerTopology";
     private static final String NODE_COUNT = "nodeCount";
-    private static final String UNEXPECTED_ELEMENT = "Unexpected element: ";
     static final String INJ_ROOT_ELEMENT_NAME = "inj";
     static final String INJ_ARRAY_ELEMENT_NAME = "fictitiousInjections";
 
@@ -332,7 +332,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                 case NodeBreakerViewInternalConnectionXml.ROOT_ELEMENT_NAME -> NodeBreakerViewInternalConnectionXml.INSTANCE.read(vl, context);
                 case BusXml.ROOT_ELEMENT_NAME -> readCalculatedBus(vl, context);
                 case INJ_ROOT_ELEMENT_NAME -> readFictitiousInjection(vl, context);
-                default -> throw new IllegalStateException(UNEXPECTED_ELEMENT + elementName);
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'nodeBreakerTopology'");
             }
         });
     }
@@ -350,7 +350,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                 context.getReader().readEndNode();
                 properties.put(name, value);
             } else {
-                throw new IllegalStateException(UNEXPECTED_ELEMENT + elementName);
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'bus'");
             }
         });
         context.getEndTasks().add(() -> {
@@ -387,7 +387,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
             switch (elementName) {
                 case BusXml.ROOT_ELEMENT_NAME -> BusXml.INSTANCE.read(vl, context);
                 case AbstractSwitchXml.ROOT_ELEMENT_NAME -> BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
-                default -> throw new IllegalStateException(UNEXPECTED_ELEMENT + elementName);
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'busBreakerTopology'");
             }
         });
     }

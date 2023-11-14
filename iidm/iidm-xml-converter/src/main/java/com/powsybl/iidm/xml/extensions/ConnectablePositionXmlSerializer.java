@@ -122,7 +122,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                 case "feeder1" -> readPosition(context, adder.newFeeder1());
                 case "feeder2" -> readPosition(context, adder.newFeeder2());
                 case "feeder3" -> readPosition(context, adder.newFeeder3());
-                default -> throw new IllegalStateException();
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'position'");
             }
         });
         return adder.add();

@@ -118,7 +118,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                         .add();
                 readBoundariesAndTerminals(networkContext, cgmesControlArea, extendable);
             } else {
-                throw new PowsyblException("Unknown element name <" + elementName + "> in <cgmesControlArea>");
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesControlArea'");
             }
         });
         return extendable.getExtension(CgmesControlAreas.class);

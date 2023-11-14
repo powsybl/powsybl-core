@@ -135,7 +135,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                             .endStep());
                     context.getReader().readEndNode();
                 }
-                default -> throw new IllegalStateException();
+                default -> throw new PowsyblException("Unknown element name '" + subElementName + "' in '" + elementName + "'");
             }
         });
         if (!hasTerminalRef[0]) {

@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
@@ -197,6 +198,8 @@ public final class ConnectableXmlUtil {
                         .setValue(value)
                         .setFictitious(fictitious)
                         .endTemporaryLimit();
+            } else {
+                throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
         });
         adder.add();

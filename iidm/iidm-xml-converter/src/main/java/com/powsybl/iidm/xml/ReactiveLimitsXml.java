@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
@@ -68,6 +69,8 @@ public class ReactiveLimitsXml {
                         .setMinQ(minQ)
                         .setMaxQ(maxQ)
                         .endPoint();
+            } else {
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'reactiveCapabilityCurve'");
             }
         });
         curveAdder.add();

@@ -79,7 +79,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
             switch (elementName) {
                 case QUALITY_P -> readQualityP(standardDeviation, redundant, side, adder);
                 case QUALITY_Q -> readQualityQ(standardDeviation, redundant, side, adder);
-                default -> throw new PowsyblException("Unexpected element: " + elementName);
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'branchObservability'");
             }
         });
 

@@ -82,7 +82,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
                 context.getReader().readEndNode();
                 adder.add();
             } else {
-                throw new PowsyblException("Unknown element name '" + elementName + "'>' in 'cgmesTapChangers'");
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesTapChangers'");
             }
         });
         return extendable.getExtension(CgmesTapChangers.class);

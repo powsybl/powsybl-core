@@ -92,7 +92,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
             if (elementName.equals(DISCRETE_MEASUREMENT_ROOT)) {
                 readDiscreteMeasurement(discreteMeasurements, context.getReader());
             } else {
-                throw new PowsyblException("Unexpected element: " + elementName);
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'discreteMeasurements'");
             }
         });
         return discreteMeasurements;
@@ -127,7 +127,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
                         reader.readStringAttribute(VALUE));
                 reader.readEndNode();
             } else {
-                throw new PowsyblException("Unexpected element: " + elementName);
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'discreteMeasurement'");
             }
         });
         adder.add();

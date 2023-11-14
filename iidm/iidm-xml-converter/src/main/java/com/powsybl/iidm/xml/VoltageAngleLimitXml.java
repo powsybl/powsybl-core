@@ -8,6 +8,7 @@
 
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageAngleLimit;
@@ -61,6 +62,7 @@ public final class VoltageAngleLimitXml {
                 switch (elementName) {
                     case FROM -> adder.from(terminal);
                     case TO -> adder.to(terminal);
+                    default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'voltageAngleLimit'");
                 }
             });
 

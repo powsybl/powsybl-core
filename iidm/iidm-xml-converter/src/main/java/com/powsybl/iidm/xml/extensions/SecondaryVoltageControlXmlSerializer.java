@@ -8,6 +8,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
@@ -93,7 +94,7 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
         SecondaryVoltageControlAdder adder = network.newExtension(SecondaryVoltageControlAdder.class);
         context.getReader().readChildNodes(elementName -> {
             if (!elementName.equals(CONTROL_ZONE_ROOT_ELEMENT)) {
-                throw new IllegalStateException("Unexpected element " + elementName);
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'secondaryVoltageControl'");
             }
             readControlZone(context, adder);
         });
@@ -105,11 +106,11 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
         MutableDouble targetV = new MutableDouble(Double.NaN);
         List<String> busbarSectionsOrBusesIds = new ArrayList<>();
         List<ControlUnit> controlUnits = new ArrayList<>();
-        context.getReader().readChildNodes(elementName2 -> {
-            switch (elementName2) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
                 case PILOT_POINT_ELEMENT -> readPilotPoint(context, targetV, busbarSectionsOrBusesIds);
                 case CONTROL_UNIT_ROOT_ELEMENT -> readControlUnit(context, controlUnits);
-                default -> throw new IllegalStateException("Unexpected element " + elementName2);
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'controlZone'");
             }
         });
         PilotPoint pilotPoint = new PilotPoint(busbarSectionsOrBusesIds, targetV.getValue());
@@ -120,7 +121,7 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
         targetV.setValue(context.getReader().readDoubleAttribute("targetV"));
         context.getReader().readChildNodes(elementName -> {
             if (!elementName.equals(BUSBAR_SECTION_OR_BUS_ID_ROOT_ELEMENT)) {
-                throw new IllegalStateException("Unexpected element " + elementName);
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'pilotPoint'");
             }
             busbarSectionsOrBusesIds.add(context.getReader().readContent());
         });

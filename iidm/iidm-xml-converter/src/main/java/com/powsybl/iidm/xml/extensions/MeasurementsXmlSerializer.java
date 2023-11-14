@@ -100,7 +100,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
                 });
                 adder.add();
             } else {
-                throw new PowsyblException("Unexpected element: " + elementName);
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'measurements'");
             }
         });
         return measurements;
