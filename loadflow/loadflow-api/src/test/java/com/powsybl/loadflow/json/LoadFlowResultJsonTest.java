@@ -97,6 +97,15 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     @Test
+    void readJsonVersion13SolverFailed() throws IOException {
+        // LoadFlowResult.ComponentResult.Status.SOLVER_FAILED was removed in v1.4 and is now translated to FAILED
+        LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion13SolverFailed.json"));
+        LoadFlowResult.ComponentResult componentResult = result.getComponentResults().get(0);
+        assertEquals(LoadFlowResult.ComponentResult.Status.FAILED, componentResult.getStatus());
+        assertEquals("FAILED", componentResult.getStatusText());
+    }
+
+    @Test
     void readJsonVersion12() throws IOException {
         LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12.json"));
         assertTrue(Double.isNaN(result.getComponentResults().get(0).getDistributedActivePower()));

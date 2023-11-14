@@ -54,10 +54,6 @@ public interface LoadFlowResult {
              */
             MAX_ITERATION_REACHED,
             /**
-             * Non-convergence by solver failure
-             */
-            SOLVER_FAILED,
-            /**
              * Non-convergence
              */
             FAILED,

@@ -68,7 +68,12 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                 }
                 case "status" -> {
                     parser.nextToken();
-                    status = LoadFlowResult.ComponentResult.Status.valueOf(parser.getValueAsString());
+                    String tempStatus = parser.getValueAsString();
+                    if (version.compareTo("1.4") < 0 && "SOLVER_FAILED".equals(tempStatus)) {
+                        // SOLVER_FAILED removed in v1.4, translated to FAILED
+                        tempStatus = LoadFlowResult.ComponentResult.Status.FAILED.name();
+                    }
+                    status = LoadFlowResult.ComponentResult.Status.valueOf(tempStatus);
                 }
                 case "statusText" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: statusText", version, "1.4");
