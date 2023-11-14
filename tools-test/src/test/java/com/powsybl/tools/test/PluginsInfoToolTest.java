@@ -38,7 +38,7 @@ class PluginsInfoToolTest extends AbstractToolTest {
     }
 
     @Test
-    void run() throws Exception {
+    void run() {
         assertCommandSuccessfulMatch(new String[] {"plugins-info"}, "dummy");
     }
 }

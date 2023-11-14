@@ -64,7 +64,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     }
 
     @Test
-    void testDynamicSimulation() throws IOException {
+    void testDynamicSimulation() {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
                 "+ Dynamic Simulation Tool",
@@ -114,7 +114,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     }
 
     @Test
-    void testDynamicSimulationWithEvents() throws IOException {
+    void testDynamicSimulationWithEvents() {
         // Run with events in groovy
         assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/eventModels.groovy"});
 
@@ -123,7 +123,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     }
 
     @Test
-    void testDynamicSimulationWithCurves() throws IOException {
+    void testDynamicSimulationWithCurves() {
         // Run with curves in groovy
         assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"});
 

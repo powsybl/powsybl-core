@@ -80,7 +80,7 @@ class ConversionToolTest extends AbstractToolTest {
     }
 
     @Test
-    void testConversion() throws IOException {
+    void testConversion() {
         String[] commandLine = new String[] {
             "convert-network", "--input-file", "/input.txt",
             "--import-parameters", "/import-parameters.xml", "-Iparam1=value1",

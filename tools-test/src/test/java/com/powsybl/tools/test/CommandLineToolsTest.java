@@ -135,7 +135,7 @@ class CommandLineToolsTest extends AbstractToolTest {
     }
 
     @Test
-    void test() throws IOException {
+    void test() {
         String scriptOptions = "Available options are:" + System.lineSeparator() +
             "    --config-name <CONFIG_NAME>   Override configuration file name" + System.lineSeparator();
 
