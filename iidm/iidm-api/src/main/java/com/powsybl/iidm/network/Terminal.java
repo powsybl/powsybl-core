@@ -11,6 +11,7 @@ import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * An equipment connection point in a substation topology.
@@ -112,59 +113,72 @@ public interface Terminal {
     Connectable getConnectable();
 
     /**
-     * Get the active power in MW injected at the terminal.
-     * <p>
+     * Get the active power in MW injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getP();
 
     /**
-     * Set the active power in MW injected at the terminal.
-     * <p>
+     * Set the active power in MW injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     Terminal setP(double p);
 
     /**
-     * Get the reactive power in MVAR injected at the terminal.
-     * <p>
+     * Get the reactive power in MVAR injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getQ();
 
     /**
-     * Set the reactive power in MVAR injected at the terminal.
-     * <p>
+     * Set the reactive power in MVAR injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     Terminal setQ(double q);
 
     /**
-     * Get the current in A at the terminal.
-     * <p>Depends on the working variant.
+     * Get the current in A at the terminal.<br/>
+     * Depends on the working variant.
      * @see VariantManager
      */
     double getI();
 
     /**
-     * Try to connect the terminal.
-     * <p>Depends on the working variant.
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
      */
     boolean connect();
 
     /**
-     * Disconnect the terminal.
-     * <p>Depends on the working variant.
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
     boolean disconnect();
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isSwitchOpenable predicate telling if a switch is considered openable
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    boolean disconnect(Predicate<Switch> isSwitchOpenable);
 
     /**
      * Test if the terminal is connected.

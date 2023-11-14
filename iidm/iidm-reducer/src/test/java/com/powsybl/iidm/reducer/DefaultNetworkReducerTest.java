@@ -283,6 +283,33 @@ class DefaultNetworkReducerTest {
     }
 
     @Test
+    void testHvdcVoltageRegulatorOffReplacement() {
+        Network network = HvdcTestNetwork.createVsc();
+
+        // Set voltageRegulatorOn to false
+        HvdcLine hvdcLine = network.getHvdcLine("L");
+        HvdcConverterStation hvdcConverterStation = hvdcLine.getConverterStation1();
+        assertEquals("VSC", hvdcConverterStation.getHvdcType().name());
+        VscConverterStation vscConverterStation = (VscConverterStation) hvdcConverterStation;
+        vscConverterStation.setReactivePowerSetpoint(45.0);
+        vscConverterStation.setVoltageRegulatorOn(false);
+
+        assertEquals(1, network.getHvdcLineCount());
+        assertEquals(0, network.getLoadCount());
+
+        // Hvdc is replaced by a load
+        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observer)
+                .build();
+        reducer.reduce(network);
+
+        assertEquals(0, network.getHvdcLineCount());
+        assertEquals(1, network.getLoadCount());
+    }
+
+    @Test
     void test3WT() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         assertEquals(1, network.getThreeWindingsTransformerCount());
