@@ -56,8 +56,8 @@ class CimAnonymizerToolTest extends AbstractToolTest {
         }
 
         assertCommandSuccessful(new String[] {"cim-anonymizer", "--cim-path", cimZipFile.toString(),
-                                    "--output-dir", anonymizedCimFileDir.toString(),
-                                    "--mapping-file", dictionaryFile.toString()},
+                        "--output-dir", anonymizedCimFileDir.toString(),
+                        "--mapping-file", dictionaryFile.toString()},
                 "Anonymizing work/sample.zip" + System.lineSeparator());
 
         assertTrue(Files.exists(anonymizedCimFileDir.resolve("sample.zip")));
