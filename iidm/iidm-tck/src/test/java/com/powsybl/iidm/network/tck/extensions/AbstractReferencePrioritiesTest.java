@@ -101,14 +101,6 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testThrowsMultipleTerminals() {
-        Throwable thrownGet = assertThrows(PowsyblException.class, () -> ReferencePriority.get(lineS2S3));
-        assertEquals("This method can only be used on a connectable having a single Terminal", thrownGet.getMessage());
-        Throwable thrownSet = assertThrows(PowsyblException.class, () -> ReferencePriority.set(lineS2S3, 1));
-        assertEquals("This method can only be used on a connectable having a single Terminal", thrownSet.getMessage());
-    }
-
-    @Test
     void testThreeWindingsTransformer() {
         network = ThreeWindingsTransformerNetworkFactory.create();
         ThreeWindingsTransformer t3wf = network.getThreeWindingsTransformer("3WT");
@@ -123,11 +115,6 @@ public abstract class AbstractReferencePrioritiesTest {
         assertEquals(4, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.ONE));
         assertEquals(5, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.TWO));
         assertEquals(6, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.THREE));
-
-        Throwable thrownGet = assertThrows(PowsyblException.class, () -> ReferencePriority.get(t3wf));
-        assertEquals("This method can only be used on a connectable having a single Terminal", thrownGet.getMessage());
-        Throwable thrownSet = assertThrows(PowsyblException.class, () -> ReferencePriority.set(t3wf, 1));
-        assertEquals("This method can only be used on a connectable having a single Terminal", thrownSet.getMessage());
     }
 
     @Test

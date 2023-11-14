@@ -6,11 +6,7 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,16 +34,12 @@ public interface ReferencePriority {
     int getPriority();
 
     /**
-     * Get the reference priority of a connectable with only one terminal.
-     * @param connectable a connectable
+     * Get the reference priority of an injection.
+     * @param injection an injection
      * @return reference priority value
-     * @throws PowsyblException if the connectable has multiple terminals
      */
-    static int get(Connectable<?> connectable) {
-        if (connectable.getTerminals().size() != 1) {
-            throw new PowsyblException("This method can only be used on a connectable having a single Terminal");
-        }
-        ReferencePriorities ext = connectable.getExtension(ReferencePriorities.class);
+    static int get(Injection<?> injection) {
+        ReferencePriorities ext = injection.getExtension(ReferencePriorities.class);
         if (ext == null || ext.getReferencePriorities().isEmpty()) {
             return 0;
         }
@@ -89,23 +81,19 @@ public interface ReferencePriority {
     }
 
     /**
-     * Set the reference priority of a connectable with only one terminal.
-     * @param connectable a connectable
+     * Set the reference priority of an injection.
+     * @param injection an injection
      * @param priority priority value to set
-     * @throws PowsyblException if the connectable has multiple terminals
      */
-    static void set(Connectable<?> connectable, int priority) {
-        if (connectable.getTerminals().size() != 1) {
-            throw new PowsyblException("This method can only be used on a connectable having a single Terminal");
+    static void set(Injection<?> injection, int priority) {
+        ReferencePriorities ext = injection.getExtension(ReferencePriorities.class);
+        if (ext == null) {
+            ext = (ReferencePriorities) injection.newExtension(ReferencePrioritiesAdder.class).add();
         }
-        if (connectable.getExtension(ReferencePriorities.class) == null) {
-            connectable.newExtension(ReferencePrioritiesAdder.class).add();
-        }
-        connectable.getExtension(ReferencePriorities.class)
-                .newReferencePriority()
-                .setTerminal(connectable.getTerminals().get(0))
-                .setPriority(priority)
-                .add();
+        ext.newReferencePriority()
+            .setTerminal(injection.getTerminals().get(0))
+            .setPriority(priority)
+            .add();
     }
 
     /**
@@ -115,14 +103,14 @@ public interface ReferencePriority {
      * @param priority priority value to set
      */
     static void set(Branch<?> branch, Branch.Side side, int priority) {
-        if (branch.getExtension(ReferencePriorities.class) == null) {
-            branch.newExtension(ReferencePrioritiesAdder.class).add();
+        ReferencePriorities ext = branch.getExtension(ReferencePriorities.class);
+        if (ext == null) {
+            ext = (ReferencePriorities) branch.newExtension(ReferencePrioritiesAdder.class).add();
         }
-        branch.getExtension(ReferencePriorities.class)
-                .newReferencePriority()
-                .setTerminal(branch.getTerminal(side))
-                .setPriority(priority)
-                .add();
+        ext.newReferencePriority()
+            .setTerminal(branch.getTerminal(side))
+            .setPriority(priority)
+            .add();
     }
 
     /**
@@ -132,13 +120,13 @@ public interface ReferencePriority {
      * @param priority priority value to set
      */
     static void set(ThreeWindingsTransformer threeWindingsTransformer, ThreeWindingsTransformer.Side side, int priority) {
-        if (threeWindingsTransformer.getExtension(ReferencePriorities.class) == null) {
-            threeWindingsTransformer.newExtension(ReferencePrioritiesAdder.class).add();
+        ReferencePriorities ext = threeWindingsTransformer.getExtension(ReferencePriorities.class);
+        if (ext == null) {
+            ext = (ReferencePriorities) threeWindingsTransformer.newExtension(ReferencePrioritiesAdder.class).add();
         }
-        threeWindingsTransformer.getExtension(ReferencePriorities.class)
-                .newReferencePriority()
-                .setTerminal(threeWindingsTransformer.getTerminal(side))
-                .setPriority(priority)
-                .add();
+        ext.newReferencePriority()
+            .setTerminal(threeWindingsTransformer.getTerminal(side))
+            .setPriority(priority)
+            .add();
     }
 }
