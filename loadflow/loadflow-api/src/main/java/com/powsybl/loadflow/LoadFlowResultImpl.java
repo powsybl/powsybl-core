@@ -18,23 +18,23 @@ import java.util.Objects;
  */
 public class LoadFlowResultImpl implements LoadFlowResult {
 
-    public static class SlackResultImpl implements SlackResult {
+    public static class SlackBusResultImpl implements SlackBusResult {
 
-        private final String busId;
+        private final String id;
         private final double activePowerMismatch;
 
-        public SlackResultImpl(String busId, double activePowerMismatch) {
-            this.busId = Objects.requireNonNull(busId);
+        public SlackBusResultImpl(String id, double activePowerMismatch) {
+            this.id = Objects.requireNonNull(id);
             this.activePowerMismatch = activePowerMismatch;
         }
 
         @Override
-        public String getBusId() {
-            return busId;
+        public String getId() {
+            return id;
         }
 
         @Override
-        public double getBusActivePowerMismatch() {
+        public double getActivePowerMismatch() {
             return activePowerMismatch;
         }
     }
@@ -53,7 +53,7 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         private final String referenceBusId;
 
-        private final List<SlackResult> slackResults;
+        private final List<SlackBusResult> slackBusResults;
 
         private final double distributedActivePower;
 
@@ -65,20 +65,20 @@ public class LoadFlowResultImpl implements LoadFlowResult {
             this.metrics = Collections.emptyMap();
             this.iterationCount = checkIterationCount(iterationCount);
             this.referenceBusId = slackBusId;
-            this.slackResults = Collections.singletonList(new SlackResultImpl(slackBusId, slackBusActivePowerMismatch));
+            this.slackBusResults = Collections.singletonList(new SlackBusResultImpl(slackBusId, slackBusActivePowerMismatch));
             this.distributedActivePower = distributedActivePower;
         }
 
         public ComponentResultImpl(int connectedComponentNum, int synchronousComponentNum, Status status,
                                    Map<String, String> metrics, int iterationCount, String referenceBusId,
-                                   List<SlackResult> slackResults, double distributedActivePower) {
+                                   List<SlackBusResult> slackBusResults, double distributedActivePower) {
             this.connectedComponentNum = checkComponentNum(connectedComponentNum);
             this.synchronousComponentNum = checkComponentNum(synchronousComponentNum);
             this.status = Objects.requireNonNull(status);
             this.metrics = Objects.requireNonNull(metrics);
             this.iterationCount = checkIterationCount(iterationCount);
             this.referenceBusId = referenceBusId; // allowed to be null
-            this.slackResults = Objects.requireNonNull(slackResults);
+            this.slackBusResults = Objects.requireNonNull(slackBusResults);
             this.distributedActivePower = distributedActivePower;
         }
 
@@ -127,16 +127,16 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         }
 
         @Override
-        public List<SlackResult> getSlackResults() {
-            return Collections.unmodifiableList(slackResults);
+        public List<SlackBusResult> getSlackBusResults() {
+            return Collections.unmodifiableList(slackBusResults);
         }
 
         @Override
         public String getSlackBusId() {
-            if (slackResults.isEmpty()) {
+            if (slackBusResults.isEmpty()) {
                 return "";
-            } else if (slackResults.size() == 1) {
-                return slackResults.get(0).getBusId();
+            } else if (slackBusResults.size() == 1) {
+                return slackBusResults.get(0).getId();
             } else {
                 throw new IllegalStateException("Deprecated method: cannot return a value in the case of multiple slack results. Please migrate to new API.");
             }
@@ -144,10 +144,10 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         @Override
         public double getSlackBusActivePowerMismatch() {
-            if (slackResults.isEmpty()) {
+            if (slackBusResults.isEmpty()) {
                 return 0;
-            } else if (slackResults.size() == 1) {
-                return slackResults.get(0).getBusActivePowerMismatch();
+            } else if (slackBusResults.size() == 1) {
+                return slackBusResults.get(0).getActivePowerMismatch();
             } else {
                 throw new IllegalStateException("Deprecated method: cannot return a value in the case of multiple slack results. Please migrate to new API.");
             }

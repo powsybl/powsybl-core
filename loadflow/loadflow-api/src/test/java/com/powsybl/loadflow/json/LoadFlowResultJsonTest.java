@@ -69,8 +69,8 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
                         7,
                         "bus0",
                         List.of(
-                                new LoadFlowResultImpl.SlackResultImpl("bus1", 123.4),
-                                new LoadFlowResultImpl.SlackResultImpl("bus2", 234.5)
+                                new LoadFlowResultImpl.SlackBusResultImpl("bus1", 123.4),
+                                new LoadFlowResultImpl.SlackBusResultImpl("bus2", 234.5)
                         ),
                         356.78)
                 )
@@ -88,10 +88,10 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
         LoadFlowResult.ComponentResult componentResult = result.getComponentResults().get(0);
         assertEquals("bus1", componentResult.getReferenceBusId());
         assertTrue(componentResult.getMetrics().isEmpty());
-        assertEquals(1, componentResult.getSlackResults().size());
-        LoadFlowResult.SlackResult slackResult = componentResult.getSlackResults().get(0);
-        assertEquals("bus1", slackResult.getBusId());
-        assertEquals(235.3, slackResult.getBusActivePowerMismatch());
+        assertEquals(1, componentResult.getSlackBusResults().size());
+        LoadFlowResult.SlackBusResult slackBusResult = componentResult.getSlackBusResults().get(0);
+        assertEquals("bus1", slackBusResult.getId());
+        assertEquals(235.3, slackBusResult.getActivePowerMismatch());
     }
 
     @Test
@@ -156,10 +156,10 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
         LoadFlowResult.ComponentResult componentResult = result.getComponentResults().get(0);
         assertEquals("bus1", componentResult.getReferenceBusId());
         assertTrue(componentResult.getMetrics().isEmpty());
-        assertEquals(1, componentResult.getSlackResults().size());
-        LoadFlowResult.SlackResult slackResult = componentResult.getSlackResults().get(0);
-        assertEquals("bus1", slackResult.getBusId());
-        assertEquals(235.3, slackResult.getBusActivePowerMismatch());
+        assertEquals(1, componentResult.getSlackBusResults().size());
+        LoadFlowResult.SlackBusResult slackBusResult = componentResult.getSlackBusResults().get(0);
+        assertEquals("bus1", slackBusResult.getId());
+        assertEquals(235.3, slackBusResult.getActivePowerMismatch());
 
     }
 

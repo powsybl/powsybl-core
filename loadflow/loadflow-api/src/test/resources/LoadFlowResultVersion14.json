@@ -19,12 +19,12 @@
     },
     "iterationCount" : 7,
     "referenceBusId" : "bus0",
-    "slackResults" : [ {
-      "busId" : "bus1",
-      "busActivePowerMismatch" : 123.4
+    "slackBusResults" : [ {
+      "id" : "bus1",
+      "activePowerMismatch" : 123.4
     }, {
-      "busId" : "bus2",
-      "busActivePowerMismatch" : 234.5
+      "id" : "bus2",
+      "activePowerMismatch" : 234.5
     } ],
     "distributedActivePower" : 356.78
   } ]

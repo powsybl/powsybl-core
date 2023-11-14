@@ -42,7 +42,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         LoadFlowResult.ComponentResult.Status status = null;
         Map<String, String> metrics = Collections.emptyMap();
         Integer iterationCount = null;
-        List<LoadFlowResult.SlackResult> slackResults = new ArrayList<>();
+        List<LoadFlowResult.SlackBusResult> slackBusResults = new ArrayList<>();
         String referenceBusId = null;
         String slackBusId = null;
         Double slackBusActivePowerMismatch = null;
@@ -83,10 +83,10 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     parser.nextToken();
                     referenceBusId = parser.getValueAsString();
                 }
-                case "slackResults" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: slackResults", version, "1.4");
+                case "slackBusResults" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: slackBusResults", version, "1.4");
                     parser.nextToken();
-                    deserializeSlackResults(parser, slackResults);
+                    deserializeSlackBusResults(parser, slackBusResults);
                 }
                 case "slackBusId" -> {
                     JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.4");
@@ -136,38 +136,38 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                 throw new IllegalStateException("Slack bus active power mismatch field not found.");
             }
             referenceBusId = slackBusId;
-            slackResults = List.of(new LoadFlowResultImpl.SlackResultImpl(slackBusId, slackBusActivePowerMismatch));
+            slackBusResults = List.of(new LoadFlowResultImpl.SlackBusResultImpl(slackBusId, slackBusActivePowerMismatch));
         }
 
-        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, metrics, iterationCount, referenceBusId, slackResults, distributedActivePower);
+        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, metrics, iterationCount, referenceBusId, slackBusResults, distributedActivePower);
     }
 
-    public LoadFlowResult.SlackResult deserializeSlackResult(JsonParser parser) throws IOException {
-        String busId = null;
-        Double busActivePowerMismatch = null;
+    public LoadFlowResult.SlackBusResult deserializeSlackBusResult(JsonParser parser) throws IOException {
+        String id = null;
+        Double activePowerMismatch = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "busId" -> {
+                case "id" -> {
                     parser.nextToken();
-                    busId = parser.getValueAsString();
+                    id = parser.getValueAsString();
                 }
-                case "busActivePowerMismatch" -> {
+                case "activePowerMismatch" -> {
                     parser.nextToken();
-                    busActivePowerMismatch = parser.getValueAsDouble();
+                    activePowerMismatch = parser.getValueAsDouble();
                 }
                 default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.getCurrentName());
             }
         }
 
-        if (busId == null) {
-            throw new IllegalStateException("Slack bus id field not found.");
+        if (id == null) {
+            throw new IllegalStateException("Slack bus result: id field not found.");
         }
-        if (busActivePowerMismatch == null) {
-            throw new IllegalStateException("Slack bus active power mismatch field not found.");
+        if (activePowerMismatch == null) {
+            throw new IllegalStateException("Slack bus result: active power mismatch field not found.");
         }
 
-        return new LoadFlowResultImpl.SlackResultImpl(busId, busActivePowerMismatch);
+        return new LoadFlowResultImpl.SlackBusResultImpl(id, activePowerMismatch);
     }
 
     public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults, String version) throws IOException {
@@ -176,9 +176,9 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         }
     }
 
-    public void deserializeSlackResults(JsonParser parser, List<LoadFlowResult.SlackResult> slackResults) throws IOException {
+    public void deserializeSlackBusResults(JsonParser parser, List<LoadFlowResult.SlackBusResult> slackBusResults) throws IOException {
         while (parser.nextToken() != JsonToken.END_ARRAY) {
-            slackResults.add(deserializeSlackResult(parser));
+            slackBusResults.add(deserializeSlackBusResult(parser));
         }
     }
 

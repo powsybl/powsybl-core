@@ -22,18 +22,18 @@ public interface LoadFlowResult {
     /**
      * Result for one slack bus
      */
-    interface SlackResult {
+    interface SlackBusResult {
         /**
          * Get the slack bus id.
          * @return the slack bus id
          */
-        String getBusId();
+        String getId();
 
         /**
          * Get slack bus active power mismatch in MW.
          * @return the slack bus active power mismatch in MW
          */
-        double getBusActivePowerMismatch();
+        double getActivePowerMismatch();
     }
 
     /**
@@ -107,12 +107,12 @@ public interface LoadFlowResult {
          * get slack results of all slack buses
          * @return list of slack results
          */
-        List<SlackResult> getSlackResults();
+        List<SlackBusResult> getSlackBusResults();
 
         /**
          * Get the slack bus id.
          * @return the slack bus id
-         * @deprecated use {@link #getSlackResults()} instead
+         * @deprecated use {@link #getSlackBusResults()} instead
          */
         @Deprecated(since = "6.1.0")
         String getSlackBusId();
@@ -120,7 +120,7 @@ public interface LoadFlowResult {
         /**
          * Get slack bus active power mismatch in MW.
          * @return the slack bus active power mismatch in MW
-         * @deprecated use {@link #getSlackResults()} instead
+         * @deprecated use {@link #getSlackBusResults()} instead
          */
         @Deprecated(since = "6.1.0")
         double getSlackBusActivePowerMismatch();

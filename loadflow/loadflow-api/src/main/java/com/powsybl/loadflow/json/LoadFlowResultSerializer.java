@@ -61,12 +61,12 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
         serializerProvider.defaultSerializeField("metrics", componentResult.getMetrics(), jsonGenerator);
         jsonGenerator.writeNumberField("iterationCount", componentResult.getIterationCount());
         jsonGenerator.writeStringField("referenceBusId", componentResult.getReferenceBusId());
-        List<LoadFlowResult.SlackResult> slackResults = componentResult.getSlackResults();
-        if (!slackResults.isEmpty()) {
-            jsonGenerator.writeFieldName("slackResults");
+        List<LoadFlowResult.SlackBusResult> slackBusResults = componentResult.getSlackBusResults();
+        if (!slackBusResults.isEmpty()) {
+            jsonGenerator.writeFieldName("slackBusResults");
             jsonGenerator.writeStartArray();
-            for (LoadFlowResult.SlackResult slackResult : slackResults) {
-                serialize(slackResult, jsonGenerator);
+            for (LoadFlowResult.SlackBusResult slackBusResult : slackBusResults) {
+                serialize(slackBusResult, jsonGenerator);
             }
             jsonGenerator.writeEndArray();
         }
@@ -74,10 +74,10 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
         jsonGenerator.writeEndObject();
     }
 
-    public void serialize(LoadFlowResult.SlackResult slackResult, JsonGenerator jsonGenerator) throws IOException {
+    public void serialize(LoadFlowResult.SlackBusResult slackBusResult, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("busId", slackResult.getBusId());
-        jsonGenerator.writeNumberField("busActivePowerMismatch", slackResult.getBusActivePowerMismatch());
+        jsonGenerator.writeStringField("id", slackBusResult.getId());
+        jsonGenerator.writeNumberField("activePowerMismatch", slackBusResult.getActivePowerMismatch());
         jsonGenerator.writeEndObject();
     }
 
