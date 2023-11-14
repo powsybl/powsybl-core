@@ -19,10 +19,7 @@ import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -58,8 +55,8 @@ public class AmplExporter implements Exporter {
 
     private static final Parameter EXPORT_VERSION_PARAMETER = new Parameter(EXPORT_VERSION, ParameterType.STRING,
         "The version of the export.",
-        AmplExportVersion.V1_0.name(),
-        Arrays.stream(AmplExportVersion.values()).map(Enum::name).collect(Collectors.toList()));
+            AmplExportVersion.defaultVersion().getExporterId(),
+            new ArrayList<>(AmplExportVersion.exporterIdValues()));
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(EXPORT_SCOPE_PARAMETER, EXPORT_XNODES_PARAMETER,
         EXPORT_ACTION_TYPE_PARAMETER, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER,
@@ -96,7 +93,7 @@ public class AmplExporter implements Exporter {
             boolean exportRatioTapChangerVoltageTarget = Parameter.readBoolean(getFormat(), parameters, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, defaultValueConfig);
             boolean twtSplitShuntAdmittance = Parameter.readBoolean(getFormat(), parameters,
                 TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER, defaultValueConfig);
-            AmplExportVersion exportVersion = AmplExportVersion.valueOf(
+            AmplExportVersion exportVersion = AmplExportVersion.fromExporterId(
                 Parameter.readString(getFormat(), parameters, EXPORT_VERSION_PARAMETER, defaultValueConfig));
 
             AmplExportConfig config = new AmplExportConfig(scope, exportXnodes, actionType,

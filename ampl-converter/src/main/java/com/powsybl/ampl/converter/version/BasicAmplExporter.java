@@ -33,7 +33,6 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class BasicAmplExporter implements AmplColumnsExporter {
 
-    private static final String EXPORTER_ID = "1.0";
     private final AmplExportConfig config;
     private final Network network;
     private final StringToIntMapper<AmplSubset> mapper;
@@ -59,7 +58,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
     @Override
     public String getExporterId() {
-        return EXPORTER_ID;
+        return AmplExportVersion.V1_0.getExporterId();
     }
 
     @Override
