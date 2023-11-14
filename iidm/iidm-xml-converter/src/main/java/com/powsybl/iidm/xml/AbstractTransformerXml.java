@@ -27,8 +27,8 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
     private static final String ATTR_TAP_POSITION = "tapPosition";
     private static final String ATTR_REGULATING = "regulating";
     private static final String ELEM_TERMINAL_REF = "terminalRef";
-    private static final String STEP_ROOT_ELEMENT_NAME = "step";
-    private static final String STEP_ARRAY_ELEMENT_NAME = "steps";
+    static final String STEP_ROOT_ELEMENT_NAME = "step";
+    static final String STEP_ARRAY_ELEMENT_NAME = "steps";
     private static final String TARGET_DEADBAND = "targetDeadband";
     private static final String RATIO_TAP_CHANGER = "ratioTapChanger";
     private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
@@ -125,7 +125,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                         adder.add();
                     });
                 }
-                case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME -> {
+                case STEP_ROOT_ELEMENT_NAME -> {
                     readSteps(context, (r, x, g, b, rho) -> adder.beginStep()
                             .setR(r)
                             .setX(x)
@@ -208,7 +208,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
                         adder.add();
                     });
                 }
-                case STEP_ROOT_ELEMENT_NAME, STEP_ARRAY_ELEMENT_NAME -> {
+                case STEP_ROOT_ELEMENT_NAME -> {
                     PhaseTapChangerAdder.StepAdder stepAdder = adder.beginStep();
                     readSteps(context, (r, x, g, b, rho) -> stepAdder.setR(r)
                             .setX(x)

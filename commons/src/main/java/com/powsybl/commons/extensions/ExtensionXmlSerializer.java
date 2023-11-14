@@ -94,4 +94,8 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
     default boolean isSerializable(E extension) {
         return true;
     }
+
+    default Map<String, String> getArrayNameToSingleNameMap() {
+        return Collections.emptyMap();
+    }
 }

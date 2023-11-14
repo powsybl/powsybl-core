@@ -23,8 +23,8 @@ abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, 
 
     protected void readSubElement(String elementName, T identifiable, NetworkXmlReaderContext context) {
         switch (elementName) {
-            case PropertiesXml.ROOT_ELEMENT_NAME, PropertiesXml.ARRAY_ELEMENT_NAME -> PropertiesXml.read(identifiable, context);
-            case AliasesXml.ROOT_ELEMENT_NAME, AliasesXml.ARRAY_ELEMENT_NAME -> {
+            case PropertiesXml.ROOT_ELEMENT_NAME -> PropertiesXml.read(identifiable, context);
+            case AliasesXml.ROOT_ELEMENT_NAME -> {
                 IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                 AliasesXml.read(identifiable, context);
             }

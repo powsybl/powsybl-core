@@ -185,7 +185,7 @@ public final class ConnectableXmlUtil {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
         reader.readChildNodes(elementName -> {
-            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NODE.equals(elementName) || TEMPORARY_LIMITS_ARRAY_ELEMENT_NODE.equals(elementName)) {
+            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NODE.equals(elementName)) {
                 String name = reader.readStringAttribute("name");
                 int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);

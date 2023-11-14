@@ -172,7 +172,7 @@ public final class NetworkXml {
     }
 
     private static void writeVoltageAngleLimits(Network n, NetworkXmlWriterContext context) {
-        if (!n.getVoltageAngleLimitsStream().findAny().isEmpty()) {
+        if (n.getVoltageAngleLimitsStream().findAny().isPresent()) {
             for (VoltageAngleLimit voltageAngleLimit : n.getVoltageAngleLimits()) {
                 VoltageAngleLimitXml.write(voltageAngleLimit, context);
             }
@@ -510,17 +510,65 @@ public final class NetworkXml {
     private static TreeDataReader createTreeDataReader(InputStream is, ImportOptions config) {
         return switch (config.getFormat()) {
             case XML -> initializeXmlReader(is, config);
-            case JSON -> initializeJsonReader(is);
+            case JSON -> initializeJsonReader(is, config);
         };
     }
 
-    private static TreeDataReader initializeJsonReader(InputStream is) {
+    private static TreeDataReader initializeJsonReader(InputStream is, ImportOptions config) {
         try {
             JsonParser parser = JsonUtil.createJsonFactory().createParser(is);
             parser.nextToken();
-            return new JsonReader(parser, NETWORK_ROOT_ELEMENT_NAME);
+            return new JsonReader(parser, NETWORK_ROOT_ELEMENT_NAME, createArrayNameToSingleNameMap(config));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private static Map<String, String> createArrayNameToSingleNameMap(ImportOptions config) {
+        Map<String, String> basicMap = Map.ofEntries(
+                Map.entry(NETWORK_ARRAY_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME),
+                Map.entry(EXTENSION_ARRAY_ELEMENT_NAME, EXTENSION_ROOT_ELEMENT_NAME),
+                Map.entry(AbstractSwitchXml.ARRAY_ELEMENT_NAME, AbstractSwitchXml.ROOT_ELEMENT_NAME),
+                Map.entry(AbstractTransformerXml.STEP_ARRAY_ELEMENT_NAME, AbstractTransformerXml.STEP_ROOT_ELEMENT_NAME),
+                Map.entry(AliasesXml.ARRAY_ELEMENT_NAME, AliasesXml.ROOT_ELEMENT_NAME),
+                Map.entry(BatteryXml.ARRAY_ELEMENT_NAME, BatteryXml.ROOT_ELEMENT_NAME),
+                Map.entry(BusXml.ARRAY_ELEMENT_NAME, BusXml.ROOT_ELEMENT_NAME),
+                Map.entry(BusbarSectionXml.ARRAY_ELEMENT_NAME, BusbarSectionXml.ROOT_ELEMENT_NAME),
+                Map.entry(DanglingLineXml.ARRAY_ELEMENT_NAME, DanglingLineXml.ROOT_ELEMENT_NAME),
+                Map.entry(GeneratorXml.ARRAY_ELEMENT_NAME, GeneratorXml.ROOT_ELEMENT_NAME),
+                Map.entry(HvdcLineXml.ARRAY_ELEMENT_NAME, HvdcLineXml.ROOT_ELEMENT_NAME),
+                Map.entry(LccConverterStationXml.ARRAY_ELEMENT_NAME, LccConverterStationXml.ROOT_ELEMENT_NAME),
+                Map.entry(LineXml.ARRAY_ELEMENT_NAME, LineXml.ROOT_ELEMENT_NAME),
+                Map.entry(LoadXml.ARRAY_ELEMENT_NAME, LoadXml.ROOT_ELEMENT_NAME),
+                Map.entry(NodeBreakerViewInternalConnectionXml.ARRAY_ELEMENT_NAME, NodeBreakerViewInternalConnectionXml.ROOT_ELEMENT_NAME),
+                Map.entry(PropertiesXml.ARRAY_ELEMENT_NAME, PropertiesXml.ROOT_ELEMENT_NAME),
+                Map.entry(ReactiveLimitsXml.POINT_ARRAY_ELEMENT_NAME, ReactiveLimitsXml.POINT_ROOT_ELEMENT_NAME),
+                Map.entry(ShuntXml.ARRAY_ELEMENT_NAME, ShuntXml.ROOT_ELEMENT_NAME),
+                Map.entry(ShuntXml.SECTION_ARRAY_ELEMENT_NAME, ShuntXml.SECTION_ROOT_ELEMENT_NAME),
+                Map.entry(StaticVarCompensatorXml.ARRAY_ELEMENT_NAME, StaticVarCompensatorXml.ROOT_ELEMENT_NAME),
+                Map.entry(SubstationXml.ARRAY_ELEMENT_NAME, SubstationXml.ROOT_ELEMENT_NAME),
+                Map.entry(ThreeWindingsTransformerXml.ARRAY_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME),
+                Map.entry(TieLineXml.ARRAY_ELEMENT_NAME, TieLineXml.ROOT_ELEMENT_NAME),
+                Map.entry(TwoWindingsTransformerXml.ARRAY_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME),
+                Map.entry(VoltageAngleLimitXml.ARRAY_ELEMENT_NAME, VoltageAngleLimitXml.ROOT_ELEMENT_NAME),
+                Map.entry(VoltageLevelXml.ARRAY_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME),
+                Map.entry(VoltageLevelXml.INJ_ARRAY_ELEMENT_NAME, VoltageLevelXml.INJ_ROOT_ELEMENT_NAME),
+                Map.entry(VscConverterStationXml.ARRAY_ELEMENT_NAME, VscConverterStationXml.ROOT_ELEMENT_NAME));
+
+        Map<String, String> extensionsMap = new HashMap<>();
+        if (!config.withNoExtension()) {
+            for (ExtensionXmlSerializer<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+                extensionsMap.putAll(e.getArrayNameToSingleNameMap());
+            }
+        }
+
+        if (extensionsMap.isEmpty()) {
+            return basicMap;
+        } else {
+            Map<String, String> mergedMap = new HashMap<>();
+            mergedMap.putAll(basicMap);
+            mergedMap.putAll(extensionsMap);
+            return mergedMap;
         }
     }
 
@@ -551,26 +599,16 @@ public final class NetworkXml {
     private static void readElement(String elementName, Deque<Network> networks, NetworkFactory networkFactory, NetworkXmlReaderContext context,
                                     Set<String> extensionNamesNotFound) {
         switch (elementName) {
-            case AliasesXml.ROOT_ELEMENT_NAME, AliasesXml.ARRAY_ELEMENT_NAME
-                    -> checkSupportedAndReadAlias(networks.peek(), context);
-            case PropertiesXml.ROOT_ELEMENT_NAME, PropertiesXml.ARRAY_ELEMENT_NAME
-                    -> PropertiesXml.read(networks.peek(), context);
-            case NETWORK_ROOT_ELEMENT_NAME, NETWORK_ARRAY_ELEMENT_NAME
-                    -> checkSupportedAndReadSubnetwork(networks, networkFactory, context, extensionNamesNotFound);
-            case VoltageLevelXml.ROOT_ELEMENT_NAME, VoltageLevelXml.ARRAY_ELEMENT_NAME
-                    -> checkSupportedAndReadVoltageLevel(context, networks);
-            case SubstationXml.ROOT_ELEMENT_NAME, SubstationXml.ARRAY_ELEMENT_NAME
-                    -> SubstationXml.INSTANCE.read(networks.peek(), context);
-            case LineXml.ROOT_ELEMENT_NAME, LineXml.ARRAY_ELEMENT_NAME
-                    -> LineXml.INSTANCE.read(networks.peek(), context);
-            case TieLineXml.ROOT_ELEMENT_NAME, TieLineXml.ARRAY_ELEMENT_NAME
-                    -> TieLineXml.INSTANCE.read(networks.peek(), context);
-            case HvdcLineXml.ROOT_ELEMENT_NAME, HvdcLineXml.ARRAY_ELEMENT_NAME
-                    -> HvdcLineXml.INSTANCE.read(networks.peek(), context);
-            case VoltageAngleLimitXml.ROOT_ELEMENT_NAME, VoltageAngleLimitXml.ARRAY_ELEMENT_NAME
-                    -> VoltageAngleLimitXml.read(networks.peek(), context);
-            case EXTENSION_ROOT_ELEMENT_NAME, EXTENSION_ARRAY_ELEMENT_NAME
-                    -> findExtendableAndReadExtension(networks.getFirst(), context, extensionNamesNotFound);
+            case AliasesXml.ROOT_ELEMENT_NAME -> checkSupportedAndReadAlias(networks.peek(), context);
+            case PropertiesXml.ROOT_ELEMENT_NAME -> PropertiesXml.read(networks.peek(), context);
+            case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, context, extensionNamesNotFound);
+            case VoltageLevelXml.ROOT_ELEMENT_NAME -> checkSupportedAndReadVoltageLevel(context, networks);
+            case SubstationXml.ROOT_ELEMENT_NAME -> SubstationXml.INSTANCE.read(networks.peek(), context);
+            case LineXml.ROOT_ELEMENT_NAME -> LineXml.INSTANCE.read(networks.peek(), context);
+            case TieLineXml.ROOT_ELEMENT_NAME -> TieLineXml.INSTANCE.read(networks.peek(), context);
+            case HvdcLineXml.ROOT_ELEMENT_NAME -> HvdcLineXml.INSTANCE.read(networks.peek(), context);
+            case VoltageAngleLimitXml.ROOT_ELEMENT_NAME -> VoltageAngleLimitXml.read(networks.peek(), context);
+            case EXTENSION_ROOT_ELEMENT_NAME -> findExtendableAndReadExtension(networks.getFirst(), context, extensionNamesNotFound);
             default -> throw new IllegalStateException();
         }
     }
@@ -739,49 +777,22 @@ public final class NetworkXml {
         reader.readChildNodes(elementName -> {
 
             switch (elementName) {
-                case VoltageLevelXml.ROOT_ELEMENT_NAME,
-                        VoltageLevelXml.ARRAY_ELEMENT_NAME:
-                    updateVoltageLevel(reader, network, vl);
-                    break;
-                case BusXml.ROOT_ELEMENT_NAME,
-                        BusXml.ARRAY_ELEMENT_NAME:
-                    updateBus(reader, vl);
-                    break;
+                case VoltageLevelXml.ROOT_ELEMENT_NAME -> updateVoltageLevel(reader, network, vl);
+                case BusXml.ROOT_ELEMENT_NAME -> updateBus(reader, vl);
                 case GeneratorXml.ROOT_ELEMENT_NAME,
-                        GeneratorXml.ARRAY_ELEMENT_NAME,
                         BatteryXml.ROOT_ELEMENT_NAME,
-                        BatteryXml.ARRAY_ELEMENT_NAME,
                         LoadXml.ROOT_ELEMENT_NAME,
-                        LoadXml.ARRAY_ELEMENT_NAME,
                         ShuntXml.ROOT_ELEMENT_NAME,
-                        ShuntXml.ARRAY_ELEMENT_NAME,
                         DanglingLineXml.ROOT_ELEMENT_NAME,
-                        DanglingLineXml.ARRAY_ELEMENT_NAME,
                         LccConverterStationXml.ROOT_ELEMENT_NAME,
-                        LccConverterStationXml.ARRAY_ELEMENT_NAME,
-                        VscConverterStationXml.ROOT_ELEMENT_NAME,
-                        VscConverterStationXml.ARRAY_ELEMENT_NAME:
-                    updateInjection(reader, network);
-                    break;
+                        VscConverterStationXml.ROOT_ELEMENT_NAME -> updateInjection(reader, network);
                 case LineXml.ROOT_ELEMENT_NAME,
-                        LineXml.ARRAY_ELEMENT_NAME,
-                        TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                        TwoWindingsTransformerXml.ARRAY_ELEMENT_NAME:
-                    updateBranch(reader, network);
-                    break;
-                case HvdcLineXml.ROOT_ELEMENT_NAME,
-                        HvdcLineXml.ARRAY_ELEMENT_NAME,
-                        NetworkXml.NETWORK_ROOT_ELEMENT_NAME,
-                        NetworkXml.NETWORK_ARRAY_ELEMENT_NAME:
+                        TwoWindingsTransformerXml.ROOT_ELEMENT_NAME -> updateBranch(reader, network);
+                case HvdcLineXml.ROOT_ELEMENT_NAME, NetworkXml.NETWORK_ROOT_ELEMENT_NAME -> {
                     // Nothing to do
-                    break;
-
-                case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                        ThreeWindingsTransformerXml.ARRAY_ELEMENT_NAME:
-                    throw new IllegalStateException();
-
-                default:
-                    throw new IllegalStateException("Unexpected element: " + elementName);
+                }
+                case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME -> throw new IllegalStateException();
+                default -> throw new IllegalStateException("Unexpected element: " + elementName);
             }
         });
     }

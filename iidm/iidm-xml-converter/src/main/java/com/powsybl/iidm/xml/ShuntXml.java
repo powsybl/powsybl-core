@@ -35,8 +35,8 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String SHUNT_LINEAR_MODEL = "shuntLinearModel";
     private static final String SHUNT_NON_LINEAR_MODEL = "shuntNonLinearModel";
-    private static final String SECTION_ARRAY_ELEMENT_NAME = "sections";
-    private static final String SECTION_ROOT_ELEMENT_NAME = "section";
+    static final String SECTION_ARRAY_ELEMENT_NAME = "sections";
+    static final String SECTION_ROOT_ELEMENT_NAME = "section";
 
     @Override
     protected String getRootElementName() {
@@ -46,7 +46,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) {
         if (ShuntCompensatorModelType.NON_LINEAR == sc.getModelType()) {
-            IidmXmlUtil.assertMinimumVersion(getRootElementName(), SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
         }
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
             ShuntCompensatorModel model = sc.getModel();
@@ -188,7 +188,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                     ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
                     context.getReader().readChildNodes(nodeName -> {
-                        if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName) || SECTION_ARRAY_ELEMENT_NAME.equals(nodeName)) {
+                        if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName)) {
                             double b = context.getReader().readDoubleAttribute("b");
                             double g = context.getReader().readDoubleAttribute("g");
                             modelAdder.beginSection()

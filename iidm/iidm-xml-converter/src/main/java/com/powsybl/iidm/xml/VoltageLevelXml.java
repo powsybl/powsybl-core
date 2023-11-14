@@ -36,8 +36,8 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
     private static final String BUS_BREAKER_TOPOLOGY_ELEMENT_NAME = "busBreakerTopology";
     private static final String NODE_COUNT = "nodeCount";
     private static final String UNEXPECTED_ELEMENT = "Unexpected element: ";
-    private static final String INJ_ROOT_ELEMENT_NAME = "inj";
-    private static final String INJ_ARRAY_ELEMENT_NAME = "fictitiousInjections";
+    static final String INJ_ROOT_ELEMENT_NAME = "inj";
+    static final String INJ_ARRAY_ELEMENT_NAME = "fictitiousInjections";
 
     @Override
     protected String getRootElementName() {
@@ -88,7 +88,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
         IidmXmlUtil.writeIntAttributeUntilMaximumVersion(NODE_COUNT, vl.getNodeBreakerView().getMaximumNodeIndex() + 1, IidmXmlVersion.V_1_1, context);
 
-        context.getWriter().writeStartNodes(BusbarSectionXml.ROOT_ELEMENT_NAME);
+        context.getWriter().writeStartNodes(BusbarSectionXml.ARRAY_ELEMENT_NAME);
         for (BusbarSection bs : IidmXmlUtil.sorted(vl.getNodeBreakerView().getBusbarSections(), context.getOptions())) {
             BusbarSectionXml.INSTANCE.write(bs, null, context);
         }
@@ -310,22 +310,14 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
             switch (elementName) {
                 case NODE_BREAKER_TOPOLOGY_ELEMENT_NAME -> readNodeBreakerTopology(vl, context);
                 case BUS_BREAKER_TOPOLOGY_ELEMENT_NAME -> readBusBreakerTopology(vl, context);
-                case GeneratorXml.ROOT_ELEMENT_NAME, GeneratorXml.ARRAY_ELEMENT_NAME
-                        -> GeneratorXml.INSTANCE.read(vl, context);
-                case BatteryXml.ROOT_ELEMENT_NAME, BatteryXml.ARRAY_ELEMENT_NAME
-                        -> BatteryXml.INSTANCE.read(vl, context);
-                case LoadXml.ROOT_ELEMENT_NAME, LoadXml.ARRAY_ELEMENT_NAME
-                        -> LoadXml.INSTANCE.read(vl, context);
-                case ShuntXml.ROOT_ELEMENT_NAME, ShuntXml.ARRAY_ELEMENT_NAME
-                        -> ShuntXml.INSTANCE.read(vl, context);
-                case DanglingLineXml.ROOT_ELEMENT_NAME, DanglingLineXml.ARRAY_ELEMENT_NAME
-                        -> DanglingLineXml.INSTANCE.read(vl, context);
-                case StaticVarCompensatorXml.ROOT_ELEMENT_NAME, StaticVarCompensatorXml.ARRAY_ELEMENT_NAME
-                        -> StaticVarCompensatorXml.INSTANCE.read(vl, context);
-                case VscConverterStationXml.ROOT_ELEMENT_NAME, VscConverterStationXml.ARRAY_ELEMENT_NAME
-                        -> VscConverterStationXml.INSTANCE.read(vl, context);
-                case LccConverterStationXml.ROOT_ELEMENT_NAME, LccConverterStationXml.ARRAY_ELEMENT_NAME
-                        -> LccConverterStationXml.INSTANCE.read(vl, context);
+                case GeneratorXml.ROOT_ELEMENT_NAME -> GeneratorXml.INSTANCE.read(vl, context);
+                case BatteryXml.ROOT_ELEMENT_NAME -> BatteryXml.INSTANCE.read(vl, context);
+                case LoadXml.ROOT_ELEMENT_NAME -> LoadXml.INSTANCE.read(vl, context);
+                case ShuntXml.ROOT_ELEMENT_NAME -> ShuntXml.INSTANCE.read(vl, context);
+                case DanglingLineXml.ROOT_ELEMENT_NAME -> DanglingLineXml.INSTANCE.read(vl, context);
+                case StaticVarCompensatorXml.ROOT_ELEMENT_NAME -> StaticVarCompensatorXml.INSTANCE.read(vl, context);
+                case VscConverterStationXml.ROOT_ELEMENT_NAME -> VscConverterStationXml.INSTANCE.read(vl, context);
+                case LccConverterStationXml.ROOT_ELEMENT_NAME -> LccConverterStationXml.INSTANCE.read(vl, context);
                 default -> readSubElement(elementName, vl, context);
             }
         });
@@ -335,16 +327,11 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored."));
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case BusbarSectionXml.ROOT_ELEMENT_NAME, BusbarSectionXml.ARRAY_ELEMENT_NAME
-                        -> BusbarSectionXml.INSTANCE.read(vl, context);
-                case AbstractSwitchXml.ROOT_ELEMENT_NAME, AbstractSwitchXml.ARRAY_ELEMENT_NAME
-                        -> NodeBreakerViewSwitchXml.INSTANCE.read(vl, context);
-                case NodeBreakerViewInternalConnectionXml.ROOT_ELEMENT_NAME, NodeBreakerViewInternalConnectionXml.ARRAY_ELEMENT_NAME
-                        -> NodeBreakerViewInternalConnectionXml.INSTANCE.read(vl, context);
-                case BusXml.ROOT_ELEMENT_NAME, BusXml.ARRAY_ELEMENT_NAME
-                        -> readCalculatedBus(vl, context);
-                case INJ_ROOT_ELEMENT_NAME, INJ_ARRAY_ELEMENT_NAME
-                        -> readFictitiousInjection(vl, context);
+                case BusbarSectionXml.ROOT_ELEMENT_NAME -> BusbarSectionXml.INSTANCE.read(vl, context);
+                case AbstractSwitchXml.ROOT_ELEMENT_NAME -> NodeBreakerViewSwitchXml.INSTANCE.read(vl, context);
+                case NodeBreakerViewInternalConnectionXml.ROOT_ELEMENT_NAME -> NodeBreakerViewInternalConnectionXml.INSTANCE.read(vl, context);
+                case BusXml.ROOT_ELEMENT_NAME -> readCalculatedBus(vl, context);
+                case INJ_ROOT_ELEMENT_NAME -> readFictitiousInjection(vl, context);
                 default -> throw new IllegalStateException(UNEXPECTED_ELEMENT + elementName);
             }
         });
@@ -398,10 +385,8 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
     private void readBusBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case BusXml.ROOT_ELEMENT_NAME,
-                        BusXml.ARRAY_ELEMENT_NAME -> BusXml.INSTANCE.read(vl, context);
-                case AbstractSwitchXml.ROOT_ELEMENT_NAME,
-                        AbstractSwitchXml.ARRAY_ELEMENT_NAME -> BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
+                case BusXml.ROOT_ELEMENT_NAME -> BusXml.INSTANCE.read(vl, context);
+                case AbstractSwitchXml.ROOT_ELEMENT_NAME -> BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
                 default -> throw new IllegalStateException(UNEXPECTED_ELEMENT + elementName);
             }
         });

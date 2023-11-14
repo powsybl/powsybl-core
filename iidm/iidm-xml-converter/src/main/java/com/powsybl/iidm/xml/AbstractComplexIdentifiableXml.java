@@ -27,8 +27,8 @@ abstract class AbstractComplexIdentifiableXml<T extends Identifiable<T>, A exten
 
     protected void readSubElement(String elementName, String id, List<Consumer<T>> toApply, NetworkXmlReaderContext context) {
         switch (elementName) {
-            case PropertiesXml.ROOT_ELEMENT_NAME, PropertiesXml.ARRAY_ELEMENT_NAME -> PropertiesXml.read(toApply, context);
-            case AliasesXml.ROOT_ELEMENT_NAME, AliasesXml.ARRAY_ELEMENT_NAME -> {
+            case PropertiesXml.ROOT_ELEMENT_NAME -> PropertiesXml.read(toApply, context);
+            case AliasesXml.ROOT_ELEMENT_NAME -> {
                 IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                 AliasesXml.read(toApply, context);
             }

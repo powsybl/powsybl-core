@@ -29,11 +29,12 @@ public class JsonReader extends AbstractTreeDataReader {
     private final JsonParser parser;
     private JsonToken currentJsonToken;
     private final Deque<Node> nodeChain = new ArrayDeque<>();
+    private final Map<String, String> arrayElementNameToSingleElementName;
 
-    public JsonReader(JsonParser parser, String rootName) throws IOException {
-        Objects.requireNonNull(parser);
-        this.parser = parser;
-        this.nodeChain.add(new Node(rootName, JsonNodeType.OBJECT));
+    public JsonReader(JsonParser parser, String rootName, Map<String, String> arrayNameToSingleNameMap) throws IOException {
+        this.parser = Objects.requireNonNull(parser);
+        this.nodeChain.add(new Node(Objects.requireNonNull(rootName), JsonNodeType.OBJECT));
+        this.arrayElementNameToSingleElementName = Objects.requireNonNull(arrayNameToSingleNameMap);
     }
 
     @Override
@@ -211,7 +212,7 @@ public class JsonReader extends AbstractTreeDataReader {
                     case START_OBJECT -> {
                         Node arrayNode = checkNodeChain(JsonNodeType.ARRAY);
                         nodeChain.add(new Node(parser.currentName(), JsonNodeType.OBJECT));
-                        childNodeReader.onStartNode(arrayNode.name());
+                        childNodeReader.onStartNode(arrayElementNameToSingleElementName.get(arrayNode.name()));
                     }
                     case END_ARRAY -> {
                         checkNodeChain(JsonNodeType.ARRAY);
