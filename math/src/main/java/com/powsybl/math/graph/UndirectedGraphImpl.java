@@ -19,6 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -573,26 +574,41 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     /**
-     * {@inheritDoc}.
-     *
+     * {@inheritDoc}
+     * <p>
      * This method allocates a {@link List} of {@link TIntArrayList} to store the paths, a {@link BitSet} to store the encountered vertices
-     * and calls {@link #findAllPaths(int, Function, Function, TIntArrayList, BitSet, List)}.
+     * and calls {@link #findAllPaths(int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
+     * </p>
+     * In the output, the paths are sorted by size considering the number of switches in each path.
      */
     @Override
-    public List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled) {
+    public List<TIntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled) {
+        return findAllPaths(from, pathComplete, pathCancelled, Comparator.comparing(TIntArrayList::size));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method allocates a {@link List} of {@link TIntArrayList} to store the paths, a {@link BitSet} to store the encountered vertices
+     * and calls {@link #findAllPaths(int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
+     * In the output, the paths are sorted by using the given comparator.
+     * </p>
+     */
+    public List<TIntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled, Comparator<TIntArrayList> comparator) {
         Objects.requireNonNull(pathComplete);
         List<TIntArrayList> paths = new ArrayList<>();
         BitSet encountered = new BitSet(vertices.size());
         TIntArrayList path = new TIntArrayList(1);
         findAllPaths(from, pathComplete, pathCancelled, path, encountered, paths);
-        // sort paths by size
-        paths.sort((o1, o2) -> o1.size() - o2.size());
+
+        // sort paths by size according to the given comparator
+        paths.sort(comparator);
         return paths;
     }
 
     /**
-     * This method is called by {@link #findAllPaths(int, Function, Function, TIntArrayList, BitSet, List)} each time a vertex is traversed.
-     * The path is added to the paths list if it's complete, otherwise this method calls the {@link #findAllPaths(int, Function, Function, TIntArrayList, BitSet, List)}
+     * This method is called by {@link #findAllPaths(int, Predicate, Predicate, TIntArrayList, BitSet, List)} each time a vertex is traversed.
+     * The path is added to the paths list if it's complete, otherwise this method calls the {@link #findAllPaths(int, Predicate, Predicate, TIntArrayList, BitSet, List)}
      * to continue the recursion.
      *
      * @param e the index of the current edge.
@@ -604,14 +620,14 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
      * @param paths a list that contains the complete paths.
      * @return true if the path is complete, false otherwise.
      */
-    private boolean findAllPaths(int e, int v1or2, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled,
+    private boolean findAllPaths(int e, int v1or2, Predicate<V> pathComplete, Predicate<? super E> pathCancelled,
                                  TIntArrayList path, BitSet encountered, List<TIntArrayList> paths) {
         if (encountered.get(v1or2)) {
             return false;
         }
         Vertex<V> obj1or2 = vertices.get(v1or2);
         path.add(e);
-        if (pathComplete.apply(obj1or2.getObject())) {
+        if (Boolean.TRUE.equals(pathComplete.test(obj1or2.getObject()))) {
             paths.add(path);
             return true;
         } else {
@@ -621,8 +637,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     /**
-     * This method is called by {@link #findAllPaths(int, Function, Function)} or {@link #findAllPaths(int, int, Function, Function, TIntArrayList, BitSet, List)}.
-     * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling {@link #findAllPaths(int, int, Function, Function, TIntArrayList, BitSet, List)}.
+     * This method is called by {@link #findAllPaths(int, Predicate, Predicate)} or {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
+     * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
      *
      * @param v the current vertex
      * @param pathComplete a function that returns true when the target vertex is found.
@@ -631,7 +647,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
      * @param encountered a BitSet that contains the traversed vertex.
      * @param paths a list that contains the complete paths.
      */
-    private void findAllPaths(int v, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled,
+    private void findAllPaths(int v, Predicate<V> pathComplete, Predicate<? super E> pathCancelled,
                               TIntArrayList path, BitSet encountered, List<TIntArrayList> paths) {
         checkVertex(v);
         encountered.set(v, true);
@@ -640,7 +656,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         for (int i = 0; i < adjacentEdges.size(); i++) {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
-            if (pathCancelled != null && pathCancelled.apply(edge.getObject())) {
+            if (pathCancelled != null && pathCancelled.test(edge.getObject())) {
                 continue;
             }
             int v1 = edge.getV1();
