@@ -178,6 +178,11 @@ public interface Substation extends Container<Substation> {
     Stream<OverloadManagementSystem> getOverloadManagementSystemStream();
 
     /**
+     * Get the overload management systems count
+     */
+    int getOverloadManagementSystemCount();
+
+    /**
      * Get geographical tags associated to the substation.
      */
     Set<String> getGeographicalTags();

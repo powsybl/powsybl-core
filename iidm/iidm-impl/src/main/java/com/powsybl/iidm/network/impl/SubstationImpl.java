@@ -188,6 +188,11 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     }
 
     @Override
+    public int getOverloadManagementSystemCount() {
+        return Ints.checkedCast(getOverloadManagementSystemStream().count());
+    }
+
+    @Override
     public Set<String> getGeographicalTags() {
         return Collections.unmodifiableSet(geographicalTags);
     }

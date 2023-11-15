@@ -35,14 +35,6 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
         String getKey();
 
         /**
-         * Set the unique key of the tripping.
-         * <p>This key is unique for a single overload management system, but it can be reused
-         * for another overload management system).</p>
-         * @param key the tripping key
-         */
-        Tripping setKey(String key);
-
-        /**
          * Get the name (if available) or the key of the tripping.
          * <p>This method result is used for reporting purposes.</p>
          * @return the name (if available) or the key of the tripping
@@ -116,9 +108,9 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
 
         BranchTripping setBranchToOperate(Branch<?> branch);
 
-        ThreeSides getBranchToOperateSide();
+        Branch.Side getSideToOperate();
 
-        BranchTripping setBranchToOperateSide(ThreeSides side);
+        BranchTripping setSideToOperate(Branch.Side side);
     }
 
     interface ThreeWindingsTransformerTripping extends Tripping {
@@ -133,7 +125,7 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
 
         ThreeSides getSideToOperate();
 
-        ThreeWindingsTransformerTripping setSideToOperateSide(ThreeSides side);
+        ThreeWindingsTransformerTripping setSideToOperate(ThreeSides side);
 
         default ThreeWindingsTransformer.Leg getLegToOperate() {
             //TODO(op) This should be simplified once the sides' refactoring is merged

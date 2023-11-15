@@ -12,48 +12,48 @@ package com.powsybl.iidm.network;
  */
 public interface OverloadManagementSystemAdder extends IdentifiableAdder<OverloadManagementSystem, OverloadManagementSystemAdder> {
 
-    interface TrippingAdder {
+    interface TrippingAdder<I extends TrippingAdder<I>> {
         /**
          * Set the unique key of the tripping.
          * <p>This key is unique for a single overload management system, but it can be reused
          * for another overload management system).</p>
          * @param key the tripping key
          */
-        TrippingAdder setKey(String key);
+        I setKey(String key);
 
         /**
          * Set the name of the tripping.
          * <p>This name is facultative. It is used only for reporting purposes.</p>
          * @param name the name of the tripping
          */
-        TrippingAdder setName(String name);
+        I setName(String name);
 
         /**
          * Change the state of the tripping.
          * @param enabled <code>true</code> to enable it
          */
-        TrippingAdder setEnabled(boolean enabled);
+        I setEnabled(boolean enabled);
 
         /**
          * Set the minimum acceptable current value (in A).
          * @param lowLimit the minimum current value
          */
-        TrippingAdder setLowLimit(Double lowLimit);
+        I setLowLimit(Double lowLimit);
 
         /**
          * Set the maximum acceptable current value (in A).
          * @param highLimit the maximum current value
          */
-        TrippingAdder setHighLimit(Double highLimit);
+        I setHighLimit(Double highLimit);
 
-        TrippingAdder setOpenAction(boolean open);
+        I setOpenAction(boolean open);
 
         OverloadManagementSystem.Tripping.Type getType();
 
         OverloadManagementSystemAdder add();
     }
 
-    interface SwitchTrippingAdder extends TrippingAdder {
+    interface SwitchTrippingAdder extends TrippingAdder<SwitchTrippingAdder> {
         @Override
         default OverloadManagementSystem.Tripping.Type getType() {
             return OverloadManagementSystem.Tripping.Type.SWITCH_TRIPPING;
@@ -62,7 +62,7 @@ public interface OverloadManagementSystemAdder extends IdentifiableAdder<Overloa
         SwitchTrippingAdder setSwitchToOperateId(String switchId);
     }
 
-    interface BranchTrippingAdder extends TrippingAdder {
+    interface BranchTrippingAdder extends TrippingAdder<BranchTrippingAdder> {
         @Override
         default OverloadManagementSystem.Tripping.Type getType() {
             return OverloadManagementSystem.Tripping.Type.BRANCH_TRIPPING;
@@ -70,10 +70,10 @@ public interface OverloadManagementSystemAdder extends IdentifiableAdder<Overloa
 
         BranchTrippingAdder setBranchToOperateId(String branchId);
 
-        BranchTrippingAdder setBranchToOperateSide(ThreeSides side);
+        BranchTrippingAdder setSideToOperate(Branch.Side side);
     }
 
-    interface ThreeWindingsTransformerTrippingAdder extends TrippingAdder {
+    interface ThreeWindingsTransformerTrippingAdder extends TrippingAdder<ThreeWindingsTransformerTrippingAdder> {
         @Override
         default OverloadManagementSystem.Tripping.Type getType() {
             return OverloadManagementSystem.Tripping.Type.THREE_WINDINGS_TRANSFORMER_TRIPPING;
@@ -81,7 +81,7 @@ public interface OverloadManagementSystemAdder extends IdentifiableAdder<Overloa
 
         ThreeWindingsTransformerTrippingAdder setThreeWindingsTransformerToOperate(String threeWindingsTransformerId);
 
-        ThreeWindingsTransformerTrippingAdder setSideToOperateSide(ThreeSides side);
+        ThreeWindingsTransformerTrippingAdder setSideToOperate(ThreeSides side);
 
     }
 

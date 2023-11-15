@@ -19,18 +19,24 @@ import java.util.*;
 class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadManagementSystem> implements OverloadManagementSystem {
 
     abstract static class AbstractTrippingImpl implements Tripping, Validable {
-        private String key;
+        private final String overloadManagementSystemId;
+        private final String key;
         private String name;
         private boolean enabled;
         private Double lowLimit;
         private Double highLimit;
         private boolean openAction;
 
-        protected AbstractTrippingImpl(String key, String name, boolean enabled,
+        protected AbstractTrippingImpl(String overloadManagementSystemId,
+                                       String key, String name, boolean enabled,
                                        Double lowLimit, Double highLimit, boolean openAction) {
+            this.overloadManagementSystemId = overloadManagementSystemId;
             this.key = Objects.requireNonNull(key);
             this.name = name;
             this.enabled = enabled;
+            if (lowLimit == null && highLimit == null) {
+                throw new ValidationException(this, "Both lowLimit and highLimit are not set.");
+            }
             this.lowLimit = lowLimit;
             this.highLimit = highLimit;
             this.openAction = openAction;
@@ -39,12 +45,6 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         @Override
         public String getKey() {
             return this.key;
-        }
-
-        @Override
-        public Tripping setKey(String key) {
-            this.key = Objects.requireNonNull(key);
-            return this;
         }
 
         @Override
@@ -101,16 +101,26 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
             this.openAction = open;
             return this;
         }
+
+        protected String getTrippingAttribute() {
+            return String.format("tripping '%s'", key);
+        }
+
+        @Override
+        public String getMessageHeader() {
+            return String.format("Overload management system '%s' - %s:", overloadManagementSystemId, getTrippingAttribute());
+        }
     }
 
     static class SwitchTrippingImpl extends AbstractTrippingImpl implements SwitchTripping {
         private Switch switchToOperate;
 
-        public SwitchTrippingImpl(String key, String name, boolean enabled,
+        public SwitchTrippingImpl(String overloadManagementSystemId,
+                                  String key, String name, boolean enabled,
                                   Double lowLimit, Double highLimit, boolean openAction,
                                   Switch switchToOperate) {
-            super(key, name, enabled, lowLimit, highLimit, openAction);
-            this.switchToOperate = switchToOperate;
+            super(overloadManagementSystemId, key, name, enabled, lowLimit, highLimit, openAction);
+            this.switchToOperate = Objects.requireNonNull(switchToOperate);
         }
 
         @Override
@@ -120,26 +130,22 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
 
         @Override
         public SwitchTripping setSwitchToOperate(Switch switchToOperate) {
-            this.switchToOperate = switchToOperate;
+            this.switchToOperate = Objects.requireNonNull(switchToOperate);
             return this;
-        }
-
-        @Override
-        public String getMessageHeader() {
-            return "Switch tripping"; //TODO define a useful message header
         }
     }
 
     static class BranchTrippingImpl extends AbstractTrippingImpl implements OverloadManagementSystem.BranchTripping {
-        private Branch branchToOperate;
-        private ThreeSides side;
+        private Branch<?> branchToOperate;
+        private Branch.Side side; //TODO replace it by a TwoSides
 
-        protected BranchTrippingImpl(String key, String name, boolean enabled,
+        protected BranchTrippingImpl(String overloadManagementSystemId,
+                                     String key, String name, boolean enabled,
                                      Double lowLimit, Double highLimit, boolean openAction,
-                                     Branch branchToOperate, ThreeSides side) {
-            super(key, name, enabled, lowLimit, highLimit, openAction);
-            this.branchToOperate = branchToOperate;
-            this.side = side;
+                                     Branch<?> branchToOperate, Branch.Side side) {
+            super(overloadManagementSystemId, key, name, enabled, lowLimit, highLimit, openAction);
+            this.branchToOperate = Objects.requireNonNull(branchToOperate);
+            this.side = Objects.requireNonNull(side);
         }
 
         @Override
@@ -149,24 +155,19 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
 
         @Override
         public BranchTripping setBranchToOperate(Branch<?> branch) {
-            this.branchToOperate = branch;
+            this.branchToOperate = Objects.requireNonNull(branch);
             return this;
         }
 
         @Override
-        public ThreeSides getBranchToOperateSide() {
+        public Branch.Side getSideToOperate() {
             return this.side;
         }
 
         @Override
-        public BranchTripping setBranchToOperateSide(ThreeSides side) {
-            this.side = side;
+        public BranchTripping setSideToOperate(Branch.Side side) {
+            this.side = Objects.requireNonNull(side);
             return this;
-        }
-
-        @Override
-        public String getMessageHeader() {
-            return "Branch tripping"; //TODO define a useful message header
         }
     }
 
@@ -176,12 +177,13 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         private ThreeWindingsTransformer threeWindingsTransformer;
         private ThreeSides side;
 
-        protected ThreeWindingsTransformerTrippingImpl(String key, String name, boolean enabled,
+        protected ThreeWindingsTransformerTrippingImpl(String overloadManagementSystemId,
+                                                       String key, String name, boolean enabled,
                                                        Double lowLimit, Double highLimit, boolean openAction,
                                                        ThreeWindingsTransformer threeWindingsTransformer, ThreeSides side) {
-            super(key, name, enabled, lowLimit, highLimit, openAction);
-            this.threeWindingsTransformer = threeWindingsTransformer;
-            this.side = side;
+            super(overloadManagementSystemId, key, name, enabled, lowLimit, highLimit, openAction);
+            this.threeWindingsTransformer = Objects.requireNonNull(threeWindingsTransformer);
+            this.side = Objects.requireNonNull(side);
         }
 
         @Override
@@ -191,7 +193,7 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
 
         @Override
         public ThreeWindingsTransformerTripping setThreeWindingsTransformerToOperate(ThreeWindingsTransformer threeWindingsTransformer) {
-            this.threeWindingsTransformer = threeWindingsTransformer;
+            this.threeWindingsTransformer = Objects.requireNonNull(threeWindingsTransformer);
             return this;
         }
 
@@ -201,14 +203,9 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         }
 
         @Override
-        public ThreeWindingsTransformerTripping setSideToOperateSide(ThreeSides side) {
-            this.side = side;
+        public ThreeWindingsTransformerTripping setSideToOperate(ThreeSides side) {
+            this.side = Objects.requireNonNull(side);
             return this;
-        }
-
-        @Override
-        public String getMessageHeader() {
-            return "Three windings transformer tripping"; //TODO define a useful message header
         }
     }
 
@@ -220,7 +217,7 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
     OverloadManagementSystemImpl(String id, String name, SubstationImpl substation,
                                  String monitoredElementId, ThreeSides monitoredSide,
                                  boolean enabled) {
-        super(id, name, enabled);
+        super(Objects.requireNonNull(substation).getNetworkRef(), id, name, enabled);
         this.substation = Objects.requireNonNull(substation);
         this.monitoredElementId = Objects.requireNonNull(monitoredElementId);
         this.monitoredSide = Objects.requireNonNull(monitoredSide);
@@ -230,11 +227,6 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
     @Override
     public Substation getSubstation() {
         return this.substation;
-    }
-
-    @Override
-    public NetworkImpl getNetwork() {
-        return substation.getNetwork();
     }
 
     @Override
