@@ -22,7 +22,7 @@ import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -38,6 +38,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
@@ -258,7 +259,7 @@ public final class NetworkXml {
     private static void writeMainAttributes(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getWriter();
         writer.writeAttribute(ID, context.getAnonymizer().anonymizeString(n.getId()));
-        writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
+        writer.writeAttribute(CASE_DATE, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(n.getCaseDate()));
         writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
         writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
     }
@@ -540,7 +541,7 @@ public final class NetworkXml {
 
     private static Network initNetwork(NetworkFactory networkFactory, NetworkXmlReaderContext context, XMLStreamReader reader, Network rootNetwork) {
         String id = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, ID));
-        DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
+        ZonedDateTime date = ZonedDateTime.parse(reader.getAttributeValue(null, CASE_DATE));
         int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
         String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
 

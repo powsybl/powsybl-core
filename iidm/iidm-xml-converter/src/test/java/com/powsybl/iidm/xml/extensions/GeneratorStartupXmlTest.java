@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -69,7 +69,7 @@ class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
 
     private static Network createTestNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("test", "test");
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)

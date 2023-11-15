@@ -8,8 +8,8 @@ package com.powsybl.commons.config;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
+import java.time.ZonedDateTime;
+import org.threeten.extra.Interval;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -168,7 +168,7 @@ public abstract class AbstractModuleConfig implements ModuleConfig {
     }
 
     @Override
-    public DateTime getDateTimeProperty(String name) {
+    public ZonedDateTime getDateTimeProperty(String name) {
         return getOptionalDateTimeProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
 

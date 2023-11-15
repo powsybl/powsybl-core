@@ -23,7 +23,7 @@ import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.powerfactory.model.StudyCase;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -85,7 +85,7 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
                         null);
 
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
-        network.setCaseDate(DateTime.parse("2021-01-01T10:00:00.000+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
         NetworkXml.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
             compareTxt(getClass().getResourceAsStream("/" + id + ".xiidm"), is);

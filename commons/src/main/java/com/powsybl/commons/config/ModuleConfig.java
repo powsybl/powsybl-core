@@ -6,8 +6,8 @@
  */
 package com.powsybl.commons.config;
 
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
+import java.time.ZonedDateTime;
+import org.threeten.extra.Interval;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -118,9 +118,9 @@ public interface ModuleConfig {
 
     // DateTime
 
-    Optional<DateTime> getOptionalDateTimeProperty(String name);
+    Optional<ZonedDateTime> getOptionalDateTimeProperty(String name);
 
-    DateTime getDateTimeProperty(String name);
+    ZonedDateTime getDateTimeProperty(String name);
 
     // Interval
 

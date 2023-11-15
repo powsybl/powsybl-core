@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescueAdde
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ class ThreeWindingsTransformerFortescueXmlSerializerTest extends AbstractConvert
     @Test
     void testXmlSerializer() throws IOException {
         var network = ThreeWindingsTransformerNetworkFactory.create();
-        network.setCaseDate(DateTime.parse("2016-12-07T11:18:52.881+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-12-07T11:18:52.881+01:00"));
         var twt = network.getThreeWindingsTransformer("3WT");
         assertNotNull(twt);
 

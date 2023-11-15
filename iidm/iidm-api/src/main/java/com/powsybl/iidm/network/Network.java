@@ -12,13 +12,12 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 
-import org.joda.time.DateTime;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -552,13 +551,13 @@ public interface Network extends Container<Network> {
     /**
      * Get the date that the network represents.
      */
-    DateTime getCaseDate();
+    ZonedDateTime getCaseDate();
 
     /**
      * Set the date that the network represents.
      * @throws IllegalArgumentException if date is null.
      */
-    Network setCaseDate(DateTime date);
+    Network setCaseDate(ZonedDateTime date);
 
     /**
      * Get the forecast distance in minutes.

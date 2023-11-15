@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.util.LinkData;
@@ -276,7 +276,7 @@ class TieLineTest {
         Branch.Side boundarySide1, Branch.Side boundarySide2, CaseSv caseSv) {
 
         Network network = networkFactory.createNetwork("TieLine-BusBreaker", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         Substation s1 = network.newSubstation()
@@ -360,7 +360,7 @@ class TieLineTest {
         Branch.Side boundarySide1, Branch.Side boundarySide2, CaseSv caseSv) {
 
         Network network = networkFactory.createNetwork("TieLine-BusBreaker", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         Substation s1 = network.newSubstation()

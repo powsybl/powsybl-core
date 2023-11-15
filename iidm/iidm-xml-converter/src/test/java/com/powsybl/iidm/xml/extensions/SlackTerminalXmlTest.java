@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLExporter;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +33,7 @@ class SlackTerminalXmlTest extends AbstractConverterTest {
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
 
         String voltageLevelId = "VLHV2";
         VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
@@ -64,7 +64,7 @@ class SlackTerminalXmlTest extends AbstractConverterTest {
     @Test
     void testNoTerminal() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
         String voltageLevelId = "VLHV2";
         VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
@@ -100,7 +100,7 @@ class SlackTerminalXmlTest extends AbstractConverterTest {
     @Test
     void testBadVariant() {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
         VoltageLevel vl = network.getVoltageLevel("VLHV2");
         Terminal terminal = network.getLine("NHV1_NHV2_1").getTerminal(Branch.Side.TWO);

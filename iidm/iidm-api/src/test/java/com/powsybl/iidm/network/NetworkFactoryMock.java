@@ -6,7 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
-import org.joda.time.DateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.mockito.Mockito;
 
 /**
@@ -19,7 +20,7 @@ public class NetworkFactoryMock implements NetworkFactory {
     public Network createNetwork(String id, String sourceFormat) {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getCaseDate())
-                .thenReturn(new DateTime(2021, 12, 20, 0, 0, 0));
+                .thenReturn(ZonedDateTime.of(2021, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC));
         Load load = Mockito.mock(Load.class);
         Mockito.when(network.getLoad(Mockito.anyString()))
                 .thenReturn(load);

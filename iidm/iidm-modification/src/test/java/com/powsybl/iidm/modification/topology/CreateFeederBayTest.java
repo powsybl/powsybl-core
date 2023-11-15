@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.apache.commons.lang3.Range;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -61,7 +61,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
 
     @Test
     void baseBusBreakerLoadTest() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         LoadAdder loadAdder = network.getVoltageLevel("VLGEN").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
