@@ -10,7 +10,7 @@ import java.util.Objects;
 
 /**
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public abstract class AbstractAction implements Action {
 

@@ -41,7 +41,7 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 class MatpowerImporterTest extends AbstractConverterTest {
 
@@ -60,7 +60,7 @@ class MatpowerImporterTest extends AbstractConverterTest {
     void copyTest() throws IOException {
         MatpowerModel model = MatpowerModelFactory.create9();
         Path matpowerBinCase = tmpDir.resolve(model.getCaseName() + ".mat");
-        MatpowerWriter.write(model, matpowerBinCase);
+        MatpowerWriter.write(model, matpowerBinCase, true);
         new MatpowerImporter().copy(new FileDataSource(tmpDir, model.getCaseName()),
             new FileDataSource(tmpDir, "copy"));
         assertTrue(Files.exists(tmpDir.resolve("copy.mat")));
@@ -70,7 +70,7 @@ class MatpowerImporterTest extends AbstractConverterTest {
     void existsTest() throws IOException {
         MatpowerModel model = MatpowerModelFactory.create118();
         Path matpowerBinCase = tmpDir.resolve(model.getCaseName() + ".mat");
-        MatpowerWriter.write(model, matpowerBinCase);
+        MatpowerWriter.write(model, matpowerBinCase, true);
         assertTrue(new MatpowerImporter().exists(new FileDataSource(tmpDir, model.getCaseName())));
         assertFalse(new MatpowerImporter().exists(new FileDataSource(tmpDir, "doesnotexist")));
     }
@@ -157,7 +157,7 @@ class MatpowerImporterTest extends AbstractConverterTest {
     private void testCase(MatpowerModel model, Properties properties) throws IOException {
         String caseId = model.getCaseName();
         Path matFile = tmpDir.resolve(caseId + ".mat");
-        MatpowerWriter.write(model, matFile);
+        MatpowerWriter.write(model, matFile, true);
 
         Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
         testNetwork(network, caseId);
@@ -183,7 +183,7 @@ class MatpowerImporterTest extends AbstractConverterTest {
     private void testCaseSolved(MatpowerModel model) throws IOException {
         String caseId = model.getCaseName();
         Path matFile = tmpDir.resolve(caseId + ".mat");
-        MatpowerWriter.write(model, matFile);
+        MatpowerWriter.write(model, matFile, true);
 
         Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
         testSolved(network);

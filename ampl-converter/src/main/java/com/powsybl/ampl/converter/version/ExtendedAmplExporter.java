@@ -166,13 +166,13 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
             twt.getG(), twt.getB());
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
-            String id = twt.getId() + RATIO_TABLE;
+            String id = twt.getId() + RATIO_TABLE_SUFFIX;
             writeRatioTapChanger(formatter, id, zb2, transformer, rtc);
         }
 
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
         if (ptc != null) {
-            String id = twt.getId() + PHASE_TABLE;
+            String id = twt.getId() + PHASE_TABLE_SUFFIX;
             writePhaseTapChanger(formatter, id, zb2, transformer, ptc);
         }
     }
@@ -189,12 +189,12 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
             ImpedanceAndAdmittance transformer = new ImpedanceAndAdmittance(leg.getR(), leg.getX(),
                 leg.getG(), leg.getB());
             if (rtc != null) {
-                String id = twt.getId() + "_leg" + legNumber + RATIO_TABLE;
+                String id = twt.getId() + "_leg" + legNumber + RATIO_TABLE_SUFFIX;
                 writeRatioTapChanger(formatter, id, zb, transformer, rtc);
             }
             PhaseTapChanger ptc = leg.getPhaseTapChanger();
             if (ptc != null) {
-                String id = twt.getId() + "_leg" + legNumber + PHASE_TABLE;
+                String id = twt.getId() + "_leg" + legNumber + PHASE_TABLE_SUFFIX;
                 writePhaseTapChanger(formatter, id, zb, transformer, ptc);
             }
         }

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import static com.powsybl.iidm.network.extensions.Measurement.Type.OTHER;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class MeasurementValidationUtil {
 

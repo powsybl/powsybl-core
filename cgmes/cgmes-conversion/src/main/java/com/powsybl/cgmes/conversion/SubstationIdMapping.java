@@ -73,8 +73,8 @@ import java.util.stream.Collectors;
  * Two substations are adjacent if there is a transformer between them. <br>
  * The two substations associated with two adjacent voltageLevels, are adjacent if they are different substations.
  * <p>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 
 public class SubstationIdMapping {
@@ -101,7 +101,7 @@ public class SubstationIdMapping {
     // All the keys for a given value, all the merged substations that have cgmesIdentifier as representative
     public Set<String> mergedSubstations(String cgmesIdentifier) {
         String sid = context.namingStrategy().getIidmId(CgmesNames.SUBSTATION, cgmesIdentifier);
-        return substationMapping.entrySet().stream().filter(record -> record.getValue().equals(sid))
+        return substationMapping.entrySet().stream().filter(r -> r.getValue().equals(sid))
             .map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
@@ -121,7 +121,7 @@ public class SubstationIdMapping {
     // All the keys for a given value, all the merged voltageLevels that have cgmesIdentifier as representative
     public Set<String> mergedVoltageLevels(String cgmesIdentifier) {
         String vlid = context.namingStrategy().getIidmId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
-        return voltageLevelMapping.entrySet().stream().filter(record -> record.getValue().equals(vlid))
+        return voltageLevelMapping.entrySet().stream().filter(r -> r.getValue().equals(vlid))
             .map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
@@ -224,7 +224,7 @@ public class SubstationIdMapping {
             }
         }
         if (!voltageLevelMapping.isEmpty()) {
-            LOG.warn("VoltageLevel id mapping needed for {} voltageLevels: {}",
+            LOG.warn("Original {} VoltageLevel container(s) connected by switches have been merged in IIDM. Map of original VoltageLevel to IIDM: {}",
                 voltageLevelMapping.size(), voltageLevelMapping);
         }
     }
@@ -239,7 +239,7 @@ public class SubstationIdMapping {
             }
         }
         if (!substationMapping.isEmpty()) {
-            LOG.warn("Substation id mapping needed for {} substations: {}",
+            LOG.warn("Original {} Substation container(s) connected by transformers have been merged in IIDM. Map of original Substation to IIDM: {}",
                 substationMapping.size(), substationMapping);
         }
     }

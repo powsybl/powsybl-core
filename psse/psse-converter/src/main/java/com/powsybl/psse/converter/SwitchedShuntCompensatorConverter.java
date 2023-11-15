@@ -24,8 +24,8 @@ import com.powsybl.psse.model.pf.PsseSwitchedShunt;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class SwitchedShuntCompensatorConverter extends AbstractConverter {
 

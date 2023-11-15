@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * @author Anis Touri <anis-1.touri@rte-france.com>
+ * @author Anis Touri {@literal <anis-1.touri@rte-france.com>}
  */
 public class RemoveHvdcLine extends AbstractNetworkModification {
 
@@ -94,13 +94,14 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         for (ShuntCompensator shuntCompensator : shunts) {
             VoltageLevel shuntVl = shuntCompensator.getTerminal().getVoltageLevel();
             // check whether the shunt compensator is connected to the same voltage level as the lcc
+            String shuntId = shuntCompensator.getId();
             if (vl1 == shuntVl || vl2 == shuntVl) {
-                new RemoveFeederBay(shuntCompensator.getId()).apply(network, throwException, computationManager, reporter);
-                removedShuntCompensatorReport(reporter, shuntCompensator.getId());
-                LOGGER.info("Shunt compensator {} has been removed", shuntCompensator.getId());
+                new RemoveFeederBay(shuntId).apply(network, throwException, computationManager, reporter);
+                removedShuntCompensatorReport(reporter, shuntId);
+                LOGGER.info("Shunt compensator {} has been removed", shuntId);
             } else {
-                LOGGER.warn("Shunt compensator {} has been ignored because it is not in the same voltage levels as the Lcc ({} or {})", shuntCompensator.getId(), vl1.getId(), vl2.getId());
-                ignoredShuntInAnotherVoltageLevel(reporter, shuntCompensator.getId(), vl1.getId(), vl2.getId());
+                LOGGER.warn("Shunt compensator {} has been ignored because it is not in the same voltage levels as the Lcc ({} or {})", shuntId, vl1.getId(), vl2.getId());
+                ignoredShuntInAnotherVoltageLevel(reporter, shuntId, vl1.getId(), vl2.getId());
             }
         }
     }

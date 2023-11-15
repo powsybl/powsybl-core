@@ -17,7 +17,7 @@ import java.util.stream.StreamSupport;
 /**
  * RLE (Run-Length encoding) compressed string data chunk.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class CompressedStringDataChunk extends AbstractCompressedDataChunk implements StringDataChunk {
 
@@ -231,8 +231,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CompressedStringDataChunk) {
-            CompressedStringDataChunk other = (CompressedStringDataChunk) obj;
+        if (obj instanceof CompressedStringDataChunk other) {
             return offset == other.offset &&
                     uncompressedLength == other.uncompressedLength &&
                     Arrays.equals(stepLengths, other.stepLengths) &&

@@ -20,13 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModification {
 
@@ -144,12 +143,12 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 ModificationLogs.busOrBbsDoesNotExist(busOrBusbarSectionId, reporter, throwException);
                 return false;
             }
-            if (busOrBusbarSection instanceof Bus) {
-                Bus bus = (Bus) busOrBusbarSection; // if bus is an identifiable, the voltage level is BUS_BREAKER
+            if (busOrBusbarSection instanceof Bus bus) {
+                // if bus is an identifiable, the voltage level is BUS_BREAKER
                 checkOrders(side, bus.getVoltageLevel(), reporter, throwException); // is always true, can only return a warning
                 setBus(side, bus, bus.getVoltageLevel().getId());
-            } else if (busOrBusbarSection instanceof BusbarSection) {
-                BusbarSection bbs = (BusbarSection) busOrBusbarSection; // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
+            } else if (busOrBusbarSection instanceof BusbarSection bbs) {
+                // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
                 VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
                 if (!checkOrders(side, voltageLevel, reporter, throwException)) {
                     return false;
@@ -220,25 +219,25 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     }
 
     private void createTopology(int side, Network network, VoltageLevel voltageLevel, int connectableNode, int forkNode, Connectable<?> connectable, Reporter reporter) {
+        // Information gathering
         String baseId = connectable.getId() + (side == 0 ? "" : side);
         String bbsId = getBusOrBusbarSectionId(side);
         BusbarSection bbs = network.getBusbarSection(bbsId);
-        int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-        createNodeBreakerSwitches(connectableNode, forkNode, bbsNode, baseId, voltageLevel.getNodeBreakerView());
         BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+
+        // Topology creation
         int parallelBbsNumber = 0;
         if (position == null) {
+            // No position extension is present so only one disconnector is needed
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, baseId, bbs);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs);
         } else {
-            List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex())
-                    .filter(b -> !b.getId().equals(bbsId)).collect(Collectors.toList());
-            parallelBbsNumber = bbsList.size();
-            createTopologyFromBusbarSectionList(voltageLevel, forkNode, baseId, bbsList);
+            List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
+            parallelBbsNumber = bbsList.size() - 1;
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, baseId, bbsList, bbs);
         }
-        LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector" +
+        LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector " +
                 "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), bbsId, parallelBbsNumber);
         createdNodeBreakerFeederBay(reporter, voltageLevel.getId(), bbsId, connectable, parallelBbsNumber);
     }

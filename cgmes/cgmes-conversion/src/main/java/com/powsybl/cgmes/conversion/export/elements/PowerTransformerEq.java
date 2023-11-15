@@ -13,7 +13,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class PowerTransformerEq {
 
@@ -28,6 +28,8 @@ public final class PowerTransformerEq {
     private static final String EQ_POWERTRANSFORMEREND_B = "PowerTransformerEnd.b";
     private static final String EQ_POWERTRANSFORMEREND_RATEDS = "PowerTransformerEnd.ratedS";
     private static final String EQ_POWERTRANSFORMEREND_RATEDU = "PowerTransformerEnd.ratedU";
+
+    private static final double EQ_POWERTRANSFORMEREND_RATEDS_DEFAULT_VALUE = 100.0;
 
     public static void write(String id, String transformerName, String equipmentContainer, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("PowerTransformer", id, transformerName, cimNamespace, writer, context);
@@ -57,7 +59,7 @@ public final class PowerTransformerEq {
         writer.writeCharacters(CgmesExportUtil.format(b));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDS);
-        writer.writeCharacters(CgmesExportUtil.format(Double.isNaN(ratedS) ? 100 : ratedS)); //RatedS by default to 100, needed for SUV
+        writer.writeCharacters(CgmesExportUtil.format(ratedS, EQ_POWERTRANSFORMEREND_RATEDS_DEFAULT_VALUE));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDU);
         writer.writeCharacters(CgmesExportUtil.format(ratedU));

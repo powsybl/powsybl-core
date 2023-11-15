@@ -6,7 +6,7 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.ampl.converter.version.AmplExportVersionImpl;
+import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
@@ -40,7 +40,7 @@ class ExtendedAmplExporterTest extends AbstractConverterTest {
         super.setUp();
         v2Config = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false,
             AmplExportConfig.ExportActionType.CURATIVE, false, false,
-            AmplExportVersionImpl.V2);
+            AmplExportVersion.V1_1);
     }
 
     @Test

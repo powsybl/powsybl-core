@@ -18,7 +18,7 @@ import java.util.Properties;
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 class SkipExtensionTest extends AbstractXmlConverterTest {
 

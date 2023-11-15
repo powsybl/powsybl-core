@@ -46,7 +46,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  * <pre>
  *     VL1 ------------------------- VL2
  *                  (line)</pre>
- * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
 public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification {
 

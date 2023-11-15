@@ -20,7 +20,7 @@ import java.util.Set;
 import static com.powsybl.cgmes.conformity.CgmesCatalogsConstants.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class CgmesConformity1Catalog {
 

@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class Networks {
 
@@ -88,20 +88,6 @@ public final class Networks {
         private double disconnectedShuntPositiveVolume = 0.0;
         private double connectedShuntNegativeVolume = 0.0;
         private double disconnectedShuntNegativeVolume = 0.0;
-    }
-
-    /**
-     * @deprecated Use {@link #printBalanceSummary(String, Network, Writer)} instead.
-     */
-    @Deprecated
-    public static void printBalanceSummary(String title, Network network, Logger logger) throws IOException {
-        Objects.requireNonNull(logger);
-        if (logger.isDebugEnabled()) {
-            try (Writer writer = new StringWriter()) {
-                printBalanceSummary(title, network, writer);
-                logger.debug(writer.toString());
-            }
-        }
     }
 
     public static void printBalanceSummary(String title, Network network, Writer writer) throws IOException {

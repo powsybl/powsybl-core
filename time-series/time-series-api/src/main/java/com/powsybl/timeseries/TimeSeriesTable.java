@@ -48,7 +48,7 @@ import java.util.zip.GZIPOutputStream;
  *     <li>Concurrency between data loading and other operations (CSV writing, statistics computation) is NOT supported</li>
  * </ul>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TimeSeriesTable {
 
@@ -182,14 +182,14 @@ public class TimeSeriesTable {
 
             for (DoubleTimeSeries timeSeries : doubleTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
-                                                               .collect(Collectors.toList())) {
+                                                               .toList()) {
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = doubleTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
             }
             for (StringTimeSeries timeSeries : stringTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
-                                                               .collect(Collectors.toList())) {
+                                                               .toList()) {
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = stringTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
@@ -319,10 +319,10 @@ public class TimeSeriesTable {
         List<StringTimeSeries> stringTimeSeries = new ArrayList<>();
         for (TimeSeries timeSeries : timeSeriesList) {
             Objects.requireNonNull(timeSeries);
-            if (timeSeries instanceof DoubleTimeSeries) {
-                doubleTimeSeries.add((DoubleTimeSeries) timeSeries);
-            } else if (timeSeries instanceof StringTimeSeries) {
-                stringTimeSeries.add((StringTimeSeries) timeSeries);
+            if (timeSeries instanceof DoubleTimeSeries dts) {
+                doubleTimeSeries.add(dts);
+            } else if (timeSeries instanceof StringTimeSeries sts) {
+                stringTimeSeries.add(sts);
             } else {
                 throw new IllegalStateException("Unsupported time series type " + timeSeries.getClass());
             }

@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
@@ -398,8 +398,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         for (int i = 0; i < adjacentEdges.size(); i++) {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
-            if ((edge.getV1() == v1 && edge.getV2() == v2)
-                    || (edge.getV1() == v2 && edge.getV2() == v1)) {
+            if (edge.getV1() == v1 && edge.getV2() == v2
+                    || edge.getV1() == v2 && edge.getV2() == v1) {
                 edgeObjects.add(edge.getObject());
             }
         }
@@ -444,20 +444,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         adjacencyListCache = null;
     }
 
-    @Override
-    public boolean traverse(int v, Traverser traverser, boolean[] encountered) {
-        checkVertex(v);
-        Objects.requireNonNull(traverser);
-        Objects.requireNonNull(encountered);
-
-        if (encountered.length < vertices.size()) {
-            throw new PowsyblException("Encountered array is too small");
-        }
-
-        TIntArrayList[] adjacencyList = getAdjacencyList();
+    private boolean traverseDepthFirst(Traverser traverser, TIntArrayList[] adjacencyList, boolean[] encountered, int v) {
         TIntArrayList adjacentEdges = adjacencyList[v];
         encountered[v] = true;
         boolean keepGoing = true;
+
         for (int i = 0; i < adjacentEdges.size(); i++) {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
@@ -467,7 +458,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 TraverseResult traverserResult = traverser.traverse(v2, e, v1);
                 if (traverserResult == TraverseResult.CONTINUE) {
                     encountered[v1] = true;
-                    keepGoing = traverse(v1, traverser, encountered);
+                    keepGoing = traverse(v1, TraversalType.DEPTH_FIRST, traverser, encountered);
                 } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
                 }
@@ -475,7 +466,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 TraverseResult traverserResult = traverser.traverse(v1, e, v2);
                 if (traverserResult == TraverseResult.CONTINUE) {
                     encountered[v2] = true;
-                    keepGoing = traverse(v2, traverser, encountered);
+                    keepGoing = traverse(v2, TraversalType.DEPTH_FIRST, traverser, encountered);
                 } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
                 }
@@ -484,26 +475,98 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 break;
             }
         }
+        return keepGoing;
+    }
+
+    private boolean traverseBreadthFirst(Traverser traverser, TIntArrayList[] adjacencyList, boolean[] encountered, int v) {
+        boolean[] encounteredEdges = new boolean[edges.size()];
+        Arrays.fill(encounteredEdges, false);
+        boolean keepGoing = true;
+
+        LinkedList<Integer> vertexToTraverse = new LinkedList<>();
+        vertexToTraverse.offer(v);
+        while (!vertexToTraverse.isEmpty()) {
+            int firstV = vertexToTraverse.poll();
+            if (encountered[firstV]) {
+                continue;
+            }
+            encountered[firstV] = true;
+
+            TIntArrayList adjacentEdges = adjacencyList[firstV];
+
+            for (int i = 0; i < adjacentEdges.size(); i++) {
+                int e = adjacentEdges.getQuick(i);
+                if (encounteredEdges[e]) {
+                    continue;
+                }
+                encounteredEdges[e] = true;
+
+                Edge<E> edge = edges.get(e);
+                int v1 = edge.getV1();
+                int v2 = edge.getV2();
+
+                if (!encountered[v1]) {
+                    TraverseResult traverserResult = traverser.traverse(v2, e, v1);
+                    if (traverserResult == TraverseResult.CONTINUE) {
+                        vertexToTraverse.offer(v1);
+                    } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
+                        keepGoing = false;
+                    }
+                } else if (!encountered[v2]) {
+                    TraverseResult traverserResult = traverser.traverse(v1, e, v2);
+                    if (traverserResult == TraverseResult.CONTINUE) {
+                        vertexToTraverse.offer(v2);
+                    } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
+                        keepGoing = false;
+                    }
+                }
+                if (!keepGoing) {
+                    break;
+                }
+            }
+            if (!keepGoing) {
+                break;
+            }
+        }
+        return keepGoing;
+    }
+
+    @Override
+    public boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encountered) {
+        checkVertex(v);
+        Objects.requireNonNull(traverser);
+        Objects.requireNonNull(encountered);
+
+        if (encountered.length < vertices.size()) {
+            throw new PowsyblException("Encountered array is too small");
+        }
+
+        TIntArrayList[] adjacencyList = getAdjacencyList();
+        boolean keepGoing;
+
+        if (traversalType == TraversalType.DEPTH_FIRST) {  // traversal by depth first
+            keepGoing = traverseDepthFirst(traverser, adjacencyList, encountered, v);
+        } else {  // traversal by breadth first
+            keepGoing = traverseBreadthFirst(traverser, adjacencyList, encountered, v);
+        }
 
         return keepGoing;
     }
 
     @Override
-    public boolean traverse(int v, Traverser traverser) {
+    public boolean traverse(int v, TraversalType traversalType, Traverser traverser) {
         boolean[] encountered = new boolean[vertices.size()];
         Arrays.fill(encountered, false);
-        return traverse(v, traverser, encountered);
+        return traverse(v, traversalType, traverser, encountered);
     }
 
     @Override
-    public boolean traverse(int[] startingVertices, Traverser traverser) {
+    public boolean traverse(int[] startingVertices, TraversalType traversalType, Traverser traverser) {
         boolean[] encountered = new boolean[vertices.size()];
         Arrays.fill(encountered, false);
         for (int startingVertex : startingVertices) {
-            if (!encountered[startingVertex]) {
-                if (!traverse(startingVertex, traverser, encountered)) {
-                    return false;
-                }
+            if (!encountered[startingVertex] && !traverse(startingVertex, traversalType, traverser, encountered)) {
+                return false;
             }
         }
         return true;

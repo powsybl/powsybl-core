@@ -12,7 +12,7 @@ import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @GroovyASTTransformation
 public class PowsyblDslAstTransformation extends AbstractPowsyblDslAstTransformation {
@@ -35,8 +35,7 @@ public class PowsyblDslAstTransformation extends AbstractPowsyblDslAstTransforma
 
         @Override
         public Expression transform(Expression exp) {
-            if (exp instanceof BinaryExpression) {
-                BinaryExpression binExpr = (BinaryExpression) exp;
+            if (exp instanceof BinaryExpression binExpr) {
                 String op = binExpr.getOperation().getText();
                 switch (op) {
                     case ">":
@@ -59,8 +58,8 @@ public class PowsyblDslAstTransformation extends AbstractPowsyblDslAstTransforma
                     default:
                         break;
                 }
-            } else if (exp instanceof NotExpression) {
-                return new MethodCallExpression(transform(((NotExpression) exp).getExpression()),
+            } else if (exp instanceof NotExpression notExpression) {
+                return new MethodCallExpression(transform(notExpression.getExpression()),
                         "not",
                         new ArgumentListExpression());
             }

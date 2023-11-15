@@ -7,14 +7,16 @@
 package com.powsybl.matpower.converter;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.matpower.model.*;
-
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +25,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.DoubleUnaryOperator;
+import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(Exporter.class)
 public class MatpowerExporter implements Exporter {
@@ -40,6 +44,23 @@ public class MatpowerExporter implements Exporter {
     private static final String V_PROP = "v";
     private static final String ANGLE_PROP = "angle";
 
+    public static final String WITH_BUS_NAMES = "matpower.export.with-bus-names";
+
+    private static final Parameter WITH_BUS_NAMES_PARAMETER
+            = new Parameter(WITH_BUS_NAMES, ParameterType.BOOLEAN, "Export bus names", false);
+
+    private static final List<Parameter> PARAMETERS = List.of(WITH_BUS_NAMES_PARAMETER);
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public MatpowerExporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public MatpowerExporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
+
     @Override
     public String getFormat() {
         return MatpowerConstants.FORMAT;
@@ -52,7 +73,7 @@ public class MatpowerExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.emptyList();
+        return PARAMETERS;
     }
 
     private static boolean hasSlackExtension(Bus bus) {
@@ -66,7 +87,8 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static MBus.Type getType(Bus bus, Context context) {
-        if ((context.refBusId != null && context.refBusId.equals(bus.getId())) || hasSlackExtension(bus)) {
+        if (context.refBusId != null && context.refBusId.equals(bus.getId())
+                || hasSlackExtension(bus)) {
             return MBus.Type.REF;
         }
         for (Generator g : bus.getGenerators()) {
@@ -84,6 +106,8 @@ public class MatpowerExporter implements Exporter {
         int num = 1;
 
         final Map<String, Integer> mBusesNumbersByIds = new HashMap<>();
+
+        final List<String> generatorIdsConvertedToLoad = new ArrayList<>();
     }
 
     private static boolean isExported(Bus bus) {
@@ -199,11 +223,132 @@ public class MatpowerExporter implements Exporter {
         createTransformerStarBuses(network, model, context);
     }
 
+    private static boolean isEmergencyLimit(LoadingLimits.TemporaryLimit limit) {
+        return limit.getAcceptableDuration() <= 60;
+    }
+
+    private static Optional<LoadingLimits.TemporaryLimit> findShortTermLimit(Stream<LoadingLimits.TemporaryLimit> limitStream) {
+        return limitStream.filter(limit -> !isEmergencyLimit(limit))
+                .max(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
+    }
+
+    private static Optional<LoadingLimits.TemporaryLimit> findEmergencyLimit(Stream<LoadingLimits.TemporaryLimit> limitStream) {
+        return limitStream.filter(MatpowerExporter::isEmergencyLimit)
+                .min(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
+    }
+
+    private static Optional<LoadingLimits.TemporaryLimit> previousLimit(Collection<LoadingLimits.TemporaryLimit> limits, LoadingLimits.TemporaryLimit limit) {
+        return limits.stream().filter(l -> l.getAcceptableDuration() > limit.getAcceptableDuration())
+                .min(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
+    }
+
+    private static double toApparentPower(double current, VoltageLevel vl) {
+        return current * vl.getNominalV() / 1000d;
+    }
+
+    private static void createLimits(MBranch mBranch, LoadingLimits limits, DoubleUnaryOperator converter) {
+        // rateA is mapped to permanent limit
+        if (!Double.isNaN(limits.getPermanentLimit())) {
+            mBranch.setRateA(converter.applyAsDouble(limits.getPermanentLimit()));
+        }
+        // rateB is mapped to the shortest term limit, if not an emergency limit (tempo <= 60s)
+        LoadingLimits.TemporaryLimit limitB = findShortTermLimit(limits.getTemporaryLimits().stream())
+                .filter(limit -> !isEmergencyLimit(limit) && limit.getValue() != Double.MAX_VALUE)
+                .orElse(null);
+        if (limitB != null) {
+            mBranch.setRateB(converter.applyAsDouble(limitB.getValue()));
+        }
+        // rateC is mapped to the emergency limit (tempo <= 60s)
+        findEmergencyLimit(limits.getTemporaryLimits().stream())
+                .flatMap(limit -> previousLimit(limits.getTemporaryLimits(), limit))
+                .filter(limit -> limitB == null || limit.getAcceptableDuration() != limitB.getAcceptableDuration())
+                .ifPresent(limitC -> mBranch.setRateC(converter.applyAsDouble(limitC.getValue())));
+    }
+
+    private static void createLimits(List<FlowsLimitsHolder> limitsHolders, VoltageLevel vl, MBranch mBranch) {
+        limitsHolders.stream().flatMap(limitsHolder -> Stream.concat(limitsHolder.getApparentPowerLimits().stream(), // apparrent power limits first then current limits
+                                                                     limitsHolder.getCurrentLimits().stream()))
+                .filter(limits -> !Double.isNaN(limits.getPermanentLimit())) // skip when there is no permanent
+                .max(Comparator.comparingInt(loadingLimit -> loadingLimit.getTemporaryLimits().size())) // many tempary limits first
+                .ifPresent(limits -> {
+                    if (limits.getLimitType() == LimitType.CURRENT) {
+                        createLimits(mBranch, limits, current -> toApparentPower(current, vl)); // convert from A to MVA
+                    } else {
+                        createLimits(mBranch, limits, DoubleUnaryOperator.identity());
+                    }
+                });
+    }
+
+    /**
+     * Arbitrary adapted on side one.
+     */
+    private static class FlowsLimitsHolderBranchAdapter implements FlowsLimitsHolder {
+
+        private final Branch<?> branch;
+
+        private final Branch.Side side;
+
+        public FlowsLimitsHolderBranchAdapter(Branch<?> branch, Branch.Side side) {
+            this.branch = branch;
+            this.side = side;
+        }
+
+        @Override
+        public Optional<CurrentLimits> getCurrentLimits() {
+            return branch.getCurrentLimits(side);
+        }
+
+        @Override
+        public CurrentLimits getNullableCurrentLimits() {
+            return branch.getNullableCurrentLimits(side);
+        }
+
+        @Override
+        public Optional<ActivePowerLimits> getActivePowerLimits() {
+            return branch.getActivePowerLimits(side);
+        }
+
+        @Override
+        public ActivePowerLimits getNullableActivePowerLimits() {
+            return branch.getNullableActivePowerLimits(side);
+        }
+
+        @Override
+        public Optional<ApparentPowerLimits> getApparentPowerLimits() {
+            return branch.getApparentPowerLimits(side);
+        }
+
+        @Override
+        public ApparentPowerLimits getNullableApparentPowerLimits() {
+            return branch.getNullableApparentPowerLimits(side);
+        }
+
+        @Override
+        public CurrentLimitsAdder newCurrentLimits() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ApparentPowerLimitsAdder newApparentPowerLimits() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ActivePowerLimitsAdder newActivePowerLimits() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     private void createLines(Network network, MatpowerModel model, Context context) {
         for (Line l : network.getLines()) {
             Terminal t1 = l.getTerminal1();
             Terminal t2 = l.getTerminal2();
-            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(model::addBranch);
+            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
+                    .ifPresent(branch -> {
+                        createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), new FlowsLimitsHolderBranchAdapter(l, Branch.Side.TWO)),
+                                     t1.getVoltageLevel(), branch);
+                        model.addBranch(branch);
+                    });
         }
     }
 
@@ -244,6 +389,8 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setR(r / zb);
                 mBranch.setX(x / zb);
                 mBranch.setB(b * zb);
+                createLimits(List.of(new FlowsLimitsHolderBranchAdapter(twt, Branch.Side.ONE), new FlowsLimitsHolderBranchAdapter(twt, Branch.Side.TWO)),
+                             t1.getVoltageLevel(), mBranch);
                 model.addBranch(mBranch);
             }
         }
@@ -253,7 +400,12 @@ public class MatpowerExporter implements Exporter {
         for (TieLine l : network.getTieLines()) {
             Terminal t1 = l.getDanglingLine1().getTerminal();
             Terminal t2 = l.getDanglingLine2().getTerminal();
-            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(model::addBranch);
+            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
+                    .ifPresent(branch -> {
+                        createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), new FlowsLimitsHolderBranchAdapter(l, Branch.Side.TWO)),
+                                     t1.getVoltageLevel(), branch);
+                        model.addBranch(branch);
+                    });
         }
     }
 
@@ -315,6 +467,7 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setR(dl.getR() / zb);
                 mBranch.setX(dl.getX() / zb);
                 mBranch.setB(dl.getB() * zb);
+                createLimits(List.of(dl), t.getVoltageLevel(), mBranch);
                 model.addBranch(mBranch);
             }
         }
@@ -368,6 +521,7 @@ public class MatpowerExporter implements Exporter {
         mBranch.setX(x / zb);
         mBranch.setB(b * zb);
         mBranch.setRatio(1d / rho);
+        createLimits(List.of(leg), leg.getTerminal().getVoltageLevel(), mBranch);
         return mBranch;
     }
 
@@ -479,30 +633,44 @@ public class MatpowerExporter implements Exporter {
     private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
                                 String id, double targetV, double targetP, double minP, double maxP, double targetQ,
                                 double minQ, double maxQ, Bus regulatedBus, boolean voltageRegulation, double ratedS) {
-        MGen mGen = new MGen();
-        mGen.setNumber(context.mBusesNumbersByIds.get(bus.getId()));
-        mGen.setStatus(CONNECTED_STATUS);
-        mGen.setRealPowerOutput(targetP);
-        mGen.setReactivePowerOutput(targetQ);
-        if (voltageRegulation && regulatedBus != null) {
-            double targetVpu = targetV / vl.getNominalV();
-            if (!regulatedBus.getId().equals(bus.getId())) {
-                double oldTargetV = targetVpu;
-                targetVpu *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
-                LOGGER.warn(
-                    "Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
-                    id, oldTargetV, targetVpu);
-            }
-            mGen.setVoltageMagnitudeSetpoint(targetVpu);
+        int busNum = context.mBusesNumbersByIds.get(bus.getId());
+        MBus mBus = model.getBusByNum(busNum);
+        boolean validVoltageRegulation = voltageRegulation && regulatedBus != null;
+        // Matpower power flow does not support bus with multiple generators that do not have the same voltage regulation
+        // status. if the bus has PV type, all of its generator must have a valid voltage set point.
+        if (!validVoltageRegulation && mBus.getType() == MBus.Type.PV) {
+            // convert to load
+            mBus.setRealPowerDemand(mBus.getRealPowerDemand() - targetP);
+            mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - targetQ);
+            context.generatorIdsConvertedToLoad.add(id);
         } else {
-            mGen.setVoltageMagnitudeSetpoint(0);
+            MGen mGen = new MGen();
+            mGen.setNumber(busNum);
+            mGen.setStatus(CONNECTED_STATUS);
+            mGen.setRealPowerOutput(targetP);
+            mGen.setReactivePowerOutput(Double.isNaN(targetQ) ? 0 : targetQ);
+            if (validVoltageRegulation) {
+                double targetVpu = targetV / vl.getNominalV();
+                if (!regulatedBus.getId().equals(bus.getId())) {
+                    double oldTargetV = targetVpu;
+                    targetVpu *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
+                    LOGGER.warn(
+                            "Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
+                            id, oldTargetV, targetVpu);
+                }
+                mGen.setVoltageMagnitudeSetpoint(targetVpu);
+            } else {
+                // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
+                // are activated in Matpower power flow
+                mGen.setVoltageMagnitudeSetpoint(0);
+            }
+            mGen.setMinimumRealPowerOutput(minP);
+            mGen.setMaximumRealPowerOutput(maxP);
+            mGen.setMinimumReactivePowerOutput(minQ);
+            mGen.setMaximumReactivePowerOutput(maxQ);
+            mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
+            model.addGenerator(mGen);
         }
-        mGen.setMinimumRealPowerOutput(minP);
-        mGen.setMaximumRealPowerOutput(maxP);
-        mGen.setMinimumReactivePowerOutput(minQ);
-        mGen.setMaximumReactivePowerOutput(maxQ);
-        mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
-        model.addGenerator(mGen);
     }
 
     private static int getBranchCount(Bus bus) {
@@ -537,6 +705,8 @@ public class MatpowerExporter implements Exporter {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(reporter);
 
+        boolean withBusNames = Parameter.readBoolean(getFormat(), parameters, WITH_BUS_NAMES_PARAMETER, defaultValueConfig);
+
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
         model.setVersion(FORMAT_VERSION);
@@ -557,8 +727,12 @@ public class MatpowerExporter implements Exporter {
         createStaticVarCompensators(network, model, context);
         createVSCs(network, model, context);
 
+        if (!context.generatorIdsConvertedToLoad.isEmpty()) {
+            LOGGER.debug("{} generators have been converted to a load: {}", context.generatorIdsConvertedToLoad.size(), context.generatorIdsConvertedToLoad);
+        }
+
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
-            MatpowerWriter.write(model, os);
+            MatpowerWriter.write(model, os, withBusNames);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -14,10 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElementIdentifier {
 
@@ -45,11 +44,11 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
         if (voltageLevel1 == null || voltageLevel2 == null) {
             return Collections.emptySet();
         } else {
-            List<Connectable> connectablesVoltageLevel2 = voltageLevel2.getConnectableStream().collect(Collectors.toList());
+            List<Connectable> connectablesVoltageLevel2 = voltageLevel2.getConnectableStream().toList();
             List<Connectable> foundConnectables = voltageLevel1.getConnectableStream()
                     .filter(connectable -> connectable.getId().endsWith(String.valueOf(order)))
                     .filter(connectablesVoltageLevel2::contains)
-                    .collect(Collectors.toList());
+                    .toList();
             if (foundConnectables.size() == 1) {
                 return Collections.singleton(foundConnectables.get(0));
             } else {

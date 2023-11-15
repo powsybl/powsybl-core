@@ -9,7 +9,7 @@ package com.powsybl.commons.plugins;
 import com.google.auto.service.AutoService;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 @AutoService(A.class)
 public class A2 implements A {

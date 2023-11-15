@@ -21,8 +21,8 @@ import com.powsybl.psse.model.pf.PsseLineGrouping;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_SECTION_LINE_GROUPING;
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class MultiSectionLineGroupingData extends AbstractRecordGroup<PsseLineGrouping> {
 

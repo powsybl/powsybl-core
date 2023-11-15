@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 class TwtDataTest {
 
@@ -161,10 +161,10 @@ class TwtDataTest {
 
     private static boolean t3xCompareStarBusVoltage(TwtData twtData, double starU, double starAngle) {
         double tol = 0.00001;
-        if ((Double.isNaN(twtData.getStarU()) && !Double.isNaN(starU)) ||
-            (Double.isNaN(twtData.getStarTheta()) && !Double.isNaN(starAngle)) ||
-            Math.abs(twtData.getStarU() - starU) > tol ||
-            Math.abs(Math.toDegrees(twtData.getStarTheta()) - starAngle) > tol) {
+        if (Double.isNaN(twtData.getStarU()) && !Double.isNaN(starU)
+                || Double.isNaN(twtData.getStarTheta()) && !Double.isNaN(starAngle)
+                || Math.abs(twtData.getStarU() - starU) > tol
+                || Math.abs(Math.toDegrees(twtData.getStarTheta()) - starAngle) > tol) {
             LOG.info("ThreeWindingsTransformer {} Expected {} {} Actual {} {}", twtData.getId(),
                 starU, starAngle, twtData.getStarU(), Math.toDegrees(twtData.getStarTheta()));
             return false;
@@ -194,18 +194,18 @@ class TwtDataTest {
 
     private static boolean sameFlow(T3xFlow expected, T3xFlow actual) {
         double tol = 0.00001;
-        if ((!Double.isNaN(expected.p1) && Double.isNaN(actual.p1)) ||
-            (!Double.isNaN(expected.q1) && Double.isNaN(actual.q1)) ||
-            (!Double.isNaN(expected.p2) && Double.isNaN(actual.p2)) ||
-            (!Double.isNaN(expected.q2) && Double.isNaN(actual.q2)) ||
-            (!Double.isNaN(expected.p3) && Double.isNaN(actual.p3)) ||
-            (!Double.isNaN(expected.q3) && Double.isNaN(actual.q3)) ||
-            Math.abs(expected.p1 - actual.p1) > tol ||
-            Math.abs(expected.q1 - actual.q1) > tol ||
-            Math.abs(expected.p2 - actual.p2) > tol ||
-            Math.abs(expected.q2 - actual.q2) > tol ||
-            Math.abs(expected.p3 - actual.p3) > tol ||
-            Math.abs(expected.q3 - actual.q3) > tol) {
+        if (!Double.isNaN(expected.p1) && Double.isNaN(actual.p1)
+                || !Double.isNaN(expected.q1) && Double.isNaN(actual.q1)
+                || !Double.isNaN(expected.p2) && Double.isNaN(actual.p2)
+                || !Double.isNaN(expected.q2) && Double.isNaN(actual.q2)
+                || !Double.isNaN(expected.p3) && Double.isNaN(actual.p3)
+                || !Double.isNaN(expected.q3) && Double.isNaN(actual.q3)
+                || Math.abs(expected.p1 - actual.p1) > tol
+                || Math.abs(expected.q1 - actual.q1) > tol
+                || Math.abs(expected.p2 - actual.p2) > tol
+                || Math.abs(expected.q2 - actual.q2) > tol
+                || Math.abs(expected.p3 - actual.p3) > tol
+                || Math.abs(expected.q3 - actual.q3) > tol) {
             return false;
         }
         return true;

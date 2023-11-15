@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class LineContingency extends AbstractSidedContingency {
 
@@ -41,8 +41,7 @@ public class LineContingency extends AbstractSidedContingency {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof LineContingency) {
-            LineContingency other = (LineContingency) obj;
+        if (obj instanceof LineContingency other) {
             return id.equals(other.id) && Objects.equals(voltageLevelId, other.voltageLevelId);
         }
         return false;

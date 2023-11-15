@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  *         <p>
  *         A ConductingEquipment has at least one Terminal. From the Terminal we
  *         get either its ConnectivityNode or its TopologicalNode, depending of
@@ -83,11 +83,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
-    public String findUcteXnodeCode(String boundaryNode) {
-        return findUcteXnodeCode(context, boundaryNode);
+    public String findPairingKey(String boundaryNode) {
+        return findPairingKey(context, boundaryNode);
     }
 
-    public static String findUcteXnodeCode(Context context, String boundaryNode) {
+    public static String findPairingKey(Context context, String boundaryNode) {
         return context.boundary().nameAtBoundary(boundaryNode);
     }
 
@@ -232,7 +232,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                         .setX(x)
                         .setG(gch)
                         .setB(bch)
-                        .setUcteXnodeCode(findUcteXnodeCode(boundaryNode)))
+                        .setPairingKey(findPairingKey(boundaryNode)))
                 .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connect(dlAdder, modelSide);
@@ -251,7 +251,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
-        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal");
+        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
         dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
         Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn ->
@@ -506,7 +506,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 // its ID is composed by its connectivity node ID + '_VL' sufix
                 voltageLevel = context.network().getVoltageLevel(nodeId + "_VL");
                 if (voltageLevel != null) {
-                    iidmVoltageLevelId = t.connectivityNode() + "_VL";
+                    iidmVoltageLevelId = nodeId + "_VL";
                 } else {
                     iidmVoltageLevelId = null;
                 }

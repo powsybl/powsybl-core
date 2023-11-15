@@ -6,13 +6,14 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -36,7 +37,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 class CgmesMappingTest extends AbstractConverterTest {
 
@@ -58,6 +59,13 @@ class CgmesMappingTest extends AbstractConverterTest {
     @Test
     void testExportUsingCgmesNamingStrategyIEEE14() throws IOException {
         testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "ieee14", "GEN____8_SM");
+    }
+
+    @Test
+    void testExportUsingCgmesNamingStrategyCgmesMicroGrid() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource();
+        Network network = Importers.importData("CGMES", ds, null);
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, network, "MicroGrid", null, Collections.emptySet(), ds);
     }
 
     @Test

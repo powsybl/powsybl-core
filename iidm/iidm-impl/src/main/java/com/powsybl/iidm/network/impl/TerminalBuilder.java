@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.ValidationException;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class TerminalBuilder {
 
@@ -66,7 +66,7 @@ class TerminalBuilder {
 
     private String getConnectionBus() {
         if (bus != null) {
-            if ((connectableBus != null) && (!bus.equals(connectableBus))) {
+            if (connectableBus != null && !bus.equals(connectableBus)) {
                 throw new ValidationException(validable, "connection bus is different to connectable bus");
             }
 

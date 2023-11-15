@@ -13,7 +13,7 @@ import com.powsybl.dsl.DslException
 import com.powsybl.dynamicsimulation.EventModel
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 @AutoService(EventModelGroovyExtension.class)
 class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
@@ -48,5 +48,10 @@ class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
 
             consumer.accept(new DummyEventModel(eventModelSpec.id, eventModelSpec.startTime))
         }
+    }
+
+    @Override
+    List<String> getModelNames() {
+        List.of(DummyEventModel.class.simpleName)
     }
 }

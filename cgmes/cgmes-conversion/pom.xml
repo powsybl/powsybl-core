@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-cgmes</artifactId>
-        <version>5.4.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-cgmes-conversion</artifactId>
@@ -128,7 +128,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        
+
         <!-- To validate bus balances on converted Network -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -169,11 +169,6 @@
         <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-mergingview</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -383,7 +383,7 @@ import java.util.stream.Stream;
  *
  * <p>To create a voltage level, see {@link VoltageLevelAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see VoltageLevelAdder
  */
 public interface VoltageLevel extends Container<VoltageLevel> {
@@ -443,16 +443,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             int getNode1();
 
             int getNode2();
-        }
-
-        /**
-         * Get the count of used nodes (nodes attached to an equipment, a switch or an internal connection).
-         *
-         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
-         */
-        @Deprecated
-        default int getNodeCount() {
-            throw new UnsupportedOperationException();
         }
 
         /**
@@ -716,6 +706,15 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * @see VariantManager
          */
         Stream<Bus> getBusStream();
+
+        /**
+         * Get the bus count.
+         * <p>
+         * Depends on the working variant if topology kind is NODE_BREAKER.
+         *
+         * @see VariantManager
+         */
+        int getBusCount();
 
         /**
          * Get a bus.

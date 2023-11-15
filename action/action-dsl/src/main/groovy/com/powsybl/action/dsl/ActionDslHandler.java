@@ -13,7 +13,7 @@ import com.powsybl.contingency.Contingency;
  * Users may define their own handling of action DSL objects,
  * by implementing this interface and calling {@link ActionDslLoader#loadDsl} method.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public interface ActionDslHandler {
 

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 
 public class CgmesBoundary {
@@ -85,18 +85,6 @@ public class CgmesBoundary {
         return nodesPowerFlow.get(node);
     }
 
-    /**
-     * @deprecated Not used anymore. To set an equipment at boundary node, use
-     * {@link CgmesBoundary#addAcLineSegmentAtNode(PropertyBag, String)} or
-     * {@link CgmesBoundary#addSwitchAtNode(PropertyBag, String)} or
-     * {@link CgmesBoundary#addTransformerAtNode(PropertyBags, String)} or
-     * {@link CgmesBoundary#addEquivalentBranchAtNode(PropertyBag, String)}  instead.
-     */
-    @Deprecated
-    public void addEquipmentAtNode(PropertyBag line, String node) {
-        throw new ConversionException("Deprecated. Not used anymore");
-    }
-
     public void addAcLineSegmentAtNode(PropertyBag line, String node) {
         List<BoundaryEquipment> equipment;
         equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
@@ -146,15 +134,6 @@ public class CgmesBoundary {
 
     public double angleAtBoundary(String node) {
         return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).angle : Double.NaN;
-    }
-
-    /**
-     * @deprecated Not used anymore. To get the equipment at boundary node, use
-     * {@link CgmesBoundary#boundaryEquipmentAtNode(String)} instead.
-     */
-    @Deprecated
-    public List<PropertyBag> equipmentAtNode(String node) {
-        throw new ConversionException("Deprecated. Not used anymore");
     }
 
     public List<BoundaryEquipment> boundaryEquipmentAtNode(String node) {

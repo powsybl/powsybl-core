@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevelAdder;
@@ -17,12 +16,13 @@ import java.util.Optional;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderImpl> implements VoltageLevelAdder {
 
     private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
+    private final Ref<SubnetworkImpl> subnetworkRef;
 
     private double nominalV = Double.NaN;
 
@@ -33,22 +33,20 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
     private TopologyKind topologyKind;
 
     VoltageLevelAdderImpl(SubstationImpl substation) {
-        networkRef = null;
         this.substation = substation;
+        this.subnetworkRef = substation.getSubnetworkRef();
+        this.networkRef = substation.getNetworkRef();
     }
 
-    VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef) {
+    VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef, Ref<SubnetworkImpl> subnetworkRef) {
         this.networkRef = networkRef;
         substation = null;
+        this.subnetworkRef = subnetworkRef;
     }
 
     @Override
     protected NetworkImpl getNetwork() {
-        return Optional.ofNullable(networkRef)
-                .map(Ref::get)
-                .orElseGet(() -> Optional.ofNullable(substation)
-                        .map(SubstationImpl::getNetwork)
-                        .orElseThrow(() -> new PowsyblException("Voltage level has no container")));
+        return networkRef.get();
     }
 
     @Override
@@ -98,10 +96,10 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         VoltageLevelExt voltageLevel;
         switch (topologyKind) {
             case NODE_BREAKER:
-                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             case BUS_BREAKER:
-                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             default:
                 throw new IllegalStateException();

@@ -19,7 +19,7 @@ import com.powsybl.shortcircuit.MagnitudeFeederResult;
 import java.io.IOException;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
@@ -35,23 +35,19 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "connectableId":
+                case "connectableId" -> {
                     parser.nextToken();
                     connectableId = parser.readValueAs(String.class);
-                    break;
-
-                case "current":
+                }
+                case "current" -> {
                     parser.nextToken();
                     current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
-                    break;
-
-                case "currentMagnitude":
+                }
+                case "currentMagnitude" -> {
                     parser.nextToken();
                     currentMagnitude = parser.readValueAs(Double.class);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         if (current == null) {

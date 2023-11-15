@@ -17,14 +17,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +38,7 @@ import java.util.Map;
  * The majority of the configuration is made by the {@link AmplModel}
  * interface.
  *
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResults> {
 
@@ -90,9 +85,11 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
      * @throws IOException rethrow {@link Files#copy(InputStream, Path, CopyOption...)}
      */
     private void exportAmplParameters(Path workingDir) throws IOException {
-        for (AmplInputFile param : parameters.getInputParameters()) {
-            try (InputStream paramStream = param.getParameterFileAsStream(this.mapper)) {
-                Files.copy(paramStream, workingDir.resolve(param.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+        for (AmplInputFile amplInputFile : parameters.getInputParameters()) {
+            try (BufferedWriter bufferedWriter = Files.newBufferedWriter(
+                workingDir.resolve(amplInputFile.getFileName()),
+                StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW, StandardOpenOption.TRUNCATE_EXISTING)) {
+                amplInputFile.write(bufferedWriter, mapper);
             }
         }
     }
@@ -128,12 +125,16 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
 
     private void readCustomFiles(Path workingDir, boolean hasModelConverged) {
         for (AmplOutputFile amplOutputFile : parameters.getOutputParameters(hasModelConverged)) {
-            Path outputPath = workingDir.resolve(amplOutputFile.getFileName());
-            try {
-                amplOutputFile.read(outputPath, this.mapper);
-            } catch (IOException e) {
-                LOGGER.error("Failed to read custom output file : " + outputPath.toAbsolutePath(), e);
-                throw new UncheckedIOException(e);
+            Path customFilePath = workingDir.resolve(amplOutputFile.getFileName());
+            if (Files.isRegularFile(customFilePath)) {
+                try (BufferedReader reader = Files.newBufferedReader(customFilePath, StandardCharsets.UTF_8)) {
+                    amplOutputFile.read(reader, mapper);
+                } catch (IOException e) {
+                    LOGGER.error("Failed to read custom output file : " + customFilePath.toAbsolutePath(), e);
+                    throw new UncheckedIOException(e);
+                }
+            } else if (amplOutputFile.throwOnMissingFile()) {
+                throw new PowsyblException("Custom output file '" + customFilePath + "' not found");
             }
         }
     }

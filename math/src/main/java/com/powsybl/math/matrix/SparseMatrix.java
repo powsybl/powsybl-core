@@ -22,7 +22,7 @@ import java.util.Objects;
  * This implementation rely on a native library which is a wrapper around KLU module of
  * <a href="http://faculty.cse.tamu.edu/davis/suitesparse.html">SuiteSparse</a> project.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SparseMatrix extends AbstractMatrix {
 
@@ -460,8 +460,7 @@ public class SparseMatrix extends AbstractMatrix {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof SparseMatrix) {
-            SparseMatrix other = (SparseMatrix) obj;
+        if (obj instanceof SparseMatrix other) {
             return rowCount == other.rowCount &&
                     columnCount == other.columnCount &&
                     Arrays.equals(columnStart, other.columnStart) &&

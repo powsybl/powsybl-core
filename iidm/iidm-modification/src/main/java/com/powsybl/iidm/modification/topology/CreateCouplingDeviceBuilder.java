@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateCouplingDeviceBuilder {
 
@@ -29,7 +29,7 @@ public class CreateCouplingDeviceBuilder {
     /**
      * @deprecated Use {@link #withBusOrBusbarSectionId1(String)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.2.0")
     public CreateCouplingDeviceBuilder withBusbarSectionId1(String bbsId1) {
         return withBusOrBusbarSectionId1(bbsId1);
     }
@@ -42,7 +42,7 @@ public class CreateCouplingDeviceBuilder {
     /**
      * @deprecated Use {@link #withBusOrBusbarSectionId2(String)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.2.0")
     public CreateCouplingDeviceBuilder withBusbarSectionId2(String bbsId2) {
         return withBusOrBusbarSectionId2(bbsId2);
     }

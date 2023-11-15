@@ -9,8 +9,12 @@ package com.powsybl.dynamicsimulation.groovy;
 
 import com.powsybl.dynamicsimulation.EventModel;
 
+import java.util.List;
+
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public interface EventModelGroovyExtension extends GroovyExtension<EventModel> {
+
+    List<String> getModelNames();
 }

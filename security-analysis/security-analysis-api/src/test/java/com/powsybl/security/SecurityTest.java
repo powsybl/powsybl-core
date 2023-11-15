@@ -12,6 +12,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,7 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class SecurityTest {
 
@@ -130,6 +131,24 @@ class SecurityTest {
         assertViolations(violations);
     }
 
+    private static void assertViolationsForThreeWindingsTransformer(List<LimitViolation> violations) {
+        assertEquals(3, violations.size());
+        violations.forEach(violation -> {
+            assertEquals("3WT", violation.getSubjectId());
+            assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
+        });
+    }
+
+    @Test
+    void checkLimitsWithThreeWindingsTransformer() {
+        Network otherNetwork = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimitsAndTerminalsPAndQ();
+        List<LimitViolation> violations = Security.checkLimits(otherNetwork);
+        assertViolationsForThreeWindingsTransformer(violations);
+
+        violations = Security.checkLimits(otherNetwork, 1);
+        assertViolationsForThreeWindingsTransformer(violations);
+    }
+
     @Test
     void checkLimitsDC() {
         var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0, 0.95));
@@ -143,6 +162,26 @@ class SecurityTest {
 
         List<LimitViolation> violations = Security.checkLimitsDc(network, 1, 0.95);
         assertCurrentViolations(violations);
+    }
+
+    @Test
+    void checkLimitsDCOnThreeWindingsTransformer() {
+        Network otherNetwork = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimitsAndTerminalsPAndQ();
+        var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(otherNetwork, 0, 0.95));
+        assertEquals("Bad limit reduction 0.0", eBadLimit.getMessage());
+
+        var eLowCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(otherNetwork, 0.7f, -0.1));
+        assertEquals("Invalid DC power factor -0.1", eLowCosPhi.getMessage());
+
+        var eHighCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(otherNetwork, 0.7f, 1.2));
+        assertEquals("Invalid DC power factor 1.2", eHighCosPhi.getMessage());
+
+        List<LimitViolation> violations = Security.checkLimitsDc(otherNetwork, 1, 0.95);
+        assertEquals(3, violations.size());
+        violations.forEach(violation -> {
+            assertEquals("3WT", violation.getSubjectId());
+            assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
+        });
     }
 
     private static void assertViolations(List<LimitViolation> violations) {

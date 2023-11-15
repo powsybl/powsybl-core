@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
@@ -20,7 +20,7 @@ import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
 class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
 
@@ -42,26 +42,32 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
         vl.getNodeBreakerView().newSwitch().setId("breaker4").setName("breaker4").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
+        ReporterModel reporter1 = new ReporterModel("reportTestUndefinedLine", "Testing reporter with undefined line1 ID");
         final NetworkModification modificationWithError1 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("line1NotFound")
                 .withLine2Id("CJ_2")
                 .withLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP), "Line line1NotFound is not found");
+        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reporter1), "Line line1NotFound is not found");
+        assertEquals("lineNotFound", reporter1.getReports().iterator().next().getReportKey());
 
+        ReporterModel reporter2 = new ReporterModel("reportTestUndefinedLine", "Testing reporter with undefined line2 ID");
         final NetworkModification modificationWithError2 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("line2NotFound")
                 .withLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP), "Line line2NotFound is not found");
+        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reporter2), "Line line2NotFound is not found");
+        assertEquals("lineNotFound", reporter2.getReports().iterator().next().getReportKey());
 
+        ReporterModel reporter3 = new ReporterModel("reportTestNoVLInCommon", "Testing reporter with lines having no voltage level in common");
         final NetworkModification modificationWithError3 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("LINE34")
                 .withLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
+        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reporter3), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
+        assertEquals("noVoltageLevelInCommon", reporter3.getReports().iterator().next().getReportKey());
 
         // create limits on tee point side
         Line line1 = network.getLine("CJ_1");
@@ -74,14 +80,16 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
         line2.newApparentPowerLimits1().setPermanentLimit(800.).add();
         line2.newCurrentLimits1().setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
 
+        ReporterModel reporter = new ReporterModel("reportTestRevertConnectVoltageLevelOnLine", "Testing reporter to revert connecting a voltage level on a line in node/breaker network");
         modification = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("CJ_2")
                 .withLineId("CJ")
                 .build();
-        modification.apply(network, true, Reporter.NO_OP);
+        modification.apply(network, true, reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-revert-connect-voltage-level-on-line-vl.xml");
+        testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-nb-report.txt");
     }
 
     @Test
@@ -94,14 +102,16 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
 
         modification.apply(network);
 
+        ReporterModel reporter = new ReporterModel("reportTestRevertConnectVoltageLevelOnLineNbBb", "Testing reporter to revert connecting a voltage level on a line");
         modification = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("NHV1_NHV2_1_1")
                 .withLine2Id("NHV1_NHV2_1_2")
                 .withLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network, true, Reporter.NO_OP);
+        modification.apply(network, true, reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-connect-voltage-level-on-line-nb-vl.xml");
+        testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-bb-nb-report.txt");
     }
 
     @Test
@@ -114,14 +124,16 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
 
         modification.apply(network);
 
+        ReporterModel reporter = new ReporterModel("reportTestRevertConnectVoltageLevelOnLineBb", "Testing reporter to revert connecting a voltage level on a line in bus/breaker network");
         modification = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("NHV1_NHV2_1_1")
                 .withLine2Id("NHV1_NHV2_1_2")
                 .withLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network, true, Reporter.NO_OP);
+        modification.apply(network, true, reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-connect-voltage-level-on-line-bb-vl.xml");
+        testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-bb-report.txt");
     }
 
     @Test

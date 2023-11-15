@@ -17,7 +17,7 @@ import com.powsybl.contingency.contingency.list.criterion.TwoCountriesCriterion;
 import java.io.IOException;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class TieLineCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<TieLineCriterionContingencyList> {
 

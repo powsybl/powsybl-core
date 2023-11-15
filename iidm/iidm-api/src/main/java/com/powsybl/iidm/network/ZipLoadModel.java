@@ -14,7 +14,7 @@ package com.powsybl.iidm.network;
  * with v0 the nominal voltage.
  * Sum of C0p, C1p and C2p must be equal to 1.
  * Sum of C0q, C1q and C2q must be equal to 1.
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface ZipLoadModel extends LoadModel {
 

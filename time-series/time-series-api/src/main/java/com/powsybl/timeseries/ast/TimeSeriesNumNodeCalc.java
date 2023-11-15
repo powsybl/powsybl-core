@@ -12,7 +12,7 @@ import com.powsybl.timeseries.TimeSeriesException;
 import java.util.Deque;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TimeSeriesNumNodeCalc implements NodeCalc {
 
@@ -56,8 +56,8 @@ public class TimeSeriesNumNodeCalc implements NodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TimeSeriesNumNodeCalc) {
-            return ((TimeSeriesNumNodeCalc) obj).timeSeriesNum == timeSeriesNum;
+        if (obj instanceof TimeSeriesNumNodeCalc timeSeriesNumNodeCalc) {
+            return timeSeriesNumNodeCalc.timeSeriesNum == timeSeriesNum;
         }
         return false;
     }

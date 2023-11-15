@@ -17,9 +17,9 @@ import java.util.Optional;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
@@ -27,6 +27,16 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     public NetworkImpl getNetwork() {
         if (removed) {
             throw new PowsyblException("Cannot access network of removed tie line " + id);
+        }
+        return networkRef.get();
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        Network subnetwork1 = danglingLine1.getParentNetwork();
+        Network subnetwork2 = danglingLine2.getParentNetwork();
+        if (subnetwork1 == subnetwork2) {
+            return subnetwork1;
         }
         return networkRef.get();
     }
@@ -60,8 +70,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public String getUcteXnodeCode() {
-        return Optional.ofNullable(danglingLine1.getUcteXnodeCode()).orElseGet(() -> danglingLine2.getUcteXnodeCode());
+    public String getPairingKey() {
+        return Optional.ofNullable(danglingLine1.getPairingKey()).orElseGet(() -> danglingLine2.getPairingKey());
     }
 
     @Override
@@ -124,12 +134,26 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public void remove() {
+        remove(false);
+    }
+
+    @Override
+    public void remove(boolean updateDanglingLines) {
         NetworkImpl network = getNetwork();
         network.getListeners().notifyBeforeRemoval(this);
+
+        if (updateDanglingLines) {
+            updateDanglingLine(danglingLine1);
+            updateDanglingLine(danglingLine2);
+        }
 
         // Remove dangling lines
         danglingLine1.removeTieLine();
         danglingLine2.removeTieLine();
+
+        // invalidate components
+        network.getConnectedComponentsManager().invalidate();
+        network.getSynchronousComponentsManager().invalidate();
 
         // Remove this tie line from the network
         network.getIndex().remove(this);
@@ -325,38 +349,56 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
         return BranchUtil.getFromSide(side,
             () -> checkTemporaryLimits1(limitReduction, type),
             () -> checkTemporaryLimits2(limitReduction, type));
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits(Side side, LimitType type) {
+    public Overload checkTemporaryLimits(Side side, LimitType type) {
         return checkTemporaryLimits(side, 1f, type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits1(LimitType type) {
+    public Overload checkTemporaryLimits1(LimitType type) {
         return checkTemporaryLimits1(1f, type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits2(LimitType type) {
+    public Overload checkTemporaryLimits2(LimitType type) {
         return checkTemporaryLimits2(1f, type);
     }
 
     public double getValueForLimit(Terminal t, LimitType type) {
         return BranchUtil.getValueForLimit(t, type);
+    }
+
+    private static void updateDanglingLine(DanglingLine danglingLine) {
+        // Only update if we have values
+        if (!Double.isNaN(danglingLine.getBoundary().getP())) {
+            danglingLine.setP0(-danglingLine.getBoundary().getP());
+            if (danglingLine.getGeneration() != null) {
+                // We do not reset regulation if we only have computed a dc load flow
+                danglingLine.getGeneration().setTargetP(0.0);
+            }
+        }
+        if (!Double.isNaN(danglingLine.getBoundary().getQ())) {
+            danglingLine.setQ0(-danglingLine.getBoundary().getQ());
+            if (danglingLine.getGeneration() != null) {
+                // If q values are available a complete ac load flow has been computed, we reset regulation
+                danglingLine.getGeneration().setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
+            }
+        }
     }
 }

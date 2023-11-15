@@ -16,7 +16,7 @@ import java.util.*;
  *
  * simulate the associated action if there is all violation on any of those network elements
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class AllViolationCondition extends AbstractFilteredCondition {
 

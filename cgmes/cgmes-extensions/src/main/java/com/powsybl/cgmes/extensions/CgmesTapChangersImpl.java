@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CgmesTapChangersImpl<C extends Connectable<C>> extends AbstractExtension<C> implements CgmesTapChangers<C> {
 

@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -22,9 +23,11 @@ import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -36,14 +39,17 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CgmesExportTest {
 
@@ -302,8 +308,8 @@ class CgmesExportTest {
 
         Network network = DanglingLineNetworkFactory.create();
         DanglingLine expected = network.getDanglingLine("DL");
-        network.merge(BatteryNetworkFactory.create()); // add battery
-        Battery battery = network.getBattery("BAT");
+        Network merged = Network.merge(network, BatteryNetworkFactory.create()); // add battery
+        Battery battery = merged.getBattery("BAT");
 
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
@@ -318,7 +324,7 @@ class CgmesExportTest {
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
-            network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
+            merged.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             // To be able to import from the exported CGMES data we must add the external boundary definitions
             // For bus/branch we need both EQ and TP instance files of boundaries
@@ -455,6 +461,48 @@ class CgmesExportTest {
             Network networkReimported = Network.read(exportedCgmes, null);
             assertNotNull(networkReimported);
         }
+    }
+
+    @Test
+    void testModelDescription() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        String modelDescription = "powsybl community";
+        Properties params = new Properties();
+        params.put(CgmesExport.MODEL_DESCRIPTION, modelDescription);
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            new CgmesExport().export(network, params, zip);
+            Network network2 = Network.read(tmpDir.resolve("output.zip"));
+            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            assertEquals(modelDescription, sshMetadata.getDescription());
+        }
+    }
+
+    @Test
+    void testModelDescriptionClosingXML() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        // Security test
+        // Checking that putting end-tag does not corrupt the file
+        String modelDescription = "powsybl community</md:Model.modelingAuthoritySet></md:FullModel>";
+        Properties params = new Properties();
+        params.put(CgmesExport.MODEL_DESCRIPTION, modelDescription);
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            new CgmesExport().export(network, params, zip);
+
+            // check network can be reimported and that ModelDescription still includes end-tag
+            Network network2 = Network.read(tmpDir.resolve("output.zip"));
+
+            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            assertEquals(modelDescription, sshMetadata.getDescription());
+        }
+
     }
 
     private static void checkDanglingLineParams(DanglingLine expected, DanglingLine actual) {

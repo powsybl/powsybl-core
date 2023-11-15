@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class UndirectedGraphImplTest {
 
@@ -465,7 +465,7 @@ class UndirectedGraphImplTest {
         Mockito.when(traverser.traverse(5, 6, 3)).thenReturn(TraverseResult.TERMINATE_PATH);
         boolean[] encountered = new boolean[graph.getVertexCount()];
         Arrays.fill(encountered, false);
-        graph.traverse(5, traverser, encountered);
+        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser, encountered);
         // Only vertex 4 and 5 encountered
         assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
 
@@ -475,7 +475,7 @@ class UndirectedGraphImplTest {
             return v2 == 1 || v2 == 2 || v2 == 3 ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
         };
 
-        graph.traverse(4, traverser2);
+        graph.traverse(4, TraversalType.DEPTH_FIRST, traverser2);
         // Only vertex 4 and 5 encountered
         assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
 
@@ -484,7 +484,7 @@ class UndirectedGraphImplTest {
             return v2 == 0 ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE;
         };
 
-        graph.traverse(5, traverser3, encountered);
+        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser3, encountered);
         // Only vertices on first path encountering 0 are encountered
         assertArrayEquals(new boolean[] {false, true, false, false, true, true}, encountered);
     }

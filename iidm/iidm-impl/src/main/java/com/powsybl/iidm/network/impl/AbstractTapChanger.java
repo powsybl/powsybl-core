@@ -14,7 +14,7 @@ import java.util.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerStepImpl<S>> implements MultiVariantObject {
 
@@ -38,10 +38,12 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final TDoubleArrayList targetDeadband;
 
-    protected AbstractTapChanger(Ref<? extends VariantManagerHolder> network, H parent,
+    protected AbstractTapChanger(H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
                                  Integer tapPosition, boolean regulating, double targetDeadband, String type) {
-        this.network = network;
+        // The Ref object should be the one corresponding to the subnetwork of the tap changer holder
+        // (to avoid errors when the subnetwork is detached)
+        this.network = parent.getParentNetwork().getRootNetworkRef();
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;

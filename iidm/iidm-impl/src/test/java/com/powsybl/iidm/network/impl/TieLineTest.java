@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.apache.commons.math3.complex.Complex;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TieLineTest {
 
@@ -243,7 +243,7 @@ class TieLineTest {
                 .setR(1.0)
                 .setX(2.0)
                 .setBus("S1VL1-BUS")
-                .setUcteXnodeCode("UcteNode")
+                .setPairingKey("key")
                 .add();
         DanglingLine dl2 = s2vl1.newDanglingLine()
                 .setId(boundarySide2.name())
@@ -253,7 +253,7 @@ class TieLineTest {
                 .setR(1.0)
                 .setX(2.0)
                 .setBus("S2VL1-BUS")
-                .setUcteXnodeCode("UcteNode")
+                .setPairingKey("key")
                 .add();
 
         TieLine tieLine = network.newTieLine()
@@ -334,7 +334,7 @@ class TieLineTest {
                 .setX(0.118)
                 .setG(0.04)
                 .setB(0.13)
-                .setUcteXnodeCode("UcteNode")
+                .setPairingKey("key")
                 .add();
 
         TieLine tieLine = network.newTieLine()
@@ -406,7 +406,7 @@ class TieLineTest {
                 .setX(9.5543748)
                 .setG(0.0)
                 .setB(0.00032976265)
-                .setUcteXnodeCode("UcteNode")
+                .setPairingKey("key")
                 .add();
         DanglingLine dl2 = s2vl1.newDanglingLine()
                 .setBus("S2VL1-BUS")

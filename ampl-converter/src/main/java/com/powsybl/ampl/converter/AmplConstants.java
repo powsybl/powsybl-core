@@ -9,7 +9,7 @@ package com.powsybl.ampl.converter;
 import java.util.Locale;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class AmplConstants {
 
@@ -17,6 +17,8 @@ public final class AmplConstants {
     }
 
     public static final String XNODE_COUNTRY_NAME = "XNODE";
+
+    // Column headers:
     public static final String FAULT = "fault";
     public static final String DESCRIPTION = "description";
     public static final String SUBSTATION = "substation";
@@ -40,8 +42,7 @@ public final class AmplConstants {
     public static final String P0 = "p0 (MW)";
     public static final String Q0 = "q0 (MW)";
     public static final String ID = "id";
-    public static final String RATIO_TABLE = "_ratio_table";
-    public static final String PHASE_TABLE = "_phase_table";
+    // End column headers
 
     public static final float INVALID_FLOAT_VALUE = -99999f;
 
@@ -52,6 +53,8 @@ public final class AmplConstants {
      */
     public static final float SB = 100f;
 
+    public static final String RATIO_TABLE_SUFFIX = "_ratio_table";
+    public static final String PHASE_TABLE_SUFFIX = "_phase_table";
     public static final String LEG1_SUFFIX = "_leg1";
     public static final String LEG2_SUFFIX = "_leg2";
     public static final String LEG3_SUFFIX = "_leg3";

@@ -8,6 +8,8 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
@@ -17,7 +19,7 @@ import java.util.Objects;
 /**
  * Simple {@link NetworkModification} to (dis)connect a shunt compensator and/or change its section.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class ShuntCompensatorModification extends AbstractNetworkModification {
 
@@ -44,15 +46,21 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         if (connect != null) {
             Terminal t = shuntCompensator.getTerminal();
             if (connect.booleanValue()) {
-                // FIXME just as for generators, when reconnecting a shunt with voltage regulation on,
-                // the voltage setpoint must be set
                 t.connect();
+                setTargetV(shuntCompensator);
             } else {
                 t.disconnect();
             }
         }
         if (sectionCount != null) {
             shuntCompensator.setSectionCount(sectionCount);
+        }
+    }
+
+    private static void setTargetV(ShuntCompensator shuntCompensator) {
+        if (shuntCompensator.isVoltageRegulatorOn()) {
+            VoltageRegulationUtils.getTargetVForRegulatingElement(shuntCompensator.getNetwork(), shuntCompensator.getRegulatingTerminal().getBusView().getBus(),
+                    shuntCompensator.getId(), IdentifiableType.SHUNT_COMPENSATOR).ifPresent(shuntCompensator::setTargetV);
         }
     }
 

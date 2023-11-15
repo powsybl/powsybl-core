@@ -35,7 +35,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(Importer.class)
 public class IeeeCdfImporter implements Importer {
@@ -361,7 +361,7 @@ public class IeeeCdfImporter implements Importer {
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
         return voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer)
-                .orElseGet(network::newTwoWindingsTransformer)
+                .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                 .setId(id)
                 .setBus1(bus1Id)
                 .setConnectableBus1(bus1Id)

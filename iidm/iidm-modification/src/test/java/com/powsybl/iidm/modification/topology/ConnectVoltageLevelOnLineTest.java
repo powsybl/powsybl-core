@@ -8,10 +8,13 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
@@ -23,7 +26,7 @@ import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
 
@@ -97,6 +100,11 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     @Test
     void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
+            .add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withPositionPercent(40)
                 .withBusbarSectionOrBusId(BBS)
@@ -127,20 +135,29 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
 
+        ReporterModel reporter = new ReporterModel("reportTestUndefinedBbs", "Testing reporter with undefined busbar section");
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network1.getLine("CJ"))
                 .build();
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, Reporter.NO_OP));
+        Reporter subReporterNb = reporter.createSubReporter("nodeBreaker", "Test on node/breaker network");
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, subReporterNb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
+        ReporterModel firstReport = reporter.getSubReporters().get(0);
+        assertEquals("notFoundBusOrBusbarSection", firstReport.getReports().iterator().next().getReportKey());
+        assertEquals("nodeBreaker", firstReport.getTaskKey());
 
         Network network2 = createBbNetwork();
         NetworkModification modification3 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network2.getLine("NHV1_NHV2_1"))
                 .build();
-        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
+        Reporter subReporterBb = reporter.createSubReporter("busBreaker", "Test on bus/breaker network");
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReporterBb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
+        ReporterModel secondReport = reporter.getSubReporters().get(1);
+        assertEquals("notFoundBusOrBusbarSection", secondReport.getReports().iterator().next().getReportKey());
+        assertEquals("busBreaker", secondReport.getTaskKey());
     }
 
     @Test
@@ -158,5 +175,16 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
         modification2.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-tutorial-example1.xml");
+    }
+
+    @Test
+    void testWithReporter() {
+        Network network = createNbNetworkWithBusbarSection();
+        ReporterModel reporter = new ReporterModel("reportTestConnectVoltageLevelOnLine", "Testing reporter for connecting voltage level on line");
+        new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("CJ"))
+                .build().apply(network, true, reporter);
+        testReporter(reporter, "/reporter/connect-voltage-level-on-line-NB-report.txt");
     }
 }

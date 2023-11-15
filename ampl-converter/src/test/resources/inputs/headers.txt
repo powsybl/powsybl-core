@@ -1,1 +1,1 @@
-version V1_LEGACY
+version 1.0

@@ -19,8 +19,8 @@ import java.util.*;
 /**
  * Utility class to compute the flow of the switches associated to a voltageLevel
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class SwitchesFlow {
     private final VoltageLevel voltageLevel;
@@ -197,7 +197,7 @@ public class SwitchesFlow {
         if (connectedSet.size() <= 1) {
             return;
         }
-        Optional<SwNode> swRoot = connectedSet.stream().findFirst();
+        Optional<SwNode> swRoot = connectedSet.stream().sorted(Comparator.comparing(SwitchesFlow::getKey)).findFirst();
         if (swRoot.isEmpty()) {
             return;
         }
@@ -303,7 +303,7 @@ public class SwitchesFlow {
     }
 
     private static String getKey(Bus bus) {
-        return String.format("B-%s", bus);
+        return String.format("B-%s", bus.getId());
     }
 
     private static String getKey(SwNode swNode) {

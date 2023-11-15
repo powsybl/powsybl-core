@@ -18,7 +18,7 @@ import java.io.UncheckedIOException;
 import java.util.Arrays;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class GridModelReferenceResources extends AbstractGridModelReference {
 

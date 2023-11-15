@@ -26,7 +26,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
  * This modification removes the whole feeder bay related to a given feeder connectable.
  * This means that it removes all the dangling switches and internal connections which remain once the connectable is removed.
  * Note that determining the bay which corresponds to a connectable needs some computation and graph traversals.
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class RemoveFeederBay extends AbstractNetworkModification {
 
@@ -96,6 +96,29 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     /**
+     * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
+     * fork node is encountered or a node on which a connectable is connected
+     */
+    private void cleanMixedTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Reporter reporter) {
+        // Get the next edge and the opposite node
+        Set<Object> edges = graph.edgesOf(node);
+        Object edge = edges.iterator().next();
+        Integer oppositeNode = getOppositeNode(graph, node, edge);
+
+        // Remove the switch or internal connection on the current edge
+        removeSwitchOrInternalConnection(nbv, graph, edge, reporter);
+
+        // List the connectables connected to the opposite node
+        List<Connectable<?>> connectables = new ArrayList<>();
+        nbv.getOptionalTerminal(oppositeNode).map(Terminal::getConnectable).ifPresent(connectables::add);
+
+        // If there is only one edge on the opposite node and no connectable, continue to remove the elements
+        if (graph.edgesOf(oppositeNode).size() == 1 && connectables.isEmpty()) {
+            cleanMixedTopology(nbv, graph, oppositeNode, reporter);
+        }
+    }
+
+    /**
      * Try to remove all edges of the given fork node
      */
     private void cleanFork(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Set<Object> edges, Reporter reporter) {
@@ -129,7 +152,7 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         // We don't remove the latter ones if more than one, as this would break the connection between them
         if (mixed.size() == 1) {
             // If only one, we're cleaning the dangling switches and/or internal connections
-            cleanTopology(nbv, graph, node, reporter);
+            cleanMixedTopology(nbv, graph, node, reporter);
         }
     }
 
@@ -176,8 +199,8 @@ public class RemoveFeederBay extends AbstractNetworkModification {
 
     private static void removeSwitchOrInternalConnection(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
                                                          Object edge, Reporter reporter) {
-        if (edge instanceof Switch) {
-            String switchId = ((Switch) edge).getId();
+        if (edge instanceof Switch sw) {
+            String switchId = sw.getId();
             nbv.removeSwitch(switchId);
             removedSwitchReport(reporter, switchId);
             LOGGER.info("Switch {} removed", switchId);

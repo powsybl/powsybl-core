@@ -15,7 +15,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriterFactory;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public final class ValidationUtils {
 
@@ -69,7 +69,8 @@ public final class ValidationUtils {
     }
 
     public static boolean boundedWithin(double lowerBound, double upperBound, double value, double margin) {
-        if (Double.isNaN(value) || (Double.isNaN(lowerBound) && Double.isNaN(upperBound))) {
+        if (Double.isNaN(value)
+                || Double.isNaN(lowerBound) && Double.isNaN(upperBound)) {
             return false;
         }
         if (Double.isNaN(lowerBound)) {

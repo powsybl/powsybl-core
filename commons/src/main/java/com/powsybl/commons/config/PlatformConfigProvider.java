@@ -13,7 +13,7 @@ package com.powsybl.commons.config;
  * normal use, The {@link PlatformConfigProvider#getPlatformConfig()} method will be called only once
  * and its result will be cached and reused for the whole duration of the app.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public interface PlatformConfigProvider {
 

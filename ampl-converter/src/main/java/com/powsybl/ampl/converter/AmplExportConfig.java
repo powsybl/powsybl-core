@@ -8,12 +8,11 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.ampl.converter.version.AmplExportVersion;
-import com.powsybl.ampl.converter.version.AmplExportVersionImpl;
 
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class AmplExportConfig {
 
@@ -52,13 +51,13 @@ public class AmplExportConfig {
     private boolean twtSplitShuntAdmittance;
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType) {
-        this(exportScope, exportXNodes, actionType, false, false, AmplExportVersionImpl.V1_LEGACY);
+        this(exportScope, exportXNodes, actionType, false, false, AmplExportVersion.defaultVersion());
     }
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType,
                             boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance) {
         this(exportScope, exportXNodes, actionType, exportRatioTapChangerVoltageTarget, twtSplitShuntAdmittance,
-            AmplExportVersionImpl.V1_LEGACY);
+            AmplExportVersion.defaultVersion());
     }
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType,

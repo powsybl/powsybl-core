@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
 
@@ -107,7 +107,7 @@ class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
     private void write(Network network, String version) {
         try {
             ExportOptions options = new ExportOptions().setVersion(version);
-            NetworkXml.write(network, options, tmpDir.resolve("/fail.xml"));
+            NetworkXml.write(network, options, tmpDir.resolve("fail.xml"));
             fail();
         } catch (PowsyblException e) {
             assertEquals("shunt.voltageRegulatorOn is not defined as default and not supported for IIDM-XML version " +

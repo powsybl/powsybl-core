@@ -15,7 +15,7 @@ import java.util.Objects;
  * provide electrical information on a three windings transformer
  * after a security analysis. it belongs to pre and post Contingency results.
  * it is the result of the three windings transformer id specified in StateMonitor.
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class ThreeWindingsTransformerResult extends AbstractExtendable<ThreeWindingsTransformerResult> {
 

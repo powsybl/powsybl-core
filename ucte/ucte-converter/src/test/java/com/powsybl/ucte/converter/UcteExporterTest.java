@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
- * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ * @author Abdelsalem Hedhili {@literal <abdelsalem.hedhili at rte-france.com>}
  */
 
 class UcteExporterTest extends AbstractConverterTest {
@@ -71,8 +71,7 @@ class UcteExporterTest extends AbstractConverterTest {
         Network networkBE = loadNetworkFromResourceFile("/beTestGridForMerging.uct");
         testExporter(networkBE, "/beTestGridForMerging.uct");
 
-        Network merge = Network.create("merge", "UCT");
-        merge.merge(networkBE, networkFR);
+        Network merge = Network.merge(networkBE, networkFR);
         testExporter(merge, "/uxTestGridForMerging.uct");
     }
 
@@ -84,8 +83,7 @@ class UcteExporterTest extends AbstractConverterTest {
         Network networkBE = loadNetworkFromResourceFile("/beForMergeProperties.uct");
         testExporter(networkBE, "/beForMergeProperties.uct");
 
-        Network mergedNetwork = Network.create("mergedNetwork", "UCT");
-        mergedNetwork.merge(networkBE, networkFR);
+        Network mergedNetwork = Network.merge(networkBE, networkFR);
         testExporter(mergedNetwork, "/uxForMergeProperties.uct");
     }
 

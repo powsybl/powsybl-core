@@ -16,7 +16,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class IntegerNodeCalc implements LiteralNodeCalc {
 
@@ -76,8 +76,8 @@ public class IntegerNodeCalc implements LiteralNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof IntegerNodeCalc) {
-            return ((IntegerNodeCalc) obj).value == value;
+        if (obj instanceof IntegerNodeCalc integerNodeCalc) {
+            return integerNodeCalc.value == value;
         }
         return false;
     }

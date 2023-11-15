@@ -6,8 +6,10 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface CgmesControlAreaAdder {
 
@@ -18,6 +20,10 @@ public interface CgmesControlAreaAdder {
     CgmesControlAreaAdder setEnergyIdentificationCodeEic(String energyIdentificationCodeEic);
 
     CgmesControlAreaAdder setNetInterchange(double netInterchange);
+
+    default CgmesControlAreaAdder setPTolerance(double pTolerance) {
+        throw new PowsyblException("Unsupported method");
+    }
 
     CgmesControlArea add();
 }

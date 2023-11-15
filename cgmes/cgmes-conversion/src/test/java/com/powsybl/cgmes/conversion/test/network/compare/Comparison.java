@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class Comparison {
 
@@ -572,7 +572,7 @@ public class Comparison {
         compare("b", expected.getB(), actual.getB());
         compare("p0", expected.getP0(), actual.getP0());
         compare("q0", expected.getQ0(), actual.getQ0());
-        compare("UcteXnodeCode", expected.getUcteXnodeCode(), actual.getUcteXnodeCode());
+        compare("pairingKey", expected.getPairingKey(), actual.getPairingKey());
         compareLoadingLimits(expected, actual,
                 expected.getActivePowerLimits().orElse(null),
                 actual.getActivePowerLimits().orElse(null));

@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class ConnectivityResultDeserializer extends StdDeserializer<ConnectivityResult> {
 

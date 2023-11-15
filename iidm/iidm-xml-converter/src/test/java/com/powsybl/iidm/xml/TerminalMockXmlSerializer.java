@@ -28,7 +28,7 @@ import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, TerminalMockExt> {
@@ -47,6 +47,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                         .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.8"))
                         .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of("1.9"))
                         .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of("1.10"))
+                        .put(IidmXmlVersion.V_1_11, ImmutableSortedSet.of("1.11"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0")
@@ -60,6 +61,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                         .put("1.8", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_8")
                         .put("1.9", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_9")
                         .put("1.10", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_10")
+                        .put("1.11", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_11")
                         .build());
     }
 
@@ -95,7 +97,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                 String side = networkContext.getReader().getAttributeValue(null, "side");
                 networkContext.getEndTasks().add(() -> {
                     Network network = extendable.getNetwork();
-                    terminalMockExt.setTerminal(TerminalRefXml.readTerminalRef(network, id, side));
+                    terminalMockExt.setTerminal(TerminalRefXml.resolve(id, side, network));
                 });
             } else {
                 throw new IllegalStateException("Unexpected element: " + networkContext.getReader().getLocalName());

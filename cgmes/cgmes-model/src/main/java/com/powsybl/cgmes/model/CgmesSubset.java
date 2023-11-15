@@ -12,7 +12,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public enum CgmesSubset {
     // TODO Each subset has a "main" profile URL plus additional optional profiles
@@ -48,13 +48,15 @@ public enum CgmesSubset {
     EQUIPMENT_BOUNDARY("EQ_BD") {
         @Override
         public boolean isValidName(String contextName) {
-            return super.isValidName(contextName) || (EQUIPMENT.isValidName(contextName) && isBoundary(contextName));
+            return super.isValidName(contextName)
+                    || EQUIPMENT.isValidName(contextName) && isBoundary(contextName);
         }
     },
     TOPOLOGY_BOUNDARY("TP_BD") {
         @Override
         public boolean isValidName(String contextName) {
-            return super.isValidName(contextName) || (TOPOLOGY.isValidName(contextName) && isBoundary(contextName));
+            return super.isValidName(contextName)
+                    || TOPOLOGY.isValidName(contextName) && isBoundary(contextName);
         }
     };
 

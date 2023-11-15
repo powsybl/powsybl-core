@@ -17,8 +17,8 @@ import gnu.trove.list.array.TFloatArrayList;
 import java.util.Objects;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 public class HvdcOperatorActivePowerRangeImpl extends AbstractMultiVariantIdentifiableExtension<HvdcLine> implements HvdcOperatorActivePowerRange {
 
@@ -68,7 +68,7 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractMultiVariantIdenti
     }
 
     private float checkOPR(float opr, HvdcConverterStation<?> from, HvdcConverterStation<?> to) {
-        if ((!Float.isNaN(opr)) && (opr < 0)) {
+        if (!Float.isNaN(opr) && opr < 0) {
             String message = "OPR from " + from.getId() + " to " + to.getId() + " must be greater than 0 (current value " + Float.toString(opr) + ").";
             throw new IllegalArgumentException(message);
         }

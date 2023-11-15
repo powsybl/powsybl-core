@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -28,12 +29,13 @@ import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testReporter;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 class CreateFeederBayTest extends AbstractConverterTest {
 
@@ -134,6 +136,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
     @Test
     void testException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        ReporterModel reporter1 = new ReporterModel("reportTestInvalidNetwork", "Testing reporter if network mismatch");
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
@@ -147,28 +150,33 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, Reporter.NO_OP));
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, reporter1));
         assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
+        assertEquals("networkMismatch", reporter1.getReports().iterator().next().getReportKey());
 
         // not found id
+        ReporterModel reporter2 = new ReporterModel("reportTestInvalidId", "Testing reporter if wrong feeder id");
         CreateFeederBay modification1 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId("bbs")
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, reporter2));
         assertEquals("Bus or busbar section bbs not found", e1.getMessage());
+        assertEquals("notFoundBusOrBusbarSection", reporter2.getReports().iterator().next().getReportKey());
 
         // wrong identifiable type
+        ReporterModel reporter3 = new ReporterModel("reportTestInvalidType", "Testing reporter if wrong feeder type");
         CreateFeederBay modification2 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId("gen1")
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, reporter3));
         assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
+        assertEquals("unsupportedIdentifiableType", reporter3.getReports().iterator().next().getReportKey());
     }
 
     @Test
@@ -437,20 +445,61 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .setQ0(10);
 
         //negative order position
+        ReporterModel reporter1 = new ReporterModel("reportTestNegativeOrderPosition", "Testing reporter for a load creation with negative position order");
         CreateFeederBay negativeOrderCreate = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId(bbs.getId())
                 .withInjectionPositionOrder(-2)
                 .build();
-        PowsyblException eNeg = assertThrows(PowsyblException.class, () -> negativeOrderCreate.apply(network, true, computationManager, Reporter.NO_OP));
+        PowsyblException eNeg = assertThrows(PowsyblException.class, () -> negativeOrderCreate.apply(network, true, computationManager, reporter1));
         assertEquals("Position order is negative for attachment in node-breaker voltage level vl: -2", eNeg.getMessage());
+        assertEquals("unexpectedNegativePositionOrder", reporter1.getReports().iterator().next().getReportKey());
 
         //null order position
+        ReporterModel reporter2 = new ReporterModel("reportTestNullOrderPosition", "Testing reporter for a load creation with null order position");
         CreateFeederBay nullOrderCreate = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId(bbs.getId())
                 .build();
-        PowsyblException eNull = assertThrows(PowsyblException.class, () -> nullOrderCreate.apply(network, true, computationManager, Reporter.NO_OP));
+        PowsyblException eNull = assertThrows(PowsyblException.class, () -> nullOrderCreate.apply(network, true, computationManager, reporter2));
         assertEquals("Position order is null for attachment in node-breaker voltage level vl", eNull.getMessage());
+        assertEquals("unexpectedNullPositionOrder", reporter2.getReports().iterator().next().getReportKey());
+    }
+
+    @Test
+    void testCreateLoadWithReporter() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        ReporterModel reporter = new ReporterModel("reportTestCreateLoad", "Testing reporter for a load creation");
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBusOrBusbarSectionId("bbs4")
+                .withInjectionPositionOrder(115)
+                .withInjectionFeederName("newLoadFeeder")
+                .withInjectionDirection(BOTTOM)
+                .build().apply(network, reporter);
+        testReporter(reporter, "/reporter/create-load-NB-report.txt");
+    }
+
+    @Test
+    void testCreateLoadWithReporterWithoutExtensions() {
+        Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        ReporterModel reporter = new ReporterModel("reportTestCreateLoadWithoutExtensions", "Testing reporter for a load creation in a network without extensions");
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBusOrBusbarSectionId("bbs4")
+                .withInjectionPositionOrder(115)
+                .build()
+                .apply(network, reporter);
+        testReporter(reporter, "/reporter/create-load-NB-without-extensions-report.txt");
     }
 }

@@ -6,73 +6,41 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VscConverterStation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
-import java.util.OptionalDouble;
 
 /**
- * Simple {@link NetworkModification} for vsc converter stations.
+ * Simple {@link NetworkModification} for a VSC converter station.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-public class VscConverterStationModification extends AbstractNetworkModification {
+public class VscConverterStationModification extends AbstractSetpointModification<VscConverterStation> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VscConverterStationModification.class);
-
-    private final String vscId;
-    private final Double voltageSetpoint;
-    private final Double reactivePowerSetpoint;
-
-    public VscConverterStationModification(String vscId, Double voltageSetpoint,
-                                           Double reactivePowerSetpoint) {
-        if (voltageSetpoint == null && reactivePowerSetpoint == null) {
-            LOGGER.warn("Creating a VscConverterStationModification with no change !");
-        }
-        this.vscId = Objects.requireNonNull(vscId);
-        this.voltageSetpoint = voltageSetpoint;
-        this.reactivePowerSetpoint = reactivePowerSetpoint;
+    public VscConverterStationModification(String elementId, Double voltageSetpoint, Double reactivePowerSetpoint) {
+        super(elementId, voltageSetpoint, reactivePowerSetpoint);
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager,
-                      Reporter reporter) {
-        VscConverterStation vsc = network.getVscConverterStation(vscId);
-
-        if (vsc == null) {
-            logOrThrow(throwException, "VscConverterStation '" + vscId + "' not found");
-            return;
-        }
-        if (voltageSetpoint != null) {
-            vsc.setVoltageSetpoint(voltageSetpoint);
-        }
-        if (reactivePowerSetpoint != null) {
-            vsc.setReactivePowerSetpoint(reactivePowerSetpoint);
-        }
+    public String getElementName() {
+        return "VscConverterStation";
     }
 
-    public String getVscId() {
-        return vscId;
+    @Override
+    protected void setVoltageSetpoint(VscConverterStation networkElement, Double voltageSetpoint) {
+        networkElement.setVoltageSetpoint(voltageSetpoint);
     }
 
-    public Double getReactivePowerSetpoint() {
-        return reactivePowerSetpoint;
+    @Override
+    protected void setReactivePowerSetpoint(VscConverterStation networkElement, Double reactivePowerSetpoint) {
+        networkElement.setReactivePowerSetpoint(reactivePowerSetpoint);
     }
 
-    public OptionalDouble getOptionalReactivePowerSetpoint() {
-        return reactivePowerSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(reactivePowerSetpoint);
+    @Override
+    public VscConverterStation getNetworkElement(Network network, String elementID) {
+        return network.getVscConverterStation(elementID);
     }
 
-    public Double getVoltageSetpoint() {
-        return voltageSetpoint;
-    }
-
-    public OptionalDouble getOptionalVoltageSetpoint() {
-        return voltageSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(voltageSetpoint);
+    public String getVscConverterStationId() {
+        return getElementId();
     }
 }

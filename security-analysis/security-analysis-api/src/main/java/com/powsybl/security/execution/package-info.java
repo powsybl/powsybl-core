@@ -9,7 +9,7 @@
  * Explicits the common interface for executing security analysis either in this preprocess
  * or by delegating it to other itools processes. For that purpose, input data need to be serializable.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 package com.powsybl.security.execution;
 

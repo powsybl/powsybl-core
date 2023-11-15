@@ -27,8 +27,8 @@ import com.powsybl.iidm.network.util.SwitchesFlow;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class SwitchesFlowTest {
 
@@ -254,7 +254,8 @@ class SwitchesFlowTest {
             .add();
         generator.newMinMaxReactiveLimits()
             .setMinQ(-100)
-            .setMaxQ(100);
+            .setMaxQ(100)
+            .add();
         generator.getTerminal().setP(-p).setQ(-q);
 
     }

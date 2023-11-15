@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NetworkFactoryMock implements NetworkFactory {
 
@@ -33,5 +33,15 @@ public class NetworkFactoryMock implements NetworkFactory {
                 .thenAnswer(invocationOnMock -> loadType[0]);
 
         return network;
+    }
+
+    @Override
+    public Network merge(String id, Network... networks) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public Network merge(Network... networks) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

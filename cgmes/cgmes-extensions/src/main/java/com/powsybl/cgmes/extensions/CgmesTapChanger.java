@@ -9,7 +9,7 @@ package com.powsybl.cgmes.extensions;
 import java.util.OptionalInt;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface CgmesTapChanger {
 
@@ -24,6 +24,9 @@ public interface CgmesTapChanger {
     OptionalInt getStep();
 
     String getControlId();
+
+    default void setControlId(String controlId) {
+    }
 
     default void setType(String type) {
     }

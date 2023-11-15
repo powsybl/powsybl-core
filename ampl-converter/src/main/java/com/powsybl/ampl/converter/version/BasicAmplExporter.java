@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.converter.version;
 
@@ -27,12 +28,11 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  * Legacy exporter that must be retrocompatible,
  * and only fixes should be made on this class.
  *
- * @author Nicolas Pierre <nicolas.pierre at artelys.com> for the refactor
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com> for the original code
+ * @author Nicolas Pierre {@literal <nicolas.pierre at artelys.com>} for the refactor
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>} for the original code
  */
 public class BasicAmplExporter implements AmplColumnsExporter {
 
-    private static final String EXPORTER_ID = "V1_LEGACY";
     private final AmplExportConfig config;
     private final Network network;
     private final StringToIntMapper<AmplSubset> mapper;
@@ -54,7 +54,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
     @Override
     public String getExporterId() {
-        return EXPORTER_ID;
+        return AmplExportVersion.V1_0.getExporterId();
     }
 
     @Override
@@ -368,13 +368,13 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
-            String id = twt.getId() + RATIO_TABLE;
+            String id = twt.getId() + RATIO_TABLE_SUFFIX;
             writeRatioTapChanger(formatter, id, zb2, twt.getX(), rtc);
         }
 
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
         if (ptc != null) {
-            String id = twt.getId() + PHASE_TABLE;
+            String id = twt.getId() + PHASE_TABLE_SUFFIX;
             writePhaseTapChanger(formatter, id, zb2, twt.getX(), ptc);
         }
     }
@@ -389,12 +389,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             double vb = twt.getRatedU0();
             double zb = vb * vb / AmplConstants.SB;
             if (rtc != null) {
-                String id = twt.getId() + "_leg" + legNumber + RATIO_TABLE;
+                String id = twt.getId() + "_leg" + legNumber + RATIO_TABLE_SUFFIX;
                 writeRatioTapChanger(formatter, id, zb, leg.getX(), rtc);
             }
             PhaseTapChanger ptc = leg.getPhaseTapChanger();
             if (ptc != null) {
-                String id = twt.getId() + "_leg" + legNumber + PHASE_TABLE;
+                String id = twt.getId() + "_leg" + legNumber + PHASE_TABLE_SUFFIX;
                 writePhaseTapChanger(formatter, id, zb, leg.getX(), ptc);
             }
         }
@@ -572,7 +572,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     private void writePhaseTapChanger(TableFormatter formatter, Identifiable<?> twt, PhaseTapChanger ptc, String leg) {
         try {
             String ptcId = twt.getId() + leg;
-            String tcsId = twt.getId() + leg + PHASE_TABLE;
+            String tcsId = twt.getId() + leg + PHASE_TABLE_SUFFIX;
             int ptcNum = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
@@ -590,7 +590,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     private void writeRatioTapChanger(TableFormatter formatter, Identifiable<?> twt, RatioTapChanger rtc, String leg) {
         try {
             String rtcId = twt.getId() + leg;
-            String tcsId = twt.getId() + leg + RATIO_TABLE;
+            String tcsId = twt.getId() + leg + RATIO_TABLE_SUFFIX;
             int rtcNum = mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, rtcId);
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
@@ -994,7 +994,8 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     public void writeThreeWindingsTransformerLegToFormatter(TableFormatter formatter, ThreeWindingsTransformer twt,
                                                             int middleBusNum, int middleVlNum,
                                                             ThreeWindingsTransformer.Side legSide) throws IOException {
-        Terminal terminal = twt.getLeg(legSide).getTerminal();
+        ThreeWindingsTransformer.Leg twtLeg = twt.getLeg(legSide);
+        Terminal terminal = twtLeg.getTerminal();
         Bus bus = AmplUtil.getBus(terminal);
         VoltageLevel vl = terminal.getVoltageLevel();
         String id = twt.getId() + AmplUtil.getLegSuffix(legSide);
@@ -1004,17 +1005,17 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int legBusNum = getBusNum(bus);
         double vb = vl.getNominalV();
         double ratedU0 = twt.getRatedU0();
-        double ratedU = twt.getLeg(legSide).getRatedU();
+        double ratedU = twtLeg.getRatedU();
 
         double zb0 = ratedU0 * ratedU0 / AmplConstants.SB;
-        double r = twt.getLeg(legSide).getR() / zb0;
-        double x = twt.getLeg(legSide).getX() / zb0;
-        double g = twt.getLeg(legSide).getG() * zb0;
-        double b = twt.getLeg(legSide).getB() * zb0;
+        double r = twtLeg.getR() / zb0;
+        double x = twtLeg.getX() / zb0;
+        double g = twtLeg.getG() * zb0;
+        double b = twtLeg.getB() * zb0;
         double ratio = vb / ratedU;
 
-        RatioTapChanger rtc1 = twt.getLeg(legSide).getRatioTapChanger();
-        PhaseTapChanger ptc1 = twt.getLeg(legSide).getPhaseTapChanger();
+        RatioTapChanger rtc1 = twtLeg.getRatioTapChanger();
+        PhaseTapChanger ptc1 = twtLeg.getPhaseTapChanger();
         int rtc1Num = rtc1 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id) : -1;
         int ptc1Num = ptc1 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id) : -1;
 
@@ -1038,7 +1039,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(Double.NaN)
             .writeCell(terminal.getQ())
             .writeCell(Double.NaN)
-            .writeCell(getPermanentLimit(twt.getLeg(legSide).getCurrentLimits().orElse(null)))
+            .writeCell(getPermanentLimit(twtLeg.getCurrentLimits().orElse(null)))
             .writeCell(Double.NaN)
             .writeCell(false)
             .writeCell(faultNum)

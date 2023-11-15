@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOptions> implements XmlWriterContext {
 
@@ -65,7 +65,7 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
     /**
      * @deprecated Should not be used anymore.
      */
-    @Deprecated
+    @Deprecated(since = "3.8.1")
     public void setExtensionsWriter(XMLStreamWriter extensionsWriter) {
         // does nothing
         // only kept to prevent breaking change

@@ -26,7 +26,7 @@ import static java.util.Objects.requireNonNull;
  *
  * Provides instances of {@link SecurityAnalysisPreprocessor}s or factories.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public final class SecurityAnalysisPreprocessors {
 
