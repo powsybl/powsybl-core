@@ -170,6 +170,7 @@ public class LoadFlowResultImpl implements LoadFlowResult {
     }
 
     private final boolean ok;
+    private final Status status;
     private final Map<String, String> metrics;
     private final String logs;
     private final List<ComponentResult> componentResults;
@@ -183,11 +184,37 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         this.metrics = Objects.requireNonNull(metrics);
         this.logs = logs;
         this.componentResults = Objects.requireNonNull(componentResults);
+        this.status = computeStatus(componentResults);
+    }
+
+    private Status computeStatus(List<ComponentResult> componentResults) {
+        int convergedCount = 0;
+        int maxIterOrFailedCount = 0;
+        for (ComponentResult componentResult : componentResults) {
+            ComponentResult.Status componentResultStatus = Objects.requireNonNull(componentResult.getStatus());
+            if (componentResultStatus == ComponentResult.Status.CONVERGED) {
+                convergedCount++;
+            } else if (componentResultStatus == ComponentResult.Status.MAX_ITERATION_REACHED || componentResultStatus == ComponentResult.Status.FAILED) {
+                maxIterOrFailedCount++;
+            }
+        }
+        if (convergedCount == 0) {
+            return Status.FAILED;
+        } else if (maxIterOrFailedCount > 0) {
+            return Status.PARTIALLY_CONVERGED;
+        } else {
+            return Status.FULLY_CONVERGED;
+        }
     }
 
     @Override
     public boolean isOk() {
         return ok;
+    }
+
+    @Override
+    public Status getStatus() {
+        return status;
     }
 
     @Override

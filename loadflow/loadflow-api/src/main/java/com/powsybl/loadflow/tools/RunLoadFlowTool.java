@@ -190,8 +190,10 @@ public class RunLoadFlowTool implements Tool {
                 "Loadflow results",
                 formatterConfig,
                 new Column("Ok"),
+                new Column("Status"),
                 new Column("Metrics"))) {
             formatter.writeCell(result.isOk());
+            formatter.writeCell(result.getStatus().name());
             formatter.writeCell(result.getMetrics().toString());
         } catch (IOException e) {
             throw new UncheckedIOException(e);

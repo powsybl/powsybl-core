@@ -42,7 +42,7 @@ public interface LoadFlowResult {
     interface ComponentResult {
 
         /**
-         * Calculation status
+         * Component calculation status
          */
         enum Status {
             /**
@@ -137,12 +137,69 @@ public interface LoadFlowResult {
     }
 
     /**
+     * Load Flow global calculation status, derived from all {@link ComponentResult}, using
+     * {@link ComponentResult.Status}, but excluding non-calculated component i.e. excluding
+     * components having status {@code NO_CALCULATION}
+     */
+    enum Status {
+        /**
+         * All <b>calculated</b> components have status {@code CONVERGED}
+         * and there is at least one {@code CONVERGED} component.
+         */
+        FULLY_CONVERGED,
+        /**
+         * At least one component has status {@code CONVERGED}, but some others
+         * have status {@code FAILED} or {@code MAX_ITERATION_REACHED}
+         */
+        PARTIALLY_CONVERGED,
+        /**
+         * No single component has status {@code CONVERGED}.
+         * I.e. all components have either status {@code FAILED}
+         * or {@code MAX_ITERATION_REACHED}
+         * or {@code NO_CALCULATION}
+         */
+        FAILED
+    }
+
+    /**
      * Get the global status. Must be set to true/ok if <b>at least one</b> component has converged.
      * Note that when computing multiple components (islands), it is preferable to evaluate
      * the individual component status using {@link ComponentResult#getStatus()}.
      * @return the global status
+     * @deprecated use {@link #getStatus()} or {@link #isFullyConverged()} ()} or {@link #isPartiallyConverged()} instead
      */
+    @Deprecated(since = "6.1.0")
     boolean isOk();
+
+    /**
+     * Get the global status.
+     * @return the global status
+     */
+    Status getStatus();
+
+    /**
+     * Indicates if fully converged
+     * @return true if status is {@link Status#FULLY_CONVERGED}
+     */
+    default boolean isFullyConverged() {
+        return Status.FULLY_CONVERGED.equals(getStatus());
+    }
+
+    /**
+     * Indicates if partially converged
+     * @return true if status is {@link Status#PARTIALLY_CONVERGED}
+     */
+    default boolean isPartiallyConverged() {
+        return Status.PARTIALLY_CONVERGED.equals(getStatus());
+    }
+
+    /**
+     * Indicates if failed
+     * @return true if status is {@link Status#FAILED}
+     */
+    default boolean isFailed() {
+        return Status.FAILED.equals(getStatus());
+    }
 
     /**
      * Get metrics. Metrics are generic key/value pairs and are specific to a loadflow implementation.

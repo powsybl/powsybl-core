@@ -57,23 +57,41 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     private static LoadFlowResult createVersion14() {
+        return createVersion14(
+                LoadFlowResult.ComponentResult.Status.CONVERGED,
+                LoadFlowResult.ComponentResult.Status.CONVERGED,
+                LoadFlowResult.ComponentResult.Status.NO_CALCULATION);
+    }
+
+    private static LoadFlowResult createVersion14(LoadFlowResult.ComponentResult.Status status1,
+                                                  LoadFlowResult.ComponentResult.Status status2,
+                                                  LoadFlowResult.ComponentResult.Status status3) {
         return new LoadFlowResultImpl(
                 true,
                 createMetrics(),
                 "",
-                Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(
-                        0,
-                        0,
-                        LoadFlowResult.ComponentResult.Status.CONVERGED,
-                        "Success",
-                        createComponentMetrics(),
-                        7,
-                        "bus0",
+                List.of(new LoadFlowResultImpl.ComponentResultImpl(
+                        0, 0,
+                                status1, "",
+                        createComponentMetrics(), 7, "bus0",
                         List.of(
                                 new LoadFlowResultImpl.SlackBusResultImpl("bus1", 123.4),
                                 new LoadFlowResultImpl.SlackBusResultImpl("bus2", 234.5)
-                        ),
-                        356.78)
+                        ), 356.78),
+                        new LoadFlowResultImpl.ComponentResultImpl(
+                        0, 1,
+                                status2, "",
+                        createComponentMetrics(), 7, "busA",
+                        List.of(
+                                new LoadFlowResultImpl.SlackBusResultImpl("busB", 123.4)
+                        ), 356.78),
+                        new LoadFlowResultImpl.ComponentResultImpl(
+                        1, 2,
+                                status3, "",
+                        createComponentMetrics(), 7, "busC",
+                        List.of(
+                                new LoadFlowResultImpl.SlackBusResultImpl("busC", 123.4)
+                        ), 356.78)
                 )
         );
     }
@@ -81,6 +99,54 @@ class LoadFlowResultJsonTest extends AbstractConverterTest {
     @Test
     void roundTripVersion14Test() throws IOException {
         roundTripTest(createVersion14(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion14.json");
+    }
+
+    @Test
+    void testLoadFlowStatus() {
+        var resultFc = createVersion14(
+                LoadFlowResult.ComponentResult.Status.CONVERGED,
+                LoadFlowResult.ComponentResult.Status.CONVERGED,
+                LoadFlowResult.ComponentResult.Status.NO_CALCULATION);
+        assertEquals(LoadFlowResult.Status.FULLY_CONVERGED, resultFc.getStatus());
+        assertTrue(resultFc.isFullyConverged());
+        assertFalse(resultFc.isPartiallyConverged());
+        assertFalse(resultFc.isFailed());
+
+        var resultPc1 = createVersion14(
+                LoadFlowResult.ComponentResult.Status.CONVERGED,
+                LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED,
+                LoadFlowResult.ComponentResult.Status.NO_CALCULATION);
+        assertEquals(LoadFlowResult.Status.PARTIALLY_CONVERGED, resultPc1.getStatus());
+        assertFalse(resultPc1.isFullyConverged());
+        assertTrue(resultPc1.isPartiallyConverged());
+        assertFalse(resultPc1.isFailed());
+
+        var resultPc2 = createVersion14(
+                LoadFlowResult.ComponentResult.Status.CONVERGED,
+                LoadFlowResult.ComponentResult.Status.FAILED,
+                LoadFlowResult.ComponentResult.Status.NO_CALCULATION);
+        assertEquals(LoadFlowResult.Status.PARTIALLY_CONVERGED, resultPc2.getStatus());
+        assertFalse(resultPc2.isFullyConverged());
+        assertTrue(resultPc2.isPartiallyConverged());
+        assertFalse(resultPc2.isFailed());
+
+        var resultF1 = createVersion14(
+                LoadFlowResult.ComponentResult.Status.FAILED,
+                LoadFlowResult.ComponentResult.Status.NO_CALCULATION,
+                LoadFlowResult.ComponentResult.Status.FAILED);
+        assertEquals(LoadFlowResult.Status.FAILED, resultF1.getStatus());
+        assertFalse(resultF1.isFullyConverged());
+        assertFalse(resultF1.isPartiallyConverged());
+        assertTrue(resultF1.isFailed());
+
+        var resultF2 = createVersion14(
+                LoadFlowResult.ComponentResult.Status.NO_CALCULATION,
+                LoadFlowResult.ComponentResult.Status.NO_CALCULATION,
+                LoadFlowResult.ComponentResult.Status.NO_CALCULATION);
+        assertEquals(LoadFlowResult.Status.FAILED, resultF2.getStatus());
+        assertFalse(resultF2.isFullyConverged());
+        assertFalse(resultF2.isPartiallyConverged());
+        assertTrue(resultF2.isFailed());
     }
 
     @Test

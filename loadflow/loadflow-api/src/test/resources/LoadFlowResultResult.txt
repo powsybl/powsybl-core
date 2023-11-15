@@ -1,9 +1,9 @@
 Loadflow results:
-+------+---------+
-| Ok   | Metrics |
-+------+---------+
-| true | {}      |
-+------+---------+
++------+---------------------+---------+
+| Ok   | Status              | Metrics |
++------+---------------------+---------+
+| true | PARTIALLY_CONVERGED | {}      |
++------+---------------------+---------+
 Components results:
 +---------------------+-----------------------+-----------------------+--------------------------------+---------+-----------------+-------------------+-------------------------+-------------------------------+
 | Connected component | Synchronous component | Status                | Status text                    | Metrics | Iteration count | Slack bus ID      | Slack bus mismatch (MW) | Distributed Active Power (MW) |
