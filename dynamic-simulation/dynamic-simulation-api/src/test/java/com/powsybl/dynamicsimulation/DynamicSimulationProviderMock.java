@@ -33,7 +33,7 @@ public class DynamicSimulationProviderMock implements DynamicSimulationProvider 
     @Override
     public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier,
                                                         String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters, Reporter reporter) {
-        return CompletableFuture.completedFuture(new DynamicSimulationResultImpl(true, null, Collections.emptyMap(), DynamicSimulationResult.emptyTimeLine()));
+        return CompletableFuture.completedFuture(DynamicSimulationResultImpl.createSucceededResult(Collections.emptyMap(), DynamicSimulationResult.emptyTimeLine()));
     }
 
 }

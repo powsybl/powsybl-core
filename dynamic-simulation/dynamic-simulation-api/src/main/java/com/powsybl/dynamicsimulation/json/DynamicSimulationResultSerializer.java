@@ -39,8 +39,10 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
     public void serialize(DynamicSimulationResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeBooleanField("isOK", result.isOk());
-        jsonGenerator.writeStringField("logs", result.getLogs());
+        jsonGenerator.writeStringField("status", result.getStatus().name());
+        if (!result.getError().isEmpty()) {
+            jsonGenerator.writeStringField("error", result.getError());
+        }
         jsonGenerator.writeFieldName("curves");
         jsonGenerator.writeStartArray();
         for (Entry<String, TimeSeries> entry : result.getCurves().entrySet()) {

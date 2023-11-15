@@ -1,7 +1,6 @@
 {
   "version" : "1.0",
-  "isOK" : true,
-  "logs" : "",
+  "status" : "SUCCEED",
   "curves" : [ {
     "metadata" : {
       "name" : "curve1",

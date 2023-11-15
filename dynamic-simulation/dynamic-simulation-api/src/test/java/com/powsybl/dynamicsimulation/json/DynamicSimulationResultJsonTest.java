@@ -27,13 +27,14 @@ class DynamicSimulationResultJsonTest extends AbstractConverterTest {
 
     private static DynamicSimulationResult create() {
         return new DynamicSimulationResult() {
+
             @Override
-            public boolean isOk() {
-                return true;
+            public Status getStatus() {
+                return Status.SUCCEED;
             }
 
             @Override
-            public String getLogs() {
+            public String getError() {
                 return "";
             }
 
@@ -43,8 +44,28 @@ class DynamicSimulationResultJsonTest extends AbstractConverterTest {
             }
 
             @Override
-            public TimeSeries getCurve(String curve) {
-                return null;
+            public StringTimeSeries getTimeLine() {
+                return DynamicSimulationResult.emptyTimeLine();
+            }
+        };
+    }
+
+    private static DynamicSimulationResult createFailedDynamicSimulation() {
+        return new DynamicSimulationResult() {
+
+            @Override
+            public Status getStatus() {
+                return Status.FAILED;
+            }
+
+            @Override
+            public String getError() {
+                return "Error test";
+            }
+
+            @Override
+            public Map<String, TimeSeries> getCurves() {
+                return Collections.emptyMap();
             }
 
             @Override
@@ -57,6 +78,11 @@ class DynamicSimulationResultJsonTest extends AbstractConverterTest {
     @Test
     void roundTripTest() throws IOException {
         roundTripTest(create(), DynamicSimulationResultSerializer::write, DynamicSimulationResultDeserializer::read, "/DynamicSimulationResult.json");
+    }
+
+    @Test
+    void roundTripFailedSimulationTest() throws IOException {
+        roundTripTest(createFailedDynamicSimulation(), DynamicSimulationResultSerializer::write, DynamicSimulationResultDeserializer::read, "/DynamicSimulationFailedResult.json");
     }
 
     @Test

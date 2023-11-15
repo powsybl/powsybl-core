@@ -15,39 +15,43 @@ import com.powsybl.timeseries.TimeSeries;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSimulationResultImpl implements DynamicSimulationResult {
 
-    private final boolean status;
-    private final String logs;
+    private final Status status;
+    private final String error;
     private final Map<String, TimeSeries> curves;
     private final StringTimeSeries timeLine;
 
-    public DynamicSimulationResultImpl(boolean status, String logs, Map<String, TimeSeries> curves, StringTimeSeries timeLine) {
-        this.status = status;
-        this.logs = logs;
+    public DynamicSimulationResultImpl(Status status, String error, Map<String, TimeSeries> curves, StringTimeSeries timeLine) {
+        this.status = Objects.requireNonNull(status);
+        this.error = error;
         this.curves = Objects.requireNonNull(curves);
         this.timeLine = Objects.requireNonNull(timeLine);
     }
 
+    public DynamicSimulationResultImpl(Status status, Map<String, TimeSeries> curves, StringTimeSeries timeLine) {
+        this(status, "", curves, timeLine);
+    }
+
+    public static DynamicSimulationResultImpl createSucceededResult(Map<String, TimeSeries> curves, StringTimeSeries timeLine) {
+        return new DynamicSimulationResultImpl(Status.SUCCEED, curves, timeLine);
+    }
+
     @Override
-    public boolean isOk() {
+    public Status getStatus() {
         return status;
     }
 
     @Override
-    public String getLogs() {
-        return logs;
+    public String getError() {
+        return error;
     }
 
     @Override
     public Map<String, TimeSeries> getCurves() {
         return Collections.unmodifiableMap(curves);
-    }
-
-    @Override
-    public TimeSeries getCurve(String curve) {
-        return curves.get(curve);
     }
 
     @Override

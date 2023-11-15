@@ -39,8 +39,8 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
 
     @Override
     public DynamicSimulationResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        boolean isOK = false;
-        String logs = null;
+        DynamicSimulationResult.Status status = null;
+        String error = "";
         Map<String, TimeSeries> curves = new HashMap<>();
         StringTimeSeries timeLine = null;
 
@@ -50,13 +50,14 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                     parser.nextToken(); // skip
                     break;
 
-                case "isOK":
+                case "status":
                     parser.nextToken();
-                    isOK = parser.readValueAs(Boolean.class);
+                    status = parser.readValueAs(DynamicSimulationResult.Status.class);
                     break;
 
-                case "logs":
-                    logs = parser.nextTextValue();
+                case "error":
+                    parser.nextToken();
+                    error = parser.readValueAs(String.class);
                     break;
 
                 case "curves":
@@ -77,11 +78,11 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
             }
         }
 
-        return new DynamicSimulationResultImpl(isOK, logs, curves, timeLine);
+        return new DynamicSimulationResultImpl(status, error, curves, timeLine);
     }
 
     private void deserializeCurves(JsonParser parser, Map<String, TimeSeries> curves) throws IOException {
-        TimeSeries curve = null;
+        TimeSeries curve;
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             curve = deserializeTimeSeries(parser);
             if (curve != null) {

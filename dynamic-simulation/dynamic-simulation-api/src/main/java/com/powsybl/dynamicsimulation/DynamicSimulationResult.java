@@ -12,18 +12,33 @@ import com.powsybl.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 
+import static com.powsybl.dynamicsimulation.DynamicSimulationResult.Status.SUCCEED;
+
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public interface DynamicSimulationResult {
 
-    boolean isOk();
+    enum Status {
+        SUCCEED,
+        FAILED
+    }
 
-    String getLogs();
+    Status getStatus();
+
+    String getError();
+
+    //TODO remove or flag as deprecated ?
+    default boolean isOk() {
+        return SUCCEED == getStatus();
+    }
 
     Map<String, TimeSeries> getCurves();
 
-    TimeSeries getCurve(String curve);
+    default TimeSeries getCurve(String curve) {
+        return getCurves().get(curve);
+    }
 
     /**
      * The Timeline contains information about relevant events that may have happened during the time domain simulation.

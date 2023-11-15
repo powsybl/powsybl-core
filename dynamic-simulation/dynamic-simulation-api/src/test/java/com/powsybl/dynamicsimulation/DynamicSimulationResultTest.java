@@ -40,7 +40,7 @@ class DynamicSimulationResultTest {
             "_BUS____2-BUS____5-1_AC - LINE : opening both sides",
             "CLA_2_5 - CLA : order to change topology",
             "CLA_2_4 - CLA : arming by over-current constraint");
-        DynamicSimulationResult result = new DynamicSimulationResultImpl(true, null, curves, timeLine);
+        DynamicSimulationResult result = DynamicSimulationResultImpl.createSucceededResult(curves, timeLine);
 
         assertTrue(result.isOk());
 
@@ -55,6 +55,6 @@ class DynamicSimulationResultTest {
             "CLA_2_5 - CLA : order to change topology",
             "_BUS____2-BUS____5-1_AC - LINE : opening both sides",
             "CLA_2_5 - CLA : order to change topology",
-            "CLA_2_4 - CLA : arming by over-current constraint"}, ((StringTimeSeries) result.getTimeLine()).toArray());
+            "CLA_2_4 - CLA : arming by over-current constraint"}, result.getTimeLine().toArray());
     }
 }
