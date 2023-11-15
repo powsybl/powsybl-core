@@ -70,7 +70,8 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     parser.nextToken();
                     String tempStatus = parser.getValueAsString();
                     if (version.compareTo("1.4") < 0 && "SOLVER_FAILED".equals(tempStatus)) {
-                        // SOLVER_FAILED removed in v1.4, translated to FAILED
+                        // SOLVER_FAILED removed in v1.4, translated to FAILED, information kept in statusText which didn't exist before v1.4
+                        statusText = tempStatus;
                         tempStatus = LoadFlowResult.ComponentResult.Status.FAILED.name();
                     }
                     status = LoadFlowResult.ComponentResult.Status.valueOf(tempStatus);
