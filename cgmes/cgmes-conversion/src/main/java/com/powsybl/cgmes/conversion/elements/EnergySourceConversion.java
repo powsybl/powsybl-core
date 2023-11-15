@@ -8,6 +8,8 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
@@ -19,7 +21,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class EnergySourceConversion extends AbstractConductingEquipmentConversion {
 
     public EnergySourceConversion(PropertyBag es, Context context) {
-        super("EnergySource", es, context);
+        super(CgmesNames.ENERGY_SOURCE, es, context);
     }
 
     @Override
@@ -35,5 +37,11 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
         Load load = adder.add();
         addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
+
+        addSpecificProperties(load);
+    }
+
+    private static void addSpecificProperties(Load load) {
+        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ENERGY_SOURCE);
     }
 }
