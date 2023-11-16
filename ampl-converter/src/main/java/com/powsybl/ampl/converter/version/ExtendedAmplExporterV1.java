@@ -24,14 +24,16 @@ import java.util.List;
 import static com.powsybl.ampl.converter.AmplConstants.*;
 
 /**
+ * 1st (V1) extension of BasicAmplExporter, associated with AMPL version 1.1 (exporter id)
+ *
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-public class ExtendedAmplExporter extends BasicAmplExporter {
+public class ExtendedAmplExporterV1 extends BasicAmplExporter {
 
-    public ExtendedAmplExporter(AmplExportConfig config,
-                                Network network,
-                                StringToIntMapper<AmplSubset> mapper,
-                                int variantIndex, int faultNum, int actionNum) {
+    public ExtendedAmplExporterV1(AmplExportConfig config,
+                                  Network network,
+                                  StringToIntMapper<AmplSubset> mapper,
+                                  int variantIndex, int faultNum, int actionNum) {
         super(config, network, mapper, variantIndex, faultNum, actionNum);
     }
 

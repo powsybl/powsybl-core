@@ -26,7 +26,7 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-class ExtendedAmplExporterTest extends AbstractConverterTest {
+class ExtendedAmplExporterV1Test extends AbstractConverterTest {
 
     private AmplExportConfig v2Config;
 
