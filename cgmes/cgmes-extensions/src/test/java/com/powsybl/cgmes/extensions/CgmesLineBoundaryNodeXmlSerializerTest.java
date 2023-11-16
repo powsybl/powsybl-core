@@ -26,6 +26,6 @@ class CgmesLineBoundaryNodeXmlSerializerTest extends AbstractConverterTest {
                 .setHvdc(true)
                 .setLineEnergyIdentificationCodeEic("EIC_CODE")
                 .add();
-        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead, "/eurostag_cgmes_line_boundary_node.xml");
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead, "/eurostag_cgmes_line_boundary_node.xml");
     }
 }
