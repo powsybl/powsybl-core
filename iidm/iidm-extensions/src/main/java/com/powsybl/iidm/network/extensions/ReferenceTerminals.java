@@ -10,6 +10,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -40,6 +42,7 @@ public interface ReferenceTerminals extends Extension<Network> {
      * @param network network whose reference terminals should be deleted
      */
     static void reset(Network network) {
+        Objects.requireNonNull(network);
         ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
         if (ext == null) {
             ext = network.newExtension(ReferenceTerminalsAdder.class)
@@ -53,7 +56,8 @@ public interface ReferenceTerminals extends Extension<Network> {
      * Defines/add a terminal as reference in the network for the current variant
      * @param terminal terminal to be added as reference terminal
      */
-    static void addReferenceTerminalToNetwork(Terminal terminal) {
+    static void addTerminal(Terminal terminal) {
+        Objects.requireNonNull(terminal);
         Network network = terminal.getVoltageLevel().getNetwork();
         ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
         if (ext == null) {
@@ -62,5 +66,18 @@ public interface ReferenceTerminals extends Extension<Network> {
                     .add();
         }
         ext.addReferenceTerminal(terminal);
+    }
+
+    /**
+     * Gets the reference terminals in the network for the current variant
+     * @param network network to get reference terminals from
+     */
+    static Set<Terminal> getTerminals(Network network) {
+        Objects.requireNonNull(network);
+        ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
+        if (ext == null) {
+            return Collections.emptySet();
+        }
+        return ext.getReferenceTerminals();
     }
 }
