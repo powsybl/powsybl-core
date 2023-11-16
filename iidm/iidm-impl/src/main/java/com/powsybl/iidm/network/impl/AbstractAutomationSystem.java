@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 abstract class AbstractAutomationSystem<I extends AutomationSystem<I>> extends AbstractIdentifiable<I> implements AutomationSystem<I> {
 
-    private Ref<NetworkImpl> networkRef;
+    private final Ref<NetworkImpl> networkRef;
     private final TBooleanArrayList enabled;
 
     AbstractAutomationSystem(Ref<NetworkImpl> networkRef, String id, String name, boolean enabled) {

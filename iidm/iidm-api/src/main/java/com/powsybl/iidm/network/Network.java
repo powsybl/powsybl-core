@@ -800,6 +800,28 @@ public interface Network extends Container<Network> {
     ThreeWindingsTransformer getThreeWindingsTransformer(String id);
 
     /**
+     * Get all overload management systems.
+     */
+    Iterable<OverloadManagementSystem> getOverloadManagementSystems();
+
+    /**
+     * Get all overload management systems.
+     */
+    Stream<OverloadManagementSystem> getOverloadManagementSystemStream();
+
+    /**
+     * Get the overload management system count.
+     */
+    int getOverloadManagementSystemCount();
+
+    /**
+     * Get an overload management system.
+     *
+     * @param id the id or an alias of the overload management system
+     */
+    OverloadManagementSystem getOverloadManagementSystem(String id);
+
+    /**
      * Get all generators.
      */
     Iterable<Generator> getGenerators();
