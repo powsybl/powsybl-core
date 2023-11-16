@@ -55,8 +55,8 @@ public abstract class AbstractReferenceTerminalsTest {
         assertEquals(1, ext.getReferenceTerminals().size());
         assertTrue(ext.getReferenceTerminals().contains(gh1.getTerminal()));
 
-        // add another one
-        ext.addReferenceTerminal(gh2.getTerminal());
+        // add another one, using static utility method
+        ReferenceTerminals.addReferenceTerminalToNetwork(gh2.getTerminal());
         assertEquals(2, ext.getReferenceTerminals().size());
         assertTrue(ext.getReferenceTerminals().containsAll(Set.of(gh1.getTerminal(), gh2.getTerminal())));
 
@@ -68,7 +68,7 @@ public abstract class AbstractReferenceTerminalsTest {
         assertTrue(ext.getReferenceTerminals().containsAll(Set.of(gh1.getTerminal(), gh2.getTerminal(), gh3.getTerminal())));
 
         // clear
-        ext.clear();
+        ReferenceTerminals.reset(network);
         assertEquals(0, ext.getReferenceTerminals().size());
     }
 
@@ -109,7 +109,7 @@ public abstract class AbstractReferenceTerminalsTest {
 
         // clear variant 1
         variantManager.setWorkingVariant(variant1);
-        ext.clear();
+        ext.reset();
 
         // check variant 1 empty
         assertEquals(0, ext.getReferenceTerminals().size());

@@ -31,7 +31,36 @@ public interface ReferenceTerminals extends Extension<Network> {
 
     void setReferenceTerminals(Set<Terminal> terminals);
 
-    ReferenceTerminals clear();
+    ReferenceTerminals reset();
 
     ReferenceTerminals addReferenceTerminal(Terminal terminal);
+
+    /**
+     * Deletes all defined reference terminals in the network for the current variant
+     * @param network network whose reference terminals should be deleted
+     */
+    static void reset(Network network) {
+        ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
+        if (ext == null) {
+            ext = network.newExtension(ReferenceTerminalsAdder.class)
+                    .withTerminals(Set.of())
+                    .add();
+        }
+        ext.reset();
+    }
+
+    /**
+     * Defines/add a terminal as reference in the network for the current variant
+     * @param terminal terminal to be added as reference terminal
+     */
+    static void addReferenceTerminalToNetwork(Terminal terminal) {
+        Network network = terminal.getVoltageLevel().getNetwork();
+        ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
+        if (ext == null) {
+            ext = network.newExtension(ReferenceTerminalsAdder.class)
+                    .withTerminals(Set.of())
+                    .add();
+        }
+        ext.addReferenceTerminal(terminal);
+    }
 }

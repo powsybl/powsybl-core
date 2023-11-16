@@ -59,7 +59,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     }
 
     @Override
-    public ReferenceTerminals clear() {
+    public ReferenceTerminals reset() {
         terminalsPerVariant.set(getVariantIndex(), new LinkedHashSet<>());
         return this;
     }
