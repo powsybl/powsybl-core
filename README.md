@@ -159,3 +159,20 @@ You can revert this configuration with the following command:
 
 ### Usage
 Once the configuration is done, you just need to use `./mvnw` instead of `mvn` in your commands.
+
+## IIDM version vs PowSyBl core version
+
+| **IIDM version** | **powsybl-core version** |
+|:----------------:|:------------------------:|
+|       1.11       |          6.0.0           |
+|       1.10       |          5.3.0           |
+|       1.9        |          5.1.0           |
+|       1.8        |          4.9.0           |
+|       1.7        |          4.7.0           |
+|       1.6        |          4.4.0           |
+|       1.5        |          4.0.0           |
+|       1.4        |          3.7.0           |
+|       1.3        |          3.5.0           |
+|       1.2        |          3.3.0           |
+|       1.1        |          3.2.0           |
+|       1.0        |          1.0.0           |
