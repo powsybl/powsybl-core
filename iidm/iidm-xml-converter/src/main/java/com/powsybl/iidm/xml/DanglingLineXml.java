@@ -73,6 +73,8 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
                 context.getWriter().writeDoubleAttribute(GENERATION_TARGET_Q, generation.getTargetQ());
             });
         }
+        Terminal t = terminalGetter.get();
+        writeNodeOrBus(null, t, context);
         if (dl.getPairingKey() != null) {
             IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_10, context,
                 () -> context.getWriter().writeStringAttribute("ucteXnodeCode", dl.getPairingKey())
@@ -81,8 +83,6 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
                 () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
             );
         }
-        Terminal t = terminalGetter.get();
-        writeNodeOrBus(null, t, context);
         writePQ(null, t, context.getWriter());
 
     }

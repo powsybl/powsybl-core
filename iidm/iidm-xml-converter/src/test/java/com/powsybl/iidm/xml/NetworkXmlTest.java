@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.xml.extensions.util.NetworkSourceExtension;
@@ -175,15 +176,17 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
         NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");
         merged.addExtension(NetworkSourceExtension.class, source);
 
-        for (IidmXmlVersion version : IidmXmlVersion.values()) {
-            if (version.compareTo(IidmXmlVersion.V_1_5) >= 0) {
-                roundTripXmlTest(merged,
-                    (n, p) -> NetworkXml.writeAndValidate(n,
-                        new ExportOptions().setSorted(true).setVersion(version.toString(".")), p),
-                    NetworkXml::validateAndRead,
-                    getVersionedNetworkPath("subnetworks.xml", version));
-            }
-        }
+        roundTripXmlTest(merged,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                getVersionedNetworkPath("subnetworks.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
+        roundTripTest(merged,
+                (n, jsonFile) -> NetworkXml.write(n, new ExportOptions().setFormat(TreeDataFormat.JSON), jsonFile),
+                jsonFile -> NetworkXml.read(jsonFile, new ImportOptions().setFormat(TreeDataFormat.JSON)),
+                getVersionedNetworkPath("subnetworks.json", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
+
+        roundTripVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmXmlVersion.V_1_5);
+        roundTripVersionedJsonFromMinToCurrentVersionTest("subnetworks.json", IidmXmlVersion.V_1_11);
     }
 
     private Network createNetwork(int num) {
