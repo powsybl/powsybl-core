@@ -252,7 +252,7 @@ class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    void writeHeadersWithVersion() throws IOException {
+    void writeHeadersWithVersion10() throws IOException {
         Network network = Network.create("dummy_network", "test");
         MemDataSource dataSource = new MemDataSource();
 
@@ -274,5 +274,17 @@ class AmplNetworkWriterTest extends AbstractConverterTest {
         Exception e = assertThrows(IllegalArgumentException.class, () -> export(network, properties, dataSource));
         assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0"));
 
+    }
+
+    @Test
+    void writeHeadersWithVersion11() throws IOException {
+        Network network = Network.create("dummy_network", "test");
+        MemDataSource dataSource = new MemDataSource();
+
+        Properties properties = new Properties();
+        properties.put("iidm.export.ampl.export-version", "1.1");
+
+        export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_headers", "inputs//extended_exporter/headers.txt");
     }
 }

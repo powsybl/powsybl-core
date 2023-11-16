@@ -93,4 +93,13 @@ class ExtendedAmplExporterTest extends AbstractConverterTest {
 
         assertEqualsToRef(dataSource, "_network_static_var_compensators", "svc-test-case-regulating-bus.txt");
     }
+
+    @Test
+    void testVersion() throws IOException {
+        Network network = Network.create("dummy_network", "test");
+        MemDataSource dataSource = new MemDataSource();
+        new AmplNetworkWriter(network, dataSource, v2Config).write();
+
+        assertEqualsToRef(dataSource, "_headers", "headers.txt");
+    }
 }

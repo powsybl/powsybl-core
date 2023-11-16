@@ -53,11 +53,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public String getExporterId() {
-        return AmplExportVersion.V1_0.getExporterId();
-    }
-
-    @Override
     public List<Column> getRtcColumns() {
         List<Column> columns = new ArrayList<>(8);
         columns.add(new Column(VARIANT));
