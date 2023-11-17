@@ -8,6 +8,8 @@ package com.powsybl.commons.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.json.JsonUtil.Context;
+import com.powsybl.commons.json.JsonUtil.ContextType;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,29 +26,6 @@ public class JsonWriter implements TreeDataWriter {
     private final JsonGenerator jsonGenerator;
     private final String rootVersion;
     private Map<String, String> extensionVersions;
-
-    enum ContextType {
-        OBJECT,
-        ARRAY
-    }
-
-    static final class Context {
-
-        private final ContextType type;
-
-        private final String arrayFieldName;
-
-        private int objectCount = 0;
-
-        private Context(ContextType type) {
-            this(type, null);
-        }
-
-        private Context(ContextType type, String arrayFieldName) {
-            this.type = Objects.requireNonNull(type);
-            this.arrayFieldName = arrayFieldName;
-        }
-    }
 
     private final Deque<Context> contextQueue = new ArrayDeque<>();
 
@@ -72,10 +51,10 @@ public class JsonWriter implements TreeDataWriter {
     public void writeEndNodes() {
         try {
             Context context = Objects.requireNonNull(contextQueue.pop());
-            if (context.type != ContextType.ARRAY) {
+            if (context.getType() != ContextType.ARRAY) {
                 throw new IllegalStateException();
             }
-            if (context.objectCount > 0) {
+            if (context.getObjectCount() > 0) {
                 jsonGenerator.writeEndArray();
             }
         } catch (IOException e) {
@@ -88,13 +67,13 @@ public class JsonWriter implements TreeDataWriter {
         try {
             Context context = contextQueue.peekFirst();
             if (context != null) {
-                if (context.type == ContextType.ARRAY) {
-                    if (context.objectCount == 0) {
-                        jsonGenerator.writeFieldName(context.arrayFieldName);
+                if (context.getType() == ContextType.ARRAY) {
+                    if (context.getObjectCount() == 0) {
+                        jsonGenerator.writeFieldName(context.getFieldName());
                         jsonGenerator.writeStartArray();
                     }
-                    context.objectCount++;
-                } else if (context.type == ContextType.OBJECT) {
+                    context.incrementObjectCount();
+                } else if (context.getType() == ContextType.OBJECT) {
                     jsonGenerator.writeFieldName(name);
                 }
                 jsonGenerator.writeStartObject();
@@ -114,7 +93,7 @@ public class JsonWriter implements TreeDataWriter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        contextQueue.push(new Context(ContextType.OBJECT));
+        contextQueue.push(new Context(ContextType.OBJECT, name));
     }
 
     @Override

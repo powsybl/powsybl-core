@@ -9,9 +9,10 @@ package com.powsybl.commons.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataReader;
+import com.powsybl.commons.json.JsonUtil.Context;
+import com.powsybl.commons.json.JsonUtil.ContextType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,13 +30,13 @@ public class JsonReader extends AbstractTreeDataReader {
     private static final String EXTENSION_NAME = "extensionName";
     private final JsonParser parser;
     private JsonToken currentJsonToken;
-    private final Deque<Node> nodeChain = new ArrayDeque<>();
+    private final Deque<Context> contextQueue = new ArrayDeque<>();
     private final Map<String, String> arrayElementNameToSingleElementName;
 
     public JsonReader(InputStream is, String rootName, Map<String, String> arrayNameToSingleNameMap) throws IOException {
         this.parser = JsonUtil.createJsonFactory().createParser(Objects.requireNonNull(is));
         this.parser.nextToken();
-        this.nodeChain.add(new Node(Objects.requireNonNull(rootName), JsonNodeType.OBJECT));
+        this.contextQueue.add(new Context(ContextType.OBJECT, Objects.requireNonNull(rootName)));
         this.arrayElementNameToSingleElementName = Objects.requireNonNull(arrayNameToSingleNameMap);
     }
 
@@ -198,28 +199,28 @@ public class JsonReader extends AbstractTreeDataReader {
     public void readChildNodes(ChildNodeReader childNodeReader) {
         Objects.requireNonNull(childNodeReader);
         try {
-            Node startNode = nodeChain.peekLast();
-            while (!(getNextToken() == JsonToken.END_OBJECT && nodeChain.peekLast() == startNode)) {
+            Context startContext = contextQueue.peekLast();
+            while (!(getNextToken() == JsonToken.END_OBJECT && contextQueue.peekLast() == startContext)) {
                 currentJsonToken = null; // the token will be consumed in all cases below
                 switch (parser.currentToken()) {
                     case FIELD_NAME -> {
                         switch (parser.nextToken()) {
-                            case START_ARRAY -> nodeChain.add(new Node(parser.currentName(), JsonNodeType.ARRAY));
+                            case START_ARRAY -> contextQueue.add(new Context(ContextType.ARRAY, parser.currentName()));
                             case START_OBJECT -> {
-                                nodeChain.add(new Node(parser.currentName(), JsonNodeType.OBJECT));
-                                childNodeReader.onStartNode(nodeChain.getLast().name());
+                                contextQueue.add(new Context(ContextType.OBJECT, parser.currentName()));
+                                childNodeReader.onStartNode(contextQueue.getLast().getFieldName());
                             }
                             default -> throw new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "' after field name");
                         }
                     }
                     case START_OBJECT -> {
-                        Node arrayNode = checkNodeChain(JsonNodeType.ARRAY);
-                        nodeChain.add(new Node(parser.currentName(), JsonNodeType.OBJECT));
-                        childNodeReader.onStartNode(arrayElementNameToSingleElementName.get(arrayNode.name()));
+                        Context arrayContext = checkNodeChain(ContextType.ARRAY);
+                        contextQueue.add(new Context(ContextType.OBJECT, parser.currentName()));
+                        childNodeReader.onStartNode(arrayElementNameToSingleElementName.get(arrayContext.getFieldName()));
                     }
                     case END_ARRAY -> {
-                        checkNodeChain(JsonNodeType.ARRAY);
-                        nodeChain.removeLast();
+                        checkNodeChain(ContextType.ARRAY);
+                        contextQueue.removeLast();
                     }
                     case END_OBJECT -> throw new PowsyblException("JSON parsing: unexpected END_OBJECT");
                     default -> throw new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "'.");
@@ -227,16 +228,16 @@ public class JsonReader extends AbstractTreeDataReader {
             }
 
             currentJsonToken = null;
-            nodeChain.removeLast();
+            contextQueue.removeLast();
 
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private Node checkNodeChain(JsonNodeType expectedNodeType) {
-        return Optional.ofNullable(nodeChain.peekLast())
-                .filter(n -> n.jsonNodeType == expectedNodeType)
+    private Context checkNodeChain(ContextType expectedNodeType) {
+        return Optional.ofNullable(contextQueue.peekLast())
+                .filter(n -> n.getType() == expectedNodeType)
                 .orElseThrow(() -> new PowsyblException("JSON parsing: unexpected " + parser.currentToken()));
     }
 
@@ -246,8 +247,8 @@ public class JsonReader extends AbstractTreeDataReader {
             if (getNextToken() != JsonToken.END_OBJECT) {
                 throw new PowsyblException("JSON parsing: unexpected end node");
             }
-            checkNodeChain(JsonNodeType.OBJECT);
-            nodeChain.removeLast();
+            checkNodeChain(ContextType.OBJECT);
+            contextQueue.removeLast();
             currentJsonToken = null;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -268,8 +269,5 @@ public class JsonReader extends AbstractTreeDataReader {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private record Node(String name, JsonNodeType jsonNodeType) {
     }
 }
