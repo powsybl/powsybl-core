@@ -16,6 +16,11 @@ public interface TreeDataReader extends AutoCloseable {
 
     interface ChildNodeReader {
 
+        /**
+         * The implementations must read the full node corresponding to the given name,
+         * including the corresponding end node
+         * @param nodeName field name of the started node
+         */
         void onStartNode(String nodeName);
     }
 

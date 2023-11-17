@@ -29,13 +29,16 @@ public class JsonReader extends AbstractTreeDataReader {
     public static final String EXTENSION_VERSIONS_NAME = "extensionVersions";
     private static final String EXTENSION_NAME = "extensionName";
     private final JsonParser parser;
-    private JsonToken currentJsonToken;
+    private boolean currentJsonTokenConsumed = false;
     private final Deque<Context> contextQueue = new ArrayDeque<>();
     private final Map<String, String> arrayElementNameToSingleElementName;
 
     public JsonReader(InputStream is, String rootName, Map<String, String> arrayNameToSingleNameMap) throws IOException {
         this.parser = JsonUtil.createJsonFactory().createParser(Objects.requireNonNull(is));
         this.parser.nextToken();
+        if (parser.currentToken() == JsonToken.START_OBJECT) {
+            currentJsonTokenConsumed = true;
+        }
         this.contextQueue.add(new Context(ContextType.OBJECT, Objects.requireNonNull(rootName)));
         this.arrayElementNameToSingleElementName = Objects.requireNonNull(arrayNameToSingleNameMap);
     }
@@ -47,17 +50,13 @@ public class JsonReader extends AbstractTreeDataReader {
 
     @Override
     public Map<String, String> readVersions() {
-        try {
-            if (!(getNextToken() == JsonToken.FIELD_NAME && EXTENSION_VERSIONS_NAME.equals(parser.currentName()))) {
-                return Collections.emptyMap();
-            }
-            currentJsonToken = null;
-            Map<String, String> versions = new HashMap<>();
-            JsonUtil.parseObjectArray(parser, ve -> versions.put(ve.name(), ve.version()), this::parseVersionedExtension);
-            return versions;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        if (!(EXTENSION_VERSIONS_NAME.equals(getFieldName()))) {
+            return Collections.emptyMap();
         }
+        currentJsonTokenConsumed = true;
+        Map<String, String> versions = new HashMap<>();
+        JsonUtil.parseObjectArray(parser, ve -> versions.put(ve.name(), ve.version()), this::parseVersionedExtension);
+        return versions;
     }
 
     private record VersionedExtension(String name, String version) {
@@ -103,7 +102,7 @@ public class JsonReader extends AbstractTreeDataReader {
                 }
                 return null;
             } else {
-                currentJsonToken = null;
+                currentJsonTokenConsumed = true;
                 return parser.nextTextValue();
             }
         } catch (IOException e) {
@@ -133,7 +132,7 @@ public class JsonReader extends AbstractTreeDataReader {
 
     private double getDoubleValue() {
         try {
-            currentJsonToken = null;
+            currentJsonTokenConsumed = true;
             parser.nextToken();
             return parser.getDoubleValue();
         } catch (IOException e) {
@@ -143,7 +142,7 @@ public class JsonReader extends AbstractTreeDataReader {
 
     private float getFloatValue() {
         try {
-            currentJsonToken = null;
+            currentJsonTokenConsumed = true;
             parser.nextToken();
             return parser.getFloatValue();
         } catch (IOException e) {
@@ -153,7 +152,7 @@ public class JsonReader extends AbstractTreeDataReader {
 
     private int getIntValue() {
         try {
-            currentJsonToken = null;
+            currentJsonTokenConsumed = true;
             parser.nextToken();
             return parser.getIntValue();
         } catch (IOException e) {
@@ -163,7 +162,7 @@ public class JsonReader extends AbstractTreeDataReader {
 
     private boolean getBooleanValue() {
         try {
-            currentJsonToken = null;
+            currentJsonTokenConsumed = true;
             parser.nextToken();
             return parser.getBooleanValue();
         } catch (IOException e) {
@@ -188,7 +187,7 @@ public class JsonReader extends AbstractTreeDataReader {
     public List<Integer> readIntArrayAttribute(String name) {
         Objects.requireNonNull(name);
         String fieldName = getFieldName();
-        currentJsonToken = null;
+        currentJsonTokenConsumed = true;
         if (!name.equals(fieldName)) {
             throw createUnexpectedNameException(name, fieldName);
         }
@@ -201,7 +200,7 @@ public class JsonReader extends AbstractTreeDataReader {
         try {
             Context startContext = contextQueue.peekLast();
             while (!(getNextToken() == JsonToken.END_OBJECT && contextQueue.peekLast() == startContext)) {
-                currentJsonToken = null; // the token will be consumed in all cases below
+                currentJsonTokenConsumed = true; // token consumed in all cases below
                 switch (parser.currentToken()) {
                     case FIELD_NAME -> {
                         switch (parser.nextToken()) {
@@ -216,7 +215,7 @@ public class JsonReader extends AbstractTreeDataReader {
                     case START_OBJECT -> {
                         Context arrayContext = checkNodeChain(ContextType.ARRAY);
                         arrayContext.incrementObjectCount();
-                        contextQueue.add(new Context(ContextType.OBJECT, parser.currentName()));
+                        contextQueue.add(new Context(ContextType.OBJECT, arrayContext.getFieldName()));
                         childNodeReader.onStartNode(arrayElementNameToSingleElementName.get(arrayContext.getFieldName()));
                     }
                     case END_ARRAY -> {
@@ -228,7 +227,7 @@ public class JsonReader extends AbstractTreeDataReader {
                 }
             }
 
-            currentJsonToken = null;
+            currentJsonTokenConsumed = true; // the END_OBJECT token is also consumed
             contextQueue.removeLast();
 
         } catch (IOException e) {
@@ -246,21 +245,23 @@ public class JsonReader extends AbstractTreeDataReader {
     public void readEndNode() {
         try {
             if (getNextToken() != JsonToken.END_OBJECT) {
-                throw new PowsyblException("JSON parsing: unexpected end node");
+                throw new PowsyblException("JSON parsing: unexpected token " + parser.currentToken());
             }
             checkNodeChain(ContextType.OBJECT);
             contextQueue.removeLast();
-            currentJsonToken = null;
+            currentJsonTokenConsumed = true;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     private JsonToken getNextToken() throws IOException {
-        if (currentJsonToken == null) {
-            currentJsonToken = parser.nextToken();
+        if (currentJsonTokenConsumed) {
+            currentJsonTokenConsumed = false;
+            return parser.nextToken();
+        } else {
+            return parser.currentToken();
         }
-        return currentJsonToken;
     }
 
     @Override
