@@ -28,12 +28,12 @@ public class ThreeWindingsTransformerToBeEstimatedXmlSerializer extends Abstract
 
     @Override
     public void write(ThreeWindingsTransformerToBeEstimated extension, XmlWriterContext context) {
-        context.getWriter().writeStringAttribute("ratioTapChanger1Status", String.valueOf(extension.shouldEstimateRatioTapChanger1()));
-        context.getWriter().writeStringAttribute("ratioTapChanger2Status", String.valueOf(extension.shouldEstimateRatioTapChanger2()));
-        context.getWriter().writeStringAttribute("ratioTapChanger3Status", String.valueOf(extension.shouldEstimateRatioTapChanger3()));
-        context.getWriter().writeStringAttribute("phaseTapChanger1Status", String.valueOf(extension.shouldEstimatePhaseTapChanger1()));
-        context.getWriter().writeStringAttribute("phaseTapChanger2Status", String.valueOf(extension.shouldEstimatePhaseTapChanger2()));
-        context.getWriter().writeStringAttribute("phaseTapChanger3Status", String.valueOf(extension.shouldEstimatePhaseTapChanger3()));
+        context.getWriter().writeBooleanAttribute("ratioTapChanger1Status", extension.shouldEstimateRatioTapChanger1());
+        context.getWriter().writeBooleanAttribute("ratioTapChanger2Status", extension.shouldEstimateRatioTapChanger2());
+        context.getWriter().writeBooleanAttribute("ratioTapChanger3Status", extension.shouldEstimateRatioTapChanger3());
+        context.getWriter().writeBooleanAttribute("phaseTapChanger1Status", extension.shouldEstimatePhaseTapChanger1());
+        context.getWriter().writeBooleanAttribute("phaseTapChanger2Status", extension.shouldEstimatePhaseTapChanger2());
+        context.getWriter().writeBooleanAttribute("phaseTapChanger3Status", extension.shouldEstimatePhaseTapChanger3());
     }
 
     @Override

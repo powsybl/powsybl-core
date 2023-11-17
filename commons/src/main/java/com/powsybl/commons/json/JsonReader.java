@@ -180,7 +180,9 @@ public class JsonReader extends AbstractTreeDataReader {
 
     @Override
     public String readContent() {
-        return readStringAttribute("content");
+        String content = readStringAttribute("content");
+        readEndNode();
+        return content;
     }
 
     @Override

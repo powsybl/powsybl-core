@@ -444,16 +444,16 @@
       "b" : 3.2E-5,
       "ratedU1" : 225.0,
       "ratedU2" : 225.0,
-      "node1" : 2,
       "voltageLevelId1" : "C",
-      "node2" : 10,
+      "node1" : 2,
       "voltageLevelId2" : "N",
+      "node2" : 10,
       "phaseTapChanger" : {
+        "regulating" : false,
         "lowTapPosition" : 0,
         "tapPosition" : 22,
         "regulationMode" : "CURRENT_LIMITER",
         "regulationValue" : 930.6667,
-        "regulating" : false,
         "terminalRef" : {
           "id" : "CI",
           "side" : "ONE"
@@ -707,10 +707,10 @@
     "b1" : 0.0,
     "g2" : 0.0,
     "b2" : 0.0,
-    "node1" : 4,
     "voltageLevelId1" : "C",
-    "node2" : 5,
+    "node1" : 4,
     "voltageLevelId2" : "N",
+    "node2" : 5,
     "currentLimits1" : {
       "permanentLimit" : 931.0
     },

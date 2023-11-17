@@ -65,9 +65,9 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
         context.getWriter().writeDoubleAttribute("b", dl.getB());
         if (generation != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+                context.getWriter().writeBooleanAttribute("generationVoltageRegulationOn", generation.isVoltageRegulationOn());
                 context.getWriter().writeDoubleAttribute(GENERATION_MIN_P, generation.getMinP());
                 context.getWriter().writeDoubleAttribute(GENERATION_MAX_P, generation.getMaxP());
-                context.getWriter().writeBooleanAttribute("generationVoltageRegulationOn", generation.isVoltageRegulationOn());
                 context.getWriter().writeDoubleAttribute(GENERATION_TARGET_P, generation.getTargetP());
                 context.getWriter().writeDoubleAttribute(GENERATION_TARGET_V, generation.getTargetV());
                 context.getWriter().writeDoubleAttribute(GENERATION_TARGET_Q, generation.getTargetQ());

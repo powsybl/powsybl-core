@@ -81,14 +81,14 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
         Measurements<C> measurements = measurementsAdder.add();
         var reader = context.getReader();
         reader.readChildNodes(elementName -> {
+            MeasurementAdder adder = measurements.newMeasurement()
+                    .setId(reader.readStringAttribute("id"))
+                    .setType(reader.readEnumAttribute("type", Measurement.Type.class))
+                    .setSide(reader.readEnumAttribute("side", Measurement.Side.class))
+                    .setValue(reader.readDoubleAttribute(VALUE))
+                    .setStandardDeviation(reader.readDoubleAttribute("standardDeviation"))
+                    .setValid(reader.readBooleanAttribute("valid", true));
             if (elementName.equals(MEASUREMENT_ROOT_ELEMENT)) {
-                MeasurementAdder adder = measurements.newMeasurement()
-                        .setId(reader.readStringAttribute("id"))
-                        .setType(reader.readEnumAttribute("type", Measurement.Type.class))
-                        .setValue(reader.readDoubleAttribute(VALUE))
-                        .setStandardDeviation(reader.readDoubleAttribute("standardDeviation"))
-                        .setValid(reader.readBooleanAttribute("valid"))
-                        .setSide(reader.readEnumAttribute("side", Measurement.Side.class));
                 reader.readChildNodes(subElementName -> {
                     if (subElementName.equals(PROPERTY_ROOT_ELEMENT)) {
                         adder.putProperty(reader.readStringAttribute("name"),

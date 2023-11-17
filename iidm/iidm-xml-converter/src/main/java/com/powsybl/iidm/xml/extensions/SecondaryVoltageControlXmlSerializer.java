@@ -75,6 +75,7 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
             writer.writeNodeContent(busbarSectionOrBusId);
             writer.writeEndNode();
         }
+        writer.writeEndNodes();
         writer.writeEndNode();
     }
 

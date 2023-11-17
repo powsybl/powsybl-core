@@ -324,7 +324,10 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
     }
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) {
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored."));
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
+            context.getReader().readStringAttribute(NODE_COUNT);
+            LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored.");
+        });
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case BusbarSectionXml.ROOT_ELEMENT_NAME -> BusbarSectionXml.INSTANCE.read(vl, context);
@@ -332,7 +335,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                 case NodeBreakerViewInternalConnectionXml.ROOT_ELEMENT_NAME -> NodeBreakerViewInternalConnectionXml.INSTANCE.read(vl, context);
                 case BusXml.ROOT_ELEMENT_NAME -> readCalculatedBus(vl, context);
                 case INJ_ROOT_ELEMENT_NAME -> readFictitiousInjection(vl, context);
-                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'nodeBreakerTopology'");
+                default -> throw new PowsyblException(String.format("Unknown element name '%s' in 'nodeBreakerTopology'", elementName));
             }
         });
     }
@@ -350,7 +353,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                 context.getReader().readEndNode();
                 properties.put(name, value);
             } else {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in 'bus'");
+                throw new PowsyblException(String.format("Unknown element name '%s' in 'bus'", elementName));
             }
         });
         context.getEndTasks().add(() -> {
@@ -387,7 +390,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
             switch (elementName) {
                 case BusXml.ROOT_ELEMENT_NAME -> BusXml.INSTANCE.read(vl, context);
                 case AbstractSwitchXml.ROOT_ELEMENT_NAME -> BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
-                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'busBreakerTopology'");
+                default -> throw new PowsyblException(String.format("Unknown element name '%s' in 'busBreakerTopology'", elementName));
             }
         });
     }

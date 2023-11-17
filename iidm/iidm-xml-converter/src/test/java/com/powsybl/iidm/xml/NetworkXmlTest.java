@@ -130,7 +130,7 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
     void testScada() throws IOException {
         Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
-        roundTripTest(network,
+        roundTripXmlTest(network,
                 NetworkXml::write,
                 NetworkXml::read,
                 getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_XML_VERSION));

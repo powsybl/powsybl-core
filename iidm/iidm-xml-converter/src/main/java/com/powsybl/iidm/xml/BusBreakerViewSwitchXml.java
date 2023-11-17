@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.slf4j.Logger;
@@ -47,6 +48,8 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
 
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
+        context.getReader().readEnumAttribute("kind", SwitchKind.class);
+        context.getReader().readBooleanAttribute("retained");
         boolean open = context.getReader().readBooleanAttribute("open");
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
             boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);

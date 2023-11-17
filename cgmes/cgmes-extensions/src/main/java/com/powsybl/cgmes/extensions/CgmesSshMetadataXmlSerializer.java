@@ -62,8 +62,8 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         TreeDataReader reader = networkContext.getReader();
         CgmesSshMetadataAdder adder = extendable.newExtension(CgmesSshMetadataAdder.class);
-        adder.setDescription(reader.readStringAttribute("description"))
-                .setId(reader.readStringAttribute("id"))
+        adder.setId(reader.readStringAttribute("id"))
+                .setDescription(reader.readStringAttribute("description"))
                 .setSshVersion(reader.readIntAttribute("sshVersion"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
         reader.readChildNodes(elementName -> {

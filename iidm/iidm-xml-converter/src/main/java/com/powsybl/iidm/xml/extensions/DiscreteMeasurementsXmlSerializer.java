@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -68,7 +69,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
                 default:
                     throw new PowsyblException("Unsupported serialization for value type: " + discreteMeasurement.getValueType());
             }
-            writer.writeStringAttribute("valid", String.valueOf(discreteMeasurement.isValid()));
+            writer.writeBooleanAttribute("valid", discreteMeasurement.isValid());
 
             writer.writeStartNodes(PROPERTY_ARRAY);
             for (String name : discreteMeasurement.getPropertyNames()) {
@@ -99,28 +100,24 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     }
 
     private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, TreeDataReader reader) {
-        DiscreteMeasurementAdder adder = discreteMeasurements.newDiscreteMeasurement()
-                .setId(reader.readStringAttribute("id"))
-                .setType(reader.readEnumAttribute("type", DiscreteMeasurement.Type.class))
-                .setValid(reader.readBooleanAttribute("valid"))
-                .setTapChanger(reader.readEnumAttribute("tapChanger", DiscreteMeasurement.TapChanger.class));
+        String id = reader.readStringAttribute("id");
+        DiscreteMeasurement.Type type = reader.readEnumAttribute("type", DiscreteMeasurement.Type.class);
+        DiscreteMeasurement.TapChanger tapChanger = reader.readEnumAttribute("tapChanger", DiscreteMeasurement.TapChanger.class);
         DiscreteMeasurement.ValueType valueType = reader.readEnumAttribute("valueType", DiscreteMeasurement.ValueType.class);
-        String value = reader.readStringAttribute(VALUE);
-        if (value != null) {
-            switch (valueType) {
-                case BOOLEAN:
-                    adder.setValue(Boolean.parseBoolean(value));
-                    break;
-                case INT:
-                    adder.setValue(Integer.parseInt(value));
-                    break;
-                case STRING:
-                    adder.setValue(value);
-                    break;
-                default:
-                    throw new PowsyblException("Unsupported value type: " + valueType);
-            }
+
+        DiscreteMeasurementAdder adder = discreteMeasurements.newDiscreteMeasurement()
+                .setId(id)
+                .setType(type)
+                .setTapChanger(tapChanger);
+        switch (valueType) {
+            case BOOLEAN -> Optional.ofNullable(reader.readBooleanAttribute(VALUE)).ifPresent(adder::setValue);
+            case INT -> Optional.ofNullable(reader.readIntAttribute(VALUE)).ifPresent(adder::setValue);
+            case STRING -> Optional.ofNullable(reader.readStringAttribute(VALUE)).ifPresent(adder::setValue);
+            default -> throw new PowsyblException("Unsupported value type: " + valueType);
         }
+
+        adder.setValid(reader.readBooleanAttribute("valid", true));
+
         reader.readChildNodes(elementName -> {
             if (elementName.equals(PROPERTY_ROOT)) {
                 adder.putProperty(reader.readStringAttribute("name"),

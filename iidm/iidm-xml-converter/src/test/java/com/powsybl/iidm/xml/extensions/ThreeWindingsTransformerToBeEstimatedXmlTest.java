@@ -34,7 +34,7 @@ class ThreeWindingsTransformerToBeEstimatedXmlTest extends AbstractXmlConverterT
                 .withRatioTapChanger3Status(true)
                 .add();
 
-        roundTripTest(network,
+        roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,
                 getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "threeWindingsTransformerToBeEstimated.xiidm");
