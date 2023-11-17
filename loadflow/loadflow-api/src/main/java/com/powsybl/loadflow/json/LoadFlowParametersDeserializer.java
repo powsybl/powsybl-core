@@ -61,6 +61,11 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setTransformerVoltageControlOn(parser.readValueAs(Boolean.class));
                     break;
 
+                case "transformerReactivePowerControlOn":
+                    parser.nextToken();
+                    parameters.setTransformerReactivePowerControlOn(parser.readValueAs(Boolean.class));
+                    break;
+
                 case "useReactiveLimits":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useReactiveLimits", version, "1.8");
                     parser.nextToken();

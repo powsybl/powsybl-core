@@ -82,6 +82,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
+    public static final boolean DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON = false;
     public static final boolean DEFAULT_USE_REACTIVE_LIMITS = true;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
@@ -128,6 +129,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .ifPresent(config -> {
                     parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
                     parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
+                    parameters.setTransformerReactivePowerControlOn(config.getBooleanProperty("transformerReactivePowerControlOn", DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON));
                     parameters.setUseReactiveLimits(!config.getBooleanProperty("noGeneratorReactiveLimits", !DEFAULT_USE_REACTIVE_LIMITS)); // overwritten by reactiveLimits
                     parameters.setUseReactiveLimits(config.getBooleanProperty("useReactiveLimits", DEFAULT_USE_REACTIVE_LIMITS));
                     parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
@@ -150,6 +152,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private VoltageInitMode voltageInitMode = DEFAULT_VOLTAGE_INIT_MODE;
 
     private boolean transformerVoltageControlOn = DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON;
+
+    private boolean transformerReactivePowerControlOn = DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON;
 
     private boolean useReactiveLimits = DEFAULT_USE_REACTIVE_LIMITS;
 
@@ -186,6 +190,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         Objects.requireNonNull(other);
         voltageInitMode = other.voltageInitMode;
         transformerVoltageControlOn = other.transformerVoltageControlOn;
+        transformerReactivePowerControlOn = other.transformerReactivePowerControlOn;
         useReactiveLimits = other.useReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
         twtSplitShuntAdmittance = other.twtSplitShuntAdmittance;
@@ -217,6 +222,15 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     public LoadFlowParameters setTransformerVoltageControlOn(boolean transformerVoltageControlOn) {
         this.transformerVoltageControlOn = transformerVoltageControlOn;
+        return this;
+    }
+
+    public boolean isTransformerReactivePowerControlOn() {
+        return transformerReactivePowerControlOn;
+    }
+
+    public LoadFlowParameters setTransformerReactivePowerControlOn(boolean transformerReactivePowerControlOn) {
+        this.transformerReactivePowerControlOn = transformerReactivePowerControlOn;
         return this;
     }
 
@@ -386,6 +400,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return ImmutableMap.<String, Object>builder()
                 .put("voltageInitMode", voltageInitMode)
                 .put("transformerVoltageControlOn", transformerVoltageControlOn)
+                .put("transformerReactivePowerControlOn", transformerReactivePowerControlOn)
                 .put("useReactiveLimits", useReactiveLimits)
                 .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
                 .put("twtSplitShuntAdmittance", twtSplitShuntAdmittance)

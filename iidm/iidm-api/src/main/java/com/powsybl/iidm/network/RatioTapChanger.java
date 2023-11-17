@@ -51,18 +51,14 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
     /**
      * Get the target voltage in kV. Depends on the working variant.
      * @see VariantManager
-     * @deprecated Use {@link RatioTapChanger#getRegulationValue()} instead.
      */
-    @Deprecated(since = "6.1.0")
     double getTargetV();
 
 
     /**
      * Set the target voltage in kV. Depends on the working variant.
      * @see VariantManager
-     * @deprecated Use {@link RatioTapChanger#setRegulationValue(double)} ()} instead.
      */
-    @Deprecated(since = "6.1.0")
     RatioTapChanger setTargetV(double targetV);
 
     /**

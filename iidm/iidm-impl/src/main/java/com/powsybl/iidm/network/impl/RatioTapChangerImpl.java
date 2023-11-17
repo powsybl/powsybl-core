@@ -101,13 +101,17 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public double getTargetV() {
-        // TODO : add check of regulation mode
+        if (regulationMode != RegulationMode.VOLTAGE) {
+            throw new IllegalAccessError("Regulation mode must be in voltage to access to target V");
+        }
         return getRegulationValue();
     }
 
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
-        // TODO : add check of regulation mode
+        if (regulationMode != RegulationMode.VOLTAGE) {
+            throw new IllegalAccessError("Regulation mode must be in voltage to set target V");
+        }
         return setRegulationValue(targetV);
     }
 

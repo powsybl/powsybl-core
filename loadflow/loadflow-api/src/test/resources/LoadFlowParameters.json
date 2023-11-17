@@ -2,6 +2,7 @@
   "version" : "1.9",
   "voltageInitMode" : "PREVIOUS_VALUES",
   "transformerVoltageControlOn" : true,
+  "transformerReactivePowerControlOn" : false,
   "phaseShifterRegulationOn" : false,
   "useReactiveLimits" : false,
   "twtSplitShuntAdmittance" : false,

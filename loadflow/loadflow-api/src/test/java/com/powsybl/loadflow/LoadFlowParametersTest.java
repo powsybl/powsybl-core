@@ -44,7 +44,8 @@ class LoadFlowParametersTest {
     }
 
     private void checkValues(LoadFlowParameters parameters, LoadFlowParameters.VoltageInitMode voltageInitMode,
-                             boolean transformerVoltageControlOn, boolean useReactiveLimits,
+                             boolean transformerVoltageControlOn, boolean transformerReactivePowerControlOn,
+                             boolean useReactiveLimits,
                              boolean phaseShifterRegulationOn, boolean twtSplitShuntAdmittance,
                              boolean simulShunt, boolean readSlackBus, boolean writeSlackBus,
                              boolean dc, boolean distributedSlack, LoadFlowParameters.BalanceType balanceType,
@@ -53,6 +54,7 @@ class LoadFlowParametersTest {
                              boolean hvdcAcEmulation) {
         assertEquals(parameters.getVoltageInitMode(), voltageInitMode);
         assertEquals(parameters.isTransformerVoltageControlOn(), transformerVoltageControlOn);
+        assertEquals(parameters.isTransformerReactivePowerControlOn(), transformerReactivePowerControlOn);
         assertEquals(parameters.isPhaseShifterRegulationOn(), phaseShifterRegulationOn);
         assertEquals(parameters.isUseReactiveLimits(), useReactiveLimits);
         assertEquals(parameters.isTwtSplitShuntAdmittance(), twtSplitShuntAdmittance);
@@ -74,6 +76,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
+                LoadFlowParameters.DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
                 LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
@@ -92,6 +95,7 @@ class LoadFlowParametersTest {
     @Test
     void checkConfig() {
         boolean transformerVoltageControlOn = true;
+        boolean transformerReactivePowerControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
         boolean twtSplitShuntAdmittance = true;
@@ -111,6 +115,7 @@ class LoadFlowParametersTest {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
         moduleConfig.setStringProperty("voltageInitMode", "UNIFORM_VALUES");
         moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
+        moduleConfig.setStringProperty("transformerReactivePowerControlOn", Boolean.toString(transformerReactivePowerControlOn));
         moduleConfig.setStringProperty("noGeneratorReactiveLimits", Boolean.toString(noGeneratorReactiveLimits));
         moduleConfig.setStringProperty("phaseShifterRegulationOn", Boolean.toString(phaseShifterRegulationOn));
         moduleConfig.setStringProperty("twtSplitShuntAdmittance", Boolean.toString(twtSplitShuntAdmittance));
@@ -128,7 +133,7 @@ class LoadFlowParametersTest {
 
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
-        checkValues(parameters, voltageInitMode, transformerVoltageControlOn,
+        checkValues(parameters, voltageInitMode, transformerVoltageControlOn, transformerReactivePowerControlOn,
                     noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
                     dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent, hvdcAcEmulation);
     }
@@ -141,7 +146,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
-                transformerVoltageControlOn, LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
+                transformerVoltageControlOn, LoadFlowParameters.DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON, LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
@@ -154,12 +159,12 @@ class LoadFlowParametersTest {
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters);
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
-                LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
-                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
-                LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
-                LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON);
+                LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON,
+                LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS, LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
+                LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE, LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON,
+                LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS, LoadFlowParameters.DEFAULT_DC,
+                LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE, LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
+                LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE, LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON);
     }
 
     @Test
@@ -168,7 +173,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters parameters = new LoadFlowParameters()
                 .setVoltageInitMode(voltageInitMode);
         checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
-                LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
+                LoadFlowParameters.DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON, LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
@@ -183,7 +188,9 @@ class LoadFlowParametersTest {
         LoadFlowParameters parameters = new LoadFlowParameters()
                 .setVoltageInitMode(voltageInitMode)
                 .setTransformerVoltageControlOn(transformerVoltageControlOn);
-        checkValues(parameters, voltageInitMode, true, LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
+        checkValues(parameters, voltageInitMode, true,
+                LoadFlowParameters.DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON,
+                LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
                 LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON,
@@ -203,7 +210,9 @@ class LoadFlowParametersTest {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters()
                 .setVoltageInitMode(voltageInitMode);
-        checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
+        checkValues(parameters, voltageInitMode,
+                LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
+                LoadFlowParameters.DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
                 LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
@@ -224,6 +233,7 @@ class LoadFlowParametersTest {
         parameters1.setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD);
         checkValues(parameters1, voltageInitMode,
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
+                LoadFlowParameters.DEFAULT_TRANSFORMER_REACTIVE_POWER_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_USE_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
                 LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
@@ -242,6 +252,7 @@ class LoadFlowParametersTest {
     @Test
     void checkSetters() {
         boolean transformerVoltageControlOn = true;
+        boolean transformerReactivePowerControlOn = true;
         boolean useReactiveLimits = false;
         boolean phaseShifterRegulationOn = true;
         boolean twtSplitShuntAdmittance = true;
@@ -262,6 +273,7 @@ class LoadFlowParametersTest {
         parameters.setUseReactiveLimits(useReactiveLimits)
                 .setPhaseShifterRegulationOn(phaseShifterRegulationOn)
                 .setTransformerVoltageControlOn(transformerVoltageControlOn)
+                .setTransformerReactivePowerControlOn(transformerReactivePowerControlOn)
                 .setVoltageInitMode(voltageInitMode)
                 .setTwtSplitShuntAdmittance(twtSplitShuntAdmittance)
                 .setShuntCompensatorVoltageControlOn(simulShunt)
@@ -272,7 +284,7 @@ class LoadFlowParametersTest {
                 .setBalanceType(balanceType)
                 .setHvdcAcEmulation(hvdcAcEmulation);
 
-        checkValues(parameters, voltageInitMode, transformerVoltageControlOn, useReactiveLimits,
+        checkValues(parameters, voltageInitMode, transformerVoltageControlOn, transformerReactivePowerControlOn, useReactiveLimits,
                     phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
                     dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent, hvdcAcEmulation);
     }
@@ -280,6 +292,7 @@ class LoadFlowParametersTest {
     @Test
     void checkClone() {
         boolean transformerVoltageControlOn = true;
+        boolean transformerReactivePowerControlOn = true;
         boolean useReactiveLimits = false;
         boolean phaseShifterRegulationOn = true;
         boolean twtSplitShuntAdmittance = true;
@@ -297,6 +310,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters parameters = new LoadFlowParameters()
                 .setVoltageInitMode(voltageInitMode)
                 .setTransformerVoltageControlOn(transformerVoltageControlOn)
+                .setTransformerReactivePowerControlOn(transformerReactivePowerControlOn)
                 .setUseReactiveLimits(useReactiveLimits)
                 .setPhaseShifterRegulationOn(phaseShifterRegulationOn)
                 .setTwtSplitShuntAdmittance(twtSplitShuntAdmittance)
@@ -311,7 +325,7 @@ class LoadFlowParametersTest {
                 .setConnectedComponentMode(computedConnectedComponent)
                 .setHvdcAcEmulation(hvdcAcEmulation);
         LoadFlowParameters parametersCloned = parameters.copy();
-        checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
+        checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(), parameters.isTransformerReactivePowerControlOn(),
                 parameters.isUseReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isTwtSplitShuntAdmittance(),
                 parameters.isShuntCompensatorVoltageControlOn(), parameters.isReadSlackBus(), parameters.isWriteSlackBus(),
                 parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType(), parameters.isDcUseTransformerRatio(),
