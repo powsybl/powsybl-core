@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.io.AbstractTreeDataReader;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
@@ -29,14 +30,14 @@ public class XmlReader extends AbstractTreeDataReader {
     private final Map<String, String> namespaceVersionsMap;
     private final Collection<ExtensionXmlSerializer> extensionProviders;
 
-    public XmlReader(XMLStreamReader reader, Map<String, String> namespaceVersionMap, Collection<ExtensionXmlSerializer> extensionProviders) {
-        this.reader = Objects.requireNonNull(reader);
+    public XmlReader(InputStream is, Map<String, String> namespaceVersionMap, Collection<ExtensionXmlSerializer> extensionProviders) throws XMLStreamException {
+        this.reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(Objects.requireNonNull(is));
+        int state = reader.next();
+        while (state == XMLStreamConstants.COMMENT) {
+            state = reader.next();
+        }
         this.namespaceVersionsMap = Objects.requireNonNull(namespaceVersionMap);
-        this.extensionProviders = extensionProviders;
-    }
-
-    public static XMLStreamReader createXMLStreamReader(InputStream is) throws XMLStreamException {
-        return XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
+        this.extensionProviders = Objects.requireNonNull(extensionProviders);
     }
 
     @Override

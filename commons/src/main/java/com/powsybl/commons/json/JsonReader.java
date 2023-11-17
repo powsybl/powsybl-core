@@ -14,6 +14,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataReader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
 
@@ -31,8 +32,9 @@ public class JsonReader extends AbstractTreeDataReader {
     private final Deque<Node> nodeChain = new ArrayDeque<>();
     private final Map<String, String> arrayElementNameToSingleElementName;
 
-    public JsonReader(JsonParser parser, String rootName, Map<String, String> arrayNameToSingleNameMap) {
-        this.parser = Objects.requireNonNull(parser);
+    public JsonReader(InputStream is, String rootName, Map<String, String> arrayNameToSingleNameMap) throws IOException {
+        this.parser = JsonUtil.createJsonFactory().createParser(Objects.requireNonNull(is));
+        this.parser.nextToken();
         this.nodeChain.add(new Node(Objects.requireNonNull(rootName), JsonNodeType.OBJECT));
         this.arrayElementNameToSingleElementName = Objects.requireNonNull(arrayNameToSingleNameMap);
     }

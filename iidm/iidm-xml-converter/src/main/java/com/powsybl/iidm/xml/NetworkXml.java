@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
@@ -20,10 +19,8 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonReader;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.json.JsonWriter;
 import com.powsybl.commons.xml.XmlReader;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
@@ -36,10 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -78,9 +72,11 @@ public final class NetworkXml {
     private static final String ID = "id";
     private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
 
-    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
+    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
 
     private NetworkXml() {
+        ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME);
     }
 
     private static void validate(Source xml, List<Source> additionalSchemas) {
@@ -228,12 +224,11 @@ public final class NetworkXml {
         context.getWriter().writeStringAttribute(SOURCE_FORMAT, n.getSourceFormat());
     }
 
-    private static XmlWriter initializeXmlWriter(Network n, OutputStream os, ExportOptions options) {
+    private static XmlWriter createXmlWriter(Network n, OutputStream os, ExportOptions options) {
         try {
-            XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
             String iidmNamespace = options.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
-
-            XmlWriter xmlWriter = new XmlWriter(writer, iidmNamespace, IIDM_PREFIX);
+            String indent = options.isIndent() ? INDENT : null;
+            XmlWriter xmlWriter = new XmlWriter(os, indent, options.getCharset(), iidmNamespace, IIDM_PREFIX);
 
             Set<ExtensionXmlSerializer<?, ?>> serializers = getExtensionSerializers(n, options);
             for (ExtensionXmlSerializer<?, ?> extensionSerializer : serializers) {
@@ -250,7 +245,7 @@ public final class NetworkXml {
         }
     }
 
-    private static JsonWriter initializeJsonWriter(OutputStream os, ExportOptions options) {
+    private static JsonWriter createJsonWriter(OutputStream os, ExportOptions options) {
         try {
             return new JsonWriter(os, options.isIndent(), options.getVersion().toString("."));
         } catch (IOException e) {
@@ -402,8 +397,8 @@ public final class NetworkXml {
 
     private static TreeDataWriter createTreeDataWriter(Network n, ExportOptions options, OutputStream os) {
         return switch (options.getFormat()) {
-            case XML -> initializeXmlWriter(n, os, options);
-            case JSON -> initializeJsonWriter(os, options);
+            case XML -> createXmlWriter(n, os, options);
+            case JSON -> createJsonWriter(os, options);
         };
     }
 
@@ -511,18 +506,24 @@ public final class NetworkXml {
 
     private static TreeDataReader createTreeDataReader(InputStream is, ImportOptions config) {
         return switch (config.getFormat()) {
-            case XML -> initializeXmlReader(is, config);
-            case JSON -> initializeJsonReader(is, config);
+            case XML -> createXmlReader(is, config);
+            case JSON -> createJsonReader(is, config);
         };
     }
 
-    private static TreeDataReader initializeJsonReader(InputStream is, ImportOptions config) {
+    private static TreeDataReader createJsonReader(InputStream is, ImportOptions config) {
         try {
-            JsonParser parser = JsonUtil.createJsonFactory().createParser(is);
-            parser.nextToken();
-            return new JsonReader(parser, NETWORK_ROOT_ELEMENT_NAME, createArrayNameToSingleNameMap(config));
+            return new JsonReader(is, NETWORK_ROOT_ELEMENT_NAME, createArrayNameToSingleNameMap(config));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private static TreeDataReader createXmlReader(InputStream is, ImportOptions config) {
+        try {
+            return new XmlReader(is, getNamespaceVersionMap(), config.withNoExtension() ? Collections.emptyList() : EXTENSIONS_SUPPLIER.get().getProviders());
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
@@ -572,20 +573,6 @@ public final class NetworkXml {
             mergedMap.putAll(basicMap);
             mergedMap.putAll(extensionsMap);
             return mergedMap;
-        }
-    }
-
-    private static TreeDataReader initializeXmlReader(InputStream is, ImportOptions config) {
-        try {
-            XMLStreamReader xmlReader = XmlReader.createXMLStreamReader(is);
-            int state = xmlReader.next();
-            while (state == XMLStreamConstants.COMMENT) {
-                state = xmlReader.next();
-            }
-            return new XmlReader(xmlReader, getNamespaceVersionMap(),
-                    config.withNoExtension() ? Collections.emptyList() : EXTENSIONS_SUPPLIER.get().getProviders());
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
         }
     }
 

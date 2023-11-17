@@ -9,9 +9,12 @@ package com.powsybl.commons.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.io.TreeDataWriter;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,10 +33,11 @@ public class XmlWriter implements TreeDataWriter {
     private final List<String> namespaces = new ArrayList<>();
     private final Map<String, Namespace> extensionNamespaces = new HashMap<>();
 
-    public XmlWriter(XMLStreamWriter writer, String rootNamespaceURI, String rootPrefix) {
-        this.writer = Objects.requireNonNull(writer);
-        this.namespaces.add(rootNamespaceURI);
-        this.prefixes.add(rootPrefix);
+    public XmlWriter(OutputStream os, String indent, Charset charset, String rootNamespaceURI, String rootPrefix) throws XMLStreamException {
+        this.writer = XmlUtil.initializeWriter(StringUtils.isEmpty(indent), indent,
+                Objects.requireNonNull(os), Objects.requireNonNull(charset));
+        this.namespaces.add(Objects.requireNonNull(rootNamespaceURI));
+        this.prefixes.add(Objects.requireNonNull(rootPrefix));
     }
 
     @Override
