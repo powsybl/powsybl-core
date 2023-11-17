@@ -32,17 +32,13 @@ abstract class AbstractIdentifiableXml<T extends Identifiable<? super T>, A exte
         }
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         context.getWriter().writeStringAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-        identifiable.getOptionalName().ifPresent(name -> {
-            context.getWriter().writeStringAttribute("name", context.getAnonymizer().anonymizeString(name));
-        });
+        identifiable.getOptionalName().ifPresent(name -> context.getWriter().writeStringAttribute("name", context.getAnonymizer().anonymizeString(name)));
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> context.getWriter().writeBooleanAttribute("fictitious", identifiable.isFictitious(), false));
 
         writeRootElementAttributes(identifiable, parent, context);
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            AliasesXml.write(identifiable, getRootElementName(), context);
-        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> AliasesXml.write(identifiable, getRootElementName(), context));
 
         PropertiesXml.write(identifiable, context);
 

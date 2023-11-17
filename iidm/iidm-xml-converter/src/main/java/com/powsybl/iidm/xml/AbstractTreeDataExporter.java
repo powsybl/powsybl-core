@@ -134,7 +134,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
-    public AbstractTreeDataExporter(PlatformConfig platformConfig) {
+    protected AbstractTreeDataExporter(PlatformConfig platformConfig) {
         defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
     }
 

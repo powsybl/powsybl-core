@@ -170,19 +170,19 @@ public final class ConnectableXmlUtil {
                 .setQ(q);
     }
 
-    public static void readActivePowerLimits(Integer index, ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(index, ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
+    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) {
+        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
     }
 
-    public static void readApparentPowerLimits(Integer index, ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(index, APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
+    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader) {
+        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
     }
 
-    public static void readCurrentLimits(Integer index, CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(index, CURRENT_LIMITS, currentLimitsAdder, reader);
+    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader) {
+        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader);
     }
 
-    private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, TreeDataReader reader) {
+    private static <A extends LoadingLimitsAdder> void readLoadingLimits(String type, A adder, TreeDataReader reader) {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
         reader.readChildNodes(elementName -> {

@@ -92,7 +92,7 @@ public final class XmlUtil {
 
         try {
             int event;
-            while (!((event = reader.next()) == XMLStreamConstants.END_ELEMENT)) {
+            while ((event = reader.next()) != XMLStreamConstants.END_ELEMENT) {
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     childNodeReader.onStartNode(reader.getLocalName());
                 }

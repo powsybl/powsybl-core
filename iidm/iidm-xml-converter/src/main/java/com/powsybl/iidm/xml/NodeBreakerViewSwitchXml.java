@@ -54,18 +54,17 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
         });
         int node1 = context.getReader().readIntAttribute("node1");
         int node2 = context.getReader().readIntAttribute("node2");
-        // Discard switches with same node at both ends
-        if (node1 == node2) {
-            LOGGER.warn("Discard switch with same node at both ends. Id: {}", context.getReader().readStringAttribute("id"));
+        if (node1 == node2 && context.getVersion().compareTo(IidmXmlVersion.V_1_8) < 0) {
+            // Discard switches with same node at both ends instead of throwing exception in adder to support old xiidm files
+            LOGGER.warn("Discard switch with same node {} at both ends", node1);
             return null;
-        } else {
-            return adder.setKind(kind)
-                .setRetained(retained)
-                .setOpen(open)
-                .setNode1(node1)
-                .setNode2(node2)
-                .add();
         }
+        return adder.setKind(kind)
+            .setRetained(retained)
+            .setOpen(open)
+            .setNode1(node1)
+            .setNode2(node2)
+            .add();
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerViewSwitchXml.class);

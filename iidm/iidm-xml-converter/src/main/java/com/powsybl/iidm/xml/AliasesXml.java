@@ -25,9 +25,8 @@ public final class AliasesXml {
         context.getWriter().writeStartNodes(ARRAY_ELEMENT_NAME);
         for (String alias : identifiable.getAliases()) {
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> identifiable.getAliasType(alias).ifPresent(type -> {
-                context.getWriter().writeStringAttribute("type", type);
-            }));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context,
+                    () -> identifiable.getAliasType(alias).ifPresent(type -> context.getWriter().writeStringAttribute("type", type)));
             context.getWriter().writeNodeContent(context.getAnonymizer().anonymizeString(alias));
             context.getWriter().writeEndNode();
         }

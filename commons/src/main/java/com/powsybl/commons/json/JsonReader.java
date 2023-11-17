@@ -31,7 +31,7 @@ public class JsonReader extends AbstractTreeDataReader {
     private final Deque<Node> nodeChain = new ArrayDeque<>();
     private final Map<String, String> arrayElementNameToSingleElementName;
 
-    public JsonReader(JsonParser parser, String rootName, Map<String, String> arrayNameToSingleNameMap) throws IOException {
+    public JsonReader(JsonParser parser, String rootName, Map<String, String> arrayNameToSingleNameMap) {
         this.parser = Objects.requireNonNull(parser);
         this.nodeChain.add(new Node(Objects.requireNonNull(rootName), JsonNodeType.OBJECT));
         this.arrayElementNameToSingleElementName = Objects.requireNonNull(arrayNameToSingleNameMap);
@@ -207,6 +207,7 @@ public class JsonReader extends AbstractTreeDataReader {
                                 nodeChain.add(new Node(parser.currentName(), JsonNodeType.OBJECT));
                                 childNodeReader.onStartNode(nodeChain.getLast().name());
                             }
+                            default -> throw new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "' after field name");
                         }
                     }
                     case START_OBJECT -> {
@@ -219,6 +220,7 @@ public class JsonReader extends AbstractTreeDataReader {
                         nodeChain.removeLast();
                     }
                     case END_OBJECT -> throw new PowsyblException("JSON parsing: unexpected END_OBJECT");
+                    default -> throw new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "'.");
                 }
             }
 

@@ -181,7 +181,9 @@ public class FullModel {
                     XmlUtil.readEndElementOrThrow(xmlReader);
                 }
                 case CgmesNames.MODELING_AUTHORITY_SET -> context.modelingAuthoritySet = XmlUtil.readText(xmlReader);
-                // default -> not yet interesting like superseded
+                default -> {
+                    // not yet interesting like superseded
+                }
             }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

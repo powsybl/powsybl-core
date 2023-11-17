@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.io.TreeDataWriter;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
 
@@ -49,8 +50,11 @@ public class JsonWriter implements TreeDataWriter {
 
     private final Deque<Context> contextQueue = new ArrayDeque<>();
 
-    public JsonWriter(JsonGenerator jsonGenerator, String rootVersion) {
-        this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
+    public JsonWriter(OutputStream os, boolean indent, String rootVersion) throws IOException {
+        this.jsonGenerator = JsonUtil.createJsonFactory().createGenerator(os);
+        if (indent) {
+            jsonGenerator.useDefaultPrettyPrinter();
+        }
         this.rootVersion = Objects.requireNonNull(rootVersion);
     }
 

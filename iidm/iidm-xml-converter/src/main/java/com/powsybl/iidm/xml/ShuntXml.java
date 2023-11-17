@@ -79,7 +79,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
 
     private static double getBPerSection(ShuntCompensator sc, IidmXmlVersion version) {
         ShuntCompensatorModel model = sc.getModel();
-        double bPerSection = model instanceof ShuntCompensatorLinearModel ? ((ShuntCompensatorLinearModel) model).getBPerSection() : sc.getB();
+        double bPerSection = model instanceof ShuntCompensatorLinearModel shuntCompensatorLinearModel ? shuntCompensatorLinearModel.getBPerSection() : sc.getB();
         if (bPerSection == 0 && version.compareTo(IidmXmlVersion.V_1_4) <= 0) {
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("bPerSection of {} is 0. It is set as {} since XIIDM version < 1.5 ({})", sc.getId(),

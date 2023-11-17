@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.io.TreeDataWriter;
 
@@ -207,8 +208,13 @@ public class XmlWriter implements TreeDataWriter {
     public void setVersions(Map<String, String> versions) {
         Objects.requireNonNull(versions).keySet()
                 .stream()
-                .map(extensionNamespaces::get)
-                .filter(Objects::nonNull) //TODO: not silently
+                .map(extensionName -> {
+                    Namespace namespace = extensionNamespaces.get(extensionName);
+                    if (namespace == null) {
+                        throw new PowsyblException("No namespace known for extension " + extensionName);
+                    }
+                    return namespace;
+                })
                 .forEach(namespace -> {
                     prefixes.add(namespace.prefix());
                     namespaces.add(namespace.uri());

@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -38,7 +36,10 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.stream.*;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -55,8 +56,9 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 import static com.powsybl.iidm.xml.AbstractTreeDataImporter.SUFFIX_MAPPING;
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_PREFIX;
+import static com.powsybl.iidm.xml.IidmXmlConstants.INDENT;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -142,7 +144,7 @@ public final class NetworkXml {
         if (extensionXmlSerializer == null) {
             throw new IllegalStateException("Extension XML Serializer of " + extension.getName() + " should not be null");
         }
-        String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), context.getVersion());
+        String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions());
         writer.writeStartNode(namespaceUri, extension.getName());
         context.getExtensionVersion(extension.getName()).ifPresent(extensionXmlSerializer::checkExtensionVersionSupported);
         extensionXmlSerializer.write(extension, context);
@@ -166,7 +168,7 @@ public final class NetworkXml {
         return null;
     }
 
-    private static String getNamespaceUri(ExtensionXmlSerializer<?, ?> extensionXmlSerializer, ExportOptions options, IidmXmlVersion networkVersion) {
+    private static String getNamespaceUri(ExtensionXmlSerializer<?, ?> extensionXmlSerializer, ExportOptions options) {
         String extensionVersion = getExtensionVersion(extensionXmlSerializer, options);
         return extensionXmlSerializer.getNamespaceUri(extensionVersion);
     }
@@ -229,8 +231,7 @@ public final class NetworkXml {
     private static XmlWriter initializeXmlWriter(Network n, OutputStream os, ExportOptions options) {
         try {
             XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
-            IidmXmlVersion iidmVersion = options.getVersion();
-            String iidmNamespace = iidmVersion.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+            String iidmNamespace = options.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
             XmlWriter xmlWriter = new XmlWriter(writer, iidmNamespace, IIDM_PREFIX);
 
@@ -241,7 +242,7 @@ public final class NetworkXml {
             }
 
             // Ensure that there is no conflict in namespace prefixes and URIs
-            checkNamespaceCollisions(options, serializers, iidmVersion);
+            checkNamespaceCollisions(options, serializers);
 
             return xmlWriter;
         } catch (XMLStreamException e) {
@@ -250,13 +251,8 @@ public final class NetworkXml {
     }
 
     private static JsonWriter initializeJsonWriter(OutputStream os, ExportOptions options) {
-        JsonFactory jsonFactory = JsonUtil.createJsonFactory();
         try {
-            JsonGenerator generator = jsonFactory.createGenerator(os);
-            if (options.isIndent()) {
-                generator = generator.useDefaultPrettyPrinter();
-            }
-            return new JsonWriter(generator, options.getVersion().toString("."));
+            return new JsonWriter(os, options.isIndent(), options.getVersion().toString("."));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -305,11 +301,11 @@ public final class NetworkXml {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static void checkNamespaceCollisions(ExportOptions options, Set<ExtensionXmlSerializer<?, ?>> serializers, IidmXmlVersion networkVersion) {
+    private static void checkNamespaceCollisions(ExportOptions options, Set<ExtensionXmlSerializer<?, ?>> serializers) {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
         for (ExtensionXmlSerializer<?, ?> extensionXmlSerializer : serializers) {
-            String namespaceUri = getNamespaceUri(extensionXmlSerializer, options, networkVersion);
+            String namespaceUri = getNamespaceUri(extensionXmlSerializer, options);
             if (extensionUris.contains(namespaceUri)) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {

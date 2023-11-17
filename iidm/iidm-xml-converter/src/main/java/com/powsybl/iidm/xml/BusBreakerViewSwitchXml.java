@@ -54,16 +54,15 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
         });
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus1"));
         String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus2"));
-        // Discard switches with same bus at both ends
-        if (bus1.equals(bus2)) {
-            LOGGER.warn("Discard switch with same bus at both ends. Id: {}", context.getReader().readStringAttribute("id"));
+        if (bus1.equals(bus2) && context.getVersion().compareTo(IidmXmlVersion.V_1_8) < 0) {
+            // Discard switches with same bus at both ends instead of throwing exception in adder to support old xiidm files
+            LOGGER.warn("Discard switch with same bus {} at both ends", bus1);
             return null;
-        } else {
-            return adder.setOpen(open)
+        }
+        return adder.setOpen(open)
                 .setBus1(bus1)
                 .setBus2(bus2)
                 .add();
-        }
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusBreakerViewSwitchXml.class);

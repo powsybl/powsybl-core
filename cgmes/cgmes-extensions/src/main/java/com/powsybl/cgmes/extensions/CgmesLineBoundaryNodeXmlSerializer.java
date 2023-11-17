@@ -28,10 +28,8 @@ public class CgmesLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSeri
     @Override
     public void write(CgmesLineBoundaryNode extension, XmlWriterContext context) {
         context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
-        extension.getLineEnergyIdentificationCodeEic()
-                .ifPresent(lineEnergyIdentificationCodeEic -> {
-                    context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEic);
-                });
+        extension.getLineEnergyIdentificationCodeEic().ifPresent(lineEnergyIdentificationCodeEic ->
+                context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEic));
     }
 
     @Override

@@ -61,11 +61,11 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     static final String SUFFIX_MAPPING = "_mapping";
 
-    public AbstractTreeDataImporter() {
+    protected AbstractTreeDataImporter() {
         this(PlatformConfig.defaultConfig());
     }
 
-    public AbstractTreeDataImporter(PlatformConfig platformConfig) {
+    protected AbstractTreeDataImporter(PlatformConfig platformConfig) {
         defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
     }
 

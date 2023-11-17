@@ -109,7 +109,7 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
         checkCompatibilityNetworkVersion(version);
         if (!extensionVersions.get(version).contains(extensionVersion)) {
             throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
-                    + ") is not compatible with the version " + extensionVersion + " of the " + extensionName + " extension.");
+                    + ") is not compatible with " + extensionName + " version " + extensionVersion);
         }
         return true;
     }
@@ -129,7 +129,7 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     @Override
     public void checkExtensionVersionSupported(String extensionVersion) {
         if (!namespaceUris.containsKey(extensionVersion)) {
-            throw new PowsyblException("The version " + extensionVersion + " of the " + extensionName + " extension is not supported.");
+            throw new PowsyblException("The " + extensionName + " extension version " + extensionVersion + " is not supported.");
         }
     }
 }
