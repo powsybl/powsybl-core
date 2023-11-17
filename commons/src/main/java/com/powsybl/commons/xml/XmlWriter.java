@@ -34,7 +34,7 @@ public class XmlWriter implements TreeDataWriter {
     private final Map<String, Namespace> extensionNamespaces = new HashMap<>();
 
     public XmlWriter(OutputStream os, String indent, Charset charset, String rootNamespaceURI, String rootPrefix) throws XMLStreamException {
-        this.writer = XmlUtil.initializeWriter(StringUtils.isEmpty(indent), indent,
+        this.writer = XmlUtil.initializeWriter(!StringUtils.isEmpty(indent), indent,
                 Objects.requireNonNull(os), Objects.requireNonNull(charset));
         this.namespaces.add(Objects.requireNonNull(rootNamespaceURI));
         this.prefixes.add(Objects.requireNonNull(rootPrefix));
