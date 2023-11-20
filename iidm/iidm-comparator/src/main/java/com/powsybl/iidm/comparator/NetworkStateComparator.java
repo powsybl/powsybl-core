@@ -174,10 +174,10 @@ public class NetworkStateComparator {
     }
 
     private abstract static class AbstractT3wtPColumnMapper<T extends ThreeWindingsTransformer> implements ColumnMapper<T> {
-        protected final ThreeWindingsTransformer.Side side;
+        protected final ThreeSides side;
         private final String title;
 
-        public AbstractT3wtPColumnMapper(ThreeWindingsTransformer.Side side, String title) {
+        public AbstractT3wtPColumnMapper(ThreeSides side, String title) {
             this.side = side;
             this.title = title;
         }
@@ -190,7 +190,7 @@ public class NetworkStateComparator {
 
     private static class T3wtPColumnMapper extends AbstractT3wtPColumnMapper<ThreeWindingsTransformer> {
 
-        public T3wtPColumnMapper(ThreeWindingsTransformer.Side side, String title) {
+        public T3wtPColumnMapper(ThreeSides side, String title) {
             super(side, title);
         }
 
@@ -204,7 +204,7 @@ public class NetworkStateComparator {
 
     private static class T3wtQColumnMapper extends AbstractT3wtPColumnMapper<ThreeWindingsTransformer> {
 
-        public T3wtQColumnMapper(ThreeWindingsTransformer.Side side, String title) {
+        public T3wtQColumnMapper(ThreeSides side, String title) {
             super(side, title);
         }
 
@@ -218,7 +218,7 @@ public class NetworkStateComparator {
 
     private static class T3wtRatioTapColumnMapper extends AbstractT3wtPColumnMapper<ThreeWindingsTransformer> {
 
-        public T3wtRatioTapColumnMapper(ThreeWindingsTransformer.Side side, String title) {
+        public T3wtRatioTapColumnMapper(ThreeSides side, String title) {
             super(side, title);
         }
 
@@ -233,7 +233,7 @@ public class NetworkStateComparator {
 
     private static class T3wtPhaseTapColumnMapper extends AbstractT3wtPColumnMapper<ThreeWindingsTransformer> {
 
-        public T3wtPhaseTapColumnMapper(ThreeWindingsTransformer.Side side, String title) {
+        public T3wtPhaseTapColumnMapper(ThreeSides side, String title) {
             super(side, title);
         }
 
@@ -381,18 +381,18 @@ public class NetworkStateComparator {
 
     private static final InjectionQColumnMapper<StaticVarCompensator> SVC_Q = new InjectionQColumnMapper<>();
 
-    private static final T3wtPColumnMapper T3WT_P1 = new T3wtPColumnMapper(ThreeWindingsTransformer.Side.ONE, "p1 (MW)");
-    private static final T3wtPColumnMapper T3WT_P2 = new T3wtPColumnMapper(ThreeWindingsTransformer.Side.TWO, "p2 (MW)");
-    private static final T3wtPColumnMapper T3WT_P3 = new T3wtPColumnMapper(ThreeWindingsTransformer.Side.THREE, "p3 (MW)");
-    private static final T3wtQColumnMapper T3WT_Q1 = new T3wtQColumnMapper(ThreeWindingsTransformer.Side.ONE, "q1 (MVAr)");
-    private static final T3wtQColumnMapper T3WT_Q2 = new T3wtQColumnMapper(ThreeWindingsTransformer.Side.TWO, "q2 (MVAr)");
-    private static final T3wtQColumnMapper T3WT_Q3 = new T3wtQColumnMapper(ThreeWindingsTransformer.Side.THREE, "q3 (MVAr)");
-    private static final T3wtRatioTapColumnMapper T3WT_RATIO1 = new T3wtRatioTapColumnMapper(ThreeWindingsTransformer.Side.ONE, "ratio tap 1");
-    private static final T3wtRatioTapColumnMapper T3WT_RATIO2 = new T3wtRatioTapColumnMapper(ThreeWindingsTransformer.Side.TWO, "ratio tap 2");
-    private static final T3wtRatioTapColumnMapper T3WT_RATIO3 = new T3wtRatioTapColumnMapper(ThreeWindingsTransformer.Side.THREE, "ratio tap 3");
-    private static final T3wtPhaseTapColumnMapper T3WT_PHASE1 = new T3wtPhaseTapColumnMapper(ThreeWindingsTransformer.Side.ONE, "phase tap 1");
-    private static final T3wtPhaseTapColumnMapper T3WT_PHASE2 = new T3wtPhaseTapColumnMapper(ThreeWindingsTransformer.Side.TWO, "phase tap 2");
-    private static final T3wtPhaseTapColumnMapper T3WT_PHASE3 = new T3wtPhaseTapColumnMapper(ThreeWindingsTransformer.Side.THREE, "phase tap 3");
+    private static final T3wtPColumnMapper T3WT_P1 = new T3wtPColumnMapper(ThreeSides.ONE, "p1 (MW)");
+    private static final T3wtPColumnMapper T3WT_P2 = new T3wtPColumnMapper(ThreeSides.TWO, "p2 (MW)");
+    private static final T3wtPColumnMapper T3WT_P3 = new T3wtPColumnMapper(ThreeSides.THREE, "p3 (MW)");
+    private static final T3wtQColumnMapper T3WT_Q1 = new T3wtQColumnMapper(ThreeSides.ONE, "q1 (MVAr)");
+    private static final T3wtQColumnMapper T3WT_Q2 = new T3wtQColumnMapper(ThreeSides.TWO, "q2 (MVAr)");
+    private static final T3wtQColumnMapper T3WT_Q3 = new T3wtQColumnMapper(ThreeSides.THREE, "q3 (MVAr)");
+    private static final T3wtRatioTapColumnMapper T3WT_RATIO1 = new T3wtRatioTapColumnMapper(ThreeSides.ONE, "ratio tap 1");
+    private static final T3wtRatioTapColumnMapper T3WT_RATIO2 = new T3wtRatioTapColumnMapper(ThreeSides.TWO, "ratio tap 2");
+    private static final T3wtRatioTapColumnMapper T3WT_RATIO3 = new T3wtRatioTapColumnMapper(ThreeSides.THREE, "ratio tap 3");
+    private static final T3wtPhaseTapColumnMapper T3WT_PHASE1 = new T3wtPhaseTapColumnMapper(ThreeSides.ONE, "phase tap 1");
+    private static final T3wtPhaseTapColumnMapper T3WT_PHASE2 = new T3wtPhaseTapColumnMapper(ThreeSides.TWO, "phase tap 2");
+    private static final T3wtPhaseTapColumnMapper T3WT_PHASE3 = new T3wtPhaseTapColumnMapper(ThreeSides.THREE, "phase tap 3");
 
     private static final class DiffColumnMapper<T extends Identifiable> implements ColumnMapper<T> {
 

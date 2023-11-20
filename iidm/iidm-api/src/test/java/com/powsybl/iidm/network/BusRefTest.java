@@ -99,18 +99,18 @@ class BusRefTest {
         when(network.getIdentifiable("branchId")).thenReturn(branch);
         Terminal terminal = mock(Terminal.class);
         Terminal.BusView bv = mock(Terminal.BusView.class);
-        when(branch.getTerminal1()).thenReturn(terminal);
+        when(branch.getTerminal(TwoSides.ONE)).thenReturn(terminal);
         when(terminal.getBusView()).thenReturn(bv);
         when(bv.getBus()).thenReturn(bvBus);
-        final BusRef busRef = new IdBasedBusRef("branchId", Branch.Side.ONE);
+        final BusRef busRef = new IdBasedBusRef("branchId", TwoSides.ONE);
         assertEquals(bvBus, busRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(IllegalStateException::new));
         Terminal terminal2 = mock(Terminal.class);
         Terminal.BusView bv2 = mock(Terminal.BusView.class);
-        when(branch.getTerminal2()).thenReturn(terminal2);
+        when(branch.getTerminal(TwoSides.TWO)).thenReturn(terminal2);
         when(terminal2.getBusView()).thenReturn(bv2);
         Bus bus2 = mock(Bus.class);
         when(bv2.getBus()).thenReturn(bus2);
-        final BusRef busRef2 = new IdBasedBusRef("branchId", Branch.Side.TWO);
+        final BusRef busRef2 = new IdBasedBusRef("branchId", TwoSides.TWO);
         assertEquals(bus2, busRef2.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(IllegalStateException::new));
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -119,7 +119,7 @@ class BusRefTest {
         final BusRef deserialized = objectMapper.readValue(json, BusRef.class);
         assertEquals(busRef, deserialized);
 
-        assertEquals(busRef, new IdBasedBusRef("branchId", Branch.Side.ONE));
+        assertEquals(busRef, new IdBasedBusRef("branchId", TwoSides.ONE));
     }
 
     @Test
@@ -127,7 +127,7 @@ class BusRefTest {
         Network network = mock(Network.class);
         when(network.getBranch("branchId")).thenReturn(null);
 
-        BusRef busRef = new IdBasedBusRef("branchId", Branch.Side.TWO);
+        BusRef busRef = new IdBasedBusRef("branchId", TwoSides.TWO);
         Optional<Bus> bus = busRef.resolve(network, TopologyLevel.BUS_BRANCH);
         assertTrue(bus.isEmpty());
     }

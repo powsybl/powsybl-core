@@ -13,7 +13,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
@@ -41,19 +41,19 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         context.getWriter().writeBooleanAttribute("observable", branchObservability.isObservable(), false);
 
         // qualityP1
-        writeOptionalQuality(context, branchObservability.getQualityP1(), QUALITY_P, Side.ONE);
+        writeOptionalQuality(context, branchObservability.getQualityP1(), QUALITY_P, TwoSides.ONE);
 
         // qualityP2
-        writeOptionalQuality(context, branchObservability.getQualityP2(), QUALITY_P, Side.TWO);
+        writeOptionalQuality(context, branchObservability.getQualityP2(), QUALITY_P, TwoSides.TWO);
 
         // qualityQ1
-        writeOptionalQuality(context, branchObservability.getQualityQ1(), QUALITY_Q, Side.ONE);
+        writeOptionalQuality(context, branchObservability.getQualityQ1(), QUALITY_Q, TwoSides.ONE);
 
         // qualityQ2
-        writeOptionalQuality(context, branchObservability.getQualityQ2(), QUALITY_Q, Side.TWO);
+        writeOptionalQuality(context, branchObservability.getQualityQ2(), QUALITY_Q, TwoSides.TWO);
     }
 
-    private void writeOptionalQuality(XmlWriterContext context, ObservabilityQuality<T> quality, String type, Side side) {
+    private void writeOptionalQuality(XmlWriterContext context, ObservabilityQuality<T> quality, String type, TwoSides side) {
         if (quality == null) {
             return;
         }
@@ -72,7 +72,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
                 .withObservable(observable);
 
         context.getReader().readChildNodes(elementName -> {
-            var side = context.getReader().readEnumAttribute(SIDE, Side.class);
+            var side = context.getReader().readEnumAttribute(SIDE, TwoSides.class);
             var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
             var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
             context.getReader().readEndNode();
@@ -86,13 +86,13 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         return adder.add();
     }
 
-    private void readQualityP(double standardDeviation, Boolean redundant, Side side, BranchObservabilityAdder<T> adder) {
-        if (side == Side.ONE) {
+    private void readQualityP(double standardDeviation, Boolean redundant, TwoSides side, BranchObservabilityAdder<T> adder) {
+        if (side == TwoSides.ONE) {
             adder.withStandardDeviationP1(standardDeviation);
             if (redundant != null) {
                 adder.withRedundantP1(redundant);
             }
-        } else if (side == Side.TWO) {
+        } else if (side == TwoSides.TWO) {
             adder.withStandardDeviationP2(standardDeviation);
             if (redundant != null) {
                 adder.withRedundantP2(redundant);
@@ -100,13 +100,13 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         }
     }
 
-    private void readQualityQ(double standardDeviation, Boolean redundant, Side side, BranchObservabilityAdder<T> adder) {
-        if (side == Side.ONE) {
+    private void readQualityQ(double standardDeviation, Boolean redundant, TwoSides side, BranchObservabilityAdder<T> adder) {
+        if (side == TwoSides.ONE) {
             adder.withStandardDeviationQ1(standardDeviation);
             if (redundant != null) {
                 adder.withRedundantQ1(redundant);
             }
-        } else if (side == Side.TWO) {
+        } else if (side == TwoSides.TWO) {
             adder.withStandardDeviationQ2(standardDeviation);
             if (redundant != null) {
                 adder.withRedundantQ2(redundant);

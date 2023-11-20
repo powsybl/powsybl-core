@@ -14,10 +14,8 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.Measurement;
-import com.powsybl.iidm.network.extensions.MeasurementAdder;
-import com.powsybl.iidm.network.extensions.Measurements;
-import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.extensions.*;
 
 import java.util.Map;
 
@@ -84,7 +82,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
             MeasurementAdder adder = measurements.newMeasurement()
                     .setId(reader.readStringAttribute("id"))
                     .setType(reader.readEnumAttribute("type", Measurement.Type.class))
-                    .setSide(reader.readEnumAttribute("side", Measurement.Side.class))
+                    .setSide(reader.readEnumAttribute("side", ThreeSides.class))
                     .setValue(reader.readDoubleAttribute(VALUE))
                     .setStandardDeviation(reader.readDoubleAttribute("standardDeviation"))
                     .setValid(reader.readBooleanAttribute("valid", true));

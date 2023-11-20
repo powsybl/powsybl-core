@@ -100,18 +100,6 @@ import java.util.Optional;
  */
 public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
-    enum Side {
-        ONE,
-        TWO;
-
-        public ThreeSides toThreeSides() {
-            return switch (this) {
-                case ONE -> ThreeSides.ONE;
-                case TWO -> ThreeSides.TWO;
-            };
-        }
-    }
-
     /**
      * Get the first terminal.
      */
@@ -122,11 +110,11 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     Terminal getTerminal2();
 
-    Terminal getTerminal(Side side);
+    Terminal getTerminal(TwoSides side);
 
     Terminal getTerminal(String voltageLevelId);
 
-    Side getSide(Terminal terminal);
+    TwoSides getSide(Terminal terminal);
 
     default Collection<OperationalLimits> getOperationalLimits1() {
         return getCurrentLimits1()
@@ -176,7 +164,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     ApparentPowerLimitsAdder newApparentPowerLimits2();
 
-    default Optional<CurrentLimits> getCurrentLimits(Side side) {
+    default Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
         switch (side) {
             case ONE:
                 return getCurrentLimits1();
@@ -187,7 +175,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default Optional<ActivePowerLimits> getActivePowerLimits(Side side) {
+    default Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
         switch (side) {
             case ONE:
                 return getActivePowerLimits1();
@@ -198,7 +186,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default Optional<ApparentPowerLimits> getApparentPowerLimits(Side side) {
+    default Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
         switch (side) {
             case ONE:
                 return getApparentPowerLimits1();
@@ -209,7 +197,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default Optional<? extends LoadingLimits> getLimits(LimitType type, Side side) {
+    default Optional<? extends LoadingLimits> getLimits(LimitType type, TwoSides side) {
         switch (type) {
             case CURRENT:
                 return getCurrentLimits(side);
@@ -222,7 +210,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default CurrentLimits getNullableCurrentLimits(Side side) {
+    default CurrentLimits getNullableCurrentLimits(TwoSides side) {
         switch (side) {
             case ONE:
                 return getNullableCurrentLimits1();
@@ -233,7 +221,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default ActivePowerLimits getNullableActivePowerLimits(Side side) {
+    default ActivePowerLimits getNullableActivePowerLimits(TwoSides side) {
         switch (side) {
             case ONE:
                 return getNullableActivePowerLimits1();
@@ -244,7 +232,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default ApparentPowerLimits getNullableApparentPowerLimits(Side side) {
+    default ApparentPowerLimits getNullableApparentPowerLimits(TwoSides side) {
         switch (side) {
             case ONE:
                 return getNullableApparentPowerLimits1();
@@ -255,7 +243,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default LoadingLimits getNullableLimits(LimitType type, Side side) {
+    default LoadingLimits getNullableLimits(LimitType type, TwoSides side) {
         switch (type) {
             case CURRENT:
                 return getNullableCurrentLimits(side);
@@ -280,9 +268,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     int getOverloadDuration();
 
-    boolean checkPermanentLimit(Side side, float limitReduction, LimitType type);
+    boolean checkPermanentLimit(TwoSides side, float limitReduction, LimitType type);
 
-    boolean checkPermanentLimit(Side side, LimitType type);
+    boolean checkPermanentLimit(TwoSides side, LimitType type);
 
     boolean checkPermanentLimit1(float limitReduction, LimitType type);
 
@@ -292,9 +280,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     boolean checkPermanentLimit2(LimitType type);
 
-    Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type);
+    Overload checkTemporaryLimits(TwoSides side, float limitReduction, LimitType type);
 
-    Overload checkTemporaryLimits(Side side, LimitType type);
+    Overload checkTemporaryLimits(TwoSides side, LimitType type);
 
     Overload checkTemporaryLimits1(float limitReduction, LimitType type);
 

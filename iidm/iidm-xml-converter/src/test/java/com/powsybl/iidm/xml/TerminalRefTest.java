@@ -42,8 +42,8 @@ class TerminalRefTest extends AbstractXmlConverterTest {
     @Test
     void badBranchSideResolveTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> TerminalRefXml.resolve("LINE_S2S3", ThreeSides.THREE, network));
-        assertEquals("Unexpected Branch side: THREE", e.getMessage());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefXml.resolve("LINE_S2S3", ThreeSides.THREE, network));
+        assertEquals("Cannot convert ThreeSides value THREE as a TwoSides (ONE, TWO)", e.getMessage());
     }
 
     @Test

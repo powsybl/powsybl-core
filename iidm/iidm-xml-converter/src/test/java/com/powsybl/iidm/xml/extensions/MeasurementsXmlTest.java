@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
@@ -49,7 +50,7 @@ class MeasurementsXmlTest extends AbstractXmlConverterTest {
                 .newMeasurement()
                 .setId("MEAS_TWT_Q_2")
                 .setType(Measurement.Type.REACTIVE_POWER)
-                .setSide(Measurement.Side.TWO)
+                .setSide(ThreeSides.TWO)
                 .setValue(-600.07)
                 .setStandardDeviation(10.2)
                 .setValid(true)
@@ -58,7 +59,7 @@ class MeasurementsXmlTest extends AbstractXmlConverterTest {
                 .newMeasurement()
                 .setId("MEAS_TWT_Q_1")
                 .setType(Measurement.Type.REACTIVE_POWER)
-                .setSide(Measurement.Side.ONE)
+                .setSide(ThreeSides.ONE)
                 .setValue(605.2)
                 .setStandardDeviation(9.7)
                 .setValid(true)

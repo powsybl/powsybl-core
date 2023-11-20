@@ -8,10 +8,7 @@ package com.powsybl.cgmes.measurements;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.Measurement;
-import com.powsybl.iidm.network.extensions.MeasurementAdder;
-import com.powsybl.iidm.network.extensions.Measurements;
-import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -19,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import static com.powsybl.iidm.network.extensions.Measurement.Side.THREE;
-import static com.powsybl.iidm.network.extensions.Measurement.Side.TWO;
 import static com.powsybl.iidm.network.extensions.Measurement.Type.*;
 
 /**
@@ -69,7 +64,7 @@ public final class CgmesAnalogPostProcessor {
                 meas = c.getExtension(Measurements.class);
             }
             Measurement.Type type = getType(measurementType, typesMapping);
-            Measurement.Side side = null;
+            ThreeSides side = null;
             MeasurementAdder adder = meas.newMeasurement()
                     .setValid(false)
                     .setId(id);
@@ -118,16 +113,16 @@ public final class CgmesAnalogPostProcessor {
         }
     }
 
-    private static Measurement.Side getSide(String terminalId, Connectable<?> c) {
+    private static ThreeSides getSide(String terminalId, Connectable<?> c) {
         if (terminalId != null) {
             String terminalType = c.getAliasType(terminalId).orElse(null);
             if (terminalType != null) {
                 if (terminalType.endsWith("1")) {
-                    return Measurement.Side.ONE;
+                    return ThreeSides.ONE;
                 } else if (terminalType.endsWith("2")) {
-                    return TWO;
+                    return ThreeSides.TWO;
                 } else if (terminalType.endsWith("3")) {
-                    return THREE;
+                    return ThreeSides.THREE;
                 }
             }
         }
