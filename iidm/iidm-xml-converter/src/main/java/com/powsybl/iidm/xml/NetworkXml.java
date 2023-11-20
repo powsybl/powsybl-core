@@ -692,6 +692,7 @@ public final class NetworkXml {
         Deque<Network> networks = new ArrayDeque<>(2);
         networks.push(network);
 
+        Reporter validationReporter = reporter.createSubReporter("validationWarnings", "Validation warnings");
         reader.readChildNodes(elementName ->
                 readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
 
@@ -705,7 +706,6 @@ public final class NetworkXml {
             logExtensionsNotFound(extensionsNotFoundReporter, extensionNamesNotFound);
         }
 
-        Reporter validationReporter = reporter.createSubReporter("validationWarnings", "Validation warnings");
         context.executeEndTasks(network, validationReporter);
 
         return network;
