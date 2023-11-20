@@ -152,6 +152,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
+        public NetworkImpl getNetwork() {
+            return this.danglingLine.getNetwork();
+        }
+
+        @Override
         public double getTargetV() {
             return this.targetV.get(danglingLine.getNetwork().getVariantIndex());
         }

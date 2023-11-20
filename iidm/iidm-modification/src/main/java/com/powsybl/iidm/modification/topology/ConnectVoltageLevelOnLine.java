@@ -114,8 +114,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         // Create the two lines
         Line line1 = adder1.add();
         Line line2 = adder2.add();
-        addLoadingLimits(line1, limits1, Branch.Side.ONE);
-        addLoadingLimits(line2, limits2, Branch.Side.TWO);
+        addLoadingLimits(line1, limits1, TwoSides.ONE);
+        addLoadingLimits(line2, limits2, TwoSides.TWO);
         LOG.info("Voltage level {} connected to lines {} and {} replacing line {}.", voltageLevel.getId(), line1Id, line2Id, originalLineId);
         reporter.report(Report.builder()
                 .withKey("voltageConnectedOnLine")

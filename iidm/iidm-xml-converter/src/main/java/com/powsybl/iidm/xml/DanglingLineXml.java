@@ -6,11 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -30,6 +28,7 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
 
     static final String ROOT_ELEMENT_NAME = "danglingLine";
+    static final String ARRAY_ELEMENT_NAME = "danglingLines";
 
     @Override
     protected String getRootElementName() {
@@ -37,21 +36,11 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     }
 
     @Override
-    protected boolean hasSubElements(DanglingLine dl) {
-        throw new IllegalStateException("Should not be called");
-    }
-
-    @Override
-    protected boolean hasSubElements(DanglingLine dl, NetworkXmlWriterContext context) {
-        return hasValidGeneration(dl, context) || hasValidOperationalLimits(dl, context);
-    }
-
-    @Override
-    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel parent, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) {
         writeRootElementAttributesInternal(dl, dl::getTerminal, context);
     }
 
-    static void writeRootElementAttributesInternal(DanglingLine dl, Supplier<Terminal> terminalGetter, NetworkXmlWriterContext context) throws XMLStreamException {
+    static void writeRootElementAttributesInternal(DanglingLine dl, Supplier<Terminal> terminalGetter, NetworkXmlWriterContext context) {
         DanglingLine.Generation generation = dl.getGeneration();
         double[] p0 = new double[1];
         double[] q0 = new double[1];
@@ -68,32 +57,32 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
                 }
             });
         }
-        XmlUtil.writeDouble("p0", p0[0], context.getWriter());
-        XmlUtil.writeDouble("q0", q0[0], context.getWriter());
-        XmlUtil.writeDouble("r", dl.getR(), context.getWriter());
-        XmlUtil.writeDouble("x", dl.getX(), context.getWriter());
-        XmlUtil.writeDouble("g", dl.getG(), context.getWriter());
-        XmlUtil.writeDouble("b", dl.getB(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("p0", p0[0]);
+        context.getWriter().writeDoubleAttribute("q0", q0[0]);
+        context.getWriter().writeDoubleAttribute("r", dl.getR());
+        context.getWriter().writeDoubleAttribute("x", dl.getX());
+        context.getWriter().writeDoubleAttribute("g", dl.getG());
+        context.getWriter().writeDoubleAttribute("b", dl.getB());
         if (generation != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-                XmlUtil.writeDouble(GENERATION_MIN_P, generation.getMinP(), context.getWriter());
-                XmlUtil.writeDouble(GENERATION_MAX_P, generation.getMaxP(), context.getWriter());
-                context.getWriter().writeAttribute("generationVoltageRegulationOn", Boolean.toString(generation.isVoltageRegulationOn()));
-                XmlUtil.writeDouble(GENERATION_TARGET_P, generation.getTargetP(), context.getWriter());
-                XmlUtil.writeDouble(GENERATION_TARGET_V, generation.getTargetV(), context.getWriter());
-                XmlUtil.writeDouble(GENERATION_TARGET_Q, generation.getTargetQ(), context.getWriter());
+                context.getWriter().writeBooleanAttribute("generationVoltageRegulationOn", generation.isVoltageRegulationOn());
+                context.getWriter().writeDoubleAttribute(GENERATION_MIN_P, generation.getMinP());
+                context.getWriter().writeDoubleAttribute(GENERATION_MAX_P, generation.getMaxP());
+                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_P, generation.getTargetP());
+                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_V, generation.getTargetV());
+                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_Q, generation.getTargetQ());
             });
-        }
-        if (dl.getPairingKey() != null) {
-            IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_10, context,
-                () -> context.getWriter().writeAttribute("ucteXnodeCode", dl.getPairingKey())
-            );
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context,
-                () -> context.getWriter().writeAttribute("pairingKey", dl.getPairingKey())
-            );
         }
         Terminal t = terminalGetter.get();
         writeNodeOrBus(null, t, context);
+        if (dl.getPairingKey() != null) {
+            IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_10, context,
+                () -> context.getWriter().writeStringAttribute("ucteXnodeCode", dl.getPairingKey())
+            );
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context,
+                () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
+            );
+        }
         writePQ(null, t, context.getWriter());
 
     }
@@ -111,7 +100,7 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     }
 
     @Override
-    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) {
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
         }
@@ -136,11 +125,11 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         readRootElementAttributesInternal(adder, context);
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_10, context, () -> {
-            String pairingKey = context.getReader().getAttributeValue(null, "ucteXnodeCode");
+            String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
             adder.setPairingKey(pairingKey);
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
-            String pairingKey = context.getReader().getAttributeValue(null, "pairingKey");
+            String pairingKey = context.getReader().readStringAttribute("pairingKey");
             adder.setPairingKey(pairingKey);
         });
         DanglingLine dl = adder.add();
@@ -149,21 +138,20 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     }
 
     public static void readRootElementAttributesInternal(DanglingLineAdder adder, NetworkXmlReaderContext context) {
-        double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
-        double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+        double p0 = context.getReader().readDoubleAttribute("p0");
+        double q0 = context.getReader().readDoubleAttribute("q0");
+        double r = context.getReader().readDoubleAttribute("r");
+        double x = context.getReader().readDoubleAttribute("x");
+        double g = context.getReader().readDoubleAttribute("g");
+        double b = context.getReader().readDoubleAttribute("b");
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            String voltageRegulationOnStr = context.getReader().getAttributeValue(null, "generationVoltageRegulationOn");
-            if (voltageRegulationOnStr != null) {
-                double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_MIN_P);
-                double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_MAX_P);
-                boolean voltageRegulationOn = Boolean.parseBoolean(voltageRegulationOnStr);
-                double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_P);
-                double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_V);
-                double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_Q);
+            Boolean voltageRegulationOn = context.getReader().readBooleanAttribute("generationVoltageRegulationOn");
+            if (voltageRegulationOn != null) {
+                double minP = context.getReader().readDoubleAttribute(GENERATION_MIN_P);
+                double maxP = context.getReader().readDoubleAttribute(GENERATION_MAX_P);
+                double targetP = context.getReader().readDoubleAttribute(GENERATION_TARGET_P);
+                double targetV = context.getReader().readDoubleAttribute(GENERATION_TARGET_V);
+                double targetQ = context.getReader().readDoubleAttribute(GENERATION_TARGET_Q);
                 adder.newGeneration()
                         .setMinP(minP)
                         .setMaxP(maxP)
@@ -184,27 +172,27 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     }
 
     @Override
-    protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case ACTIVE_POWER_LIMITS:
+    protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case ACTIVE_POWER_LIMITS -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(null, dl.newActivePowerLimits(), context.getReader()));
-                    break;
-                case APPARENT_POWER_LIMITS:
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(dl.newActivePowerLimits(), context.getReader()));
+                }
+                case APPARENT_POWER_LIMITS -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(null, dl.newApparentPowerLimits(), context.getReader()));
-                    break;
-                case "currentLimits":
-                    readCurrentLimits(null, dl.newCurrentLimits(), context.getReader());
-                    break;
-                case "reactiveCapabilityCurve":
-                case "minMaxReactiveLimits":
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(dl.newApparentPowerLimits(), context.getReader()));
+                }
+                case CURRENT_LIMITS -> readCurrentLimits(dl.newCurrentLimits(), context.getReader());
+                case ReactiveLimitsXml.ELEM_REACTIVE_CAPABILITY_CURVE -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME + ".generation", "reactiveLimits", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    ReactiveLimitsXml.INSTANCE.read(dl.getGeneration(), context);
-                    break;
-                default:
-                    super.readSubElements(dl, context);
+                    ReactiveLimitsXml.INSTANCE.readReactiveCapabilityCurve(dl.getGeneration(), context);
+                }
+                case ReactiveLimitsXml.ELEM_MIN_MAX_REACTIVE_LIMITS -> {
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME + ".generation", "reactiveLimits", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                    ReactiveLimitsXml.INSTANCE.readMinMaxReactiveLimits(dl.getGeneration(), context);
+                }
+                default -> readSubElement(elementName, dl, context);
             }
         });
     }

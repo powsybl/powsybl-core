@@ -486,7 +486,7 @@ public final class CgmesConformity1NetworkCatalog {
             int high = 33;
             int neutral = 17;
             double voltageInc = 0.8;
-            Branch.Side side = Branch.Side.TWO;
+            TwoSides side = TwoSides.TWO;
             RatioTapChangerAdder rtca = tx.newRatioTapChanger()
                     .setLowTapPosition(low)
                     .setTapPosition(14)
@@ -494,10 +494,10 @@ public final class CgmesConformity1NetworkCatalog {
             for (int k = low; k <= high; k++) {
                 int n = k - neutral;
                 double du = voltageInc / 100;
-                double rhok = side.equals(Branch.Side.ONE) ? 1 / (1 + n * du) : (1 + n * du);
+                double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
                 double dz = 0;
                 double dy = 0;
-                if (side.equals(Branch.Side.TWO)) {
+                if (side.equals(TwoSides.TWO)) {
                     double rhok2 = rhok * rhok;
                     dz = (rhok2 - 1) * 100;
                     dy = (1 / rhok2 - 1) * 100;
@@ -566,14 +566,14 @@ public final class CgmesConformity1NetworkCatalog {
             int high = 25;
             int neutral = 13;
             double voltageInc = 1.25;
-            Branch.Side side = Branch.Side.ONE;
+            TwoSides side = TwoSides.ONE;
             RatioTapChangerAdder rtca = txBE22.newRatioTapChanger()
                     .setLowTapPosition(low)
                     .setTapPosition(10);
             for (int k = low; k <= high; k++) {
                 int n = k - neutral;
                 double du = voltageInc / 100;
-                double rhok = side.equals(Branch.Side.ONE) ? 1 / (1 + n * du) : (1 + n * du);
+                double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
                 rtca.beginStep()
                         .setRho(rhok)
                         .setR(0)
@@ -668,7 +668,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setVoltageRegulatorOn(true)
                     // This generator regulates one end point of a power transformer
                     // (110 kV side of BE-TR2_1)
-                    .setRegulatingTerminal(txBE21.getTerminal(Branch.Side.TWO))
+                    .setRegulatingTerminal(txBE21.getTerminal(TwoSides.TWO))
                     .setRatedS(300)
                     .add();
             ReactiveCapabilityCurveAdder rcca = genBrussels10.newReactiveCapabilityCurve();

@@ -19,12 +19,12 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:tieLine id="dl1 + dl2" name="dl1_name + dl2_name" name_1="dl1_name" name_2="dl2_name" ucteXnodeCode="code" bus1="b1" connectableBus1="b1" voltageLevelId1="vl1" bus2="b2" connectableBus2="b2" voltageLevelId2="vl2" id_1="dl1" r_1="1.0" x_1="2.0" g1_1="2.0" b1_1="2.5" g2_1="2.0" b2_1="2.5" id_2="dl2" r_2="1.0" x_2="2.0" g1_2="2.0" b1_2="2.5" g2_2="2.0" b2_2="2.5"/>
+    <iidm:extension id="Merged">
+        <extNetworkSource:networkSource sourceData="Source_0"/>
+    </iidm:extension>
     <iidm:extension id="LOAD">
         <mock:terminalMock>
             <mock:terminal id="LOAD"/>
         </mock:terminalMock>
-    </iidm:extension>
-    <iidm:extension id="Merged">
-        <extNetworkSource:networkSource sourceData="Source_0"/>
     </iidm:extension>
 </iidm:network>

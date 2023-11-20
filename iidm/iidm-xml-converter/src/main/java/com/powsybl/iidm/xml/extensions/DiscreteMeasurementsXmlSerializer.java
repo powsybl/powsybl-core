@@ -10,18 +10,18 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -29,105 +29,102 @@ import javax.xml.stream.XMLStreamWriter;
 @AutoService(ExtensionXmlSerializer.class)
 public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extends AbstractExtensionXmlSerializer<I, DiscreteMeasurements<I>> {
 
-    private static final String DISCRETE_MEASUREMENT = "discreteMeasurement";
+    private static final String DISCRETE_MEASUREMENT_ROOT = "discreteMeasurement";
+    private static final String DISCRETE_MEASUREMENT_ARRAY = "discreteMeasurements";
     private static final String VALUE = "value";
+    public static final String PROPERTY_ROOT = "property";
+    private static final String PROPERTY_ARRAY = "properties";
 
     public DiscreteMeasurementsXmlSerializer() {
-        super("discreteMeasurements", "network", DiscreteMeasurements.class, true,
+        super("discreteMeasurements", "network", DiscreteMeasurements.class,
                 "discreteMeasurements.xsd", "http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0", "dm");
     }
 
     @Override
-    public void write(DiscreteMeasurements<I> extension, XmlWriterContext context) throws XMLStreamException {
-        XMLStreamWriter writer = context.getWriter();
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(DISCRETE_MEASUREMENT_ARRAY, DISCRETE_MEASUREMENT_ROOT,
+                PROPERTY_ARRAY, PROPERTY_ROOT);
+    }
+
+    @Override
+    public void write(DiscreteMeasurements<I> extension, XmlWriterContext context) {
+        TreeDataWriter writer = context.getWriter();
+        writer.writeStartNodes(DISCRETE_MEASUREMENT_ARRAY);
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
-            boolean hasProperty = !discreteMeasurement.getPropertyNames().isEmpty();
-            if (hasProperty) {
-                writer.writeStartElement(getNamespaceUri(), DISCRETE_MEASUREMENT);
-            } else {
-                writer.writeEmptyElement(getNamespaceUri(), DISCRETE_MEASUREMENT);
-            }
-            if (discreteMeasurement.getId() != null) {
-                writer.writeAttribute("id", discreteMeasurement.getId());
-            }
-            writer.writeAttribute("type", discreteMeasurement.getType().toString());
-            if (discreteMeasurement.getTapChanger() != null) {
-                writer.writeAttribute("tapChanger", discreteMeasurement.getTapChanger().toString());
-            }
-            writer.writeAttribute("valueType", discreteMeasurement.getValueType().toString());
+            writer.writeStartNode(getNamespaceUri(), DISCRETE_MEASUREMENT_ROOT);
+            writer.writeStringAttribute("id", discreteMeasurement.getId());
+            writer.writeEnumAttribute("type", discreteMeasurement.getType());
+            writer.writeEnumAttribute("tapChanger", discreteMeasurement.getTapChanger());
+            writer.writeEnumAttribute("valueType", discreteMeasurement.getValueType());
             switch (discreteMeasurement.getValueType()) {
                 case BOOLEAN:
-                    writer.writeAttribute(VALUE, String.valueOf(discreteMeasurement.getValueAsBoolean()));
+                    writer.writeBooleanAttribute(VALUE, discreteMeasurement.getValueAsBoolean());
                     break;
                 case INT:
-                    writer.writeAttribute(VALUE, String.valueOf(discreteMeasurement.getValueAsInt()));
+                    writer.writeIntAttribute(VALUE, discreteMeasurement.getValueAsInt());
                     break;
                 case STRING:
-                    if (discreteMeasurement.getValueAsString() != null) {
-                        writer.writeAttribute(VALUE, discreteMeasurement.getValueAsString());
-                    }
+                    writer.writeStringAttribute(VALUE, discreteMeasurement.getValueAsString());
                     break;
                 default:
                     throw new PowsyblException("Unsupported serialization for value type: " + discreteMeasurement.getValueType());
             }
-            writer.writeAttribute("valid", String.valueOf(discreteMeasurement.isValid()));
+            writer.writeBooleanAttribute("valid", discreteMeasurement.isValid());
+
+            writer.writeStartNodes(PROPERTY_ARRAY);
             for (String name : discreteMeasurement.getPropertyNames()) {
-                writer.writeEmptyElement(getNamespaceUri(), "property");
-                writer.writeAttribute("name", name);
-                writer.writeAttribute(VALUE, discreteMeasurement.getProperty(name));
+                writer.writeStartNode(getNamespaceUri(), PROPERTY_ROOT);
+                writer.writeStringAttribute("name", name);
+                writer.writeStringAttribute(VALUE, discreteMeasurement.getProperty(name));
+                writer.writeEndNode();
             }
-            if (hasProperty) {
-                writer.writeEndElement();
-            }
+            writer.writeEndNodes();
+
+            writer.writeEndNode();
         }
+        writer.writeEndNodes();
     }
 
     @Override
-    public DiscreteMeasurements<I> read(I extendable, XmlReaderContext context) throws XMLStreamException {
+    public DiscreteMeasurements<I> read(I extendable, XmlReaderContext context) {
         DiscreteMeasurementsAdder<I> adder = extendable.newExtension(DiscreteMeasurementsAdder.class);
         DiscreteMeasurements<I> discreteMeasurements = adder.add();
-        XMLStreamReader reader = context.getReader();
-        XmlUtil.readUntilEndElement(getExtensionName(), reader, () -> {
-            if (reader.getLocalName().equals(DISCRETE_MEASUREMENT)) {
-                readDiscreteMeasurement(discreteMeasurements, reader);
+        context.getReader().readChildNodes(elementName -> {
+            if (elementName.equals(DISCRETE_MEASUREMENT_ROOT)) {
+                readDiscreteMeasurement(discreteMeasurements, context.getReader());
             } else {
-                throw new PowsyblException("Unexpected element: " + reader.getLocalName());
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'discreteMeasurements'");
             }
         });
         return discreteMeasurements;
     }
 
-    private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, XMLStreamReader reader) throws XMLStreamException {
+    private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, TreeDataReader reader) {
+        String id = reader.readStringAttribute("id");
+        DiscreteMeasurement.Type type = reader.readEnumAttribute("type", DiscreteMeasurement.Type.class);
+        DiscreteMeasurement.TapChanger tapChanger = reader.readEnumAttribute("tapChanger", DiscreteMeasurement.TapChanger.class);
+        DiscreteMeasurement.ValueType valueType = reader.readEnumAttribute("valueType", DiscreteMeasurement.ValueType.class);
+
         DiscreteMeasurementAdder adder = discreteMeasurements.newDiscreteMeasurement()
-                .setId(reader.getAttributeValue(null, "id"))
-                .setType(DiscreteMeasurement.Type.valueOf(reader.getAttributeValue(null, "type")))
-                .setValid(XmlUtil.readBoolAttribute(reader, "valid"));
-        String tapChanger = reader.getAttributeValue(null, "tapChanger");
-        if (tapChanger != null) {
-            adder.setTapChanger(DiscreteMeasurement.TapChanger.valueOf(tapChanger));
+                .setId(id)
+                .setType(type)
+                .setTapChanger(tapChanger);
+        switch (valueType) {
+            case BOOLEAN -> Optional.ofNullable(reader.readBooleanAttribute(VALUE)).ifPresent(adder::setValue);
+            case INT -> Optional.ofNullable(reader.readIntAttribute(VALUE)).ifPresent(adder::setValue);
+            case STRING -> Optional.ofNullable(reader.readStringAttribute(VALUE)).ifPresent(adder::setValue);
+            default -> throw new PowsyblException("Unsupported value type: " + valueType);
         }
-        DiscreteMeasurement.ValueType valueType = DiscreteMeasurement.ValueType.valueOf(reader.getAttributeValue(null, "valueType"));
-        if (reader.getAttributeValue(null, VALUE) != null) {
-            switch (valueType) {
-                case BOOLEAN:
-                    adder.setValue(XmlUtil.readBoolAttribute(reader, VALUE));
-                    break;
-                case INT:
-                    adder.setValue(XmlUtil.readIntAttribute(reader, VALUE));
-                    break;
-                case STRING:
-                    adder.setValue(reader.getAttributeValue(null, VALUE));
-                    break;
-                default:
-                    throw new PowsyblException("Unsupported value type: " + valueType);
-            }
-        }
-        XmlUtil.readUntilEndElement(DISCRETE_MEASUREMENT, reader, () -> {
-            if (reader.getLocalName().equals("property")) {
-                adder.putProperty(reader.getAttributeValue(null, "name"),
-                        reader.getAttributeValue(null, VALUE));
+
+        adder.setValid(reader.readBooleanAttribute("valid", true));
+
+        reader.readChildNodes(elementName -> {
+            if (elementName.equals(PROPERTY_ROOT)) {
+                adder.putProperty(reader.readStringAttribute("name"),
+                        reader.readStringAttribute(VALUE));
+                reader.readEndNode();
             } else {
-                throw new PowsyblException("Unexpected element: " + reader.getLocalName());
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'discreteMeasurement'");
             }
         });
         adder.add();

@@ -6,13 +6,10 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  *
@@ -21,6 +18,7 @@ import javax.xml.stream.XMLStreamException;
 abstract class AbstractSwitchXml<A extends IdentifiableAdder<Switch, A>> extends AbstractSimpleIdentifiableXml<Switch, A, VoltageLevel> {
 
     static final String ROOT_ELEMENT_NAME = "switch";
+    static final String ARRAY_ELEMENT_NAME = "switches";
 
     @Override
     protected String getRootElementName() {
@@ -28,21 +26,16 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<Switch, A>> extends
     }
 
     @Override
-    protected boolean hasSubElements(Switch s) {
-        return false;
+    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeEnumAttribute("kind", s.getKind());
+        context.getWriter().writeBooleanAttribute("retained", s.isRetained());
+        context.getWriter().writeBooleanAttribute("open", s.isOpen());
+
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> context.getWriter().writeBooleanAttribute("fictitious", s.isFictitious(), false));
     }
 
     @Override
-    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("kind", s.getKind().name());
-        context.getWriter().writeAttribute("retained", Boolean.toString(s.isRetained()));
-        context.getWriter().writeAttribute("open", Boolean.toString(s.isOpen()));
-
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> XmlUtil.writeOptionalBoolean("fictitious", s.isFictitious(), false, context.getWriter()));
-    }
-
-    @Override
-    protected void readSubElements(Switch s, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> AbstractSwitchXml.super.readSubElements(s, context));
+    protected void readSubElements(Switch s, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> readSubElement(elementName, s, context));
     }
 }

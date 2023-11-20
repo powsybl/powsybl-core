@@ -21,12 +21,12 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:tieLine id="dl1 + dl2" name="dl1_name + dl2_name" danglingLineId1="dl1" danglingLineId2="dl2"/>
+    <iidm:extension id="Merged">
+        <extNetworkSource:networkSource sourceData="Source_0"/>
+    </iidm:extension>
     <iidm:extension id="LOAD">
         <mock:terminalMock>
             <mock:terminal id="LOAD"/>
         </mock:terminalMock>
-    </iidm:extension>
-    <iidm:extension id="Merged">
-        <extNetworkSource:networkSource sourceData="Source_0"/>
     </iidm:extension>
 </iidm:network>

@@ -12,8 +12,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * Abstract class for equipment that can and/or must be entirely created before reading their sub-elements.
  *
@@ -23,24 +21,28 @@ abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, 
 
     protected abstract T readRootElementAttributes(A adder, P parent, NetworkXmlReaderContext context);
 
-    protected void readSubElements(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
-        if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
-            PropertiesXml.read(identifiable, context);
-        } else if (context.getReader().getLocalName().equals(AliasesXml.ALIAS)) {
-            IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-            AliasesXml.read(identifiable, context);
-        } else {
-            throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");
+    protected void readSubElement(String elementName, T identifiable, NetworkXmlReaderContext context) {
+        switch (elementName) {
+            case PropertiesXml.ROOT_ELEMENT_NAME -> PropertiesXml.read(identifiable, context);
+            case AliasesXml.ROOT_ELEMENT_NAME -> {
+                IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                AliasesXml.read(identifiable, context);
+            }
+            default -> throw new PowsyblException("Unknown element name '" + elementName + "' in '" + identifiable.getId() + "'");
         }
     }
 
     @Override
-    public final void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException {
+    public final void read(P parent, NetworkXmlReaderContext context) {
         A adder = createAdder(parent);
         readIdentifierAttributes(adder, context);
         T identifiable = readRootElementAttributes(adder, parent, context);
         if (identifiable != null) {
             readSubElements(identifiable, context);
+        } else {
+            context.getReader().skipChildNodes();
         }
     }
+
+    protected abstract void readSubElements(T identifiable, NetworkXmlReaderContext context);
 }

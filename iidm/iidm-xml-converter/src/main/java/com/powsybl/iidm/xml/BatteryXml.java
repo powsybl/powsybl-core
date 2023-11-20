@@ -6,15 +6,14 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+import static com.powsybl.iidm.xml.ReactiveLimitsXml.ELEM_MIN_MAX_REACTIVE_LIMITS;
+import static com.powsybl.iidm.xml.ReactiveLimitsXml.ELEM_REACTIVE_CAPABILITY_CURVE;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -24,6 +23,7 @@ class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, Vo
     static final BatteryXml INSTANCE = new BatteryXml();
 
     static final String ROOT_ELEMENT_NAME = "battery";
+    static final String ARRAY_ELEMENT_NAME = "batteries";
 
     @Override
     protected String getRootElementName() {
@@ -31,24 +31,19 @@ class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, Vo
     }
 
     @Override
-    protected boolean hasSubElements(Battery b) {
-        return true;
-    }
-
-    @Override
-    protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble(IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8),
-                b.getTargetP(), context.getWriter());
-        XmlUtil.writeDouble(IidmXmlUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmXmlVersion.V_1_8),
-                b.getTargetQ(), context.getWriter());
-        XmlUtil.writeDouble("minP", b.getMinP(), context.getWriter());
-        XmlUtil.writeDouble("maxP", b.getMaxP(), context.getWriter());
+    protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute(IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8),
+                b.getTargetP());
+        context.getWriter().writeDoubleAttribute(IidmXmlUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmXmlVersion.V_1_8),
+                b.getTargetQ());
+        context.getWriter().writeDoubleAttribute("minP", b.getMinP());
+        context.getWriter().writeDoubleAttribute("maxP", b.getMaxP());
         writeNodeOrBus(null, b.getTerminal(), context);
         writePQ(null, b.getTerminal(), context.getWriter());
     }
 
     @Override
-    protected void writeSubElements(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) {
         ReactiveLimitsXml.INSTANCE.write(b, context);
     }
 
@@ -59,12 +54,12 @@ class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, Vo
 
     @Override
     protected Battery readRootElementAttributes(BatteryAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
-        double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(),
+        double targetP = context.getReader().readDoubleAttribute(
                 IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8));
-        double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(),
+        double targetQ = context.getReader().readDoubleAttribute(
                 IidmXmlUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmXmlVersion.V_1_8));
-        double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
-        double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
+        double minP = context.getReader().readDoubleAttribute("minP");
+        double maxP = context.getReader().readDoubleAttribute("maxP");
         readNodeOrBus(adder, context);
         Battery b = adder.setTargetP(targetP)
                 .setTargetQ(targetQ)
@@ -76,16 +71,12 @@ class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, Vo
     }
 
     @Override
-    protected void readSubElements(Battery b, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case "reactiveCapabilityCurve":
-                case "minMaxReactiveLimits":
-                    ReactiveLimitsXml.INSTANCE.read(b, context);
-                    break;
-
-                default:
-                    super.readSubElements(b, context);
+    protected void readSubElements(Battery b, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsXml.INSTANCE.readReactiveCapabilityCurve(b, context);
+                case ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsXml.INSTANCE.readMinMaxReactiveLimits(b, context);
+                default -> readSubElement(elementName, b, context);
             }
         });
     }

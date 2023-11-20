@@ -6,6 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.io.TreeDataFormat;
+
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -13,7 +16,10 @@ import java.util.Set;
  * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
  */
 public abstract class AbstractOptions<T> {
-    protected Set<String> extensions = null;
+
+    protected Set<String> extensions;
+
+    protected TreeDataFormat format = TreeDataFormat.XML;
 
     public abstract T setExtensions(Set<String> extensions);
 
@@ -48,4 +54,13 @@ public abstract class AbstractOptions<T> {
     }
 
     public abstract boolean isThrowExceptionIfExtensionNotFound();
+
+    public TreeDataFormat getFormat() {
+        return format;
+    }
+
+    public T setFormat(TreeDataFormat format) {
+        this.format = Objects.requireNonNull(format);
+        return (T) this;
+    }
 }

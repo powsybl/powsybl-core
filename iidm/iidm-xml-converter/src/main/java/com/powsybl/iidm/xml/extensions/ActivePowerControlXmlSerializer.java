@@ -10,9 +10,8 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
@@ -21,7 +20,6 @@ import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -32,7 +30,7 @@ import java.util.List;
 public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends AbstractVersionableNetworkExtensionXmlSerializer<T, ActivePowerControl<T>> {
 
     public ActivePowerControlXmlSerializer() {
-        super("activePowerControl", ActivePowerControl.class, false, "apc",
+        super("activePowerControl", ActivePowerControl.class, "apc",
                 new ImmutableMap.Builder<IidmXmlVersion, ImmutableSortedSet<String>>()
                         .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.0", "1.1"))
@@ -51,14 +49,14 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
     }
 
     @Override
-    public void write(ActivePowerControl<T> activePowerControl, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("participate", Boolean.toString(activePowerControl.isParticipate()));
-        XmlUtil.writeDouble("droop", activePowerControl.getDroop(), context.getWriter());
+    public void write(ActivePowerControl<T> activePowerControl, XmlWriterContext context) {
+        context.getWriter().writeBooleanAttribute("participate", activePowerControl.isParticipate());
+        context.getWriter().writeDoubleAttribute("droop", activePowerControl.getDroop());
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         String extVersionStr = networkContext.getExtensionVersion(ConnectablePosition.NAME)
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
         if ("1.1".compareTo(extVersionStr) <= 0) {
-            XmlUtil.writeDouble("participationFactor", activePowerControl.getParticipationFactor(), context.getWriter());
+            context.getWriter().writeDoubleAttribute("participationFactor", activePowerControl.getParticipationFactor());
         }
     }
 
@@ -75,14 +73,15 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
 
     @Override
     public ActivePowerControl<T> read(T identifiable, XmlReaderContext context) {
-        boolean participate = XmlUtil.readBoolAttribute(context.getReader(), "participate");
-        double droop = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "droop");
+        boolean participate = context.getReader().readBooleanAttribute("participate");
+        float droop = context.getReader().readFloatAttribute("droop");
         double participationFactor = Double.NaN;
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
         if ("1.1".compareTo(extVersionStr) <= 0) {
-            participationFactor = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "participationFactor", 0.0);
+            participationFactor = context.getReader().readDoubleAttribute("participationFactor");
         }
+        context.getReader().readEndNode();
         ActivePowerControlAdder<T> activePowerControlAdder = identifiable.newExtension(ActivePowerControlAdder.class);
         return activePowerControlAdder.withParticipate(participate)
                 .withDroop(droop)

@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import com.powsybl.iidm.network.ThreeSides;
+
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -21,7 +23,7 @@ public interface MeasurementAdder {
 
     MeasurementAdder setStandardDeviation(double standardDeviation);
 
-    MeasurementAdder setSide(Measurement.Side side);
+    MeasurementAdder setSide(ThreeSides side);
 
     MeasurementAdder setValid(boolean valid);
 

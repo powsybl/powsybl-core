@@ -9,21 +9,9 @@ package com.powsybl.iidm.network.impl.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.SV;
 
 /**
@@ -44,14 +32,14 @@ class SVTest {
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
         double tol = 0.00001;
-        SV svL1 = new SV(line.getTerminal1().getP(), line.getTerminal1().getQ(), bus1.getV(), bus1.getAngle(), Branch.Side.ONE);
+        SV svL1 = new SV(line.getTerminal1().getP(), line.getTerminal1().getQ(), bus1.getV(), bus1.getAngle(), TwoSides.ONE);
         SV svL1other = svL1.otherSide(line);
         assertEquals(line.getTerminal2().getP(), svL1other.getP(), tol);
         assertEquals(line.getTerminal2().getQ(), svL1other.getQ(), tol);
         assertEquals(bus2.getV(), svL1other.getU(), tol);
         assertEquals(bus2.getAngle(), svL1other.getA(), tol);
 
-        SV svL2 = new SV(line.getTerminal2().getP(), line.getTerminal2().getQ(), bus2.getV(), bus2.getAngle(), Branch.Side.TWO);
+        SV svL2 = new SV(line.getTerminal2().getP(), line.getTerminal2().getQ(), bus2.getV(), bus2.getAngle(), TwoSides.TWO);
         SV svL2other = svL2.otherSide(line);
         assertEquals(line.getTerminal1().getP(), svL2other.getP(), tol);
         assertEquals(line.getTerminal1().getQ(), svL2other.getQ(), tol);
@@ -63,7 +51,7 @@ class SVTest {
         assertEquals(bus1.getV(), svL2.otherSideU(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
         assertEquals(bus1.getAngle(), svL2.otherSideA(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
 
-        SV svDl1 = new SV(dl.getTerminal().getP(), dl.getTerminal().getQ(), bus2.getV(), bus2.getAngle(), Branch.Side.ONE);
+        SV svDl1 = new SV(dl.getTerminal().getP(), dl.getTerminal().getQ(), bus2.getV(), bus2.getAngle(), TwoSides.ONE);
         SV svDl1other = svDl1.otherSide(dl);
         assertEquals(-dl.getP0(), svDl1other.getP(), tol);
         assertEquals(-dl.getQ0(), svDl1other.getQ(), tol);
@@ -85,17 +73,17 @@ class SVTest {
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
         double tol = 0.00001;
-        SV svL1 = new SV(line.getTerminal1().getP(), line.getTerminal1().getQ(), bus1.getV(), bus1.getAngle(), Branch.Side.ONE);
+        SV svL1 = new SV(line.getTerminal1().getP(), line.getTerminal1().getQ(), bus1.getV(), bus1.getAngle(), TwoSides.ONE);
         SV svL1other = svL1.otherSide(line);
         assertEquals(line.getTerminal2().getP(), svL1other.getP(), tol);
         assertEquals(bus2.getAngle(), svL1other.getA(), tol);
 
-        SV svL2 = new SV(line.getTerminal2().getP(), line.getTerminal2().getQ(), bus2.getV(), bus2.getAngle(), Branch.Side.TWO);
+        SV svL2 = new SV(line.getTerminal2().getP(), line.getTerminal2().getQ(), bus2.getV(), bus2.getAngle(), TwoSides.TWO);
         SV svL2other = svL2.otherSide(line);
         assertEquals(line.getTerminal1().getP(), svL2other.getP(), tol);
         assertEquals(bus1.getAngle(), svL2other.getA(), tol);
 
-        SV svDl1 = new SV(dl.getTerminal().getP(), dl.getTerminal().getQ(), bus2.getV(), bus2.getAngle(), Branch.Side.ONE);
+        SV svDl1 = new SV(dl.getTerminal().getP(), dl.getTerminal().getQ(), bus2.getV(), bus2.getAngle(), TwoSides.ONE);
         SV svDl1other = svDl1.otherSide(dl);
         assertEquals(-dl.getP0(), svDl1other.getP(), tol);
         assertEquals(-0.4187543391573424, svDl1other.getA(), tol);

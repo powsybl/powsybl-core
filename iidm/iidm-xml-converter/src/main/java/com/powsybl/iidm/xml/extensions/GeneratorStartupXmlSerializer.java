@@ -11,9 +11,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
@@ -21,7 +20,6 @@ import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -29,14 +27,14 @@ import java.util.List;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Generator, GeneratorStartup> implements ExtensionXmlSerializer<Generator, GeneratorStartup> {
+public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Generator, GeneratorStartup> {
 
     private static final String ITESLA_1_0 = "1.0-itesla";
     private static final String V_1_0 = "1.0";
     private static final String V_1_1 = "1.1";
 
     public GeneratorStartupXmlSerializer() {
-        super(GeneratorStartup.NAME, GeneratorStartup.class, false, "gs",
+        super(GeneratorStartup.NAME, GeneratorStartup.class, "gs",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
@@ -71,7 +69,7 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
     }
 
     @Override
-    public void write(GeneratorStartup startup, XmlWriterContext context) throws XMLStreamException {
+    public void write(GeneratorStartup startup, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         String extVersionStr = networkContext.getExtensionVersion("startup")
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
@@ -90,15 +88,15 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
             default:
                 throw new PowsyblException("Unsupported startup version: " + extVersionStr);
         }
-        XmlUtil.writeDouble(plannedActivePowerSetpoint, startup.getPlannedActivePowerSetpoint(), context.getWriter());
-        XmlUtil.writeDouble(startupCost, startup.getStartupCost(), context.getWriter());
-        XmlUtil.writeDouble("marginalCost", startup.getMarginalCost(), context.getWriter());
-        XmlUtil.writeDouble("plannedOutageRate", startup.getPlannedOutageRate(), context.getWriter());
-        XmlUtil.writeDouble("forcedOutageRate", startup.getForcedOutageRate(), context.getWriter());
+        context.getWriter().writeDoubleAttribute(plannedActivePowerSetpoint, startup.getPlannedActivePowerSetpoint());
+        context.getWriter().writeDoubleAttribute(startupCost, startup.getStartupCost());
+        context.getWriter().writeDoubleAttribute("marginalCost", startup.getMarginalCost());
+        context.getWriter().writeDoubleAttribute("plannedOutageRate", startup.getPlannedOutageRate());
+        context.getWriter().writeDoubleAttribute("forcedOutageRate", startup.getForcedOutageRate());
     }
 
     @Override
-    public GeneratorStartup read(Generator generator, XmlReaderContext context) throws XMLStreamException {
+    public GeneratorStartup read(Generator generator, XmlReaderContext context) {
         double plannedActivePowerSetpoint;
         double startUpCost;
         NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
@@ -106,19 +104,20 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
         switch (extensionVersionStr) {
             case ITESLA_1_0:
             case V_1_0:
-                plannedActivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "predefinedActivePowerSetpoint");
-                startUpCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "startUpCost");
+                plannedActivePowerSetpoint = context.getReader().readDoubleAttribute("predefinedActivePowerSetpoint");
+                startUpCost = context.getReader().readDoubleAttribute("startUpCost");
                 break;
             case V_1_1:
-                plannedActivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "plannedActivePowerSetpoint");
-                startUpCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "startupCost");
+                plannedActivePowerSetpoint = context.getReader().readDoubleAttribute("plannedActivePowerSetpoint");
+                startUpCost = context.getReader().readDoubleAttribute("startupCost");
                 break;
             default:
                 throw new PowsyblException("Unsupported startup version: " + extensionVersionStr);
         }
-        double marginalCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "marginalCost");
-        double plannedOutageRate = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "plannedOutageRate");
-        double forcedOutageRate = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "forcedOutageRate");
+        double marginalCost = context.getReader().readDoubleAttribute("marginalCost");
+        double plannedOutageRate = context.getReader().readDoubleAttribute("plannedOutageRate");
+        double forcedOutageRate = context.getReader().readDoubleAttribute("forcedOutageRate");
+        context.getReader().readEndNode();
         return generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(plannedActivePowerSetpoint)
                 .withStartupCost(startUpCost)
