@@ -64,7 +64,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-xml-converter</artifactId>
+            <artifactId>powsybl-iidm-serializer</artifactId>
             <version>${project.version}</version>
         </dependency>
 

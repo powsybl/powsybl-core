@@ -18,7 +18,7 @@
         <version>6.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-iidm-xml-converter</artifactId>
+    <artifactId>powsybl-iidm-serializer</artifactId>
     <name>IIDM XML converter</name>
     <description>A XML converter implementation for IIDM networks</description>
 
