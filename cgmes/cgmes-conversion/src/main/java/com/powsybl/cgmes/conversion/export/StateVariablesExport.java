@@ -15,6 +15,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.SwitchesFlow;
+import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,18 +68,23 @@ public final class StateVariablesExport {
 
     private static void writeTopologicalIslands(Network network, CgmesExportContext context, XMLStreamWriter writer) throws XMLStreamException {
         Map<String, String> angleRefs = buildAngleRefs(network, context);
-        Map<String, List<String>> islands = buildIslands(network, context);
+        List<TopologicalIsland> islands = buildIslands(network, context);
         String cimNamespace = context.getCim().getNamespace();
-        for (Map.Entry<String, List<String>> island : islands.entrySet()) {
-            if (!angleRefs.containsKey(island.getKey())) {
-                Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined slack bus: it is ignored", island.getKey());
+        for (TopologicalIsland island : islands) {
+            if (!angleRefs.containsKey(island.key)) {
+                Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined slack bus: it is ignored", island.key);
                 LOG.info(log.get());
                 continue;
             }
             String islandId = CgmesExportUtil.getUniqueId();
             CgmesExportUtil.writeStartIdName(CgmesNames.TOPOLOGICAL_ISLAND, islandId, islandId, cimNamespace, writer, context);
-            CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.getKey()), cimNamespace, writer, context);
-            for (String tn : island.getValue()) {
+            CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.key), cimNamespace, writer, context);
+            if (context.isExportLoadFlowStatus()) {
+                writer.writeStartElement(cimNamespace, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION);
+                writer.writeCharacters(island.loadFlowStatus);
+                writer.writeEndElement();
+            }
+            for (String tn : island.topologicalNodes) {
                 CgmesExportUtil.writeReference("TopologicalIsland.TopologicalNodes", tn, cimNamespace, writer, context);
             }
             writer.writeEndElement();
@@ -125,42 +131,98 @@ public final class StateVariablesExport {
         angleRefs.put(topologicalNodeId, topologicalNodeId);
     }
 
-    private static Map<String, List<String>> buildIslands(Network network, CgmesExportContext context) {
-        Map<String, List<String>> islands = new HashMap<>();
-        for (Bus b : network.getBusBreakerView().getBuses()) {
-            String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
-            if (b.getSynchronousComponent() != null) {
-                int num = b.getSynchronousComponent().getNum();
-                islands.computeIfAbsent(String.valueOf(num), i -> new ArrayList<>());
-                islands.get(String.valueOf(num)).add(topologicalNodeId);
-            } else {
-                islands.put(topologicalNodeId, Collections.singletonList(topologicalNodeId));
+    private static final class TopologicalIsland {
+        static final String CONVERGED = "converged";
+        static final String DIVERGED = "diverged";
+        // FIXME(Luma) While we test the feature, if we want to report all unbalanced buses
+        private static final boolean CHECK_ALL_BUSES = true;
+
+        // The key can be a synchronous component number or a topological node identifier
+        final String key;
+        final List<String> topologicalNodes;
+        // We need to export the load flow status for the island,
+        // from QoCDC 3.31 rule TIConvergenceStatMissing:
+        //      The cim:IdentifiedObject.description of cim:TopologicalIsland shall have one the
+        //      following string values: “converged” and “diverged” which represents the
+        //      convergence status of the cim:TopologicalIsland.
+        // Consider the island is converged unless we add a non-converged bus
+        String loadFlowStatus = CONVERGED;
+
+        private TopologicalIsland(String key, List<String> topologicalNodes) {
+            this.key = key;
+            this.topologicalNodes = topologicalNodes;
+        }
+
+        static TopologicalIsland fromSynchronousComponent(String key) {
+            return new TopologicalIsland(key, new ArrayList<>());
+        }
+
+        static TopologicalIsland fromTopologicalNode(String topologicalNode) {
+            return new TopologicalIsland(topologicalNode, Collections.singletonList(topologicalNode));
+        }
+
+        void addNode(String topologicalNode, Bus bus, boolean updateLoadFlowStatus) {
+            topologicalNodes.add(topologicalNode);
+            if (updateLoadFlowStatus) {
+                updateLoadFlowStatus(bus);
             }
         }
-        return islands;
+
+        void updateLoadFlowStatus(Bus bus) {
+            if (loadFlowStatus.equals(DIVERGED) && !CHECK_ALL_BUSES) {
+                return;
+            }
+            if (!(isValidVoltage(bus.getV()) && isValidAngle(bus.getAngle()) && isBalanced(bus))) {
+                loadFlowStatus = DIVERGED;
+            }
+        }
+
+        boolean isValidVoltage(double v) {
+            return v >= 0.01;
+        }
+
+        boolean isValidAngle(double a) {
+            return Double.isFinite(a);
+        }
+
+        boolean isBalanced(Bus bus) {
+            // Instead of checking switch flows, we check that the corresponding bus view bus is balanced
+            // Maybe we will check the same bus view bus more than once
+            Bus bus0 = bus.getVoltageLevel().getBusView().getMergedBus(bus.getId());
+            if (bus0 == null) {
+                LOG.warn("Can not check if bus is balanced. No BusView bus can be found for: {}", bus);
+                return false;
+            }
+            Complex balance = bus0.getConnectedTerminalStream()
+                    // FIXME(Luma) Static var compensators with mode OFF do not have p, q set at their terminal after load flow calculation
+                    .filter(t -> !(t.getConnectable().getType() == IdentifiableType.STATIC_VAR_COMPENSATOR && ((StaticVarCompensator) t.getConnectable()).getRegulationMode() == StaticVarCompensator.RegulationMode.OFF))
+                    .map(t -> new Complex(t.getP(), t.getQ()))
+                    .reduce(Complex.ZERO, Complex::add);
+            // FIXME(Luma) configure or take it from default LoadFlow parameters
+            double threshold = 0.5;
+            boolean isBalanced = Math.abs(balance.getReal()) < threshold && Math.abs(balance.getImaginary()) < threshold;
+            if (!isBalanced && LOG.isInfoEnabled()) {
+                LOG.info("Bus is not balanced: {} {}", bus, balance);
+                bus0.getConnectedTerminalStream().forEach(t -> LOG.info(String.format("  %7.2f  %7.2f  %s %s %s", t.getP(), t.getQ(), t.getConnectable().getType(), t.getConnectable().getNameOrId(), t.getConnectable().getId())));
+                LOG.info(String.format("  %7.2f  %7.2f", balance.getReal(), balance.getImaginary()));
+            }
+            return isBalanced;
+        }
     }
 
-    private static Map<String, String> buildLoadFlowStatus(Network network, CgmesExportContext context) {
-        Map<String, List<Double>> voltages = new HashMap<>();
+    private static List<TopologicalIsland> buildIslands(Network network, CgmesExportContext context) {
+        Map<String, TopologicalIsland> islands = new HashMap<>();
         for (Bus b : network.getBusBreakerView().getBuses()) {
             String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
             if (b.getSynchronousComponent() != null) {
-                int num = b.getSynchronousComponent().getNum();
-                voltages.get(String.valueOf(num)).add(b.getV());
+                String key = String.valueOf(b.getSynchronousComponent().getNum());
+                TopologicalIsland island = islands.computeIfAbsent(key, TopologicalIsland::fromSynchronousComponent);
+                island.addNode(topologicalNodeId, b, context.isExportLoadFlowStatus());
             } else {
-                voltages.put(topologicalNodeId, Collections.singletonList(0.0));
+                islands.put(topologicalNodeId, TopologicalIsland.fromTopologicalNode(topologicalNodeId));
             }
         }
-        Map<String, String> status = new HashMap<>();
-        for (Map.Entry<String, List<Double>> synchronousComponentVoltages : voltages.entrySet()) {
-            String num = synchronousComponentVoltages.getKey();
-            if (synchronousComponentVoltages.getValue().stream().anyMatch(v -> Double.isNaN(v) || v < 0.01)) {
-                status.put(num, "diverged");
-            } else {
-                status.put(num, "converged");
-            }
-        }
-        return status;
+        return islands.values().stream().toList();
     }
 
     private static void writeVoltagesForTopologicalNodes(Network network, CgmesExportContext context, XMLStreamWriter writer) throws XMLStreamException {
