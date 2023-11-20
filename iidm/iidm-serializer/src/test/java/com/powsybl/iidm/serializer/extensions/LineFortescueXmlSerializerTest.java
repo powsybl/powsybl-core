@@ -6,13 +6,13 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.LineFortescue;
 import com.powsybl.iidm.network.extensions.LineFortescueAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class LineFortescueXmlSerializerTest extends AbstractConverterTest {
+class LineFortescueXmlSerializerTest extends AbstractSerializerTest {
 
     @Test
     void testXmlSerializer() throws IOException {
@@ -39,8 +39,8 @@ class LineFortescueXmlSerializerTest extends AbstractConverterTest {
                 .add();
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read, "/fortescue/lineFortescueRef.xml");
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read, "/fortescue/lineFortescueRef.xml");
 
         Line l2 = network2.getLine("NHV1_NHV2_1");
         assertNotNull(l2);

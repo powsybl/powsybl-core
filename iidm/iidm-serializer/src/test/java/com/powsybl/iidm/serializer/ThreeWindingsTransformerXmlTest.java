@@ -15,12 +15,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Luma Zamarreno {@literal <zamarrenolm at aia.es>}
  */
-class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
+class ThreeWindingsTransformerXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void roundTripTest() throws IOException {
@@ -28,8 +28,8 @@ class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         roundTripAllPreviousVersionedXmlTest("threeWindingsTransformerRoundTripRef.xml");
 
         roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 
@@ -58,8 +58,8 @@ class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         createPtc(twt.getLeg3().newPhaseTapChanger());
 
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 

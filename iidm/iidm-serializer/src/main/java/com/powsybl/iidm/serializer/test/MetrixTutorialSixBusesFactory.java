@@ -9,7 +9,7 @@ package com.powsybl.iidm.serializer.test;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.serializer.ImportOptions;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -24,6 +24,6 @@ public final class MetrixTutorialSixBusesFactory {
     }
 
     public static Network create(NetworkFactory networkFactory) {
-        return NetworkXml.read(MetrixTutorialSixBusesFactory.class.getResourceAsStream("/metrix-tutorial-6-buses-network.xiidm"), new ImportOptions(), null, networkFactory);
+        return NetworkSerializer.read(MetrixTutorialSixBusesFactory.class.getResourceAsStream("/metrix-tutorial-6-buses-network.xiidm"), new ImportOptions(), null, networkFactory);
     }
 }

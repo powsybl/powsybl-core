@@ -10,16 +10,16 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class TieLineTerminalRefBugTest extends AbstractXmlConverterTest {
+class TieLineTerminalRefBugTest extends AbstractIidmSerializerTest {
 
     @Test
     void test() throws IOException {
-        assertDoesNotThrow(() -> NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("tieLineTerminalRefBug.xml", CURRENT_IIDM_XML_VERSION))));
+        assertDoesNotThrow(() -> NetworkSerializer.read(getClass().getResourceAsStream(getVersionedNetworkPath("tieLineTerminalRefBug.xml", CURRENT_IIDM_XML_VERSION))));
     }
 }

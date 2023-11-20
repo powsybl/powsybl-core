@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -73,9 +73,9 @@ public class XMLImporter extends AbstractTreeDataImporter {
                             if (eventType == XMLStreamConstants.START_ELEMENT) {
                                 String name = xmlsr.getLocalName();
                                 String ns = xmlsr.getNamespaceURI();
-                                return NetworkXml.NETWORK_ROOT_ELEMENT_NAME.equals(name)
-                                        && (Stream.of(IidmXmlVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
-                                        || Stream.of(IidmXmlVersion.values()).filter(v -> v.compareTo(IidmXmlVersion.V_1_7) >= 0).anyMatch(v -> v.getNamespaceURI(false).equals(ns)));
+                                return NetworkSerializer.NETWORK_ROOT_ELEMENT_NAME.equals(name)
+                                        && (Stream.of(IidmVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
+                                        || Stream.of(IidmVersion.values()).filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0).anyMatch(v -> v.getNamespaceURI(false).equals(ns)));
                             }
                         }
                     } finally {

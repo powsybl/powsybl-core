@@ -13,9 +13,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.iidm.serializer.IidmXmlConstants;
-import com.powsybl.iidm.serializer.IidmXmlVersion;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
+import com.powsybl.iidm.serializer.IidmSerializerConstants;
+import com.powsybl.iidm.serializer.IidmVersion;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
 
 import java.util.*;
 
@@ -29,11 +29,11 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     private final String extensionName;
     private final Class<? super E> extensionClass;
     private final String namespacePrefix;
-    private final Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions = new EnumMap<>(IidmXmlVersion.class);
+    private final Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions = new EnumMap<>(IidmVersion.class);
     private final BiMap<String, String> namespaceUris = HashBiMap.create();
 
     protected AbstractVersionableNetworkExtensionXmlSerializer(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
-                                                               Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
+                                                               Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
         this.extensionName = Objects.requireNonNull(extensionName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
@@ -70,17 +70,17 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
 
     @Override
     public String getVersion() {
-        return getVersion(IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
+        return getVersion(IidmSerializerConstants.CURRENT_IIDM_XML_VERSION);
     }
 
-    public boolean versionExists(IidmXmlVersion networkVersion) {
+    public boolean versionExists(IidmVersion networkVersion) {
         return extensionVersions.containsKey(networkVersion);
     }
 
     /**
      * Get the oldest version of an extension working with a network version.
      */
-    public String getVersion(IidmXmlVersion networkVersion) {
+    public String getVersion(IidmVersion networkVersion) {
         return extensionVersions.get(networkVersion).last();
     }
 
@@ -95,8 +95,8 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
         return namespaceUris.keySet();
     }
 
-    protected void checkReadingCompatibility(NetworkXmlReaderContext networkContext) {
-        IidmXmlVersion version = networkContext.getVersion();
+    protected void checkReadingCompatibility(NetworkSerializerReaderContext networkContext) {
+        IidmVersion version = networkContext.getVersion();
         checkCompatibilityNetworkVersion(version);
         if (extensionVersions.get(version).stream().noneMatch(v -> networkContext.containsExtensionVersion(getExtensionName(), v))) {
             throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
@@ -104,7 +104,7 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
         }
     }
 
-    public boolean checkWritingCompatibility(String extensionVersion, IidmXmlVersion version) {
+    public boolean checkWritingCompatibility(String extensionVersion, IidmVersion version) {
         checkExtensionVersionSupported(extensionVersion);
         checkCompatibilityNetworkVersion(version);
         if (!extensionVersions.get(version).contains(extensionVersion)) {
@@ -114,7 +114,7 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
         return true;
     }
 
-    private void checkCompatibilityNetworkVersion(IidmXmlVersion version) {
+    private void checkCompatibilityNetworkVersion(IidmVersion version) {
         if (!extensionVersions.containsKey(version)) {
             throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
                     + ") is not supported by the " + getExtensionName() + " extension's XML serializer.");

@@ -124,8 +124,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             "The list of exported extensions", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
     private static final Parameter SORTED_PARAMETER = new Parameter(SORTED, ParameterType.BOOLEAN, "Sort export output file", Boolean.FALSE);
-    private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM-XML version in which files will be generated", IidmXmlConstants.CURRENT_IIDM_XML_VERSION.toString("."),
-            Arrays.stream(IidmXmlVersion.values()).map(v -> v.toString(".")).collect(Collectors.toList()));
+    private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM-XML version in which files will be generated", IidmSerializerConstants.CURRENT_IIDM_XML_VERSION.toString("."),
+            Arrays.stream(IidmVersion.values()).map(v -> v.toString(".")).collect(Collectors.toList()));
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
@@ -150,7 +150,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
         ExportOptions options = createExportOptions(parameters);
         try {
             long startTime = System.currentTimeMillis();
-            NetworkXml.write(network, options, dataSource, getExtension());
+            NetworkSerializer.write(network, options, dataSource, getExtension());
             LOGGER.debug("{} export done in {} ms", getFormat(), System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

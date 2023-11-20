@@ -6,13 +6,13 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescueAdder;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ThreeWindingsTransformerFortescueXmlSerializerTest extends AbstractConverterTest {
+class ThreeWindingsTransformerFortescueXmlSerializerTest extends AbstractSerializerTest {
 
     @Test
     void testXmlSerializer() throws IOException {
@@ -57,8 +57,8 @@ class ThreeWindingsTransformerFortescueXmlSerializerTest extends AbstractConvert
                 .add();
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read, "/fortescue/threeWindingsTransformerFortescueRef.xml");
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read, "/fortescue/threeWindingsTransformerFortescueRef.xml");
 
         var twt2 = network2.getThreeWindingsTransformer("3WT");
         assertNotNull(twt2);

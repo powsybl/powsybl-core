@@ -15,13 +15,13 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Teofil Calin Banc<teofil-calin.banc at rte-france.com>
  */
-class TopologyLevelTest extends AbstractXmlConverterTest {
+class TopologyLevelTest extends AbstractIidmSerializerTest {
 
     @Test
     void testComparison() {
@@ -36,7 +36,7 @@ class TopologyLevelTest extends AbstractXmlConverterTest {
 
     @Test
     void testConversion() throws IOException {
-        testConversion(NetworkXml.read(getVersionedNetworkAsStream("fictitiousSwitchRef.xml", IidmXmlVersion.V_1_0)));
+        testConversion(NetworkSerializer.read(getVersionedNetworkAsStream("fictitiousSwitchRef.xml", IidmVersion.V_1_0)));
 
         testConversion(FictitiousSwitchFactory.create());
     }
@@ -58,20 +58,20 @@ class TopologyLevelTest extends AbstractXmlConverterTest {
         ExportOptions options = new ExportOptions()
                 .setTopologyLevel(TopologyLevel.NODE_BREAKER);
 
-        NetworkXml.write(network, options, path);
+        NetworkSerializer.write(network, options, path);
     }
 
     private static void writeBusBreaker(Network network, Path path) {
         ExportOptions options = new ExportOptions()
                 .setTopologyLevel(TopologyLevel.BUS_BREAKER);
 
-        NetworkXml.write(network, options, path);
+        NetworkSerializer.write(network, options, path);
     }
 
     private static void writeBusBranch(Network network, Path path) {
         ExportOptions options = new ExportOptions()
                 .setTopologyLevel(TopologyLevel.BUS_BRANCH);
 
-        NetworkXml.write(network, options, path);
+        NetworkSerializer.write(network, options, path);
     }
 }

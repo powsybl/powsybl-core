@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class TieLineXmlTest extends AbstractXmlConverterTest {
+class TieLineXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -23,11 +23,11 @@ class TieLineXmlTest extends AbstractXmlConverterTest {
 
     @Test
     void testV10() throws IOException {
-        roundTripVersionedXmlTest("tieline.xml", IidmXmlVersion.V_1_10);
+        roundTripVersionedXmlTest("tieline.xml", IidmVersion.V_1_10);
     }
 
     @Test
     void testV9() throws IOException {
-        roundTripVersionedXmlTest("tieline.xml", IidmXmlVersion.V_1_9);
+        roundTripVersionedXmlTest("tieline.xml", IidmVersion.V_1_9);
     }
 }

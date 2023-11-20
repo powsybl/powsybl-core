@@ -17,14 +17,14 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
+class ShuntCompensatorXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void linearShuntTest() throws IOException {
@@ -32,12 +32,12 @@ class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("shuntRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("shuntRoundTripRef.xml", IidmXmlVersion.V_1_2);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("shuntRoundTripRef.xml", IidmVersion.V_1_2);
     }
 
     @Test
@@ -46,18 +46,18 @@ class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility from version 1.2
-        roundTripVersionedXmlFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmXmlVersion.V_1_3);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmVersion.V_1_3);
 
         // check that it fails for versions previous to 1.2
-        testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_3, version -> {
             try {
                 ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-                NetworkXml.write(network, options, tmpDir.resolve("fail"));
+                NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("shunt.shuntNonLinearModel is not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3",
@@ -66,7 +66,7 @@ class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
         });
 
         // check that it doesn't fail for versions previous to 1.2 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_3, version -> {
             try {
                 writeXmlTest(network, (n, p) -> write(n, p, version), getVersionedNetworkPath("nonLinearShuntRoundTripRef.xml", version));
             } catch (IOException e) {
@@ -75,16 +75,16 @@ class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
         });
     }
 
-    private static void write(Network network, Path path, IidmXmlVersion version) {
+    private static void write(Network network, Path path, IidmVersion version) {
         ExportOptions options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR)
                 .setVersion(version.toString("."));
-        NetworkXml.write(network, options, path);
+        NetworkSerializer.write(network, options, path);
     }
 
     @Test
     void unsupportedWriteTest() {
         Network network = ShuntTestCaseFactory.create();
-        testForAllPreviousVersions(IidmXmlVersion.V_1_2, v -> write(network, v.toString(".")));
+        testForAllPreviousVersions(IidmVersion.V_1_2, v -> write(network, v.toString(".")));
     }
 
     @Test
@@ -92,14 +92,14 @@ class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
         Network network = ShuntTestCaseFactory.create(0.0);
         Path path = tmpDir.resolve("shunt.xml");
 
-        NetworkXml.write(network, new ExportOptions().setVersion(IidmXmlVersion.V_1_4.toString(".")), path);
-        Network n = NetworkXml.read(path);
+        NetworkSerializer.write(network, new ExportOptions().setVersion(IidmVersion.V_1_4.toString(".")), path);
+        Network n = NetworkSerializer.read(path);
         ShuntCompensator sc = n.getShuntCompensator("SHUNT");
         assertEquals(Double.MIN_NORMAL, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
 
         network.getShuntCompensator("SHUNT").setVoltageRegulatorOn(false).setTargetV(Double.NaN).setTargetDeadband(Double.NaN).setRegulatingTerminal(null);
-        NetworkXml.write(network, new ExportOptions().setVersion(IidmXmlVersion.V_1_1.toString(".")), path);
-        Network n2 = NetworkXml.read(path);
+        NetworkSerializer.write(network, new ExportOptions().setVersion(IidmVersion.V_1_1.toString(".")), path);
+        Network n2 = NetworkSerializer.read(path);
         ShuntCompensator sc2 = n2.getShuntCompensator("SHUNT");
         assertEquals(Double.MIN_NORMAL, sc2.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
     }
@@ -107,7 +107,7 @@ class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
     private void write(Network network, String version) {
         try {
             ExportOptions options = new ExportOptions().setVersion(version);
-            NetworkXml.write(network, options, tmpDir.resolve("fail.xml"));
+            NetworkSerializer.write(network, options, tmpDir.resolve("fail.xml"));
             fail();
         } catch (PowsyblException e) {
             assertEquals("shunt.voltageRegulatorOn is not defined as default and not supported for IIDM-XML version " +

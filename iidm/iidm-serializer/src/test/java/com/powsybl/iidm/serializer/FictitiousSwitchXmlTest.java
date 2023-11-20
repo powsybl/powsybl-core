@@ -11,18 +11,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class FictitiousSwitchXmlTest extends AbstractXmlConverterTest {
+class FictitiousSwitchXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void roundTripTest() throws IOException {
         roundTripXmlTest(FictitiousSwitchFactory.create(),
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("fictitiousSwitchRef.xml", CURRENT_IIDM_XML_VERSION));
 
         //backward compatibility

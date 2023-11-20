@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.serializer;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -20,17 +20,17 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Properties;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class XMLImporterTest extends AbstractConverterTest {
+class XMLImporterTest extends AbstractSerializerTest {
 
     private XMLImporter importer;
 
-    private void writeNetwork(String fileName, IidmXmlVersion version, boolean writeExt) throws IOException {
+    private void writeNetwork(String fileName, IidmVersion version, boolean writeExt) throws IOException {
         writeNetwork(fileName, version.getNamespaceURI(), writeExt);
     }
 
@@ -97,7 +97,7 @@ class XMLImporterTest extends AbstractConverterTest {
     @Test
     void backwardCompatibilityTest() throws IOException {
         // create network and datasource
-        writeNetwork("/v_1_0.xiidm", IidmXmlVersion.V_1_0, false);
+        writeNetwork("/v_1_0.xiidm", IidmVersion.V_1_0, false);
         DataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "v_1_0");
 
         // exists

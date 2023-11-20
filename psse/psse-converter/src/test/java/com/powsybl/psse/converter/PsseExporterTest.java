@@ -7,7 +7,7 @@
 package com.powsybl.psse.converter;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -36,7 +36,7 @@ import java.util.Properties;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class PsseExporterTest extends AbstractConverterTest {
+class PsseExporterTest extends AbstractSerializerTest {
 
     private Network importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();

@@ -9,9 +9,9 @@ package com.powsybl.iidm.serializer.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
-import com.powsybl.iidm.serializer.AbstractXmlConverterTest;
-import com.powsybl.iidm.serializer.IidmXmlConstants;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.AbstractIidmSerializerTest;
+import com.powsybl.iidm.serializer.IidmSerializerConstants;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class GeneratorEntsoeCategoryXmlTest extends AbstractXmlConverterTest {
+class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerializerTest {
 
     static Network createTestNetwork() {
         Network network = NetworkFactory.create("test", "test");
@@ -63,9 +63,9 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractXmlConverterTest {
         GeneratorEntsoeCategory entsoeCategory = generator.newExtension(GeneratorEntsoeCategoryAdder.class).withCode(4).add();
 
         Network network2 = roundTripXmlTest(network,
-                                            NetworkXml::writeAndValidate,
-                                            NetworkXml::read,
-                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "/generatorEntsoeCategoryRef.xml");
+                                            NetworkSerializer::writeAndValidate,
+                                            NetworkSerializer::read,
+                getVersionDir(IidmSerializerConstants.CURRENT_IIDM_XML_VERSION) + "/generatorEntsoeCategoryRef.xml");
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);

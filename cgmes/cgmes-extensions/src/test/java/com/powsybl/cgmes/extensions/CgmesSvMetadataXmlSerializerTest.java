@@ -6,10 +6,10 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CgmesSvMetadataXmlSerializerTest extends AbstractConverterTest {
+class CgmesSvMetadataXmlSerializerTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -31,6 +31,6 @@ class CgmesSvMetadataXmlSerializerTest extends AbstractConverterTest {
                 .addDependency("http://dependency1")
                 .addDependency("http://dependency2")
                 .add();
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead, "/eurostag_cgmes_sv_metadata.xml");
+        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead, "/eurostag_cgmes_sv_metadata.xml");
     }
 }

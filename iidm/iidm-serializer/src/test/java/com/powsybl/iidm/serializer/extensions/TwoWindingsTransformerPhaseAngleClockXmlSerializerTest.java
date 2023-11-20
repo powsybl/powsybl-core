@@ -6,27 +6,27 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.AbstractXmlConverterTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.AbstractIidmSerializerTest.getVersionedNetworkPath;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es
  */
-class TwoWindingsTransformerPhaseAngleClockXmlSerializerTest extends AbstractConverterTest {
+class TwoWindingsTransformerPhaseAngleClockXmlSerializerTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -37,8 +37,8 @@ class TwoWindingsTransformerPhaseAngleClockXmlSerializerTest extends AbstractCon
         transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(3).add();
 
         Network network2 = roundTripXmlTest(network,
-            NetworkXml::writeAndValidate,
-            NetworkXml::read,
+            NetworkSerializer::writeAndValidate,
+            NetworkSerializer::read,
             getVersionedNetworkPath("/twoWindingsTransformerPhaseAngleClock.xml", CURRENT_IIDM_XML_VERSION));
 
         TwoWindingsTransformerPhaseAngleClock pacXml = network2.getTwoWindingsTransformer("NHV2_NLOAD")

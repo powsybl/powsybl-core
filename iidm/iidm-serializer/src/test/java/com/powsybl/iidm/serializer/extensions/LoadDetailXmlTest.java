@@ -9,10 +9,10 @@ package com.powsybl.iidm.serializer.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
-import com.powsybl.iidm.serializer.AbstractXmlConverterTest;
-import com.powsybl.iidm.serializer.IidmXmlConstants;
-import com.powsybl.iidm.serializer.IidmXmlVersion;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.AbstractIidmSerializerTest;
+import com.powsybl.iidm.serializer.IidmSerializerConstants;
+import com.powsybl.iidm.serializer.IidmVersion;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class LoadDetailXmlTest extends AbstractXmlConverterTest {
+class LoadDetailXmlTest extends AbstractIidmSerializerTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -73,9 +73,9 @@ class LoadDetailXmlTest extends AbstractXmlConverterTest {
         assertNotNull(detail);
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
-                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "loadDetailRef.xml");
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
+                getVersionDir(IidmSerializerConstants.CURRENT_IIDM_XML_VERSION) + "loadDetailRef.xml");
 
         Load load2 = network2.getLoad("L");
         assertNotNull(load2);
@@ -89,16 +89,16 @@ class LoadDetailXmlTest extends AbstractXmlConverterTest {
 
     @Test
     void testOld() throws IOException {
-        Network network = NetworkXml.read(getVersionedNetworkAsStream("loadDetailRef.xml", IidmXmlVersion.V_1_2));
+        Network network = NetworkSerializer.read(getVersionedNetworkAsStream("loadDetailRef.xml", IidmVersion.V_1_2));
 
         LoadDetail detail = network.getLoad("L").getExtension(LoadDetail.class);
         assertNotNull(detail);
 
         Path tmp = tmpDir.resolve("data");
-        NetworkXml.writeAndValidate(network, tmp);
+        NetworkSerializer.writeAndValidate(network, tmp);
 
         try (InputStream is = Files.newInputStream(tmp)) {
-            compareXml(getVersionedNetworkAsStream("loadDetailRef.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION), is);
+            compareXml(getVersionedNetworkAsStream("loadDetailRef.xml", IidmSerializerConstants.CURRENT_IIDM_XML_VERSION), is);
         }
     }
 }

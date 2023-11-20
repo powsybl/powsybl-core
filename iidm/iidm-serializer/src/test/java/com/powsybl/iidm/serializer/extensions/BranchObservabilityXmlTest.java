@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.serializer.ExportOptions;
 import com.powsybl.iidm.network.Line;
@@ -16,8 +16,8 @@ import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 import com.powsybl.iidm.network.impl.extensions.BranchObservabilityImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.IidmXmlVersion;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.IidmVersion;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -26,29 +26,29 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.serializer.AbstractXmlConverterTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.AbstractIidmSerializerTest.getVersionedNetworkPath;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class BranchObservabilityXmlTest extends AbstractConverterTest {
+class BranchObservabilityXmlTest extends AbstractSerializerTest {
 
-    private static List<IidmXmlVersion> fromMinToCurrentVersion(IidmXmlVersion min) {
-        return Stream.of(IidmXmlVersion.values())
+    private static List<IidmVersion> fromMinToCurrentVersion(IidmVersion min) {
+        return Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(min) >= 0)
                 .collect(Collectors.toList());
     }
 
     @Test
     void test() throws IOException {
-        for (var version : fromMinToCurrentVersion(IidmXmlVersion.V_1_6)) {
+        for (var version : fromMinToCurrentVersion(IidmVersion.V_1_6)) {
             testVersion(version);
         }
     }
 
-    void testVersion(IidmXmlVersion version) throws IOException {
+    void testVersion(IidmVersion version) throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2022-08-09T17:00:00.000Z"));
         Line line1 = network.getLine("NHV1_NHV2_1");
@@ -83,11 +83,11 @@ class BranchObservabilityXmlTest extends AbstractConverterTest {
         Network network2;
         try {
             network2 = roundTripXmlTest(network,
-                (n, path) -> NetworkXml.writeAndValidate(n, options, path),
-                NetworkXml::validateAndRead,
+                (n, path) -> NetworkSerializer.writeAndValidate(n, options, path),
+                NetworkSerializer::validateAndRead,
                 getVersionedNetworkPath("/branchObservabilityRoundTripRef.xml", version));
         } catch (IllegalStateException err) {
-            NetworkXml.write(network, options, System.out);
+            NetworkSerializer.write(network, options, System.out);
             throw err;
         }
 
@@ -127,7 +127,7 @@ class BranchObservabilityXmlTest extends AbstractConverterTest {
 
     @Test
     void invalidTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerializer.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
         assertEquals("Unknown element name 'qualityV' in 'branchObservability'", e.getMessage());
     }
 }

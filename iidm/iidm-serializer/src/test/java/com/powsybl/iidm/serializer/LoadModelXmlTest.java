@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class LoadModelXmlTest extends AbstractXmlConverterTest {
+class LoadModelXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void zipModelTest() throws IOException {
@@ -41,8 +41,8 @@ class LoadModelXmlTest extends AbstractXmlConverterTest {
                 .add();
 
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("eurostag-tutorial-example1-zip-load-model.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility, load model is skipped
@@ -65,8 +65,8 @@ class LoadModelXmlTest extends AbstractXmlConverterTest {
                 .add();
 
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("eurostag-tutorial-example1-expo-load-model.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility, load model is skipped

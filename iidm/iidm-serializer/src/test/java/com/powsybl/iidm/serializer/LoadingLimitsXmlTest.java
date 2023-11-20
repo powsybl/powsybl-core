@@ -20,14 +20,14 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
+class LoadingLimitsXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void testDanglingLine() throws IOException {
@@ -38,18 +38,18 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         createLoadingLimits(dl::newApparentPowerLimits);
         createLoadingLimits(dl::newCurrentLimits);
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::validateAndRead,
                 getVersionedNetworkPath("dl-loading-limits.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("dl-loading-limits.xml", IidmXmlVersion.V_1_5);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("dl-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
-        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
             try {
                 ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-                NetworkXml.write(network, options, tmpDir.resolve("fail"));
+                NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("danglingLine.activePowerLimits is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
@@ -58,7 +58,7 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         });
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
             try {
                 writeXmlTest(network, (n, p) -> write(n, p, version), getVersionedNetworkPath("dl-loading-limits.xml", version));
             } catch (IOException e) {
@@ -86,18 +86,18 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         createLoadingLimits(twt::newCurrentLimits1);
         createLoadingLimits(twt::newCurrentLimits2);
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::validateAndRead,
                 getVersionedNetworkPath("eurostag-loading-limits.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("eurostag-loading-limits.xml", IidmXmlVersion.V_1_5);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("eurostag-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
-        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
             try {
                 ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-                NetworkXml.write(network, options, tmpDir.resolve("fail"));
+                NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("twoWindingsTransformer.activePowerLimits1 is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
@@ -106,7 +106,7 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         });
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
             try {
                 writeTest(network, (n, p) -> write(n, p, version), ComparisonUtils::compareXml, getVersionedNetworkPath("eurostag-loading-limits.xml", version));
             } catch (IOException e) {
@@ -117,7 +117,7 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
 
     @Test
     void testTieLine() throws IOException {
-        Network network = NetworkXml.read(getVersionedNetworkAsStream("tieline.xml", CURRENT_IIDM_XML_VERSION));
+        Network network = NetworkSerializer.read(getVersionedNetworkAsStream("tieline.xml", CURRENT_IIDM_XML_VERSION));
         TieLine tl = network.getTieLine("NHV1_NHV2_1");
         createLoadingLimits(tl.getDanglingLine1()::newActivePowerLimits);
         createLoadingLimits(tl.getDanglingLine2()::newActivePowerLimits);
@@ -126,18 +126,18 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         createLoadingLimits(tl.getDanglingLine1()::newCurrentLimits);
         createLoadingLimits(tl.getDanglingLine2()::newCurrentLimits);
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::validateAndRead,
                 getVersionedNetworkPath("tl-loading-limits.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmXmlVersion.V_1_5);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
-        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
             try {
                 ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-                NetworkXml.write(network, options, tmpDir.resolve("fail"));
+                NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("tieLine.activePowerLimits1 is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
@@ -146,7 +146,7 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         });
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
             try {
                 writeXmlTest(network, (n, p) -> write(n, p, version), getVersionedNetworkPath("tl-loading-limits.xml", version));
             } catch (IOException e) {
@@ -166,18 +166,18 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         createLoadingLimits(() -> twt.getLeg3().newActivePowerLimits());
         createLoadingLimits(() -> twt.getLeg3().newApparentPowerLimits());
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::validateAndRead,
                 getVersionedNetworkPath("t3w-loading-limits.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmXmlVersion.V_1_5);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
-        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
             try {
                 ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-                NetworkXml.write(network, options, tmpDir.resolve("fail"));
+                NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("threeWindingsTransformer.activePowerLimits1 is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
@@ -186,7 +186,7 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         });
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
             try {
                 writeXmlTest(network, (n, p) -> write(n, p, version), getVersionedNetworkPath("t3w-loading-limits.xml", version));
             } catch (IOException e) {
@@ -211,9 +211,9 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
                 .add();
     }
 
-    private static void write(Network network, Path path, IidmXmlVersion version) {
+    private static void write(Network network, Path path, IidmVersion version) {
         ExportOptions options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR)
                 .setVersion(version.toString("."));
-        NetworkXml.write(network, options, path);
+        NetworkSerializer.write(network, options, path);
     }
 }

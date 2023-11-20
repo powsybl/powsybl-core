@@ -170,8 +170,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
-    public IidmXmlVersion getVersion() {
-        return version != null ? IidmXmlVersion.of(version, ".") : IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+    public IidmVersion getVersion() {
+        return version != null ? IidmVersion.of(version, ".") : IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
     }
 
     public ExportOptions setVersion(String version) {

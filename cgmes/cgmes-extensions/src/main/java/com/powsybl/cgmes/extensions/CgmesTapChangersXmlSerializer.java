@@ -15,8 +15,8 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
-import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
+import com.powsybl.iidm.serializer.NetworkSerializerWriterContext;
 
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
 
     @Override
     public void write(CgmesTapChangers<C> extension, XmlWriterContext context) {
-        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
+        NetworkSerializerWriterContext networkContext = (NetworkSerializerWriterContext) context;
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNodes(TAP_CHANGER_ARRAY_ELEMENT);
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
@@ -63,7 +63,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
 
     @Override
     public CgmesTapChangers<C> read(C extendable, XmlReaderContext context) {
-        NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
+        NetworkSerializerReaderContext networkContext = (NetworkSerializerReaderContext) context;
         TreeDataReader reader = networkContext.getReader();
         extendable.newExtension(CgmesTapChangersAdder.class).add();
         CgmesTapChangers<C> tapChangers = extendable.getExtension(CgmesTapChangers.class);

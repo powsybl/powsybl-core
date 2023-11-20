@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class DanglingLineXmlTest extends AbstractXmlConverterTest {
+class DanglingLineXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -35,17 +35,17 @@ class DanglingLineXmlTest extends AbstractXmlConverterTest {
         Network network = DanglingLineNetworkFactory.createWithGeneration();
         network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
         network.getDanglingLine("DL").setProperty("test", "test");
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, getVersionedNetworkPath("danglingLineWithGeneration.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
+        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::read, getVersionedNetworkPath("danglingLineWithGeneration.xml", IidmSerializerConstants.CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility checks from version 1.3
-        roundTripVersionedXmlFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmXmlVersion.V_1_3);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmVersion.V_1_3);
 
         // check it fails for all versions < 1.3
-        testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_3, version -> {
             ExportOptions options = new ExportOptions().setVersion(version.toString("."));
             Path path = tmpDir.resolve("fail");
             try {
-                NetworkXml.write(network, options, path);
+                NetworkSerializer.write(network, options, path);
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("danglingLine.generation is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3", e.getMessage());
@@ -53,7 +53,7 @@ class DanglingLineXmlTest extends AbstractXmlConverterTest {
         });
 
         // check it doesn't fail for all versions < 1.3 if IidmVersionIncompatibilityBehavior is to log error
-        testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_3, version -> {
             try {
                 writeXmlTest(network, (n, path) -> write(n, path, version), getVersionedNetworkPath("danglingLineWithGeneration.xml", version));
             } catch (IOException e) {
@@ -62,9 +62,9 @@ class DanglingLineXmlTest extends AbstractXmlConverterTest {
         });
     }
 
-    private static void write(Network network, Path path, IidmXmlVersion version) {
+    private static void write(Network network, Path path, IidmVersion version) {
         ExportOptions options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR)
                 .setVersion(version.toString("."));
-        NetworkXml.write(network, options, path);
+        NetworkSerializer.write(network, options, path);
     }
 }

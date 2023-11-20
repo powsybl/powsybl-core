@@ -6,14 +6,14 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class TwoWindingsTransformerFortescueXmlSerializerTest extends AbstractConverterTest {
+class TwoWindingsTransformerFortescueXmlSerializerTest extends AbstractSerializerTest {
 
     @Test
     void testXmlSerializer() throws IOException {
@@ -45,8 +45,8 @@ class TwoWindingsTransformerFortescueXmlSerializerTest extends AbstractConverter
                 .add();
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read, "/fortescue/twoWindingsTransformerFortescueRef.xml");
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read, "/fortescue/twoWindingsTransformerFortescueRef.xml");
 
         TwoWindingsTransformer twt2 = network2.getTwoWindingsTransformer("NGEN_NHV1");
         assertNotNull(twt2);

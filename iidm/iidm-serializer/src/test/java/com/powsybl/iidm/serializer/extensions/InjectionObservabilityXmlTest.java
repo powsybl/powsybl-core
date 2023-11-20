@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Generator;
@@ -14,19 +14,19 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.impl.extensions.InjectionObservabilityImpl;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.AbstractXmlConverterTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.AbstractIidmSerializerTest.getVersionedNetworkPath;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class InjectionObservabilityXmlTest extends AbstractConverterTest {
+class InjectionObservabilityXmlTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -43,8 +43,8 @@ class InjectionObservabilityXmlTest extends AbstractConverterTest {
         Generator generator = network.getGenerator("GEN");
         generator.addExtension(InjectionObservability.class, new InjectionObservabilityImpl<>(generator, false, 0.02d, true, 0.5d, true, 0.0d, true));
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::validateAndRead,
                 getVersionedNetworkPath("/injectionObservabilityRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
         Battery bat2 = network2.getBattery("BAT");
@@ -64,7 +64,7 @@ class InjectionObservabilityXmlTest extends AbstractConverterTest {
 
     @Test
     void invalidTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerializer.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
         assertEquals("Unknown element name 'qualityZ' in 'injectionObservability'", e.getMessage());
     }
 }

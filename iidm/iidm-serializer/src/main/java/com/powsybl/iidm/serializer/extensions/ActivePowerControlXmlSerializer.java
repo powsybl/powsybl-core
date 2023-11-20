@@ -16,9 +16,9 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.serializer.IidmXmlVersion;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
-import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
+import com.powsybl.iidm.serializer.IidmVersion;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
+import com.powsybl.iidm.serializer.NetworkSerializerWriterContext;
 
 import java.io.InputStream;
 import java.util.List;
@@ -31,16 +31,16 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
 
     public ActivePowerControlXmlSerializer() {
         super("activePowerControl", ActivePowerControl.class, "apc",
-                new ImmutableMap.Builder<IidmXmlVersion, ImmutableSortedSet<String>>()
-                        .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_11, ImmutableSortedSet.of("1.0", "1.1"))
+                new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
+                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.0", "1.1"))
                         .build(),
                 new ImmutableMap.Builder<String, String>()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0")
@@ -52,7 +52,7 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
     public void write(ActivePowerControl<T> activePowerControl, XmlWriterContext context) {
         context.getWriter().writeBooleanAttribute("participate", activePowerControl.isParticipate());
         context.getWriter().writeDoubleAttribute("droop", activePowerControl.getDroop());
-        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
+        NetworkSerializerWriterContext networkContext = (NetworkSerializerWriterContext) context;
         String extVersionStr = networkContext.getExtensionVersion(ConnectablePosition.NAME)
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
         if ("1.1".compareTo(extVersionStr) <= 0) {
@@ -76,7 +76,7 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
         boolean participate = context.getReader().readBooleanAttribute("participate");
         float droop = context.getReader().readFloatAttribute("droop");
         double participationFactor = Double.NaN;
-        NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
+        NetworkSerializerReaderContext networkContext = (NetworkSerializerReaderContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
         if ("1.1".compareTo(extVersionStr) <= 0) {
             participationFactor = context.getReader().readDoubleAttribute("participationFactor");

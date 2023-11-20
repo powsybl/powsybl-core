@@ -13,24 +13,24 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-class FictitiousSwitchJsonTest extends AbstractXmlConverterTest {
+class FictitiousSwitchJsonTest extends AbstractIidmSerializerTest {
 
     @Test
     void roundTripTest() throws IOException {
         ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.JSON);
         ImportOptions importOptions = new ImportOptions().setFormat(TreeDataFormat.JSON);
         roundTripTest(FictitiousSwitchFactory.create(),
-                (n, jsonFile) -> NetworkXml.write(n, exportOptions, jsonFile),
-                jsonFile -> NetworkXml.read(jsonFile, importOptions),
+                (n, jsonFile) -> NetworkSerializer.write(n, exportOptions, jsonFile),
+                jsonFile -> NetworkSerializer.read(jsonFile, importOptions),
                 getVersionedNetworkPath("fictitiousSwitchRef.jiidm", CURRENT_IIDM_XML_VERSION));
 
         //backward compatibility
-        roundTripVersionedJsonFromMinToCurrentVersionTest("fictitiousSwitchRef.jiidm", IidmXmlVersion.V_1_11);
+        roundTripVersionedJsonFromMinToCurrentVersionTest("fictitiousSwitchRef.jiidm", IidmVersion.V_1_11);
     }
 
 }

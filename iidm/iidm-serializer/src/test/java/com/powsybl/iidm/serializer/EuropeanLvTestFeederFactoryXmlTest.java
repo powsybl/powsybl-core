@@ -11,18 +11,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class EuropeanLvTestFeederFactoryXmlTest extends AbstractXmlConverterTest {
+class EuropeanLvTestFeederFactoryXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void roundTripTest() throws IOException {
         roundTripXmlTest(EuropeanLvTestFeederFactory.create(),
-            (n, xmlFile) -> NetworkXml.writeAndValidate(n, new ExportOptions().setSorted(true), xmlFile),
-            NetworkXml::read,
+            (n, xmlFile) -> NetworkSerializer.writeAndValidate(n, new ExportOptions().setSorted(true), xmlFile),
+            NetworkSerializer::read,
             getVersionedNetworkPath("europeanLvTestFeederRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 }

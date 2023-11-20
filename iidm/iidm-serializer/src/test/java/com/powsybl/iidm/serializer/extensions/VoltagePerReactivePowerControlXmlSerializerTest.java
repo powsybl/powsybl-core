@@ -6,27 +6,27 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.AbstractXmlConverterTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.AbstractIidmSerializerTest.getVersionedNetworkPath;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
-class VoltagePerReactivePowerControlXmlSerializerTest extends AbstractConverterTest {
+class VoltagePerReactivePowerControlXmlSerializerTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -37,7 +37,7 @@ class VoltagePerReactivePowerControlXmlSerializerTest extends AbstractConverterT
 
         svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(0.5).add();
 
-        Network network2 = roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read,
+        Network network2 = roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::read,
                 getVersionedNetworkPath("/voltagePerReactivePowerControl.xml", CURRENT_IIDM_XML_VERSION));
 
         StaticVarCompensator svc2 = network2.getStaticVarCompensator("SVC2");

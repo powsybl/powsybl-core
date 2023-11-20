@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.serializer;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class XMLReaderContextTest extends AbstractConverterTest {
+class XMLReaderContextTest extends AbstractSerializerTest {
 
     @Test
     void xmlReaderContextExceptionTest() {
-        NullPointerException e = assertThrows(NullPointerException.class, () -> new NetworkXmlReaderContext(null, null));
+        NullPointerException e = assertThrows(NullPointerException.class, () -> new NetworkSerializerReaderContext(null, null));
     }
 }

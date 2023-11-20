@@ -7,7 +7,7 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 
 import java.util.Objects;
 
@@ -18,12 +18,12 @@ class DeepCopyStrategy implements NetworkCopyStrategy {
     private final byte[] compressedBytes;
 
     DeepCopyStrategy(Network network) {
-        this.compressedBytes = NetworkXml.gzip(Objects.requireNonNull(network));
+        this.compressedBytes = NetworkSerializer.gzip(Objects.requireNonNull(network));
     }
 
     @Override
     public Network createState(String id) {
-        return NetworkXml.gunzip(compressedBytes);
+        return NetworkSerializer.gunzip(compressedBytes);
     }
 
     @Override

@@ -15,11 +15,11 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
-import com.powsybl.iidm.serializer.IidmXmlVersion;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
-import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
-import com.powsybl.iidm.serializer.TerminalRefXml;
-import com.powsybl.iidm.serializer.util.IidmXmlUtil;
+import com.powsybl.iidm.serializer.IidmVersion;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
+import com.powsybl.iidm.serializer.NetworkSerializerWriterContext;
+import com.powsybl.iidm.serializer.TerminalRefSerializer;
+import com.powsybl.iidm.serializer.util.IidmSerializerUtil;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -34,20 +34,20 @@ public class RemoteReactivePowerControlXmlSerializer extends AbstractExtensionXm
 
     @Override
     public void write(RemoteReactivePowerControl extension, XmlWriterContext context) {
-        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, networkContext);
+        NetworkSerializerWriterContext networkContext = (NetworkSerializerWriterContext) context;
+        IidmSerializerUtil.assertMinimumVersion(getName(), IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, networkContext);
         context.getWriter().writeBooleanAttribute("enabled", extension.isEnabled());
         context.getWriter().writeDoubleAttribute("targetQ", extension.getTargetQ());
-        TerminalRefXml.writeTerminalRefAttribute(extension.getRegulatingTerminal(), networkContext);
+        TerminalRefSerializer.writeTerminalRefAttribute(extension.getRegulatingTerminal(), networkContext);
     }
 
     @Override
     public RemoteReactivePowerControl read(Generator extendable, XmlReaderContext context) {
-        NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, networkContext);
+        NetworkSerializerReaderContext networkContext = (NetworkSerializerReaderContext) context;
+        IidmSerializerUtil.assertMinimumVersion(getName(), IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, networkContext);
         boolean enabled = context.getReader().readBooleanAttribute("enabled");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
-        Terminal terminal = TerminalRefXml.readTerminal(networkContext, extendable.getNetwork());
+        Terminal terminal = TerminalRefSerializer.readTerminal(networkContext, extendable.getNetwork());
         return extendable.newExtension(RemoteReactivePowerControlAdder.class)
                 .withEnabled(enabled)
                 .withTargetQ(targetQ)

@@ -16,24 +16,24 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class EurostagJsonTest extends AbstractXmlConverterTest {
+class EurostagJsonTest extends AbstractIidmSerializerTest {
 
     @Test
     void roundTripTest() throws IOException {
         ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.JSON);
         ImportOptions importOptions = new ImportOptions().setFormat(TreeDataFormat.JSON);
         roundTripTest(EurostagTutorialExample1Factory.createWithLFResults(),
-                (n, jsonFile) -> NetworkXml.write(n, exportOptions, jsonFile),
-                jsonFile -> NetworkXml.read(jsonFile, importOptions),
+                (n, jsonFile) -> NetworkSerializer.write(n, exportOptions, jsonFile),
+                jsonFile -> NetworkSerializer.read(jsonFile, importOptions),
                 getVersionedNetworkPath("eurostag-tutorial1-lf.json", CURRENT_IIDM_XML_VERSION));
 
         //backward compatibility
-        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf.json", IidmXmlVersion.V_1_11);
+        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf.json", IidmVersion.V_1_11);
     }
 
     @Test
@@ -44,11 +44,11 @@ class EurostagJsonTest extends AbstractXmlConverterTest {
         network.getGeneratorStream().findFirst().ifPresent(g -> g.newExtension(ActivePowerControlAdder.class).withDroop(2).withParticipate(true).add());
         network.getLoadStream().forEach(l -> l.newExtension(ConnectablePositionAdder.class).newFeeder().withDirection(ConnectablePosition.Direction.BOTTOM).add().add());
         roundTripTest(network,
-                (n, jsonFile) -> NetworkXml.write(n, exportOptions, jsonFile),
-                jsonFile -> NetworkXml.read(jsonFile, importOptions),
+                (n, jsonFile) -> NetworkSerializer.write(n, exportOptions, jsonFile),
+                jsonFile -> NetworkSerializer.read(jsonFile, importOptions),
                 getVersionedNetworkPath("eurostag-tutorial1-lf-extensions.json", CURRENT_IIDM_XML_VERSION));
 
         //backward compatibility
-        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf-extensions.json", IidmXmlVersion.V_1_11);
+        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf-extensions.json", IidmVersion.V_1_11);
     }
 }

@@ -6,13 +6,13 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.com>}
  */
-class GeneratorShortCircuitXmlSerializerTest extends AbstractConverterTest {
+class GeneratorShortCircuitXmlSerializerTest extends AbstractSerializerTest {
     @Test
     void testXmlSerializer() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
@@ -38,8 +38,8 @@ class GeneratorShortCircuitXmlSerializerTest extends AbstractConverterTest {
                 .add();
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read, "/shortcircuits/generatorShortCircuitRef.xml");
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read, "/shortcircuits/generatorShortCircuitRef.xml");
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);

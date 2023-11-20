@@ -6,14 +6,14 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import com.powsybl.iidm.serializer.XMLExporter;
 import org.joda.time.DateTime;
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,13 +22,13 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Properties;
 
-import static com.powsybl.iidm.serializer.AbstractXmlConverterTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.AbstractIidmSerializerTest.getVersionedNetworkPath;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-class SlackTerminalXmlTest extends AbstractConverterTest {
+class SlackTerminalXmlTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -49,8 +49,8 @@ class SlackTerminalXmlTest extends AbstractConverterTest {
         vl.newExtension(SlackTerminalAdder.class).withTerminal(t).add();
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 "/slackTerminal.xml");
 
         VoltageLevel vl2 = network2.getVoltageLevel(voltageLevelId);
@@ -86,8 +86,8 @@ class SlackTerminalXmlTest extends AbstractConverterTest {
         assertTrue(st.setTerminal(null).isEmpty());
 
         Network network2 = roundTripTest(network,
-            NetworkXml::writeAndValidate,
-            NetworkXml::read,
+            NetworkSerializer::writeAndValidate,
+            NetworkSerializer::read,
             ComparisonUtils::compareXml,
             getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
 
@@ -110,7 +110,7 @@ class SlackTerminalXmlTest extends AbstractConverterTest {
         network.getVariantManager().setWorkingVariant("test");
         vl.getExtension(SlackTerminal.class).setTerminal(null);
 
-        Network clone = NetworkXml.copy(network);
+        Network clone = NetworkSerializer.copy(network);
         VoltageLevel vlClone = clone.getVoltageLevel("VLHV2");
         assertNull(vlClone.getExtension(SlackTerminal.class));
     }

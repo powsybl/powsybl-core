@@ -11,18 +11,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
-class BatteryXmlTest extends AbstractXmlConverterTest {
+class BatteryXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void batteryRoundTripTest() throws IOException {
         roundTripXmlTest(BatteryNetworkFactory.create(),
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("batteryRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
         //backward compatibility

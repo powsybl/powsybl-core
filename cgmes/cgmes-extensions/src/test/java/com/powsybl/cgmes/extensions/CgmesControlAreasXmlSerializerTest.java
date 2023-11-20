@@ -6,10 +6,10 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
+class CgmesControlAreasXmlSerializerTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -51,6 +51,6 @@ class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
                 .add(network.getLine("NHV1_NHV2_1").getTerminal1());
         network.getExtension(CgmesControlAreas.class).getCgmesControlArea("cgmesControlAreaId").add(network.getDanglingLine("DL").getBoundary());
 
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead, "/eurostag_cgmes_control_area.xml");
+        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead, "/eurostag_cgmes_control_area.xml");
     }
 }

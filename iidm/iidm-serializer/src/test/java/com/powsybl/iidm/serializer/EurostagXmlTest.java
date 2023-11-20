@@ -11,18 +11,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class EurostagXmlTest extends AbstractXmlConverterTest {
+class EurostagXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void loadFlowResultsTest() throws IOException {
         roundTripXmlTest(EurostagTutorialExample1Factory.createWithLFResults(),
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("eurostag-tutorial1-lf.xml", CURRENT_IIDM_XML_VERSION));
 
         //backward compatibility

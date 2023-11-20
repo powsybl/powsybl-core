@@ -17,10 +17,10 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
-import com.powsybl.iidm.serializer.IidmXmlVersion;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
-import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
-import com.powsybl.iidm.serializer.TerminalRefXml;
+import com.powsybl.iidm.serializer.IidmVersion;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
+import com.powsybl.iidm.serializer.NetworkSerializerWriterContext;
+import com.powsybl.iidm.serializer.TerminalRefSerializer;
 
 import java.io.InputStream;
 import java.util.List;
@@ -34,16 +34,16 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
     public SlackTerminalXmlSerializer() {
 
         super("slackTerminal", SlackTerminal.class, "slt",
-            new ImmutableMap.Builder<IidmXmlVersion, ImmutableSortedSet<String>>()
-                .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0"))
-                .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.1"))
-                .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.2"))
-                .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.3"))
-                .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.4"))
-                .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.5"))
-                .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of("1.5"))
-                .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of("1.5"))
-                .put(IidmXmlVersion.V_1_11, ImmutableSortedSet.of("1.5"))
+            new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
+                .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.0"))
+                .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.1"))
+                .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.2"))
+                .put(IidmVersion.V_1_6, ImmutableSortedSet.of("1.3"))
+                .put(IidmVersion.V_1_7, ImmutableSortedSet.of("1.4"))
+                .put(IidmVersion.V_1_8, ImmutableSortedSet.of("1.5"))
+                .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.5"))
+                .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.5"))
+                .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.5"))
                 .build(),
             new ImmutableMap.Builder<String, String>()
                 .put("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0")
@@ -74,13 +74,13 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
     public void write(SlackTerminal slackTerminal, XmlWriterContext context) {
         Terminal terminal = slackTerminal.getTerminal();
         if (terminal != null) {
-            TerminalRefXml.writeTerminalRefAttribute(slackTerminal.getTerminal(), (NetworkXmlWriterContext) context);
+            TerminalRefSerializer.writeTerminalRefAttribute(slackTerminal.getTerminal(), (NetworkSerializerWriterContext) context);
         }
     }
 
     @Override
     public SlackTerminal read(VoltageLevel voltageLevel, XmlReaderContext context) {
-        Terminal terminal = TerminalRefXml.readTerminal((NetworkXmlReaderContext) context, voltageLevel.getNetwork());
+        Terminal terminal = TerminalRefSerializer.readTerminal((NetworkSerializerReaderContext) context, voltageLevel.getNetwork());
         return voltageLevel.newExtension(SlackTerminalAdder.class)
                 .withTerminal(terminal)
                 .add();

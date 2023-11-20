@@ -15,8 +15,8 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
-import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
+import com.powsybl.iidm.serializer.NetworkSerializerWriterContext;
 
 import java.util.Map;
 
@@ -41,7 +41,7 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
 
     @Override
     public void write(CgmesSvMetadata extension, XmlWriterContext context) {
-        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
+        NetworkSerializerWriterContext networkContext = (NetworkSerializerWriterContext) context;
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStringAttribute("description", extension.getDescription());
         writer.writeIntAttribute("svVersion", extension.getSvVersion());
@@ -57,7 +57,7 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
 
     @Override
     public CgmesSvMetadata read(Network extendable, XmlReaderContext context) {
-        NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
+        NetworkSerializerReaderContext networkContext = (NetworkSerializerReaderContext) context;
         TreeDataReader reader = networkContext.getReader();
         CgmesSvMetadataAdder adder = extendable.newExtension(CgmesSvMetadataAdder.class);
         adder.setDescription(reader.readStringAttribute("description"))

@@ -6,11 +6,11 @@
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class EntsoeAreaXmlSerializerTest extends AbstractConverterTest {
+class EntsoeAreaXmlSerializerTest extends AbstractSerializerTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -44,8 +44,8 @@ class EntsoeAreaXmlSerializerTest extends AbstractConverterTest {
         EntsoeArea country = s.getExtension(EntsoeArea.class);
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 "/entsoeAreaRef.xml");
 
         Substation s2 = network2.getSubstation("S");

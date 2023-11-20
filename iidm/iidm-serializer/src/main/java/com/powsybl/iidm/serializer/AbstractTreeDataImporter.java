@@ -135,7 +135,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
                         + "." + Joiner.on("|").join(getExtensions()) + " not found");
             }
 
-            network = NetworkXml.read(dataSource, networkFactory, options, ext);
+            network = NetworkSerializer.read(dataSource, networkFactory, options, ext);
             LOGGER.debug("{} import done in {} ms", getFormat(), System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);

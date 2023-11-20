@@ -15,9 +15,9 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
-import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
-import com.powsybl.iidm.serializer.TerminalRefXml;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
+import com.powsybl.iidm.serializer.NetworkSerializerWriterContext;
+import com.powsybl.iidm.serializer.TerminalRefSerializer;
 
 import java.util.Map;
 
@@ -53,7 +53,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
 
     @Override
     public void write(CgmesControlAreas extension, XmlWriterContext context) {
-        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
+        NetworkSerializerWriterContext networkContext = (NetworkSerializerWriterContext) context;
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNodes(CONTROL_AREA_ARRAY_ELEMENT);
         for (CgmesControlArea controlArea : extension.getCgmesControlAreas()) {
@@ -66,7 +66,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
 
             writer.writeStartNodes(TERMINAL_ARRAY_ELEMENT);
             for (Terminal terminal : controlArea.getTerminals()) {
-                TerminalRefXml.writeTerminalRef(terminal, networkContext, getNamespaceUri(), TERMINAL_ROOT_ELEMENT);
+                TerminalRefSerializer.writeTerminalRef(terminal, networkContext, getNamespaceUri(), TERMINAL_ROOT_ELEMENT);
             }
             writer.writeEndNodes();
 
@@ -103,7 +103,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
 
     @Override
     public CgmesControlAreas read(Network extendable, XmlReaderContext context) {
-        NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
+        NetworkSerializerReaderContext networkContext = (NetworkSerializerReaderContext) context;
         TreeDataReader reader = networkContext.getReader();
         extendable.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas mapping = extendable.getExtension(CgmesControlAreas.class);
@@ -124,7 +124,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
         return extendable.getExtension(CgmesControlAreas.class);
     }
 
-    private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, CgmesControlArea cgmesControlArea, Network network) {
+    private void readBoundariesAndTerminals(NetworkSerializerReaderContext networkContext, CgmesControlArea cgmesControlArea, Network network) {
         TreeDataReader reader = networkContext.getReader();
         reader.readChildNodes(elementName -> {
             String id;
@@ -143,7 +143,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                     }
                     reader.readEndNode();
                 }
-                case TERMINAL_ROOT_ELEMENT -> cgmesControlArea.add(TerminalRefXml.readTerminal(networkContext, network));
+                case TERMINAL_ROOT_ELEMENT -> cgmesControlArea.add(TerminalRefSerializer.readTerminal(networkContext, network));
                 default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'controlArea'");
             }
         });

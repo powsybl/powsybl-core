@@ -8,17 +8,17 @@ package com.powsybl.iidm.serializer;
 
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class OptionalLoadTypeBugTest extends AbstractXmlConverterTest {
+class OptionalLoadTypeBugTest extends AbstractIidmSerializerTest {
 
     @Test
     void shouldNotThrowNullPointerExceptionTest() {
-        assertNotNull(NetworkXml.read(getVersionedNetworkAsStream("optionalLoadTypeBug.xml", IidmXmlVersion.V_1_0)));
-        assertNotNull(NetworkXml.read(getVersionedNetworkAsStream("optionalLoadTypeBug.xml", CURRENT_IIDM_XML_VERSION)));
+        assertNotNull(NetworkSerializer.read(getVersionedNetworkAsStream("optionalLoadTypeBug.xml", IidmVersion.V_1_0)));
+        assertNotNull(NetworkSerializer.read(getVersionedNetworkAsStream("optionalLoadTypeBug.xml", CURRENT_IIDM_XML_VERSION)));
     }
 }

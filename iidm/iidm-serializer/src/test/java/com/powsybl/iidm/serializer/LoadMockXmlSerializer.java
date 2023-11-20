@@ -28,9 +28,9 @@ public class LoadMockXmlSerializer extends AbstractVersionableNetworkExtensionXm
 
     public LoadMockXmlSerializer() {
         super("loadMock", LoadMockExt.class, "lmock",
-                ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
-                        .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.1", "1.2"))
+                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
+                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0"))
+                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.1", "1.2"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_0")
@@ -58,7 +58,7 @@ public class LoadMockXmlSerializer extends AbstractVersionableNetworkExtensionXm
 
     @Override
     public LoadMockExt read(Load extendable, XmlReaderContext context) {
-        checkReadingCompatibility((NetworkXmlReaderContext) context);
+        checkReadingCompatibility((NetworkSerializerReaderContext) context);
         context.getReader().readEndNode();
         return new LoadMockExt(extendable);
     }

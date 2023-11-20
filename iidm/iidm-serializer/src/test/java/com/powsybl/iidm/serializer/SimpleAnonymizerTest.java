@@ -20,12 +20,12 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class SimpleAnonymizerTest extends AbstractXmlConverterTest {
+class SimpleAnonymizerTest extends AbstractIidmSerializerTest {
 
     private void anonymisationTest(Network network) throws IOException {
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -51,15 +51,15 @@ class SimpleAnonymizerTest extends AbstractXmlConverterTest {
 
         // check that re-imported IIDM XML has been deanonymized and is equals to reference file
         roundTripXmlTest(network2,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     @Test
     void test() throws IOException {
-        anonymisationTest(NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1.xml", IidmXmlVersion.V_1_0)));
+        anonymisationTest(NetworkSerializer.read(getVersionedNetworkAsStream("eurostag-tutorial-example1.xml", IidmVersion.V_1_0)));
 
-        anonymisationTest(NetworkXmlTest.createEurostagTutorialExample1());
+        anonymisationTest(NetworkSerializerTest.createEurostagTutorialExample1());
     }
 }

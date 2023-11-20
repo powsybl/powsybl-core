@@ -10,9 +10,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimatedAdder;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import com.powsybl.iidm.serializer.AbstractXmlConverterTest;
-import com.powsybl.iidm.serializer.IidmXmlConstants;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.AbstractIidmSerializerTest;
+import com.powsybl.iidm.serializer.IidmSerializerConstants;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ import java.io.IOException;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ThreeWindingsTransformerToBeEstimatedXmlTest extends AbstractXmlConverterTest {
+class ThreeWindingsTransformerToBeEstimatedXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -35,8 +35,8 @@ class ThreeWindingsTransformerToBeEstimatedXmlTest extends AbstractXmlConverterT
                 .add();
 
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
-                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "threeWindingsTransformerToBeEstimated.xiidm");
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::validateAndRead,
+                getVersionDir(IidmSerializerConstants.CURRENT_IIDM_XML_VERSION) + "threeWindingsTransformerToBeEstimated.xiidm");
     }
 }

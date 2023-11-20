@@ -6,10 +6,10 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CgmesLineBoundaryNodeXmlSerializerTest extends AbstractConverterTest {
+class CgmesLineBoundaryNodeXmlSerializerTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -26,6 +26,6 @@ class CgmesLineBoundaryNodeXmlSerializerTest extends AbstractConverterTest {
                 .setHvdc(true)
                 .setLineEnergyIdentificationCodeEic("EIC_CODE")
                 .add();
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead, "/eurostag_cgmes_line_boundary_node.xml");
+        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead, "/eurostag_cgmes_line_boundary_node.xml");
     }
 }

@@ -13,19 +13,19 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest {
+class NodeBreakerInternalConnectionsTest extends AbstractIidmSerializerTest {
 
     @Test
     void roundTripTest() throws IOException {
         roundTripXmlTest(
                 networkWithInternalConnections(),
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("internalConnections.xiidm", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility

@@ -6,13 +6,13 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class StandbyAutomatonXmlTest extends AbstractConverterTest {
+class StandbyAutomatonXmlTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -39,8 +39,8 @@ class StandbyAutomatonXmlTest extends AbstractConverterTest {
         StandbyAutomaton standbyAutomaton = svc.getExtension(StandbyAutomaton.class);
 
         Network network2 = roundTripXmlTest(network,
-                                            NetworkXml::writeAndValidate,
-                                            NetworkXml::read,
+                                            NetworkSerializer::writeAndValidate,
+                                            NetworkSerializer::read,
                                             "/standbyAutomatonRoundTripRef.xml");
 
         StaticVarCompensator svc2 = network2.getStaticVarCompensator("SVC2");

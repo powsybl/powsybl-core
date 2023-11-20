@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import com.powsybl.iidm.serializer.XMLExporter;
 import com.powsybl.iidm.serializer.XMLImporter;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
@@ -40,7 +40,7 @@ class NetworkLoadSaveGroovyScriptExtensionTest extends AbstractGroovyScriptTest 
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Network network = EurostagTutorialExample1Factory.create();
-        NetworkXml.write(network, fileSystem.getPath("/work/n.xiidm"));
+        NetworkSerializer.write(network, fileSystem.getPath("/work/n.xiidm"));
     }
 
     @AfterEach

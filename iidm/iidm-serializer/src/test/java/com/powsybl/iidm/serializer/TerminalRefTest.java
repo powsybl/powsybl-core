@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class TerminalRefTest extends AbstractXmlConverterTest {
+class TerminalRefTest extends AbstractIidmSerializerTest {
 
     @Test
     void roundTripTerminalRefTest() throws IOException {
@@ -35,21 +35,21 @@ class TerminalRefTest extends AbstractXmlConverterTest {
     @Test
     void badSwitchTerminalResolveTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefXml.resolve("S1VL1_LD1_BREAKER", ThreeSides.ONE, network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerializer.resolve("S1VL1_LD1_BREAKER", ThreeSides.ONE, network));
         assertEquals("Unexpected terminal reference identifiable instance: class com.powsybl.iidm.network.impl.SwitchImpl", e.getMessage());
     }
 
     @Test
     void badBranchSideResolveTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefXml.resolve("LINE_S2S3", ThreeSides.THREE, network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerializer.resolve("LINE_S2S3", ThreeSides.THREE, network));
         assertEquals("Cannot convert ThreeSides value THREE as a TwoSides (ONE, TWO)", e.getMessage());
     }
 
     @Test
     void badIdentifiableSideResolveTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefXml.resolve("LIN_S2S3", ThreeSides.ONE, network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerializer.resolve("LIN_S2S3", ThreeSides.ONE, network));
         assertEquals("Terminal reference identifiable not found: 'LIN_S2S3'", e.getMessage());
     }
 }

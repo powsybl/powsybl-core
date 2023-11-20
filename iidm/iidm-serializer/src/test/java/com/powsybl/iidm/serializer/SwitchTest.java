@@ -17,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class SwitchTest extends AbstractXmlConverterTest {
+class SwitchTest extends AbstractIidmSerializerTest {
 
     @Test
     void readAndDiscardSwitchWithSameNodeAtBothEnds() {
         //Network n = NetworkXml.read(getVersionedNetworkAsStream("switchWithSameNodeAtBothEnds.xml", CURRENT_IIDM_XML_VERSION));
-        Network n = NetworkXml.read(getNetworkAsStream("/switches/switchWithSameNodeAtBothEnds.xiidm"));
+        Network n = NetworkSerializer.read(getNetworkAsStream("/switches/switchWithSameNodeAtBothEnds.xiidm"));
 
         // Check that the "looped-switch" has been discarded
         assertEquals(2, n.getSwitchCount());
@@ -31,7 +31,7 @@ class SwitchTest extends AbstractXmlConverterTest {
 
     @Test
     void readAndDiscardSwitchWithSameBusAtBothEnds() {
-        Network n = NetworkXml.read(getNetworkAsStream("/switches/switchWithSameBusAtBothEnds.xiidm"));
+        Network n = NetworkSerializer.read(getNetworkAsStream("/switches/switchWithSameBusAtBothEnds.xiidm"));
 
         // Check that the "looped-switch" has been discarded
         assertEquals(0, n.getSwitchCount());

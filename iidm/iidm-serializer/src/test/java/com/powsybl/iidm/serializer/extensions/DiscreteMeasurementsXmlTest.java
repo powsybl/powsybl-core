@@ -13,10 +13,10 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.serializer.AbstractXmlConverterTest;
-import com.powsybl.iidm.serializer.IidmXmlConstants;
-import com.powsybl.iidm.serializer.IidmXmlVersion;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.AbstractIidmSerializerTest;
+import com.powsybl.iidm.serializer.IidmSerializerConstants;
+import com.powsybl.iidm.serializer.IidmVersion;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ import java.io.IOException;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class DiscreteMeasurementsXmlTest extends AbstractXmlConverterTest {
+class DiscreteMeasurementsXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -56,9 +56,9 @@ class DiscreteMeasurementsXmlTest extends AbstractXmlConverterTest {
                 .add();
 
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
-                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "disMeasRef.xiidm");
-        roundTripVersionedXmlFromMinToCurrentVersionTest("disMeasRef.xiidm", IidmXmlVersion.V_1_5);
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::validateAndRead,
+                getVersionDir(IidmSerializerConstants.CURRENT_IIDM_XML_VERSION) + "disMeasRef.xiidm");
+        roundTripVersionedXmlFromMinToCurrentVersionTest("disMeasRef.xiidm", IidmVersion.V_1_5);
     }
 }

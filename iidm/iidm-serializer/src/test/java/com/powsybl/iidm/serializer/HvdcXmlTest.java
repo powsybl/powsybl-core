@@ -11,18 +11,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class HvdcXmlTest extends AbstractXmlConverterTest {
+class HvdcXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void roundTripLccTest() throws IOException {
         roundTripXmlTest(HvdcTestNetwork.createLcc(),
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("LccRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility
@@ -32,8 +32,8 @@ class HvdcXmlTest extends AbstractXmlConverterTest {
     @Test
     void roundTripVscTest() throws IOException {
         roundTripXmlTest(HvdcTestNetwork.createVsc(),
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("VscRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility

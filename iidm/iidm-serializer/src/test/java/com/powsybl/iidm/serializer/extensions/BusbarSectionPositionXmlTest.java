@@ -6,11 +6,11 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class BusbarSectionPositionXmlTest extends AbstractConverterTest {
+class BusbarSectionPositionXmlTest extends AbstractSerializerTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -53,8 +53,8 @@ class BusbarSectionPositionXmlTest extends AbstractConverterTest {
         busbarSection.addExtension(BusbarSectionPosition.class, busbarSectionPosition);
 
         Network network2 = roundTripXmlTest(network,
-                                            NetworkXml::writeAndValidate,
-                                            NetworkXml::read,
+                                            NetworkSerializer::writeAndValidate,
+                                            NetworkSerializer::read,
                                             "/busbarSectionPositionRef.xml");
 
         BusbarSection busbarSection2 = network2.getVoltageLevel("VL").getNodeBreakerView().getBusbarSection("BBS");

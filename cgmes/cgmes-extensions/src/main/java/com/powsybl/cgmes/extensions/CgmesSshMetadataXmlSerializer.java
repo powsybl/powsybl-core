@@ -15,8 +15,8 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
-import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
+import com.powsybl.iidm.serializer.NetworkSerializerWriterContext;
 
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
 
     @Override
     public void write(CgmesSshMetadata extension, XmlWriterContext context) {
-        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
+        NetworkSerializerWriterContext networkContext = (NetworkSerializerWriterContext) context;
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStringAttribute("id", extension.getId());
         writer.writeStringAttribute("description", extension.getDescription());
@@ -59,7 +59,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
 
     @Override
     public CgmesSshMetadata read(Network extendable, XmlReaderContext context) {
-        NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
+        NetworkSerializerReaderContext networkContext = (NetworkSerializerReaderContext) context;
         TreeDataReader reader = networkContext.getReader();
         CgmesSshMetadataAdder adder = extendable.newExtension(CgmesSshMetadataAdder.class);
         adder.setId(reader.readStringAttribute("id"))

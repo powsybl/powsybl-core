@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.serializer;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class LoadingLimitsBugTest extends AbstractConverterTest {
+class LoadingLimitsBugTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -45,7 +45,7 @@ class LoadingLimitsBugTest extends AbstractConverterTest {
                 .add();
         // check that XIIDM 1.5 is not ill-formed
         ExportOptions options = new ExportOptions()
-                .setVersion(IidmXmlVersion.V_1_5.toString("."));
-        roundTripXmlTest(network, (n, path) -> NetworkXml.writeAndValidate(n, options, path), NetworkXml::validateAndRead, "/loading-limits-bug.xml");
+                .setVersion(IidmVersion.V_1_5.toString("."));
+        roundTripXmlTest(network, (n, path) -> NetworkSerializer.writeAndValidate(n, options, path), NetworkSerializer::validateAndRead, "/loading-limits-bug.xml");
     }
 }

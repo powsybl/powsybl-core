@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-class NodeBreakerPropertiesOnBusTest extends AbstractXmlConverterTest {
+class NodeBreakerPropertiesOnBusTest extends AbstractIidmSerializerTest {
     @Test
     void testPropertiesOnBus() throws IOException {
         Network network = FictitiousSwitchFactory.create();
@@ -25,11 +25,11 @@ class NodeBreakerPropertiesOnBusTest extends AbstractXmlConverterTest {
         network.getVoltageLevel("C").getBusView().getBus("C_0").setProperty("key_test", "value_test");
 
         // can export and reload a network in current and older XIIDM versions
-        for (IidmXmlVersion version : IidmXmlVersion.values()) {
+        for (IidmVersion version : IidmVersion.values()) {
             roundTripXmlTest(network,
-                (n, p) -> NetworkXml.writeAndValidate(n,
+                (n, p) -> NetworkSerializer.writeAndValidate(n,
                         new ExportOptions().setVersion(version.toString(".")), p),
-                NetworkXml::read,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("nodebreaker-busproperties.xml", version));
         }
     }

@@ -6,11 +6,11 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BranchStatus;
 import com.powsybl.iidm.network.impl.extensions.BranchStatusImpl;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
-class BranchStatusXmlTest extends AbstractConverterTest {
+class BranchStatusXmlTest extends AbstractSerializerTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -73,8 +73,8 @@ class BranchStatusXmlTest extends AbstractConverterTest {
         line.addExtension(BranchStatus.class, lineBranchStatus);
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 "/branchStatusRef.xml");
 
         Line line2 = network2.getLine("L");

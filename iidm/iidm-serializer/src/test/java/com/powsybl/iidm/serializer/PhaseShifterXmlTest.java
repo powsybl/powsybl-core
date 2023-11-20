@@ -11,20 +11,20 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class PhaseShifterXmlTest extends AbstractXmlConverterTest {
+class PhaseShifterXmlTest extends AbstractIidmSerializerTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("phaseShifterRoundTripRef.xml");
 
         roundTripXmlTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(),
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 getVersionedNetworkPath("phaseShifterRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 }

@@ -14,9 +14,9 @@ import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.AbstractXmlConverterTest;
-import com.powsybl.iidm.serializer.IidmXmlConstants;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.AbstractIidmSerializerTest;
+import com.powsybl.iidm.serializer.IidmSerializerConstants;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ import java.io.IOException;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class MeasurementsXmlTest extends AbstractXmlConverterTest {
+class MeasurementsXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -67,8 +67,8 @@ class MeasurementsXmlTest extends AbstractXmlConverterTest {
                 .add();
 
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
-                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "measRef.xiidm");
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::validateAndRead,
+                getVersionDir(IidmSerializerConstants.CURRENT_IIDM_XML_VERSION) + "measRef.xiidm");
     }
 }

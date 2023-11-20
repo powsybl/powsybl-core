@@ -20,11 +20,11 @@ import java.util.Properties;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class BusBreakerAnonymiserBugTest extends AbstractXmlConverterTest {
+class BusBreakerAnonymiserBugTest extends AbstractIidmSerializerTest {
 
     @Test
     void test() throws IOException {
-        Network network = NetworkXmlTest.createEurostagTutorialExample1();
+        Network network = NetworkSerializerTest.createEurostagTutorialExample1();
         // add a switch
         VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
         vlgen.getBusBreakerView().newBus()

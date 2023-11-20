@@ -20,11 +20,11 @@ import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class SkipExtensionTest extends AbstractXmlConverterTest {
+class SkipExtensionTest extends AbstractIidmSerializerTest {
 
     @Test
     void testSkipExtension() throws IOException {
-        Network network = NetworkXml.read(getVersionedNetworkAsStream("multiple-extensions.xml", IidmXmlVersion.V_1_0));
+        Network network = NetworkSerializer.read(getVersionedNetworkAsStream("multiple-extensions.xml", IidmVersion.V_1_0));
 
         Properties properties = new Properties();
         properties.put(XMLExporter.EXTENSIONS_LIST, "");
@@ -35,6 +35,6 @@ class SkipExtensionTest extends AbstractXmlConverterTest {
         network.write("XIIDM", properties, networkFile);
 
         // Compare
-        compareXml(getVersionedNetworkAsStream("noExtension.xml", IidmXmlVersion.V_1_0), Files.newInputStream(networkFile));
+        compareXml(getVersionedNetworkAsStream("noExtension.xml", IidmVersion.V_1_0), Files.newInputStream(networkFile));
     }
 }

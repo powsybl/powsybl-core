@@ -28,17 +28,17 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Chamseddine BENHAMED  {@literal <chamseddine.benhamed at rte-france.com>}
  */
 
-class XMLExporterTest extends AbstractXmlConverterTest {
+class XMLExporterTest extends AbstractIidmSerializerTest {
     private FileSystem fileSystem;
 
-    void exporterTest(Network network, IidmXmlVersion version, String xmlFileName, Properties properties) throws IOException {
+    void exporterTest(Network network, IidmVersion version, String xmlFileName, Properties properties) throws IOException {
         properties.put(XMLExporter.ANONYMISED, "false");
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
@@ -77,7 +77,7 @@ class XMLExporterTest extends AbstractXmlConverterTest {
         vl.newExtension(SlackTerminalAdder.class).withTerminal(t).add();
 
         Properties params = new Properties();
-        params.setProperty(XMLExporter.VERSION, IidmXmlVersion.V_1_2.toString("."));
+        params.setProperty(XMLExporter.VERSION, IidmVersion.V_1_2.toString("."));
         params.setProperty(XMLExporter.THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, "true");
         assertThrows(PowsyblException.class, () -> network.write("XIIDM", params,
                 workingDir));
@@ -103,7 +103,7 @@ class XMLExporterTest extends AbstractXmlConverterTest {
         assertNotNull(t);
         vl.newExtension(SlackTerminalAdder.class).withTerminal(t).add();
         Properties params = new Properties();
-        params.setProperty(XMLExporter.VERSION, IidmXmlVersion.V_1_2.toString("."));
-        exporterTest(network, IidmXmlVersion.V_1_2, "extensionTooRecentExportTest.xml", params);
+        params.setProperty(XMLExporter.VERSION, IidmVersion.V_1_2.toString("."));
+        exporterTest(network, IidmVersion.V_1_2, "extensionTooRecentExportTest.xml", params);
     }
 }

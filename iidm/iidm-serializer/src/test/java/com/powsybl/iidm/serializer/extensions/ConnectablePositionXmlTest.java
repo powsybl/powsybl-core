@@ -6,12 +6,12 @@
  */
 package com.powsybl.iidm.serializer.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.serializer.ExportOptions;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ConnectablePositionXmlTest extends AbstractConverterTest {
+class ConnectablePositionXmlTest extends AbstractSerializerTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -112,8 +112,8 @@ class ConnectablePositionXmlTest extends AbstractConverterTest {
                 .add();
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::read,
                 "/connectablePositionRef_V1_1.xml");
 
         Generator generator2 = network2.getGenerator("G");
@@ -148,7 +148,7 @@ class ConnectablePositionXmlTest extends AbstractConverterTest {
         // test v 1.0
         roundTripXmlTest(network, (n, p) -> {
             ExportOptions options = new ExportOptions().addExtensionVersion(ConnectablePosition.NAME, "1.0");
-            NetworkXml.writeAndValidate(n, options, p);
-        }, NetworkXml::read, "/connectablePositionRef_V1_0.xml");
+            NetworkSerializer.writeAndValidate(n, options, p);
+        }, NetworkSerializer::read, "/connectablePositionRef_V1_0.xml");
     }
 }

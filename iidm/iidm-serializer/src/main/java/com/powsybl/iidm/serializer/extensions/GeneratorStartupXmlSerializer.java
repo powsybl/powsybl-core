@@ -16,9 +16,9 @@ import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
-import com.powsybl.iidm.serializer.IidmXmlVersion;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
-import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
+import com.powsybl.iidm.serializer.IidmVersion;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
+import com.powsybl.iidm.serializer.NetworkSerializerWriterContext;
 
 import java.io.InputStream;
 import java.util.List;
@@ -35,19 +35,19 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
 
     public GeneratorStartupXmlSerializer() {
         super(GeneratorStartup.NAME, GeneratorStartup.class, "gs",
-                ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_2, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_11, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
+                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(ITESLA_1_0, "http://www.itesla_project.eu/schema/iidm/ext/generator_startup/1_0")
@@ -70,7 +70,7 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
 
     @Override
     public void write(GeneratorStartup startup, XmlWriterContext context) {
-        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
+        NetworkSerializerWriterContext networkContext = (NetworkSerializerWriterContext) context;
         String extVersionStr = networkContext.getExtensionVersion("startup")
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
         String plannedActivePowerSetpoint;
@@ -99,8 +99,8 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
     public GeneratorStartup read(Generator generator, XmlReaderContext context) {
         double plannedActivePowerSetpoint;
         double startUpCost;
-        NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
-        String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
+        NetworkSerializerReaderContext networkSerializerReaderContext = (NetworkSerializerReaderContext) context;
+        String extensionVersionStr = networkSerializerReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
         switch (extensionVersionStr) {
             case ITESLA_1_0:
             case V_1_0:

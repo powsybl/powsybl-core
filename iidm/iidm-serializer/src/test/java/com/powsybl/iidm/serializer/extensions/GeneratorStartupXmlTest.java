@@ -10,9 +10,9 @@ import com.powsybl.iidm.serializer.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
-import com.powsybl.iidm.serializer.AbstractXmlConverterTest;
-import com.powsybl.iidm.serializer.IidmXmlConstants;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.AbstractIidmSerializerTest;
+import com.powsybl.iidm.serializer.IidmSerializerConstants;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
+class GeneratorStartupXmlTest extends AbstractIidmSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -42,9 +42,9 @@ class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
                 .add();
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
-                getVersionedNetworkPath("generatorStartupRef.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
+                NetworkSerializer::writeAndValidate,
+                NetworkSerializer::validateAndRead,
+                getVersionedNetworkPath("generatorStartupRef.xml", IidmSerializerConstants.CURRENT_IIDM_XML_VERSION));
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);
@@ -57,14 +57,14 @@ class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
         assertEquals(startup.getForcedOutageRate(), startup2.getForcedOutageRate(), 0);
 
         // backward compatibility
-        roundTripXmlTest(network, (n, path) -> NetworkXml.writeAndValidate(n,
+        roundTripXmlTest(network, (n, path) -> NetworkSerializer.writeAndValidate(n,
                         new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0"), path),
-                NetworkXml::validateAndRead,
-                getVersionedNetworkPath("generatorStartupRef-1.0.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
-        roundTripXmlTest(network, (n, path) -> NetworkXml.writeAndValidate(n,
+                NetworkSerializer::validateAndRead,
+                getVersionedNetworkPath("generatorStartupRef-1.0.xml", IidmSerializerConstants.CURRENT_IIDM_XML_VERSION));
+        roundTripXmlTest(network, (n, path) -> NetworkSerializer.writeAndValidate(n,
                         new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0-itesla"), path),
-                NetworkXml::validateAndRead,
-                getVersionedNetworkPath("generatorStartupRef-1.0-itesla.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
+                NetworkSerializer::validateAndRead,
+                getVersionedNetworkPath("generatorStartupRef-1.0-itesla.xml", IidmSerializerConstants.CURRENT_IIDM_XML_VERSION));
     }
 
     private static Network createTestNetwork() {

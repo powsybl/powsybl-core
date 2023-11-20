@@ -14,7 +14,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ExtensionTest extends AbstractConverterTest {
+class ExtensionTest extends AbstractSerializerTest {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test"));

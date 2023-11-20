@@ -11,7 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.Exporter;
 
-import static com.powsybl.iidm.serializer.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * JSON export of an IIDM model.

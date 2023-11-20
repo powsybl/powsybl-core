@@ -15,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class TerminalRefNotFoundTest extends AbstractXmlConverterTest {
+class TerminalRefNotFoundTest extends AbstractIidmSerializerTest {
 
     @Test
     void test() {
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> NetworkXml.read(getVersionedNetworkAsStream("terminalRefNotFound.xiidm", IidmXmlVersion.V_1_5)));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> NetworkSerializer.read(getVersionedNetworkAsStream("terminalRefNotFound.xiidm", IidmVersion.V_1_5)));
         assertEquals("Terminal reference identifiable not found: '????'", exception.getMessage());
     }
 }

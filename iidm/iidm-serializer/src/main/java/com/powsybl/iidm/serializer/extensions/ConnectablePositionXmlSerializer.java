@@ -16,9 +16,9 @@ import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.iidm.serializer.IidmXmlVersion;
-import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
-import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
+import com.powsybl.iidm.serializer.IidmVersion;
+import com.powsybl.iidm.serializer.NetworkSerializerReaderContext;
+import com.powsybl.iidm.serializer.NetworkSerializerWriterContext;
 
 import java.io.InputStream;
 import java.util.List;
@@ -35,19 +35,19 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
 
     public ConnectablePositionXmlSerializer() {
         super(ConnectablePosition.NAME, ConnectablePosition.class, "cp",
-                ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_2, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmXmlVersion.V_1_11, ImmutableSortedSet.of(V_1_0, V_1_1))
+                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
+                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(V_1_0, "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0")
@@ -55,7 +55,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                         .build());
     }
 
-    private void writePosition(String connectableId, ConnectablePosition.Feeder feeder, Integer i, NetworkXmlWriterContext context) {
+    private void writePosition(String connectableId, ConnectablePosition.Feeder feeder, Integer i, NetworkSerializerWriterContext context) {
         context.getWriter().writeStartNode(context.getExtensionVersion(ConnectablePosition.NAME)
                 .map(this::getNamespaceUri)
                 .orElseGet(this::getNamespaceUri), "feeder" + (i != null ? i : ""));
@@ -79,7 +79,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
 
     @Override
     public void write(ConnectablePosition<C> connectablePosition, XmlWriterContext context) {
-        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
+        NetworkSerializerWriterContext networkContext = (NetworkSerializerWriterContext) context;
         String connectableId = connectablePosition.getExtendable().getId();
         if (connectablePosition.getFeeder() != null) {
             writePosition(connectableId, connectablePosition.getFeeder(), null, networkContext);
@@ -104,8 +104,8 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
         if (name != null) {
             adder.withName(name);
         } else {
-            NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
-            String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
+            NetworkSerializerReaderContext networkSerializerReaderContext = (NetworkSerializerReaderContext) context;
+            String extensionVersionStr = networkSerializerReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
             if (V_1_1.compareTo(extensionVersionStr) > 0) {
                 throw new PowsyblException("Feeder name is mandatory for version < 1.1");
             }

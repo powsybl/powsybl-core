@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
@@ -55,7 +55,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         // create network
         Network network = EurostagTutorialExample1Factory.create();
-        NetworkXml.write(network, fileSystem.getPath("network.xiidm"));
+        NetworkSerializer.write(network, fileSystem.getPath("network.xiidm"));
 
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new SensitivityJsonModule())

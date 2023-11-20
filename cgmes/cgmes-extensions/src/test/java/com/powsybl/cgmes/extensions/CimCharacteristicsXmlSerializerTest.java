@@ -6,10 +6,10 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerializerTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkSerializer;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CimCharacteristicsXmlSerializerTest extends AbstractConverterTest {
+class CimCharacteristicsXmlSerializerTest extends AbstractSerializerTest {
 
     @Test
     void test() throws IOException {
@@ -27,7 +27,7 @@ class CimCharacteristicsXmlSerializerTest extends AbstractConverterTest {
                 .setTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                 .setCimVersion(14)
                 .add();
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
                 "/eurostag_cim_characteristics.xml");
     }
 }
