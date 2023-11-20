@@ -47,7 +47,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = THROW_EXCEPTION;
 
-    private Map<String, String> extensionsVersions = new HashMap<>();
+    private final Map<String, String> extensionsVersions = new HashMap<>();
 
     private Charset charset = StandardCharsets.UTF_8;
 
@@ -170,8 +170,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
-    public String getVersion() {
-        return version;
+    public IidmXmlVersion getVersion() {
+        return version != null ? IidmXmlVersion.of(version, ".") : IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
     }
 
     public ExportOptions setVersion(String version) {

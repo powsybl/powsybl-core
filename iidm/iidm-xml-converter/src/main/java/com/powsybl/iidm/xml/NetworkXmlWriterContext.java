@@ -6,46 +6,36 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.xml.anonymizer.Anonymizer;
+import com.powsybl.commons.extensions.XmlWriterContext;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
 import javax.xml.stream.XMLStreamWriter;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOptions> implements XmlWriterContext {
 
-    private final XMLStreamWriter writer;
+    private final TreeDataWriter writer;
     private final ExportOptions options;
     private final BusFilter filter;
     private final boolean valid;
     private final Set<Identifiable> exportedEquipments;
 
-    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version, boolean valid) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, TreeDataWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version, boolean valid) {
         super(anonymizer, version);
-        this.writer = writer;
+        this.writer = Objects.requireNonNull(writer);
         this.options = options;
         this.filter = filter;
         this.valid = valid;
         this.exportedEquipments = new HashSet<>();
     }
 
-    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
-        this(anonymizer, writer, options, filter, version, true);
-    }
-
-    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter) {
-        this(anonymizer, writer, options, filter, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
-    }
-
     @Override
-    public XMLStreamWriter getWriter() {
+    public TreeDataWriter getWriter() {
         return writer;
     }
 
@@ -85,5 +75,9 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
 
     public Optional<String> getExtensionVersion(String extensionName) {
         return options.getExtensionVersion(extensionName);
+    }
+
+    public String getNamespaceURI() {
+        return getVersion().getNamespaceURI(valid);
     }
 }

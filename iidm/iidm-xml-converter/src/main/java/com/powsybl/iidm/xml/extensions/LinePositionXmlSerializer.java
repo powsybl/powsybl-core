@@ -7,19 +7,19 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.LinePosition;
 import com.powsybl.iidm.network.extensions.LinePositionAdder;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
@@ -27,26 +27,41 @@ import java.util.List;
 @AutoService(ExtensionXmlSerializer.class)
 public class LinePositionXmlSerializer<T extends Identifiable<T>> extends AbstractExtensionXmlSerializer<T, LinePosition<T>> {
 
+    private static final String COORDINATE_ROOT_NODE = "coordinate";
+    private static final String COORDINATE_ARRAY_NODE = "coordinates";
+
     public LinePositionXmlSerializer() {
-        super(LinePosition.NAME, "network", LinePosition.class, true, "linePosition.xsd",
+        super(LinePosition.NAME, "network", LinePosition.class, "linePosition.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/line_position/1_0", "lp");
     }
 
     @Override
-    public void write(LinePosition<T> linePosition, XmlWriterContext context) throws XMLStreamException {
-        for (Coordinate point : linePosition.getCoordinates()) {
-            context.getWriter().writeEmptyElement(getNamespaceUri(), "coordinate");
-            XmlUtil.writeDouble("longitude", point.getLongitude(), context.getWriter());
-            XmlUtil.writeDouble("latitude", point.getLatitude(), context.getWriter());
-        }
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(COORDINATE_ARRAY_NODE, COORDINATE_ROOT_NODE);
     }
 
     @Override
-    public LinePosition<T> read(T line, XmlReaderContext context) throws XMLStreamException {
+    public void write(LinePosition<T> linePosition, XmlWriterContext context) {
+        context.getWriter().writeStartNodes(COORDINATE_ARRAY_NODE);
+        for (Coordinate point : linePosition.getCoordinates()) {
+            context.getWriter().writeStartNode(getNamespaceUri(), COORDINATE_ROOT_NODE);
+            context.getWriter().writeDoubleAttribute("longitude", point.getLongitude());
+            context.getWriter().writeDoubleAttribute("latitude", point.getLatitude());
+            context.getWriter().writeEndNode();
+        }
+        context.getWriter().writeEndNodes();
+    }
+
+    @Override
+    public LinePosition<T> read(T line, XmlReaderContext context) {
         List<Coordinate> coordinates = new ArrayList<>();
-        XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
-            double longitude = XmlUtil.readDoubleAttribute(context.getReader(), "longitude");
-            double latitude = XmlUtil.readDoubleAttribute(context.getReader(), "latitude");
+        context.getReader().readChildNodes(elementName -> {
+            if (!elementName.equals(COORDINATE_ROOT_NODE)) {
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'linePosition'");
+            }
+            double longitude = context.getReader().readDoubleAttribute("longitude");
+            double latitude = context.getReader().readDoubleAttribute("latitude");
+            context.getReader().readEndNode();
             coordinates.add(new Coordinate(latitude, longitude));
         });
         LinePositionAdder<T> adder = line.newExtension(LinePositionAdder.class);

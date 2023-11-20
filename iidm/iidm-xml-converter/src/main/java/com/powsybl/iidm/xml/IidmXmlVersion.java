@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,6 +42,7 @@ public enum IidmXmlVersion {
     }
 
     public String toString(String separator) {
+        Objects.requireNonNull(separator);
         return versionArray.stream().map(Object::toString).collect(Collectors.joining(separator));
     }
 
@@ -91,6 +93,7 @@ public enum IidmXmlVersion {
     }
 
     public static IidmXmlVersion of(String version, String separator) {
+        Objects.requireNonNull(version);
         return Stream.of(IidmXmlVersion.values())
                 .filter(v -> version.equals(v.toString(separator)))
                 .findFirst() // there can only be 0 or exactly 1 match

@@ -9,14 +9,11 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -26,28 +23,29 @@ public class StandbyAutomatonXmlSerializer extends AbstractExtensionXmlSerialize
 
     // TODO make this serializer versionable to fix lowVoltageSetpoint/highVoltageSetpoint
     public StandbyAutomatonXmlSerializer() {
-        super("standbyAutomaton", "network", StandbyAutomaton.class, false, "standbyAutomaton.xsd",
+        super("standbyAutomaton", "network", StandbyAutomaton.class, "standbyAutomaton.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/standby_automaton/1_0", "sa");
     }
 
     @Override
-    public void write(StandbyAutomaton standbyAutomaton, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("b0", standbyAutomaton.getB0(), context.getWriter());
-        context.getWriter().writeAttribute("standby", Boolean.toString(standbyAutomaton.isStandby()));
-        XmlUtil.writeDouble("lowVoltageSetPoint", standbyAutomaton.getLowVoltageSetpoint(), context.getWriter());
-        XmlUtil.writeDouble("highVoltageSetPoint", standbyAutomaton.getHighVoltageSetpoint(), context.getWriter());
-        XmlUtil.writeDouble("lowVoltageThreshold", standbyAutomaton.getLowVoltageThreshold(), context.getWriter());
-        XmlUtil.writeDouble("highVoltageThreshold", standbyAutomaton.getHighVoltageThreshold(), context.getWriter());
+    public void write(StandbyAutomaton standbyAutomaton, XmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("b0", standbyAutomaton.getB0());
+        context.getWriter().writeBooleanAttribute("standby", standbyAutomaton.isStandby());
+        context.getWriter().writeDoubleAttribute("lowVoltageSetPoint", standbyAutomaton.getLowVoltageSetpoint());
+        context.getWriter().writeDoubleAttribute("highVoltageSetPoint", standbyAutomaton.getHighVoltageSetpoint());
+        context.getWriter().writeDoubleAttribute("lowVoltageThreshold", standbyAutomaton.getLowVoltageThreshold());
+        context.getWriter().writeDoubleAttribute("highVoltageThreshold", standbyAutomaton.getHighVoltageThreshold());
     }
 
     @Override
     public StandbyAutomaton read(StaticVarCompensator svc, XmlReaderContext context) {
-        double b0 = XmlUtil.readDoubleAttribute(context.getReader(), "b0");
-        boolean standby = XmlUtil.readBoolAttribute(context.getReader(), "standby");
-        double lowVoltageSetpoint = XmlUtil.readDoubleAttribute(context.getReader(), "lowVoltageSetPoint");
-        double highVoltageSetpoint = XmlUtil.readDoubleAttribute(context.getReader(), "highVoltageSetPoint");
-        double lowVoltageThreshold = XmlUtil.readDoubleAttribute(context.getReader(), "lowVoltageThreshold");
-        double highVoltageThreshold = XmlUtil.readDoubleAttribute(context.getReader(), "highVoltageThreshold");
+        double b0 = context.getReader().readDoubleAttribute("b0");
+        boolean standby = context.getReader().readBooleanAttribute("standby");
+        double lowVoltageSetpoint = context.getReader().readDoubleAttribute("lowVoltageSetPoint");
+        double highVoltageSetpoint = context.getReader().readDoubleAttribute("highVoltageSetPoint");
+        double lowVoltageThreshold = context.getReader().readDoubleAttribute("lowVoltageThreshold");
+        double highVoltageThreshold = context.getReader().readDoubleAttribute("highVoltageThreshold");
+        context.getReader().readEndNode();
         svc.newExtension(StandbyAutomatonAdder.class)
                 .withB0(b0)
                 .withStandbyStatus(standby)

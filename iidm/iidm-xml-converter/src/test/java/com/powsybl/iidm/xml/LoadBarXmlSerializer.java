@@ -9,12 +9,10 @@ package com.powsybl.iidm.xml;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadBarExt;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -23,16 +21,17 @@ import javax.xml.stream.XMLStreamException;
 public class LoadBarXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadBarExt> {
 
     public LoadBarXmlSerializer() {
-        super("loadBar", "network", LoadBarExt.class, false, "loadBar.xsd",
+        super("loadBar", "network", LoadBarExt.class, "loadBar.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0", "bar");
     }
 
     @Override
-    public void write(LoadBarExt loadBar, XmlWriterContext context) throws XMLStreamException {
+    public void write(LoadBarExt loadBar, XmlWriterContext context) {
     }
 
     @Override
     public LoadBarExt read(Load load, XmlReaderContext context) {
+        context.getReader().readEndNode();
         return new LoadBarExt(load);
     }
 }

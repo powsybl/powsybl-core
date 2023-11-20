@@ -9,9 +9,8 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
@@ -22,9 +21,6 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.TerminalRefXml;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -32,26 +28,25 @@ import javax.xml.stream.XMLStreamWriter;
 public class RemoteReactivePowerControlXmlSerializer extends AbstractExtensionXmlSerializer<Generator, RemoteReactivePowerControl> {
 
     public RemoteReactivePowerControlXmlSerializer() {
-        super(RemoteReactivePowerControl.NAME, "network", RemoteReactivePowerControl.class, false,
+        super(RemoteReactivePowerControl.NAME, "network", RemoteReactivePowerControl.class,
                 "remoteReactivePowerControl_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/remote_reactive_power_control/1_0", "rrpc");
     }
 
     @Override
-    public void write(RemoteReactivePowerControl extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(RemoteReactivePowerControl extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, networkContext);
-        XMLStreamWriter writer = context.getWriter();
-        writer.writeAttribute("enabled", Boolean.toString(extension.isEnabled()));
-        XmlUtil.writeDouble("targetQ", extension.getTargetQ(), writer);
+        context.getWriter().writeBooleanAttribute("enabled", extension.isEnabled());
+        context.getWriter().writeDoubleAttribute("targetQ", extension.getTargetQ());
         TerminalRefXml.writeTerminalRefAttribute(extension.getRegulatingTerminal(), networkContext);
     }
 
     @Override
-    public RemoteReactivePowerControl read(Generator extendable, XmlReaderContext context) throws XMLStreamException {
+    public RemoteReactivePowerControl read(Generator extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, networkContext);
-        boolean enabled = XmlUtil.readBoolAttribute(context.getReader(), "enabled");
-        double targetQ = XmlUtil.readDoubleAttribute(context.getReader(), "targetQ");
+        boolean enabled = context.getReader().readBooleanAttribute("enabled");
+        double targetQ = context.getReader().readDoubleAttribute("targetQ");
         Terminal terminal = TerminalRefXml.readTerminal(networkContext, extendable.getNetwork());
         return extendable.newExtension(RemoteReactivePowerControlAdder.class)
                 .withEnabled(enabled)

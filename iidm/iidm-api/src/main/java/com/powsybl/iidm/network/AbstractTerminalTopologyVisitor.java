@@ -14,17 +14,8 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
 
     public abstract void visitTerminal(Terminal t);
 
-    private void visitBranch(Branch branch, Branch.Side side) {
-        switch (side) {
-            case ONE:
-                visitTerminal(branch.getTerminal1());
-                break;
-            case TWO:
-                visitTerminal(branch.getTerminal2());
-                break;
-            default:
-                throw new IllegalStateException();
-        }
+    private void visitBranch(Branch branch, TwoSides side) {
+        visitTerminal(branch.getTerminal(side));
     }
 
     @Override
@@ -33,30 +24,18 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
-    public void visitLine(Line line, Branch.Side side) {
+    public void visitLine(Line line, TwoSides side) {
         visitBranch(line, side);
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
         visitBranch(transformer, side);
     }
 
     @Override
-    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
-        switch (side) {
-            case ONE:
-                visitTerminal(transformer.getLeg1().getTerminal());
-                break;
-            case TWO:
-                visitTerminal(transformer.getLeg2().getTerminal());
-                break;
-            case THREE:
-                visitTerminal(transformer.getLeg3().getTerminal());
-                break;
-            default:
-                throw new IllegalStateException();
-        }
+    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
+        visitTerminal(transformer.getTerminal(side));
     }
 
     private void visitInjection(Injection injection) {

@@ -10,14 +10,14 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 
+import com.powsybl.iidm.network.ThreeSides;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
@@ -735,7 +735,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                         int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
+                         int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
                          boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(twtId);
         if (compareResults) {
@@ -743,14 +743,14 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         write(found, twtData.error, twtData.upIncrement, twtData.downIncrement, twtData.rho, twtData.rhoPreviousStep, twtData.rhoNextStep,
                               twtData.tapPosition, twtData.lowTapPosition, twtData.highTapPosition, twtData.targetV, twtData.regulatedSide, twtData.v,
                               twtData.connected, twtData.mainComponent, twtData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, -1, -1, Double.NaN, Side.ONE, Double.NaN, false, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false);
         }
         write(writeValues, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV,
               regulatedSide, v, connected, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                                 int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
+                                 int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
                                  boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(error)
@@ -787,59 +787,59 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     private TableFormatter write(boolean writeValues, TwtData twtData, boolean validated) throws IOException {
         formatter = writeValues ?
-                    formatter.writeCell(twtData.getP(ThreeWindingsTransformer.Side.ONE))
-                             .writeCell(twtData.getComputedP(ThreeWindingsTransformer.Side.ONE))
-                             .writeCell(twtData.getQ(ThreeWindingsTransformer.Side.ONE))
-                             .writeCell(twtData.getComputedQ(ThreeWindingsTransformer.Side.ONE))
-                             .writeCell(twtData.getP(ThreeWindingsTransformer.Side.TWO))
-                             .writeCell(twtData.getComputedP(ThreeWindingsTransformer.Side.TWO))
-                             .writeCell(twtData.getQ(ThreeWindingsTransformer.Side.TWO))
-                             .writeCell(twtData.getComputedQ(ThreeWindingsTransformer.Side.TWO))
-                             .writeCell(twtData.getP(ThreeWindingsTransformer.Side.THREE))
-                             .writeCell(twtData.getComputedP(ThreeWindingsTransformer.Side.THREE))
-                             .writeCell(twtData.getQ(ThreeWindingsTransformer.Side.THREE))
-                             .writeCell(twtData.getComputedQ(ThreeWindingsTransformer.Side.THREE)) :
+                    formatter.writeCell(twtData.getP(ThreeSides.ONE))
+                             .writeCell(twtData.getComputedP(ThreeSides.ONE))
+                             .writeCell(twtData.getQ(ThreeSides.ONE))
+                             .writeCell(twtData.getComputedQ(ThreeSides.ONE))
+                             .writeCell(twtData.getP(ThreeSides.TWO))
+                             .writeCell(twtData.getComputedP(ThreeSides.TWO))
+                             .writeCell(twtData.getQ(ThreeSides.TWO))
+                             .writeCell(twtData.getComputedQ(ThreeSides.TWO))
+                             .writeCell(twtData.getP(ThreeSides.THREE))
+                             .writeCell(twtData.getComputedP(ThreeSides.THREE))
+                             .writeCell(twtData.getQ(ThreeSides.THREE))
+                             .writeCell(twtData.getComputedQ(ThreeSides.THREE)) :
                     formatter.writeEmptyCells(12);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(twtData.getU(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getU(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getU(ThreeWindingsTransformer.Side.THREE))
+                        formatter.writeCell(twtData.getU(ThreeSides.ONE))
+                                 .writeCell(twtData.getU(ThreeSides.TWO))
+                                 .writeCell(twtData.getU(ThreeSides.THREE))
                                  .writeCell(twtData.getStarU())
-                                 .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getTheta(ThreeSides.ONE))
+                                 .writeCell(twtData.getTheta(ThreeSides.TWO))
+                                 .writeCell(twtData.getTheta(ThreeSides.THREE))
                                  .writeCell(twtData.getStarTheta())
-                                 .writeCell(twtData.getG1(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getB1(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getG2(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getB2(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getG1(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getB1(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getG2(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getB2(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getG1(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getB1(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getG2(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getB2(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getR(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getR(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getR(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getX(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getX(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getX(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getG1(ThreeSides.ONE))
+                                 .writeCell(twtData.getB1(ThreeSides.ONE))
+                                 .writeCell(twtData.getG2(ThreeSides.ONE))
+                                 .writeCell(twtData.getB2(ThreeSides.ONE))
+                                 .writeCell(twtData.getG1(ThreeSides.TWO))
+                                 .writeCell(twtData.getB1(ThreeSides.TWO))
+                                 .writeCell(twtData.getG2(ThreeSides.TWO))
+                                 .writeCell(twtData.getB2(ThreeSides.TWO))
+                                 .writeCell(twtData.getG1(ThreeSides.THREE))
+                                 .writeCell(twtData.getB1(ThreeSides.THREE))
+                                 .writeCell(twtData.getG2(ThreeSides.THREE))
+                                 .writeCell(twtData.getB2(ThreeSides.THREE))
+                                 .writeCell(twtData.getR(ThreeSides.ONE))
+                                 .writeCell(twtData.getR(ThreeSides.TWO))
+                                 .writeCell(twtData.getR(ThreeSides.THREE))
+                                 .writeCell(twtData.getX(ThreeSides.ONE))
+                                 .writeCell(twtData.getX(ThreeSides.TWO))
+                                 .writeCell(twtData.getX(ThreeSides.THREE))
+                                 .writeCell(twtData.getRatedU(ThreeSides.ONE))
+                                 .writeCell(twtData.getRatedU(ThreeSides.TWO))
+                                 .writeCell(twtData.getRatedU(ThreeSides.THREE))
                                  .writeCell(twtData.getPhaseAngleClock2())
                                  .writeCell(twtData.getPhaseAngleClock3())
                                  .writeCell(twtData.getRatedU0())
-                                 .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.isConnected(ThreeSides.ONE))
+                                 .writeCell(twtData.isConnected(ThreeSides.TWO))
+                                 .writeCell(twtData.isConnected(ThreeSides.THREE))
+                                 .writeCell(twtData.isMainComponent(ThreeSides.ONE))
+                                 .writeCell(twtData.isMainComponent(ThreeSides.TWO))
+                                 .writeCell(twtData.isMainComponent(ThreeSides.THREE))
                                  .writeCell(getValidated(validated)) :
                         formatter.writeEmptyCells(39);
         }

@@ -8,7 +8,7 @@ package com.powsybl.loadflow.validation.io;
 
 import java.io.IOException;
 
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
@@ -39,7 +39,7 @@ public interface ValidationWriter extends AutoCloseable {
                double v, boolean connected, double qMax, double nominalV, boolean mainComponent, boolean validated) throws IOException;
 
     void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-               int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
+               int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
                boolean mainComponent, boolean validated) throws IOException;
 
     void write(String twtId, TwtData twtData, boolean validated) throws IOException;

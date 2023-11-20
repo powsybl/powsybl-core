@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.stream.XMLStreamException;
-import java.util.*;
+import java.util.Optional;
 
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
 
@@ -28,56 +25,41 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
     static final TieLineXml INSTANCE = new TieLineXml();
 
     static final String ROOT_ELEMENT_NAME = "tieLine";
+    static final String ARRAY_ELEMENT_NAME = "tieLines";
 
     @Override
     protected String getRootElementName() {
         return ROOT_ELEMENT_NAME;
     }
 
-    @Override
-    protected boolean hasSubElements(TieLine tl) {
-        throw new IllegalStateException("Should not be called");
-    }
-
-    @Override
-    protected boolean hasSubElements(TieLine tl, NetworkXmlWriterContext context) {
-        return (hasValidOperationalLimits(tl.getDanglingLine1(), context) || hasValidOperationalLimits(tl.getDanglingLine2(), context)) && context.getVersion().compareTo(IidmXmlVersion.V_1_10) < 0;
-    }
-
-    private static void writeDanglingLine(DanglingLine danglingLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
+    private static void writeDanglingLine(DanglingLine danglingLine, NetworkXmlWriterContext context, int side) {
         Boundary boundary = danglingLine.getBoundary();
-        context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(danglingLine.getId()));
-        danglingLine.getOptionalName().ifPresent(name -> {
-            try {
-                context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(name));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
-        XmlUtil.writeDouble("r_" + side, danglingLine.getR(), context.getWriter());
-        XmlUtil.writeDouble("x_" + side, danglingLine.getX(), context.getWriter());
+        context.getWriter().writeStringAttribute("id_" + side, context.getAnonymizer().anonymizeString(danglingLine.getId()));
+        danglingLine.getOptionalName().ifPresent(name -> context.getWriter().writeStringAttribute("name_" + side, context.getAnonymizer().anonymizeString(name)));
+        context.getWriter().writeDoubleAttribute("r_" + side, danglingLine.getR());
+        context.getWriter().writeDoubleAttribute("x_" + side, danglingLine.getX());
         // TODO change serialization
-        XmlUtil.writeDouble("g1_" + side, danglingLine.getG() / 2, context.getWriter());
-        XmlUtil.writeDouble("b1_" + side, danglingLine.getB() / 2, context.getWriter());
-        XmlUtil.writeDouble("g2_" + side, danglingLine.getG() / 2, context.getWriter());
-        XmlUtil.writeDouble("b2_" + side, danglingLine.getB() / 2, context.getWriter());
+        context.getWriter().writeDoubleAttribute("g1_" + side, danglingLine.getG() / 2);
+        context.getWriter().writeDoubleAttribute("b1_" + side, danglingLine.getB() / 2);
+        context.getWriter().writeDoubleAttribute("g2_" + side, danglingLine.getG() / 2);
+        context.getWriter().writeDoubleAttribute("b2_" + side, danglingLine.getB() / 2);
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            XmlUtil.writeDouble("xnodeP_" + side, boundary.getP(), context.getWriter());
-            XmlUtil.writeDouble("xnodeQ_" + side, boundary.getQ(), context.getWriter());
+            context.getWriter().writeDoubleAttribute("xnodeP_" + side, boundary.getP());
+            context.getWriter().writeDoubleAttribute("xnodeQ_" + side, boundary.getQ());
         });
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, danglingLine.isFictitious(), false, context.getWriter()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeBooleanAttribute("fictitious_" + side, danglingLine.isFictitious(), false));
     }
 
     @Override
-    protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
-            context.getWriter().writeAttribute("danglingLineId1", context.getAnonymizer().anonymizeString(tl.getDanglingLine1().getId()));
-            context.getWriter().writeAttribute("danglingLineId2", context.getAnonymizer().anonymizeString(tl.getDanglingLine2().getId()));
+            context.getWriter().writeStringAttribute("danglingLineId1", context.getAnonymizer().anonymizeString(tl.getDanglingLine1().getId()));
+            context.getWriter().writeStringAttribute("danglingLineId2", context.getAnonymizer().anonymizeString(tl.getDanglingLine2().getId()));
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
             if (tl.getPairingKey() != null) {
-                context.getWriter().writeAttribute("ucteXnodeCode", tl.getPairingKey());
+                context.getWriter().writeStringAttribute("ucteXnodeCode", tl.getPairingKey());
             }
             writeNodeOrBus(1, tl.getDanglingLine1().getTerminal(), context);
             writeNodeOrBus(2, tl.getDanglingLine2().getTerminal(), context);
@@ -91,7 +73,7 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
     }
 
     @Override
-    protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) {
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
             Optional<ActivePowerLimits> activePowerLimits1 = tl.getDanglingLine1().getActivePowerLimits();
             if (activePowerLimits1.isPresent()) {
@@ -131,119 +113,118 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
         return n.newTieLine();
     }
 
-    @Override
-    protected TieLine readRootElementAttributes(TieLineAdder adder, Network network, NetworkXmlReaderContext context) {
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> adder.setDanglingLine1(readDanglingLine(network, context, 1)).setDanglingLine2(readDanglingLine(network, context, 2)));
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
-            String dl1Id = context.getReader().getAttributeValue(null, "danglingLineId1");
-            String dl2Id = context.getReader().getAttributeValue(null, "danglingLineId2");
-            adder.setDanglingLine1(dl1Id).setDanglingLine2(dl2Id);
-        });
-        TieLine tl = adder.add();
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            double dl1BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
-            double dl2BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
-            double dl1BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
-            double dl2BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
-            checkBoundaryValue(dl1BoundaryP, tl.getDanglingLine1().getBoundary().getP(), "xnodeP_1", tl.getId());
-            checkBoundaryValue(dl2BoundaryP, tl.getDanglingLine2().getBoundary().getP(), "xnodeP_2", tl.getId());
-            checkBoundaryValue(dl1BoundaryQ, tl.getDanglingLine1().getBoundary().getQ(), "xnodeQ_1", tl.getId());
-            checkBoundaryValue(dl2BoundaryQ, tl.getDanglingLine2().getBoundary().getQ(), "xnodeQ_2", tl.getId());
-        });
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
-            double p1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p1");
-            double q1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q1");
-            double p2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p2");
-            double q2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q2");
-            tl.getDanglingLine1().getTerminal().setP(p1).setQ(q1);
-            tl.getDanglingLine2().getTerminal().setP(p2).setQ(q2);
-        });
-        return tl;
-    }
-
-    private static String readDanglingLine(Network network, NetworkXmlReaderContext context, int side) {
-        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId" + side));
-        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
-        String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r_" + side);
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x_" + side);
-        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1_" + side);
-        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1_" + side);
-        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
-        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
-        DanglingLineAdder adder = network.getVoltageLevel(voltageLevelId).newDanglingLine().setId(id)
+    private static DanglingLine readDanglingLine(DanglingLineAdder adder, String pairingKey, NetworkXmlReaderContext context, int side) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id_" + side));
+        String name = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("name_" + side));
+        double r = context.getReader().readDoubleAttribute("r_" + side);
+        double x = context.getReader().readDoubleAttribute("x_" + side);
+        double g1 = context.getReader().readDoubleAttribute("g1_" + side);
+        double b1 = context.getReader().readDoubleAttribute("b1_" + side);
+        double g2 = context.getReader().readDoubleAttribute("g2_" + side);
+        double b2 = context.getReader().readDoubleAttribute("b2_" + side);
+        adder.setId(id)
                 .setName(name)
+                .setPairingKey(pairingKey)
                 .setR(r)
                 .setX(x)
                 .setG(g1 + g2)
                 .setB(b1 + b2)
                 .setP0(0.0)
                 .setQ0(0.0);
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_10, context, () -> {
-            String pairingKey = context.getReader().getAttributeValue(null, "ucteXnodeCode");
-            adder.setPairingKey(pairingKey);
+
+        double[] halfBoundaryP = new double[1];
+        double[] halfBoundaryQ = new double[1];
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
+            halfBoundaryP[0] = context.getReader().readDoubleAttribute("xnodeP_" + side);
+            halfBoundaryQ[0] = context.getReader().readDoubleAttribute("xnodeQ_" + side);
         });
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
-            String pairingKey = context.getReader().getAttributeValue(null, "pairingKey");
-            adder.setPairingKey(pairingKey);
-        });
-        readNodeOrBus(adder, String.valueOf(side), context);
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
+            boolean fictitious = context.getReader().readBooleanAttribute("fictitious_" + side, false);
             adder.setFictitious(fictitious);
         });
+
         DanglingLine dl = adder.add();
-        return dl.getId();
+
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
+            checkBoundaryValue(halfBoundaryP[0], dl.getBoundary().getP(), "xnodeP_" + side, pairingKey);
+            checkBoundaryValue(halfBoundaryQ[0], dl.getBoundary().getQ(), "xnodeQ_" + side, pairingKey);
+        });
+
+        return dl;
     }
 
     @Override
-    protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case ACTIVE_POWER_LIMITS_1:
+    protected TieLine readRootElementAttributes(TieLineAdder adder, Network network, NetworkXmlReaderContext context) {
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
+            String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
+            DanglingLineAdder adderDl1 = readVlAndNodeOrBus(context, network, 1);
+            DanglingLineAdder adderDl2 = readVlAndNodeOrBus(context, network, 2);
+            double p1 = context.getReader().readDoubleAttribute("p1");
+            double q1 = context.getReader().readDoubleAttribute("q1");
+            double p2 = context.getReader().readDoubleAttribute("p2");
+            double q2 = context.getReader().readDoubleAttribute("q2");
+            DanglingLine dl1 = readDanglingLine(adderDl1, pairingKey, context, 1);
+            DanglingLine dl2 = readDanglingLine(adderDl2, pairingKey, context, 2);
+            dl1.getTerminal().setP(p1).setQ(q1);
+            dl2.getTerminal().setP(p2).setQ(q2);
+            adder.setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId());
+        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
+            String dl1Id = context.getReader().readStringAttribute("danglingLineId1");
+            String dl2Id = context.getReader().readStringAttribute("danglingLineId2");
+            adder.setDanglingLine1(dl1Id).setDanglingLine2(dl2Id);
+        });
+        return adder.add();
+    }
+
+    private static DanglingLineAdder readVlAndNodeOrBus(NetworkXmlReaderContext context, Network network, int side) {
+        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + side));
+        DanglingLineAdder adderDl1 = network.getVoltageLevel(voltageLevelId).newDanglingLine();
+        readNodeOrBus(adderDl1, String.valueOf(side), context);
+        return adderDl1;
+    }
+
+    @Override
+    protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case ACTIVE_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, tl.getDanglingLine1().newActivePowerLimits(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_1:
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(tl.getDanglingLine1().newActivePowerLimits(), context.getReader()));
+                }
+                case APPARENT_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, tl.getDanglingLine1().newApparentPowerLimits(), context.getReader()));
-                    break;
-
-                case "currentLimits1":
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(tl.getDanglingLine1().newApparentPowerLimits(), context.getReader()));
+                }
+                case "currentLimits1" -> {
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
-                    readCurrentLimits(1, tl.getDanglingLine1().newCurrentLimits(), context.getReader());
-                    break;
-
-                case ACTIVE_POWER_LIMITS_2:
+                    readCurrentLimits(tl.getDanglingLine1().newCurrentLimits(), context.getReader());
+                }
+                case ACTIVE_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, tl.getDanglingLine2().newActivePowerLimits(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_2:
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(tl.getDanglingLine2().newActivePowerLimits(), context.getReader()));
+                }
+                case APPARENT_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, tl.getDanglingLine2().newApparentPowerLimits(), context.getReader()));
-                    break;
-
-                case "currentLimits2":
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(tl.getDanglingLine2().newApparentPowerLimits(), context.getReader()));
+                }
+                case "currentLimits2" -> {
                     IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
-                    readCurrentLimits(2, tl.getDanglingLine2().newCurrentLimits(), context.getReader());
-                    break;
-
-                default:
-                    super.readSubElements(tl, context);
+                    readCurrentLimits(tl.getDanglingLine2().newCurrentLimits(), context.getReader());
+                }
+                default -> readSubElement(elementName, tl, context);
             }
         });
     }
 
-    private static void checkBoundaryValue(double imported, double calculated, String name, String tlId) {
+    private static void checkBoundaryValue(double imported, double calculated, String name, String ucteXnodeCode) {
         if (!Double.isNaN(imported) && imported != calculated) {
-            LOGGER.info("{} of TieLine {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, tlId, imported, calculated);
+            LOGGER.info("{} of the TieLine with ucteXnodeCode {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, ucteXnodeCode, imported, calculated);
         }
     }
 }

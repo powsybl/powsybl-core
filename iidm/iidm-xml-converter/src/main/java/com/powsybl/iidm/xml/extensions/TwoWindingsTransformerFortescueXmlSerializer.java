@@ -9,15 +9,12 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
-
-import javax.xml.stream.XMLStreamException;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -26,35 +23,36 @@ import javax.xml.stream.XMLStreamException;
 public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtensionXmlSerializer<TwoWindingsTransformer, TwoWindingsTransformerFortescue> {
 
     public TwoWindingsTransformerFortescueXmlSerializer() {
-        super("twoWindingsTransformerFortescue", "network", TwoWindingsTransformerFortescue.class, false,
+        super("twoWindingsTransformerFortescue", "network", TwoWindingsTransformerFortescue.class,
                 "twoWindingsTransformerFortescue_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_0",
                 "t2f");
     }
 
     @Override
-    public void write(TwoWindingsTransformerFortescue twtFortescue, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeOptionalDouble("rz", twtFortescue.getRz(), Double.NaN, context.getWriter());
-        XmlUtil.writeOptionalDouble("xz", twtFortescue.getXz(), Double.NaN, context.getWriter());
-        context.getWriter().writeAttribute("freeFluxes", Boolean.toString(twtFortescue.isFreeFluxes()));
-        context.getWriter().writeAttribute("connectionType1", twtFortescue.getConnectionType1().name());
-        context.getWriter().writeAttribute("connectionType2", twtFortescue.getConnectionType2().name());
-        XmlUtil.writeOptionalDouble("groundingR1", twtFortescue.getGroundingR1(), 0, context.getWriter());
-        XmlUtil.writeOptionalDouble("groundingX1", twtFortescue.getGroundingX1(), 0, context.getWriter());
-        XmlUtil.writeOptionalDouble("groundingR2", twtFortescue.getGroundingR2(), 0, context.getWriter());
-        XmlUtil.writeOptionalDouble("groundingX2", twtFortescue.getGroundingX2(), 0, context.getWriter());
+    public void write(TwoWindingsTransformerFortescue twtFortescue, XmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("rz", twtFortescue.getRz(), Double.NaN);
+        context.getWriter().writeDoubleAttribute("xz", twtFortescue.getXz(), Double.NaN);
+        context.getWriter().writeBooleanAttribute("freeFluxes", twtFortescue.isFreeFluxes());
+        context.getWriter().writeStringAttribute("connectionType1", twtFortescue.getConnectionType1().name());
+        context.getWriter().writeStringAttribute("connectionType2", twtFortescue.getConnectionType2().name());
+        context.getWriter().writeDoubleAttribute("groundingR1", twtFortescue.getGroundingR1(), 0);
+        context.getWriter().writeDoubleAttribute("groundingX1", twtFortescue.getGroundingX1(), 0);
+        context.getWriter().writeDoubleAttribute("groundingR2", twtFortescue.getGroundingR2(), 0);
+        context.getWriter().writeDoubleAttribute("groundingX2", twtFortescue.getGroundingX2(), 0);
     }
 
     @Override
-    public TwoWindingsTransformerFortescue read(TwoWindingsTransformer twt, XmlReaderContext context) throws XMLStreamException {
-        double rz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "rz");
-        double xz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xz");
-        boolean freeFluxes = XmlUtil.readBoolAttribute(context.getReader(), "freeFluxes");
-        WindingConnectionType connectionType1 = WindingConnectionType.valueOf(context.getReader().getAttributeValue(null, "connectionType1"));
-        WindingConnectionType connectionType2 = WindingConnectionType.valueOf(context.getReader().getAttributeValue(null, "connectionType2"));
-        double groundingR1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingR1", 0);
-        double groundingX1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingX1", 0);
-        double groundingR2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingR2", 0);
-        double groundingX2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingX2", 0);
+    public TwoWindingsTransformerFortescue read(TwoWindingsTransformer twt, XmlReaderContext context) {
+        double rz = context.getReader().readDoubleAttribute("rz");
+        double xz = context.getReader().readDoubleAttribute("xz");
+        boolean freeFluxes = context.getReader().readBooleanAttribute("freeFluxes");
+        WindingConnectionType connectionType1 = context.getReader().readEnumAttribute("connectionType1", WindingConnectionType.class);
+        WindingConnectionType connectionType2 = context.getReader().readEnumAttribute("connectionType2", WindingConnectionType.class);
+        double groundingR1 = context.getReader().readDoubleAttribute("groundingR1", 0);
+        double groundingX1 = context.getReader().readDoubleAttribute("groundingX1", 0);
+        double groundingR2 = context.getReader().readDoubleAttribute("groundingR2", 0);
+        double groundingX2 = context.getReader().readDoubleAttribute("groundingX2", 0);
+        context.getReader().readEndNode();
         return twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
                 .withRz(rz)
                 .withXz(xz)

@@ -9,15 +9,12 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadAsymmetrical;
 import com.powsybl.iidm.network.extensions.LoadAsymmetricalAdder;
 import com.powsybl.iidm.network.extensions.LoadConnectionType;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -26,31 +23,32 @@ import javax.xml.stream.XMLStreamException;
 public class LoadAsymmetricalXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadAsymmetrical> {
 
     public LoadAsymmetricalXmlSerializer() {
-        super("loadAsymmetrical", "network", LoadAsymmetrical.class, false,
+        super("loadAsymmetrical", "network", LoadAsymmetrical.class,
                 "loadAsymmetrical_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/load_asymmetrical/1_0",
                 "las");
     }
 
     @Override
-    public void write(LoadAsymmetrical loadAsym, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("connectionType", loadAsym.getConnectionType().name());
-        XmlUtil.writeOptionalDouble("deltaPa", loadAsym.getDeltaPa(), 0, context.getWriter());
-        XmlUtil.writeOptionalDouble("deltaQa", loadAsym.getDeltaQa(), 0, context.getWriter());
-        XmlUtil.writeOptionalDouble("deltaPb", loadAsym.getDeltaPb(), 0, context.getWriter());
-        XmlUtil.writeOptionalDouble("deltaQb", loadAsym.getDeltaQb(), 0, context.getWriter());
-        XmlUtil.writeOptionalDouble("deltaPc", loadAsym.getDeltaPc(), 0, context.getWriter());
-        XmlUtil.writeOptionalDouble("deltaQc", loadAsym.getDeltaQc(), 0, context.getWriter());
+    public void write(LoadAsymmetrical loadAsym, XmlWriterContext context) {
+        context.getWriter().writeStringAttribute("connectionType", loadAsym.getConnectionType().name());
+        context.getWriter().writeDoubleAttribute("deltaPa", loadAsym.getDeltaPa(), 0);
+        context.getWriter().writeDoubleAttribute("deltaQa", loadAsym.getDeltaQa(), 0);
+        context.getWriter().writeDoubleAttribute("deltaPb", loadAsym.getDeltaPb(), 0);
+        context.getWriter().writeDoubleAttribute("deltaQb", loadAsym.getDeltaQb(), 0);
+        context.getWriter().writeDoubleAttribute("deltaPc", loadAsym.getDeltaPc(), 0);
+        context.getWriter().writeDoubleAttribute("deltaQc", loadAsym.getDeltaQc(), 0);
     }
 
     @Override
-    public LoadAsymmetrical read(Load load, XmlReaderContext context) throws XMLStreamException {
-        LoadConnectionType connectionType = LoadConnectionType.valueOf(context.getReader().getAttributeValue(null, "connectionType"));
-        double deltaPa = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaPa", 0);
-        double deltaQa = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaQa", 0);
-        double deltaPb = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaPb", 0);
-        double deltaQb = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaQb", 0);
-        double deltaPc = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaPc", 0);
-        double deltaQc = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaQc", 0);
+    public LoadAsymmetrical read(Load load, XmlReaderContext context) {
+        LoadConnectionType connectionType = context.getReader().readEnumAttribute("connectionType", LoadConnectionType.class);
+        double deltaPa = context.getReader().readDoubleAttribute("deltaPa", 0);
+        double deltaQa = context.getReader().readDoubleAttribute("deltaQa", 0);
+        double deltaPb = context.getReader().readDoubleAttribute("deltaPb", 0);
+        double deltaQb = context.getReader().readDoubleAttribute("deltaQb", 0);
+        double deltaPc = context.getReader().readDoubleAttribute("deltaPc", 0);
+        double deltaQc = context.getReader().readDoubleAttribute("deltaQc", 0);
+        context.getReader().readEndNode();
         return load.newExtension(LoadAsymmetricalAdder.class)
                 .withConnectionType(connectionType)
                 .withDeltaPa(deltaPa)

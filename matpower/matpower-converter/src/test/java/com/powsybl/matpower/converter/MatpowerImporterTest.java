@@ -6,25 +6,24 @@
  */
 package com.powsybl.matpower.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.matpower.model.MBus;
-import com.powsybl.matpower.model.MatpowerModelFactory;
-import com.powsybl.matpower.model.MatpowerWriter;
-import com.powsybl.matpower.model.MatpowerModel;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
+import com.powsybl.matpower.model.MBus;
+import com.powsybl.matpower.model.MatpowerModel;
+import com.powsybl.matpower.model.MatpowerModelFactory;
+import com.powsybl.matpower.model.MatpowerWriter;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +36,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -172,7 +171,7 @@ class MatpowerImporterTest extends AbstractConverterTest {
         Path file = tmpDir.resolve(fileName);
         NetworkXml.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + fileName), is);
+            compareXml(getClass().getResourceAsStream("/" + fileName), is);
         }
     }
 

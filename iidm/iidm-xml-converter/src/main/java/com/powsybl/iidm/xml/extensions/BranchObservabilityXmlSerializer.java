@@ -10,16 +10,13 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
@@ -35,93 +32,84 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
     private static final String REDUNDANT = "redundant";
 
     public BranchObservabilityXmlSerializer() {
-        super("branchObservability", "network", BranchObservability.class, true, "branchObservability.xsd",
+        super("branchObservability", "network", BranchObservability.class, "branchObservability.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/branch_observability/1_0", "bo");
     }
 
     @Override
-    public void write(BranchObservability<T> branchObservability, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeOptionalBoolean("observable", branchObservability.isObservable(), false, context.getWriter());
+    public void write(BranchObservability<T> branchObservability, XmlWriterContext context) {
+        context.getWriter().writeBooleanAttribute("observable", branchObservability.isObservable(), false);
 
         // qualityP1
-        writeOptionalQuality(context, branchObservability.getQualityP1(), QUALITY_P, Side.ONE);
+        writeOptionalQuality(context, branchObservability.getQualityP1(), QUALITY_P, TwoSides.ONE);
 
         // qualityP2
-        writeOptionalQuality(context, branchObservability.getQualityP2(), QUALITY_P, Side.TWO);
+        writeOptionalQuality(context, branchObservability.getQualityP2(), QUALITY_P, TwoSides.TWO);
 
         // qualityQ1
-        writeOptionalQuality(context, branchObservability.getQualityQ1(), QUALITY_Q, Side.ONE);
+        writeOptionalQuality(context, branchObservability.getQualityQ1(), QUALITY_Q, TwoSides.ONE);
 
         // qualityQ2
-        writeOptionalQuality(context, branchObservability.getQualityQ2(), QUALITY_Q, Side.TWO);
+        writeOptionalQuality(context, branchObservability.getQualityQ2(), QUALITY_Q, TwoSides.TWO);
     }
 
-    private void writeOptionalQuality(XmlWriterContext context, ObservabilityQuality<T> quality, String type, Side side) throws XMLStreamException {
+    private void writeOptionalQuality(XmlWriterContext context, ObservabilityQuality<T> quality, String type, TwoSides side) {
         if (quality == null) {
             return;
         }
-        context.getWriter().writeEmptyElement(getNamespaceUri(), type);
-        context.getWriter().writeAttribute(SIDE, side.name());
-        XmlUtil.writeDouble(STANDARD_DEVIATION, quality.getStandardDeviation(), context.getWriter());
-        XmlUtil.writeOptionalBoolean(REDUNDANT, quality.isRedundant(), context.getWriter());
+        context.getWriter().writeStartNode(getNamespaceUri(), type);
+        context.getWriter().writeEnumAttribute(SIDE, side);
+        context.getWriter().writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
+        quality.isRedundant().ifPresent(redundant -> context.getWriter().writeBooleanAttribute(REDUNDANT, redundant));
+        context.getWriter().writeEndNode();
     }
 
     @Override
-    public BranchObservability<T> read(T identifiable, XmlReaderContext context) throws XMLStreamException {
-        boolean observable = XmlUtil.readOptionalBoolAttribute(context.getReader(), "observable", false);
+    public BranchObservability<T> read(T identifiable, XmlReaderContext context) {
+        boolean observable = context.getReader().readBooleanAttribute("observable", false);
 
         BranchObservabilityAdder<T> adder = identifiable.newExtension(BranchObservabilityAdder.class)
                 .withObservable(observable);
 
-        XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case QUALITY_P: {
-                    var side = Side.valueOf(context.getReader().getAttributeValue(null, SIDE));
-                    var standardDeviation = XmlUtil.readDoubleAttribute(context.getReader(), STANDARD_DEVIATION);
-                    var redundant = context.getReader().getAttributeValue(null, REDUNDANT);
-                    readQualityP(standardDeviation, redundant, side, adder);
-                    break;
-                }
-                case QUALITY_Q: {
-                    var side = Side.valueOf(context.getReader().getAttributeValue(null, SIDE));
-                    var standardDeviation = XmlUtil.readDoubleAttribute(context.getReader(), STANDARD_DEVIATION);
-                    var redundant = context.getReader().getAttributeValue(null, REDUNDANT);
-                    readQualityQ(standardDeviation, redundant, side, adder);
-                    break;
-                }
-                default: {
-                    throw new PowsyblException("Unexpected element: " + context.getReader().getLocalName());
-                }
+        context.getReader().readChildNodes(elementName -> {
+            var side = context.getReader().readEnumAttribute(SIDE, TwoSides.class);
+            var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
+            var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
+            context.getReader().readEndNode();
+            switch (elementName) {
+                case QUALITY_P -> readQualityP(standardDeviation, redundant, side, adder);
+                case QUALITY_Q -> readQualityQ(standardDeviation, redundant, side, adder);
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'branchObservability'");
             }
         });
 
         return adder.add();
     }
 
-    private void readQualityP(double standardDeviation, String redundant, Side side, BranchObservabilityAdder<T> adder) {
-        if (side == Side.ONE) {
+    private void readQualityP(double standardDeviation, Boolean redundant, TwoSides side, BranchObservabilityAdder<T> adder) {
+        if (side == TwoSides.ONE) {
             adder.withStandardDeviationP1(standardDeviation);
             if (redundant != null) {
-                adder.withRedundantP1(Boolean.parseBoolean(redundant));
+                adder.withRedundantP1(redundant);
             }
-        } else if (side == Side.TWO) {
+        } else if (side == TwoSides.TWO) {
             adder.withStandardDeviationP2(standardDeviation);
             if (redundant != null) {
-                adder.withRedundantP2(Boolean.parseBoolean(redundant));
+                adder.withRedundantP2(redundant);
             }
         }
     }
 
-    private void readQualityQ(double standardDeviation, String redundant, Side side, BranchObservabilityAdder<T> adder) {
-        if (side == Side.ONE) {
+    private void readQualityQ(double standardDeviation, Boolean redundant, TwoSides side, BranchObservabilityAdder<T> adder) {
+        if (side == TwoSides.ONE) {
             adder.withStandardDeviationQ1(standardDeviation);
             if (redundant != null) {
-                adder.withRedundantQ1(Boolean.parseBoolean(redundant));
+                adder.withRedundantQ1(redundant);
             }
-        } else if (side == Side.TWO) {
+        } else if (side == TwoSides.TWO) {
             adder.withStandardDeviationQ2(standardDeviation);
             if (redundant != null) {
-                adder.withRedundantQ2(Boolean.parseBoolean(redundant));
+                adder.withRedundantQ2(redundant);
             }
         }
     }

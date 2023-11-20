@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.*;
-
-import javax.xml.stream.XMLStreamException;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.VoltageLevel;
 
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
 
@@ -21,6 +21,7 @@ class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdd
     static final GeneratorXml INSTANCE = new GeneratorXml();
 
     static final String ROOT_ELEMENT_NAME = "generator";
+    static final String ARRAY_ELEMENT_NAME = "generators";
 
     @Override
     protected String getRootElementName() {
@@ -28,26 +29,21 @@ class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdd
     }
 
     @Override
-    protected boolean hasSubElements(Generator g) {
-        return true;
-    }
-
-    @Override
-    protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("energySource", g.getEnergySource().name());
-        XmlUtil.writeDouble("minP", g.getMinP(), context.getWriter());
-        XmlUtil.writeDouble("maxP", g.getMaxP(), context.getWriter());
-        XmlUtil.writeDouble("ratedS", g.getRatedS(), context.getWriter());
-        context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(g.isVoltageRegulatorOn()));
-        XmlUtil.writeDouble("targetP", g.getTargetP(), context.getWriter());
-        XmlUtil.writeDouble("targetV", g.getTargetV(), context.getWriter());
-        XmlUtil.writeDouble("targetQ", g.getTargetQ(), context.getWriter());
+    protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeEnumAttribute("energySource", g.getEnergySource());
+        context.getWriter().writeDoubleAttribute("minP", g.getMinP());
+        context.getWriter().writeDoubleAttribute("maxP", g.getMaxP());
+        context.getWriter().writeDoubleAttribute("ratedS", g.getRatedS());
+        context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn());
+        context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
+        context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
+        context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
 
     @Override
-    protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) {
         if (g != g.getRegulatingTerminal().getConnectable()) {
             TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
@@ -61,15 +57,14 @@ class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdd
 
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
-        String energySourceStr = context.getReader().getAttributeValue(null, "energySource");
-        EnergySource energySource = energySourceStr != null ? EnergySource.valueOf(energySourceStr) : null;
-        double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "minP");
-        double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "maxP");
-        double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedS");
-        String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
-        double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetP");
-        double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
-        double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
+        EnergySource energySource = context.getReader().readEnumAttribute("energySource", EnergySource.class);
+        double minP = context.getReader().readDoubleAttribute("minP");
+        double maxP = context.getReader().readDoubleAttribute("maxP");
+        double ratedS = context.getReader().readDoubleAttribute("ratedS");
+        Boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+        double targetP = context.getReader().readDoubleAttribute("targetP");
+        double targetV = context.getReader().readDoubleAttribute("targetV");
+        double targetQ = context.getReader().readDoubleAttribute("targetQ");
         readNodeOrBus(adder, context);
         adder.setEnergySource(energySource)
                 .setMinP(minP)
@@ -78,29 +73,20 @@ class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdd
                 .setTargetP(targetP)
                 .setTargetV(targetV)
                 .setTargetQ(targetQ)
-                .setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
+                .setVoltageRegulatorOn(voltageRegulatorOn);
         Generator g = adder.add();
         readPQ(null, g.getTerminal(), context.getReader());
         return g;
     }
 
     @Override
-    protected void readSubElements(Generator g, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case "regulatingTerminal":
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                    String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.resolve(id, side, g.getNetwork())));
-                    break;
-
-                case "reactiveCapabilityCurve":
-                case "minMaxReactiveLimits":
-                    ReactiveLimitsXml.INSTANCE.read(g, context);
-                    break;
-
-                default:
-                    super.readSubElements(g, context);
+    protected void readSubElements(Generator g, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case "regulatingTerminal" -> TerminalRefXml.readTerminalRef(context, g.getNetwork(), g::setRegulatingTerminal);
+                case ReactiveLimitsXml.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsXml.INSTANCE.readReactiveCapabilityCurve(g, context);
+                case ReactiveLimitsXml.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsXml.INSTANCE.readMinMaxReactiveLimits(g, context);
+                default -> readSubElement(elementName, g, context);
             }
         });
     }

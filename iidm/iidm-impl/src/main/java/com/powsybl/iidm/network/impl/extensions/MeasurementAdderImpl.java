@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.MeasurementAdder;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +32,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     private double value = Double.NaN;
     private double standardDeviation = Double.NaN;
     private boolean valid = true;
-    private Measurement.Side side;
+    private ThreeSides side;
 
     MeasurementAdderImpl(MeasurementsImpl<? extends Connectable<?>> measurements) {
         this.measurements = Objects.requireNonNull(measurements);
@@ -68,7 +69,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     }
 
     @Override
-    public MeasurementAdder setSide(Measurement.Side side) {
+    public MeasurementAdder setSide(ThreeSides side) {
         this.side = side;
         return this;
     }
