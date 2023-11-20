@@ -149,15 +149,15 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceLineByDanglingLine(Line line, VoltageLevel vl, Terminal terminal) {
-        Branch.Side side = line.getSide(terminal);
+        TwoSides side = line.getSide(terminal);
 
         DanglingLineAdder dlAdder = vl.newDanglingLine()
                 .setId(line.getId())
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
                 .setX(line.getX() / 2)
-                .setB(side == Branch.Side.ONE ? line.getB1() : line.getB2())
-                .setG(side == Branch.Side.ONE ? line.getG1() : line.getG2())
+                .setB(side == TwoSides.ONE ? line.getB1() : line.getB2())
+                .setG(side == TwoSides.ONE ? line.getG1() : line.getG2())
                 .setP0(checkP(terminal))
                 .setQ0(checkQ(terminal));
         fillNodeOrBus(dlAdder, terminal);

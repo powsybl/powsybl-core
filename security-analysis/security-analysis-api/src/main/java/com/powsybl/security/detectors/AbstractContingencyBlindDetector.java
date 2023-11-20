@@ -25,7 +25,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
-    public void checkCurrent(Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(Branch branch, TwoSides side, Consumer<LimitViolation> consumer) {
         checkCurrent(branch, side, branch.getTerminal(side).getI(), consumer);
     }
 
@@ -34,7 +34,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
-    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side, Consumer<LimitViolation> consumer) {
         checkCurrent(transformer, side, transformer.getTerminal(side).getI(), consumer);
     }
 
@@ -52,7 +52,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      * <p>This implementation computes the current value from the power value, if current is not provided (NaN).</p>
      */
     @Override
-    public void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
+    public void checkCurrentDc(Branch branch, TwoSides side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
         double i = getTerminalIOrAnApproximation(branch.getTerminal(side), dcPowerFactor);
         checkCurrent(branch, side, i, consumer);
     }
@@ -62,7 +62,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      * <p>This implementation computes the current value from the power value, if current is not provided (NaN).</p>
      */
     @Override
-    public void checkCurrentDc(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
+    public void checkCurrentDc(ThreeWindingsTransformer transformer, ThreeSides side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
         double i = getTerminalIOrAnApproximation(transformer.getTerminal(side), dcPowerFactor);
         checkCurrent(transformer, side, i, consumer);
     }
@@ -99,28 +99,28 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
 
     @Override
     public void checkCurrent(Branch branch, Consumer<LimitViolation> consumer) {
-        checkCurrent(branch, Branch.Side.ONE, consumer);
-        checkCurrent(branch, Branch.Side.TWO, consumer);
+        checkCurrent(branch, TwoSides.ONE, consumer);
+        checkCurrent(branch, TwoSides.TWO, consumer);
     }
 
     @Override
     public void checkCurrent(ThreeWindingsTransformer transformer, Consumer<LimitViolation> consumer) {
-        checkCurrent(transformer, ThreeWindingsTransformer.Side.ONE, consumer);
-        checkCurrent(transformer, ThreeWindingsTransformer.Side.TWO, consumer);
-        checkCurrent(transformer, ThreeWindingsTransformer.Side.THREE, consumer);
+        checkCurrent(transformer, ThreeSides.ONE, consumer);
+        checkCurrent(transformer, ThreeSides.TWO, consumer);
+        checkCurrent(transformer, ThreeSides.THREE, consumer);
     }
 
     @Override
     public void checkCurrentDc(Branch branch, double dcPowerFactor, Consumer<LimitViolation> consumer) {
-        checkCurrentDc(branch, Branch.Side.ONE, dcPowerFactor, consumer);
-        checkCurrentDc(branch, Branch.Side.TWO, dcPowerFactor, consumer);
+        checkCurrentDc(branch, TwoSides.ONE, dcPowerFactor, consumer);
+        checkCurrentDc(branch, TwoSides.TWO, dcPowerFactor, consumer);
     }
 
     @Override
     public void checkCurrentDc(ThreeWindingsTransformer transformer, double dcPowerFactor, Consumer<LimitViolation> consumer) {
-        checkCurrentDc(transformer, ThreeWindingsTransformer.Side.ONE, dcPowerFactor, consumer);
-        checkCurrentDc(transformer, ThreeWindingsTransformer.Side.TWO, dcPowerFactor, consumer);
-        checkCurrentDc(transformer, ThreeWindingsTransformer.Side.THREE, dcPowerFactor, consumer);
+        checkCurrentDc(transformer, ThreeSides.ONE, dcPowerFactor, consumer);
+        checkCurrentDc(transformer, ThreeSides.TWO, dcPowerFactor, consumer);
+        checkCurrentDc(transformer, ThreeSides.THREE, dcPowerFactor, consumer);
     }
 
     @Override

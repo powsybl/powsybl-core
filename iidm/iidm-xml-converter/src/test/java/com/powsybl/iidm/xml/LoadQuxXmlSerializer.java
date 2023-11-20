@@ -10,8 +10,8 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadQuxExt;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
@@ -25,7 +25,7 @@ import java.io.InputStream;
 public class LoadQuxXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, LoadQuxExt> {
 
     public LoadQuxXmlSerializer() {
-        super("loadQux", LoadQuxExt.class, false, "lq",
+        super("loadQux", LoadQuxExt.class, "lq",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
                         .build(),

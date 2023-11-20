@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -26,21 +25,21 @@ abstract class AbstractComplexIdentifiableXml<T extends Identifiable<T>, A exten
 
     protected abstract void readRootElementAttributes(A adder, List<Consumer<T>> toApply, NetworkXmlReaderContext context);
 
-    protected void readSubElements(String id, List<Consumer<T>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
-        if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
-            PropertiesXml.read(toApply, context);
-        } else if (context.getReader().getLocalName().equals(AliasesXml.ALIAS)) {
-            IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-            AliasesXml.read(toApply, context);
-        } else {
-            throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + id + ">");
+    protected void readSubElement(String elementName, String id, List<Consumer<T>> toApply, NetworkXmlReaderContext context) {
+        switch (elementName) {
+            case PropertiesXml.ROOT_ELEMENT_NAME -> PropertiesXml.read(toApply, context);
+            case AliasesXml.ROOT_ELEMENT_NAME -> {
+                IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                AliasesXml.read(toApply, context);
+            }
+            default -> throw new PowsyblException("Unknown element name '" + elementName + "' in '" + id + "'");
         }
     }
 
-    protected abstract void readSubElements(String id, A adder, List<Consumer<T>> toApply, NetworkXmlReaderContext context) throws XMLStreamException;
+    protected abstract void readSubElements(String id, A adder, List<Consumer<T>> toApply, NetworkXmlReaderContext context);
 
     @Override
-    public final void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException {
+    public final void read(P parent, NetworkXmlReaderContext context) {
         List<Consumer<T>> toApply = new ArrayList<>();
         A adder = createAdder(parent);
         String id = readIdentifierAttributes(adder, context);

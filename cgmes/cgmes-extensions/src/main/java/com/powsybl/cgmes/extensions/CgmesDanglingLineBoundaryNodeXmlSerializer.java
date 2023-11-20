@@ -7,15 +7,11 @@
 package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.DanglingLine;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -25,27 +21,22 @@ public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensio
 
     public CgmesDanglingLineBoundaryNodeXmlSerializer() {
         super("cgmesDanglingLineBoundaryNode", "network", CgmesDanglingLineBoundaryNode.class,
-                false, "cgmesDanglingLineBoundaryNode.xsd",
+                "cgmesDanglingLineBoundaryNode.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0", "cdlbn");
     }
 
     @Override
-    public void write(CgmesDanglingLineBoundaryNode extension, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("isHvdc", String.valueOf(extension.isHvdc()));
-        extension.getLineEnergyIdentificationCodeEic()
-                .ifPresent(lineEnergyIdentificationCodeEic -> {
-                    try {
-                        context.getWriter().writeAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEic);
-                    } catch (XMLStreamException e) {
-                        throw new UncheckedXmlStreamException(e);
-                    }
-                });
+    public void write(CgmesDanglingLineBoundaryNode extension, XmlWriterContext context) {
+        context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
+        extension.getLineEnergyIdentificationCodeEic().ifPresent(lineEnergyIdentificationCodeEic ->
+                context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEic));
     }
 
     @Override
-    public CgmesDanglingLineBoundaryNode read(DanglingLine extendable, XmlReaderContext context) throws XMLStreamException {
-        boolean isHvdc = XmlUtil.readBoolAttribute(context.getReader(), "isHvdc");
-        String lineEnergyIdentificationCodeEic = context.getReader().getAttributeValue(null, "lineEnergyIdentificationCodeEic");
+    public CgmesDanglingLineBoundaryNode read(DanglingLine extendable, XmlReaderContext context) {
+        boolean isHvdc = context.getReader().readBooleanAttribute("isHvdc");
+        String lineEnergyIdentificationCodeEic = context.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
+        context.getReader().readEndNode();
         extendable.newExtension(CgmesDanglingLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
         return extendable.getExtension(CgmesDanglingLineBoundaryNode.class);
     }
