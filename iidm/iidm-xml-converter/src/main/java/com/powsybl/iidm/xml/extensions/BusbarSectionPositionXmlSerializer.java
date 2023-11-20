@@ -9,14 +9,11 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -25,21 +22,22 @@ import javax.xml.stream.XMLStreamException;
 public class BusbarSectionPositionXmlSerializer extends AbstractExtensionXmlSerializer<BusbarSection, BusbarSectionPosition> {
 
     public BusbarSectionPositionXmlSerializer() {
-        super("busbarSectionPosition", "network", BusbarSectionPosition.class, false,
+        super("busbarSectionPosition", "network", BusbarSectionPosition.class,
                 "busbarSectionPosition.xsd", "http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0",
                 "bbsp");
     }
 
     @Override
-    public void write(BusbarSectionPosition busbarSectionPosition, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeInt("busbarIndex", busbarSectionPosition.getBusbarIndex(), context.getWriter());
-        XmlUtil.writeInt("sectionIndex", busbarSectionPosition.getSectionIndex(), context.getWriter());
+    public void write(BusbarSectionPosition busbarSectionPosition, XmlWriterContext context) {
+        context.getWriter().writeIntAttribute("busbarIndex", busbarSectionPosition.getBusbarIndex());
+        context.getWriter().writeIntAttribute("sectionIndex", busbarSectionPosition.getSectionIndex());
     }
 
     @Override
     public BusbarSectionPosition read(BusbarSection busbarSection, XmlReaderContext context) {
-        int busbarIndex = XmlUtil.readIntAttribute(context.getReader(), "busbarIndex");
-        int sectionIndex = XmlUtil.readIntAttribute(context.getReader(), "sectionIndex");
+        int busbarIndex = context.getReader().readIntAttribute("busbarIndex");
+        int sectionIndex = context.getReader().readIntAttribute("sectionIndex");
+        context.getReader().readEndNode();
         return busbarSection.newExtension(BusbarSectionPositionAdder.class)
             .withBusbarIndex(busbarIndex)
             .withSectionIndex(sectionIndex)

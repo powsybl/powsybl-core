@@ -23,8 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class TerminalRefTest extends AbstractXmlConverterTest {
 
     @Test
-    void roundTripTest() throws IOException {
+    void roundTripTerminalRefTest() throws IOException {
         roundTripAllVersionedXmlTest("terminalRef.xiidm");
+    }
+
+    @Test
+    void roundTripRegulatingTerminalTest() throws IOException {
         roundTripAllVersionedXmlTest("regulatingTerminal.xml");
     }
 

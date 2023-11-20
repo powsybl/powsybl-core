@@ -6,12 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.Network;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -22,6 +19,7 @@ class HvdcLineXml extends AbstractSimpleIdentifiableXml<HvdcLine, HvdcLineAdder,
     static final HvdcLineXml INSTANCE = new HvdcLineXml();
 
     static final String ROOT_ELEMENT_NAME = "hvdcLine";
+    static final String ARRAY_ELEMENT_NAME = "hvdcLines";
 
     @Override
     protected String getRootElementName() {
@@ -29,19 +27,14 @@ class HvdcLineXml extends AbstractSimpleIdentifiableXml<HvdcLine, HvdcLineAdder,
     }
 
     @Override
-    protected boolean hasSubElements(HvdcLine identifiable) {
-        return false;
-    }
-
-    @Override
-    protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("r", l.getR(), context.getWriter());
-        XmlUtil.writeDouble("nominalV", l.getNominalV(), context.getWriter());
-        XmlUtil.writeOptionalEnum("convertersMode", l.getConvertersMode(), context.getWriter());
-        XmlUtil.writeDouble("activePowerSetpoint", l.getActivePowerSetpoint(), context.getWriter());
-        XmlUtil.writeDouble("maxP", l.getMaxP(), context.getWriter());
-        context.getWriter().writeAttribute("converterStation1", context.getAnonymizer().anonymizeString(l.getConverterStation1().getId()));
-        context.getWriter().writeAttribute("converterStation2", context.getAnonymizer().anonymizeString(l.getConverterStation2().getId()));
+    protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("r", l.getR());
+        context.getWriter().writeDoubleAttribute("nominalV", l.getNominalV());
+        context.getWriter().writeEnumAttribute("convertersMode", l.getConvertersMode());
+        context.getWriter().writeDoubleAttribute("activePowerSetpoint", l.getActivePowerSetpoint());
+        context.getWriter().writeDoubleAttribute("maxP", l.getMaxP());
+        context.getWriter().writeStringAttribute("converterStation1", context.getAnonymizer().anonymizeString(l.getConverterStation1().getId()));
+        context.getWriter().writeStringAttribute("converterStation2", context.getAnonymizer().anonymizeString(l.getConverterStation2().getId()));
     }
 
     @Override
@@ -51,13 +44,13 @@ class HvdcLineXml extends AbstractSimpleIdentifiableXml<HvdcLine, HvdcLineAdder,
 
     @Override
     protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, Network network, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
-        HvdcLine.ConvertersMode convertersMode = XmlUtil.readOptionalEnum(context.getReader(), "convertersMode", HvdcLine.ConvertersMode.class);
-        double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "activePowerSetpoint");
-        double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
-        String converterStation1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "converterStation1"));
-        String converterStation2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "converterStation2"));
+        double r = context.getReader().readDoubleAttribute("r");
+        double nominalV = context.getReader().readDoubleAttribute("nominalV");
+        HvdcLine.ConvertersMode convertersMode = context.getReader().readEnumAttribute("convertersMode", HvdcLine.ConvertersMode.class);
+        double activePowerSetpoint = context.getReader().readDoubleAttribute("activePowerSetpoint");
+        double maxP = context.getReader().readDoubleAttribute("maxP");
+        String converterStation1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("converterStation1"));
+        String converterStation2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("converterStation2"));
         return adder.setR(r)
                 .setNominalV(nominalV)
                 .setConvertersMode(convertersMode)
@@ -69,7 +62,7 @@ class HvdcLineXml extends AbstractSimpleIdentifiableXml<HvdcLine, HvdcLineAdder,
     }
 
     @Override
-    protected void readSubElements(HvdcLine l, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> HvdcLineXml.super.readSubElements(l, context));
+    protected void readSubElements(HvdcLine l, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> readSubElement(elementName, l, context));
     }
 }

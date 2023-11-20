@@ -9,12 +9,10 @@ package com.powsybl.iidm.xml;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadFooExt;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -23,16 +21,17 @@ import javax.xml.stream.XMLStreamException;
 public class LoadFooXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadFooExt> {
 
     public LoadFooXmlSerializer() {
-        super("loadFoo", "network", LoadFooExt.class, false, "loadFoo.xsd",
+        super("loadFoo", "network", LoadFooExt.class, "loadFoo.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/loadfoo/1_0", "foo");
     }
 
     @Override
-    public void write(LoadFooExt loadFoo, XmlWriterContext context) throws XMLStreamException {
+    public void write(LoadFooExt loadFoo, XmlWriterContext context) {
     }
 
     @Override
     public LoadFooExt read(Load load, XmlReaderContext context) {
+        context.getReader().readEndNode();
         return new LoadFooExt(load);
     }
 }
