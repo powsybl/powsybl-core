@@ -6,11 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
@@ -24,6 +22,7 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
     static final LineXml INSTANCE = new LineXml();
 
     static final String ROOT_ELEMENT_NAME = "line";
+    static final String ARRAY_ELEMENT_NAME = "lines";
 
     @Override
     protected String getRootElementName() {
@@ -31,23 +30,13 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected boolean hasSubElements(Line l) {
-        throw new IllegalStateException("Should not be called");
-    }
-
-    @Override
-    protected boolean hasSubElements(Line l, NetworkXmlWriterContext context) {
-        return hasValidOperationalLimits(l, context);
-    }
-
-    @Override
-    protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("r", l.getR(), context.getWriter());
-        XmlUtil.writeDouble("x", l.getX(), context.getWriter());
-        XmlUtil.writeDouble("g1", l.getG1(), context.getWriter());
-        XmlUtil.writeDouble("b1", l.getB1(), context.getWriter());
-        XmlUtil.writeDouble("g2", l.getG2(), context.getWriter());
-        XmlUtil.writeDouble("b2", l.getB2(), context.getWriter());
+    protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("r", l.getR());
+        context.getWriter().writeDoubleAttribute("x", l.getX());
+        context.getWriter().writeDoubleAttribute("g1", l.getG1());
+        context.getWriter().writeDoubleAttribute("b1", l.getB1());
+        context.getWriter().writeDoubleAttribute("g2", l.getG2());
+        context.getWriter().writeDoubleAttribute("b2", l.getB2());
         writeNodeOrBus(1, l.getTerminal1(), context);
         writeNodeOrBus(2, l.getTerminal2(), context);
         if (context.getOptions().isWithBranchSV()) {
@@ -57,7 +46,7 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected void writeSubElements(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Line l, Network n, NetworkXmlWriterContext context) {
         Optional<ActivePowerLimits> activePowerLimits1 = l.getActivePowerLimits1();
         if (activePowerLimits1.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
@@ -70,9 +59,7 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, apparentPowerLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
         Optional<CurrentLimits> currentLimits1 = l.getCurrentLimits1();
-        if (currentLimits1.isPresent()) {
-            writeCurrentLimits(1, currentLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
+        currentLimits1.ifPresent(currentLimits -> writeCurrentLimits(1, currentLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         Optional<ActivePowerLimits> activePowerLimits2 = l.getActivePowerLimits2();
         if (activePowerLimits2.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
@@ -85,9 +72,7 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, apparentPowerLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
         Optional<CurrentLimits> currentLimits2 = l.getCurrentLimits2();
-        if (currentLimits2.isPresent()) {
-            writeCurrentLimits(2, currentLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
+        currentLimits2.ifPresent(currentLimits -> writeCurrentLimits(2, currentLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
     }
 
     @Override
@@ -97,12 +82,12 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
 
     @Override
     protected Line readRootElementAttributes(LineAdder adder, Network network, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
-        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1");
-        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2");
-        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2");
+        double r = context.getReader().readDoubleAttribute("r");
+        double x = context.getReader().readDoubleAttribute("x");
+        double g1 = context.getReader().readDoubleAttribute("g1");
+        double b1 = context.getReader().readDoubleAttribute("b1");
+        double g2 = context.getReader().readDoubleAttribute("g2");
+        double b2 = context.getReader().readDoubleAttribute("b2");
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)
@@ -117,39 +102,28 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected void readSubElements(Line l, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case ACTIVE_POWER_LIMITS_1:
+    protected void readSubElements(Line l, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case ACTIVE_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, l.newActivePowerLimits1(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_1:
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(l.newActivePowerLimits1(), context.getReader()));
+                }
+                case APPARENT_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, l.newApparentPowerLimits1(), context.getReader()));
-                    break;
-
-                case "currentLimits1":
-                    readCurrentLimits(1, l.newCurrentLimits1(), context.getReader());
-                    break;
-
-                case ACTIVE_POWER_LIMITS_2:
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(l.newApparentPowerLimits1(), context.getReader()));
+                }
+                case "currentLimits1" -> readCurrentLimits(l.newCurrentLimits1(), context.getReader());
+                case ACTIVE_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, l.newActivePowerLimits2(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_2:
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(l.newActivePowerLimits2(), context.getReader()));
+                }
+                case APPARENT_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, l.newApparentPowerLimits2(), context.getReader()));
-                    break;
-
-                case "currentLimits2":
-                    readCurrentLimits(2, l.newCurrentLimits2(), context.getReader());
-                    break;
-
-                default:
-                    super.readSubElements(l, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(l.newApparentPowerLimits2(), context.getReader()));
+                }
+                case "currentLimits2" -> readCurrentLimits(l.newCurrentLimits2(), context.getReader());
+                default -> super.readSubElement(elementName, l, context);
             }
         });
     }

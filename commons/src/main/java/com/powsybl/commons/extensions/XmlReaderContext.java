@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.commons.xml;
+package com.powsybl.commons.extensions;
 
-import javax.xml.stream.XMLStreamReader;
+import com.powsybl.commons.io.TreeDataReader;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface XmlReaderContext {
 
-    XMLStreamReader getReader();
+    TreeDataReader getReader();
 }

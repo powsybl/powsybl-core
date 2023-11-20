@@ -6,12 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.VoltageLevel;
-
-import javax.xml.stream.XMLStreamException;
 
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
 
@@ -24,6 +21,7 @@ public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccCon
     static final LccConverterStationXml INSTANCE = new LccConverterStationXml();
 
     static final String ROOT_ELEMENT_NAME = "lccConverterStation";
+    static final String ARRAY_ELEMENT_NAME = "lccConverterStations";
 
     @Override
     protected String getRootElementName() {
@@ -31,14 +29,9 @@ public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccCon
     }
 
     @Override
-    protected boolean hasSubElements(LccConverterStation cs) {
-        return false;
-    }
-
-    @Override
-    protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
-        XmlUtil.writeFloat("powerFactor", cs.getPowerFactor(), context.getWriter());
+    protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());
+        context.getWriter().writeFloatAttribute("powerFactor", cs.getPowerFactor());
         writeNodeOrBus(null, cs.getTerminal(), context);
         writePQ(null, cs.getTerminal(), context.getWriter());
     }
@@ -50,8 +43,8 @@ public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccCon
 
     @Override
     protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
-        float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
-        float powerFactor = XmlUtil.readOptionalFloatAttribute(context.getReader(), "powerFactor");
+        float lossFactor = context.getReader().readFloatAttribute("lossFactor");
+        float powerFactor = context.getReader().readFloatAttribute("powerFactor");
         readNodeOrBus(adder, context);
         LccConverterStation cs = adder
                 .setLossFactor(lossFactor)
@@ -62,7 +55,7 @@ public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccCon
     }
 
     @Override
-    protected void readSubElements(LccConverterStation cs, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> LccConverterStationXml.super.readSubElements(cs, context));
+    protected void readSubElements(LccConverterStation cs, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(e -> readSubElement(e, cs, context));
     }
 }

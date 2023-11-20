@@ -9,14 +9,11 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  *
@@ -26,21 +23,22 @@ import javax.xml.stream.XMLStreamException;
 public class IdentifiableShortCircuitXmlSerializer<I extends Identifiable<I>> extends AbstractExtensionXmlSerializer<I, IdentifiableShortCircuit<I>> {
 
     public IdentifiableShortCircuitXmlSerializer() {
-        super("identifiableShortCircuit", "network", IdentifiableShortCircuit.class, false,
+        super("identifiableShortCircuit", "network", IdentifiableShortCircuit.class,
                 "identifiableShortCircuit.xsd", "http://www.powsybl.org/schema/iidm/ext/identifiable_short_circuit/1_0",
                 "isc");
     }
 
     @Override
-    public void write(IdentifiableShortCircuit identifiableShortCircuit, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("ipMax", identifiableShortCircuit.getIpMax(), context.getWriter());
-        XmlUtil.writeDouble("ipMin", identifiableShortCircuit.getIpMin(), context.getWriter());
+    public void write(IdentifiableShortCircuit identifiableShortCircuit, XmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("ipMax", identifiableShortCircuit.getIpMax());
+        context.getWriter().writeDoubleAttribute("ipMin", identifiableShortCircuit.getIpMin());
     }
 
     @Override
-    public IdentifiableShortCircuit read(I identifiable, XmlReaderContext context) throws XMLStreamException {
-        double ipMax = XmlUtil.readDoubleAttribute(context.getReader(), "ipMax");
-        double ipMin = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ipMin");
+    public IdentifiableShortCircuit read(I identifiable, XmlReaderContext context) {
+        double ipMax = context.getReader().readDoubleAttribute("ipMax");
+        double ipMin = context.getReader().readDoubleAttribute("ipMin");
+        context.getReader().readEndNode();
         IdentifiableShortCircuitAdder<I> adder = identifiable.newExtension(IdentifiableShortCircuitAdder.class);
         return adder.withIpMax(ipMax)
                 .withIpMin(ipMin)

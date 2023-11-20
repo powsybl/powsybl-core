@@ -6,23 +6,16 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.powerfactory.model.StudyCase;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
+import com.powsybl.powerfactory.model.StudyCase;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +27,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -88,7 +81,7 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
         network.setCaseDate(DateTime.parse("2021-01-01T10:00:00.000+02:00"));
         NetworkXml.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
+            compareXml(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

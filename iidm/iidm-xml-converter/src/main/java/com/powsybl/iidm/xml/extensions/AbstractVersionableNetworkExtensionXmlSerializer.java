@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extendable;
@@ -26,16 +28,14 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
 
     private final String extensionName;
     private final Class<? super E> extensionClass;
-    private final boolean subElements;
     private final String namespacePrefix;
     private final Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions = new EnumMap<>(IidmXmlVersion.class);
-    private final Map<String, String> namespaceUris = new HashMap<>();
+    private final BiMap<String, String> namespaceUris = HashBiMap.create();
 
-    protected AbstractVersionableNetworkExtensionXmlSerializer(String extensionName, Class<? super E> extensionClass, boolean subElements, String namespacePrefix,
+    protected AbstractVersionableNetworkExtensionXmlSerializer(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
                                                                Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
         this.extensionName = Objects.requireNonNull(extensionName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
-        this.subElements = subElements;
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
         this.extensionVersions.putAll(Objects.requireNonNull(extensionVersions));
         this.namespaceUris.putAll(Objects.requireNonNull(namespaceUris));
@@ -54,11 +54,6 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     @Override
     public Class<? super E> getExtensionClass() {
         return extensionClass;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return subElements;
     }
 
     @Override
@@ -83,13 +78,16 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     }
 
     /**
-     * get the oldest version of an extension working with a network version.
-     *
-     * @param networkVersion
-     * @return
+     * Get the oldest version of an extension working with a network version.
      */
     public String getVersion(IidmXmlVersion networkVersion) {
         return extensionVersions.get(networkVersion).last();
+    }
+
+    @Override
+    public String getVersion(String namespaceUri) {
+        return Optional.ofNullable(namespaceUris.inverse().get(namespaceUri))
+                .orElseThrow(() -> new PowsyblException("The namespace URI " + namespaceUri + " of the " + extensionName + " extension is not supported."));
     }
 
     @Override
@@ -100,19 +98,20 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     protected void checkReadingCompatibility(NetworkXmlReaderContext networkContext) {
         IidmXmlVersion version = networkContext.getVersion();
         checkCompatibilityNetworkVersion(version);
-        if (extensionVersions.get(version).stream().noneMatch(v -> networkContext.containsExtensionNamespaceUri(getNamespaceUri(v)))) {
+        if (extensionVersions.get(version).stream().noneMatch(v -> networkContext.containsExtensionVersion(getExtensionName(), v))) {
             throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
                     + ") is not compatible with the " + extensionName + " extension's namespace URI.");
         }
     }
 
-    public void checkWritingCompatibility(String extensionVersion, IidmXmlVersion version) {
+    public boolean checkWritingCompatibility(String extensionVersion, IidmXmlVersion version) {
         checkExtensionVersionSupported(extensionVersion);
         checkCompatibilityNetworkVersion(version);
         if (!extensionVersions.get(version).contains(extensionVersion)) {
             throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
-                    + ") is not compatible with the version " + extensionVersion + " of the " + extensionName + " extension.");
+                    + ") is not compatible with " + extensionName + " version " + extensionVersion);
         }
+        return true;
     }
 
     private void checkCompatibilityNetworkVersion(IidmXmlVersion version) {
@@ -130,7 +129,7 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     @Override
     public void checkExtensionVersionSupported(String extensionVersion) {
         if (!namespaceUris.containsKey(extensionVersion)) {
-            throw new PowsyblException("The version " + extensionVersion + " of the " + extensionName + " extension is not supported.");
+            throw new PowsyblException("The " + extensionName + " extension version " + extensionVersion + " is not supported.");
         }
     }
 }

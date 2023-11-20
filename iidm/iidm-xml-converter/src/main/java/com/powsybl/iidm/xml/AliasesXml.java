@@ -6,11 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -19,39 +17,34 @@ import java.util.function.Consumer;
  */
 public final class AliasesXml {
 
-    static final String ALIAS = "alias";
+    static final String ARRAY_ELEMENT_NAME = "aliases";
+    static final String ROOT_ELEMENT_NAME = "alias";
 
-    public static void write(Identifiable<?> identifiable, String rootElementName, NetworkXmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.assertMinimumVersionIfNotDefault(!identifiable.getAliases().isEmpty(), rootElementName, ALIAS, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+    public static void write(Identifiable<?> identifiable, String rootElementName, NetworkXmlWriterContext context) {
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(!identifiable.getAliases().isEmpty(), rootElementName, ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+        context.getWriter().writeStartNodes(ARRAY_ELEMENT_NAME);
         for (String alias : identifiable.getAliases()) {
-            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), ALIAS);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> identifiable.getAliasType(alias).ifPresent(type -> {
-                try {
-                    context.getWriter().writeAttribute("type", type);
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            }));
-            context.getWriter().writeCharacters(context.getAnonymizer().anonymizeString(alias));
-            context.getWriter().writeEndElement();
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context,
+                    () -> identifiable.getAliasType(alias).ifPresent(type -> context.getWriter().writeStringAttribute("type", type)));
+            context.getWriter().writeNodeContent(context.getAnonymizer().anonymizeString(alias));
+            context.getWriter().writeEndNode();
         }
+        context.getWriter().writeEndNodes();
     }
 
-    public static <T extends Identifiable> void read(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
+    public static <T extends Identifiable> void read(T identifiable, NetworkXmlReaderContext context) {
         read(context).accept(identifiable);
     }
 
-    public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
+    public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkXmlReaderContext context) {
         toApply.add(read(context));
     }
 
-    private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) throws XMLStreamException {
-        if (!context.getReader().getLocalName().equals(ALIAS)) {
-            throw new IllegalStateException();
-        }
+    private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
         String[] aliasType = new String[1];
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().getAttributeValue(null, "type"));
-        String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().readStringAttribute("type"));
+        String alias = context.getAnonymizer().deanonymizeString(context.getReader().readContent());
         return identifiable -> identifiable.addAlias(alias, aliasType[0]);
     }
 

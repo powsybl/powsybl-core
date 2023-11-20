@@ -6,11 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
@@ -24,6 +22,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     static final TwoWindingsTransformerXml INSTANCE = new TwoWindingsTransformerXml();
 
     static final String ROOT_ELEMENT_NAME = "twoWindingsTransformer";
+    static final String ARRAY_ELEMENT_NAME = "twoWindingsTransformers";
 
     @Override
     protected String getRootElementName() {
@@ -31,23 +30,13 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected boolean hasSubElements(TwoWindingsTransformer twt) {
-        throw new IllegalStateException("Should not be called");
-    }
-
-    @Override
-    protected boolean hasSubElements(TwoWindingsTransformer twt, NetworkXmlWriterContext context) {
-        return hasValidOperationalLimits(twt, context) || twt.hasRatioTapChanger() || twt.hasPhaseTapChanger();
-    }
-
-    @Override
-    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("r", twt.getR(), context.getWriter());
-        XmlUtil.writeDouble("x", twt.getX(), context.getWriter());
-        XmlUtil.writeDouble("g", twt.getG(), context.getWriter());
-        XmlUtil.writeDouble("b", twt.getB(), context.getWriter());
-        XmlUtil.writeDouble("ratedU1", twt.getRatedU1(), context.getWriter());
-        XmlUtil.writeDouble("ratedU2", twt.getRatedU2(), context.getWriter());
+    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("r", twt.getR());
+        context.getWriter().writeDoubleAttribute("x", twt.getX());
+        context.getWriter().writeDoubleAttribute("g", twt.getG());
+        context.getWriter().writeDoubleAttribute("b", twt.getB());
+        context.getWriter().writeDoubleAttribute("ratedU1", twt.getRatedU1());
+        context.getWriter().writeDoubleAttribute("ratedU2", twt.getRatedU2());
         writeRatedS("ratedS", twt.getRatedS(), context);
         writeNodeOrBus(1, twt.getTerminal1(), context);
         writeNodeOrBus(2, twt.getTerminal2(), context);
@@ -58,7 +47,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeSubElements(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) {
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
             writeRatioTapChanger("ratioTapChanger", rtc, context);
@@ -106,12 +95,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, Substation s, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
-        double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
-        double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
+        double r = context.getReader().readDoubleAttribute("r");
+        double x = context.getReader().readDoubleAttribute("x");
+        double g = context.getReader().readDoubleAttribute("g");
+        double b = context.getReader().readDoubleAttribute("b");
+        double ratedU1 = context.getReader().readDoubleAttribute("ratedU1");
+        double ratedU2 = context.getReader().readDoubleAttribute("ratedU2");
         adder.setR(r)
                 .setX(x)
                 .setG(g)
@@ -127,47 +116,30 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void readSubElements(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case ACTIVE_POWER_LIMITS_1:
+    protected void readSubElements(TwoWindingsTransformer twt, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case ACTIVE_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, twt.newActivePowerLimits1(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_1:
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(twt.newActivePowerLimits1(), context.getReader()));
+                }
+                case APPARENT_POWER_LIMITS_1 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, twt.newApparentPowerLimits1(), context.getReader()));
-                    break;
-
-                case "currentLimits1":
-                    readCurrentLimits(1, twt.newCurrentLimits1(), context.getReader());
-                    break;
-
-                case ACTIVE_POWER_LIMITS_2:
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(twt.newApparentPowerLimits1(), context.getReader()));
+                }
+                case "currentLimits1" -> readCurrentLimits(twt.newCurrentLimits1(), context.getReader());
+                case ACTIVE_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, twt.newActivePowerLimits2(), context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_2:
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(twt.newActivePowerLimits2(), context.getReader()));
+                }
+                case APPARENT_POWER_LIMITS_2 -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, twt.newApparentPowerLimits2(), context.getReader()));
-                    break;
-
-                case "currentLimits2":
-                    readCurrentLimits(2, twt.newCurrentLimits2(), context.getReader());
-                    break;
-
-                case "ratioTapChanger":
-                    readRatioTapChanger(twt, context);
-                    break;
-
-                case "phaseTapChanger":
-                    readPhaseTapChanger(twt, context);
-                    break;
-
-                default:
-                    super.readSubElements(twt, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(twt.newApparentPowerLimits2(), context.getReader()));
+                }
+                case "currentLimits2" -> readCurrentLimits(twt.newCurrentLimits2(), context.getReader());
+                case "ratioTapChanger" -> readRatioTapChanger(twt, context);
+                case "phaseTapChanger" -> readPhaseTapChanger(twt, context);
+                default -> readSubElement(elementName, twt, context);
             }
         });
     }
