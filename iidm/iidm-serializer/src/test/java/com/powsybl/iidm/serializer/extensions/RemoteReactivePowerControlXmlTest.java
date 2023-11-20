@@ -104,7 +104,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerializerTest {
                 NetworkSerializer.write(network, options, path);
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("generatorRemoteReactivePowerControl is not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5", e.getMessage());
+                assertEquals("generatorRemoteReactivePowerControl is not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5", e.getMessage());
             }
         });
 

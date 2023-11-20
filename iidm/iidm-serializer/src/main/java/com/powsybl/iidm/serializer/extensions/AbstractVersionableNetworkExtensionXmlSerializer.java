@@ -24,7 +24,7 @@ import java.util.*;
  */
 public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> implements ExtensionXmlSerializer<T, E> {
 
-    private static final String INCOMPATIBILITY_NETWORK_VERSION_MESSAGE = "IIDM-XML version of network (";
+    private static final String INCOMPATIBILITY_NETWORK_VERSION_MESSAGE = "IIDM version of network (";
 
     private final String extensionName;
     private final Class<? super E> extensionClass;

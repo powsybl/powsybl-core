@@ -60,7 +60,7 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerializerTest {
                 NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("shunt.shuntNonLinearModel is not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3",
+                assertEquals("shunt.shuntNonLinearModel is not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.3",
                         e.getMessage());
             }
         });
@@ -110,8 +110,8 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerializerTest {
             NetworkSerializer.write(network, options, tmpDir.resolve("fail.xml"));
             fail();
         } catch (PowsyblException e) {
-            assertEquals("shunt.voltageRegulatorOn is not defined as default and not supported for IIDM-XML version " +
-                            version + ". IIDM-XML version should be >= 1.2",
+            assertEquals("shunt.voltageRegulatorOn is not defined as default and not supported for IIDM version " +
+                            version + ". IIDM version should be >= 1.2",
                     e.getMessage());
         }
     }

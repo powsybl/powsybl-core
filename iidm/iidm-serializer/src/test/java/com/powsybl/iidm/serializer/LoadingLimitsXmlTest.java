@@ -52,7 +52,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerializerTest {
                 NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("danglingLine.activePowerLimits is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
+                assertEquals("danglingLine.activePowerLimits is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
                         e.getMessage());
             }
         });
@@ -100,7 +100,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerializerTest {
                 NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("twoWindingsTransformer.activePowerLimits1 is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
+                assertEquals("twoWindingsTransformer.activePowerLimits1 is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
                         e.getMessage());
             }
         });
@@ -140,7 +140,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerializerTest {
                 NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("tieLine.activePowerLimits1 is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
+                assertEquals("tieLine.activePowerLimits1 is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
                         e.getMessage());
             }
         });
@@ -180,7 +180,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerializerTest {
                 NetworkSerializer.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("threeWindingsTransformer.activePowerLimits1 is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
+                assertEquals("threeWindingsTransformer.activePowerLimits1 is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
                         e.getMessage());
             }
         });

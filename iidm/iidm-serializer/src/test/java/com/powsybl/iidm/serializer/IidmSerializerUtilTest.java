@@ -31,14 +31,14 @@ class IidmSerializerUtilTest {
             IidmSerializerUtil.assertMaximumVersion(ROOT, ELEMENT, IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_0, context);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("root.element is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
+            assertEquals("root.element is not supported for IIDM version 1.1. IIDM version should be <= 1.0", e.getMessage());
         }
 
         try {
             IidmSerializerUtil.assertMaximumVersion(ELEMENT, IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_0, context);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("element is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
+            assertEquals("element is not supported for IIDM version 1.1. IIDM version should be <= 1.0", e.getMessage());
         }
     }
 
@@ -53,14 +53,14 @@ class IidmSerializerUtilTest {
             IidmSerializerUtil.assertMaximumVersion(ROOT, ELEMENT, IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_0, context);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("root.element is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
+            assertEquals("root.element is not supported for IIDM version 1.1. IIDM version should be <= 1.0", e.getMessage());
         }
 
         try {
             IidmSerializerUtil.assertMaximumVersion(ELEMENT, IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_0, context);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("element is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
+            assertEquals("element is not supported for IIDM version 1.1. IIDM version should be <= 1.0", e.getMessage());
         }
 
         options.setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
@@ -77,14 +77,14 @@ class IidmSerializerUtilTest {
             IidmSerializerUtil.assertMinimumVersion(ROOT, ELEMENT, IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("root.element is not supported for IIDM-XML version 1.0. IIDM-XML version should be >= 1.1", e.getMessage());
+            assertEquals("root.element is not supported for IIDM version 1.0. IIDM version should be >= 1.1", e.getMessage());
         }
 
         try {
             IidmSerializerUtil.assertMinimumVersion(ELEMENT, IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("element is not supported for IIDM-XML version 1.0. IIDM-XML version should be >= 1.1", e.getMessage());
+            assertEquals("element is not supported for IIDM version 1.0. IIDM version should be >= 1.1", e.getMessage());
         }
     }
 
@@ -96,7 +96,7 @@ class IidmSerializerUtilTest {
         try {
             IidmSerializerUtil.assertStrictMaximumVersion(ROOT, ELEMENT, IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
         } catch (PowsyblException e) {
-            assertEquals("root.element is not supported for IIDM-XML version 1.1. IIDM-XML version should be < 1.1", e.getMessage());
+            assertEquals("root.element is not supported for IIDM version 1.1. IIDM version should be < 1.1", e.getMessage());
         }
     }
 
@@ -110,7 +110,7 @@ class IidmSerializerUtilTest {
         try {
             IidmSerializerUtil.assertStrictMaximumVersion(ROOT, ELEMENT, IidmSerializerUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
         } catch (PowsyblException e) {
-            assertEquals("root.element is not supported for IIDM-XML version 1.1. IIDM-XML version should be < 1.1", e.getMessage());
+            assertEquals("root.element is not supported for IIDM version 1.1. IIDM version should be < 1.1", e.getMessage());
         }
 
         options.setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);

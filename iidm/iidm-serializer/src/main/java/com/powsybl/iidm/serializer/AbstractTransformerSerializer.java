@@ -42,8 +42,8 @@ abstract class AbstractTransformerSerializer<T extends Connectable<T>, A extends
     }
 
     private static void writeTargetDeadband(double targetDeadband, NetworkSerializerWriterContext context) {
-        // in IIDM-XML version 1.0, 0 as targetDeadband is ignored for backwards compatibility
-        // (i.e. ensuring round trips in IIDM-XML version 1.0)
+        // in IIDM version 1.0, 0 as targetDeadband is ignored for backwards compatibility
+        // (i.e. ensuring round trips in IIDM version 1.0)
         IidmSerializerUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> context.getWriter().writeDoubleAttribute(TARGET_DEADBAND, targetDeadband, 0));
         IidmSerializerUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> context.getWriter().writeDoubleAttribute(TARGET_DEADBAND, targetDeadband));
     }
@@ -52,8 +52,8 @@ abstract class AbstractTransformerSerializer<T extends Connectable<T>, A extends
         double[] targetDeadband = new double[1];
         IidmSerializerUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> {
             targetDeadband[0] = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
-            // in IIDM-XML version 1.0, NaN as targetDeadband when regulating is allowed.
-            // in IIDM-XML version 1.1 and more recent, it is forbidden and throws an exception
+            // in IIDM version 1.0, NaN as targetDeadband when regulating is allowed.
+            // in IIDM version 1.1 and more recent, it is forbidden and throws an exception
             // to prevent issues, targetDeadband is set to 0 in this case
             if (regulating && Double.isNaN(targetDeadband[0])) {
                 targetDeadband[0] = 0;

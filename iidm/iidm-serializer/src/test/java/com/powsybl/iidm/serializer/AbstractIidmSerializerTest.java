@@ -25,21 +25,21 @@ import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_X
 public abstract class AbstractIidmSerializerTest extends AbstractSerializerTest {
 
     /**
-     * Return path (as String) of the test resource directory containing all IIDM-XML files of a given IIDM-XML version.
+     * Return path (as String) of the test resource directory containing all IIDM-XML files of a given IIDM version.
      */
     public static String getVersionDir(IidmVersion version) {
         return "/V" + version.toString("_") + "/";
     }
 
     /**
-     * Return path (as String) of the test resource IIDM-XML file with a given file name in a given IIDM-XML version.
+     * Return path (as String) of the test resource IIDM-XML file with a given file name in a given IIDM version.
      */
     public static String getVersionedNetworkPath(String fileName, IidmVersion version) {
         return getVersionDir(version) + fileName;
     }
 
     /**
-     * Return an input stream of the test resource IIDM-XML file with a given file name in a given IIDM-XML version.
+     * Return an input stream of the test resource IIDM-XML file with a given file name in a given IIDM version.
      */
     protected InputStream getVersionedNetworkAsStream(String fileName, IidmVersion version) {
         return getClass().getResourceAsStream(getVersionedNetworkPath(fileName, version));
@@ -53,7 +53,7 @@ public abstract class AbstractIidmSerializerTest extends AbstractSerializerTest 
     }
 
     /**
-     * Execute a round trip test on the test resource IIDM-XML file with a given file name for the given IIDM-XML versions.
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for the given IIDM versions.
      */
     protected void roundTripVersionedXmlTest(String file, IidmVersion... versions) throws IOException {
         for (IidmVersion version : versions) {
@@ -78,8 +78,8 @@ public abstract class AbstractIidmSerializerTest extends AbstractSerializerTest 
     }
 
     /**
-     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM-XML versions
-     * strictly older than the current IIDM-XML version.
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions
+     * strictly older than the current IIDM version.
      */
     protected void roundTripAllPreviousVersionedXmlTest(String file) throws IOException {
         roundTripVersionedXmlTest(file, Stream.of(IidmVersion.values())
@@ -98,8 +98,8 @@ public abstract class AbstractIidmSerializerTest extends AbstractSerializerTest 
     }
 
     /**
-     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM-XML versions
-     * equals or more recent than a given minimum IIDM-XML version <b>and</b> strictly older than the current IIDM-XML version.
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions
+     * equals or more recent than a given minimum IIDM version <b>and</b> strictly older than the current IIDM version.
      */
     protected void roundTripVersionedXmlFromMinToCurrentVersionTest(String file, IidmVersion minVersion) throws IOException {
         roundTripVersionedXmlTest(file, Stream.of(IidmVersion.values())
@@ -118,14 +118,14 @@ public abstract class AbstractIidmSerializerTest extends AbstractSerializerTest 
     }
 
     /**
-     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM-XML versions.
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions.
      */
     protected void roundTripAllVersionedXmlTest(String file) throws IOException {
         roundTripVersionedXmlTest(file, IidmVersion.values());
     }
 
     /**
-     * Execute a given test for all IIDM-XML versions strictly older than a given maximum IIDM-XML version.
+     * Execute a given test for all IIDM versions strictly older than a given maximum IIDM version.
      */
     protected void testForAllPreviousVersions(IidmVersion maxVersion, Consumer<IidmVersion> test) {
         Stream.of(IidmVersion.values())

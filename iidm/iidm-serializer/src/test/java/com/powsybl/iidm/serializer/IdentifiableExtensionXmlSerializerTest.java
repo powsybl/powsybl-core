@@ -176,7 +176,7 @@ class IdentifiableExtensionXmlSerializerTest extends AbstractIidmSerializerTest 
     void testThrowErrorIncompatibleExtensionVersion() {
         // should fail while trying to import a file in IIDM-XML network version 1.1 and loadMock in v1.0 (not compatible)
         PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerializer.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-bad-loadMockExt.xml", IidmVersion.V_1_1)));
-        assertTrue(e.getMessage().contains("IIDM-XML version of network (1.1)"
+        assertTrue(e.getMessage().contains("IIDM version of network (1.1)"
                 + " is not compatible with the loadMock extension's namespace URI."));
     }
 
@@ -192,6 +192,6 @@ class IdentifiableExtensionXmlSerializerTest extends AbstractIidmSerializerTest 
     void testThrowErrorUnsupportedExtensionVersion2() {
         // should fail while trying to import a file in IIDM-XML network version 1.1 (not supported by loadQux extension)
         PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerializer.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-bad-loadQuxExt.xml", IidmVersion.V_1_1)));
-        assertTrue(e.getMessage().contains("IIDM-XML version of network (1.1) is not supported by the loadQux extension's XML serializer."));
+        assertTrue(e.getMessage().contains("IIDM version of network (1.1) is not supported by the loadQux extension's XML serializer."));
     }
 }

@@ -48,7 +48,7 @@ class DanglingLineXmlTest extends AbstractIidmSerializerTest {
                 NetworkSerializer.write(network, options, path);
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("danglingLine.generation is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3", e.getMessage());
+                assertEquals("danglingLine.generation is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.3", e.getMessage());
             }
         });
 
