@@ -38,7 +38,7 @@ public class MultiThreadReporterContext extends AbstractReporterContext {
 
     @Override
     public Reporter getReporter() {
-        return this.reporters.get().peekFirst();
+        return this.reporters.get().peek();
     }
 
     @Override
@@ -60,10 +60,7 @@ public class MultiThreadReporterContext extends AbstractReporterContext {
     }
 
     @Override
-    protected Iterator<Reporter> copyIterator() {
-        Iterator<Reporter> it = reporters.get().descendingIterator();
-        // Since we don't want to copy the always present NO_OP, we skip the 1st item
-        it.next();
-        return it;
+    protected Iterator<Reporter> descendingIterator() {
+        return reporters.get().descendingIterator();
     }
 }

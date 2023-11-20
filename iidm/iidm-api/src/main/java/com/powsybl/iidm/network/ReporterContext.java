@@ -15,6 +15,14 @@ import com.powsybl.commons.reporter.Reporter;
 public interface ReporterContext {
 
     /**
+     * Peek the current {@link Reporter}.
+     * @see #pushReporter(Reporter)
+     * @see #popReporter()
+     * @return the last defined {@link Reporter}
+     */
+    Reporter peekReporter();
+
+    /**
      * Get the current {@link Reporter}.
      * @see #pushReporter(Reporter)
      * @see #popReporter()
@@ -24,7 +32,7 @@ public interface ReporterContext {
 
     /**
      * Use the given {@link Reporter} instead of the current one.<br/>
-     * The reporters are stacked and the previous one should be restored latter using {@link #popReporter()}.
+     * The reporters are stacked and the previous one should be restored later using {@link #popReporter()}.
      * @see #popReporter()
      *
      * @param reporter The new reporter to use.

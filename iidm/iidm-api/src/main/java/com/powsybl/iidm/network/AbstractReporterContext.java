@@ -19,17 +19,24 @@ public abstract class AbstractReporterContext implements ReporterContext {
     protected AbstractReporterContext() {
     }
 
+    @Override
+    public Reporter peekReporter() {
+        return getReporter();
+    }
+
     protected void copyReporters(AbstractReporterContext reporterContext) {
-        Iterator<Reporter> it = reporterContext.copyIterator();
+        Iterator<Reporter> it = reporterContext.descendingIterator();
+        // Since we don't want to copy the always present NO_OP, we skip the 1st item
+        it.next();
         while (it.hasNext()) {
             pushReporter(it.next());
         }
     }
 
     /**
-     * <p>Returns an iterator on the elements to copy when creating a new ReporterContext from another one.</p>
+     * <p>Return a descending iterator on the elements (first pushed first)</p>
      *
-     * @return an Iterator on the elements to copy
+     * @return an Iterator on the elements
      */
-    protected abstract Iterator<Reporter> copyIterator();
+    protected abstract Iterator<Reporter> descendingIterator();
 }

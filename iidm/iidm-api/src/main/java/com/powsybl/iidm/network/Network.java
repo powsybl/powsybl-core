@@ -580,10 +580,25 @@ public interface Network extends Container<Network> {
     VariantManager getVariantManager();
 
     /**
-     * Allows {@link ReporterContext} to be accessed simultaneously by different threads.
-     * When this option is activated, the reporter context can have a different content
-     * for each thread.
-     *
+     * <p>Allows {@link ReporterContext} to be accessed simultaneously by different threads.</p>
+     * <p>When this option is activated, the reporter context can have a different content
+     * for each thread.</p>
+     * <p>Note that to avoid memory leaks when in multi-thread configuration: </p>
+     * <ul>
+     *     <li>each reporter pushed in the ReporterContext should be popped in a "finally" section:
+     * <pre>
+     * {@code
+     *     network.getReporterContext().pushReporter(reporter);
+     *     try {
+     *         // code that can throw an exception
+     *     } finally {
+     *         network.getReporterContext().popReporter();
+     *     }
+     * }
+     * </pre>
+     * </li>
+     * <li>the context should be set in mono-thread access when multi-threading policy is no more useful.</li>
+     * </ul>
      * @param allow allow multi-thread access to the ReporterContext
      */
     void allowReporterContextMultiThreadAccess(boolean allow);

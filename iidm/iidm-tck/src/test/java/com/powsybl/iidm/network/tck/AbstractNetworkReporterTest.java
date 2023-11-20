@@ -76,18 +76,24 @@ public abstract class AbstractNetworkReporterTest {
         service.invokeAll(Arrays.asList(
                 () -> {
                     network.getReporterContext().pushReporter(reporter2);
-                    latch.countDown();
-                    latch.await();
-                    network.getReporterContext().getReporter().report("key2", "message2");
-                    network.getReporterContext().popReporter();
+                    try {
+                        latch.countDown();
+                        latch.await();
+                        network.getReporterContext().getReporter().report("key2", "message2");
+                    } finally {
+                        network.getReporterContext().popReporter();
+                    }
                     return null;
                 },
                 () -> {
                     network.getReporterContext().pushReporter(reporter3);
-                    latch.countDown();
-                    latch.await();
-                    network.getReporterContext().getReporter().report("key3", "message3");
-                    network.getReporterContext().popReporter();
+                    try {
+                        latch.countDown();
+                        latch.await();
+                        network.getReporterContext().getReporter().report("key3", "message3");
+                    } finally {
+                        network.getReporterContext().popReporter();
+                    }
                     return null;
                 })
         );

@@ -45,6 +45,7 @@ class ReporterContextTest {
     void getReporterOnEmptyContextTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
         assertEquals(Reporter.NO_OP, reporterContext.getReporter());
+        assertEquals(Reporter.NO_OP, reporterContext.peekReporter());
     }
 
     @ParameterizedTest(name = "{0}")
@@ -54,13 +55,16 @@ class ReporterContextTest {
         ReporterModel reporter0 = new ReporterModel("task0", "name0");
         reporterContext.pushReporter(reporter0);
         assertEquals(reporter0, reporterContext.getReporter());
+        assertEquals(reporter0, reporterContext.peekReporter());
 
         ReporterModel reporter1 = new ReporterModel("task1", "name1");
         reporterContext.pushReporter(reporter1);
         assertEquals(reporter1, reporterContext.getReporter());
+        assertEquals(reporter1, reporterContext.peekReporter());
 
-        // Several get doesn't affect the reporter
+        // Several get (or peek) doesn't affect the reporter
         assertEquals(reporter1, reporterContext.getReporter());
+        assertEquals(reporter1, reporterContext.peekReporter());
     }
 
     @ParameterizedTest(name = "{0}")
