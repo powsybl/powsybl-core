@@ -140,6 +140,29 @@ public final class StateVariablesExport {
         return islands;
     }
 
+    private static Map<String, String> buildLoadFlowStatus(Network network, CgmesExportContext context) {
+        Map<String, List<Double>> voltages = new HashMap<>();
+        for (Bus b : network.getBusBreakerView().getBuses()) {
+            String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
+            if (b.getSynchronousComponent() != null) {
+                int num = b.getSynchronousComponent().getNum();
+                voltages.get(String.valueOf(num)).add(b.getV());
+            } else {
+                voltages.put(topologicalNodeId, Collections.singletonList(0.0));
+            }
+        }
+        Map<String, String> status = new HashMap<>();
+        for (Map.Entry<String, List<Double>> synchronousComponentVoltages : voltages.entrySet()) {
+            String num = synchronousComponentVoltages.getKey();
+            if (synchronousComponentVoltages.getValue().stream().anyMatch(v -> Double.isNaN(v) || v < 0.01)) {
+                status.put(num, "diverged");
+            } else {
+                status.put(num, "converged");
+            }
+        }
+        return status;
+    }
+
     private static void writeVoltagesForTopologicalNodes(Network network, CgmesExportContext context, XMLStreamWriter writer) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         for (Map.Entry<String, Bus> e : context.getTopologicalNodes(network).entrySet()) {
