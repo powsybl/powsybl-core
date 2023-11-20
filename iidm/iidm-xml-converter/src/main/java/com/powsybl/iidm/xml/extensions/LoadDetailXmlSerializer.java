@@ -9,14 +9,11 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -26,37 +23,38 @@ public class LoadDetailXmlSerializer extends AbstractExtensionXmlSerializer<Load
 
     public LoadDetailXmlSerializer() {
         super("detail", "network", LoadDetail.class,
-                false, "loadDetail.xsd",
+                "loadDetail.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/load_detail/1_0",
                 "ld");
     }
 
     @Override
-    public void write(LoadDetail detail, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("fixedActivePower", detail.getFixedActivePower(), context.getWriter());
-        XmlUtil.writeDouble("fixedReactivePower", detail.getFixedReactivePower(), context.getWriter());
-        XmlUtil.writeDouble("variableActivePower", detail.getVariableActivePower(), context.getWriter());
-        XmlUtil.writeDouble("variableReactivePower", detail.getVariableReactivePower(), context.getWriter());
+    public void write(LoadDetail detail, XmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("fixedActivePower", detail.getFixedActivePower());
+        context.getWriter().writeDoubleAttribute("fixedReactivePower", detail.getFixedReactivePower());
+        context.getWriter().writeDoubleAttribute("variableActivePower", detail.getVariableActivePower());
+        context.getWriter().writeDoubleAttribute("variableReactivePower", detail.getVariableReactivePower());
     }
 
     @Override
     public LoadDetail read(Load load, XmlReaderContext context) {
-        double fixedActivePower = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fixedActivePower");
+        double fixedActivePower = context.getReader().readDoubleAttribute("fixedActivePower");
         if (Double.isNaN(fixedActivePower)) {
-            fixedActivePower = XmlUtil.readDoubleAttribute(context.getReader(), "subLoad1ActivePower");
+            fixedActivePower = context.getReader().readDoubleAttribute("subLoad1ActivePower");
         }
-        double fixedReactivePower = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fixedReactivePower");
+        double fixedReactivePower = context.getReader().readDoubleAttribute("fixedReactivePower");
         if (Double.isNaN(fixedReactivePower)) {
-            fixedReactivePower = XmlUtil.readDoubleAttribute(context.getReader(), "subLoad1ReactivePower");
+            fixedReactivePower = context.getReader().readDoubleAttribute("subLoad1ReactivePower");
         }
-        double variableActivePower = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "variableActivePower");
+        double variableActivePower = context.getReader().readDoubleAttribute("variableActivePower");
         if (Double.isNaN(variableActivePower)) {
-            variableActivePower = XmlUtil.readDoubleAttribute(context.getReader(), "subLoad2ActivePower");
+            variableActivePower = context.getReader().readDoubleAttribute("subLoad2ActivePower");
         }
-        double variableReactivePower = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "variableReactivePower");
+        double variableReactivePower = context.getReader().readDoubleAttribute("variableReactivePower");
         if (Double.isNaN(variableReactivePower)) {
-            variableReactivePower = XmlUtil.readDoubleAttribute(context.getReader(), "subLoad2ReactivePower");
+            variableReactivePower = context.getReader().readDoubleAttribute("subLoad2ReactivePower");
         }
+        context.getReader().readEndNode();
         return load.newExtension(LoadDetailAdder.class)
                 .withFixedActivePower(fixedActivePower)
                 .withFixedReactivePower(fixedReactivePower)

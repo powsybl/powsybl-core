@@ -65,6 +65,6 @@ class InjectionObservabilityXmlTest extends AbstractConverterTest {
     @Test
     void invalidTest() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
-        assertTrue(e.getMessage().contains("Unexpected element: qualityZ"));
+        assertEquals("Unknown element name 'qualityZ' in 'injectionObservability'", e.getMessage());
     }
 }

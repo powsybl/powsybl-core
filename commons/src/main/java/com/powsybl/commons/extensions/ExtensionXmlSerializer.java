@@ -8,14 +8,9 @@ package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
@@ -27,8 +22,6 @@ import java.util.Set;
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface ExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E>, Versionable {
-
-    boolean hasSubElements();
 
     /**
      * Return the XSD schema describing the extension to serialize in the latest version of its serialization.
@@ -57,9 +50,9 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
 
     String getNamespacePrefix();
 
-    void write(E extension, XmlWriterContext context) throws XMLStreamException;
+    void write(E extension, XmlWriterContext context);
 
-    E read(T extendable, XmlReaderContext context) throws XMLStreamException;
+    E read(T extendable, XmlReaderContext context);
 
     default String getName() {
         return getExtensionName();
@@ -71,6 +64,11 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
     default String getVersion() {
         return "1.0";
     }
+
+    /**
+     * Return the version corresponding to the given namespaceURI
+     */
+    String getVersion(String namespaceUri);
 
     /**
      * Return all supported versions for of the serialization of this extension.
@@ -95,5 +93,9 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
      */
     default boolean isSerializable(E extension) {
         return true;
+    }
+
+    default Map<String, String> getArrayNameToSingleNameMap() {
+        return Collections.emptyMap();
     }
 }

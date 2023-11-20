@@ -11,8 +11,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadMockExt;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
@@ -27,7 +27,7 @@ import java.util.List;
 public class LoadMockXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, LoadMockExt> {
 
     public LoadMockXmlSerializer() {
-        super("loadMock", LoadMockExt.class, false, "lmock",
+        super("loadMock", LoadMockExt.class, "lmock",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.1", "1.2"))
@@ -59,6 +59,7 @@ public class LoadMockXmlSerializer extends AbstractVersionableNetworkExtensionXm
     @Override
     public LoadMockExt read(Load extendable, XmlReaderContext context) {
         checkReadingCompatibility((NetworkXmlReaderContext) context);
+        context.getReader().readEndNode();
         return new LoadMockExt(extendable);
     }
 }

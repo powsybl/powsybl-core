@@ -6,13 +6,11 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Objects;
 
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
@@ -26,6 +24,7 @@ class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterS
     static final VscConverterStationXml INSTANCE = new VscConverterStationXml();
 
     static final String ROOT_ELEMENT_NAME = "vscConverterStation";
+    static final String ARRAY_ELEMENT_NAME = "vscConverterStations";
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
 
@@ -35,22 +34,17 @@ class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterS
     }
 
     @Override
-    protected boolean hasSubElements(VscConverterStation cs) {
-        return true;
-    }
-
-    @Override
-    protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));
-        XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
-        XmlUtil.writeDouble("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
-        XmlUtil.writeDouble("reactivePowerSetpoint", cs.getReactivePowerSetpoint(), context.getWriter());
+    protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeBooleanAttribute("voltageRegulatorOn", cs.isVoltageRegulatorOn());
+        context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());
+        context.getWriter().writeDoubleAttribute("voltageSetpoint", cs.getVoltageSetpoint());
+        context.getWriter().writeDoubleAttribute("reactivePowerSetpoint", cs.getReactivePowerSetpoint());
         writeNodeOrBus(null, cs.getTerminal(), context);
         writePQ(null, cs.getTerminal(), context.getWriter());
     }
 
     @Override
-    protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) {
         ReactiveLimitsXml.INSTANCE.write(cs, context);
         IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(!Objects.equals(cs, cs.getRegulatingTerminal().getConnectable()),
                 ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
@@ -64,37 +58,32 @@ class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterS
 
     @Override
     protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
-        String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
-        float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
-        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "voltageSetpoint");
-        double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "reactivePowerSetpoint");
+        boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+        float lossFactor = context.getReader().readFloatAttribute("lossFactor");
+        double voltageSetpoint = context.getReader().readDoubleAttribute("voltageSetpoint");
+        double reactivePowerSetpoint = context.getReader().readDoubleAttribute("reactivePowerSetpoint");
         readNodeOrBus(adder, context);
         adder
                 .setLossFactor(lossFactor)
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint)
-                .setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
+                .setVoltageRegulatorOn(voltageRegulatorOn);
         VscConverterStation cs = adder.add();
         readPQ(null, cs.getTerminal(), context.getReader());
         return cs;
     }
 
     @Override
-    protected void readSubElements(VscConverterStation cs, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case "reactiveCapabilityCurve":
-                case "minMaxReactiveLimits":
-                    ReactiveLimitsXml.INSTANCE.read(cs, context);
-                    break;
-                case REGULATING_TERMINAL:
+    protected void readSubElements(VscConverterStation cs, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case ReactiveLimitsXml.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsXml.INSTANCE.readReactiveCapabilityCurve(cs, context);
+                case ReactiveLimitsXml.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsXml.INSTANCE.readMinMaxReactiveLimits(cs, context);
+                case REGULATING_TERMINAL -> {
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                    String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() -> cs.setRegulatingTerminal(TerminalRefXml.resolve(id, side, cs.getNetwork())));
-                    break;
-                default:
-                    super.readSubElements(cs, context);
+                    TerminalRefXml.readTerminalRef(context, cs.getNetwork(), cs::setRegulatingTerminal);
+                }
+                default -> readSubElement(elementName, cs, context);
             }
         });
     }

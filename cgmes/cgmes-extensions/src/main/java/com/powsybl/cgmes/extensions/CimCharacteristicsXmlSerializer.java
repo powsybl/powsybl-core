@@ -9,16 +9,13 @@ package com.powsybl.cgmes.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -27,26 +24,27 @@ import javax.xml.stream.XMLStreamWriter;
 public class CimCharacteristicsXmlSerializer extends AbstractExtensionXmlSerializer<Network, CimCharacteristics> {
 
     public CimCharacteristicsXmlSerializer() {
-        super("cimCharacteristics", "network", CimCharacteristics.class, false, "cimCharacteristics.xsd",
+        super("cimCharacteristics", "network", CimCharacteristics.class, "cimCharacteristics.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cim_characteristics/1_0", "cc");
     }
 
     @Override
-    public void write(CimCharacteristics extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CimCharacteristics extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        XMLStreamWriter writer = networkContext.getWriter();
-        writer.writeAttribute("topologyKind", extension.getTopologyKind().toString());
-        writer.writeAttribute("cimVersion", Integer.toString(extension.getCimVersion()));
+        TreeDataWriter writer = networkContext.getWriter();
+        writer.writeEnumAttribute("topologyKind", extension.getTopologyKind());
+        writer.writeIntAttribute("cimVersion", extension.getCimVersion());
     }
 
     @Override
-    public CimCharacteristics read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+    public CimCharacteristics read(Network extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        XMLStreamReader reader = networkContext.getReader();
-        extendable.newExtension(CimCharacteristicsAdder.class)
-                .setTopologyKind(CgmesTopologyKind.valueOf(reader.getAttributeValue(null, "topologyKind")))
-                .setCimVersion(XmlUtil.readIntAttribute(reader, "cimVersion"))
+        TreeDataReader reader = networkContext.getReader();
+        var extension = extendable.newExtension(CimCharacteristicsAdder.class)
+                .setTopologyKind(reader.readEnumAttribute("topologyKind", CgmesTopologyKind.class))
+                .setCimVersion(reader.readIntAttribute("cimVersion"))
                 .add();
-        return extendable.getExtension(CimCharacteristics.class);
+        context.getReader().readEndNode();
+        return extension;
     }
 }

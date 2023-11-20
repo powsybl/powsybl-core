@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -20,19 +19,23 @@ import java.util.function.Consumer;
  */
 public final class PropertiesXml {
 
-    static final String PROPERTY = "property";
+    static final String ROOT_ELEMENT_NAME = "property";
+    static final String ARRAY_ELEMENT_NAME = "properties";
 
     static final String NAME = "name";
     static final String VALUE = "value";
 
-    public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) {
         if (identifiable.hasProperty()) {
+            context.getWriter().writeStartNodes(ARRAY_ELEMENT_NAME);
             for (String name : IidmXmlUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), PROPERTY);
-                context.getWriter().writeAttribute(NAME, name);
-                context.getWriter().writeAttribute(VALUE, value);
+                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), ROOT_ELEMENT_NAME);
+                context.getWriter().writeStringAttribute(NAME, name);
+                context.getWriter().writeStringAttribute(VALUE, value);
+                context.getWriter().writeEndNode();
             }
+            context.getWriter().writeEndNodes();
         }
     }
 
@@ -45,11 +48,9 @@ public final class PropertiesXml {
     }
 
     private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
-        if (!context.getReader().getLocalName().equals(PROPERTY)) {
-            throw new IllegalStateException();
-        }
-        String name = context.getReader().getAttributeValue(null, NAME);
-        String value = context.getReader().getAttributeValue(null, VALUE);
+        String name = context.getReader().readStringAttribute(NAME);
+        String value = context.getReader().readStringAttribute(VALUE);
+        context.getReader().readEndNode();
         return identifiable -> identifiable.setProperty(name, value);
     }
 

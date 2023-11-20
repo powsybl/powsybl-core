@@ -6,14 +6,11 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.BusbarSectionAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  *
@@ -24,6 +21,7 @@ class BusbarSectionXml extends AbstractSimpleIdentifiableXml<BusbarSection, Busb
     static final BusbarSectionXml INSTANCE = new BusbarSectionXml();
 
     static final String ROOT_ELEMENT_NAME = "busbarSection";
+    static final String ARRAY_ELEMENT_NAME = "busbarSections";
 
     @Override
     protected String getRootElementName() {
@@ -31,16 +29,11 @@ class BusbarSectionXml extends AbstractSimpleIdentifiableXml<BusbarSection, Busb
     }
 
     @Override
-    protected boolean hasSubElements(BusbarSection bs) {
-        return false;
-    }
-
-    @Override
-    protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeInt("node", bs.getTerminal().getNodeBreakerView().getNode(), context.getWriter());
+    protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeIntAttribute("node", bs.getTerminal().getNodeBreakerView().getNode());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_0, context, () -> {
-            XmlUtil.writeDouble("v", bs.getV(), context.getWriter());
-            XmlUtil.writeDouble("angle", bs.getAngle(), context.getWriter());
+            context.getWriter().writeDoubleAttribute("v", bs.getV());
+            context.getWriter().writeDoubleAttribute("angle", bs.getAngle());
         });
     }
 
@@ -51,13 +44,13 @@ class BusbarSectionXml extends AbstractSimpleIdentifiableXml<BusbarSection, Busb
 
     @Override
     protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
-        int node = XmlUtil.readIntAttribute(context.getReader(), "node");
+        int node = context.getReader().readIntAttribute("node");
         BusbarSection bbs = adder.setNode(node)
                 .add();
 
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_0, context, () -> {
-            double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
-            double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
+            double v = context.getReader().readDoubleAttribute("v");
+            double angle = context.getReader().readDoubleAttribute("angle");
             context.getEndTasks().add(() -> {
                 Bus b = bbs.getTerminal().getBusView().getBus();
                 if (b != null) {
@@ -70,7 +63,7 @@ class BusbarSectionXml extends AbstractSimpleIdentifiableXml<BusbarSection, Busb
     }
 
     @Override
-    protected void readSubElements(BusbarSection bs, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> BusbarSectionXml.super.readSubElements(bs, context));
+    protected void readSubElements(BusbarSection bs, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(e -> readSubElement(e, bs, context));
     }
 }
