@@ -33,6 +33,38 @@ import java.util.function.Function;
  */
 public final class JsonUtil {
 
+    enum ContextType {
+        OBJECT,
+        ARRAY
+    }
+
+    static final class Context {
+        private final ContextType type;
+        private final String fieldName;
+        private int objectCount = 0;
+
+        Context(ContextType type, String fieldName) {
+            this.type = Objects.requireNonNull(type);
+            this.fieldName = fieldName;
+        }
+
+        ContextType getType() {
+            return type;
+        }
+
+        String getFieldName() {
+            return fieldName;
+        }
+
+        int getObjectCount() {
+            return objectCount;
+        }
+
+        void incrementObjectCount() {
+            objectCount++;
+        }
+    }
+
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class));
 

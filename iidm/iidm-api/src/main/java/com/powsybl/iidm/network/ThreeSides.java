@@ -13,14 +13,17 @@ import com.powsybl.commons.PowsyblException;
  @author Bertrand Rix <bertrand.rix at artelys.com>
  */
 public enum ThreeSides {
-    ONE(1),
-    TWO(2),
-    THREE(3);
+    ONE(1, TwoSides.ONE),
+    TWO(2, TwoSides.TWO),
+    THREE(3, null);
 
     private final int num;
 
-    ThreeSides(int num) {
+    private final TwoSides sideAsTwoSides;
+
+    ThreeSides(int num, TwoSides sideAsTwoSides) {
         this.num = num;
+        this.sideAsTwoSides = sideAsTwoSides;
     }
 
     public int getNum() {
@@ -34,5 +37,13 @@ public enum ThreeSides {
             case 3 -> THREE;
             default -> throw new PowsyblException("Cannot convert integer value " + num + " to ThreeSides.");
         };
+    }
+
+    public TwoSides toTwoSides() {
+        if (sideAsTwoSides == null) {
+            throw new PowsyblException("Cannot convert ThreeSides value " + this.name()
+                    + " as a TwoSides (" + TwoSides.ONE.name() + ", " + TwoSides.TWO.name() + ")");
+        }
+        return sideAsTwoSides;
     }
 }

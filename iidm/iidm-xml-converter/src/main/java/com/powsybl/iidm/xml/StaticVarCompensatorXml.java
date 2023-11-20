@@ -6,13 +6,10 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-
-import javax.xml.stream.XMLStreamException;
 
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
 
@@ -24,6 +21,7 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
     static final StaticVarCompensatorXml INSTANCE = new StaticVarCompensatorXml();
 
     static final String ROOT_ELEMENT_NAME = "staticVarCompensator";
+    static final String ARRAY_ELEMENT_NAME = "staticVarCompensators";
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
 
@@ -33,25 +31,20 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
     }
 
     @Override
-    protected boolean hasSubElements(StaticVarCompensator svc) {
-        return svc != svc.getRegulatingTerminal().getConnectable();
-    }
-
-    @Override
-    protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("bMin", svc.getBmin(), context.getWriter());
-        XmlUtil.writeDouble("bMax", svc.getBmax(), context.getWriter());
+    protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("bMin", svc.getBmin());
+        context.getWriter().writeDoubleAttribute("bMax", svc.getBmax());
         String[] voltageSetpointName = {"voltageSetpoint"};
         String[] reactivePowerSetpointName = {"reactivePowerSetpoint"};
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
             voltageSetpointName[0] = "voltageSetPoint";
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
-        XmlUtil.writeDouble(voltageSetpointName[0], svc.getVoltageSetpoint(), context.getWriter());
-        XmlUtil.writeDouble(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint(), context.getWriter());
+        context.getWriter().writeDoubleAttribute(voltageSetpointName[0], svc.getVoltageSetpoint());
+        context.getWriter().writeDoubleAttribute(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint());
 
         if (svc.getRegulationMode() != null) {
-            context.getWriter().writeAttribute("regulationMode", svc.getRegulationMode().name());
+            context.getWriter().writeStringAttribute("regulationMode", svc.getRegulationMode().name());
         }
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
@@ -71,8 +64,8 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
 
     @Override
     protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
-        double bMin = XmlUtil.readDoubleAttribute(context.getReader(), "bMin");
-        double bMax = XmlUtil.readDoubleAttribute(context.getReader(), "bMax");
+        double bMin = context.getReader().readDoubleAttribute("bMin");
+        double bMax = context.getReader().readDoubleAttribute("bMax");
 
         String[] voltageSetpointName = {"voltageSetpoint"};
         String[] reactivePowerSetpointName = {"reactivePowerSetpoint"};
@@ -80,11 +73,10 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
             voltageSetpointName[0] = "voltageSetPoint";
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
-        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), voltageSetpointName[0]);
-        double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), reactivePowerSetpointName[0]);
+        double voltageSetpoint = context.getReader().readDoubleAttribute(voltageSetpointName[0]);
+        double reactivePowerSetpoint = context.getReader().readDoubleAttribute(reactivePowerSetpointName[0]);
 
-        String regulationModeStr = context.getReader().getAttributeValue(null, "regulationMode");
-        StaticVarCompensator.RegulationMode regulationMode = regulationModeStr != null ? StaticVarCompensator.RegulationMode.valueOf(regulationModeStr) : null;
+        StaticVarCompensator.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", StaticVarCompensator.RegulationMode.class);
         adder.setBmin(bMin)
                 .setBmax(bMax)
                 .setVoltageSetpoint(voltageSetpoint)
@@ -97,15 +89,13 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
     }
 
     @Override
-    protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            if (context.getReader().getLocalName().equals(REGULATING_TERMINAL)) {
+    protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            if (elementName.equals(REGULATING_TERMINAL)) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                String side = context.getReader().getAttributeValue(null, "side");
-                context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml.resolve(id, side, svc.getNetwork())));
+                TerminalRefXml.readTerminalRef(context, svc.getNetwork(), svc::setRegulatingTerminal);
             } else {
-                super.readSubElements(svc, context);
+                readSubElement(elementName, svc, context);
             }
         });
     }

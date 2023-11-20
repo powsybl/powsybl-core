@@ -11,8 +11,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
@@ -22,7 +22,6 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.TerminalRefXml;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
 
     public SlackTerminalXmlSerializer() {
 
-        super("slackTerminal", SlackTerminal.class, false, "slt",
+        super("slackTerminal", SlackTerminal.class, "slt",
             new ImmutableMap.Builder<IidmXmlVersion, ImmutableSortedSet<String>>()
                 .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0"))
                 .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.1"))
@@ -72,7 +71,7 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
     }
 
     @Override
-    public void write(SlackTerminal slackTerminal, XmlWriterContext context) throws XMLStreamException {
+    public void write(SlackTerminal slackTerminal, XmlWriterContext context) {
         Terminal terminal = slackTerminal.getTerminal();
         if (terminal != null) {
             TerminalRefXml.writeTerminalRefAttribute(slackTerminal.getTerminal(), (NetworkXmlWriterContext) context);
@@ -81,10 +80,7 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
 
     @Override
     public SlackTerminal read(VoltageLevel voltageLevel, XmlReaderContext context) {
-        NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
-        String side = networkContext.getReader().getAttributeValue(null, "side");
-        Terminal terminal = TerminalRefXml.resolve(id, side, voltageLevel.getNetwork());
+        Terminal terminal = TerminalRefXml.readTerminal((NetworkXmlReaderContext) context, voltageLevel.getNetwork());
         return voltageLevel.newExtension(SlackTerminalAdder.class)
                 .withTerminal(terminal)
                 .add();

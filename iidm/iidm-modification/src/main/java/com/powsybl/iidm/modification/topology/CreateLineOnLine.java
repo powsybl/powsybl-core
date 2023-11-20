@@ -167,8 +167,8 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
-        addLoadingLimits(line1, limits1, Branch.Side.ONE);
-        addLoadingLimits(line2, limits2, Branch.Side.TWO);
+        addLoadingLimits(line1, limits1, TwoSides.ONE);
+        addLoadingLimits(line2, limits2, TwoSides.TWO);
 
         // Create the topology inside the fictitious voltage level
         fictitiousVl.getNodeBreakerView()

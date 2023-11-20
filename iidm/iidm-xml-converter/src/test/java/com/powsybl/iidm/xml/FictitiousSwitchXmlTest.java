@@ -16,7 +16,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class FictitiousSwitchTest extends AbstractXmlConverterTest {
+class FictitiousSwitchXmlTest extends AbstractXmlConverterTest {
 
     @Test
     void roundTripTest() throws IOException {

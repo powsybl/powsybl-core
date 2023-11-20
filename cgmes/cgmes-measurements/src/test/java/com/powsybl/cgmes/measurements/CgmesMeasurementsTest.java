@@ -10,10 +10,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
-import com.powsybl.iidm.network.extensions.Measurement;
-import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -40,7 +37,7 @@ class CgmesMeasurementsTest {
 
         Measurement meas1 = measExt.getMeasurement("test_analog_1");
         assertNotNull(meas1);
-        assertEquals(Measurement.Side.TWO, meas1.getSide());
+        assertEquals(ThreeSides.TWO, meas1.getSide());
         assertTrue(Double.isNaN(meas1.getValue()));
         assertTrue(Double.isNaN(meas1.getStandardDeviation()));
         assertFalse(meas1.isValid());
@@ -51,7 +48,7 @@ class CgmesMeasurementsTest {
         assertEquals("Current", property);
         Measurement meas2 = measExt.getMeasurement("test_analog_2");
         assertNotNull(meas2);
-        assertEquals(Measurement.Side.TWO, meas2.getSide());
+        assertEquals(ThreeSides.TWO, meas2.getSide());
         assertTrue(Double.isNaN(meas2.getValue()));
         assertTrue(Double.isNaN(meas2.getStandardDeviation()));
         assertFalse(meas2.isValid());

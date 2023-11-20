@@ -8,14 +8,15 @@
 package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.ImmutableMap;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.table.*;
+import com.powsybl.commons.io.table.AbstractTableFormatter;
+import com.powsybl.commons.io.table.AsciiTableFormatter;
+import com.powsybl.commons.io.table.Column;
+import com.powsybl.commons.io.table.HorizontalAlignment;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
 
-import javax.script.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -51,21 +52,6 @@ public final class Networks {
 
     public static void dumpVariantId(Path workingDir, Network network) throws IOException {
         dumpVariantId(workingDir, network.getVariantManager().getWorkingVariantId());
-    }
-
-    public static void runScript(Network network, Reader reader, Writer out) {
-        ScriptEngineManager mgr = new ScriptEngineManager();
-        ScriptEngine jsEngine = mgr.getEngineByName("js");
-        try {
-            ScriptContext context = new SimpleScriptContext();
-            context.setAttribute("network", network, ScriptContext.ENGINE_SCOPE);
-            if (out != null) {
-                context.setWriter(out);
-            }
-            jsEngine.eval(reader, context);
-        } catch (ScriptException e) {
-            throw new PowsyblException(e);
-        }
     }
 
     static class ConnectedPower {

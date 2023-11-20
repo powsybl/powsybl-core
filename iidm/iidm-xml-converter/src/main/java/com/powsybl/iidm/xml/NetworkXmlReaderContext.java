@@ -7,15 +7,14 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
-import javax.xml.stream.XMLStreamReader;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
@@ -24,25 +23,27 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
  */
 public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOptions> implements XmlReaderContext {
 
-    private final XMLStreamReader reader;
+    private final TreeDataReader reader;
 
     private final List<Runnable> endTasks = new ArrayList<>();
     private final ImportOptions options;
 
-    private final Set<String> extensionsNamespaceUri = new HashSet<>();
+    private final Map<String, String> extensionVersions;
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
-        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION);
+    public NetworkXmlReaderContext(Anonymizer anonymizer, TreeDataReader reader) {
+        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION, Collections.emptyMap());
     }
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options, IidmXmlVersion version) {
+    public NetworkXmlReaderContext(Anonymizer anonymizer, TreeDataReader reader, ImportOptions options, IidmXmlVersion version,
+                                   Map<String, String> extensionVersions) {
         super(anonymizer, version);
         this.reader = Objects.requireNonNull(reader);
         this.options = Objects.requireNonNull(options);
+        this.extensionVersions = extensionVersions;
     }
 
     @Override
-    public XMLStreamReader getReader() {
+    public TreeDataReader getReader() {
         return reader;
     }
 
@@ -59,21 +60,11 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
         return options;
     }
 
-    public void buildExtensionNamespaceUriList(Stream<ExtensionXmlSerializer> providers) {
-        providers.filter(e -> reader.getNamespaceURI(e.getNamespacePrefix()) != null)
-                .forEach(e -> extensionsNamespaceUri.add(reader.getNamespaceURI(e.getNamespacePrefix())));
-    }
-
-    public boolean containsExtensionNamespaceUri(String extensionNamespaceUri) {
-        return extensionsNamespaceUri.contains(extensionNamespaceUri);
+    public boolean containsExtensionVersion(String extensionName, String version) {
+        return version != null && version.equals(extensionVersions.get(extensionName));
     }
 
     public Optional<String> getExtensionVersion(ExtensionXmlSerializer<?, ?> extensionXmlSerializer) {
-        return extensionXmlSerializer.getVersions()
-                .stream()
-                .filter(v -> extensionsNamespaceUri
-                        .stream()
-                        .anyMatch(uri -> extensionXmlSerializer.getNamespaceUri(v).equals(uri)))
-                .findFirst();
+        return Optional.ofNullable(extensionVersions.get(extensionXmlSerializer.getExtensionName()));
     }
 }

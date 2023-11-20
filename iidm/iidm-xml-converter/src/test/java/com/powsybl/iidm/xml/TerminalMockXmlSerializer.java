@@ -10,15 +10,12 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.TerminalMockExt;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +31,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, TerminalMockExt> {
 
     public TerminalMockXmlSerializer() {
-        super("terminalMock", TerminalMockExt.class, true, "mock",
+        super("terminalMock", TerminalMockExt.class, "mock",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.1"))
@@ -78,7 +75,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
     }
 
     @Override
-    public void write(TerminalMockExt extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(TerminalMockExt extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         String extensionVersion = networkContext.getOptions().getExtensionVersion(getExtensionName())
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
@@ -86,21 +83,16 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
     }
 
     @Override
-    public TerminalMockExt read(Load extendable, XmlReaderContext context) throws XMLStreamException {
+    public TerminalMockExt read(Load extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         checkReadingCompatibility(networkContext);
 
         TerminalMockExt terminalMockExt = new TerminalMockExt(extendable);
-        XmlUtil.readUntilEndElement(getExtensionName(), networkContext.getReader(), () -> {
-            if (networkContext.getReader().getLocalName().equals("terminal")) {
-                String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
-                String side = networkContext.getReader().getAttributeValue(null, "side");
-                networkContext.getEndTasks().add(() -> {
-                    Network network = extendable.getNetwork();
-                    terminalMockExt.setTerminal(TerminalRefXml.resolve(id, side, network));
-                });
+        context.getReader().readChildNodes(elementName -> {
+            if (elementName.equals("terminal")) {
+                TerminalRefXml.readTerminalRef(networkContext, extendable.getNetwork(), terminalMockExt::setTerminal);
             } else {
-                throw new IllegalStateException("Unexpected element: " + networkContext.getReader().getLocalName());
+                throw new IllegalStateException("Unexpected element: " + elementName);
             }
         });
         return terminalMockExt;

@@ -6,7 +6,8 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoSides;
 
 import java.util.concurrent.TimeUnit;
 
@@ -27,7 +28,7 @@ public class LimitViolationBuilder {
     private Integer duration;
     private float reduction = 1.0f;
     private Double value;
-    private Branch.Side side;
+    private ThreeSides side;
 
     public LimitViolationBuilder type(LimitViolationType type) {
         this.type = requireNonNull(type);
@@ -74,17 +75,21 @@ public class LimitViolationBuilder {
         return this;
     }
 
-    public LimitViolationBuilder side(Branch.Side side) {
+    public LimitViolationBuilder side(ThreeSides side) {
         this.side = requireNonNull(side);
         return this;
     }
 
+    public LimitViolationBuilder side(TwoSides side) {
+        return side(requireNonNull(side).toThreeSides());
+    }
+
     public LimitViolationBuilder side1() {
-        return side(Branch.Side.ONE);
+        return side(TwoSides.ONE);
     }
 
     public LimitViolationBuilder side2() {
-        return side(Branch.Side.TWO);
+        return side(TwoSides.TWO);
     }
 
     public LimitViolationBuilder current() {
@@ -108,7 +113,7 @@ public class LimitViolationBuilder {
             case HIGH_SHORT_CIRCUIT_CURRENT:
             case LOW_VOLTAGE_ANGLE:
             case HIGH_VOLTAGE_ANGLE:
-                return new LimitViolation(subjectId, subjectName, type, limitName, Integer.MAX_VALUE, limit, reduction, value, null);
+                return new LimitViolation(subjectId, subjectName, type, limitName, Integer.MAX_VALUE, limit, reduction, value);
             default:
                 throw new UnsupportedOperationException(String.format("Building %s limits is not supported.", type.name()));
         }
