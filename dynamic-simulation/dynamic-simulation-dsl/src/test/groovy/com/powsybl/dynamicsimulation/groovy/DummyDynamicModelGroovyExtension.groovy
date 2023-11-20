@@ -6,6 +6,8 @@
  */
 package com.powsybl.dynamicsimulation.groovy
 
+import com.powsybl.commons.reporter.Reporter
+
 import java.util.function.Consumer
 
 import com.google.auto.service.AutoService
@@ -31,7 +33,7 @@ class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
         }
     }
 
-    void load(Binding binding, Consumer<DynamicModel> consumer) {
+    void load(Binding binding, Consumer<DynamicModel> consumer, Reporter reporter) {
         binding.dummyDynamicModel = { Closure<Void> closure ->
             def cloned = closure.clone()
 
