@@ -81,6 +81,16 @@ public class SubnetworkImpl extends AbstractNetwork {
         return getNetwork().getVariantManager();
     }
 
+    @Override
+    public void allowReporterContextMultiThreadAccess(boolean allow) {
+        getNetwork().allowReporterContextMultiThreadAccess(allow);
+    }
+
+    @Override
+    public ReporterContext getReporterContext() {
+        return getNetwork().getReporterContext();
+    }
+
     private boolean contains(Identifiable<?> identifiable) {
         return identifiable == this ||
                 identifiable != null && identifiable.getParentNetwork() == this;

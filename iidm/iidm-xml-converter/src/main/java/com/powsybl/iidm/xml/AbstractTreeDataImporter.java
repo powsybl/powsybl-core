@@ -20,6 +20,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -122,8 +123,9 @@ public abstract class AbstractTreeDataImporter implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
         Objects.requireNonNull(dataSource);
+        Objects.requireNonNull(reporter);
         Network network;
 
         ImportOptions options = createImportOptions(parameters);
@@ -135,7 +137,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
                         + "." + Joiner.on("|").join(getExtensions()) + " not found");
             }
 
-            network = NetworkXml.read(dataSource, networkFactory, options, ext);
+            network = NetworkXml.read(dataSource, networkFactory, options, ext, reporter);
+            XmlReports.importedXmlNetworkReport(reporter.createSubReporter("xiidmImportDone", "XIIDM import done"), network.getId());
             LOGGER.debug("{} import done in {} ms", getFormat(), System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);
