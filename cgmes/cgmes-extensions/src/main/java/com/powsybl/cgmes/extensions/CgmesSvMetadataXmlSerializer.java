@@ -15,8 +15,8 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXmlReaderContext;
-import com.powsybl.iidm.xml.NetworkXmlWriterContext;
+import com.powsybl.iidm.serializer.NetworkXmlReaderContext;
+import com.powsybl.iidm.serializer.NetworkXmlWriterContext;
 
 import java.util.Map;
 

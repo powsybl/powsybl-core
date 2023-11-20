@@ -11,7 +11,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkXml;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.SecurityAnalysisResultMerger;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;

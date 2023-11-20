@@ -12,7 +12,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkXml;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

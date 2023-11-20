@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkXml;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;

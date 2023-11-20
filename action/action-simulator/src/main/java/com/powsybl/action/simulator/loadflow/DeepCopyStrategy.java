@@ -7,7 +7,7 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkXml;
 
 import java.util.Objects;
 

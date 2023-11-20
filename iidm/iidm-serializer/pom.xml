@@ -30,7 +30,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.iidm.xml</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.iidm.serializer</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

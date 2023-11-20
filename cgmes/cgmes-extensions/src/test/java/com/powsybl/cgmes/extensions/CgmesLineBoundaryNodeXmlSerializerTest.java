@@ -9,7 +9,7 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkXml;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

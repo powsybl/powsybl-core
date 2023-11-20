@@ -13,7 +13,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkXml;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
 import com.powsybl.powerfactory.model.StudyCase;
 import org.joda.time.DateTime;

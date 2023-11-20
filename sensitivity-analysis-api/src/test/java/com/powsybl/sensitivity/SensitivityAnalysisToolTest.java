@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkXml;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;

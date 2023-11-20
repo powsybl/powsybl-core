@@ -12,7 +12,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 

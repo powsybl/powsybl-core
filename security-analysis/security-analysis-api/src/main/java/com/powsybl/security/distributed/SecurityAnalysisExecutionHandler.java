@@ -9,7 +9,7 @@ package com.powsybl.security.distributed;
 import com.google.common.io.ByteSource;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serializer.NetworkXml;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.ActionList;
