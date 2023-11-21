@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -163,7 +163,7 @@ class CreateCouplingDeviceTest extends AbstractConverterTest {
 
     private Network createSimpleBusBreakerNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("network", "test");
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         VoltageLevel vltest = network.newVoltageLevel()
                 .setNominalV(400)
                 .setId("VLTEST")

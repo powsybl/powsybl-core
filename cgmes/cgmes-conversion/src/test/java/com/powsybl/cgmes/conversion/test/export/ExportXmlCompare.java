@@ -10,8 +10,10 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -30,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -323,8 +326,8 @@ final class ExportXmlCompare {
             if (test != null && control != null && control.getParentNode().getLocalName().equals("Model.scenarioTime")) {
                 String scontrol = control.getTextContent();
                 String stest = test.getTextContent();
-                DateTime dcontrol = DateTime.parse(scontrol, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
-                DateTime dtest = DateTime.parse(stest, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
+                ZonedDateTime dcontrol = ZonedDateTime.parse(scontrol, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(ZoneOffset.UTC));
+                ZonedDateTime dtest = ZonedDateTime.parse(stest);
                 if (dcontrol.equals(dtest)) {
                     return ComparisonResult.EQUAL;
                 }

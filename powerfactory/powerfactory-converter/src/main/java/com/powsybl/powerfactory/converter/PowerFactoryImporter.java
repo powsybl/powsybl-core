@@ -11,15 +11,17 @@ import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Importer;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.iidm.network.Importer;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
-import com.powsybl.powerfactory.model.*;
+import com.powsybl.powerfactory.model.DataObject;
+import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
+import com.powsybl.powerfactory.model.PowerFactoryException;
+import com.powsybl.powerfactory.model.StudyCase;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.joda.time.DateTime;
-import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -123,7 +127,7 @@ public class PowerFactoryImporter implements Importer {
         LOGGER.info("Study case has {} network(s): {}", elmNets.size(), elmNets.stream().map(DataObject::getLocName).toList());
 
         // case date
-        DateTime caseDate = new Instant(studyCase.getTime().toEpochMilli()).toDateTime();
+        ZonedDateTime caseDate = ZonedDateTime.ofInstant(studyCase.getTime(), ZoneId.systemDefault());
         network.setCaseDate(caseDate);
 
         List<DataObject> elmTerms = studyCase.getElmNets().stream()

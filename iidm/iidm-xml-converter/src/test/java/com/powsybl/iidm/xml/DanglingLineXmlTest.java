@@ -10,7 +10,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ class DanglingLineXmlTest extends AbstractXmlConverterTest {
     @Test
     void testWithGeneration() throws IOException {
         Network network = DanglingLineNetworkFactory.createWithGeneration();
-        network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
         network.getDanglingLine("DL").setProperty("test", "test");
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, getVersionedNetworkPath("danglingLineWithGeneration.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
 

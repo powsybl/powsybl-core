@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
@@ -35,7 +35,7 @@ public final class FourSubstationsNodeBreakerFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("fourSubstations", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         // First substation

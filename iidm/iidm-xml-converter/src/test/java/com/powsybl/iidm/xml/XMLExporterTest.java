@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -25,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
@@ -65,7 +65,7 @@ class XMLExporterTest extends AbstractXmlConverterTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Path workingDir = fileSystem.getPath("/working-dir");
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
         String voltageLevelId = "VLHV2";
         VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
         assertNotNull(vl);
@@ -92,7 +92,7 @@ class XMLExporterTest extends AbstractXmlConverterTest {
     @Test
     void testWriteXml() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
         String voltageLevelId = "VLHV2";
         VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
         assertNotNull(vl);

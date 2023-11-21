@@ -10,7 +10,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2021-02-02T09:27:39.856+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2021-02-02T09:27:39.856+01:00"));
         network.getVoltageLevel("VLGEN")
                 .getBusBreakerView()
                 .newBus()

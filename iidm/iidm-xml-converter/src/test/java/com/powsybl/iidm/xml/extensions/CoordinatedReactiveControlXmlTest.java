@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ class CoordinatedReactiveControlXmlTest extends AbstractConverterTest {
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
 

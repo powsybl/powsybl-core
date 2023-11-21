@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.xml.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.xml.extensions.util.NetworkSourceExtensionImpl;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -39,7 +39,7 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
 
     static Network createEurostagTutorialExample1() {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00+01:00"));
         return network;
     }
 
@@ -167,11 +167,11 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
     void roundTripWithSubnetworksTest() throws IOException {
         Network n1 = createNetwork(1);
         Network n2 = createNetwork(2);
-        n1.setCaseDate(DateTime.parse("2013-01-15T18:41:00+01:00"));
-        n2.setCaseDate(DateTime.parse("2013-01-15T18:42:00+01:00"));
+        n1.setCaseDate(ZonedDateTime.parse("2013-01-15T18:41:00+01:00"));
+        n2.setCaseDate(ZonedDateTime.parse("2013-01-15T18:42:00+01:00"));
 
         Network merged = Network.merge("Merged", n1, n2);
-        merged.setCaseDate(DateTime.parse("2013-01-15T18:40:00+01:00"));
+        merged.setCaseDate(ZonedDateTime.parse("2013-01-15T18:40:00+01:00"));
         // add an extension at root network level
         NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");
         merged.addExtension(NetworkSourceExtension.class, source);

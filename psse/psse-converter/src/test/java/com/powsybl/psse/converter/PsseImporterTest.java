@@ -20,7 +20,7 @@ import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ class PsseImporterTest extends AbstractConverterTest {
 
     private void testNetwork(Network network) throws IOException {
         Path file = fileSystem.getPath("/work/" + network.getId() + ".xiidm");
-        network.setCaseDate(DateTime.parse("2016-01-01T10:00:00.000+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-01-01T10:00:00.000+02:00"));
         NetworkXml.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
             compareXml(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);

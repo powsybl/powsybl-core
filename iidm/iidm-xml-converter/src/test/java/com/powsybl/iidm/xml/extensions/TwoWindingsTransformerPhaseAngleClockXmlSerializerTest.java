@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ class TwoWindingsTransformerPhaseAngleClockXmlSerializerTest extends AbstractCon
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
 
         transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(3).add();

@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ class IdentifiableShortCircuitXmlSerializerTest extends AbstractConverterTest {
     @Test
     void testXmlSerializer() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2016-12-07T11:18:52.881+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-12-07T11:18:52.881+01:00"));
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         assertNotNull(vlhv1);
         vlhv1.newExtension(IdentifiableShortCircuitAdder.class)
