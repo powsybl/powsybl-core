@@ -60,8 +60,8 @@ class ReferencePrioritiesXmlTest extends AbstractXmlConverterTest {
                 .add();
 
         ReferencePriority.set(gen, 1);
-        ReferencePriority.set(line, Branch.Side.ONE, 2);
-        ReferencePriority.set(line, Branch.Side.TWO, 0);
+        ReferencePriority.set(line, TwoSides.ONE, 2);
+        ReferencePriority.set(line, TwoSides.TWO, 0);
 
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,

@@ -10,9 +10,10 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
@@ -22,10 +23,6 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.TerminalRefXml;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
-
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -34,37 +31,40 @@ public class ReferencePrioritiesXmlSerializer<C extends Connectable<C>> extends 
         ReferencePriorities<C>> {
 
     public ReferencePrioritiesXmlSerializer() {
-        super("referencePriorities", "network", ReferencePriorities.class, true, "referencePriorities.xsd",
+        super("referencePriorities", "network", ReferencePriorities.class, "referencePriorities.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/reference_priorities/1_0", "refpri");
     }
 
     @Override
-    public void write(ReferencePriorities<C> extension, XmlWriterContext context) throws XMLStreamException {
-        XMLStreamWriter writer = context.getWriter();
+    public void write(ReferencePriorities<C> extension, XmlWriterContext context) {
+        TreeDataWriter writer = context.getWriter();
+        writer.writeStartNodes("referencePriorities");
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         for (ReferencePriority referencePriority : extension.getReferencePriorities()) {
-            writer.writeEmptyElement(getNamespaceUri(), "referencePriority");
-            XmlUtil.writeInt("priority", referencePriority.getPriority(), writer);
+            writer.writeStartNode(getNamespaceUri(), "referencePriority");
+            writer.writeIntAttribute("priority", referencePriority.getPriority());
             TerminalRefXml.writeTerminalRefAttribute(referencePriority.getTerminal(), networkContext);
+            writer.writeEndNode();
         }
+        writer.writeEndNodes();
     }
 
     @Override
-    public ReferencePriorities<C> read(C extendable, XmlReaderContext context) throws XMLStreamException {
-        XMLStreamReader reader = context.getReader();
+    public ReferencePriorities<C> read(C extendable, XmlReaderContext context) {
+        TreeDataReader reader = context.getReader();
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         ReferencePrioritiesAdder<C> referencePrioritiesAdder = extendable.newExtension(ReferencePrioritiesAdder.class);
         ReferencePriorities<C> referencePriorities = referencePrioritiesAdder.add();
-        XmlUtil.readUntilEndElement(getExtensionName(), reader, () -> {
-            if (reader.getLocalName().equals("referencePriority")) {
-                int priority = XmlUtil.readIntAttribute(reader, "priority");
+        reader.readChildNodes(elementName -> {
+            if (elementName.equals("referencePriority")) {
+                int priority = reader.readIntAttribute("priority");
                 Terminal terminal = TerminalRefXml.readTerminal(networkContext, extendable.getNetwork());
                 referencePriorities.newReferencePriority()
                         .setPriority(priority)
                         .setTerminal(terminal)
                         .add();
             } else {
-                throw new PowsyblException("Unexpected element: " + reader.getLocalName());
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'referencePriorities'");
             }
         });
         return referencePriorities;

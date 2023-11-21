@@ -66,8 +66,8 @@ public abstract class AbstractReferencePrioritiesTest {
         ReferencePriority.set(ld1, 2);
         ReferencePriority.set(ld2, 5);
         ReferencePriority.set(ld3, 6);
-        ReferencePriority.set(lineS2S3, Branch.Side.ONE, 3);
-        ReferencePriority.set(lineS2S3, Branch.Side.TWO, 0);
+        ReferencePriority.set(lineS2S3, TwoSides.ONE, 3);
+        ReferencePriority.set(lineS2S3, TwoSides.TWO, 0);
     }
 
     @Test
@@ -81,8 +81,8 @@ public abstract class AbstractReferencePrioritiesTest {
         assertEquals(2, ReferencePriority.get(ld1));
         assertEquals(5, ReferencePriority.get(ld2));
         assertEquals(6, ReferencePriority.get(ld3));
-        assertEquals(3, ReferencePriority.get(lineS2S3, Branch.Side.ONE));
-        assertEquals(0, ReferencePriority.get(lineS2S3, Branch.Side.TWO));
+        assertEquals(3, ReferencePriority.get(lineS2S3, TwoSides.ONE));
+        assertEquals(0, ReferencePriority.get(lineS2S3, TwoSides.TWO));
 
         assertNull(lineS3S4.getExtension(ReferencePriorities.class));
 
@@ -104,17 +104,17 @@ public abstract class AbstractReferencePrioritiesTest {
     void testThreeWindingsTransformer() {
         network = ThreeWindingsTransformerNetworkFactory.create();
         ThreeWindingsTransformer t3wf = network.getThreeWindingsTransformer("3WT");
-        assertEquals(0, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.ONE));
-        assertEquals(0, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.TWO));
-        assertEquals(0, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.THREE));
+        assertEquals(0, ReferencePriority.get(t3wf, ThreeSides.ONE));
+        assertEquals(0, ReferencePriority.get(t3wf, ThreeSides.TWO));
+        assertEquals(0, ReferencePriority.get(t3wf, ThreeSides.THREE));
 
-        ReferencePriority.set(t3wf, ThreeWindingsTransformer.Side.ONE, 4);
-        ReferencePriority.set(t3wf, ThreeWindingsTransformer.Side.TWO, 5);
-        ReferencePriority.set(t3wf, ThreeWindingsTransformer.Side.THREE, 6);
+        ReferencePriority.set(t3wf, ThreeSides.ONE, 4);
+        ReferencePriority.set(t3wf, ThreeSides.TWO, 5);
+        ReferencePriority.set(t3wf, ThreeSides.THREE, 6);
 
-        assertEquals(4, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.ONE));
-        assertEquals(5, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.TWO));
-        assertEquals(6, ReferencePriority.get(t3wf, ThreeWindingsTransformer.Side.THREE));
+        assertEquals(4, ReferencePriority.get(t3wf, ThreeSides.ONE));
+        assertEquals(5, ReferencePriority.get(t3wf, ThreeSides.TWO));
+        assertEquals(6, ReferencePriority.get(t3wf, ThreeSides.THREE));
     }
 
     @Test
@@ -124,7 +124,7 @@ public abstract class AbstractReferencePrioritiesTest {
         assertEquals(0, ReferencePriority.get(bbs1));
         assertEquals(0, ReferencePriority.get(gh1));
         assertEquals(0, ReferencePriority.get(ld1));
-        assertEquals(0, ReferencePriority.get(lineS2S3, Branch.Side.ONE));
+        assertEquals(0, ReferencePriority.get(lineS2S3, TwoSides.ONE));
     }
 
     @Test

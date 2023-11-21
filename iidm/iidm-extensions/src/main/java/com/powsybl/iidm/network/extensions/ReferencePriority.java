@@ -52,7 +52,7 @@ public interface ReferencePriority {
      * @param side side to get priority from
      * @return reference priority value
      */
-    static int get(Branch<?> branch, Branch.Side side) {
+    static int get(Branch<?> branch, TwoSides side) {
         ReferencePriorities ext = branch.getExtension(ReferencePriorities.class);
         if (ext == null) {
             return 0;
@@ -70,14 +70,14 @@ public interface ReferencePriority {
      * @param side side to get priority from
      * @return reference priority value
      */
-    static int get(ThreeWindingsTransformer threeWindingsTransformer, ThreeWindingsTransformer.Side side) {
+    static int get(ThreeWindingsTransformer threeWindingsTransformer, ThreeSides side) {
         ReferencePriorities ext = threeWindingsTransformer.getExtension(ReferencePriorities.class);
         if (ext == null) {
             return 0;
         }
         Optional<ReferencePriority> refTerminal = ((List<ReferencePriority>) (ext.getReferencePriorities())).stream()
                 .filter(rt -> rt.getTerminal().getConnectable().getId().equals(threeWindingsTransformer.getId()))
-                .filter(rt -> side.toThreeSides().equals(Terminal.getConnectableSide(rt.getTerminal()).orElseThrow()))
+                .filter(rt -> side.equals(Terminal.getConnectableSide(rt.getTerminal()).orElseThrow()))
                 .findFirst();
         return refTerminal.map(ReferencePriority::getPriority).orElse(0);
     }
@@ -104,7 +104,7 @@ public interface ReferencePriority {
      * @param side side to set priority to
      * @param priority priority value to set
      */
-    static void set(Branch<?> branch, Branch.Side side, int priority) {
+    static void set(Branch<?> branch, TwoSides side, int priority) {
         ReferencePriorities ext = branch.getExtension(ReferencePriorities.class);
         if (ext == null) {
             ext = (ReferencePriorities) branch.newExtension(ReferencePrioritiesAdder.class).add();
@@ -121,7 +121,7 @@ public interface ReferencePriority {
      * @param side side to set priority to
      * @param priority priority value to set
      */
-    static void set(ThreeWindingsTransformer threeWindingsTransformer, ThreeWindingsTransformer.Side side, int priority) {
+    static void set(ThreeWindingsTransformer threeWindingsTransformer, ThreeSides side, int priority) {
         ReferencePriorities ext = threeWindingsTransformer.getExtension(ReferencePriorities.class);
         if (ext == null) {
             ext = (ReferencePriorities) threeWindingsTransformer.newExtension(ReferencePrioritiesAdder.class).add();
