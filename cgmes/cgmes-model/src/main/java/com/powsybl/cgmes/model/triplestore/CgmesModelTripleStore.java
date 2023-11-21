@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -316,22 +317,22 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
      * @return the date as ZonedDateTime
      */
     private ZonedDateTime parseDateTime(String dateAsString) {
-        if (dateAsString.contains("Z") || dateAsString.contains("+")) {
-            // An explicit zone is given
-            DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
-                .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-                .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
-                .appendPattern("[VV][x][xx][xxx]")
-                .toFormatter();
-            return ZonedDateTime.parse(dateAsString, dateTimeFormatter);
+        // Definition of the parser according to the expected date format
+        DateTimeFormatter dateTimeFormatterLocalised = new DateTimeFormatterBuilder()
+            // Fixed mandatory pattern
+            .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+            // Between 0 and 6 decimals
+            .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
+            // Potentially a suffix for localisation (for example "Z", "+01:00", "+3", etc.)
+            .appendPattern("[VV][x][xx][xxx]")
+            .toFormatter();
+
+        // Parsing
+        TemporalAccessor dateParsed = dateTimeFormatterLocalised.parseBest(dateAsString, ZonedDateTime::from, LocalDateTime::from);
+        if (dateParsed instanceof ZonedDateTime zonedDateTime) {
+            return zonedDateTime;
         } else {
-            // No explicit zone is specified so it is Assumed that the date time is given as UTC
-            DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
-                .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-                .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
-                .toFormatter();
-            LocalDateTime ld = LocalDateTime.parse(dateAsString, dateTimeFormatter);
-            return ZonedDateTime.of(ld, ZoneOffset.UTC);
+            return ZonedDateTime.of((LocalDateTime) dateParsed, ZoneOffset.UTC);
         }
     }
 
