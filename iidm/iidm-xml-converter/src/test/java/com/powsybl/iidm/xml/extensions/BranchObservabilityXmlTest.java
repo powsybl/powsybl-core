@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.impl.extensions.BranchObservabilityImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ class BranchObservabilityXmlTest extends AbstractConverterTest {
 
     void testVersion(IidmXmlVersion version) throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2022-08-09T17:00:00.000Z"));
+        network.setCaseDate(ZonedDateTime.parse("2022-08-09T17:00:00.000Z"));
         Line line1 = network.getLine("NHV1_NHV2_1");
         assertNotNull(line1);
 

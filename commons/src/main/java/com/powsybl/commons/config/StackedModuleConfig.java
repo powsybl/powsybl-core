@@ -6,7 +6,7 @@
  */
 package com.powsybl.commons.config;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -92,7 +92,7 @@ public class StackedModuleConfig extends AbstractModuleConfig {
     }
 
     @Override
-    public Optional<DateTime> getOptionalDateTimeProperty(String name) {
+    public Optional<ZonedDateTime> getOptionalDateTimeProperty(String name) {
         return or(config1.getOptionalDateTimeProperty(name), () -> config2.getOptionalDateTimeProperty(name));
     }
 }

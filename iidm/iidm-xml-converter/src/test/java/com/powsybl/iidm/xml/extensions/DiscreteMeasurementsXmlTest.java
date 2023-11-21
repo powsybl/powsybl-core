@@ -17,7 +17,7 @@ import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ class DiscreteMeasurementsXmlTest extends AbstractXmlConverterTest {
     @Test
     void test() throws IOException {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
 
         Switch sw = network.getSwitch("S1VL1_BBS_LD1_DISCONNECTOR");
         sw.newExtension(DiscreteMeasurementsAdder.class).add();
