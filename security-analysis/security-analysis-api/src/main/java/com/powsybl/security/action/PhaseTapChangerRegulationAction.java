@@ -8,7 +8,7 @@
 package com.powsybl.security.action;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -25,7 +25,7 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
     private final PhaseTapChanger.RegulationMode regulationMode;
     private final Double regulationValue;
 
-    public PhaseTapChangerRegulationAction(String id, String transformerId, ThreeWindingsTransformer.Side side, boolean regulating, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
+    public PhaseTapChangerRegulationAction(String id, String transformerId, ThreeSides side, boolean regulating, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
         super(id, transformerId, side, regulating);
         this.regulationMode = regulationMode;
         this.regulationValue = regulationValue;
@@ -52,7 +52,7 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return new PhaseTapChangerRegulationAction(id, transformerId, null, true, null, null);
     }
 
-    public static PhaseTapChangerRegulationAction activateRegulation(String id, String transformerId, ThreeWindingsTransformer.Side side) {
+    public static PhaseTapChangerRegulationAction activateRegulation(String id, String transformerId, ThreeSides side) {
         return new PhaseTapChangerRegulationAction(id, transformerId, side, true, null, null);
     }
 
@@ -60,7 +60,7 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return new PhaseTapChangerRegulationAction(id, transformerId, null, true, regulationMode, regulationValue);
     }
 
-    public static PhaseTapChangerRegulationAction activateAndChangeRegulationMode(String id, String transformerId, ThreeWindingsTransformer.Side side, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
+    public static PhaseTapChangerRegulationAction activateAndChangeRegulationMode(String id, String transformerId, ThreeSides side, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
         return new PhaseTapChangerRegulationAction(id, transformerId, side, true, regulationMode, regulationValue);
     }
 
@@ -68,7 +68,7 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return new PhaseTapChangerRegulationAction(id, transformerId, null, false, null, null);
     }
 
-    public static PhaseTapChangerRegulationAction deactivateRegulation(String id, String transformerId, ThreeWindingsTransformer.Side side) {
+    public static PhaseTapChangerRegulationAction deactivateRegulation(String id, String transformerId, ThreeSides side) {
         return new PhaseTapChangerRegulationAction(id, transformerId, side, false, null, null);
     }
 }

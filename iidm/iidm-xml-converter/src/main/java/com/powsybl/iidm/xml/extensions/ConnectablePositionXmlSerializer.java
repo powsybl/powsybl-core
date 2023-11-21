@@ -10,11 +10,9 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
@@ -22,7 +20,6 @@ import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +34,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     private static final String V_1_1 = "1.1";
 
     public ConnectablePositionXmlSerializer() {
-        super(ConnectablePosition.NAME, ConnectablePosition.class, true, "cp",
+        super(ConnectablePosition.NAME, ConnectablePosition.class, "cp",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of(V_1_0, V_1_1))
@@ -58,37 +55,30 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                         .build());
     }
 
-    private void writePosition(String connectableId, ConnectablePosition.Feeder feeder, Integer i, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement(context.getExtensionVersion(ConnectablePosition.NAME)
+    private void writePosition(String connectableId, ConnectablePosition.Feeder feeder, Integer i, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNode(context.getExtensionVersion(ConnectablePosition.NAME)
                 .map(this::getNamespaceUri)
                 .orElseGet(this::getNamespaceUri), "feeder" + (i != null ? i : ""));
         String extVersionStr = context.getExtensionVersion(ConnectablePosition.NAME)
                 .orElseGet(() -> getVersion(context.getVersion()));
         switch (extVersionStr) {
             case V_1_0:
-                context.getWriter().writeAttribute("name", feeder.getName().orElse(connectableId));
+                context.getWriter().writeStringAttribute("name", feeder.getName().orElse(connectableId));
                 break;
             case V_1_1:
-                feeder.getName().ifPresent(name -> {
-                    try {
-                        context.getWriter().writeAttribute("name", name);
-                    } catch (XMLStreamException e) {
-                        throw new UncheckedXmlStreamException(e);
-                    }
-                });
+                feeder.getName().ifPresent(name -> context.getWriter().writeStringAttribute("name", name));
                 break;
             default:
                 throw new PowsyblException("Unsupported version (" + extVersionStr + ") for " + ConnectablePosition.NAME);
         }
         Optional<Integer> oOrder = feeder.getOrder();
-        if (oOrder.isPresent()) {
-            XmlUtil.writeInt("order", oOrder.get(), context.getWriter());
-        }
-        context.getWriter().writeAttribute("direction", feeder.getDirection().name());
+        oOrder.ifPresent(integer -> context.getWriter().writeIntAttribute("order", integer));
+        context.getWriter().writeStringAttribute("direction", feeder.getDirection().name());
+        context.getWriter().writeEndNode();
     }
 
     @Override
-    public void write(ConnectablePosition<C> connectablePosition, XmlWriterContext context) throws XMLStreamException {
+    public void write(ConnectablePosition<C> connectablePosition, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         String connectableId = connectablePosition.getExtendable().getId();
         if (connectablePosition.getFeeder() != null) {
@@ -106,10 +96,11 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     }
 
     private void readPosition(XmlReaderContext context, ConnectablePositionAdder.FeederAdder<C> adder) {
-        String name = context.getReader().getAttributeValue(null, "name");
-        Optional.ofNullable(XmlUtil.readOptionalIntegerAttribute(context.getReader(), "order")).
+        String name = context.getReader().readStringAttribute("name");
+        Optional.ofNullable(context.getReader().readIntAttribute("order")).
                 ifPresent(adder::withOrder);
-        ConnectablePosition.Direction direction = ConnectablePosition.Direction.valueOf(context.getReader().getAttributeValue(null, "direction"));
+        ConnectablePosition.Direction direction = context.getReader().readEnumAttribute("direction", ConnectablePosition.Direction.class);
+        context.getReader().readEndNode();
         if (name != null) {
             adder.withName(name);
         } else {
@@ -123,28 +114,15 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     }
 
     @Override
-    public ConnectablePosition<C> read(C connectable, XmlReaderContext context) throws XMLStreamException {
+    public ConnectablePosition<C> read(C connectable, XmlReaderContext context) {
         ConnectablePositionAdder<C> adder = connectable.newExtension(ConnectablePositionAdder.class);
-        XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case "feeder":
-                    readPosition(context, adder.newFeeder());
-                    break;
-
-                case "feeder1":
-                    readPosition(context, adder.newFeeder1());
-                    break;
-
-                case "feeder2":
-                    readPosition(context, adder.newFeeder2());
-                    break;
-
-                case "feeder3":
-                    readPosition(context, adder.newFeeder3());
-                    break;
-
-                default:
-                    throw new IllegalStateException();
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case "feeder" -> readPosition(context, adder.newFeeder());
+                case "feeder1" -> readPosition(context, adder.newFeeder1());
+                case "feeder2" -> readPosition(context, adder.newFeeder2());
+                case "feeder3" -> readPosition(context, adder.newFeeder3());
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'position'");
             }
         });
         return adder.add();

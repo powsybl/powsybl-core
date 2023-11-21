@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.google.common.io.ByteStreams;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.Network;
@@ -15,11 +17,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Properties;
 
+import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,6 +51,23 @@ class XMLImporterTest extends AbstractConverterTest {
                 writer.write("    <foo/>");
                 writer.write("    </iidm:extension>");
             }
+            writer.write("</iidm:network>");
+            writer.newLine();
+        }
+    }
+
+    private void writeNetworkWithExtension(String fileName, String namespaceUri) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
+            writer.newLine();
+            writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
+            writer.newLine();
+            writer.write("    <iidm:extension id=\"P1\">");
+            writer.write("    <substationPosition>");
+            writer.write("    <coordinate latitude=\"1\" longitude=\"2\" />");
+            writer.write("    </substationPosition>");
+            writer.write("    </iidm:extension>");
             writer.write("</iidm:network>");
             writer.newLine();
         }
@@ -90,6 +112,7 @@ class XMLImporterTest extends AbstractConverterTest {
             writer.newLine();
         }
         writeNetworkWithComment("/test7.xiidm");
+        writeNetworkWithExtension("/test8.xiidm", CURRENT_IIDM_XML_VERSION.getNamespaceURI());
 
         importer = new XMLImporter();
     }
@@ -194,4 +217,55 @@ class XMLImporterTest extends AbstractConverterTest {
         Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), NetworkFactory.findDefault(), null);
         assertNotNull(network2.getSubstation("P1"));
     }
+
+    @Test
+    void importDataReporterTest() throws IOException {
+        FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test8");
+        importDataAndTestReporter("/importXmlReport.txt", dataSource);
+    }
+
+    @Test
+    void importDataReporterExtensionNotFoundTest() throws IOException {
+        FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test5");
+        importDataAndTestReporter("/importXmlReportExtensionsNotFound.txt", dataSource);
+    }
+
+    @Test
+    void importDataReporterMultipleExtension() throws IOException {
+        importDataAndTestReporter("multiple-extensions",
+                "multiple-extensions.xml",
+                "/importXmlReportExtensions.txt");
+    }
+
+    @Test
+    void importDataReporterValidationTest() throws IOException {
+        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTap",
+                "twoWindingsTransformerPhaseAndRatioTap.xml",
+                "/importXmlReportValidation.txt");
+    }
+
+    @Test
+    void importDataReporterValidationAndMultipleExtensionTest() throws IOException {
+        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
+                "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml",
+                "/importXmlReportExtensionsAndValidations.txt");
+    }
+
+    private void importDataAndTestReporter(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet("/V1_11/", dataSourceFilename));
+        importDataAndTestReporter(expectedContentFilename, dataSource);
+    }
+
+    private void importDataAndTestReporter(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
+        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
+        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
+
+        StringWriter sw = new StringWriter();
+        reporterModel.export(sw);
+        InputStream ref = XMLImporterTest.class.getResourceAsStream(expectedContentFilename);
+        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
+        String logExport = normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
+    }
+
 }

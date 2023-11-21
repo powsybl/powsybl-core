@@ -9,7 +9,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +22,7 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
     static final SubstationXml INSTANCE = new SubstationXml();
 
     static final String ROOT_ELEMENT_NAME = "substation";
+    static final String ARRAY_ELEMENT_NAME = "substations";
 
     private static final String COUNTRY = "country";
 
@@ -32,31 +32,28 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
     }
 
     @Override
-    protected boolean hasSubElements(Substation s) {
-        return true;
-    }
-
-    @Override
-    protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) {
         Optional<Country> country = s.getCountry();
-        if (country.isPresent()) {
-            context.getWriter().writeAttribute(COUNTRY, context.getAnonymizer().anonymizeCountry(country.get()).toString());
-        }
+        country.ifPresent(value -> context.getWriter().writeStringAttribute(COUNTRY, context.getAnonymizer().anonymizeCountry(value).toString()));
         if (s.getTso() != null) {
-            context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
+            context.getWriter().writeStringAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
         if (!s.getGeographicalTags().isEmpty()) {
-            context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream()
+            context.getWriter().writeStringAttribute("geographicalTags", s.getGeographicalTags().stream()
                     .map(tag -> context.getAnonymizer().anonymizeString(tag))
                     .collect(Collectors.joining(",")));
         }
     }
 
     @Override
-    protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes(VoltageLevelXml.ARRAY_ELEMENT_NAME);
         for (VoltageLevel vl : IidmXmlUtil.sorted(s.getVoltageLevels(), context.getOptions())) {
             VoltageLevelXml.INSTANCE.write(vl, null, context);
         }
+        context.getWriter().writeEndNodes();
+
+        context.getWriter().writeStartNodes(TwoWindingsTransformerXml.ARRAY_ELEMENT_NAME);
         Iterable<TwoWindingsTransformer> twts = IidmXmlUtil.sorted(s.getTwoWindingsTransformers(), context.getOptions());
         for (TwoWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt)) {
@@ -64,6 +61,9 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
             }
             TwoWindingsTransformerXml.INSTANCE.write(twt, null, context);
         }
+        context.getWriter().writeEndNodes();
+
+        context.getWriter().writeStartNodes(ThreeWindingsTransformerXml.ARRAY_ELEMENT_NAME);
         Iterable<ThreeWindingsTransformer> twts2 = IidmXmlUtil.sorted(s.getThreeWindingsTransformers(), context.getOptions());
         for (ThreeWindingsTransformer twt : twts2) {
             if (!context.getFilter().test(twt)) {
@@ -71,6 +71,7 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
             }
             ThreeWindingsTransformerXml.INSTANCE.write(twt, null, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     @Override
@@ -81,15 +82,15 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
     @Override
     protected Substation readRootElementAttributes(SubstationAdder adder, Network network, NetworkXmlReaderContext context) {
 
-        Country country = Optional.ofNullable(context.getReader().getAttributeValue(null, COUNTRY))
+        Country country = Optional.ofNullable(context.getReader().readStringAttribute(COUNTRY))
                 .map(c -> context.getAnonymizer().deanonymizeCountry(Country.valueOf(c)))
                 .orElse(null);
-        String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
-        String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
+        String tso = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("tso"));
+        String geographicalTags = context.getReader().readStringAttribute("geographicalTags");
         if (geographicalTags != null) {
             adder.setGeographicalTags(Arrays.stream(geographicalTags.split(","))
                     .map(tag -> context.getAnonymizer().deanonymizeString(tag))
-                    .toArray(size -> new String[size]));
+                    .toArray(String[]::new));
         }
         return adder.setCountry(country)
                 .setTso(tso)
@@ -97,23 +98,13 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
     }
 
     @Override
-    protected void readSubElements(Substation s, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case VoltageLevelXml.ROOT_ELEMENT_NAME:
-                    VoltageLevelXml.INSTANCE.read(s, context);
-                    break;
-
-                case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                    TwoWindingsTransformerXml.INSTANCE.read(s, context);
-                    break;
-
-                case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                    ThreeWindingsTransformerXml.INSTANCE.read(s, context);
-                    break;
-
-                default:
-                    super.readSubElements(s, context);
+    protected void readSubElements(Substation s, NetworkXmlReaderContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case VoltageLevelXml.ROOT_ELEMENT_NAME -> VoltageLevelXml.INSTANCE.read(s, context);
+                case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME -> TwoWindingsTransformerXml.INSTANCE.read(s, context);
+                case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME -> ThreeWindingsTransformerXml.INSTANCE.read(s, context);
+                default -> readSubElement(elementName, s, context);
             }
         });
     }

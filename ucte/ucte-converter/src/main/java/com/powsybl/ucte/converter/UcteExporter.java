@@ -464,7 +464,7 @@ public class UcteExporter implements Exporter {
         DanglingLine danglingLine1 = tieLine.getDanglingLine1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(danglingLine1.getId());
         String elementName1 = danglingLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        UcteElementStatus status1 = getStatusHalf(tieLine, Branch.Side.ONE);
+        UcteElementStatus status1 = getStatusHalf(tieLine, TwoSides.ONE);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status1,
@@ -479,7 +479,7 @@ public class UcteExporter implements Exporter {
         DanglingLine danglingLine2 = tieLine.getDanglingLine2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(danglingLine2.getId());
         String elementName2 = danglingLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        UcteElementStatus status2 = getStatusHalf(tieLine, Branch.Side.TWO);
+        UcteElementStatus status2 = getStatusHalf(tieLine, TwoSides.TWO);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status2,
@@ -587,7 +587,7 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static UcteElementStatus getStatusHalf(TieLine tieLine, Branch.Side side) {
+    private static UcteElementStatus getStatusHalf(TieLine tieLine, TwoSides side) {
         if (tieLine.getDanglingLine(side).isFictitious()) {
             if (tieLine.getDanglingLine(side).getTerminal().isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;

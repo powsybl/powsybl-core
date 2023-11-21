@@ -8,11 +8,10 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+import java.util.function.Consumer;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -22,24 +21,25 @@ public final class TerminalRefXml {
     private static final String ID = "id";
     private static final String SIDE = "side";
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) {
         writeTerminalRef(t, context, context.getVersion().getNamespaceURI(context.isValid()), elementName);
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) {
         writeTerminalRef(t, context, namespace, elementName, context.getWriter());
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeEmptyElement(namespace, elementName);
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, TreeDataWriter writer) {
+        writer.writeStartNode(namespace, elementName);
         writeTerminalRefAttribute(t, context, writer);
+        writer.writeEndNode();
     }
 
-    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context) {
         writeTerminalRefAttribute(t, context, context.getWriter());
     }
 
-    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context, TreeDataWriter writer) {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
@@ -50,21 +50,26 @@ public final class TerminalRefXml {
             throw new PowsyblException(String.format("Terminal ref should not point to a busbar section (here %s). Try to export in node-breaker or delete this terminal ref.",
                     t.getConnectable().getId()));
         }
-        writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+        writer.writeStringAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
 
-        Terminal.getConnectableSide(t).ifPresent(side -> {
-            try {
-                writer.writeAttribute("side", side.name());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        Terminal.getConnectableSide(t).ifPresent(side -> writer.writeStringAttribute("side", side.name()));
     }
 
     public static Terminal readTerminal(NetworkXmlReaderContext context, Network n) {
-        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, ID));
-        String side = context.getReader().getAttributeValue(null, SIDE);
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
+        String side = context.getReader().readStringAttribute(SIDE);
+        context.getReader().readEndNode();
         return TerminalRefXml.resolve(id, side, n);
+    }
+
+    public static void readTerminalRef(NetworkXmlReaderContext context, Network network, Consumer<Terminal> endTaskTerminalConsumer) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
+        String side = context.getReader().readStringAttribute(SIDE);
+        context.getReader().readEndNode();
+        context.getEndTasks().add(() -> {
+            Terminal t = resolve(id, side, network);
+            endTaskTerminalConsumer.accept(t);
+        });
     }
 
     public static Terminal resolve(String id, String sideText, Network network) {

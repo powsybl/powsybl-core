@@ -6,14 +6,11 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-
-import javax.xml.stream.XMLStreamException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,13 +32,13 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
     }
 
     @Override
-    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) {
         super.writeRootElementAttributes(s, vl, context);
         VoltageLevel.BusBreakerView v = vl.getBusBreakerView();
         Bus bus1 = v.getBus1(s.getId());
         Bus bus2 = v.getBus2(s.getId());
-        context.getWriter().writeAttribute("bus1", context.getAnonymizer().anonymizeString(bus1.getId()));
-        context.getWriter().writeAttribute("bus2", context.getAnonymizer().anonymizeString(bus2.getId()));
+        context.getWriter().writeStringAttribute("bus1", context.getAnonymizer().anonymizeString(bus1.getId()));
+        context.getWriter().writeStringAttribute("bus2", context.getAnonymizer().anonymizeString(bus2.getId()));
     }
 
     @Override
@@ -51,23 +48,24 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
 
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
-        boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
+        context.getReader().readEnumAttribute("kind", SwitchKind.class);
+        context.getReader().readBooleanAttribute("retained");
+        boolean open = context.getReader().readBooleanAttribute("open");
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
-            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
+            boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
             adder.setFictitious(fictitious);
         });
-        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
-        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
-        // Discard switches with same bus at both ends
-        if (bus1.equals(bus2)) {
-            LOGGER.warn("Discard switch with same bus at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
+        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus1"));
+        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus2"));
+        if (bus1.equals(bus2) && context.getVersion().compareTo(IidmXmlVersion.V_1_8) < 0) {
+            // Discard switches with same bus at both ends instead of throwing exception in adder to support old xiidm files
+            LOGGER.warn("Discard switch with same bus {} at both ends", bus1);
             return null;
-        } else {
-            return adder.setOpen(open)
+        }
+        return adder.setOpen(open)
                 .setBus1(bus1)
                 .setBus2(bus2)
                 .add();
-        }
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusBreakerViewSwitchXml.class);

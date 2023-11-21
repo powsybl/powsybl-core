@@ -7,17 +7,15 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
@@ -25,24 +23,31 @@ import javax.xml.stream.XMLStreamException;
 @AutoService(ExtensionXmlSerializer.class)
 public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSerializer<Substation, SubstationPosition> {
 
+    private static final String COORDINATE_ROOT_NODE = "coordinate";
+
     public SubstationPositionXmlSerializer() {
-        super(SubstationPosition.NAME, "network", SubstationPosition.class, true, "substationPosition.xsd",
+        super(SubstationPosition.NAME, "network", SubstationPosition.class, "substationPosition.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/substation_position/1_0", "sp");
     }
 
     @Override
-    public void write(SubstationPosition substationPosition, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement(getNamespaceUri(), "coordinate");
-        XmlUtil.writeDouble("longitude", substationPosition.getCoordinate().getLongitude(), context.getWriter());
-        XmlUtil.writeDouble("latitude", substationPosition.getCoordinate().getLatitude(), context.getWriter());
+    public void write(SubstationPosition substationPosition, XmlWriterContext context) {
+        context.getWriter().writeStartNode(getNamespaceUri(), COORDINATE_ROOT_NODE);
+        context.getWriter().writeDoubleAttribute("longitude", substationPosition.getCoordinate().getLongitude());
+        context.getWriter().writeDoubleAttribute("latitude", substationPosition.getCoordinate().getLatitude());
+        context.getWriter().writeEndNode();
     }
 
     @Override
-    public SubstationPosition read(Substation substation, XmlReaderContext context) throws XMLStreamException {
+    public SubstationPosition read(Substation substation, XmlReaderContext context) {
         Coordinate[] coordinate = new Coordinate[1];
-        XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
-            double longitude = XmlUtil.readDoubleAttribute(context.getReader(), "longitude");
-            double latitude = XmlUtil.readDoubleAttribute(context.getReader(), "latitude");
+        context.getReader().readChildNodes(e -> {
+            if (!e.equals(COORDINATE_ROOT_NODE)) {
+                throw new PowsyblException("Unknown element name '" + e + "' in 'substationPosition'");
+            }
+            double longitude = context.getReader().readDoubleAttribute("longitude");
+            double latitude = context.getReader().readDoubleAttribute("latitude");
+            context.getReader().readEndNode();
             coordinate[0] = new Coordinate(latitude, longitude);
         });
         return substation.newExtension(SubstationPositionAdder.class)
