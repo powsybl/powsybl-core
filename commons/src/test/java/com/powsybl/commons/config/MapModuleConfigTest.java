@@ -8,7 +8,6 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.threeten.extra.Interval;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -151,7 +150,6 @@ class MapModuleConfigTest {
 
         // time
         assertEquals(ZonedDateTime.parse("2009-01-03T18:15:05Z"), modConfig.getDateTimeProperty("dt"));
-        assertEquals(Interval.parse("2009-01-03T18:15:05Z/2009-01-09T02:54:25Z"), modConfig.getIntervalProperty("it"));
 
         assertTrue(modConfig.hasProperty("p"));
     }

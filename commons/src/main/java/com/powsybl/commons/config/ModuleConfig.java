@@ -6,10 +6,8 @@
  */
 package com.powsybl.commons.config;
 
-import java.time.ZonedDateTime;
-import org.threeten.extra.Interval;
-
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -121,10 +119,4 @@ public interface ModuleConfig {
     Optional<ZonedDateTime> getOptionalDateTimeProperty(String name);
 
     ZonedDateTime getDateTimeProperty(String name);
-
-    // Interval
-
-    Optional<Interval> getOptionalIntervalProperty(String name);
-
-    Interval getIntervalProperty(String name);
 }

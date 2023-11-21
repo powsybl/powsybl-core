@@ -8,7 +8,6 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.threeten.extra.Interval;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -85,7 +84,6 @@ class YamlPlatformConfigTest {
             assertEquals(Arrays.asList(fileSystem.getPath("/work/a"), fileSystem.getPath("/work/b")), module1.getPathListProperty("pl"));
             assertEquals(String.class, module1.getClassProperty("cl", String.class));
             assertEquals(ZonedDateTime.parse("2015-01-01T00:00:00Z"), module1.getDateTimeProperty("dt"));
-            assertEquals(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), module1.getIntervalProperty("it"));
         }
     }
 }
