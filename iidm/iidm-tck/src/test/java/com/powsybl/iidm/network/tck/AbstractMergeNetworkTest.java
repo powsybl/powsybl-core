@@ -342,13 +342,13 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeOnlyOneNetwork() {
+    public void failMergeOnlyOneNetwork() {
         Exception e = assertThrows(IllegalArgumentException.class, () -> Network.merge(MERGE, n1));
         assertTrue(e.getMessage().contains("At least 2 networks are expected"));
     }
 
     @Test
-    void failMergeOnSubnetworks() {
+    public void failMergeOnSubnetworks() {
         Network merge = Network.merge(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network other1 = Network.create("other1", "format");
@@ -362,7 +362,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeSubnetworks() {
+    public void failMergeSubnetworks() {
         Network merge = Network.merge(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network other = Network.create("other", "format");
@@ -373,7 +373,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeContainingSubnetworks() {
+    public void failMergeContainingSubnetworks() {
         Network merge = Network.merge(MERGE, n1, n2);
         Network other = Network.create("other", "format");
 
@@ -383,7 +383,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void testNoEmptyAdditionalSubnetworkIsCreated() {
+    public void testNoEmptyAdditionalSubnetworkIsCreated() {
         Network merge = Network.merge(MERGE, n1, n2);
         assertEquals(2, merge.getSubnetworks().size());
         assertNull(merge.getSubnetwork(MERGE));
