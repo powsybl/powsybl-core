@@ -10,11 +10,11 @@ package com.powsybl.dynamicsimulation;
 import java.util.Collections;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public interface CurvesSupplier extends SimulatorInputSupplier<Curve> {
 
     static CurvesSupplier empty() {
-        return network -> Collections.emptyList();
+        return (network, reporter) -> Collections.emptyList();
     }
 }

@@ -7,12 +7,13 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Map;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at rte-france.com>
+ * @author Luma Zamarreño {@literal <zamarrenolm at rte-france.com>}
  */
 public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
 
@@ -43,6 +44,9 @@ public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStra
     public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
         // We assume all identifiers stored in aliases came from original CGMES models
         // and we do not try to fix them
+        if (identifiable instanceof DanglingLine dl) {
+            return identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+        }
         return identifiable.getAliasFromType(aliasType)
                 .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
     }

@@ -6,9 +6,7 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +18,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class LimitViolationTest {
 
@@ -83,13 +81,17 @@ class LimitViolationTest {
     @Test
     void testToString() {
         LimitViolation limitViolation1 = new LimitViolation("testId", null, LimitViolationType.HIGH_VOLTAGE, "high", Integer.MAX_VALUE,
-                420, 1, 500, null);
+                420, 1, 500);
         LimitViolation limitViolation2 = new LimitViolation("testId", null, LimitViolationType.CURRENT, null, 6300,
-                1000, 1, 1100, Branch.Side.ONE);
+                1000, 1, 1100, TwoSides.ONE);
+        LimitViolation limitViolation3 = new LimitViolation("testId", null, LimitViolationType.APPARENT_POWER, null, 6300,
+                1000, 1, 1100, ThreeSides.THREE);
         String expected1 = "Subject id: testId, Subject name: null, limitType: HIGH_VOLTAGE, limit: 420.0, limitName: high, acceptableDuration: 2147483647, limitReduction: 1.0, value: 500.0, side: null";
         String expected2 = "Subject id: testId, Subject name: null, limitType: CURRENT, limit: 1000.0, limitName: null, acceptableDuration: 6300, limitReduction: 1.0, value: 1100.0, side: ONE";
-
+        String expected3 = "Subject id: testId, Subject name: null, limitType: APPARENT_POWER, limit: 1000.0, limitName: null, acceptableDuration: 6300, limitReduction: 1.0, value: 1100.0, side: THREE";
         assertEquals(expected1, limitViolation1.toString());
         assertEquals(expected2, limitViolation2.toString());
+        assertEquals(expected3, limitViolation3.toString());
+
     }
 }

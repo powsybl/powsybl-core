@@ -13,11 +13,10 @@ import com.powsybl.iidm.network.Identifiable;
 
 import java.io.PrintStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NetworkIndex {
 
@@ -190,7 +189,7 @@ class NetworkIndex {
             out.println(entry.getKey() + " " + System.identityHashCode(entry.getValue()));
         }
         for (Map.Entry<Class<? extends Identifiable>, Set<Identifiable<?>>> entry : objectsByClass.entrySet()) {
-            out.println(entry.getKey() + " " + entry.getValue().stream().map(System::identityHashCode).collect(Collectors.toList()));
+            out.println(entry.getKey() + " " + entry.getValue().stream().map(System::identityHashCode).toList());
         }
     }
 }

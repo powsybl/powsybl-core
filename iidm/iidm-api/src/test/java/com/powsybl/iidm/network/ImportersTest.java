@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ImportersTest extends AbstractConvertersTest {
 
@@ -165,26 +165,26 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void createDataSource1() throws IOException {
-        DataSource dataSource = Importers.createDataSource(fileSystem.getPath(WORK_DIR), "foo");
+        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(WORK_DIR), "foo");
         assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
     void createDataSource2() throws IOException {
-        DataSource dataSource = Importers.createDataSource(path);
+        DataSource dataSource = DataSource.fromPath(path);
         assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
     void findImporter() {
-        Importer importer = Importer.find(Importers.createDataSource(path), loader, computationManager, importConfigMock);
+        Importer importer = Importer.find(DataSource.fromPath(path), loader, computationManager, importConfigMock);
         assertNotNull(importer);
         assertEquals(testImporter, importer);
     }
 
     @Test
     void findNullImporter() {
-        Importer importer = Importer.find(Importers.createDataSource(badPath), loader, computationManager, importConfigMock);
+        Importer importer = Importer.find(DataSource.fromPath(badPath), loader, computationManager, importConfigMock);
         assertNull(importer);
     }
 
@@ -203,7 +203,7 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void loadNetwork2() throws IOException {
-        try (var is = Importers.createDataSource(path).newInputStream(null, EXTENSION)) {
+        try (var is = DataSource.fromPath(path).newInputStream(null, EXTENSION)) {
             Network network = Network.read(FOO_TST, is, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
             assertNotNull(network);
             assertNotNull(network.getLoad("LOAD"));
@@ -212,7 +212,7 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void loadNullNetwork2() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.read("baz.txt", Importers.createDataSource(badPath).newInputStream(null, "txt"), computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.read("baz.txt", DataSource.fromPath(badPath).newInputStream(null, "txt"), computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP));
         assertEquals("Unsupported file format or invalid file.", e.getMessage());
     }
 

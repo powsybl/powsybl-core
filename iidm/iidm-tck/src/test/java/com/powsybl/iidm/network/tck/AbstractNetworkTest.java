@@ -14,7 +14,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
-import org.joda.time.DateTime;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -26,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractNetworkTest {
 
@@ -58,6 +60,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(1, Iterables.size(network.getSubstations()));
         assertEquals(1, Iterables.size(network.getSubstations(Country.FR, "TSO1", REGION1)));
         assertEquals(1, network.getSubstationCount());
+        assertEquals(2, network.getBusBreakerView().getBusCount());
 
         Substation substation1 = network.getSubstation(SUBSTATION12);
         assertNotNull(substation1);
@@ -156,6 +159,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(300.0, rcc1.getMinQ(500), 0.0);
 
         assertEquals(2, Iterables.size(voltageLevel1.getBusBreakerView().getBuses()));
+        assertEquals(2, voltageLevel1.getBusBreakerView().getBusCount());
         Bus busCalc1 = voltageLevel1BusbarSection1.getTerminal().getBusBreakerView().getBus();
         Bus busCalc2 = voltageLevel1BusbarSection2.getTerminal().getBusBreakerView().getBus();
         assertSame(busCalc1, load1.getTerminal().getBusBreakerView().getBus());
@@ -268,6 +272,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(2, network.getVoltageLevelCount());
         assertEquals(2, Iterables.size(network.getBatteries()));
         assertEquals(2, network.getBatteryCount());
+        assertEquals(2, network.getBusBreakerView().getBusCount());
 
         // Substation A
         Substation substation1 = network.getSubstation("P1");
@@ -284,6 +289,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(400.0, voltageLevel1.getNominalV(), 0.0);
         assertSame(substation1, voltageLevel1.getSubstation().orElse(null));
         assertSame(TopologyKind.BUS_BREAKER, voltageLevel1.getTopologyKind());
+        assertEquals(1, voltageLevel1.getBusBreakerView().getBusCount());
 
         Bus bus1 = voltageLevel1.getBusBreakerView().getBus("NGEN");
         assertEquals(3, bus1.getConnectedTerminalCount());
@@ -358,9 +364,9 @@ public abstract class AbstractNetworkTest {
     public void testVoltageLevelGetConnectable() {
         Network n = EurostagTutorialExample1Factory.create();
         assertNotNull(n.getVoltageLevel(VLLOAD).getConnectable("LOAD", Load.class));
-        assertNotNull(n.getVoltageLevel(VLLOAD).getConnectable(NHV2_NLOAD, Branch.class));
+        assertNotNull(n.getVoltageLevel(VLLOAD).getConnectable(NHV2_NLOAD, TwoWindingsTransformer.class));
         assertNull(n.getVoltageLevel(VLGEN).getConnectable("LOAD", Load.class));
-        assertNull(n.getVoltageLevel(VLGEN).getConnectable(NHV2_NLOAD, Branch.class));
+        assertNull(n.getVoltageLevel(VLGEN).getConnectable(NHV2_NLOAD, TwoWindingsTransformer.class));
     }
 
     @Test
@@ -433,9 +439,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P1").getThreeWindingsTransformerStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformerStream()));
 
-        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream()));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getDanglingLineStream()));
-        assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream().count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream(DanglingLineFilter.ALL)));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getDanglingLineStream(DanglingLineFilter.ALL)));
+        assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream(DanglingLineFilter.ALL).count());
         assertEquals(Collections.emptyList(), mapper.apply(network.getShuntCompensatorStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV2).getShuntCompensatorStream()));
         assertEquals(network.getShuntCompensatorCount(), network.getShuntCompensatorStream().count());
@@ -528,7 +534,7 @@ public abstract class AbstractNetworkTest {
     public void testSetterGetter() {
         String sourceFormat = "test_sourceFormat";
         Network network = Network.create("test", sourceFormat);
-        DateTime caseDate = new DateTime();
+        ZonedDateTime caseDate = ZonedDateTime.now(ZoneOffset.UTC);
         network.setCaseDate(caseDate);
         assertEquals(caseDate, network.getCaseDate());
         network.setForecastDistance(3);

@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class SensitivityAnalysisToolTest extends AbstractToolTest {
 
@@ -55,7 +55,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         // create network
         Network network = EurostagTutorialExample1Factory.create();
-        NetworkXml.write(network, fileSystem.getPath("network.xiidm"));
+        NetworkSerDe.write(network, fileSystem.getPath("network.xiidm"));
 
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new SensitivityJsonModule())

@@ -1,5 +1,5 @@
 {
-  "version" : "1.4",
+  "version" : "1.5",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -157,11 +157,14 @@
       "id" : "strategyId",
       "contingencyContextType" : "SPECIFIC",
       "contingencyId" : "contingency1",
-      "condition" : {
-        "type" : "AT_LEAST_ONE_VIOLATION",
-        "violationIds" : [ "violationId1" ]
-      },
-      "actionIds" : [ "actionId1" ]
+      "conditionalActions" : [ {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "AT_LEAST_ONE_VIOLATION",
+          "violationIds" : [ "violationId1" ]
+        },
+        "actionIds" : [ "actionId1" ]
+      } ]
     },
     "status" : "CONVERGED",
     "limitViolationsResult" : {

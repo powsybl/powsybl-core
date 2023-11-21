@@ -16,7 +16,7 @@ import com.powsybl.contingency.*;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> {
 
@@ -87,6 +87,9 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
 
                 case BUS:
                     return new BusContingency(id);
+
+                case TIE_LINE:
+                    return new TieLineContingency(id, voltageLevelId);
 
                 default:
                     throw new IllegalStateException("Unexpected ContingencyElementType value: " + type);

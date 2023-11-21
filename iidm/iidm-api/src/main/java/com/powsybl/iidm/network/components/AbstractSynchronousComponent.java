@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Bus;
 import java.util.function.Predicate;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public abstract class AbstractSynchronousComponent extends AbstractComponent {
 

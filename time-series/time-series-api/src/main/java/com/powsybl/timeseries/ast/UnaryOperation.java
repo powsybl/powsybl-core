@@ -16,7 +16,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
@@ -143,8 +143,8 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UnaryOperation) {
-            return (((UnaryOperation) obj).child).equals(child) && ((UnaryOperation) obj).operator == operator;
+        if (obj instanceof UnaryOperation unaryOperation) {
+            return (unaryOperation.child).equals(child) && unaryOperation.operator == operator;
         }
         return false;
     }

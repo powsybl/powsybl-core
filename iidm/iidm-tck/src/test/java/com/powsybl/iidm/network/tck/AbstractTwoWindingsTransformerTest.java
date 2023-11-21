@@ -82,12 +82,12 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertSame(twoWindingsTransformer, vl1.getTwoWindingsTransformerStream().findFirst().get());
 
         RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(twoWindingsTransformer,
-                twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE));
+                twoWindingsTransformer.getTerminal(TwoSides.ONE));
         assertTrue(twoWindingsTransformer.getOptionalRatioTapChanger().isPresent());
         assertSame(ratioTapChangerInLeg1, twoWindingsTransformer.getRatioTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(twoWindingsTransformer,
-                twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO));
+                twoWindingsTransformer.getTerminal(TwoSides.TWO));
         assertTrue(twoWindingsTransformer.getOptionalPhaseTapChanger().isPresent());
         assertSame(phaseTapChangerInLeg1, twoWindingsTransformer.getPhaseTapChanger());
     }
@@ -141,26 +141,6 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setConnectableBus2("busB")
                 .add());
         assertTrue(e.getMessage().contains("2 windings transformer 'twt': the 2 windings of the transformer shall belong to the substation 'sub'"));
-    }
-
-    @Test
-    public void missingSubstationContainer() {
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newTwoWindingsTransformer()
-                .setId("twt")
-                .setName(TWT_NAME)
-                .setR(1.0)
-                .setX(2.0)
-                .setG(3.0)
-                .setB(4.0)
-                .setRatedU1(5.0)
-                .setRatedU2(6.0)
-                .setRatedS(7.0)
-                .setVoltageLevel1("vl1")
-                .setVoltageLevel2("vl2")
-                .setConnectableBus1("busA")
-                .setConnectableBus2("busB")
-                .add());
-        assertTrue(e.getMessage().contains("the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations"));
     }
 
     @Test

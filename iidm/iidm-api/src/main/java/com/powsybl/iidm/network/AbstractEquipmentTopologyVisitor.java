@@ -8,24 +8,24 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVisitor {
 
     public abstract <I extends Connectable<I>> void visitEquipment(Connectable<I> eq);
 
     @Override
-    public void visitLine(Line line, Branch.Side side) {
+    public void visitLine(Line line, TwoSides side) {
         visitEquipment(line);
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
         visitEquipment(transformer);
     }
 
     @Override
-    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
         visitEquipment(transformer);
     }
 

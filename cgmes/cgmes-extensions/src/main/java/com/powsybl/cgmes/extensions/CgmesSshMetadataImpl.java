@@ -15,21 +15,28 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class CgmesSshMetadataImpl extends AbstractExtension<Network> implements CgmesSshMetadata {
 
+    private final String id;
     private final String description;
     private final int sshVersion;
     private final List<String> dependencies = new ArrayList<>();
     private final String modelingAuthoritySet;
 
-    public CgmesSshMetadataImpl(String description, int sshVersion, List<String> dependencies, String modelingAuthoritySet) {
+    public CgmesSshMetadataImpl(String id, String description, int sshVersion, List<String> dependencies, String modelingAuthoritySet) {
+        this.id = id;
         this.description = description;
         this.sshVersion = sshVersion;
         this.dependencies.addAll(Objects.requireNonNull(dependencies));
         this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override

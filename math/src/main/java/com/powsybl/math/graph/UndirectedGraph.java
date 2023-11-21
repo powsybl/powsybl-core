@@ -9,8 +9,10 @@ package com.powsybl.math.graph;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.io.PrintStream;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -22,7 +24,7 @@ import java.util.stream.Stream;
  * @tparam V The type of the value attached to a vertex.
  * @tparam E The type of the value attached to an edge.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface UndirectedGraph<V, E> {
 
@@ -122,7 +124,7 @@ public interface UndirectedGraph<V, E> {
      *
      * @deprecated Use {@link #getVertexCapacity} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     default int getMaxVertex() {
         return getVertexCapacity();
     }
@@ -274,28 +276,28 @@ public interface UndirectedGraph<V, E> {
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(int v, Traverser traverser, boolean[] encountered);
+    boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encountered);
 
     /**
      * Traverse the entire graph, starting at the specified vertex v.
-     * This method allocates a boolean array and calls {@link #traverse(int, Traverser, boolean[])}.
+     * This method allocates a boolean array and calls {@link #traverse(int, TraversalType, Traverser, boolean[])}.
      * @param v the vertex index where the traverse has to start.
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(int v, Traverser traverser);
+    boolean traverse(int v, TraversalType traversalType, Traverser traverser);
 
     /**
      * Traverse the entire graph, starting at each vertex index of the specified vertices array v.
-     * This method allocates a boolean array and calls {@link #traverse(int, Traverser, boolean[])} for each entry of
+     * This method allocates a boolean array and calls {@link #traverse(int, TraversalType, Traverser, boolean[])} for each entry of
      * the array.
      * @param v the array of vertex indices where the traverse has to start.
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(int[] v, Traverser traverser);
+    boolean traverse(int[] v, TraversalType traversalType, Traverser traverser);
 
     /**
      * Find all paths from the specified vertex.
@@ -306,7 +308,19 @@ public interface UndirectedGraph<V, E> {
      * @param pathCancelled a function that returns true when the edge must not be traversed.
      * @return a list that contains the index of the traversed edges.
      */
-    List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled);
+    List<TIntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled);
+
+    /**
+     * Find all paths from the specified vertex.
+     * This method relies on two functions to stop the traverse when the target vertex is found or when an edge must not be traversed.
+     *
+     * @param from the vertex index where the traverse has to start.
+     * @param pathComplete a function that returns true when the target vertex is found.
+     * @param pathCancelled a function that returns true when the edge must not be traversed.
+     * @param comparator a comparator used to sort the paths
+     * @return a list that contains the index of the traversed edges.
+     */
+    List<TIntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled, Comparator<TIntArrayList> comparator);
 
     /**
      * Add a {@link UndirectedGraphListener} to get notified when the graph changes.

@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 
 class HvdcConverter extends AbstractConverter {
@@ -99,7 +99,7 @@ class HvdcConverter extends AbstractConverter {
 
             List<DataObject> elmLnes = getDataObjectsConnectedToElmTerm(elmTerm)
                 .filter(dataObject -> dataObject.getDataClassName().equals("ElmLne"))
-                .collect(Collectors.toList());
+                .toList();
 
             for (DataObject elmLne : elmLnes) {
                 otherElmTerm(elmTerm, elmLne, elmVsc)

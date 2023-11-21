@@ -6,42 +6,25 @@
  */
 package com.powsybl.contingency.contingency.list;
 
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
-import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
-import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
-import com.powsybl.contingency.contingency.list.criterion.TwoCountriesCriterion;
+import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.IdentifiableType;
 
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class LineCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
-    private final TwoCountriesCriterion twoCountriesCriterion;
-    private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
+public class LineCriterionContingencyList extends AbstractLineCriterionContingencyList {
 
     public LineCriterionContingencyList(String name,
                                         TwoCountriesCriterion twoCountriesCriterion,
-                                        SingleNominalVoltageCriterion singleNominalVoltageCriterion,
+                                        TwoNominalVoltageCriterion twoNominalVoltageCriterion,
                                         List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.LINE, propertyCriteria, regexCriterion);
-        this.twoCountriesCriterion = twoCountriesCriterion;
-        this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
+        super(name, IdentifiableType.LINE, twoCountriesCriterion, twoNominalVoltageCriterion, propertyCriteria, regexCriterion);
     }
 
     @Override
     public String getType() {
         return "lineCriterion";
-    }
-
-    @Override
-    public TwoCountriesCriterion getCountryCriterion() {
-        return twoCountriesCriterion;
-    }
-
-    @Override
-    public SingleNominalVoltageCriterion getNominalVoltageCriterion() {
-        return singleNominalVoltageCriterion;
     }
 }

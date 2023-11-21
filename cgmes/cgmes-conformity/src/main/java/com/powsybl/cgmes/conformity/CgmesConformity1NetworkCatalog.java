@@ -15,9 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class CgmesConformity1NetworkCatalog {
+
+    private static final String CL_0 = "CL-0";
+    private static final String CL_1 = "CL-1";
+    private static final String CL_2 = "CL-2";
 
     private CgmesConformity1NetworkCatalog() {
     }
@@ -114,16 +118,16 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(69.0)
                 .setG(5.75e-5)
                 .setB(2.1677e-5)
-                .setUcteXnodeCode("TN_Border_ST24")
+                .setPairingKey("TN_Border_ST24")
                 .add();
         be7.newCurrentLimits().setPermanentLimit(1180)
                 .beginTemporaryLimit()
-                    .setName("fa8eb432-3107-4562-95fa-7f35d75101b0")
+                    .setName(CL_0)
                     .setValue(1312.0)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("367fe7fa-1b11-4090-af9a-0abc050fda58")
+                    .setName(CL_1)
                     .setValue(1443.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -140,7 +144,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(68.2)
                 .setG(3.08e-5)
                 .setB(8.2938E-5)
-                .setUcteXnodeCode("TN_Border_ST23")
+                .setPairingKey("TN_Border_ST23")
                 .add();
 
         Bus busBrussels225 = vlBrussels225.getBusBreakerView().newBus()
@@ -208,16 +212,16 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(12.0)
                 .setG(6e-5)
                 .setB(1.49854e-4)
-                .setUcteXnodeCode("TN_Border_AL11")
+                .setPairingKey("TN_Border_AL11")
                 .add();
         be3.newCurrentLimits().setPermanentLimit(1371)
                 .beginTemporaryLimit()
-                    .setName("e207f382-e138-4a26-a40d-6c01dda96879")
+                    .setName(CL_0)
                     .setValue(1443.0)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("ca002966-c9a3-4a17-a12d-1cd32c9d9a7e")
+                    .setName(CL_1)
                     .setValue(1515.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -234,16 +238,16 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(6.3)
                 .setG(4.2e-5)
                 .setB(6.59734E-5)
-                .setUcteXnodeCode("TN_Border_GY11")
+                .setPairingKey("TN_Border_GY11")
                 .add();
         be5.newCurrentLimits().setPermanentLimit(1804)
                 .beginTemporaryLimit()
-                    .setName("bea68f9e-5348-40dd-ac14-75c41a6a38bd")
+                    .setName(CL_0)
                     .setValue(1876.0)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("3b3fdb5e-dafe-41bb-acfb-eb21be018863")
+                    .setName(CL_1)
                     .setValue(1948.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -260,16 +264,16 @@ public final class CgmesConformity1NetworkCatalog {
                 .setX(2.0)
                 .setG(4e-5)
                 .setB(2.51956e-5)
-                .setUcteXnodeCode("TN_Border_MA11")
+                .setPairingKey("TN_Border_MA11")
                 .add();
         be4.newCurrentLimits().setPermanentLimit(1226)
                 .beginTemporaryLimit()
-                    .setName("d5a5feb2-8345-487c-a1bc-af3829329391")
+                    .setName(CL_0)
                     .setValue(1299.0)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("e6c72199-8db4-4674-bdd8-d6808afb115e")
+                    .setName(CL_1)
                     .setValue(1371.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -350,24 +354,24 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
         lineBE2.newCurrentLimits1().setPermanentLimit(1443.0)
                 .beginTemporaryLimit()
-                    .setName("1594f66e-86bd-45da-aa04-3c2bd8e07d76")
+                    .setName(CL_0)
                     .setValue(1574.0)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("6f35cf24-2d5e-4b9a-ac65-943610878a4b")
+                    .setName(CL_1)
                     .setValue(1705.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
         lineBE2.newCurrentLimits2().setPermanentLimit(1443.0)
                 .beginTemporaryLimit()
-                    .setName("43d42f99-7c35-4907-a6ea-372b41eb8f77")
+                    .setName(CL_0)
                     .setValue(1574.0)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("3ab4897f-cf5e-418b-8e1c-94f9cde91501")
+                    .setName(CL_1)
                     .setValue(1705.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -399,24 +403,24 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
         lineBE6.newCurrentLimits1().setPermanentLimit(1180.0)
                 .beginTemporaryLimit()
-                    .setName("0f8bff64-4cfe-4c94-9471-da94b2efcc4f")
+                    .setName(CL_0)
                     .setValue(1312.0)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("61870312-e0be-4dd7-8941-22c108b61c30")
+                    .setName(CL_1)
                     .setValue(1443.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
         lineBE6.newCurrentLimits2().setPermanentLimit(1180.0)
                 .beginTemporaryLimit()
-                    .setName("a634eecf-b900-4808-8b74-d91e36c383a0")
+                    .setName(CL_0)
                     .setValue(1312.0)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("5a4a910c-f57f-456b-b9ca-670ab3676adb")
+                    .setName(CL_1)
                     .setValue(1443.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -456,24 +460,24 @@ public final class CgmesConformity1NetworkCatalog {
                     .add();
             tx.newCurrentLimits1().setPermanentLimit(1308.1)
                     .beginTemporaryLimit()
-                        .setName("a5d3cd27-798c-4910-9729-6fc745346601")
+                        .setName(CL_0)
                         .setValue(1408.1)
                         .setAcceptableDuration(20)
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
-                        .setName("7059bdb7-fa2d-4061-aea7-a88760835e2f")
+                        .setName(CL_1)
                         .setValue(1508.1)
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
                     .add();
             tx.newCurrentLimits2().setPermanentLimit(13746.4)
                     .beginTemporaryLimit()
-                        .setName("3674d58e-946d-4901-8084-eb21afe1565a")
+                        .setName(CL_0)
                         .setValue(14746.4)
                         .setAcceptableDuration(20)
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
-                        .setName("a1cfb7e6-ed0d-4369-b555-007826ba82fb")
+                        .setName(CL_1)
                         .setValue(15746.4)
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
@@ -482,7 +486,7 @@ public final class CgmesConformity1NetworkCatalog {
             int high = 33;
             int neutral = 17;
             double voltageInc = 0.8;
-            Branch.Side side = Branch.Side.TWO;
+            TwoSides side = TwoSides.TWO;
             RatioTapChangerAdder rtca = tx.newRatioTapChanger()
                     .setLowTapPosition(low)
                     .setTapPosition(14)
@@ -490,10 +494,10 @@ public final class CgmesConformity1NetworkCatalog {
             for (int k = low; k <= high; k++) {
                 int n = k - neutral;
                 double du = voltageInc / 100;
-                double rhok = side.equals(Branch.Side.ONE) ? 1 / (1 + n * du) : (1 + n * du);
+                double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
                 double dz = 0;
                 double dy = 0;
-                if (side.equals(Branch.Side.TWO)) {
+                if (side.equals(TwoSides.TWO)) {
                     double rhok2 = rhok * rhok;
                     dz = (rhok2 - 1) * 100;
                     dy = (1 / rhok2 - 1) * 100;
@@ -548,12 +552,12 @@ public final class CgmesConformity1NetworkCatalog {
                     .add();
             txBE22.newCurrentLimits2().setPermanentLimit(3411.6)
                     .beginTemporaryLimit()
-                        .setName("7939fc42-08ef-4ce7-9912-97552a4db39a")
+                        .setName(CL_0)
                         .setValue(3611.6)
                         .setAcceptableDuration(20)
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
-                        .setName("84d4dbeb-ef3b-43a1-9a7e-ce5713013498")
+                        .setName(CL_1)
                         .setValue(3811.6)
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
@@ -562,14 +566,14 @@ public final class CgmesConformity1NetworkCatalog {
             int high = 25;
             int neutral = 13;
             double voltageInc = 1.25;
-            Branch.Side side = Branch.Side.ONE;
+            TwoSides side = TwoSides.ONE;
             RatioTapChangerAdder rtca = txBE22.newRatioTapChanger()
                     .setLowTapPosition(low)
                     .setTapPosition(10);
             for (int k = low; k <= high; k++) {
                 int n = k - neutral;
                 double du = voltageInc / 100;
-                double rhok = side.equals(Branch.Side.ONE) ? 1 / (1 + n * du) : (1 + n * du);
+                double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
                 rtca.beginStep()
                         .setRho(rhok)
                         .setR(0)
@@ -621,12 +625,12 @@ public final class CgmesConformity1NetworkCatalog {
                     .add();
             txBE21.newCurrentLimits2().setPermanentLimit(3411.6)
                     .beginTemporaryLimit()
-                        .setName("da1cb116-0730-4a00-b795-8ab0b52ad89f")
+                        .setName(CL_0)
                         .setValue(3611.6)
                         .setAcceptableDuration(20)
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
-                        .setName("4af98ccd-29f1-4039-86cd-c23fc2deb3bc")
+                        .setName(CL_1)
                         .setValue(3811.6)
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
@@ -664,7 +668,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setVoltageRegulatorOn(true)
                     // This generator regulates one end point of a power transformer
                     // (110 kV side of BE-TR2_1)
-                    .setRegulatingTerminal(txBE21.getTerminal(Branch.Side.TWO))
+                    .setRegulatingTerminal(txBE21.getTerminal(TwoSides.TWO))
                     .setRatedS(300)
                     .add();
             ReactiveCapabilityCurveAdder rcca = genBrussels10.newReactiveCapabilityCurve();
@@ -744,12 +748,12 @@ public final class CgmesConformity1NetworkCatalog {
                     .setPermanentLimit(938.2)
                     .beginTemporaryLimit()
                         .setAcceptableDuration(20)
-                        .setName("ddcb76e0-13ea-413f-9a8f-553d78782f76")
+                        .setName(CL_0)
                         .setValue(968.2)
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
                         .setAcceptableDuration(10)
-                        .setName("3e9ed732-dd10-4f10-bc9d-d399e1e75a78")
+                        .setName(CL_1)
                         .setValue(998.2)
                     .endTemporaryLimit()
                     .add();
@@ -757,12 +761,12 @@ public final class CgmesConformity1NetworkCatalog {
                     .setPermanentLimit(1705.8)
                     .beginTemporaryLimit()
                         .setAcceptableDuration(20)
-                        .setName("52d7ccc6-b4a1-48eb-9cfa-f5870b8b7fce")
+                        .setName(CL_0)
                         .setValue(1805.8)
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
                         .setAcceptableDuration(10)
-                        .setName("11763596-6f4b-4cd5-a4a0-be649f368e86")
+                        .setName(CL_1)
                         .setValue(1905.8)
                     .endTemporaryLimit()
                     .add();
@@ -770,12 +774,12 @@ public final class CgmesConformity1NetworkCatalog {
                     .setPermanentLimit(17870.4)
                     .beginTemporaryLimit()
                         .setAcceptableDuration(20)
-                        .setName("50448009-0fad-4656-bce4-438fe76e18cf")
+                        .setName(CL_0)
                         .setValue(18870.4)
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
                         .setAcceptableDuration(10)
-                        .setName("df2d3155-4436-4542-8d3b-64241c7433be")
+                        .setName(CL_1)
                         .setValue(19870.4)
                     .endTemporaryLimit()
                     .add();
@@ -817,22 +821,22 @@ public final class CgmesConformity1NetworkCatalog {
         DanglingLine be1 = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
         be1.newCurrentLimits().setPermanentLimit(1443)
                 .beginTemporaryLimit()
-                    .setName("58c959fd-3675-4ad4-a221-9647b57073dd")
+                    .setName("CL-4")
                     .setValue(1500.0)
                     .setAcceptableDuration(30)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("b1714414-0394-42b6-b441-a664069554a2")
+                    .setName("CL-3")
                     .setValue(1550.0)
                     .setAcceptableDuration(25)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("ad0fa884-ec20-4908-9986-48ab09ac55cd")
+                    .setName(CL_0)
                     .setValue(1574.0)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("19627231-9a8b-45e1-815c-b280a66a59ca")
+                    .setName(CL_1)
                     .setValue(1705.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -840,12 +844,12 @@ public final class CgmesConformity1NetworkCatalog {
         TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
         txBE21.newCurrentLimits1().setPermanentLimit(938.2)
                 .beginTemporaryLimit()
-                    .setName("aaa63bb1-fa34-41a3-bd92-0637bfce549c")
+                    .setName(CL_0)
                     .setValue(958.2)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("acbd4688-6393-4b43-a9f4-27d8c3f8c309")
+                    .setName(CL_1)
                     .setValue(998.2)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -853,12 +857,12 @@ public final class CgmesConformity1NetworkCatalog {
         TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
         txBE22.newCurrentLimits1().setPermanentLimit(1705.8)
                 .beginTemporaryLimit()
-                    .setName("0d6f26df-9f86-4df0-b00c-bfb23870257f")
+                    .setName(CL_0)
                     .setValue(1805.8)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("5b77485f-20a3-4a19-8d15-e4038c81663f")
+                    .setName(CL_1)
                     .setValue(1905.8)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -998,24 +1002,24 @@ public final class CgmesConformity1NetworkCatalog {
         }
         txBE22.newCurrentLimits1().setPermanentLimit(1705.8)
                 .beginTemporaryLimit()
-                    .setName("9732c968-c1c4-446a-b47b-9038f5a59724")
+                    .setName(CL_2)
                     .setValue(1805.8)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("d29ef207-67d3-47bb-82ea-9d82074dde55")
+                    .setName(CL_1)
                     .setValue(1905.8)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
         txBE22.newCurrentLimits2().setPermanentLimit(3411.6)
                 .beginTemporaryLimit()
-                    .setName("6236459d-8471-44be-9b66-b271ac407165")
+                    .setName(CL_2)
                     .setValue(3611.6)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("9b2c1328-381e-4277-9042-94b0085f2b77")
+                    .setName(CL_1)
                     .setValue(3811.6)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -1043,24 +1047,24 @@ public final class CgmesConformity1NetworkCatalog {
         }
         txBE21.newCurrentLimits1().setPermanentLimit(938.2)
                 .beginTemporaryLimit()
-                    .setName("1b0850d6-317b-40a3-aa98-040b64f9350c")
+                    .setName(CL_2)
                     .setValue(958.2)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("dea05113-ef3e-4161-957d-4602c874839e")
+                    .setName(CL_1)
                     .setValue(998.2)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
         txBE21.newCurrentLimits2().setPermanentLimit(3411.6)
                 .beginTemporaryLimit()
-                    .setName("e1ae19e7-8bb7-42ce-8ae6-24893f16e366")
+                    .setName(CL_2)
                     .setValue(3611.6)
                     .setAcceptableDuration(20)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                    .setName("1e793cd6-1608-46af-a3f7-b4d1cabc9d58")
+                    .setName(CL_1)
                     .setValue(3811.6)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -1075,12 +1079,12 @@ public final class CgmesConformity1NetworkCatalog {
                 .newCurrentLimits()
                     .setPermanentLimit(1443)
                     .beginTemporaryLimit()
-                        .setName("ad0fa884-ec20-4908-9986-48ab09ac55cd")
+                        .setName(CL_0)
                         .setValue(1574.0)
                         .setAcceptableDuration(20)
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
-                        .setName("19627231-9a8b-45e1-815c-b280a66a59ca")
+                        .setName(CL_1)
                         .setValue(1705.0)
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
@@ -1175,7 +1179,7 @@ public final class CgmesConformity1NetworkCatalog {
                 LOG.debug("EXPECTED    n,dx,dy,angle,ratio  {} {} {} {} {}", n, dx, dy, angle, ratio);
             } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
-                angle = 2 * Math.asin(dy);
+                angle = 2 * Math.atan(dy);
                 ratio = 1.0;
                 LOG.debug("EXPECTED    n,dy,angle,ratio  {} {} {} {}", n, dy, angle, ratio);
             } else {

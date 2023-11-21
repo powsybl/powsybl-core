@@ -15,7 +15,7 @@ import gnu.trove.list.array.TIntArrayList;
 import java.util.Map;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public abstract class AbstractConnectedComponentsManager<C extends Component> extends AbstractComponentsManager<C> {
 

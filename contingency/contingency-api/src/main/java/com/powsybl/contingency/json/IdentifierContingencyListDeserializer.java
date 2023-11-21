@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class IdentifierContingencyListDeserializer extends StdDeserializer<IdentifierContingencyList> {
 
@@ -39,6 +39,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
             switch (parser.getCurrentName()) {
                 case "version":
                     version = parser.nextTextValue();
+                    deserializationContext.setAttribute("version", version);
                     break;
 
                 case "identifiableType":

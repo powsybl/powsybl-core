@@ -18,7 +18,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class BinaryOperation implements NodeCalc {
 
@@ -219,8 +219,8 @@ public class BinaryOperation implements NodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BinaryOperation) {
-            return ((BinaryOperation) obj).left.equals(left) && ((BinaryOperation) obj).right.equals(right) && ((BinaryOperation) obj).operator == operator;
+        if (obj instanceof BinaryOperation binaryOperation) {
+            return binaryOperation.left.equals(left) && binaryOperation.right.equals(right) && binaryOperation.operator == operator;
         }
         return false;
     }

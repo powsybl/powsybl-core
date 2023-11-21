@@ -7,35 +7,34 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.*;
 import com.powsybl.cgmes.conversion.PhaseAngleClock;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TransformerConversionTest {
 
@@ -394,6 +393,23 @@ class TransformerConversionTest {
         assertTrue(ok);
     }
 
+    @Test
+    void microGridBaseCaseBEPhaseTapChangerXMin() throws IOException {
+        Network n = networkModel(Cgmes3ModifiedCatalog.microGridBaseCasePhaseTapChangerXMin(), new Conversion.Config());
+
+        TwoWindingsTransformer twt1 = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer twt2 = n.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
+
+        assertEquals(1.10949, obtainXcurrentStep(twt1), 0.00001);
+        assertEquals(2.796323, obtainXcurrentStep(twt2), 0.00001);
+    }
+
+    private static double obtainXcurrentStep(TwoWindingsTransformer twt) {
+        double xtx = twt.getX();
+        double ptcStepX = twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getX()).orElse(0d);
+        return xtx * (1 + ptcStepX / 100);
+    }
+
     private boolean t2xCompareFlow(Network n, String id, double p1, double q1, double p2, double q2) {
         TwoWindingsTransformer twt = n.getTwoWindingsTransformer(id);
         T2xFlow actual = twoWindingsTransformerFlow(twt);
@@ -433,34 +449,13 @@ class TransformerConversionTest {
         return ok;
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
-        config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config);
-        Network n = c.convert();
-
-        double threshold = 0.01;
-        ValidationConfig vconfig = loadFlowValidationConfig(threshold);
-        LoadFlowParameters lfParameters = defineLoadflowParameters(vconfig.getLoadFlowParameters(), config);
-        ConversionTester.computeMissingFlows(n, lfParameters);
-
-        return n;
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
+        return networkModel(testGridModel, config, Collections.emptyList());
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) throws IOException {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
         config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config, postProcessors);
-        Network n = c.convert();
+        Network n = ConversionUtil.networkModel(testGridModel, config, postProcessors);
 
         double threshold = 0.01;
         ValidationConfig vconfig = loadFlowValidationConfig(threshold);

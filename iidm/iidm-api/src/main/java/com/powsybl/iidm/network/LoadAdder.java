@@ -20,7 +20,7 @@ package com.powsybl.iidm.network;
  *        .add();
  *</pre>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see Load
  * @see VoltageLevel
  */
@@ -31,6 +31,10 @@ public interface LoadAdder extends InjectionAdder<Load, LoadAdder> {
     LoadAdder setP0(double p0);
 
     LoadAdder setQ0(double q0);
+
+    ZipLoadModelAdder newZipModel();
+
+    ExponentialLoadModelAdder newExponentialModel();
 
     @Override
     Load add();

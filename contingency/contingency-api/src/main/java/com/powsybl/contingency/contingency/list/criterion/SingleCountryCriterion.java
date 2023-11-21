@@ -10,15 +10,17 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class SingleCountryCriterion implements Criterion {
 
     private final List<Country> countries;
 
     public SingleCountryCriterion(List<Country> countries) {
+        Objects.requireNonNull(countries);
         this.countries = ImmutableList.copyOf(countries);
     }
 
@@ -37,7 +39,7 @@ public class SingleCountryCriterion implements Criterion {
             case STATIC_VAR_COMPENSATOR:
             case BUSBAR_SECTION:
             case BATTERY:
-                return filterInjection(((Injection) identifiable).getTerminal().getVoltageLevel());
+                return filterInjection(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH:
                 return filterInjection(((Switch) identifiable).getVoltageLevel());
             case TWO_WINDINGS_TRANSFORMER:
@@ -58,10 +60,10 @@ public class SingleCountryCriterion implements Criterion {
             return false;
         }
         Country injectionCountry = substation.getCountry().orElse(null);
-        if (injectionCountry == null) {
+        if (injectionCountry == null && !countries.isEmpty()) {
             return false;
         }
-        return countries.contains(injectionCountry);
+        return countries.isEmpty() || countries.contains(injectionCountry);
     }
 
     private boolean filterInjection(VoltageLevel voltageLevel) {
@@ -70,9 +72,9 @@ public class SingleCountryCriterion implements Criterion {
             return false;
         }
         Country injectionCountry = substation.getCountry().orElse(null);
-        if (injectionCountry == null) {
+        if (injectionCountry == null && !countries.isEmpty()) {
             return false;
         }
-        return countries.contains(injectionCountry);
+        return countries.isEmpty() || countries.contains(injectionCountry);
     }
 }

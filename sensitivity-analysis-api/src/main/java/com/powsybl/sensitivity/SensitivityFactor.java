@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * network in a given contingency context. Usually we compute the impact of an injection increase on a branch flow or current,
  * the impact of a shift of a phase tap changer on a branch flow or current or the impact of a voltage target increase on a bus voltage.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SensitivityFactor {
 
@@ -110,13 +110,7 @@ public class SensitivityFactor {
                           String variableId, boolean variableSet, ContingencyContext contingencyContext) {
         try {
             jsonGenerator.writeStartObject();
-            if (functionType.equals(SensitivityFunctionType.BRANCH_CURRENT)) {
-                jsonGenerator.writeStringField("functionType", SensitivityFunctionType.BRANCH_CURRENT_1.name());
-            } else if (functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER)) {
-                jsonGenerator.writeStringField("functionType", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1.name());
-            } else {
-                jsonGenerator.writeStringField("functionType", functionType.name());
-            }
+            jsonGenerator.writeStringField("functionType", functionType.name());
             jsonGenerator.writeStringField("functionId", functionId);
             jsonGenerator.writeStringField("variableType", variableType.name());
             jsonGenerator.writeStringField("variableId", variableId);
@@ -177,11 +171,6 @@ public class SensitivityFactor {
         switch (fieldName) {
             case "functionType":
                 context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
-                if (context.functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER)) {
-                    context.functionType = SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
-                } else if (context.functionType.equals(SensitivityFunctionType.BRANCH_CURRENT)) {
-                    context.functionType = SensitivityFunctionType.BRANCH_CURRENT_1;
-                }
                 break;
             case "functionId":
                 context.functionId = parser.nextTextValue();

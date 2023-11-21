@@ -15,9 +15,9 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
+class TwoWindingsTransformerImpl extends AbstractConnectableBranch<TwoWindingsTransformer>
     implements TwoWindingsTransformer, RatioTapChangerParent, PhaseTapChangerParent {
 
     private final SubstationImpl substation;

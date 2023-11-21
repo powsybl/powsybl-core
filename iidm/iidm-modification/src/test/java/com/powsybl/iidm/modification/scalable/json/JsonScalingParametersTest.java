@@ -7,20 +7,22 @@
  */
 package com.powsybl.iidm.modification.scalable.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
+import static com.powsybl.iidm.modification.scalable.json.JsonScalingParameters.read;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class JsonScalingParametersTest extends AbstractConverterTest {
+class JsonScalingParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {
@@ -31,9 +33,22 @@ class JsonScalingParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    void testDeserializerV1dot1() {
+        ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0.json"));
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertFalse(parameters.isConstantPowerFactor());
+        assertEquals(ONESHOT, parameters.getPriority());
+        assertTrue(parameters.isReconnect());
+        assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+
+        parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0b.json"));
+        assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
+    }
+
+    @Test
     void error() throws IOException {
         try (var is = getClass().getResourceAsStream("/json/ScalingParametersError.json")) {
-            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonScalingParameters.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> read(is));
             assertEquals("Unexpected field: error", e.getMessage());
         }
     }

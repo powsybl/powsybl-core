@@ -16,7 +16,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 import java.util.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine {
 
@@ -123,10 +123,10 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
             NetworkImpl n = danglingLine.getNetwork();
-            int variantIndex = danglingLine.network.get().getVariantIndex();
+            int variantIndex = n.getVariantIndex();
             ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ, n.getMinValidationLevel());
             double oldValue = this.targetQ.set(variantIndex, targetQ);
-            String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
             danglingLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
             return this;
@@ -149,6 +149,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             n.invalidateValidationLevel();
             danglingLine.notifyUpdate("voltageRegulationOn", variantId, oldValue, voltageRegulationOn);
             return this;
+        }
+
+        @Override
+        public NetworkImpl getNetwork() {
+            return this.danglingLine.getNetwork();
         }
 
         @Override
@@ -229,7 +234,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
     }
 
-    private final Ref<? extends VariantManagerHolder> network;
+    private final Ref<NetworkImpl> network;
+    private TieLineImpl tieLine = null;
 
     private double r;
 
@@ -239,7 +245,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private double b;
 
-    private final String ucteXnodeCode;
+    private final String pairingKey;
 
     private final GenerationImpl generation;
 
@@ -252,7 +258,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final DanglingLineBoundaryImpl boundary;
 
-    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
+    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -266,10 +272,26 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.x = x;
         this.g = g;
         this.b = b;
-        this.ucteXnodeCode = ucteXnodeCode;
+        this.pairingKey = pairingKey;
         this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
         this.boundary = new DanglingLineBoundaryImpl(this);
         this.generation = generation != null ? generation.attach(this) : null;
+    }
+
+    @Override
+    void replaceId(String newId) {
+        NetworkIndex.checkId(newId);
+        network.get().getIndex().remove(this);
+        id = newId;
+        network.get().getIndex().checkAndAdd(this);
+    }
+
+    OperationalLimitsHolderImpl getLimitsHolder() {
+        return operationalLimitsHolder;
+    }
+
+    void setTieLine(TieLineImpl tieLine) {
+        this.tieLine = tieLine;
     }
 
     @Override
@@ -278,8 +300,30 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
+    public Optional<TieLine> getTieLine() {
+        return Optional.ofNullable(tieLine);
+    }
+
+    @Override
+    public void remove() {
+        if (tieLine != null) {
+            throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child dangling line");
+        }
+        super.remove();
+    }
+
+    void removeTieLine() {
+        tieLine = null;
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Dangling line";
+    }
+
+    @Override
+    public boolean isPaired() {
+        return tieLine != null;
     }
 
     @Override
@@ -290,10 +334,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public DanglingLineImpl setP0(double p0) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkP0(this, p0, n.getMinValidationLevel());
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = n.getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("p0", variantId, oldValue, p0);
         return this;
@@ -307,10 +350,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public DanglingLineImpl setQ0(double q0) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkQ0(this, q0, n.getValidationLevel());
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = n.getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("q0", variantId, oldValue, q0);
         return this;
@@ -373,8 +415,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public String getUcteXnodeCode() {
-        return ucteXnodeCode;
+    public String getPairingKey() {
+        return pairingKey;
     }
 
     @Override

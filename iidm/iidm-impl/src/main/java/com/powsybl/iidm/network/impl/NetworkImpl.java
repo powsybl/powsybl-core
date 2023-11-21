@@ -7,7 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.base.Functions;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
@@ -16,9 +18,8 @@ import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
-import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
-
-import org.joda.time.DateTime;
+import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,57 +32,54 @@ import java.util.stream.Stream;
 import static com.powsybl.iidm.network.util.TieLineUtil.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class NetworkImpl extends AbstractIdentifiable<Network> implements Network, VariantManagerHolder, MultiVariantObject {
+class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, MultiVariantObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
+    /**
+     * Reference to current network. This is used to easily update the root network reference in all equipments
+     * when merging several networks.
+     */
     private final RefChain<NetworkImpl> ref = new RefChain<>(new RefObj<>(this));
 
-    private DateTime caseDate = new DateTime(); // default is the time at which the network has been created
-
-    private int forecastDistance = 0;
-
-    private String sourceFormat;
+    /**
+     * Reference to the subnetwork, hence the contained subnetwork is always null until a merge occurs
+     * This is used to easily update the subnetwork in all substations and voltage levels during the merge.
+     */
+    private RefChain<SubnetworkImpl> subnetworkRef = new RefChain<>(new RefObj<>(null));
 
     private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
     private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
 
     private final NetworkIndex index = new NetworkIndex();
 
+    private final Map<String, VoltageAngleLimit> voltageAngleLimitsIndex = new LinkedHashMap<>();
+
     private final VariantManagerImpl variantManager;
+
+    private AbstractReporterContext reporterContext;
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
-    class BusBreakerViewImpl implements BusBreakerView {
+    private final Map<String, SubnetworkImpl> subnetworks = new LinkedHashMap<>();
 
-        @Override
-        public Iterable<Bus> getBuses() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
-        }
+    @Override
+    public Collection<Network> getSubnetworks() {
+        return subnetworks.values().stream().map(Network.class::cast).toList();
+    }
 
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
-        }
+    @Override
+    public Network getSubnetwork(String id) {
+        return subnetworks.get(id);
+    }
 
-        @Override
-        public Iterable<Switch> getSwitches() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
-        }
+    void removeFromSubnetworks(String subnetworkId) {
+        subnetworks.remove(subnetworkId);
+    }
 
-        @Override
-        public Stream<Switch> getSwitchStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
-        }
-
-        @Override
-        public int getSwitchCount() {
-            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
-        }
+    class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
 
         @Override
         public Bus getBus(String id) {
@@ -99,18 +97,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final BusBreakerViewImpl busBreakerView = new BusBreakerViewImpl();
 
-    class BusViewImpl implements BusView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusView().getBuses());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
-        }
+    class BusViewImpl extends AbstractNetwork.AbstractBusViewImpl {
 
         @Override
         public Collection<Component> getConnectedComponents() {
@@ -130,15 +117,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         void invalidateCache() {
             variants.get().busViewCache.invalidate();
         }
-
     }
 
     private final BusViewImpl busView = new BusViewImpl();
 
     NetworkImpl(String id, String name, String sourceFormat) {
-        super(id, name);
-        Objects.requireNonNull(sourceFormat, "source format is null");
-        this.sourceFormat = sourceFormat;
+        super(id, name, sourceFormat);
+        ref.setRef(new RefObj<>(this));
+        this.reporterContext = new SimpleReporterContext();
         variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
@@ -147,42 +133,41 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         index.checkAndAdd(this);
     }
 
-    @Override
-    public ContainerType getContainerType() {
-        return ContainerType.NETWORK;
+    static Network merge(String id, String name, Network... networks) {
+        if (networks == null || networks.length < 2) {
+            throw new IllegalArgumentException("At least 2 networks are expected");
+        }
+
+        NetworkImpl mergedNetwork = new NetworkImpl(id, name, networks[0].getSourceFormat());
+        setValidationLevels(mergedNetwork, networks);
+        for (Network other : networks) {
+            mergedNetwork.merge(other);
+        }
+
+        return mergedNetwork;
     }
 
-    @Override
-    public DateTime getCaseDate() {
-        return caseDate;
-    }
-
-    @Override
-    public NetworkImpl setCaseDate(DateTime caseDate) {
-        ValidationUtil.checkCaseDate(this, caseDate);
-        this.caseDate = caseDate;
-        return this;
-    }
-
-    @Override
-    public int getForecastDistance() {
-        return forecastDistance;
-    }
-
-    @Override
-    public NetworkImpl setForecastDistance(int forecastDistance) {
-        ValidationUtil.checkForecastDistance(this, forecastDistance);
-        this.forecastDistance = forecastDistance;
-        return this;
-    }
-
-    @Override
-    public String getSourceFormat() {
-        return sourceFormat;
+    private static void setValidationLevels(NetworkImpl mergedNetwork, Network[] networks) {
+        // Use the less restrictive validation level for the merged network
+        ValidationLevel minLevel = mergedNetwork.getMinValidationLevel(); // default min validation level
+        ValidationLevel validationLevel = mergedNetwork.getValidationLevel(); // default min validation level
+        for (Network n : networks) {
+            if (n instanceof NetworkImpl networkImpl) {
+                minLevel = ValidationLevel.min(minLevel, networkImpl.getMinValidationLevel());
+                validationLevel = ValidationLevel.min(validationLevel, networkImpl.getValidationLevel());
+            }
+        }
+        mergedNetwork.setMinimumAcceptableValidationLevel(minLevel);
+        mergedNetwork.setValidationLevelIfGreaterThan(validationLevel);
     }
 
     RefChain<NetworkImpl> getRef() {
         return ref;
+    }
+
+    @Override
+    public RefChain<NetworkImpl> getRootNetworkRef() {
+        return getRef();
     }
 
     NetworkListenerList getListeners() {
@@ -193,14 +178,48 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return index;
     }
 
+    public Map<String, VoltageAngleLimit> getVoltageAngleLimitsIndex() {
+        return voltageAngleLimitsIndex;
+    }
+
+    @Override
+    public VoltageAngleLimit getVoltageAngleLimit(String id) {
+        return voltageAngleLimitsIndex.get(id);
+    }
+
+    @Override
+    public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
+        return voltageAngleLimitsIndex.values().stream();
+    }
+
+    @Override
+    public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
+        return voltageAngleLimitsIndex.values();
+    }
+
     @Override
     public NetworkImpl getNetwork() {
         return this;
     }
 
     @Override
+    public Network getParentNetwork() {
+        return this;
+    }
+
+    @Override
     public VariantManagerImpl getVariantManager() {
         return variantManager;
+    }
+
+    @Override
+    public void allowReporterContextMultiThreadAccess(boolean allow) {
+        this.reporterContext = Networks.allowReporterContextMultiThreadAccess(this.reporterContext, allow);
+    }
+
+    @Override
+    public ReporterContext getReporterContext() {
+        return this.reporterContext;
     }
 
     @Override
@@ -223,7 +242,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public SubstationAdder newSubstation() {
-        return new SubstationAdderImpl(ref);
+        return new SubstationAdderImpl(ref, subnetworkRef);
     }
 
     @Override
@@ -258,7 +277,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(ref);
+        return new VoltageLevelAdderImpl(ref, subnetworkRef);
     }
 
     @Override
@@ -286,12 +305,21 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public LineAdderImpl newLine() {
-        return new LineAdderImpl(this);
+        return newLine(null);
+    }
+
+    LineAdderImpl newLine(String subnetwork) {
+        return new LineAdderImpl(this, subnetwork);
     }
 
     @Override
     public Iterable<Line> getLines() {
-        return Iterables.concat(index.getAll(LineImpl.class), index.getAll(TieLineImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(LineImpl.class));
+    }
+
+    @Override
+    public Iterable<TieLine> getTieLines() {
+        return Collections.unmodifiableCollection(index.getAll(TieLineImpl.class));
     }
 
     @Override
@@ -300,52 +328,65 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         Branch branch = getLine(branchId);
         if (branch == null) {
             branch = getTwoWindingsTransformer(branchId);
+            if (branch == null) {
+                branch = getTieLine(branchId);
+            }
         }
         return branch;
     }
 
     @Override
     public Iterable<Branch> getBranches() {
-        return Iterables.concat(getLines(), getTwoWindingsTransformers());
+        return Iterables.concat(getLines(), getTwoWindingsTransformers(), getTieLines());
     }
 
     @Override
     public Stream<Branch> getBranchStream() {
-        return Stream.concat(getLineStream(), getTwoWindingsTransformerStream());
+        return Stream.of(getLineStream(), getTwoWindingsTransformerStream(), getTieLineStream()).flatMap(Function.identity());
     }
 
     @Override
     public int getBranchCount() {
-        return getLineCount() + getTwoWindingsTransformerCount();
+        return getLineCount() + getTwoWindingsTransformerCount() + getTieLineCount();
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        return Stream.concat(index.getAll(LineImpl.class).stream(), index.getAll(TieLineImpl.class).stream());
+        return index.getAll(LineImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public Stream<TieLine> getTieLineStream() {
+        return index.getAll(TieLineImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getLineCount() {
-        return index.getAll(LineImpl.class).size() + index.getAll(TieLineImpl.class).size();
+        return index.getAll(LineImpl.class).size();
     }
 
     @Override
-    public LineImpl getLine(String id) {
-        LineImpl line = index.get(id, LineImpl.class);
-        if (line == null) {
-            line = index.get(id, TieLineImpl.class);
-        }
-        return line;
+    public int getTieLineCount() {
+        return index.getAll(TieLineImpl.class).size();
+    }
+
+    @Override
+    public Line getLine(String id) {
+        return index.get(id, LineImpl.class);
+    }
+
+    @Override
+    public TieLine getTieLine(String id) {
+        return index.get(id, TieLineImpl.class);
     }
 
     @Override
     public TieLineAdderImpl newTieLine() {
-        return new TieLineAdderImpl(this);
+        return newTieLine(null);
     }
 
-    @Override
-    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
-        return new TwoWindingsTransformerAdderImpl(ref);
+    TieLineAdderImpl newTieLine(String subnetwork) {
+        return new TieLineAdderImpl(this, subnetwork);
     }
 
     @Override
@@ -366,11 +407,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         return index.get(id, TwoWindingsTransformerImpl.class);
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
-        return new ThreeWindingsTransformerAdderImpl(ref);
     }
 
     @Override
@@ -474,13 +510,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return Collections.unmodifiableCollection(index.getAll(DanglingLineImpl.class));
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return index.getAll(DanglingLineImpl.class).stream().map(Function.identity());
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return index.getAll(DanglingLineImpl.class).stream().filter(danglingLineFilter.getPredicate()).map(Function.identity());
     }
 
     @Override
@@ -647,7 +683,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public HvdcLineAdder newHvdcLine() {
-        return new HvdcLineAdderImpl(ref);
+        return newHvdcLine(null);
+    }
+
+    HvdcLineAdder newHvdcLine(String subnetwork) {
+        return new HvdcLineAdderImpl(this, subnetwork);
     }
 
     @Override
@@ -693,6 +733,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public int getConnectableCount() {
         return Ints.checkedCast(getConnectableStream().count());
+    }
+
+    @Override
+    public VoltageAngleLimitAdder newVoltageAngleLimit() {
+        return newVoltageAngleLimit(null);
+    }
+
+    VoltageAngleLimitAdder newVoltageAngleLimit(String subnetwork) {
+        return new VoltageAngleLimitAdderImpl(this, subnetwork);
     }
 
     @Override
@@ -850,18 +899,22 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
 
-    @Override
-    protected String getTypeDescription() {
-        return "Network";
+    private static void checkIndependentNetwork(Network network) {
+        if (network instanceof SubnetworkImpl) {
+            throw new IllegalArgumentException("The network " + network.getId() + " is already a subnetwork");
+        }
+        if (!network.getSubnetworks().isEmpty()) {
+            throw new IllegalArgumentException("The network " + network.getId() + " already contains subnetworks: not supported");
+        }
     }
 
-    @Override
-    public void merge(Network other) {
+    private void merge(Network other) {
+        checkIndependentNetwork(other);
         NetworkImpl otherNetwork = (NetworkImpl) other;
 
         // this check must not be done on the number of variants but on the size
         // of the internal variant array because the network can have only
-        // one variant but an internal array with a size greater that one and
+        // one variant but an internal array with a size greater than one and
         // some re-usable variants
         if (variantManager.getVariantArraySize() != 1 || otherNetwork.variantManager.getVariantArraySize() != 1) {
             throw new PowsyblException("Merging of multi-variants network is not supported");
@@ -869,32 +922,23 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         long start = System.currentTimeMillis();
 
-        // check mergeability
-        Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
-        for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
-            Class<? extends Identifiable> clazz = entry.getKey();
-            if (clazz == DanglingLineImpl.class) { // fine for dangling lines
-                continue;
-            }
-            Collection<String> objs = entry.getValue();
-            if (!objs.isEmpty()) {
-                throw new PowsyblException("The following object(s) of type "
-                        + clazz.getSimpleName() + " exist(s) in both networks: "
-                        + objs);
-            }
-        }
+        checkMergeability(otherNetwork);
 
         // try to find dangling lines couples
-        List<MergedLine> lines = new ArrayList<>();
-        Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
-        for (DanglingLine dl1 : getDanglingLines()) {
-            if (dl1.getUcteXnodeCode() != null) {
-                dl1byXnodeCode.computeIfAbsent(dl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(dl1);
+        List<DanglingLinePair> lines = new ArrayList<>();
+        Map<String, List<DanglingLine>> dl1byPairingKey = new HashMap<>();
+
+        for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
+            if (dl1.getPairingKey() != null) {
+                dl1byPairingKey.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
             }
         }
-        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
-            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> mergeDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
+        for (DanglingLine dl2 : findCandidateDanglingLines(other, dl1byPairingKey::containsKey)) {
+            findAndAssociateDanglingLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
         }
+
+        // create a subnetwork for the other network
+        createSubnetwork(this, otherNetwork);
 
         // do not forget to remove the other network from its index!!!
         otherNetwork.index.remove(otherNetwork);
@@ -902,16 +946,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         // merge the indexes
         index.merge(otherNetwork.index);
 
-        // fix network back reference of the other network objects
-        otherNetwork.ref.setRef(ref);
+        replaceDanglingLineByTieLine(lines);
 
-        Multimap<Boundary, MergedLine> mergedLineByBoundary = HashMultimap.create();
-        replaceDanglingLineByLine(lines, mergedLineByBoundary);
-
-        if (!lines.isEmpty()) {
-            LOGGER.info("{} dangling line couples have been replaced by a line: {}", lines.size(),
-                    mergedLineByBoundary.asMap().entrySet().stream().map(e -> e.getKey() + ": " + e.getValue().size()).collect(Collectors.toList()));
-        }
+        other.getVoltageAngleLimits().forEach(l -> getVoltageAngleLimitsIndex().put(l.getId(), l));
 
         // update the source format
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
@@ -921,184 +958,136 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
+    private void checkMergeability(NetworkImpl otherNetwork) {
+        // Check if the intersection of identifiable ids is empty
+        Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
+        for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
+            Class<? extends Identifiable> clazz = entry.getKey();
+            Collection<String> objs = entry.getValue();
+            if (!objs.isEmpty()) {
+                throw new PowsyblException("The following object(s) of type "
+                        + clazz.getSimpleName() + " exist(s) in both networks: "
+                        + objs);
+            }
+        }
+
+        // Check if the intersection of VoltageAngleLimit ids is empty
+        Set<String> intersectionVoltageAngleLimits = getVoltageAngleLimitsIndex().keySet().stream()
+                .filter(otherNetwork.getVoltageAngleLimitsIndex()::containsKey)
+                .collect(Collectors.toSet());
+        if (!intersectionVoltageAngleLimits.isEmpty()) {
+            throw new PowsyblException("The following voltage angle limit(s) exist(s) in both networks: "
+                    + intersectionVoltageAngleLimits);
+        }
+    }
+
+    private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {
+        // The root network reference should point to parent and not original anymore
+        // All substations/voltage levels will this way refer to parent instead of original
+        original.ref.setRef(new RefObj<>(parent));
+
+        // Handles the case of creating a subnetwork for itself without duplicating the id
+        String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
+
+        SubnetworkImpl sn = new SubnetworkImpl(
+                original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
+        transferExtensions(original, sn);
+        parent.subnetworks.put(idSubNetwork, sn);
+        parent.index.checkAndAdd(sn);
+    }
+
+    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byPairingKey) {
         if (dl1 != null) {
-            if (dl1.getUcteXnodeCode() != null) {
-                dl1byXnodeCode.get(dl1.getUcteXnodeCode()).remove(dl1);
+            if (dl1.getPairingKey() != null) {
+                dl1byPairingKey.get(dl1.getPairingKey()).remove(dl1);
             }
-
-            // Dangling line 2 must always be reoriented
-            // setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
-            ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
-
-            MergedLine l = new MergedLine();
+            DanglingLinePair l = new DanglingLinePair();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
-            l.aliases = new HashSet<>();
-            l.aliases.add(dl1.getId());
-            l.aliases.add(dl2.getId());
-            l.aliases.addAll(dl1.getAliases());
-            l.aliases.addAll(dl2.getAliases());
-            Terminal t1 = dl1.getTerminal();
-            Terminal t2 = dl2.getTerminal();
-            VoltageLevel vl1 = t1.getVoltageLevel();
-            VoltageLevel vl2 = t2.getVoltageLevel();
-            l.voltageLevel1 = vl1.getId();
-            l.voltageLevel2 = vl2.getId();
-            l.xnode = Optional.ofNullable(dl1.getUcteXnodeCode()).orElseGet(dl2::getUcteXnodeCode);
-            l.half1.id = dl1.getId();
-            l.half1.name = dl1.getOptionalName().orElse(null);
-            l.half1.r = dl1.getR();
-            l.half1.x = dl1.getX();
-            l.half1.g1 = dl1.getG();
-            l.half1.b1 = dl1.getB();
-            l.half1.g2 = 0;
-            l.half1.b2 = 0;
-            l.half1.fictitious = dl1.isFictitious();
-            l.half2.id = dl2.getId();
-            l.half2.name = dl2.getOptionalName().orElse(null);
-            l.half2.r = brp2.getR();
-            l.half2.x = brp2.getX();
-            l.half2.g1 = brp2.getG1();
-            l.half2.b1 = brp2.getB1();
-            l.half2.g2 = brp2.getG2();
-            l.half2.b2 = brp2.getB2();
-            l.half2.fictitious = dl2.isFictitious();
-            l.limits1 = dl1.getCurrentLimits().orElse(null);
-            l.limits2 = dl2.getCurrentLimits().orElse(null);
-            if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                Bus b1 = t1.getBusBreakerView().getBus();
-                if (b1 != null) {
-                    l.bus1 = b1.getId();
-                }
-                l.connectableBus1 = t1.getBusBreakerView().getConnectableBus().getId();
-            } else {
-                l.node1 = t1.getNodeBreakerView().getNode();
-            }
-            if (t2.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                Bus b2 = t2.getBusBreakerView().getBus();
-                if (b2 != null) {
-                    l.bus2 = b2.getId();
-                }
-                l.connectableBus2 = t2.getBusBreakerView().getConnectableBus().getId();
-            } else {
-                l.node2 = t2.getNodeBreakerView().getNode();
-            }
-            l.p1 = t1.getP();
-            l.q1 = t1.getQ();
-            l.p2 = t2.getP();
-            l.q2 = t2.getQ();
-            l.country1 = vl1.getSubstation().flatMap(Substation::getCountry).orElse(null);
-            l.country2 = vl2.getSubstation().flatMap(Substation::getCountry).orElse(null);
-            mergeProperties(dl1, dl2, l.properties);
-            lines.add(l);
+            l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
+            l.dl1Id = dl1.getId();
+            l.dl2Id = dl2.getId();
+            l.aliases = new HashMap<>();
+            // No need to merge properties or aliases because we keep the original dangling lines after merge
+            danglingLinePairs.add(l);
 
-            // remove the 2 dangling lines
-            dl1.remove();
-            dl2.remove();
+            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
+                ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
+                ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
+                l.dl1Id = dl1.getId();
+                l.dl2Id = dl2.getId();
+            }
         }
     }
 
-    private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
-        for (MergedLine mergedLine : lines) {
-            LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
-                    mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
-            TieLineAdderImpl la = newTieLine()
-                    .setId(mergedLine.id)
-                    .setName(buildMergedName(mergedLine.half1.id, mergedLine.half2.id, mergedLine.half1.name, mergedLine.half2.name))
-                    .setVoltageLevel1(mergedLine.voltageLevel1)
-                    .setVoltageLevel2(mergedLine.voltageLevel2)
-                    .newHalfLine1().setId(mergedLine.half1.id)
-                    .setName(mergedLine.half1.name)
-                    .setR(mergedLine.half1.r)
-                    .setX(mergedLine.half1.x)
-                    .setG1(mergedLine.half1.g1)
-                    .setG2(mergedLine.half1.g2)
-                    .setB1(mergedLine.half1.b1)
-                    .setB2(mergedLine.half1.b2)
-                    .setFictitious(mergedLine.half1.fictitious)
-                    .add()
-                    .newHalfLine2().setId(mergedLine.half2.id)
-                    .setName(mergedLine.half2.name)
-                    .setR(mergedLine.half2.r)
-                    .setX(mergedLine.half2.x)
-                    .setG1(mergedLine.half2.g1)
-                    .setG2(mergedLine.half2.g2)
-                    .setB1(mergedLine.half2.b1)
-                    .setB2(mergedLine.half2.b2)
-                    .setFictitious(mergedLine.half2.fictitious)
-                    .add()
-                    .setUcteXnodeCode(mergedLine.xnode);
-            if (mergedLine.bus1 != null) {
-                la.setBus1(mergedLine.bus1);
-            }
-            la.setConnectableBus1(mergedLine.connectableBus1);
-            if (mergedLine.bus2 != null) {
-                la.setBus2(mergedLine.bus2);
-            }
-            la.setConnectableBus2(mergedLine.connectableBus2);
-            if (mergedLine.node1 != null) {
-                la.setNode1(mergedLine.node1);
-            }
-            if (mergedLine.node2 != null) {
-                la.setNode2(mergedLine.node2);
-            }
-            TieLineImpl l = la.add();
-            l.getLimitsHolder1().setOperationalLimits(LimitType.CURRENT, mergedLine.limits1);
-            l.getLimitsHolder2().setOperationalLimits(LimitType.CURRENT, mergedLine.limits2);
-            l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
-            l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
-            mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            mergedLine.aliases.forEach(l::addAlias);
-
-            mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
+    private void replaceDanglingLineByTieLine(List<DanglingLinePair> lines) {
+        for (DanglingLinePair danglingLinePair : lines) {
+            LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
+                    danglingLinePair.id, danglingLinePair.dl1Id, danglingLinePair.dl2Id);
+            TieLineImpl l = newTieLine()
+                    .setId(danglingLinePair.id)
+                    .setEnsureIdUnicity(true)
+                    .setName(danglingLinePair.name)
+                    .setDanglingLine1(danglingLinePair.dl1Id)
+                    .setDanglingLine2(danglingLinePair.dl2Id)
+                    .add();
+            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            danglingLinePair.aliases.forEach((alias, type) -> {
+                if (type.isEmpty()) {
+                    l.addAlias(alias);
+                } else {
+                    l.addAlias(alias, type);
+                }
+            });
         }
     }
 
-    class MergedLine {
+    class DanglingLinePair {
         String id;
-        Set<String> aliases;
-        String voltageLevel1;
-        String voltageLevel2;
-        String xnode;
-        String bus1;
-        String bus2;
-        String connectableBus1;
-        String connectableBus2;
-        Integer node1;
-        Integer node2;
+        String name;
+        String dl1Id;
+        String dl2Id;
+        Map<String, String> aliases;
         Properties properties = new Properties();
-
-        class HalfMergedLine {
-            String id;
-            String name;
-            double r;
-            double x;
-            double g1;
-            double g2;
-            double b1;
-            double b2;
-            boolean fictitious;
-        }
-
-        final HalfMergedLine half1 = new HalfMergedLine();
-        final HalfMergedLine half2 = new HalfMergedLine();
-
-        CurrentLimits limits1;
-        CurrentLimits limits2;
-        double p1;
-        double q1;
-        double p2;
-        double q2;
-
-        Country country1;
-        Country country2;
     }
 
     @Override
-    public void merge(Network... others) {
-        for (Network other : others) {
-            merge(other);
+    public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
+        if (subnetworks.containsKey(subnetworkId)) {
+            throw new IllegalArgumentException("The network already contains another subnetwork of id " + subnetworkId);
         }
+        SubnetworkImpl subnetwork = new SubnetworkImpl(new RefChain<>(new RefObj<>(this)), subnetworkId, name, sourceFormat);
+        subnetworks.put(subnetworkId, subnetwork);
+        index.checkAndAdd(subnetwork);
+        return subnetwork;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>Since {@link NetworkImpl} instances are already independent networks, this method throws an {@link IllegalStateException}. </p>
+     */
+    @Override
+    public Network detach() {
+        throw new IllegalStateException("This network is already detached.");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>Since {@link NetworkImpl} instances are independent networks and can't thus be detached, this method returns <code>false</code>.</p>
+     * @return false
+     */
+    @Override
+    public boolean isDetachable() {
+        return false;
+    }
+
+    @Override
+    public Set<Identifiable<?>> getBoundaryElements() {
+        return getDanglingLineStream(DanglingLineFilter.UNPAIRED).collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean isBoundaryElement(Identifiable<?> identifiable) {
+        return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((DanglingLine) identifiable).isPaired();
     }
 
     @Override

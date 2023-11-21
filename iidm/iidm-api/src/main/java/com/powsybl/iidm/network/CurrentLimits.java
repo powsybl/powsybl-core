@@ -26,7 +26,7 @@ package com.powsybl.iidm.network;
  *    <object data="doc-files/currentLimits.svg" type="image/svg+xml"></object>
  * </div>
  *</p>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface CurrentLimits extends LoadingLimits {
 

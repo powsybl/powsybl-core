@@ -9,7 +9,7 @@ package com.powsybl.psse.converter;
 
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.psse.model.PsseException;
 import org.junit.jupiter.api.Assertions;
@@ -18,9 +18,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-class PsseImporterIllinoisTest extends AbstractConverterTest {
+class PsseImporterIllinoisTest extends AbstractSerDeTest {
 
     // From Illinois Center for a Smarter Electric Grid (ICSEG) (https://icseg.iti.illinois.edu/power-cases/)
     // A repository of publicly available, non-confidential power flow cases.

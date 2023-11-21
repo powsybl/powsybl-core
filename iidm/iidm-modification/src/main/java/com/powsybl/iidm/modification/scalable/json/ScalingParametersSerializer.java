@@ -15,7 +15,7 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import java.io.IOException;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ScalingParametersSerializer extends StdSerializer<ScalingParameters> {
 
@@ -31,7 +31,7 @@ public class ScalingParametersSerializer extends StdSerializer<ScalingParameters
         jsonGenerator.writeStringField("scalingConvention", scalingParameters.getScalingConvention().name());
         jsonGenerator.writeBooleanField("constantPowerFactor", scalingParameters.isConstantPowerFactor());
         jsonGenerator.writeBooleanField("reconnect", scalingParameters.isReconnect());
-        jsonGenerator.writeBooleanField("iterative", scalingParameters.isIterative());
+        jsonGenerator.writeStringField("priority", scalingParameters.getPriority().name());
 
         jsonGenerator.writeEndObject();
     }

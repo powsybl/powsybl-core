@@ -13,7 +13,7 @@ import java.util.function.IntFunction;
 import java.util.function.IntConsumer;
 
 /**
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public class BigDoubleBuffer {
 

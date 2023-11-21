@@ -8,13 +8,13 @@ package com.powsybl.cgmes.gl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 final class GLTestUtils {
 
@@ -28,7 +28,7 @@ final class GLTestUtils {
 
     static Network getNetwork() {
         Network network = Network.create("Network", "test");
-        network.setCaseDate(DateTime.parse("2018-01-01T00:30:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2018-01-01T00:30:00.000+01:00"));
         Substation substation1 = network.newSubstation()
                 .setId("Substation1")
                 .setCountry(Country.FR)

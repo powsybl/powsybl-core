@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractApparentPowerLimitsTest {
 
@@ -64,12 +64,12 @@ public abstract class AbstractApparentPowerLimitsTest {
 
         // limits1
         testLimits1(l.getApparentPowerLimits1().orElse(null));
-        testLimits1((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, Branch.Side.ONE).orElse(null));
+        testLimits1((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, TwoSides.ONE).orElse(null));
 
         // limits2
         ApparentPowerLimits apparentPowerLimits2 = l.getApparentPowerLimits2().orElseThrow(IllegalStateException::new);
         testLimits2(apparentPowerLimits2);
-        testLimits2((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, Branch.Side.TWO).orElse(null));
+        testLimits2((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, TwoSides.TWO).orElse(null));
 
         apparentPowerLimits2.remove();
         assertTrue(l.getActivePowerLimits2().isEmpty());

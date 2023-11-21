@@ -17,8 +17,8 @@ import java.util.Objects;
  * This class is used as an extension of a "classical" balanced direct load
  * we store here the deltas of power that will build the unblalanced loads. The reference is the positive sequence load stored in "Load".
  *
- * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class LoadAsymmetricalImpl extends AbstractExtension<Load> implements LoadAsymmetrical {
 

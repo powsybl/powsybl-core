@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Objects;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 public class DefaultSecurityAnalysisResultContext implements SecurityAnalysisResultContext {
 

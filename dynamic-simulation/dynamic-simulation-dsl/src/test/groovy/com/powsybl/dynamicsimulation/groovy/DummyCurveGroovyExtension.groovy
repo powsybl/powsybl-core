@@ -7,15 +7,13 @@
 package com.powsybl.dynamicsimulation.groovy
 
 import com.google.auto.service.AutoService
-import com.powsybl.commons.extensions.Extension
+import com.powsybl.commons.reporter.Reporter
 import com.powsybl.dsl.DslException
-import com.powsybl.dsl.ExtendableDslExtension
 import com.powsybl.dynamicsimulation.Curve
 
 import java.util.function.Consumer
-
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 @AutoService(CurveGroovyExtension.class)
 class DummyCurveGroovyExtension implements CurveGroovyExtension {
@@ -33,7 +31,7 @@ class DummyCurveGroovyExtension implements CurveGroovyExtension {
         }
     }
 
-    void load(Binding binding, Consumer<Curve> consumer) {
+    void load(Binding binding, Consumer<Curve> consumer, Reporter reporter) {
         binding.dummyCurve = { Closure<Void> closure ->
             def cloned = closure.clone()
 

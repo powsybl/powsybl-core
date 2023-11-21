@@ -10,8 +10,10 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -30,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,7 +41,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 final class ExportXmlCompare {
 
@@ -109,8 +112,8 @@ final class ExportXmlCompare {
         }
         if (attr.getLocalName().equals("value")) {
             Element e = attr.getOwnerElement();
-            return !e.getLocalName().equals("property") ||
-                    (!"CGMES.TP_ID".equals(e.getAttribute("name")) && !"CGMES.SSH_ID".equals(e.getAttribute("name")));
+            return !e.getLocalName().equals("property")
+                    || !"CGMES.TP_ID".equals(e.getAttribute("name")) && !"CGMES.SSH_ID".equals(e.getAttribute("name"));
         }
         return true;
     }
@@ -130,6 +133,11 @@ final class ExportXmlCompare {
             } else if (elementName.contains("TapChanger")) {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
                         || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+            } else if (elementName.startsWith("generator")) {
+                // ratedS is optional for generators,
+                // but we always export it to keep up with the quality of datasets rules.
+                // So we do not enforce this attribute to be equal in the original and exported network
+                ignored = attr.getLocalName().equals("ratedS");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
@@ -283,6 +291,19 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringCgmesSshMetadataId(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE
+                    && control.getNodeName().equals("id")) {
+                if (comparison.getControlDetails().getXPath().contains("cgmesSshMetadata")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ensuringIncreasedModelVersion(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();
@@ -305,8 +326,8 @@ final class ExportXmlCompare {
             if (test != null && control != null && control.getParentNode().getLocalName().equals("Model.scenarioTime")) {
                 String scontrol = control.getTextContent();
                 String stest = test.getTextContent();
-                DateTime dcontrol = DateTime.parse(scontrol, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
-                DateTime dtest = DateTime.parse(stest, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
+                ZonedDateTime dcontrol = ZonedDateTime.parse(scontrol, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(ZoneOffset.UTC));
+                ZonedDateTime dtest = ZonedDateTime.parse(stest);
                 if (dcontrol.equals(dtest)) {
                     return ComparisonResult.EQUAL;
                 }
@@ -547,10 +568,139 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringFullModelDependentOn(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath.contains("FullModel")) {
+            if (cxpath != null && cxpath.contains("FullModel")) {
                 if (cxpath.contains("Model.DependentOn")) {
                     return ComparisonResult.EQUAL;
                 }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringFullModelModelingAuthoritySet(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("FullModel") && cxpath.contains("Model.modelingAuthoritySet")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSubstationNumAttributes(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_NUM_ATTRIBUTES) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("network") && cxpath.contains("substation")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSubstationLookup(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("network") && cxpath.contains("substation")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringGeneratorAttributes(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("generator")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringLoadChildNodeListLength(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("load")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildNodeListLength(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringChildLookupNull(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            if (comparison.getControlDetails().getXPath() == null) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringTextValueShuntCompensatorControlEnabled(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("ShuntCompensator") && cxpath.contains("controlEnabled")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildLookupTerminal(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("Terminal")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildLookupEquivalentInjection(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("EquivalentInjection")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildLookupStaticVarCompensator(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("StaticVarCompensator")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRdfChildLookupRegulatingControl(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("RegulatingControl")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringTextValueTapChangerControlEnabled(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("TapChanger") && cxpath.contains("controlEnabled")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
@@ -572,6 +722,44 @@ final class ExportXmlCompare {
                     if (control.getTarget().getParentNode().getLocalName().endsWith(".mRID")) {
                         return ComparisonResult.EQUAL;
                     }
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringLoadAreaIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control.getXPath().contains("SubLoadArea")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("LoadArea")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SubLoadArea.LoadArea")
+                        && control.getTarget().getLocalName().equals("resource")) {
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.TEXT_VALUE) {
+                if (control.getXPath().contains("SubLoadArea") || control.getXPath().contains("LoadArea")) {
+                    if (control.getTarget().getParentNode().getLocalName().endsWith(".mRID")) {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringEnergyAreaIdOfControlArea(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control.getXPath().contains("ControlArea.EnergyArea")
+                        && control.getTarget().getLocalName().equals("resource")) {
+                    return ComparisonResult.EQUAL;
                 }
             }
         }

@@ -24,7 +24,7 @@ import java.util.Random;
  * Example to generate a svg from the dot file:
  * sfdp -Goverlap=prism -Tsvg -o /tmp/a.svg  /tmp/a.dot
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class GraphvizConnectivity {
 
@@ -85,7 +85,7 @@ public class GraphvizConnectivity {
                         .add(node));
             }
         }
-        for (Branch branch : network.getBranches()) {
+        for (Branch<?> branch : network.getBranches()) {
             Bus b1 = branch.getTerminal1().getBusView().getBus();
             Bus b2 = branch.getTerminal2().getBusView().getBus();
             if (b1 != null && b2 != null) {

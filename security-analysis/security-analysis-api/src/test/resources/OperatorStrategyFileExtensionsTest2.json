@@ -4,10 +4,13 @@
     "id" : "id1",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
-    "condition" : {
-      "type" : "TRUE_CONDITION"
-    },
-    "actionIds" : [ "actionId1", "actionId2", "actionId3" ],
+    "conditionalActions" : [ {
+      "id" : "default",
+      "condition" : {
+        "type" : "TRUE_CONDITION"
+      },
+      "actionIds" : [ "actionId1", "actionId2", "actionId3" ]
+    } ],
     "extensions" : {
       "dummy-extension" : {
         "parameterDouble" : 20.0,
@@ -19,10 +22,13 @@
     "id" : "id2",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId2",
-    "condition" : {
-      "type" : "TRUE_CONDITION"
-    },
-    "actionIds" : [ "actionId4" ],
+    "conditionalActions" : [ {
+      "id" : "default",
+      "condition" : {
+        "type" : "TRUE_CONDITION"
+      },
+      "actionIds" : [ "actionId4" ]
+    } ],
     "extensions" : {
       "dummy-extension" : {
         "parameterDouble" : 20.0,

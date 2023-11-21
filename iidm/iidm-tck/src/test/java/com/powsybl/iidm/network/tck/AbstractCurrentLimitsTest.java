@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractCurrentLimitsTest {
 
@@ -78,6 +78,124 @@ public abstract class AbstractCurrentLimitsTest {
         return network;
     }
 
+    private static Network createNetworkForThreeWindingsTransformer() {
+        Network network = Network.create("test_3wt", "test");
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl1.getBusBreakerView().newBus()
+                .setId("B1")
+                .add();
+        VoltageLevel vl2 = s1.newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl2.getBusBreakerView().newBus()
+                .setId("B2")
+                .add();
+        VoltageLevel vl3 = s1.newVoltageLevel()
+                .setId("VL3")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl3.getBusBreakerView().newBus()
+                .setId("B3")
+                .add();
+        ThreeWindingsTransformer transformer = s1.newThreeWindingsTransformer()
+                .setId("3WT")
+                .setRatedU0(132.0)
+                .newLeg1()
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(132.0)
+                .setVoltageLevel("VL1")
+                .setBus("B1")
+                .add()
+                .newLeg2() // not used for the test
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(132.0)
+                .setVoltageLevel("VL2")
+                .setBus("B2")
+                .add()
+                .newLeg3() // not used for the test
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(132.0)
+                .setVoltageLevel("VL3")
+                .setBus("B3")
+                .add()
+                .add();
+        transformer.getLeg1().newCurrentLimits()
+                .setPermanentLimit(1000.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("5'")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(1600.0)
+                .endTemporaryLimit()
+                .add();
+        transformer.getLeg2().newCurrentLimits()
+                .setPermanentLimit(1000.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("5'")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(1600.0)
+                .endTemporaryLimit()
+                .add();
+        transformer.getLeg3().newCurrentLimits()
+                .setPermanentLimit(1000.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("5'")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(1600.0)
+                .endTemporaryLimit()
+                .add();
+        return network;
+    }
+
     @Test
     public void test() {
         Network network = createNetwork();
@@ -103,6 +221,99 @@ public abstract class AbstractCurrentLimitsTest {
         assertNotNull(l.checkTemporaryLimits1(LimitType.CURRENT));
         assertEquals(60, l.checkTemporaryLimits1(LimitType.CURRENT).getTemporaryLimit().getAcceptableDuration());
         assertEquals(1400.0, l.checkTemporaryLimits1(LimitType.CURRENT).getPreviousLimit(), 0.0);
+    }
+
+    @Test
+    public void testForThreeWindingsTransformerLeg1() {
+        Network network = createNetworkForThreeWindingsTransformer();
+        ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer("3WT");
+        ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+
+        assertFalse(transformer.isOverloaded());
+        leg1.getTerminal().getBusBreakerView().getBus().setV(390.0);
+        leg1.getTerminal().setP(100.0).setQ(50.0); // i = 165.51212
+        assertFalse(Double.isNaN(leg1.getTerminal().getI()));
+        assertFalse(transformer.isOverloaded());
+        assertFalse(transformer.checkPermanentLimit1(LimitType.CURRENT));
+        assertNull(transformer.checkTemporaryLimits1(LimitType.CURRENT));
+
+        leg1.getTerminal().setP(800.0).setQ(400.0); // i = 1324.0969
+        assertTrue(transformer.isOverloaded());
+        assertEquals(5 * 60L, transformer.getOverloadDuration());
+        assertTrue(transformer.checkPermanentLimit1(LimitType.CURRENT));
+        Overload tmpLimit1 = transformer.checkTemporaryLimits1(LimitType.CURRENT);
+        assertNotNull(tmpLimit1);
+        assertEquals(5 * 60L, tmpLimit1.getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1200.0, tmpLimit1.getPreviousLimit(), 0.0);
+
+        leg1.getTerminal().setP(900.0).setQ(500.0); // i = 1524.1499
+        assertEquals(60, transformer.getOverloadDuration());
+        Overload tmpLimit1Bis = transformer.checkTemporaryLimits1(LimitType.CURRENT);
+        assertNotNull(tmpLimit1Bis);
+        assertEquals(60, tmpLimit1Bis.getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1400.0, tmpLimit1Bis.getPreviousLimit(), 0.0);
+    }
+
+    @Test
+    public void testForThreeWindingsTransformerLeg2() {
+        Network network = createNetworkForThreeWindingsTransformer();
+        ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer("3WT");
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+
+        assertFalse(transformer.isOverloaded());
+        leg2.getTerminal().getBusBreakerView().getBus().setV(390.0);
+        leg2.getTerminal().setP(100.0).setQ(50.0); // i = 165.51212
+        assertFalse(Double.isNaN(leg2.getTerminal().getI()));
+        assertFalse(transformer.isOverloaded());
+        assertFalse(transformer.checkPermanentLimit2(LimitType.CURRENT));
+        assertNull(transformer.checkTemporaryLimits2(LimitType.CURRENT));
+
+        leg2.getTerminal().setP(800.0).setQ(400.0); // i = 1324.0969
+        assertTrue(transformer.isOverloaded());
+        assertEquals(5 * 60L, transformer.getOverloadDuration());
+        assertTrue(transformer.checkPermanentLimit2(LimitType.CURRENT));
+        Overload tmpLimit2 = transformer.checkTemporaryLimits2(LimitType.CURRENT);
+        assertNotNull(tmpLimit2);
+        assertEquals(5 * 60L, tmpLimit2.getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1200.0, tmpLimit2.getPreviousLimit(), 0.0);
+
+        leg2.getTerminal().setP(900.0).setQ(500.0); // i = 1524.1499
+        assertEquals(60, transformer.getOverloadDuration());
+        Overload tmpLimit2Bis = transformer.checkTemporaryLimits2(LimitType.CURRENT);
+        assertNotNull(tmpLimit2Bis);
+        assertEquals(60, tmpLimit2Bis.getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1400.0, tmpLimit2Bis.getPreviousLimit(), 0.0);
+    }
+
+    @Test
+    public void testForThreeWindingsTransformerLeg3() {
+        Network network = createNetworkForThreeWindingsTransformer();
+        ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer("3WT");
+        ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+
+        assertFalse(transformer.isOverloaded());
+        leg3.getTerminal().getBusBreakerView().getBus().setV(390.0);
+        leg3.getTerminal().setP(100.0).setQ(50.0); // i = 165.51212
+        assertFalse(Double.isNaN(leg3.getTerminal().getI()));
+        assertFalse(transformer.isOverloaded());
+        assertFalse(transformer.checkPermanentLimit3(LimitType.CURRENT));
+        assertNull(transformer.checkTemporaryLimits3(LimitType.CURRENT));
+
+        leg3.getTerminal().setP(800.0).setQ(400.0); // i = 1324.0969
+        assertTrue(transformer.isOverloaded());
+        assertEquals(5 * 60L, transformer.getOverloadDuration());
+        assertTrue(transformer.checkPermanentLimit3(LimitType.CURRENT));
+        Overload tmpLimit3 = transformer.checkTemporaryLimits3(LimitType.CURRENT);
+        assertNotNull(tmpLimit3);
+        assertEquals(5 * 60L, tmpLimit3.getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1200.0, tmpLimit3.getPreviousLimit(), 0.0);
+
+        leg3.getTerminal().setP(900.0).setQ(500.0); // i = 1524.1499
+        assertEquals(60, transformer.getOverloadDuration());
+        Overload tmpLimit3Bis = transformer.checkTemporaryLimits3(LimitType.CURRENT);
+        assertNotNull(tmpLimit3Bis);
+        assertEquals(60, tmpLimit3Bis.getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1400.0, tmpLimit3Bis.getPreviousLimit(), 0.0);
     }
 
     @Test

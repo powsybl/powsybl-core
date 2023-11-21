@@ -7,6 +7,7 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.nio.ByteBuffer;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class DenseMatrixTest extends AbstractMatrixTest {
 
@@ -106,5 +107,12 @@ class DenseMatrixTest extends AbstractMatrixTest {
         assertEquals(15, c.get(1, 0), EPSILON);
         assertEquals(0, c.get(0, 1), EPSILON);
         assertEquals(0, c.get(1, 1), EPSILON);
+    }
+
+    @Test
+    void testTooManyElementDenseMatrix() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> new DenseMatrix(100000, 10000));
+        assertEquals("Too many elements for a dense matrix, maximum allowed is 268435455", e.getMessage());
+        assertEquals(268435455, DenseMatrix.MAX_ELEMENT_COUNT);
     }
 }

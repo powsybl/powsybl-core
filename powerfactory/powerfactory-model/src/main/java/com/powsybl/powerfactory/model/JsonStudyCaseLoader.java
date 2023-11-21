@@ -11,7 +11,7 @@ import com.google.auto.service.AutoService;
 import java.io.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(PowerFactoryDataLoader.class)
 public class JsonStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {

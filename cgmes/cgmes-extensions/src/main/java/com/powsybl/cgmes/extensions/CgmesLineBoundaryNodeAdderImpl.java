@@ -6,27 +6,23 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CgmesLineBoundaryNodeAdderImpl extends AbstractExtensionAdder<Line, CgmesLineBoundaryNode> implements CgmesLineBoundaryNodeAdder {
+class CgmesLineBoundaryNodeAdderImpl extends AbstractExtensionAdder<TieLine, CgmesLineBoundaryNode> implements CgmesLineBoundaryNodeAdder {
 
     private boolean isHvdc;
     private String lineEnergyIdentificationCodeEic;
 
-    CgmesLineBoundaryNodeAdderImpl(Line extendable) {
+    CgmesLineBoundaryNodeAdderImpl(TieLine extendable) {
         super(extendable);
     }
 
     @Override
-    protected CgmesLineBoundaryNode createExtension(Line extendable) {
-        if (!extendable.isTieLine()) {
-            throw new PowsyblException(String.format("Unexpected extendable: line %s is not a tie line", extendable.getId()));
-        }
+    protected CgmesLineBoundaryNode createExtension(TieLine extendable) {
         return new CgmesLineBoundaryNodeImpl(isHvdc, lineEnergyIdentificationCodeEic);
     }
 

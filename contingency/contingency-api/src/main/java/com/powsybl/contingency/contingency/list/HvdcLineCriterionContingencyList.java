@@ -15,33 +15,18 @@ import com.powsybl.iidm.network.IdentifiableType;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class HvdcLineCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
-
-    private final TwoCountriesCriterion twoCountriesCriterion;
-    private final TwoNominalVoltageCriterion twoNominalVoltageCriterion;
+public class HvdcLineCriterionContingencyList extends AbstractLineCriterionContingencyList {
 
     public HvdcLineCriterionContingencyList(String name, TwoCountriesCriterion twoCountriesCriterion,
                                             TwoNominalVoltageCriterion twoNominalVoltageCriterion,
                                             List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.HVDC_LINE, propertyCriteria, regexCriterion);
-        this.twoCountriesCriterion = twoCountriesCriterion;
-        this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
+        super(name, IdentifiableType.HVDC_LINE, twoCountriesCriterion, twoNominalVoltageCriterion, propertyCriteria, regexCriterion);
     }
 
     @Override
     public String getType() {
         return "hvdcCriterion";
-    }
-
-    @Override
-    public TwoCountriesCriterion getCountryCriterion() {
-        return twoCountriesCriterion;
-    }
-
-    @Override
-    public TwoNominalVoltageCriterion getNominalVoltageCriterion() {
-        return twoNominalVoltageCriterion;
     }
 }

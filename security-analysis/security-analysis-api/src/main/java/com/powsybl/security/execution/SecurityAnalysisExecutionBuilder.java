@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  * Helper class to build a {@link SecurityAnalysisExecution},
  * based on specified options, in particular distribution options.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisExecutionBuilder {
 

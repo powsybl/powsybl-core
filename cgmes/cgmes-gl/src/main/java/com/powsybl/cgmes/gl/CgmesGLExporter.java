@@ -9,6 +9,7 @@ package com.powsybl.cgmes.gl;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.network.DanglingLineFilter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -25,7 +26,7 @@ import java.util.Objects;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public class CgmesGLExporter {
 
@@ -113,7 +114,7 @@ public class CgmesGLExporter {
         LOG.info("Exporting Lines Position");
         network.getLineStream().forEach(positionExporter::exportPosition);
         LOG.info("Exporting Dangling Lines Position");
-        network.getDanglingLineStream().forEach(positionExporter::exportPosition);
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).forEach(positionExporter::exportPosition);
     }
 
 }

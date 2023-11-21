@@ -16,7 +16,7 @@ import static com.powsybl.ucte.network.UcteVoltageLevelCode.isVoltageLevelCode;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteNodeCode implements Comparable<UcteNodeCode> {
 
@@ -129,8 +129,7 @@ public class UcteNodeCode implements Comparable<UcteNodeCode> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UcteNodeCode) {
-            UcteNodeCode other = (UcteNodeCode) obj;
+        if (obj instanceof UcteNodeCode other) {
             return ucteCountryCode == other.ucteCountryCode
                     && geographicalSpot.equals(other.geographicalSpot)
                     && voltageLevelCode == other.voltageLevelCode

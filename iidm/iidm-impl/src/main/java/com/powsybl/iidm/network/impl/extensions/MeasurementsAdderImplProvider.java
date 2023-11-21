@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurements;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class MeasurementsAdderImplProvider<C extends Connectable<C>> implements ExtensionAdderProvider<C, Measurements<C>, MeasurementsAdderImpl<C>> {

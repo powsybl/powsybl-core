@@ -7,20 +7,15 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class OperationalLimitConversion extends AbstractIdentifiedObjectConversion {
 
@@ -60,8 +55,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 Identifiable<?> i = context.network().getIdentifiable(equipmentId);
                 if (i == null) {
                     vl = context.network().getVoltageLevel(p.getId("EquipmentContainer")); // happens in BusBranch when the voltage limit is linked to a busbarSection
-                } else if (i instanceof Injection) {
-                    vl = ((Injection) i).getTerminal().getVoltageLevel();
+                } else if (i instanceof Injection<?> injection) {
+                    vl = injection.getTerminal().getVoltageLevel();
                 }
             }
         } else {
@@ -161,12 +156,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             } else {
                 createLimitsAdder(terminalNumber, limitSubClass, b);
             }
-        } else if (identifiable instanceof DanglingLine) {
-            DanglingLine danglingLine = (DanglingLine) identifiable;
+        } else if (identifiable instanceof DanglingLine danglingLine) {
             loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(danglingLine.getId() + "_" + limitSubClass,
                     getLoadingLimitAdderSupplier(limitSubClass, danglingLine));
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+        } else if (identifiable instanceof ThreeWindingsTransformer twt) {
             if (terminalNumber == -1) {
                 context.ignored(limitSubClass, "Defined for Equipment ThreeWindingsTransformer. Should be defined for one Terminal of Three");
                 notAssigned(twt);
@@ -311,14 +304,15 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
         // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
+            String name = Optional.ofNullable(p.getId("shortName")).orElse(p.getId("name"));
             if (loadingLimitsAdder != null) {
-                addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder);
+                addTatl(name, value, acceptableDuration, loadingLimitsAdder);
             } else {
                 if (loadingLimitsAdder1 != null) {
-                    addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder1);
+                    addTatl(name, value, acceptableDuration, loadingLimitsAdder1);
                 }
                 if (loadingLimitsAdder2 != null) {
-                    addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder2);
+                    addTatl(name, value, acceptableDuration, loadingLimitsAdder2);
                 }
             }
         } else if (direction.endsWith("low")) {

@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *     implementing {@link #loadSpecificParameters(PlatformConfig)} is required.</li>
  * </ul>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvider {
 
@@ -123,7 +123,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      *
      * @return the list of the specific parameters names.
      */
-    @Deprecated
+    @Deprecated(since = "5.1.0")
     default List<String> getSpecificParametersNames() {
         return getSpecificParameters().stream().map(Parameter::getName).collect(Collectors.toList());
     }

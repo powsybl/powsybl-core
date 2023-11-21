@@ -10,15 +10,15 @@ import com.powsybl.iidm.network.Connectable;
 
 /**
  * @deprecated use {@link AbstractMultiVariantIdentifiableExtension} instead.
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
-@Deprecated
+@Deprecated(since = "3.5.0")
 public abstract class AbstractMultiVariantConnectableExtension<T extends Connectable<T>> extends AbstractMultiVariantIdentifiableExtension<T> {
 
     /**
      * Deprecated, use {@link AbstractMultiVariantIdentifiableExtension} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.5.0")
     public AbstractMultiVariantConnectableExtension(T extendable) {
         super(extendable);
     }

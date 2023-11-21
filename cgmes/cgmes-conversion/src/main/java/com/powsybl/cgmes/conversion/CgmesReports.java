@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Substation;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class CgmesReports {
 
@@ -83,6 +83,28 @@ public final class CgmesReports {
                 .withDefaultMessage("Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
                 .withValue("networkId", networkId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    public static void danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(Reporter reporter, String danglingLineId) {
+        reporter.report(Report.builder()
+                .withKey("danglingLineDisconnectedAtBoundaryHasBeenDisconnected")
+                .withDefaultMessage("DanglingLine ${danglingLineId} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.")
+                .withValue("danglingLineId", danglingLineId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(Reporter reporter, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
+        reporter.report(Report.builder()
+                .withKey("multipleUnpairedDanglingLinesAtSameBoundary")
+                .withDefaultMessage("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from (${p0}, ${q0}) to (${p0Adjusted}, ${q0Adjusted}) for dangling line ${danglingLineId}.")
+                .withValue("danglingLineId", danglingLineId)
+                .withValue("p0", p0)
+                .withValue("q0", q0)
+                .withValue("p0Adjusted", p0Adjusted)
+                .withValue("q0Adjusted", q0Adjusted)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }
 }

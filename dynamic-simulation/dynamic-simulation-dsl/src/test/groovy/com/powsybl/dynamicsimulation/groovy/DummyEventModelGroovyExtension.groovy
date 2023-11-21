@@ -6,6 +6,8 @@
  */
 package com.powsybl.dynamicsimulation.groovy
 
+import com.powsybl.commons.reporter.Reporter
+
 import java.util.function.Consumer
 
 import com.google.auto.service.AutoService
@@ -13,7 +15,7 @@ import com.powsybl.dsl.DslException
 import com.powsybl.dynamicsimulation.EventModel
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 @AutoService(EventModelGroovyExtension.class)
 class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
@@ -27,11 +29,11 @@ class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
         }
 
         void startTime(double startTime) {
-            this.startTime = startTime;
+            this.startTime = startTime
         }
     }
 
-    void load(Binding binding, Consumer<EventModel> consumer) {
+    void load(Binding binding, Consumer<EventModel> consumer, Reporter reporter) {
         binding.dummyEventModel = { Closure<Void> closure ->
             def cloned = closure.clone()
 
@@ -48,5 +50,10 @@ class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
 
             consumer.accept(new DummyEventModel(eventModelSpec.id, eventModelSpec.startTime))
         }
+    }
+
+    @Override
+    List<String> getModelNames() {
+        List.of(DummyEventModel.class.simpleName)
     }
 }

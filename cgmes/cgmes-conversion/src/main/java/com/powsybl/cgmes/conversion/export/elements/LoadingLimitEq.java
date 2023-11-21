@@ -17,7 +17,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class LoadingLimitEq {
 
@@ -32,7 +32,7 @@ public final class LoadingLimitEq {
         writer.writeEndElement();
     }
 
-    private static String loadingLimitClassName(Class<? extends LoadingLimits> loadingLimitClass) {
+    public static String loadingLimitClassName(Class<? extends LoadingLimits> loadingLimitClass) {
         if (CurrentLimits.class.equals(loadingLimitClass)) {
             return "CurrentLimit";
         } else if (ActivePowerLimits.class.equals(loadingLimitClass)) {

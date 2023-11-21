@@ -12,15 +12,16 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Version {
 
@@ -47,7 +48,7 @@ public interface Version {
                                  .writeCell(version.getMavenProjectVersion())
                                  .writeCell(version.getGitBranch())
                                  .writeCell(version.getGitVersion())
-                                 .writeCell(new DateTime(version.getBuildTimestamp()).toString());
+                                 .writeCell(Instant.ofEpochSecond(version.getBuildTimestamp()).atZone(ZoneOffset.UTC).toString());
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }

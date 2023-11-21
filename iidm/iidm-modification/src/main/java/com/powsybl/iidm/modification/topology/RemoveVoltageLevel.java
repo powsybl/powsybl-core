@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundVoltageLevelReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.removedVoltageLevelReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.notFoundVoltageLevelReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.removedVoltageLevelReport;
 
 /**
- * @author Etienne Homer <etienne.homer at rte-france.com>
+ * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
 public class RemoveVoltageLevel extends AbstractNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveVoltageLevel.class);
@@ -60,6 +60,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
         voltageLevel.remove();
         removedVoltageLevelReport(reporter, voltageLevelId);
+        LOGGER.info("Voltage level {}, its equipments and the branches it is connected to have been removed", voltageLevelId);
     }
 
 }

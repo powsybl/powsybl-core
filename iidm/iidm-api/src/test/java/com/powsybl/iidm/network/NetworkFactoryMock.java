@@ -6,12 +6,13 @@
  */
 package com.powsybl.iidm.network;
 
-import org.joda.time.DateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.mockito.Mockito;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NetworkFactoryMock implements NetworkFactory {
 
@@ -19,7 +20,7 @@ public class NetworkFactoryMock implements NetworkFactory {
     public Network createNetwork(String id, String sourceFormat) {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getCaseDate())
-                .thenReturn(new DateTime(2021, 12, 20, 0, 0, 0));
+                .thenReturn(ZonedDateTime.of(2021, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC));
         Load load = Mockito.mock(Load.class);
         Mockito.when(network.getLoad(Mockito.anyString()))
                 .thenReturn(load);
@@ -33,5 +34,15 @@ public class NetworkFactoryMock implements NetworkFactory {
                 .thenAnswer(invocationOnMock -> loadType[0]);
 
         return network;
+    }
+
+    @Override
+    public Network merge(String id, Network... networks) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public Network merge(Network... networks) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

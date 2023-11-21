@@ -7,13 +7,13 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class HvdcTestNetwork {
 
@@ -31,7 +31,7 @@ public final class HvdcTestNetwork {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("hvdctest", "test");
-        network.setCaseDate(DateTime.parse("2016-06-27T16:34:55.930+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T16:34:55.930+02:00"));
         Substation s1 = network.newSubstation()
                 .setId("S1")
                 .setCountry(Country.FR)

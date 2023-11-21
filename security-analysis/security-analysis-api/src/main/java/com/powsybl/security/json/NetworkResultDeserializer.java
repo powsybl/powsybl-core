@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> {
 

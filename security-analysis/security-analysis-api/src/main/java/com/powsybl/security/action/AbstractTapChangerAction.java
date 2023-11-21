@@ -7,20 +7,20 @@
  */
 package com.powsybl.security.action;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public abstract class AbstractTapChangerAction extends AbstractAction {
 
     private final String transformerId;
-    private final ThreeWindingsTransformer.Side side;
+    private final ThreeSides side;
 
-    protected AbstractTapChangerAction(String id, String transformerId, ThreeWindingsTransformer.Side side) {
+    protected AbstractTapChangerAction(String id, String transformerId, ThreeSides side) {
         super(id);
         this.transformerId = Objects.requireNonNull(transformerId);
         this.side = side;
@@ -30,7 +30,7 @@ public abstract class AbstractTapChangerAction extends AbstractAction {
         return transformerId;
     }
 
-    public Optional<ThreeWindingsTransformer.Side> getSide() {
+    public Optional<ThreeSides> getSide() {
         return Optional.ofNullable(side);
     }
 }

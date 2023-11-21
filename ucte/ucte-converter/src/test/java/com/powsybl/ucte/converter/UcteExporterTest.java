@@ -7,7 +7,7 @@
 package com.powsybl.ucte.converter;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -24,12 +24,13 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
- * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ * @author Abdelsalem Hedhili {@literal <abdelsalem.hedhili at rte-france.com>}
  */
 
-class UcteExporterTest extends AbstractConverterTest {
+class UcteExporterTest extends AbstractSerDeTest {
 
     /**
      * Utility method to load a network file from resource directory without calling
@@ -41,11 +42,20 @@ class UcteExporterTest extends AbstractConverterTest {
         return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
+    private static Network loadNetworkFromResourceFile(String filePath, Properties parameters) {
+        ReadOnlyDataSource dataSource = new ResourceDataSource(FilenameUtils.getBaseName(filePath), new ResourceSet(FilenameUtils.getPath(filePath), FilenameUtils.getName(filePath)));
+        return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), parameters);
+    }
+
     private static void testExporter(Network network, String reference) throws IOException {
+        testExporter(network, reference, new Properties());
+    }
+
+    private static void testExporter(Network network, String reference, Properties parameters) throws IOException {
         MemDataSource dataSource = new MemDataSource();
 
         UcteExporter exporter = new UcteExporter();
-        exporter.export(network, new Properties(), dataSource);
+        exporter.export(network, parameters, dataSource);
 
         try (InputStream actual = dataSource.newInputStream(null, "uct");
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
@@ -61,8 +71,7 @@ class UcteExporterTest extends AbstractConverterTest {
         Network networkBE = loadNetworkFromResourceFile("/beTestGridForMerging.uct");
         testExporter(networkBE, "/beTestGridForMerging.uct");
 
-        Network merge = Network.create("merge", "UCT");
-        merge.merge(networkBE, networkFR);
+        Network merge = Network.merge(networkBE, networkFR);
         testExporter(merge, "/uxTestGridForMerging.uct");
     }
 
@@ -74,8 +83,7 @@ class UcteExporterTest extends AbstractConverterTest {
         Network networkBE = loadNetworkFromResourceFile("/beForMergeProperties.uct");
         testExporter(networkBE, "/beForMergeProperties.uct");
 
-        Network mergedNetwork = Network.create("mergedNetwork", "UCT");
-        mergedNetwork.merge(networkBE, networkFR);
+        Network mergedNetwork = Network.merge(networkBE, networkFR);
         testExporter(mergedNetwork, "/uxForMergeProperties.uct");
     }
 
@@ -92,7 +100,7 @@ class UcteExporterTest extends AbstractConverterTest {
         assertNotEquals("IIDM", exporter.getFormat());
         assertEquals("IIDM to UCTE converter", exporter.getComment());
         assertNotEquals("UCTE to IIDM converter", exporter.getComment());
-        assertEquals(1, exporter.getParameters().size());
+        assertEquals(2, exporter.getParameters().size());
     }
 
     @Test
@@ -207,4 +215,49 @@ class UcteExporterTest extends AbstractConverterTest {
         testExporter(network, "/phaseShifterActivePowerOn.uct");
     }
 
+    @Test
+    void roundTripOfNetworkWithTapChangers() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport2.uct");
+        testExporter(network, "/expectedExport3.uct"); // because of asymmetrical phase shifter
+    }
+
+    @Test
+    void roundTripOfNetworkWithTapChangers2() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport4.uct");
+        testExporter(network, "/expectedExport4.uct");
+    }
+
+    @Test
+    void roundTripOfNetworkWithTapChangers3() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport5.uct");
+        testExporter(network, "/expectedExport5.uct");
+    }
+
+    @Test
+    void testTapChangers() {
+        Network network = loadNetworkFromResourceFile("/expectedExport2.uct");
+        Network exportedNetwork = loadNetworkFromResourceFile("/expectedExport3.uct"); // because of asymmetrical phase shifter
+        String rtcId = "0BBBBB5  0AAAAA2  1";
+        assertEquals(network.getTwoWindingsTransformer(rtcId).getRatioTapChanger().getCurrentStep().getRho(),
+                exportedNetwork.getTwoWindingsTransformer(rtcId).getRatioTapChanger().getCurrentStep().getRho());
+        String ptcId = "HDDDDD2  HCCCCC1  1";
+        assertEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho(), 0.0001);
+        assertEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha(), 0.0001);
+        String ptcId2 = "ZABCD221 ZEFGH221 1";
+        assertEquals(network.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getRho(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getRho());
+        assertEquals(network.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha(), 0.0001);
+    }
+
+    @Test
+    void roundTripOfCombineRtcAndPtc() throws IOException {
+        Properties parameters = new Properties();
+        parameters.put("ucte.import.combine-phase-angle-regulation", "true");
+        parameters.put("ucte.export.combine-phase-angle-regulation", "true");
+        Network network = loadNetworkFromResourceFile("/expectedExport5.uct", parameters);
+        testExporter(network, "/expectedExport5.uct", parameters);
+    }
 }

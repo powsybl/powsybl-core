@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends DataChunk<P, C>, T extends TimeSeries<P, T>> {
 
@@ -208,8 +208,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof AbstractTimeSeries) {
-            AbstractTimeSeries other = (AbstractTimeSeries) obj;
+        if (obj instanceof AbstractTimeSeries<?, ?, ?> other) {
             return metadata.equals(other.metadata) && chunks.equals(other.chunks);
         }
         return false;

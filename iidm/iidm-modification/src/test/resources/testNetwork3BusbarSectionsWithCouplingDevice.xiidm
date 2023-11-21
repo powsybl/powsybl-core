@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_9" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_11" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:voltageLevel id="VLTEST" nominalV="380.0" topologyKind="NODE_BREAKER">
         <iidm:nodeBreakerTopology>
             <iidm:busbarSection id="VLTEST11" node="0"/>
@@ -30,11 +30,9 @@
             <iidm:switch id="VLTEST_DISCONNECTOR23" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="10"/>
             <iidm:switch id="VLTEST_DISCONNECTOR33" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="11"/>
             <iidm:switch id="VLTEST_BREAKER" kind="BREAKER" retained="true" open="false" node1="18" node2="19"/>
-            <iidm:switch id="VLTEST_DISCONNECTOR_6" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="18"/>
-            <iidm:switch id="VLTEST_DISCONNECTOR_7" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="19"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR_18_6" kind="DISCONNECTOR" retained="false" open="false" node1="18" node2="6"/>
             <iidm:switch id="VLTEST_DISCONNECTOR_18_7" kind="DISCONNECTOR" retained="false" open="true" node1="18" node2="7"/>
-            <iidm:switch id="VLTEST_DISCONNECTOR_18_8" kind="DISCONNECTOR" retained="false" open="true" node1="18" node2="8"/>
-            <iidm:switch id="VLTEST_DISCONNECTOR_19_6" kind="DISCONNECTOR" retained="false" open="true" node1="19" node2="6"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR_19_7" kind="DISCONNECTOR" retained="false" open="false" node1="19" node2="7"/>
             <iidm:switch id="VLTEST_DISCONNECTOR_19_8" kind="DISCONNECTOR" retained="false" open="true" node1="19" node2="8"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>

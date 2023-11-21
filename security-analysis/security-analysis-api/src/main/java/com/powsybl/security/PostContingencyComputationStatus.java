@@ -7,7 +7,7 @@
 package com.powsybl.security;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public enum PostContingencyComputationStatus {
     CONVERGED,

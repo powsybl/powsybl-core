@@ -7,6 +7,9 @@
 package com.powsybl.shortcircuit;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -17,10 +20,11 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Coline Piloquet <coline.piloquet@rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.com>}
  */
 @AutoService(ShortCircuitAnalysisProvider.class)
 public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
@@ -63,4 +67,15 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                 new FortescueValue(10.0), null, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
         return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
     }
+
+    @Override
+    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        return Optional.of(new ShortCircuitParametersTest.DummySerializer());
+    }
+
+    @Override
+    public Optional<Extension<ShortCircuitParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.of(new ShortCircuitParametersTest.DummyExtension());
+    }
+
 }

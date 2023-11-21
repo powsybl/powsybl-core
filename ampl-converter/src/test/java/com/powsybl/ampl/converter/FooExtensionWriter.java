@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.Network;
 
 /**
 *
-* @author Ferrari Giovanni <giovanni.ferrari@techrain.eu>
+* @author Ferrari Giovanni {@literal <giovanni.ferrari@techrain.eu>}
 */
 @AutoService(AmplExtensionWriter.class)
 public class FooExtensionWriter implements AmplExtensionWriter {

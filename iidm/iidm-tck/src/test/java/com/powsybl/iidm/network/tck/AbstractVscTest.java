@@ -17,8 +17,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractVscTest {
 
@@ -76,9 +76,9 @@ public abstract class AbstractVscTest {
         assertSame(hvdcLine, cs1.getHvdcLine());
         assertSame(hvdcLine, cs2.getHvdcLine());
         assertSame(cs1, hvdcLine.getConverterStation1());
-        assertSame(cs1, hvdcLine.getConverterStation(HvdcLine.Side.ONE));
+        assertSame(cs1, hvdcLine.getConverterStation(TwoSides.ONE));
         assertSame(cs2, hvdcLine.getConverterStation2());
-        assertSame(cs2, hvdcLine.getConverterStation(HvdcLine.Side.TWO));
+        assertSame(cs2, hvdcLine.getConverterStation(TwoSides.TWO));
 
         assertEquals(2, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getConnectedComponent().getBusStream().count());
         assertEquals(2, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getConnectedComponent().getSize());

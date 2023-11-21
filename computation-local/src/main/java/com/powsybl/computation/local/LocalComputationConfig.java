@@ -17,10 +17,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class LocalComputationConfig {
 
@@ -52,7 +51,7 @@ public class LocalComputationConfig {
                     if (paths.isEmpty()) {
                         throw new ConfigurationException("Empty tmp dir list");
                     }
-                    List<Path> checkedPaths = paths.stream().filter(Files::exists).collect(Collectors.toList());
+                    List<Path> checkedPaths = paths.stream().filter(Files::exists).toList();
                     if (checkedPaths.isEmpty()) {
                         throw new ConfigurationException("None of the tmp dir path of the list exist");
                     }

@@ -11,9 +11,9 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class LineImpl extends AbstractBranch<Line> implements Line {
+class LineImpl extends AbstractConnectableBranch<Line> implements Line {
 
     private double r;
 
@@ -119,11 +119,6 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         this.b2 = b2;
         notifyUpdate("b2", oldValue, b2);
         return this;
-    }
-
-    @Override
-    public boolean isTieLine() {
-        return false;
     }
 
     @Override

@@ -14,7 +14,7 @@ import com.powsybl.security.condition.*;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ConditionSerializer extends StdSerializer<Condition> {
 

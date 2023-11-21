@@ -17,7 +17,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class PropertyBag extends HashMap<String, String> {
 
@@ -85,6 +85,13 @@ public class PropertyBag extends HashMap<String, String> {
             LOG.warn("Invalid value for property {} : {}", property, get(property));
             return Double.NaN;
         }
+    }
+
+    public Optional<Boolean> asBoolean(String property) {
+        if (!containsKey(property)) {
+            return Optional.empty();
+        }
+        return Optional.of(Boolean.parseBoolean(get(property)));
     }
 
     public boolean asBoolean(String property, boolean defaultValue) {

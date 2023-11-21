@@ -9,6 +9,7 @@ package com.powsybl.dynamicsimulation;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -17,7 +18,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public interface DynamicSimulationProvider extends Versionable, PlatformConfigNamedProvider {
 
@@ -26,6 +27,6 @@ public interface DynamicSimulationProvider extends Versionable, PlatformConfigNa
     }
 
     CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
-        CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters);
+                                                   CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters, Reporter reporter);
 
 }

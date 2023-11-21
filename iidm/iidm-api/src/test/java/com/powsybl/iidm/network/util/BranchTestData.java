@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Terminal.BusView;
 
 /**
  *
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class BranchTestData {
 

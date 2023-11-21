@@ -17,8 +17,8 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  *
  */
 public class BranchTripping extends AbstractTripping {
@@ -41,14 +41,6 @@ public class BranchTripping extends AbstractTripping {
         this.supplier = supplier;
     }
 
-    /**
-     * @deprecated Use {@link #getId()} instead.
-     */
-    @Deprecated
-    protected String getBranchId() {
-        return id;
-    }
-
     protected String getVoltageLevelId() {
         return voltageLevelId;
     }
@@ -61,18 +53,7 @@ public class BranchTripping extends AbstractTripping {
         if (branch == null) {
             throw createNotFoundException();
         }
-        if (voltageLevelId != null) {
-            if (voltageLevelId.equals(branch.getTerminal1().getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            } else if (voltageLevelId.equals(branch.getTerminal2().getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            } else {
-                throw createNotConnectedException();
-            }
-        } else {
-            TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
-        }
+        traverseDoubleSidedEquipment(voltageLevelId, branch.getTerminal1(), branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals, branch.getType().name());
     }
 
     protected PowsyblException createNotFoundException() {

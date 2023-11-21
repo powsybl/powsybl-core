@@ -11,7 +11,7 @@ import java.util.ServiceLoader;
 
 /**
 *
-* @author Ferrari Giovanni <giovanni.ferrari@techrain.eu>
+* @author Ferrari Giovanni {@literal <giovanni.ferrari@techrain.eu>}
 */
 public final class AmplExtensionWriters {
     private AmplExtensionWriters() {

@@ -7,18 +7,18 @@
  */
 package com.powsybl.security.action;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 
 /**
  * An action modifying the tap position of a ratio transformer
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class RatioTapChangerTapPositionAction extends AbstractTapChangerTapPositionAction {
     public static final String NAME = "RATIO_TAP_CHANGER_TAP_POSITION";
 
-    public RatioTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value, ThreeWindingsTransformer.Side side) {
+    public RatioTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value, ThreeSides side) {
         super(id, transformerId, relativeValue, value, side);
     }
 

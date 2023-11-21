@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
@@ -82,6 +82,11 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     @Override
     public NetworkImpl getNetwork() {
         return (NetworkImpl) getVoltageLevel().getNetwork();
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        return getVoltageLevel().getParentNetwork();
     }
 
     @Override
@@ -327,19 +332,19 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
         checkValidity();
         List<Iterable<DanglingLine>> iterables = new ArrayList<>(buses.size());
         for (ConfiguredBus bus : buses) {
-            iterables.add(bus.getDanglingLines());
+            iterables.add(bus.getDanglingLines(danglingLineFilter));
         }
         return Iterables.concat(iterables);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getDanglingLineStream);
+        return buses.stream().flatMap(configuredBus -> configuredBus.getDanglingLineStream(danglingLineFilter));
     }
 
     @Override

@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Deque;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
 
@@ -88,8 +88,8 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TimeNodeCalc) {
-            return ((TimeNodeCalc) obj).child.equals(child);
+        if (obj instanceof TimeNodeCalc timeNodeCalc) {
+            return timeNodeCalc.child.equals(child);
         }
         return false;
     }

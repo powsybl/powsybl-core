@@ -19,11 +19,11 @@ import java.io.Writer;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnalysisResult> {
 
-    public static final String VERSION = "1.4";
+    public static final String VERSION = "1.5";
 
     SecurityAnalysisResultSerializer() {
         super(SecurityAnalysisResult.class);

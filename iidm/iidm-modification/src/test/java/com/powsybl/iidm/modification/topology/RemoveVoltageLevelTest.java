@@ -8,14 +8,14 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,13 +23,14 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Etienne Homer <etienne.homer at rte-france.com>
+ * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
-class RemoveVoltageLevelTest extends AbstractConverterTest {
+class RemoveVoltageLevelTest extends AbstractSerDeTest {
 
     private final Set<String> removedObjects = new HashSet<>();
     private final Set<String> beforeRemovalObjects = new HashSet<>();
@@ -56,6 +57,7 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
     @Test
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
+        ReporterModel reporter = new ReporterModel("reportTestRemoveVL", "Testing reporter on remove voltage level");
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);
@@ -76,9 +78,10 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         assertNull(network.getVscConverterStation("VSC2"));
 
         RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
-        removeUnknown.apply(network, false, Reporter.NO_OP);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));
+        removeUnknown.apply(network, false, reporter);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reporter));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
+        assertEquals("voltageLevelNotFound", reporter.getReports().iterator().next().getReportKey());
     }
 
     @Test
@@ -86,7 +89,7 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         Network network = createNbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("C").build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-remove-voltage-level-nb.xml");
     }
 
@@ -95,7 +98,7 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         Network network = createBbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("VLGEN").build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-remove-voltage-level-bb.xml");
     }
 }

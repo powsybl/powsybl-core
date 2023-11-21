@@ -11,10 +11,9 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
@@ -28,7 +27,7 @@ import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class Cgmes3ConversionTest {
 
@@ -83,16 +82,16 @@ class Cgmes3ConversionTest {
         assertEquals(500.0, lntl2.getValue(), 0.0);
         assertEquals(10, lntl2.getAcceptableDuration());
 
-        Line tln = n.getLine("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b");
-        assertEquals(1371.0, tln.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-        assertEquals(1226.0, tln.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        TieLine tln = n.getTieLine("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b");
+        assertEquals(1371.0, tln.getDanglingLine1().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(1226.0, tln.getDanglingLine2().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
-        assertEquals(1, (int) tln.getCurrentLimits1().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit tlntl1 = tln.getCurrentLimits1().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
+        assertEquals(1, (int) tln.getDanglingLine1().getCurrentLimits().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
+        TemporaryLimit tlntl1 = tln.getDanglingLine1().getCurrentLimits().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, tlntl1.getValue(), 0.0);
         assertEquals(10, tlntl1.getAcceptableDuration());
 
-        assertEquals(1, (int) tln.getCurrentLimits2().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
+        assertEquals(1, (int) tln.getDanglingLine2().getCurrentLimits().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
         TemporaryLimit tlntl2 = ln.getCurrentLimits2().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, tlntl2.getValue(), 0.0);
         assertEquals(10, tlntl2.getAcceptableDuration());
@@ -156,6 +155,24 @@ class Cgmes3ConversionTest {
         assertEquals(0, (int) tw3t.getLeg1().getCurrentLimits().map(l -> l.getTemporaryLimits().size()).orElse(-1));
         assertEquals(0, (int) tw3t.getLeg2().getCurrentLimits().map(l -> l.getTemporaryLimits().size()).orElse(-1));
         assertEquals(0, (int) tw3t.getLeg3().getCurrentLimits().map(l -> l.getTemporaryLimits().size()).orElse(-1));
+    }
+
+    @Test
+    void miniGridRatedS() throws IOException {
+        Network n = networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
+
+        assertEquals(31.5, n.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51").getRatedS(), 0.0);
+        assertEquals(150.0, n.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getRatedS(), 0.0);
+        assertEquals(100.0, n.getTwoWindingsTransformer("f1e72854-ec35-46e9-b614-27db354e8dbb").getRatedS(), 0.0);
+        assertEquals(31.5, n.getTwoWindingsTransformer("6c89588b-3df5-4120-88e5-26164afb43e9").getRatedS(), 0.0);
+
+        assertEquals(350.0, n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c").getLeg1().getRatedS(), 0.0);
+        assertEquals(350.0, n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c").getLeg2().getRatedS(), 0.0);
+        assertEquals(50.0, n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c").getLeg3().getRatedS(), 0.0);
+
+        assertEquals(350.0, n.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773").getLeg1().getRatedS(), 0.0);
+        assertEquals(350.0, n.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773").getLeg2().getRatedS(), 0.0);
+        assertEquals(50.0, n.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773").getLeg3().getRatedS(), 0.0);
     }
 
     @Test
@@ -307,15 +324,9 @@ class Cgmes3ConversionTest {
         assertTrue(true);
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
         config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config);
-        return c.convert();
+        return ConversionUtil.networkModel(testGridModel, config);
     }
 
     private static void resetBusVoltageAndAngleBeforeComparison(Network network) {

@@ -7,6 +7,7 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.dsl.ExpressionDslLoader;
 import com.powsybl.dsl.GroovyScripts;
 import com.powsybl.dynamicsimulation.Curve;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public class GroovyCurvesSupplier implements CurvesSupplier {
 
@@ -48,19 +49,15 @@ public class GroovyCurvesSupplier implements CurvesSupplier {
     }
 
     @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
-    public List<Curve> get(Network network) {
+    public List<Curve> get(Network network, Reporter reporter) {
         List<Curve> curves = new ArrayList<>();
+        Reporter groovyReporter = reporter.createSubReporter("groovyCurves", "Groovy Curves Supplier");
 
         Binding binding = new Binding();
         binding.setVariable("network", network);
 
         ExpressionDslLoader.prepareClosures(binding);
-        extensions.forEach(e -> e.load(binding, curves::add));
+        extensions.forEach(e -> e.load(binding, curves::add, groovyReporter));
 
         GroovyShell shell = new GroovyShell(binding, new CompilerConfiguration());
         shell.evaluate(codeSource);

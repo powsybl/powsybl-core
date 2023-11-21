@@ -7,25 +7,24 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
- *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractTerminal implements TerminalExt {
 
     protected static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Cannot modify removed equipment ";
     protected static final String CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT = "Cannot access bus of removed equipment ";
 
-    protected final Ref<? extends VariantManagerHolder> network;
+    private Ref<? extends VariantManagerHolder> network;
 
     protected AbstractConnectable connectable;
 
@@ -54,6 +53,10 @@ abstract class AbstractTerminal implements TerminalExt {
         }
     }
 
+    protected VariantManagerHolder getVariantManagerHolder() {
+        return network.get();
+    }
+
     @Override
     public AbstractConnectable getConnectable() {
         return connectable;
@@ -75,6 +78,9 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public void setVoltageLevel(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
+        if (voltageLevel != null) {
+            network = voltageLevel.getNetworkRef();
+        }
     }
 
     @Override
@@ -151,18 +157,54 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
+
+    /**
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isTypeSwitchToOperate Predicate telling if a switch is considered operable. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        return voltageLevel.connect(this);
+        boolean connected = voltageLevel.connect(this, isTypeSwitchToOperate);
+        if (connected) {
+            int variantIndex = getVariantManagerHolder().getVariantIndex();
+            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+            connectable.notifyUpdate("connection", variantId, false, true);
+        }
+        return connected;
     }
 
     @Override
     public boolean disconnect() {
+        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
+    }
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isSwitchOpenable Predicate telling if a switch is considered openable. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        return voltageLevel.disconnect(this);
+        boolean disconnected = voltageLevel.disconnect(this, isSwitchOpenable);
+        if (disconnected) {
+            int variantIndex = getVariantManagerHolder().getVariantIndex();
+            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+            connectable.notifyUpdate("connection", variantId, true, false);
+        }
+        return disconnected;
     }
 
     @Override

@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.criterion.*;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class LineCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<LineCriterionContingencyList> {
 
@@ -31,7 +31,7 @@ public class LineCriterionContingencyListDeserializer extends AbstractEquipmentC
 
         return new LineCriterionContingencyList(parsingContext.name,
                 (TwoCountriesCriterion) parsingContext.countryCriterion,
-                (SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion,
+                (TwoNominalVoltageCriterion) parsingContext.nominalVoltageCriterion,
                 parsingContext.propertyCriteria,
                 parsingContext.regexCriterion);
     }

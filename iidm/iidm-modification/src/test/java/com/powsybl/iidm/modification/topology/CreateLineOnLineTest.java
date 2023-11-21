@@ -7,13 +7,15 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -24,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Create a new Line from a given Line Adder and attach it on an existing Line by cutting the latter.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CreateLineOnLineTest extends AbstractConverterTest {
+class CreateLineOnLineTest extends AbstractSerDeTest {
 
     @Test
     void createLineOnLineNbTest() throws IOException {
@@ -35,7 +37,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/fictitious-line-split-l.xml");
     }
 
@@ -46,7 +48,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-line-split-nb-l.xml");
     }
 
@@ -57,7 +59,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-line-split-bb-l.xml");
     }
 
@@ -92,6 +94,11 @@ class CreateLineOnLineTest extends AbstractConverterTest {
     @Test
     void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
+            .add();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder()
@@ -110,7 +117,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLine2Name("FICT2LName")
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/fictitious-line-split-l-complete.xml");
     }
 
@@ -125,7 +132,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLineAdder(adder)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/fictitious-line-split-l.xml");
 
     }
@@ -135,33 +142,73 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         Network network1 = createNbNetworkWithBusbarSection();
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
-
+        ReporterModel reporter1 = new ReporterModel("reportTestBbsNotExistingNB", "Testing reporter if busbar section does not exist in node/breaker");
         NetworkModification modification1 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line1)
                 .withLineAdder(adder1)
                 .build();
-        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception1.getMessage());
+        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, reporter1));
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception1.getMessage());
+        assertEquals("notFoundBusOrBusbarSection", reporter1.getReports().iterator().next().getReportKey());
 
         Network network2 = createBbNetwork();
         Line line2 = network2.getLine("NHV1_NHV2_1");
         LineAdder adder2 = createLineAdder(line2, network2);
+        ReporterModel reporter2 = new ReporterModel("reportTestBbsNotExistingBB", "Testing reporter if busbar section does not exist in bus/breaker");
         NetworkModification modification2 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, reporter2));
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
+        assertEquals("notFoundBusOrBusbarSection", reporter2.getReports().iterator().next().getReportKey());
 
+        ReporterModel reporter3 = new ReporterModel("reportTestWrongTypeBbs", "Testing reporter if type of busbar section is wrong");
         NetworkModification modification3 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable LOAD is not a bus or a busbar section", exception3.getMessage());
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, reporter3));
+        assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
+        assertEquals("unexpectedIdentifiableType", reporter3.getReports().iterator().next().getReportKey());
+
+        ReporterModel reporter4 = new ReporterModel("reportTestNullFictitiousSubstationID", "Testing reporter with null fictitious substation ID");
+        NetworkModification modification4 = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network1.getLine("CJ"))
+                .withLineAdder(createLineAdder(network1.getLine("CJ"), network1))
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId(null)
+                .build();
+        PowsyblException exception4 = assertThrows(PowsyblException.class, () -> modification4.apply(network1, true, reporter4));
+        assertEquals("Fictitious substation ID must be defined if a fictitious substation is to be created", exception4.getMessage());
+        assertEquals("undefinedFictitiousSubstationId", reporter4.getReports().iterator().next().getReportKey());
+
+        ReporterModel reporter5 = new ReporterModel("reportTestUndefinedPositionPercent", "Testing reporter with undefined position percent");
+        NetworkModification modification5 = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network1.getLine("CJ"))
+                .withLineAdder(createLineAdder(network1.getLine("CJ"), network1))
+                .withCreateFictitiousSubstation(true)
+                .withPositionPercent(Double.NaN)
+                .build();
+        PowsyblException exception5 = assertThrows(PowsyblException.class, () -> modification5.apply(network1, true, reporter5));
+        assertEquals("Percent should not be undefined", exception5.getMessage());
+        assertEquals("undefinedPercent", reporter5.getReports().iterator().next().getReportKey());
+    }
+
+    @Test
+    void testWithReporter() {
+        Network network = createNbNetworkWithBusbarSection();
+        ReporterModel reporter = new ReporterModel("reportTestCreateLineOnLine", "Testing reporter for creation of a line on line");
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        modification.apply(network, reporter);
+        testReporter(reporter, "/reporter/create-line-on-line-report.txt");
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {

@@ -22,7 +22,7 @@ import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createN
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 class DanglingLineScalableTest {
 
@@ -165,6 +165,12 @@ class DanglingLineScalableTest {
         assertEquals(20, dl2.scale(network, 20, parameters2), 1e-3);
         assertEquals(50.0, danglingLine.getP0(), 1e-3);
         assertTrue(danglingLine.getTerminal().isConnected());
+
+        //reconnect to false
+        danglingLine.getTerminal().disconnect();
+        assertFalse(danglingLine.getTerminal().isConnected());
+        assertEquals(0.0, dl2.scale(network, 10));
+        assertEquals(50.0, danglingLine.getP0(), 1e-3);
     }
 
 }

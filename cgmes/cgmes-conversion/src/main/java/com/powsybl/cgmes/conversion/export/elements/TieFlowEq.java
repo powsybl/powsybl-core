@@ -13,7 +13,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class TieFlowEq {
 
@@ -21,6 +21,9 @@ public final class TieFlowEq {
         CgmesExportUtil.writeStartId("TieFlow", id, false, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("TieFlow.ControlArea", controlAreaId, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("TieFlow.Terminal", terminalId, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "TieFlow.positiveFlowIn");
+        writer.writeCharacters("true"); // always true
+        writer.writeEndElement();
         writer.writeEndElement();
     }
 

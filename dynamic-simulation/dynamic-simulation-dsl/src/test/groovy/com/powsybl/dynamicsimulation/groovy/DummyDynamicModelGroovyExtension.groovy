@@ -6,6 +6,8 @@
  */
 package com.powsybl.dynamicsimulation.groovy
 
+import com.powsybl.commons.reporter.Reporter
+
 import java.util.function.Consumer
 
 import com.google.auto.service.AutoService
@@ -13,7 +15,7 @@ import com.powsybl.dsl.DslException
 import com.powsybl.dynamicsimulation.DynamicModel
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 @AutoService(DynamicModelGroovyExtension.class)
 class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
@@ -31,7 +33,7 @@ class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
         }
     }
 
-    void load(Binding binding, Consumer<DynamicModel> consumer) {
+    void load(Binding binding, Consumer<DynamicModel> consumer, Reporter reporter) {
         binding.dummyDynamicModel = { Closure<Void> closure ->
             def cloned = closure.clone()
 
@@ -48,5 +50,10 @@ class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
 
             consumer.accept(new DummyDynamicModel(dynamicModelSpec.id, dynamicModelSpec.parameterSetId))
         }
+    }
+
+    @Override
+    List<String> getModelNames() {
+        List.of(DummyDynamicModel.class.simpleName)
     }
 }

@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
@@ -284,15 +284,15 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
         checkValidity();
-        return super.getDanglingLines();
+        return super.getDanglingLines(danglingLineFilter);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
         checkValidity();
-        return super.getDanglingLineStream();
+        return super.getDanglingLineStream(danglingLineFilter);
     }
 
     @Override

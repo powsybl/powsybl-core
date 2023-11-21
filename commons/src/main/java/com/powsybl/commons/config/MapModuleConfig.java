@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * A {@link ModuleConfig} backed by a simple key/value {@link Map}.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class MapModuleConfig extends AbstractMapModuleConfig {
 

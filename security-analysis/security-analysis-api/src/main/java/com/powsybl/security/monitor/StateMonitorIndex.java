@@ -12,7 +12,7 @@ import com.powsybl.contingency.ContingencyContextType;
 import java.util.*;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  * index all state monitors according to their ContingencyContextType
  *
  */

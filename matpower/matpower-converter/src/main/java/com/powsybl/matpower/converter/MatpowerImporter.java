@@ -22,7 +22,7 @@ import com.powsybl.matpower.model.*;
 
 import org.apache.commons.math3.complex.Complex;
 import org.jgrapht.alg.util.Pair;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 @AutoService(Importer.class)
 public class MatpowerImporter implements Importer {
@@ -83,6 +83,9 @@ public class MatpowerImporter implements Importer {
     }
 
     private static boolean isLine(MatpowerModel model, MBranch branch) {
+        if (branch.getPhaseShiftAngle() != 0) {
+            return false;
+        }
         if (branch.getRatio() == 0) {
             return true;
         }
@@ -140,14 +143,23 @@ public class MatpowerImporter implements Importer {
             double lowVoltageLimit = e.getValue().getFirst();
             double highVoltageLimit = e.getValue().getSecond();
             VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-            if (highVoltageLimit >= lowVoltageLimit) {
-                voltageLevel.setLowVoltageLimit(lowVoltageLimit)
-                        .setHighVoltageLimit(highVoltageLimit);
+            if (!Double.isNaN(lowVoltageLimit) && !Double.isNaN(highVoltageLimit)) {
+                if (highVoltageLimit >= lowVoltageLimit) {
+                    voltageLevel.setLowVoltageLimit(lowVoltageLimit)
+                            .setHighVoltageLimit(highVoltageLimit);
+                } else {
+                    LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
+                            lowVoltageLimit, highVoltageLimit, voltageLevelId);
+                    voltageLevel.setLowVoltageLimit(highVoltageLimit)
+                            .setHighVoltageLimit(lowVoltageLimit);
+                }
             } else {
-                LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
-                        lowVoltageLimit, highVoltageLimit, voltageLevelId);
-                voltageLevel.setLowVoltageLimit(highVoltageLimit)
-                        .setHighVoltageLimit(lowVoltageLimit);
+                if (!Double.isNaN(lowVoltageLimit)) {
+                    voltageLevel.setLowVoltageLimit(lowVoltageLimit);
+                }
+                if (!Double.isNaN(highVoltageLimit)) {
+                    voltageLevel.setHighVoltageLimit(highVoltageLimit);
+                }
             }
         }
     }
@@ -184,9 +196,10 @@ public class MatpowerImporter implements Importer {
                     .setVoltageRegulatorOn(mGen.getVoltageMagnitudeSetpoint() != 0)
                     .setMaxP(mGen.getMaximumRealPowerOutput())
                     .setMinP(mGen.getMinimumRealPowerOutput())
+                    .setRatedS(mGen.getTotalMbase() != 0 ? mGen.getTotalMbase() : Double.NaN)
                     .add();
 
-            if ((mGen.getPc1() != 0) || (mGen.getPc2() != 0)) {
+            if (mGen.getPc1() != 0 || mGen.getPc2() != 0) {
                 generator.newReactiveCapabilityCurve()
                         .beginPoint()
                         .setP(mGen.getPc1())
@@ -328,7 +341,9 @@ public class MatpowerImporter implements Importer {
 
             Branch<?> branch;
             if (isTransformer(model, mBranch)) {
-                TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(network::newTwoWindingsTransformer)
+                TwoWindingsTransformer newTwt = voltageLevel2.getSubstation()
+                        .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
+                        .newTwoWindingsTransformer()
                         .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
                         .setBus1(connectedBus1)
@@ -463,7 +478,7 @@ public class MatpowerImporter implements Importer {
         Network network = networkFactory.createNetwork(dataSource.getBaseName(), MatpowerConstants.FORMAT);
 
         //there is no time & date declared in the MATPOWER file: set a default now()
-        network.setCaseDate(DateTime.now());
+        network.setCaseDate(ZonedDateTime.now());
 
         try {
             try (InputStream iStream = dataSource.newInputStream(null, MatpowerConstants.EXT)) {

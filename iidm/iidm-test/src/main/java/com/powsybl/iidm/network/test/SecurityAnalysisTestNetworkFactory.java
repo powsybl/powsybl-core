@@ -9,12 +9,12 @@ package com.powsybl.iidm.network.test;
  */
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public final class SecurityAnalysisTestNetworkFactory {
 
@@ -40,7 +40,7 @@ public final class SecurityAnalysisTestNetworkFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("fictitious", "test");
-        network.setCaseDate(DateTime.parse("2022-12-18T16:00:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2022-12-18T16:00:00.000+01:00"));
         network.setForecastDistance(0);
 
         // first substation

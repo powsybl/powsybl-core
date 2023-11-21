@@ -17,7 +17,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -31,9 +31,9 @@ import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_V
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class JsonLoadFlowParametersTest extends AbstractConverterTest {
+public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {

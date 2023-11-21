@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.base.Functions;
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
@@ -18,6 +17,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.*;
 import gnu.trove.TCollections;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -41,12 +41,13 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
@@ -66,7 +67,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final Map<String, Integer> switches = new HashMap<>();
 
-    private class VariantImpl implements Variant {
+    private final class VariantImpl implements Variant {
 
         final CalculatedBusTopology calculatedBusTopology
                 = new CalculatedBusTopology();
@@ -229,6 +230,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return id2bus.values();
         }
 
+        private int getBusCount() {
+            return id2bus.size();
+        }
+
         private CalculatedBus getBus(int node) {
             return node2bus[node];
         }
@@ -257,9 +262,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (!encountered[n]) {
                 final TIntArrayList nodes = new TIntArrayList(1);
                 nodes.add(n);
-                graph.traverse(n, (n1, e, n2) -> {
+                graph.traverse(n, TraversalType.DEPTH_FIRST, (n1, e, n2) -> {
                     SwitchImpl aSwitch = graph.getEdgeObject(e);
-                    if (aSwitch != null && terminate.apply(aSwitch)) {
+                    if (aSwitch != null && terminate.test(aSwitch)) {
                         return TraverseResult.TERMINATE_PATH;
                     }
 
@@ -321,6 +326,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return busCache.getBuses();
         }
 
+        int getBusCount() {
+            updateCache();
+            return busCache.getBusCount();
+        }
+
         CalculatedBus getBus(int node) {
             updateCache();
             return busCache.getBus(node);
@@ -344,7 +354,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             // if not traverse the graph starting from the node (without stopping at open switches) until finding another
             // node associated to a bus
             BusExt[] connectableBus2 = new BusExt[1];
-            graph.traverse(node, (v1, e, v2) -> {
+            graph.traverse(node, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
                 if (connectableBus2[0] != null) {
                     // traverse does not stop the algorithm when TERMINATE, it only stops searching in a given direction
                     // this condition insures that while checking all the edges (in every direction) of a node, if a bus is found, it will not be lost
@@ -441,7 +451,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
     }
 
-    private static class CalculatedBusChecker implements BusChecker {
+    private static final class CalculatedBusChecker implements BusChecker {
 
         @Override
         public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
@@ -480,12 +490,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     }
                 }
             }
-            return (busbarSectionCount >= 1 && feederCount >= 1)
-                    || (branchCount >= 1 && feederCount >= 2);
+            return busbarSectionCount >= 1 && feederCount >= 1
+                    || branchCount >= 1 && feederCount >= 2;
         }
     }
 
-    private static class CalculatedBusBreakerChecker implements BusChecker {
+    private static final class CalculatedBusBreakerChecker implements BusChecker {
         @Override
         public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
             return !nodes.isEmpty();
@@ -499,7 +509,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         String getName(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes);
     }
 
-    private static class LowestNodeNumberBusNamingStrategy implements BusNamingStrategy {
+    private static final class LowestNodeNumberBusNamingStrategy implements BusNamingStrategy {
 
         @Override
         public String getId(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes) {
@@ -513,9 +523,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     NodeBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> ref,
-                            double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, ref, nominalV, lowVoltageLimit, highVoltageLimit);
-        variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
+                            Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+        super(id, name, fictitious, substation, ref, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+        variants = new VariantArray<>(ref, VariantImpl::new);
         graph.addListener(new DefaultUndirectedGraphListener<>() {
 
             private static final String INTERNAL_CONNECTION = "internalConnection";
@@ -707,15 +717,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return this;
         }
 
-        /**
-         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
-         */
-        @Override
-        @Deprecated
-        public int getNodeCount() {
-            return graph.getVertexCount();
-        }
-
         @Override
         public int getMaximumNodeIndex() {
             return graph.getVertexCapacity() - 1;
@@ -831,8 +832,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         public void removeInternalConnections(int node1, int node2) {
             int[] internalConnectionsToBeRemoved = Arrays.stream(graph.getEdges())
                     .filter(e -> graph.getEdgeObject(e) == null)
-                    .filter(e -> (graph.getEdgeVertex1(e) == node1 && graph.getEdgeVertex2(e) == node2) ||
-                            (graph.getEdgeVertex1(e) == node2 && graph.getEdgeVertex2(e) == node1))
+                    .filter(e -> graph.getEdgeVertex1(e) == node1 && graph.getEdgeVertex2(e) == node2
+                            || graph.getEdgeVertex1(e) == node2 && graph.getEdgeVertex2(e) == node1)
                     .toArray();
             if (internalConnectionsToBeRemoved.length == 0) {
                 throw new PowsyblException("Internal connection not found between " + node1 + " and " + node2);
@@ -924,12 +925,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void traverse(int node, TopologyTraverser t) {
-            graph.traverse(node, adapt(t));
+            graph.traverse(node, TraversalType.DEPTH_FIRST, adapt(t));
         }
 
         @Override
         public void traverse(int[] nodes, TopologyTraverser t) {
-            graph.traverse(nodes, adapt(t));
+            graph.traverse(nodes, TraversalType.DEPTH_FIRST, adapt(t));
         }
     };
 
@@ -992,6 +993,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public Stream<Bus> getBusStream() {
             return variants.get().calculatedBusBreakerTopology.getBuses().stream().map(Function.identity());
+        }
+
+        @Override
+        public int getBusCount() {
+            return variants.get().calculatedBusBreakerTopology.getBusCount();
         }
 
         @Override
@@ -1160,12 +1166,37 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return t != null && t.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION;
     }
 
-    private static boolean isOpenedDisconnector(Switch s) {
-        return s != null && s.getKind() == SwitchKind.DISCONNECTOR && s.isOpen();
+    /**
+     * Check if a switch is open and cannot be operated (according to the given predicate)
+     * @param sw the switch to test
+     * @param isSwitchOperable the predicate defining if a switch can be operated
+     * @return <code>true</code> if the switch is open and cannot be operated
+     */
+    private boolean checkNonClosableSwitch(SwitchImpl sw, Predicate<? super SwitchImpl> isSwitchOperable) {
+        return SwitchPredicates.IS_OPEN.test(sw) && isSwitchOperable.negate().test(sw);
     }
 
+
+    /**
+     * Connect the terminal to a busbar section in its voltage level.
+     * The switches that can be operated are the non-fictional breakers.
+     * @param terminal Terminal to connect
+     * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
+     */
     @Override
     public boolean connect(TerminalExt terminal) {
+        // Only keep the closed non-fictional breakers in the nominal case
+        return connect(terminal, SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
+
+    /**
+     * Connect the terminal to a busbar section in its voltage level.
+     * @param terminal Terminal to connect
+     * @param isSwitchOperable Predicate used to identify the switches that can be operated on. <b>Warning:</b> do not include a test to see if the switch is opened, it is already done in this method
+     * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
+     */
+    @Override
+    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOperable) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
         }
@@ -1175,27 +1206,40 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
-        // paths are already sorted
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
+        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
+        // that is not of the type of switch the user wants to operate
+        // Paths are already sorted by the number of open switches and by the size of the paths
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
+            Comparator.comparing((TIntArrayList o) -> o.grep(idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
+                .thenComparing(TIntArrayList::size));
         boolean connected = false;
         if (!paths.isEmpty()) {
-            // the shorted path is the best, close all opened breakers of the path
+            // the shortest path is the best
             TIntArrayList shortestPath = paths.get(0);
+
+            // close all open switches on the path
             for (int i = 0; i < shortestPath.size(); i++) {
                 int e = shortestPath.get(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw != null && sw.getKind() == SwitchKind.BREAKER && sw.isOpen()) {
+                if (SwitchPredicates.IS_OPEN.test(sw)) {
+                    // Since the paths were constructed using the method checkNonClosableSwitches, only operable switches can be open
                     sw.setOpen(false);
-                    connected = true;
                 }
             }
+            // Check that the terminal is connected (it should always be true, given how the paths are found)
+            connected = terminal.isConnected();
         }
         return connected;
     }
 
     @Override
     public boolean disconnect(TerminalExt terminal) {
+        // Only keep the closed non-fictional breakers in the nominal case
+        return disconnect(terminal, SwitchPredicates.IS_CLOSED_BREAKER);
+    }
+
+    @Override
+    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
         }
@@ -1205,32 +1249,47 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
-        // (because otherwise there is nothing we can do to connected the terminal using only breakers)
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
+        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, SwitchPredicates.IS_OPEN);
         if (paths.isEmpty()) {
             return false;
         }
 
+        // Set of switches that are to be opened
+        Set<SwitchImpl> switchesToOpen = new HashSet<>(paths.size());
+
+        // Each path is visited and for each, the first openable switch found is added in the set of switches to open
         for (TIntArrayList path : paths) {
-            boolean pathOpen = false;
-            for (int i = 0; i < path.size(); i++) {
-                int e = path.get(i);
-                SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw != null && sw.getKind() == SwitchKind.BREAKER) {
-                    if (!sw.isOpen()) {
-                        sw.setOpen(true);
-                    }
-                    // just one open breaker is enough to disconnect the terminal, so we can stop
-                    pathOpen = true;
-                    break;
-                }
-            }
-            if (!pathOpen) {
+            // Identify the first openable switch on the path
+            if (!identifySwitchToOpenPath(path, isSwitchOpenable, switchesToOpen)) {
+                // If no such switch was found, return false immediately
                 return false;
             }
         }
+
+        // The switches are now opened
+        switchesToOpen.forEach(sw -> sw.setOpen(true));
         return true;
+    }
+
+    /**
+     * Add the first openable switch in the given path to the set of switches to open
+     * @param path the path to open
+     * @param isSwitchOpenable predicate used to know if a switch can be opened
+     * @param switchesToOpen set of switches to be opened
+     * @return true if the path has been opened, else false
+     */
+    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
+        for (int i = 0; i < path.size(); i++) {
+            int e = path.get(i);
+            SwitchImpl sw = graph.getEdgeObject(e);
+            if (isSwitchOpenable.test(sw)) {
+                switchesToOpen.add(sw);
+                // just one open breaker is enough to disconnect the terminal, so we can stop
+                return true;
+            }
+        }
+        return false;
     }
 
     boolean isConnected(TerminalExt terminal) {
@@ -1240,8 +1299,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return terminal.getBusView().getBus() != null;
     }
 
-    void traverse(NodeTerminal terminal, Terminal.TopologyTraverser traverser) {
-        traverse(terminal, traverser, new HashSet<>());
+    void traverse(NodeTerminal terminal, Terminal.TopologyTraverser traverser, TraversalType traversalType) {
+        traverse(terminal, traverser, new HashSet<>(), traversalType);
     }
 
     /**
@@ -1250,7 +1309,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
      * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(NodeTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+    boolean traverse(NodeTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> visitedTerminals, TraversalType traversalType) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(visitedTerminals);
@@ -1263,7 +1322,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             addNextTerminals(terminal, nextTerminals);
 
             int node = terminal.getNode();
-            boolean traverseTerminated = !graph.traverse(node, (v1, e, v2) -> {
+            boolean traverseTerminated = !graph.traverse(node, traversalType, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 NodeTerminal otherTerminal = graph.getVertexObject(v2);
                 TraverseResult edgeTraverseResult = aSwitch != null ? traverser.traverse(aSwitch)
@@ -1282,7 +1341,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             for (TerminalExt nextTerminal : nextTerminals) {
-                if (!nextTerminal.traverse(traverser, visitedTerminals)) {
+                if (!nextTerminal.traverse(traverser, visitedTerminals, traversalType)) {
                     return false;
                 }
             }

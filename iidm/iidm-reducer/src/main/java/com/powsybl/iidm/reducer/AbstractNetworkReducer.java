@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractNetworkReducer implements NetworkReducer {
 
@@ -34,37 +34,37 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
         // Remove all unwanted lines
         List<Line> lines = network.getLineStream()
                 .filter(l -> !test(l))
-                .collect(Collectors.toList());
+                .toList();
         lines.forEach(this::reduce);
 
         // Remove all unwanted two windings transformers
         List<TwoWindingsTransformer> twoWindingsTransformers = network.getTwoWindingsTransformerStream()
                 .filter(t -> !test(t))
-                .collect(Collectors.toList());
+                .toList();
         twoWindingsTransformers.forEach(this::reduce);
 
         // Remove all three windings transformers
         List<ThreeWindingsTransformer> threeWindingsTransformers = network.getThreeWindingsTransformerStream()
                 .filter(t -> !test(t))
-                .collect(Collectors.toList());
+                .toList();
         threeWindingsTransformers.forEach(this::reduce);
 
         // Remove all unwanted HVDC lines
         List<HvdcLine> hvdcLines = network.getHvdcLineStream()
                 .filter(h -> !test(h))
-                .collect(Collectors.toList());
+                .toList();
         hvdcLines.forEach(this::reduce);
 
         // Remove all unwanted voltage levels
         List<VoltageLevel> voltageLevels = network.getVoltageLevelStream()
                 .filter(vl -> !test(vl))
-                .collect(Collectors.toList());
+                .toList();
         voltageLevels.forEach(this::reduce);
 
         // Remove all unwanted substations
         List<Substation> substations = network.getSubstationStream()
                 .filter(s -> !test(s))
-                .collect(Collectors.toList());
+                .toList();
         substations.forEach(this::reduce);
     }
 
@@ -145,7 +145,7 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
         List<String> voltageLevels = network.getVoltageLevelStream()
                 .filter(predicate::test)
                 .map(VoltageLevel::getId)
-                .collect(Collectors.toList());
+                .toList();
         vlIds.addAll(voltageLevels);
 
         //Adding necessary vl for three winding transformers

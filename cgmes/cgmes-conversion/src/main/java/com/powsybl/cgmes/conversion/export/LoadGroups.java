@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class LoadGroups {
     Map<String, LoadGroup> uniqueGroupByClass = new HashMap<>();
@@ -23,7 +23,8 @@ class LoadGroups {
     }
 
     String groupFor(String loadClassName) {
-        if (loadClassName.equals(CgmesNames.ENERGY_CONSUMER)) {
+        if (loadClassName.equals(CgmesNames.ENERGY_CONSUMER)
+                || loadClassName.equals(CgmesNames.STATION_SUPPLY)) {
             return null;
         }
         return uniqueGroupByClass.computeIfAbsent(loadClassName, this::createGroupFor).id;

@@ -12,27 +12,23 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class InMemoryCgmesModel implements CgmesModel {
     private final Properties properties;
     private String modelId;
     private String version;
     private boolean isNodeBreaker;
-    private DateTime created;
-    private DateTime scenarioTime;
+    private ZonedDateTime created;
+    private ZonedDateTime scenarioTime;
     private PropertyBags substations;
     private PropertyBags voltageLevels;
     private PropertyBags terminals;
@@ -72,8 +68,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
         modelId = "fakeModel0";
         version = "unknown";
         isNodeBreaker = false;
-        created = DateTime.now();
-        scenarioTime = DateTime.now();
+        created = ZonedDateTime.now();
+        scenarioTime = ZonedDateTime.now();
         substations = new PropertyBags();
         voltageLevels = new PropertyBags();
         terminals = new PropertyBags();
@@ -302,12 +298,12 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public DateTime scenarioTime() {
+    public ZonedDateTime scenarioTime() {
         return scenarioTime;
     }
 
     @Override
-    public DateTime created() {
+    public ZonedDateTime created() {
         return created;
     }
 
@@ -333,6 +329,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags countrySourcingActors(String countryName) {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags sourcingActor(String sourcingActor) {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags substations() {
         return substations;
     }
@@ -349,7 +355,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags connectivityNodeContainers() {
-        // TODO(Luma) refactoring node-breaker conversion temporal
         return new PropertyBags();
     }
 
@@ -505,6 +510,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public PropertyBags acDcConverters() {
         return acDcConverters;
     }
@@ -592,24 +607,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
         return null;
     }
 
-    /**
-     * @deprecated Use {@link #ratioTapChangerListForPowerTransformer(String)} instead.
-     */
-    @Override
-    @Deprecated
-    public String ratioTapChangerForPowerTransformer(String powerTransformerId) {
-        return null;
-    }
-
-    /**
-     * @deprecated Use {@link #phaseTapChangerListForPowerTransformer(String)} instead.
-     */
-    @Override
-    @Deprecated
-    public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
-        return null;
-    }
-
     @Override
     public String substation(CgmesTerminal t, boolean nodeBreaker) {
         return null;
@@ -632,27 +629,26 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     @Override
     public void setBasename(String baseName) {
-        // TODO Review if required by current tests
+        // Not required by current tests
     }
 
     @Override
     public String getBasename() {
-        // TODO Review if required by current tests
         return null;
     }
 
     @Override
     public void read(ReadOnlyDataSource ds, Reporter reporter) {
-        // TODO Review if required by current tests
+        // Not required by current tests
     }
 
     @Override
     public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter) {
-        // TODO Review if required by current tests
+        // Not required by current tests
     }
 
     @Override
     public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
-        // TODO Review if required by current tests
+        // Not required by current tests
     }
 }

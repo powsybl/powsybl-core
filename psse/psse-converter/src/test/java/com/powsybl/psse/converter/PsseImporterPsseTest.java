@@ -9,7 +9,7 @@ package com.powsybl.psse.converter;
 
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import org.junit.jupiter.api.Test;
@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-class PsseImporterPsseTest extends AbstractConverterTest {
+class PsseImporterPsseTest extends AbstractSerDeTest {
 
     // Test files obtained from a PSSE installation
 

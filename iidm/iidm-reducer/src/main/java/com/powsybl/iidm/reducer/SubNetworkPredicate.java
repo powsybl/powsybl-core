@@ -14,7 +14,7 @@ import java.util.*;
  * A network reducer predicate that allow reduction based on a center voltage level and all other voltage level neighbors
  * within a specified depth.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SubNetworkPredicate implements NetworkPredicate {
 
@@ -57,7 +57,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
 
     private static void visitBranches(Set<String> traversedVoltageLevelIds, Deque<Node> stack, VoltageLevel vl, int depth) {
         vl.visitEquipments(new DefaultTopologyVisitor() {
-            private void visitBranch(Branch<?> branch, Branch.Side side) {
+            private void visitBranch(Branch<?> branch, TwoSides side) {
                 VoltageLevel nextVl;
                 switch (side) {
                     case ONE:
@@ -75,17 +75,17 @@ public class SubNetworkPredicate implements NetworkPredicate {
             }
 
             @Override
-            public void visitLine(Line line, Branch.Side side) {
+            public void visitLine(Line line, TwoSides side) {
                 visitBranch(line, side);
             }
 
             @Override
-            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
                 visitBranch(transformer, side);
             }
 
             @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
                 VoltageLevel nextVl1;
                 VoltageLevel nextVl2;
                 switch (side) {

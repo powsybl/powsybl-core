@@ -9,6 +9,7 @@ package com.powsybl.commons.datasource;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -16,7 +17,7 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ZipFileDataSourceTest extends AbstractDataSourceTest {
 
@@ -76,7 +77,9 @@ class ZipFileDataSourceTest extends AbstractDataSourceTest {
         assertTrue(dataSource.exists(null, MAIN_EXT));
         assertTrue(dataSource.exists(ADDITIONAL_SUFFIX, ADDITIONAL_EXT));
         assertFalse(dataSource.exists("-not", "there"));
-        assertEquals("Test String", new String(dataSource.newInputStream(UNRELATED_FILE).readAllBytes()));
+        try (InputStream is = dataSource.newInputStream(UNRELATED_FILE)) {
+            assertEquals("Test String", new String(is.readAllBytes()));
+        }
     }
 
 }

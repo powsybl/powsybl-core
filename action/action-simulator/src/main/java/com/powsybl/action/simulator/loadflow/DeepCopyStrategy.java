@@ -7,23 +7,23 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 
 import java.util.Objects;
 
 /**
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 class DeepCopyStrategy implements NetworkCopyStrategy {
     private final byte[] compressedBytes;
 
     DeepCopyStrategy(Network network) {
-        this.compressedBytes = NetworkXml.gzip(Objects.requireNonNull(network));
+        this.compressedBytes = NetworkSerDe.gzip(Objects.requireNonNull(network));
     }
 
     @Override
     public Network createState(String id) {
-        return NetworkXml.gunzip(compressedBytes);
+        return NetworkSerDe.gunzip(compressedBytes);
     }
 
     @Override
