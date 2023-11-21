@@ -15,13 +15,13 @@ import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testReporter;
@@ -163,7 +163,7 @@ class CreateCouplingDeviceTest extends AbstractSerDeTest {
 
     private Network createSimpleBusBreakerNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("network", "test");
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         VoltageLevel vltest = network.newVoltageLevel()
                 .setNominalV(400)
                 .setId("VLTEST")

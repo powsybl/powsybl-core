@@ -17,10 +17,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -162,7 +162,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
 
     @Test
     void testIgnore() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         NetworkModification modification1 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network.getLine("NHV1_NHV2_1"))

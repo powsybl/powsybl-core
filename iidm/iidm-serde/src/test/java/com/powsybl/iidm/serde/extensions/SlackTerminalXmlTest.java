@@ -6,24 +6,24 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.XMLExporter;
-import org.joda.time.DateTime;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Properties;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -33,7 +33,7 @@ class SlackTerminalXmlTest extends AbstractSerDeTest {
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
 
         String voltageLevelId = "VLHV2";
         VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
@@ -64,7 +64,7 @@ class SlackTerminalXmlTest extends AbstractSerDeTest {
     @Test
     void testNoTerminal() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
         String voltageLevelId = "VLHV2";
         VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
@@ -100,7 +100,7 @@ class SlackTerminalXmlTest extends AbstractSerDeTest {
     @Test
     void testBadVariant() {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
         VoltageLevel vl = network.getVoltageLevel("VLHV2");
         Terminal terminal = network.getLine("NHV1_NHV2_1").getTerminal(TwoSides.TWO);

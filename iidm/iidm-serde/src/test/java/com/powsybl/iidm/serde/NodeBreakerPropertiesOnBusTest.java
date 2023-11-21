@@ -9,7 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ class NodeBreakerPropertiesOnBusTest extends AbstractIidmSerDeTest {
     @Test
     void testPropertiesOnBus() throws IOException {
         Network network = FictitiousSwitchFactory.create();
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.getVoltageLevel("C").getBusView().getBus("C_0").setProperty("key_test", "value_test");
 
         // can export and reload a network in current and older XIIDM versions

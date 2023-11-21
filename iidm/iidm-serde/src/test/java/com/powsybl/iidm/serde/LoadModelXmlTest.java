@@ -9,7 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ class LoadModelXmlTest extends AbstractIidmSerDeTest {
     @Test
     void zipModelTest() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
         network.getVoltageLevel("VLLOAD").newLoad()
                 .setId("LOAD2")
                 .setBus("NLOAD")
@@ -52,7 +52,7 @@ class LoadModelXmlTest extends AbstractIidmSerDeTest {
     @Test
     void expoModelTest() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
         network.getVoltageLevel("VLLOAD").newLoad()
                 .setId("LOAD2")
                 .setBus("NLOAD")

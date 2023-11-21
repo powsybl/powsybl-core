@@ -13,13 +13,13 @@ import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,7 +32,7 @@ class LoadDetailXmlTest extends AbstractIidmSerDeTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)

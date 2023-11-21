@@ -16,10 +16,10 @@ import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.PilotPoint;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
@@ -35,7 +35,7 @@ class SecondaryVoltageControlXmlTest extends AbstractSerDeTest {
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
-        network.setCaseDate(DateTime.parse("2023-01-07T20:43:11.819+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2023-01-07T20:43:11.819+01:00"));
 
         SecondaryVoltageControl control = network.newExtension(SecondaryVoltageControlAdder.class)
                 .addControlZone(new ControlZone("z1",

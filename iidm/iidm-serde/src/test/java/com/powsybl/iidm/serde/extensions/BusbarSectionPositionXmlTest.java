@@ -11,10 +11,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,7 +26,7 @@ class BusbarSectionPositionXmlTest extends AbstractSerDeTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)

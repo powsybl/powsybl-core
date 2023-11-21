@@ -17,10 +17,10 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -180,7 +180,7 @@ class CreateVoltageLevelTopologyTest extends AbstractSerDeTest {
 
     @Test
     void testWithBusBreakerVoltageLevel() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.newVoltageLevel()
                 .setId("VLTEST")
                 .setNominalV(400.0)

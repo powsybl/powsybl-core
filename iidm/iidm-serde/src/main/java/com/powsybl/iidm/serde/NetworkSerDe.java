@@ -28,7 +28,6 @@ import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import com.powsybl.iidm.serde.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -44,6 +43,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
@@ -220,7 +221,7 @@ public final class NetworkSerDe {
 
     private static void writeMainAttributes(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(n.getId()));
-        context.getWriter().writeStringAttribute(CASE_DATE, n.getCaseDate().toString());
+        context.getWriter().writeStringAttribute(CASE_DATE, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(n.getCaseDate()));
         context.getWriter().writeIntAttribute(FORECAST_DISTANCE, n.getForecastDistance());
         context.getWriter().writeStringAttribute(SOURCE_FORMAT, n.getSourceFormat());
     }
@@ -643,7 +644,7 @@ public final class NetworkSerDe {
 
     private static Network initNetwork(NetworkFactory networkFactory, NetworkDeserializerContext context, TreeDataReader reader, Network rootNetwork) {
         String id = context.getAnonymizer().deanonymizeString(reader.readStringAttribute(ID));
-        DateTime date = DateTime.parse(reader.readStringAttribute(CASE_DATE));
+        ZonedDateTime date = ZonedDateTime.parse(reader.readStringAttribute(CASE_DATE));
         int forecastDistance = reader.readIntAttribute(FORECAST_DISTANCE, 0);
         String sourceFormat = reader.readStringAttribute(SOURCE_FORMAT);
 

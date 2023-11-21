@@ -13,10 +13,10 @@ import com.powsybl.iidm.network.extensions.LineFortescue;
 import com.powsybl.iidm.network.extensions.LineFortescueAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +28,7 @@ class LineFortescueXmlSerDeTest extends AbstractSerDeTest {
     @Test
     void testXmlSerializer() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2016-12-07T11:18:52.881+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-12-07T11:18:52.881+01:00"));
         Line l = network.getLine("NHV1_NHV2_1");
         assertNotNull(l);
         LineFortescue fortescue = l.newExtension(LineFortescueAdder.class)

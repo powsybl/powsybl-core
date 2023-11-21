@@ -13,10 +13,10 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Properties;
 
 /**
@@ -74,7 +74,7 @@ class ReplaceTieLinesByLinesTest extends AbstractSerDeTest {
 
     private static Network createDummyNodeBreakerNetwork() {
         Network network = Network.create("test", "test");
-        network.setCaseDate(DateTime.parse("2023-04-29T14:52:01.427+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2023-04-29T14:52:01.427+02:00"));
         Substation s1 = network.newSubstation().setId("S1").add();
         Substation s2 = network.newSubstation().setId("S2").add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();

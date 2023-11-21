@@ -13,10 +13,10 @@ import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
@@ -31,7 +31,7 @@ class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractSerDeTest {
     @Test
     void test() throws IOException {
         Network network = SvcTestCaseFactory.create();
-        network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertNotNull(svc);
 

@@ -12,7 +12,9 @@ import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.ReporterModelDeserializer;
 import com.powsybl.commons.reporter.ReporterModelSerializer;
 import com.powsybl.computation.ComputationManager;
-import org.joda.time.DateTime;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -50,6 +52,6 @@ class PostProcessorReporterTest extends AbstractSerDeTest {
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null);
         importPostProcessorMock.process(network1, computationManager);
         assertNotNull(network1);
-        assertEquals(new DateTime(2021, 12, 20, 0, 0, 0), network1.getCaseDate());
+        assertEquals(ZonedDateTime.of(2021, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC), network1.getCaseDate());
     }
 }

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     @Test
     void testDanglingLine() throws IOException {
         Network network = DanglingLineNetworkFactory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         DanglingLine dl = network.getDanglingLine("DL");
         createLoadingLimits(dl::newActivePowerLimits);
         createLoadingLimits(dl::newApparentPowerLimits);
@@ -70,7 +70,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     @Test
     void testEurostag() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         Line line = network.getLine("NHV1_NHV2_2");
         createLoadingLimits(line::newActivePowerLimits1);
         createLoadingLimits(line::newActivePowerLimits2);

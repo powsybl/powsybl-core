@@ -6,9 +6,8 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -16,12 +15,13 @@ import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 import com.powsybl.iidm.network.impl.extensions.BranchObservabilityImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,7 +50,7 @@ class BranchObservabilityXmlTest extends AbstractSerDeTest {
 
     void testVersion(IidmVersion version) throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2022-08-09T17:00:00.000Z"));
+        network.setCaseDate(ZonedDateTime.parse("2022-08-09T17:00:00.000Z"));
         Line line1 = network.getLine("NHV1_NHV2_1");
         assertNotNull(line1);
 

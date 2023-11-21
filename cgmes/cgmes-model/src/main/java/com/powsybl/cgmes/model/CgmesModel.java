@@ -12,7 +12,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -39,9 +39,9 @@ public interface CgmesModel {
 
     String version();
 
-    DateTime scenarioTime();
+    ZonedDateTime scenarioTime();
 
-    DateTime created();
+    ZonedDateTime created();
 
     boolean isNodeBreaker();
 

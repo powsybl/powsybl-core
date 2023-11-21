@@ -21,8 +21,6 @@ import com.powsybl.matpower.model.MBus;
 import com.powsybl.matpower.model.MatpowerModel;
 import com.powsybl.matpower.model.MatpowerModelFactory;
 import com.powsybl.matpower.model.MatpowerWriter;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -165,7 +163,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
     private void testNetwork(Network network, String id) throws IOException {
         //set the case date of the network to be tested to a default value to match the saved networks' date
         ZonedDateTime caseDateTime = DEFAULTDATEFORTESTS.atStartOfDay(ZoneOffset.UTC.normalized());
-        network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
+        network.setCaseDate(ZonedDateTime.ofInstant(caseDateTime.toInstant(), ZoneOffset.UTC));
 
         String fileName = id + ".xiidm";
         Path file = tmpDir.resolve(fileName);

@@ -53,10 +53,6 @@
             <artifactId>jgrapht-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>

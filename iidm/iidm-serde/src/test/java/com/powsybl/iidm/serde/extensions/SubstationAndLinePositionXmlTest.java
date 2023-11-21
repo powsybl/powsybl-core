@@ -11,10 +11,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
@@ -29,7 +29,7 @@ class SubstationAndLinePositionXmlTest extends AbstractSerDeTest {
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2022-04-06T13:43:05.020+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2022-04-06T13:43:05.020+02:00"));
 
         // create substation and line position extensions
         network.getSubstation("P1").newExtension(SubstationPositionAdder.class)

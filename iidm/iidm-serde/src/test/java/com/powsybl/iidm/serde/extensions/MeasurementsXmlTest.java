@@ -8,19 +8,19 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -30,7 +30,7 @@ class MeasurementsXmlTest extends AbstractIidmSerDeTest {
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
 
         Load load = network.getLoad("LOAD");
         load.newExtension(MeasurementsAdder.class).add();

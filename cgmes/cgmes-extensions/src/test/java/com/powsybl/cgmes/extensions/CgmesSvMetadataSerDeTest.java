@@ -10,10 +10,10 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -23,7 +23,7 @@ class CgmesSvMetadataSerDeTest extends AbstractSerDeTest {
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2020-09-07T15:44:10.209+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2020-09-07T15:44:10.209+02:00"));
         network.newExtension(CgmesSvMetadataAdder.class)
                 .setDescription("test description")
                 .setModelingAuthoritySet("http://powsybl.org")

@@ -13,10 +13,10 @@ import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,7 +28,7 @@ class GeneratorShortCircuitXmlSerDeTest extends AbstractSerDeTest {
     @Test
     void testXmlSerializer() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2016-12-07T11:18:52.881+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-12-07T11:18:52.881+01:00"));
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
         GeneratorShortCircuit generatorShortCircuit = gen.newExtension(GeneratorShortCircuitAdder.class)

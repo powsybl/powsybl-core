@@ -17,10 +17,10 @@ import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -30,7 +30,7 @@ class DiscreteMeasurementsXmlTest extends AbstractIidmSerDeTest {
     @Test
     void test() throws IOException {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
 
         Switch sw = network.getSwitch("S1VL1_BBS_LD1_DISCONNECTOR");
         sw.newExtension(DiscreteMeasurementsAdder.class).add();

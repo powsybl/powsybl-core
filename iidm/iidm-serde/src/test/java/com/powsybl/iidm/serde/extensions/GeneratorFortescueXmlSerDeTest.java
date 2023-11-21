@@ -13,12 +13,13 @@ import com.powsybl.iidm.network.extensions.GeneratorFortescue;
 import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -28,7 +29,7 @@ class GeneratorFortescueXmlSerDeTest extends AbstractSerDeTest {
     @Test
     void testXmlSerializer() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2016-12-07T11:18:52.881+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-12-07T11:18:52.881+01:00"));
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
         GeneratorFortescue fortescue = gen.newExtension(GeneratorFortescueAdder.class)

@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
 import com.powsybl.powerfactory.model.StudyCase;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -24,6 +23,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -78,7 +78,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
                         null);
 
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
-        network.setCaseDate(DateTime.parse("2021-01-01T10:00:00.000+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
             compareXml(getClass().getResourceAsStream("/" + id + ".xiidm"), is);

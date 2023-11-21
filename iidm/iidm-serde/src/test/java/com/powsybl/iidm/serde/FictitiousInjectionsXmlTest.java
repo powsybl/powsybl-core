@@ -9,7 +9,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ class FictitiousInjectionsXmlTest extends AbstractIidmSerDeTest {
     @Test
     void testBb() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00+01:00"));
         network.getBusBreakerView().getBus("NGEN").setFictitiousP0(1.0).setFictitiousQ0(2.0);
         network.getBusBreakerView().getBus("NLOAD").setFictitiousP0(3.0);
         network.getBusBreakerView().getBus("NHV1").setFictitiousQ0(4.0);
@@ -40,7 +40,7 @@ class FictitiousInjectionsXmlTest extends AbstractIidmSerDeTest {
     @Test
     void testNb() throws IOException {
         Network network = FictitiousSwitchFactory.create();
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.getVoltageLevel("C").getNodeBreakerView()
                 .setFictitiousP0(0, 1.0)
                 .setFictitiousQ0(1, 2.0)
