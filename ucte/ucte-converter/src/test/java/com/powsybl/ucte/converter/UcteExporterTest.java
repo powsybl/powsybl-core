@@ -7,7 +7,7 @@
 package com.powsybl.ucte.converter;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  * @author Abdelsalem Hedhili {@literal <abdelsalem.hedhili at rte-france.com>}
  */
 
-class UcteExporterTest extends AbstractConverterTest {
+class UcteExporterTest extends AbstractSerDeTest {
 
     /**
      * Utility method to load a network file from resource directory without calling

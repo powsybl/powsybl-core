@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Anis Touri {@literal <anis-1.touri@rte-france.com>}
  */
-class RemoveHvdcLineTest extends AbstractConverterTest {
+class RemoveHvdcLineTest extends AbstractSerDeTest {
 
     @Test
     void testRemoveHvdcLineLcc() {

@@ -1,5 +1,0 @@
-+ test reporter
-  + Validation warnings
-     2 windings transformer 'NHV2_NLOAD':  has both Ratio and Phase Tap Changer.
-  + XIIDM import done
-     XML network "sim1" is imported.
