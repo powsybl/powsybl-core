@@ -32,4 +32,8 @@ public interface AmplParameters {
      * @return true if debug mode is on, else otherwise
      */
     boolean isDebug();
+
+    default String getAmplExportVersionId() {
+        return null;
+    }
 }
