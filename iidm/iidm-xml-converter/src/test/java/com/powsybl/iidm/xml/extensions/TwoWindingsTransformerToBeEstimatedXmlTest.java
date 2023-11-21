@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ class TwoWindingsTransformerToBeEstimatedXmlTest extends AbstractXmlConverterTes
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
 
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NHV2_NLOAD");
         twt.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)

@@ -8,7 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ class LoadingLimitsBugTest extends AbstractConverterTest {
     @Test
     void test() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
         // to reproduce the bug we need a 2 windings transformer without any data
         // that could create a sub element in the XML except apparent and active power limits
         // (tap changer, properties, current limits)

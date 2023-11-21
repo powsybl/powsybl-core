@@ -10,7 +10,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ class CimCharacteristicsXmlSerializerTest extends AbstractConverterTest {
 
     @Test
     void test() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2020-09-08T14:28:13.738+02:00"));
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2020-09-08T14:28:13.738+02:00"));
         network.newExtension(CimCharacteristicsAdder.class)
                 .setTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                 .setCimVersion(14)

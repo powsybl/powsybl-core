@@ -10,7 +10,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ class CgmesSshMetadataXmlSerializerTest extends AbstractConverterTest {
     @Test
     void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2020-09-07T15:44:10.209+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2020-09-07T15:44:10.209+02:00"));
         network.newExtension(CgmesSshMetadataAdder.class)
                 .setDescription("test description")
                 .setModelingAuthoritySet("http://powsybl.org")

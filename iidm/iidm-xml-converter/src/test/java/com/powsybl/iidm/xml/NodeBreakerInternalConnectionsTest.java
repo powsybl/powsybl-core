@@ -8,7 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest {
 
     private Network networkWithInternalConnections() {
         Network network = Network.create("internal-connections", "test")
-                .setCaseDate(DateTime.parse("2018-11-08T12:33:26.208+01:00"));
+                .setCaseDate(ZonedDateTime.parse("2018-11-08T12:33:26.208+01:00"));
 
         Substation s1 = network.newSubstation()
                 .setId("s1")

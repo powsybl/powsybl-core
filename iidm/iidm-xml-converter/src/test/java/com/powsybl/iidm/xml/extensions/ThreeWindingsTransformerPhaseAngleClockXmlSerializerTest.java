@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClo
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ class ThreeWindingsTransformerPhaseAngleClockXmlSerializerTest extends AbstractC
     @Test
     void test() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
-        network.setCaseDate(DateTime.parse("2018-03-05T13:30:30.486+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2018-03-05T13:30:30.486+01:00"));
         ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer("3WT");
 
         transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(3).withPhaseAngleClockLeg3(1).add();

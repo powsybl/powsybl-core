@@ -19,8 +19,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +26,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -424,9 +424,9 @@ public class Conversion {
                                 modelProfile.getId(fullModel));
             }
         }
-        DateTime modelScenarioTime = cgmes.scenarioTime();
-        DateTime modelCreated = cgmes.created();
-        long forecastDistance = new Duration(modelCreated, modelScenarioTime).getStandardMinutes();
+        ZonedDateTime modelScenarioTime = cgmes.scenarioTime();
+        ZonedDateTime modelCreated = cgmes.created();
+        long forecastDistance = Duration.between(modelCreated, modelScenarioTime).toMinutes();
         context.network().setForecastDistance(forecastDistance >= 0 ? (int) forecastDistance : 0);
         context.network().setCaseDate(modelScenarioTime);
         LOG.info("cgmes scenarioTime       : {}", modelScenarioTime);
