@@ -19,8 +19,8 @@
     </parent>
 
     <artifactId>powsybl-iidm-serializer</artifactId>
-    <name>IIDM XML converter</name>
-    <description>A XML converter implementation for IIDM networks</description>
+    <name>IIDM serializer/deserializer</name>
+    <description>A XML and JSON serializer/deserializer implementation for IIDM networks</description>
 
     <build>
         <plugins>
