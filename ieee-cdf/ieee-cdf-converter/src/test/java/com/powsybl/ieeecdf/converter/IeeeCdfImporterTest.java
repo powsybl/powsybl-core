@@ -9,10 +9,10 @@ package com.powsybl.ieeecdf.converter;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.serializer.NetworkSerializer;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class IeeeCdfImporterTest extends AbstractSerializerTest {
+class IeeeCdfImporterTest extends AbstractSerDeTest {
 
     @Test
     void baseTest() {
@@ -57,7 +57,7 @@ class IeeeCdfImporterTest extends AbstractSerializerTest {
 
     private void testNetwork(Network network) throws IOException {
         Path file = fileSystem.getPath("/work/" + network.getId() + ".xiidm");
-        NetworkSerializer.write(network, file);
+        NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
             compareXml(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }

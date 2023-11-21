@@ -10,15 +10,15 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.serializer.ExportOptions;
-import com.powsybl.iidm.serializer.NetworkSerializer;
+import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -32,7 +32,7 @@ import java.util.Collections;
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-class TopologyExportTest extends AbstractSerializerTest {
+class TopologyExportTest extends AbstractSerDeTest {
 
     @Test
     void smallGridHVDC() throws IOException, XMLStreamException {
@@ -93,8 +93,8 @@ class TopologyExportTest extends AbstractSerializerTest {
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
-        NetworkSerializer.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkSerializer.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        NetworkSerDe.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
+        NetworkSerDe.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
 
         // Compare
         ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));

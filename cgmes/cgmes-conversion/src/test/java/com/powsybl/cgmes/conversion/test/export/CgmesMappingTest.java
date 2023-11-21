@@ -13,11 +13,11 @@ import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.iidm.serializer.NetworkSerializer;
-import com.powsybl.iidm.serializer.XMLImporter;
+import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.XMLImporter;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-class CgmesMappingTest extends AbstractSerializerTest {
+class CgmesMappingTest extends AbstractSerDeTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesMappingTest.class);
 
@@ -354,8 +354,8 @@ class CgmesMappingTest extends AbstractSerializerTest {
     }
 
     private Network export2IidmAndImport(Network network) {
-        NetworkSerializer.write(network, tmpDir.resolve("export.iidm"));
-        return NetworkSerializer.read(tmpDir.resolve("export.iidm"));
+        NetworkSerDe.write(network, tmpDir.resolve("export.iidm"));
+        return NetworkSerDe.read(tmpDir.resolve("export.iidm"));
     }
 
     private DataSource tmpDataSource(String folder, String baseName) throws IOException {

@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.ReporterModelDeserializer;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-class PostProcessorReporterTest extends AbstractSerializerTest {
+class PostProcessorReporterTest extends AbstractSerDeTest {
     private final Importer testImporter = new TestImporter();
     private final ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
     private final ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));

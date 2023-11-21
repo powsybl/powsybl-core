@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -40,7 +40,7 @@ import static com.powsybl.security.LimitViolationType.*;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-class JsonActionAndOperatorStrategyTest extends AbstractSerializerTest {
+class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
 
     @Test
     void actionRoundTrip() throws IOException {

@@ -7,11 +7,11 @@
 package com.powsybl.matpower.converter;
 
 import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.serializer.NetworkSerializer;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
-class MatpowerImporterTest extends AbstractSerializerTest {
+class MatpowerImporterTest extends AbstractSerDeTest {
 
     private static final LocalDate DEFAULTDATEFORTESTS = LocalDate.of(2020, Month.JANUARY, 1);
 
@@ -169,7 +169,7 @@ class MatpowerImporterTest extends AbstractSerializerTest {
 
         String fileName = id + ".xiidm";
         Path file = tmpDir.resolve(fileName);
-        NetworkSerializer.write(network, file);
+        NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
             compareXml(getClass().getResourceAsStream("/" + fileName), is);
         }

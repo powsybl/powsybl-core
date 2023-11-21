@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.network.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkSerializer;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.apache.commons.lang3.Range;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-class CreateFeederBayTest extends AbstractSerializerTest {
+class CreateFeederBayTest extends AbstractSerDeTest {
 
     @Test
     void baseNodeBreakerLoadTest() throws IOException {
@@ -55,7 +55,7 @@ class CreateFeederBayTest extends AbstractSerializerTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/network-node-breaker-with-new-load-bbs4.xml");
     }
 
@@ -75,7 +75,7 @@ class CreateFeederBayTest extends AbstractSerializerTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-create-load-feeder-bay.xml");
     }
 
@@ -200,7 +200,7 @@ class CreateFeederBayTest extends AbstractSerializerTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/network-node-breaker-with-new-generator-bbs1.xml");
     }
 
@@ -319,7 +319,7 @@ class CreateFeederBayTest extends AbstractSerializerTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         addVscConverterStationModification.apply(network);
-        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/network-node-breaker-with-new-equipments-bbs1.xml");
     }
 

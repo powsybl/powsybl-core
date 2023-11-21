@@ -26,7 +26,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import com.powsybl.iidm.serializer.XMLExporter;
+import com.powsybl.iidm.serde.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;

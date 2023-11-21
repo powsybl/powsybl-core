@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class SensitivityFactorTest extends AbstractSerializerTest {
+class SensitivityFactorTest extends AbstractSerDeTest {
 
     @Test
     void test() {

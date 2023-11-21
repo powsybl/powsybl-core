@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.converter;
 
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Network;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ExporterTest extends AbstractSerializerTest {
+class ExporterTest extends AbstractSerDeTest {
 
     private static final Network NETWORK = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 

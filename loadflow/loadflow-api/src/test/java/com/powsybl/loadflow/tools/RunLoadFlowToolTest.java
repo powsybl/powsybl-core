@@ -6,7 +6,7 @@
  */
 package com.powsybl.loadflow.tools;
 
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -25,7 +25,7 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class RunLoadFlowToolTest extends AbstractSerializerTest {
+class RunLoadFlowToolTest extends AbstractSerDeTest {
 
     @Test
     void printLoadFlowResultTest() throws IOException {

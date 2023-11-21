@@ -8,11 +8,11 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkSerializer;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -22,13 +22,13 @@ import java.util.Properties;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ReplaceTieLinesByLinesTest extends AbstractSerializerTest {
+class ReplaceTieLinesByLinesTest extends AbstractSerDeTest {
 
     @Test
     void roundTripBusBreaker() throws IOException {
         Network network = createBusBreakerNetworkWithAliasesPropertiesExtensions();
         new ReplaceTieLinesByLines().apply(network);
-        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-replace-tl.xml");
     }
 
@@ -36,16 +36,16 @@ class ReplaceTieLinesByLinesTest extends AbstractSerializerTest {
     void roundTripNodeBreaker() throws IOException {
         Network network = createDummyNodeBreakerNetwork();
         new ReplaceTieLinesByLines().apply(network);
-        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/replace-tl-nb.xml");
     }
 
     @Test
     void postProcessor() throws IOException {
-        NetworkSerializer.write(createBusBreakerNetworkWithAliasesPropertiesExtensions(), tmpDir.resolve("tl-test.xml"));
+        NetworkSerDe.write(createBusBreakerNetworkWithAliasesPropertiesExtensions(), tmpDir.resolve("tl-test.xml"));
         Network read = Network.read(tmpDir.resolve("tl-test.xml"), LocalComputationManager.getDefault(),
                 new ImportConfig("replaceTieLinesByLines"), new Properties());
-        roundTripXmlTest(read, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(read, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-replace-tl.xml");
     }
 

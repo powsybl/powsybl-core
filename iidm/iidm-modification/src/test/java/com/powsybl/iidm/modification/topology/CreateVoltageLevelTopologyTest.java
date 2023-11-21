@@ -8,7 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serializer.NetworkSerializer;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CreateVoltageLevelTopologyTest extends AbstractSerializerTest {
+class CreateVoltageLevelTopologyTest extends AbstractSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -40,7 +40,7 @@ class CreateVoltageLevelTopologyTest extends AbstractSerializerTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/create-vl-topo-test.xiidm");
     }
 
@@ -56,7 +56,7 @@ class CreateVoltageLevelTopologyTest extends AbstractSerializerTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/create-vl-topo-test-complete.xiidm");
     }
 
@@ -192,7 +192,7 @@ class CreateVoltageLevelTopologyTest extends AbstractSerializerTest {
                 .withSectionCount(4)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerializer::writeAndValidate, NetworkSerializer::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-new-voltage-level.xml");
     }
 

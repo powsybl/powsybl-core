@@ -14,7 +14,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.test.AbstractSerializerTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ExtensionTest extends AbstractSerializerTest {
+class ExtensionTest extends AbstractSerDeTest {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test"));
@@ -158,13 +158,13 @@ class ExtensionTest extends AbstractSerializerTest {
 
     @Test
     void testProviderConflict() {
-        ExtensionSerializer<?, ?> mock1 = Mockito.mock(ExtensionSerializer.class);
+        ExtensionSerDe<?, ?> mock1 = Mockito.mock(ExtensionSerDe.class);
         Mockito.when(mock1.getExtensionName()).thenReturn("mock");
-        ExtensionSerializer<?, ?> mock2 = Mockito.mock(ExtensionSerializer.class);
+        ExtensionSerDe<?, ?> mock2 = Mockito.mock(ExtensionSerDe.class);
         Mockito.when(mock2.getExtensionName()).thenReturn("mock");
 
-        ExtensionSerializer<?, ?>[] mocks = {mock1, mock2};
+        ExtensionSerDe<?, ?>[] mocks = {mock1, mock2};
 
-        assertThrows(IllegalStateException.class, () -> Arrays.stream(mocks).collect(Collectors.toMap(ExtensionSerializer::getExtensionName, e -> e)));
+        assertThrows(IllegalStateException.class, () -> Arrays.stream(mocks).collect(Collectors.toMap(ExtensionSerDe::getExtensionName, e -> e)));
     }
 }
