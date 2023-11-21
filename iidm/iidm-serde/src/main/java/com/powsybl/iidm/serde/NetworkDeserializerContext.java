@@ -7,8 +7,11 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.DeserializerContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.util.*;
@@ -46,6 +49,10 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     public List<Runnable> getEndTasks() {
         return endTasks;
+    }
+
+    public void executeEndTasks(Network network, Reporter reporter) {
+        Networks.executeWithReporter(network, reporter, () -> getEndTasks().forEach(Runnable::run));
     }
 
     @Override

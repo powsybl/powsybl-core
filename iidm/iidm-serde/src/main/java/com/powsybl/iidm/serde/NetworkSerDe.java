@@ -20,6 +20,7 @@ import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonReader;
 import com.powsybl.commons.json.JsonWriter;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
@@ -495,12 +496,12 @@ public final class NetworkSerDe {
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
-        return read(is, config, anonymizer, NetworkFactory.findDefault());
+        return read(is, config, anonymizer, NetworkFactory.findDefault(), Reporter.NO_OP);
     }
 
-    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory) {
+    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory, Reporter reporter) {
         try (TreeDataReader reader = createTreeDataReader(is, config)) {
-            return read(reader, config, anonymizer, networkFactory);
+            return read(reader, config, anonymizer, networkFactory, reporter);
         }
     }
 
@@ -587,18 +588,18 @@ public final class NetworkSerDe {
     }
 
     private static void readNetworkElement(String elementName, Deque<Network> networks, NetworkFactory networkFactory, NetworkDeserializerContext context,
-                                           Set<String> extensionNamesNotFound) {
+                                           Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
         switch (elementName) {
             case AliasesSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadAlias(networks.peek(), context);
             case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(networks.peek(), context);
-            case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, context, extensionNamesNotFound);
+            case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound);
             case VoltageLevelSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadVoltageLevel(context, networks);
             case SubstationSerDe.ROOT_ELEMENT_NAME -> SubstationSerDe.INSTANCE.read(networks.peek(), context);
             case LineSerDe.ROOT_ELEMENT_NAME -> LineSerDe.INSTANCE.read(networks.peek(), context);
             case TieLineSerDe.ROOT_ELEMENT_NAME -> TieLineSerDe.INSTANCE.read(networks.peek(), context);
             case HvdcLineSerDe.ROOT_ELEMENT_NAME -> HvdcLineSerDe.INSTANCE.read(networks.peek(), context);
             case VoltageAngleLimitSerDe.ROOT_ELEMENT_NAME -> VoltageAngleLimitSerDe.read(networks.peek(), context);
-            case EXTENSION_ROOT_ELEMENT_NAME -> findExtendableAndReadExtension(networks.getFirst(), context, extensionNamesNotFound);
+            case EXTENSION_ROOT_ELEMENT_NAME -> findExtendableAndReadExtension(networks.getFirst(), context, extensionNamesImported, extensionNamesNotFound);
             default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'network'");
         }
     }
@@ -608,7 +609,8 @@ public final class NetworkSerDe {
         AliasesSerDe.read(network, context);
     }
 
-    private static void checkSupportedAndReadSubnetwork(Deque<Network> networks, NetworkFactory networkFactory, NetworkDeserializerContext context, Set<String> extensionNamesNotFound) {
+    private static void checkSupportedAndReadSubnetwork(Deque<Network> networks, NetworkFactory networkFactory, NetworkDeserializerContext context,
+                                                        Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
         IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME,
                 IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_11, context);
         if (networks.size() > 1) {
@@ -619,7 +621,7 @@ public final class NetworkSerDe {
         networks.push(subnetwork);
         // Read subnetwork content
         context.getReader().readChildNodes(
-                elementName -> readNetworkElement(elementName, networks, networkFactory, context, extensionNamesNotFound));
+                elementName -> readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
         // Pop the subnetwork. We will now work with its parent.
         networks.pop();
     }
@@ -630,13 +632,13 @@ public final class NetworkSerDe {
         VoltageLevelSerDe.INSTANCE.read(networks.peek(), context);
     }
 
-    private static void findExtendableAndReadExtension(Network network, NetworkDeserializerContext context, Set<String> extensionNamesNotFound) {
+    private static void findExtendableAndReadExtension(Network network, NetworkDeserializerContext context, Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
         String id2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
         Identifiable identifiable = network.getIdentifiable(id2);
         if (identifiable == null) {
             throw new PowsyblException("Identifiable " + id2 + " not found");
         }
-        readExtensions(identifiable, context, extensionNamesNotFound);
+        readExtensions(identifiable, context, extensionNamesImported, extensionNamesNotFound);
     }
 
     private static Network initNetwork(NetworkFactory networkFactory, NetworkDeserializerContext context, TreeDataReader reader, Network rootNetwork) {
@@ -663,8 +665,19 @@ public final class NetworkSerDe {
         return network;
     }
 
+    private static void logExtensionsImported(Reporter reporter, Set<String> extensionNamesImported) {
+        DeserializerReports.importedExtension(reporter, extensionNamesImported);
+    }
+
+    private static void logExtensionsNotFound(Reporter reporter, Set<String> extensionNamesNotFound) {
+        DeserializerReports.extensionNotFound(reporter, extensionNamesNotFound);
+    }
+
     public static Network read(TreeDataReader reader, ImportOptions config, Anonymizer anonymizer,
-                               NetworkFactory networkFactory) {
+                               NetworkFactory networkFactory, Reporter reporter) {
+        Objects.requireNonNull(reader);
+        Objects.requireNonNull(networkFactory);
+        Objects.requireNonNull(reporter);
 
         IidmVersion iidmVersion = IidmVersion.of(reader.readRootVersion(), ".");
         Map<String, String> extensionVersions = reader.readVersions();
@@ -672,34 +685,39 @@ public final class NetworkSerDe {
         NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, extensionVersions);
 
         Network network = initNetwork(networkFactory, context, reader, null);
+        network.getReporterContext().pushReporter(reporter);
 
+        Set<String> extensionNamesImported = new TreeSet<>();
         Set<String> extensionNamesNotFound = new TreeSet<>();
         Deque<Network> networks = new ArrayDeque<>(2);
         networks.push(network);
 
+        Reporter validationReporter = reporter.createSubReporter("validationWarnings", "Validation warnings");
         reader.readChildNodes(elementName ->
-                readNetworkElement(elementName, networks, networkFactory, context, extensionNamesNotFound));
+                readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
 
-        checkExtensionsNotFound(context, extensionNamesNotFound);
+        if (!extensionNamesImported.isEmpty()) {
+            Reporter importedExtensionReporter = reporter.createSubReporter("importedExtensions", "Imported extensions");
+            logExtensionsImported(importedExtensionReporter, extensionNamesImported);
+        }
+        if (!extensionNamesNotFound.isEmpty()) {
+            Reporter extensionsNotFoundReporter = reporter.createSubReporter("extensionsNotFound", "Not found extensions");
+            throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found !");
+            logExtensionsNotFound(extensionsNotFoundReporter, extensionNamesNotFound);
+        }
 
-        context.getEndTasks().forEach(Runnable::run);
+        context.executeEndTasks(network, validationReporter);
 
         return network;
-    }
-
-    private static void checkExtensionsNotFound(NetworkDeserializerContext context, Set<String> extensionNamesNotFound) {
-        if (!extensionNamesNotFound.isEmpty()) {
-            throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " +
-                    "not found !");
-        }
     }
 
     public static Network read(Path xmlFile) {
         return read(xmlFile, new ImportOptions());
     }
 
-    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt) throws IOException {
+    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt, Reporter reporter) throws IOException {
         Objects.requireNonNull(dataSource);
+        Objects.requireNonNull(reporter);
         Network network;
         Anonymizer anonymizer = null;
 
@@ -711,7 +729,7 @@ public final class NetworkSerDe {
         }
         //Read the base file with the extensions declared in the extensions list
         try (InputStream isb = dataSource.newInputStream(null, dataSourceExt)) {
-            network = NetworkSerDe.read(isb, options, anonymizer, networkFactory);
+            network = NetworkSerDe.read(isb, options, anonymizer, networkFactory, reporter);
         }
         return network;
     }
@@ -734,7 +752,7 @@ public final class NetworkSerDe {
     }
 
     private static void readExtensions(Identifiable identifiable, NetworkDeserializerContext context,
-                                       Set<String> extensionNamesNotFound) {
+                                       Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
 
         context.getReader().readChildNodes(extensionName -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
@@ -744,10 +762,11 @@ public final class NetworkSerDe {
                 context.getReader().skipChildNodes();
             }
 
-            ExtensionSerDe extensionSerDe = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-            if (extensionSerDe != null) {
-                Extension<? extends Identifiable<?>> extension = extensionSerDe.read(identifiable, context);
-                identifiable.addExtension(extensionSerDe.getExtensionClass(), extension);
+            ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+            if (extensionXmlSerializer != null) {
+                Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                extensionNamesImported.add(extensionName);
             } else {
                 extensionNamesNotFound.add(extensionName);
                 context.getReader().skipChildNodes();
@@ -813,7 +832,7 @@ public final class NetworkSerDe {
                     }
                 }
             });
-            return read(is, new ImportOptions(), null, networkFactory);
+            return read(is, new ImportOptions(), null, networkFactory, Reporter.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
