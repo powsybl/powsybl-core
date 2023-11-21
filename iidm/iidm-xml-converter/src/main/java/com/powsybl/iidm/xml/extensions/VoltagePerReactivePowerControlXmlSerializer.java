@@ -9,14 +9,11 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -25,18 +22,19 @@ import javax.xml.stream.XMLStreamException;
 public class VoltagePerReactivePowerControlXmlSerializer extends AbstractExtensionXmlSerializer<StaticVarCompensator, VoltagePerReactivePowerControl> {
 
     public VoltagePerReactivePowerControlXmlSerializer() {
-        super("voltagePerReactivePowerControl", "network", VoltagePerReactivePowerControl.class, false, "voltagePerReactivePowerControl.xsd",
+        super("voltagePerReactivePowerControl", "network", VoltagePerReactivePowerControl.class, "voltagePerReactivePowerControl.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/voltage_per_reactive_power_control/1_0", "vprpc");
     }
 
     @Override
-    public void write(VoltagePerReactivePowerControl control, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("slope", control.getSlope(), context.getWriter());
+    public void write(VoltagePerReactivePowerControl control, XmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("slope", control.getSlope());
     }
 
     @Override
     public VoltagePerReactivePowerControl read(StaticVarCompensator svc, XmlReaderContext context) {
-        double slope = XmlUtil.readDoubleAttribute(context.getReader(), "slope");
+        double slope = context.getReader().readDoubleAttribute("slope");
+        context.getReader().readEndNode();
         return svc.newExtension(VoltagePerReactivePowerControlAdder.class)
                 .withSlope(slope)
                 .add();

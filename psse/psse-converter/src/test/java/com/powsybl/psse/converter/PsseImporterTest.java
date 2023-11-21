@@ -29,7 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,7 +52,7 @@ class PsseImporterTest extends AbstractConverterTest {
         network.setCaseDate(ZonedDateTime.parse("2016-01-01T10:00:00.000+02:00"));
         NetworkXml.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
+            compareXml(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }
     }
 

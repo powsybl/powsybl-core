@@ -41,7 +41,7 @@ class LimitViolationDetectorTest {
     private VoltageAngleLimit voltageAngleLimit2;
     private List<LimitViolation> collectedViolations;
 
-    private void doCheckCurrent(Contingency contingency, Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
+    private void doCheckCurrent(Contingency contingency, Branch branch, TwoSides side, Consumer<LimitViolation> consumer) {
 
         if (branch == line1) {
             consumer.accept(LimitViolations.current()
@@ -53,7 +53,7 @@ class LimitViolationDetectorTest {
                     .build());
         }
 
-        if (branch == line2 && side == Branch.Side.TWO) {
+        if (branch == line2 && side == TwoSides.TWO) {
             consumer.accept(LimitViolations.current()
                     .subject(branch.getId())
                     .duration(1200)
@@ -64,7 +64,7 @@ class LimitViolationDetectorTest {
         }
 
         if (contingency == contingency1
-                && branch == transformer && side == Branch.Side.ONE) {
+                && branch == transformer && side == TwoSides.ONE) {
             consumer.accept(LimitViolations.current()
                     .subject(branch.getId())
                     .duration(1200)
@@ -105,7 +105,7 @@ class LimitViolationDetectorTest {
         if (voltageAngleLimit == voltageAngleLimit0) {
             consumer.accept(LimitViolations.highVoltageAngle()
                 .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
-                .side(Branch.Side.ONE)
+                .side(TwoSides.ONE)
                 .value(0.30)
                 .limit(0.25)
                 .build());
@@ -113,7 +113,7 @@ class LimitViolationDetectorTest {
         if (contingency == contingency1 && voltageAngleLimit == voltageAngleLimit1) {
             consumer.accept(LimitViolations.lowVoltageAngle()
                 .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
-                .side(Branch.Side.ONE)
+                .side(TwoSides.ONE)
                 .value(-0.22)
                 .limit(0.20)
                 .build());
@@ -123,12 +123,12 @@ class LimitViolationDetectorTest {
     private LimitViolationDetector contingencyBlindDetector() {
         return new AbstractContingencyBlindDetector() {
             @Override
-            public void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkCurrent(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 doCheckCurrent(null, branch, side, consumer);
             }
 
             @Override
-            public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
@@ -143,20 +143,20 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkActivePower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkActivePower(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
             }
 
             @Override
-            public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkApparentPower(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
             }
 
             @Override
-            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
             @Override
-            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
         };
@@ -165,7 +165,7 @@ class LimitViolationDetectorTest {
     private LimitViolationDetector contingencyBasedDetector() {
         return new AbstractLimitViolationDetector() {
             @Override
-            public void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkCurrent(Contingency contingency, Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 doCheckCurrent(contingency, branch, side, consumer);
             }
 
@@ -180,25 +180,25 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkActivePower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkActivePower(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
             }
 
             @Override
-            public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkApparentPower(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
             }
 
             @Override
-            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkActivePower(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
             @Override
-            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
                 throw new UnsupportedOperationException("Not used in this test!");
             }
 
             @Override
-            public void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+            public void checkPermanentLimit(Branch<?> branch, TwoSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
 
             }
         };
@@ -307,8 +307,8 @@ class LimitViolationDetectorTest {
     void transformerHasNoViolationOnContingency1WithContingencyBlindDetector() {
         LimitViolationDetector detector = contingencyBlindDetector();
         detector.checkCurrent(contingency1, transformer, collectedViolations::add);
-        detector.checkCurrent(contingency1, transformer, Branch.Side.ONE, collectedViolations::add);
-        detector.checkCurrent(contingency1, transformer, Branch.Side.ONE, 5000, collectedViolations::add);
+        detector.checkCurrent(contingency1, transformer, TwoSides.ONE, collectedViolations::add);
+        detector.checkCurrent(contingency1, transformer, TwoSides.ONE, 5000, collectedViolations::add);
         assertEquals(0, collectedViolations.size());
     }
 

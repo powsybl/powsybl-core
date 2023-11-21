@@ -8,7 +8,7 @@
 package com.powsybl.security;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.action.PhaseTapChangerRegulationAction;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
@@ -20,12 +20,12 @@ class PhaseTapChangerRegulationActionTest {
 
     @Test
     void test() {
-        String message = assertThrows(IllegalArgumentException.class, () -> new PhaseTapChangerRegulationAction("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
+        String message = assertThrows(IllegalArgumentException.class, () -> new PhaseTapChangerRegulationAction("id17", "transformerId5", ThreeSides.ONE,
                 false, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 10.0)).getMessage();
         assertEquals("PhaseTapChangerRegulationAction can not have a regulation mode " +
                 "if it is not regulating", message);
         PhaseTapChangerRegulationAction action = PhaseTapChangerRegulationAction.deactivateRegulation("id17", "transformerId5",
-                ThreeWindingsTransformer.Side.ONE);
+                ThreeSides.ONE);
         assertFalse(action.isRegulating());
         assertTrue(action.getRegulationMode().isEmpty());
     }

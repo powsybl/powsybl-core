@@ -85,7 +85,7 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         createLoadingLimits(twt::newApparentPowerLimits2);
         createLoadingLimits(twt::newCurrentLimits1);
         createLoadingLimits(twt::newCurrentLimits2);
-        roundTripTest(network,
+        roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,
                 getVersionedNetworkPath("eurostag-loading-limits.xml", CURRENT_IIDM_XML_VERSION));
@@ -108,7 +108,7 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
         testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
             try {
-                writeTest(network, (n, p) -> write(n, p, version), ComparisonUtils::compareTxt, getVersionedNetworkPath("eurostag-loading-limits.xml", version));
+                writeTest(network, (n, p) -> write(n, p, version), ComparisonUtils::compareXml, getVersionedNetworkPath("eurostag-loading-limits.xml", version));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

@@ -40,7 +40,7 @@ class LoadModelXmlTest extends AbstractXmlConverterTest {
                     .add()
                 .add();
 
-        roundTripTest(network,
+        roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 getVersionedNetworkPath("eurostag-tutorial-example1-zip-load-model.xml", CURRENT_IIDM_XML_VERSION));

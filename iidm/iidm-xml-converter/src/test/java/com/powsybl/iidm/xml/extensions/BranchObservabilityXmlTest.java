@@ -128,6 +128,6 @@ class BranchObservabilityXmlTest extends AbstractConverterTest {
     @Test
     void invalidTest() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
-        assertTrue(e.getMessage().contains("Unexpected element: qualityV"));
+        assertEquals("Unknown element name 'qualityV' in 'branchObservability'", e.getMessage());
     }
 }

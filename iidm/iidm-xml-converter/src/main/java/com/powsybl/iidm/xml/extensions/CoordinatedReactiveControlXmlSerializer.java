@@ -9,14 +9,11 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -25,18 +22,19 @@ import javax.xml.stream.XMLStreamException;
 public class CoordinatedReactiveControlXmlSerializer extends AbstractExtensionXmlSerializer<Generator, CoordinatedReactiveControl> {
 
     public CoordinatedReactiveControlXmlSerializer() {
-        super("coordinatedReactiveControl", "network", CoordinatedReactiveControl.class, false, "coordinatedReactiveControl.xsd",
+        super("coordinatedReactiveControl", "network", CoordinatedReactiveControl.class, "coordinatedReactiveControl.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/coordinated_reactive_control/1_0", "crc");
     }
 
     @Override
-    public void write(CoordinatedReactiveControl coordinatedReactiveControl, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("qPercent", coordinatedReactiveControl.getQPercent(), context.getWriter());
+    public void write(CoordinatedReactiveControl coordinatedReactiveControl, XmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("qPercent", coordinatedReactiveControl.getQPercent());
     }
 
     @Override
     public CoordinatedReactiveControl read(Generator extendable, XmlReaderContext context) {
-        double qPercent = XmlUtil.readDoubleAttribute(context.getReader(), "qPercent");
+        double qPercent = context.getReader().readDoubleAttribute("qPercent");
+        context.getReader().readEndNode();
         return extendable.newExtension(CoordinatedReactiveControlAdder.class)
                 .withQPercent(qPercent)
                 .add();

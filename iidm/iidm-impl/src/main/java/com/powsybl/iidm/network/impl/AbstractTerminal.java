@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractTerminal implements TerminalExt {
@@ -173,7 +172,13 @@ abstract class AbstractTerminal implements TerminalExt {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        return voltageLevel.connect(this, isTypeSwitchToOperate);
+        boolean connected = voltageLevel.connect(this, isTypeSwitchToOperate);
+        if (connected) {
+            int variantIndex = getVariantManagerHolder().getVariantIndex();
+            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+            connectable.notifyUpdate("connection", variantId, false, true);
+        }
+        return connected;
     }
 
     @Override
@@ -193,7 +198,13 @@ abstract class AbstractTerminal implements TerminalExt {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        return voltageLevel.disconnect(this, isSwitchOpenable);
+        boolean disconnected = voltageLevel.disconnect(this, isSwitchOpenable);
+        if (disconnected) {
+            int variantIndex = getVariantManagerHolder().getVariantIndex();
+            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+            connectable.notifyUpdate("connection", variantId, true, false);
+        }
+        return disconnected;
     }
 
     @Override

@@ -6,9 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import javax.xml.stream.XMLStreamException;
-
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
@@ -18,20 +15,23 @@ public class NodeBreakerViewInternalConnectionXml {
 
     static final NodeBreakerViewInternalConnectionXml INSTANCE = new NodeBreakerViewInternalConnectionXml();
     static final String ROOT_ELEMENT_NAME = "internalConnection";
+    static final String ARRAY_ELEMENT_NAME = "internalConnections";
 
     protected String getRootElementName() {
         return ROOT_ELEMENT_NAME;
     }
 
-    protected void write(int node1, int node2, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
-        context.getWriter().writeAttribute("node1", Integer.toString(node1));
-        context.getWriter().writeAttribute("node2", Integer.toString(node2));
+    protected void write(int node1, int node2, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
+        context.getWriter().writeIntAttribute("node1", node1);
+        context.getWriter().writeIntAttribute("node2", node2);
+        context.getWriter().writeEndNode();
     }
 
     protected void read(VoltageLevel vl, NetworkXmlReaderContext context) {
-        int node1 = XmlUtil.readIntAttribute(context.getReader(), "node1");
-        int node2 = XmlUtil.readIntAttribute(context.getReader(), "node2");
+        int node1 = context.getReader().readIntAttribute("node1");
+        int node2 = context.getReader().readIntAttribute("node2");
+        context.getReader().readEndNode();
         vl.getNodeBreakerView().newInternalConnection().setNode1(node1).setNode2(node2).add();
     }
 }

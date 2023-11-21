@@ -192,7 +192,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSectionCount(4)
                 .build();
         modification.apply(network);
-        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-new-voltage-level.xml");
     }
 

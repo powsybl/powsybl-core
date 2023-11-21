@@ -6,19 +6,20 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class ConnectableXmlUtil {
+
+    static final String TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME = "temporaryLimits";
+    static final String TEMPORARY_LIMITS_ROOT_ELEMENT_NAME = "temporaryLimit";
 
     private ConnectableXmlUtil() {
     }
@@ -36,7 +37,7 @@ public final class ConnectableXmlUtil {
     static final String ACTIVE_POWER_LIMITS_3 = "activePowerLimits3";
     static final String APPARENT_POWER_LIMITS_3 = "apparentPowerLimits3";
 
-    private static final String CURRENT_LIMITS = "currentLimits";
+    static final String CURRENT_LIMITS = "currentLimits";
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
@@ -56,7 +57,10 @@ public final class ConnectableXmlUtil {
         return limitsHolder.getCurrentLimits().isPresent();
     }
 
-    public static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) {
+        if (index != null) {
+            context.getWriter().writeStringAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
+        }
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
         switch (topologyLevel) {
             case NODE_BREAKER:
@@ -71,23 +75,18 @@ public final class ConnectableXmlUtil {
             default:
                 throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
-
-        if (index != null) {
-            context.getWriter().writeAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
-        }
     }
 
-    private static void writeNode(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute(NODE + indexToString(index),
-                Integer.toString(t.getNodeBreakerView().getNode()));
+    private static void writeNode(Integer index, Terminal t, NetworkXmlWriterContext context) {
+        context.getWriter().writeIntAttribute(NODE + indexToString(index), t.getNodeBreakerView().getNode());
     }
 
-    private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkXmlWriterContext context) {
         if (bus != null) {
-            context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
+            context.getWriter().writeStringAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
         }
         if (connectableBus != null) {
-            context.getWriter().writeAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
+            context.getWriter().writeStringAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
         }
     }
 
@@ -96,9 +95,9 @@ public final class ConnectableXmlUtil {
     }
 
     public static void readNodeOrBus(InjectionAdder<?, ?> adder, String suffix, NetworkXmlReaderContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + suffix));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS + suffix));
-        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE + suffix);
+        String bus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS + suffix));
+        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + suffix));
+        Integer node = context.getReader().readIntAttribute(NODE + suffix);
         if (bus != null) {
             adder.setBus(bus);
         }
@@ -111,14 +110,14 @@ public final class ConnectableXmlUtil {
     }
 
     public static void readNodeOrBus(BranchAdder<?, ?> adder, NetworkXmlReaderContext context) {
-        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
-        String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus1"));
-        Integer node1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node1");
-        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId1"));
-        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
-        String connectableBus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus2"));
-        Integer node2 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node2");
-        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId2"));
+        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId1"));
+        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus1"));
+        String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("connectableBus1"));
+        Integer node1 = context.getReader().readIntAttribute("node1");
+        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId2"));
+        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus2"));
+        String connectableBus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("connectableBus2"));
+        Integer node2 = context.getReader().readIntAttribute("node2");
         if (bus1 != null) {
             adder.setBus1(bus1);
         }
@@ -142,10 +141,10 @@ public final class ConnectableXmlUtil {
     }
 
     public static void readNodeOrBus(int index, LegAdder adder, NetworkXmlReaderContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + index));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS + index));
-        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE + index);
-        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId" + index));
+        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + index));
+        String bus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS + index));
+        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + index));
+        Integer node = context.getReader().readIntAttribute(NODE + index);
         if (bus != null) {
             adder.setBus(bus);
         }
@@ -158,116 +157,100 @@ public final class ConnectableXmlUtil {
         adder.setVoltageLevel(voltageLevelId);
     }
 
-    public static void writePQ(Integer index, Terminal t, XMLStreamWriter writer) throws XMLStreamException {
-        XmlUtil.writeOptionalDouble("p" + indexToString(index), t.getP(), Double.NaN, writer);
-        XmlUtil.writeOptionalDouble("q" + indexToString(index), t.getQ(), Double.NaN, writer);
+    public static void writePQ(Integer index, Terminal t, TreeDataWriter writer) {
+        writer.writeDoubleAttribute("p" + indexToString(index), t.getP());
+        writer.writeDoubleAttribute("q" + indexToString(index), t.getQ());
     }
 
-    public static void readPQ(Integer index, Terminal t, XMLStreamReader reader) {
-        double p = XmlUtil.readOptionalDoubleAttribute(reader, "p" + indexToString(index));
-        double q = XmlUtil.readOptionalDoubleAttribute(reader, "q" + indexToString(index));
+    public static void readPQ(Integer index, Terminal t, TreeDataReader reader) {
+        double p = reader.readDoubleAttribute("p" + indexToString(index));
+        double q = reader.readDoubleAttribute("q" + indexToString(index));
         t.setP(p)
                 .setQ(q);
     }
 
-    public static void readActivePowerLimits(Integer index, ActivePowerLimitsAdder activePowerLimitsAdder, XMLStreamReader reader) throws XMLStreamException {
-        readLoadingLimits(index, ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
+    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) {
+        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
     }
 
-    public static void readApparentPowerLimits(Integer index, ApparentPowerLimitsAdder apparentPowerLimitsAdder, XMLStreamReader reader) throws XMLStreamException {
-        readLoadingLimits(index, APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
+    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader) {
+        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
     }
 
-    public static void readCurrentLimits(Integer index, CurrentLimitsAdder currentLimitsAdder, XMLStreamReader reader) throws XMLStreamException {
-        readLoadingLimits(index, CURRENT_LIMITS, currentLimitsAdder, reader);
+    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader) {
+        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader);
     }
 
-    private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, XMLStreamReader reader) throws XMLStreamException {
-        double permanentLimit = XmlUtil.readOptionalDoubleAttribute(reader, "permanentLimit");
+    private static <A extends LoadingLimitsAdder> void readLoadingLimits(String type, A adder, TreeDataReader reader) {
+        double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
-        XmlUtil.readUntilEndElement(type + indexToString(index), reader, () -> {
-            if ("temporaryLimit".equals(reader.getLocalName())) {
-                String name = reader.getAttributeValue(null, "name");
-                int acceptableDuration = XmlUtil.readOptionalIntegerAttribute(reader, "acceptableDuration", Integer.MAX_VALUE);
-                double value = XmlUtil.readOptionalDoubleAttribute(reader, "value", Double.MAX_VALUE);
-                boolean fictitious = XmlUtil.readOptionalBoolAttribute(reader, "fictitious", false);
+        reader.readChildNodes(elementName -> {
+            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NAME.equals(elementName)) {
+                String name = reader.readStringAttribute("name");
+                int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
+                double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
+                boolean fictitious = reader.readBooleanAttribute("fictitious", false);
+                reader.readEndNode();
                 adder.beginTemporaryLimit()
                         .setName(name)
                         .setAcceptableDuration(acceptableDuration)
                         .setValue(value)
                         .setFictitious(fictitious)
                         .endTemporaryLimit();
+            } else {
+                throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
         });
         adder.add();
     }
 
-    static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
-                                              boolean valid, ExportOptions exportOptions) throws XMLStreamException {
+    static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmXmlVersion version,
+                                              boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions, ACTIVE_POWER_LIMITS);
     }
 
-    static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
-                                              boolean valid, ExportOptions exportOptions) throws XMLStreamException {
+    static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, TreeDataWriter writer, IidmXmlVersion version,
+                                              boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions, APPARENT_POWER_LIMITS);
     }
 
-    /**
-     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, IidmXmlVersion, ExportOptions)} instead.
-     */
-    @Deprecated(since = "3.2.0")
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, version, new ExportOptions());
-    }
-
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
-                                          ExportOptions exportOptions) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, IidmXmlVersion version,
+                                          ExportOptions exportOptions) {
         writeCurrentLimits(index, limits, writer, version, true, exportOptions);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
-                                          boolean valid, ExportOptions exportOptions) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, IidmXmlVersion version,
+                                          boolean valid, ExportOptions exportOptions) {
         writeCurrentLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions);
     }
 
-    /**
-     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, String, IidmXmlVersion, ExportOptions)} instead.
-     */
-    @Deprecated(since = "3.2.0")
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, nsUri, version, new ExportOptions());
-    }
-
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,
-                                          ExportOptions exportOptions) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, String nsUri, IidmXmlVersion version,
+                                          ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, nsUri, version, true, exportOptions, CURRENT_LIMITS);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,
-                                          boolean valid, ExportOptions exportOptions) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, String nsUri, IidmXmlVersion version,
+                                          boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, nsUri, version, valid, exportOptions, CURRENT_LIMITS);
     }
 
-    private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,
-                                           boolean valid, ExportOptions exportOptions, String type) throws XMLStreamException {
+    private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmXmlVersion version,
+                                           boolean valid, ExportOptions exportOptions, String type) {
         if (!Double.isNaN(limits.getPermanentLimit())
                 || !limits.getTemporaryLimits().isEmpty()) {
-            if (limits.getTemporaryLimits().isEmpty()) {
-                writer.writeEmptyElement(nsUri, type + indexToString(index));
-            } else {
-                writer.writeStartElement(nsUri, type + indexToString(index));
-            }
-            XmlUtil.writeDouble("permanentLimit", limits.getPermanentLimit(), writer);
+            writer.writeStartNode(nsUri, type + indexToString(index));
+            writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
+            writer.writeStartNodes(TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME);
             for (LoadingLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                writer.writeEmptyElement(version.getNamespaceURI(valid), "temporaryLimit");
-                writer.writeAttribute("name", tl.getName());
-                XmlUtil.writeOptionalInt("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE, writer);
-                XmlUtil.writeOptionalDouble("value", tl.getValue(), Double.MAX_VALUE, writer);
-                XmlUtil.writeOptionalBoolean("fictitious", tl.isFictitious(), false, writer);
+                writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
+                writer.writeStringAttribute("name", tl.getName());
+                writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
+                writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
+                writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
+                writer.writeEndNode();
             }
-            if (!limits.getTemporaryLimits().isEmpty()) {
-                writer.writeEndElement();
-            }
+            writer.writeEndNodes();
+            writer.writeEndNode();
         }
     }
 }

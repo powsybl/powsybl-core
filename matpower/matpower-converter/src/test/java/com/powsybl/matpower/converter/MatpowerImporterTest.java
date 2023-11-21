@@ -34,7 +34,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -169,7 +169,7 @@ class MatpowerImporterTest extends AbstractConverterTest {
         Path file = tmpDir.resolve(fileName);
         NetworkXml.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + fileName), is);
+            compareXml(getClass().getResourceAsStream("/" + fileName), is);
         }
     }
 

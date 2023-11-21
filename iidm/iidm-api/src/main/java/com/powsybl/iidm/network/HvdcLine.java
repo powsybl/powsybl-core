@@ -105,11 +105,6 @@ package com.powsybl.iidm.network;
  */
 public interface HvdcLine extends Identifiable<HvdcLine> {
 
-    enum Side {
-        ONE,
-        TWO
-    }
-
     /**
      * Converters mode used to known the sign of the active power of the HVDC line.
      */
@@ -187,8 +182,8 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * Get the HVDC converter station connected to a side
      * @return the HVDC converter station connected to the side
      */
-    default HvdcConverterStation<?> getConverterStation(Side side) {
-        return (side == Side.ONE) ? getConverterStation1() : getConverterStation2();
+    default HvdcConverterStation<?> getConverterStation(TwoSides side) {
+        return (side == TwoSides.ONE) ? getConverterStation1() : getConverterStation2();
     }
 
     /**

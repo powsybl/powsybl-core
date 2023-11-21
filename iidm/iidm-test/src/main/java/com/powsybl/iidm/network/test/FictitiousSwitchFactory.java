@@ -243,7 +243,7 @@ public final class FictitiousSwitchFactory {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(930.6667)
                 .setRegulating(false)
-                .setRegulationTerminal(twtCI.getTerminal(Branch.Side.ONE))
+                .setRegulationTerminal(twtCI.getTerminal(TwoSides.ONE))
                 .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
                 .beginStep().setR(31.720245).setX(31.720242).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-40.18).endStep()
                 .beginStep().setR(23.655737).setX(23.655735).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-37.54).endStep()

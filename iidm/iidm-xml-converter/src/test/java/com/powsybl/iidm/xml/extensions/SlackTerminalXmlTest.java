@@ -103,7 +103,7 @@ class SlackTerminalXmlTest extends AbstractConverterTest {
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
         VoltageLevel vl = network.getVoltageLevel("VLHV2");
-        Terminal terminal = network.getLine("NHV1_NHV2_1").getTerminal(Branch.Side.TWO);
+        Terminal terminal = network.getLine("NHV1_NHV2_1").getTerminal(TwoSides.TWO);
         vl.newExtension(SlackTerminalAdder.class).withTerminal(terminal).add();
 
         network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "test");
@@ -120,7 +120,7 @@ class SlackTerminalXmlTest extends AbstractConverterTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         VoltageLevel vl = network.getVoltageLevel("VLHV2");
-        Terminal terminal = network.getLine("NHV1_NHV2_1").getTerminal(Branch.Side.TWO);
+        Terminal terminal = network.getLine("NHV1_NHV2_1").getTerminal(TwoSides.TWO);
         vl.newExtension(SlackTerminalAdder.class).withTerminal(terminal).add();
 
         Properties properties = new Properties();

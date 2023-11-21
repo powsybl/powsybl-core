@@ -46,7 +46,7 @@ class FictitiousInjectionsXmlTest extends AbstractXmlConverterTest {
                 .setFictitiousQ0(1, 2.0)
                 .setFictitiousP0(2, 3.0)
                 .setFictitiousQ0(2, 4.0);
-        roundTripTest(network,
+        roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,
                 getVersionedNetworkPath("fictitiousSwitchRef-fict-inj.xml", CURRENT_IIDM_XML_VERSION));
