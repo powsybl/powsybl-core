@@ -96,6 +96,8 @@ public class CgmesExport implements Exporter {
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
                 .setExportLoadFlowStatus(Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig))
+                .setMaxPMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
+                .setMaxQMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
                 .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider))
@@ -233,6 +235,8 @@ public class CgmesExport implements Exporter {
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
     public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
     public static final String EXPORT_LOAD_FLOW_STATUS = "iidm.export.cgmes.export-load-flow-status";
+    public static final String MAX_P_MISMATCH_CONVERGED = "iidm.export.cgmes.max-p-mismatch-converged";
+    public static final String MAX_Q_MISMATCH_CONVERGED = "iidm.export.cgmes.max-q-mismatch-converged";
     public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
     private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
 
@@ -311,6 +315,16 @@ public class CgmesExport implements Exporter {
             ParameterType.BOOLEAN,
             "Export load flow status of topological islands",
             CgmesExportContext.EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE);
+    private static final Parameter MAX_P_MISMATCH_CONVERGED_PARAMETER = new Parameter(
+            MAX_P_MISMATCH_CONVERGED,
+            ParameterType.DOUBLE,
+            "Max mismatch in active power to consider a bus converged when exporting load flow status of topological islands",
+            CgmesExportContext.MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE);
+    private static final Parameter MAX_Q_MISMATCH_CONVERGED_PARAMETER = new Parameter(
+            MAX_Q_MISMATCH_CONVERGED,
+            ParameterType.DOUBLE,
+            "Max mismatch in reactive power to consider a bus converged when exporting load flow status of topological islands",
+            CgmesExportContext.MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,

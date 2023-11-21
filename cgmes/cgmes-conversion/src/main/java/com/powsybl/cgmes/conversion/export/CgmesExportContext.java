@@ -61,10 +61,16 @@ public class CgmesExportContext {
     public static final boolean EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE = false;
     public static final boolean ENCODE_IDS_DEFAULT_VALUE = true;
     public static final boolean EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE = false;
+    // From QoCDC 3.3.1 rules IGMConvergence, KirchhoffsFirstLaw, ... that refer to SV_INJECTION_LIMIT=0.1
+    public static final double MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
+    public static final double MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
+
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
     private boolean exportTransformersWithHighestVoltageAtEnd1 = EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE;
     private boolean exportLoadFlowStatus = EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE;
+    private double maxPMismatchConverged = MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE;
+    private double maxQMismatchConverged = MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
@@ -714,6 +720,24 @@ public class CgmesExportContext {
 
     public CgmesExportContext setExportLoadFlowStatus(boolean exportLoadFlowStatus) {
         this.exportLoadFlowStatus = exportLoadFlowStatus;
+        return this;
+    }
+
+    public double getMaxPMismatchConverged() {
+        return maxPMismatchConverged;
+    }
+
+    public CgmesExportContext setMaxPMismatchConverged(double maxPMismatchConverged) {
+        this.maxPMismatchConverged = maxPMismatchConverged;
+        return this;
+    }
+
+    public double getMaxQMismatchConverged() {
+        return maxQMismatchConverged;
+    }
+
+    public CgmesExportContext setMaxQMismatchConverged(double maxPMismatchConverged) {
+        this.maxQMismatchConverged = maxPMismatchConverged;
         return this;
     }
 

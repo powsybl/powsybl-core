@@ -147,18 +147,22 @@ public final class StateVariablesExport {
         //      convergence status of the cim:TopologicalIsland.
         // Consider the island is converged unless we add a non-converged bus
         String loadFlowStatus = CONVERGED;
+        final double maxPMismatchConverged;
+        final double maxQMismatchConverged;
 
-        private TopologicalIsland(String key, List<String> topologicalNodes) {
+        private TopologicalIsland(String key, List<String> topologicalNodes, CgmesExportContext context) {
             this.key = key;
             this.topologicalNodes = topologicalNodes;
+            this.maxPMismatchConverged = context.getMaxPMismatchConverged();
+            this.maxQMismatchConverged = context.getMaxQMismatchConverged();
         }
 
-        static TopologicalIsland fromSynchronousComponent(String key) {
-            return new TopologicalIsland(key, new ArrayList<>());
+        static TopologicalIsland fromSynchronousComponent(String key, CgmesExportContext context) {
+            return new TopologicalIsland(key, new ArrayList<>(), context);
         }
 
-        static TopologicalIsland fromTopologicalNode(String topologicalNode) {
-            return new TopologicalIsland(topologicalNode, Collections.singletonList(topologicalNode));
+        static TopologicalIsland fromTopologicalNode(String topologicalNode, CgmesExportContext context) {
+            return new TopologicalIsland(topologicalNode, Collections.singletonList(topologicalNode), context);
         }
 
         void addNode(String topologicalNode, Bus bus, boolean updateLoadFlowStatus) {
@@ -172,7 +176,7 @@ public final class StateVariablesExport {
             if (loadFlowStatus.equals(DIVERGED) && !CHECK_ALL_BUSES) {
                 return;
             }
-            if (!(isValidVoltage(bus.getV()) && isValidAngle(bus.getAngle()) && isBalanced(bus))) {
+            if (!(isValidVoltage(bus.getV()) && isValidAngle(bus.getAngle()) && isInAccordanceWithKirchoffsFirstLaw(bus))) {
                 loadFlowStatus = DIVERGED;
             }
         }
@@ -185,7 +189,7 @@ public final class StateVariablesExport {
             return Double.isFinite(a);
         }
 
-        boolean isBalanced(Bus bus) {
+        boolean isInAccordanceWithKirchoffsFirstLaw(Bus bus) {
             // Instead of checking switch flows, we check that the corresponding bus view bus is balanced
             // Maybe we will check the same bus view bus more than once
             Bus bus0 = bus.getVoltageLevel().getBusView().getMergedBus(bus.getId());
@@ -193,20 +197,18 @@ public final class StateVariablesExport {
                 LOG.warn("Can not check if bus is balanced. No BusView bus can be found for: {}", bus);
                 return false;
             }
-            Complex balance = bus0.getConnectedTerminalStream()
+            Complex sumTerminalFlows = bus0.getConnectedTerminalStream()
                     // FIXME(Luma) Static var compensators with mode OFF do not have p, q set at their terminal after load flow calculation
                     .filter(t -> !(t.getConnectable().getType() == IdentifiableType.STATIC_VAR_COMPENSATOR && ((StaticVarCompensator) t.getConnectable()).getRegulationMode() == StaticVarCompensator.RegulationMode.OFF))
                     .map(t -> new Complex(t.getP(), t.getQ()))
                     .reduce(Complex.ZERO, Complex::add);
-            // FIXME(Luma) configure or take it from default LoadFlow parameters
-            double threshold = 0.5;
-            boolean isBalanced = Math.abs(balance.getReal()) < threshold && Math.abs(balance.getImaginary()) < threshold;
-            if (!isBalanced && LOG.isInfoEnabled()) {
-                LOG.info("Bus is not balanced: {} {}", bus, balance);
+            boolean isInAccordance = Math.abs(sumTerminalFlows.getReal()) < maxPMismatchConverged && Math.abs(sumTerminalFlows.getImaginary()) < maxQMismatchConverged;
+            if (!isInAccordance && LOG.isInfoEnabled()) {
+                LOG.info("Bus is not balanced: {} {}", bus, sumTerminalFlows);
                 bus0.getConnectedTerminalStream().forEach(t -> LOG.info(String.format("  %7.2f  %7.2f  %s %s %s", t.getP(), t.getQ(), t.getConnectable().getType(), t.getConnectable().getNameOrId(), t.getConnectable().getId())));
-                LOG.info(String.format("  %7.2f  %7.2f", balance.getReal(), balance.getImaginary()));
+                LOG.info(String.format("  %7.2f  %7.2f", sumTerminalFlows.getReal(), sumTerminalFlows.getImaginary()));
             }
-            return isBalanced;
+            return isInAccordance;
         }
     }
 
@@ -216,10 +218,10 @@ public final class StateVariablesExport {
             String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
             if (b.getSynchronousComponent() != null) {
                 String key = String.valueOf(b.getSynchronousComponent().getNum());
-                TopologicalIsland island = islands.computeIfAbsent(key, TopologicalIsland::fromSynchronousComponent);
+                TopologicalIsland island = islands.computeIfAbsent(key, k -> TopologicalIsland.fromSynchronousComponent(k, context));
                 island.addNode(topologicalNodeId, b, context.isExportLoadFlowStatus());
             } else {
-                islands.put(topologicalNodeId, TopologicalIsland.fromTopologicalNode(topologicalNodeId));
+                islands.put(topologicalNodeId, TopologicalIsland.fromTopologicalNode(topologicalNodeId, context));
             }
         }
         return islands.values().stream().toList();
