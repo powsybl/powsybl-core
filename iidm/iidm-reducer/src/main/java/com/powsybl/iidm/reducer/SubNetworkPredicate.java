@@ -35,8 +35,8 @@ public class SubNetworkPredicate implements NetworkPredicate {
         var currentDepth = Set.of(rootVl);
 
         // BFS traversal of voltage levels
-        for (int i = 0; i < maxDepth; i++) {
-            Set<VoltageLevel> nextDepth = new LinkedHashSet<>();
+        for (int i = 1; i <= maxDepth; i++) {
+            Set<VoltageLevel> nextDepth = i < maxDepth ? new LinkedHashSet<>() : null; // No need to calculate the last nextDepth set
             for (VoltageLevel voltageLevel : currentDepth) {
                 visitBranches(traversedVoltageLevelIds, voltageLevel, nextDepth);
             }
@@ -53,7 +53,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
                     case ONE -> branch.getTerminal2().getVoltageLevel();
                     case TWO -> branch.getTerminal1().getVoltageLevel();
                 };
-                if (traversedVoltageLevelIds.add(nextVl.getId())) {
+                if (traversedVoltageLevelIds.add(nextVl.getId()) && nextDepth != null) {
                     nextDepth.add(nextVl);
                 }
             }
@@ -75,7 +75,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
                     case TWO -> transformer.getLeg3().getTerminal().getVoltageLevel();
                     case THREE -> transformer.getLeg1().getTerminal().getVoltageLevel();
                 };
-                if (traversedVoltageLevelIds.add(nextVl1.getId())) {
+                if (traversedVoltageLevelIds.add(nextVl1.getId()) && nextDepth != null) {
                     nextDepth.add(nextVl1);
                 }
 
@@ -84,7 +84,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
                     case TWO -> transformer.getLeg1().getTerminal().getVoltageLevel();
                     case THREE -> transformer.getLeg2().getTerminal().getVoltageLevel();
                 };
-                if (traversedVoltageLevelIds.add(nextVl2.getId())) {
+                if (traversedVoltageLevelIds.add(nextVl2.getId()) && nextDepth != null) {
                     nextDepth.add(nextVl2);
                 }
             }
