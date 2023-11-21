@@ -134,8 +134,6 @@ public final class StateVariablesExport {
     private static final class TopologicalIsland {
         static final String CONVERGED = "converged";
         static final String DIVERGED = "diverged";
-        // FIXME(Luma) While we test the feature, if we want to report all unbalanced buses
-        private static final boolean CHECK_ALL_BUSES = true;
 
         // The key can be a synchronous component number or a topological node identifier
         final String key;
@@ -173,7 +171,7 @@ public final class StateVariablesExport {
         }
 
         void updateLoadFlowStatus(Bus bus) {
-            if (loadFlowStatus.equals(DIVERGED) && !CHECK_ALL_BUSES) {
+            if (loadFlowStatus.equals(DIVERGED)) {
                 return;
             }
             if (!(isValidVoltage(bus.getV()) && isValidAngle(bus.getAngle()) && isInAccordanceWithKirchoffsFirstLaw(bus))) {
@@ -192,23 +190,40 @@ public final class StateVariablesExport {
         boolean isInAccordanceWithKirchoffsFirstLaw(Bus bus) {
             // Instead of checking switch flows, we check that the corresponding bus view bus is balanced
             // Maybe we will check the same bus view bus more than once
-            Bus bus0 = bus.getVoltageLevel().getBusView().getMergedBus(bus.getId());
-            if (bus0 == null) {
-                LOG.warn("Can not check if bus is balanced. No BusView bus can be found for: {}", bus);
+            Optional<Bus> bus0 = getBusViewBus(bus);
+            if (bus0.isEmpty()) {
+                LOG.warn("Can not check if bus is in accordance with Kirchoff's first law. No BusView bus can be found for: {}", bus);
                 return false;
             }
-            Complex sumTerminalFlows = bus0.getConnectedTerminalStream()
-                    // FIXME(Luma) Static var compensators with mode OFF do not have p, q set at their terminal after load flow calculation
-                    .filter(t -> !(t.getConnectable().getType() == IdentifiableType.STATIC_VAR_COMPENSATOR && ((StaticVarCompensator) t.getConnectable()).getRegulationMode() == StaticVarCompensator.RegulationMode.OFF))
+            Complex sumTerminalFlows = bus0.get().getConnectedTerminalStream()
+                    .filter(this::isValidTerminal)
                     .map(t -> new Complex(t.getP(), t.getQ()))
                     .reduce(Complex.ZERO, Complex::add);
             boolean isInAccordance = Math.abs(sumTerminalFlows.getReal()) < maxPMismatchConverged && Math.abs(sumTerminalFlows.getImaginary()) < maxQMismatchConverged;
             if (!isInAccordance && LOG.isInfoEnabled()) {
-                LOG.info("Bus is not balanced: {} {}", bus, sumTerminalFlows);
-                bus0.getConnectedTerminalStream().forEach(t -> LOG.info(String.format("  %7.2f  %7.2f  %s %s %s", t.getP(), t.getQ(), t.getConnectable().getType(), t.getConnectable().getNameOrId(), t.getConnectable().getId())));
+                LOG.info("Bus {} is not in accordance with Kirchoff's first law. Mismatch = {}", bus, sumTerminalFlows);
+                bus0.get().getConnectedTerminalStream()
+                        .filter(this::isValidTerminal)
+                        .forEach(t -> LOG.info(String.format("  %7.2f  %7.2f  %s %s %s", t.getP(), t.getQ(), t.getConnectable().getType(), t.getConnectable().getNameOrId(), t.getConnectable().getId())));
                 LOG.info(String.format("  %7.2f  %7.2f", sumTerminalFlows.getReal(), sumTerminalFlows.getImaginary()));
             }
             return isInAccordance;
+        }
+
+        Optional<Bus> getBusViewBus(Bus bus) {
+            if (bus.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
+                return Optional.of(bus.getVoltageLevel().getBusView().getMergedBus(bus.getId()));
+            } else {
+                return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
+            }
+        }
+
+        boolean isValidTerminal(Terminal t) {
+            // Static var compensators with mode OFF do not have p, q set at their terminal after load flow calculation
+            // Busbar sections do not have flow
+            return !(t.getConnectable().getType() == IdentifiableType.STATIC_VAR_COMPENSATOR
+                    && ((StaticVarCompensator) t.getConnectable()).getRegulationMode() == StaticVarCompensator.RegulationMode.OFF
+                    || t.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION);
         }
     }
 

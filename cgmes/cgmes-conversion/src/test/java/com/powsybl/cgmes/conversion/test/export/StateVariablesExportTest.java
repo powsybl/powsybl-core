@@ -6,9 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.Cgmes3Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.*;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -341,6 +340,61 @@ class StateVariablesExportTest extends AbstractConverterTest {
         String sv = exportSvAsString(network, 2);
         String actual = readSvTapSteps(sv).toSortedString();
         assertEquals(expected, actual);
+    }
+
+    @Test
+    void testTopologicalIslandSolvedNodeBreaker() {
+        Network network = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource());
+
+        Path outputPath = fileSystem.getPath("tmp-grid");
+        Path outputSv = fileSystem.getPath("tmp-grid_SV.xml");
+        Properties parameters = new Properties();
+        parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
+        network.write("CGMES", parameters, outputPath);
+
+        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+    }
+
+    @Test
+    void testTopologicalIslandSolvedBusBranch() {
+        Network network = Network.read(CgmesConformity1Catalog.miniBusBranch().dataSource());
+        new LoadFlowResultsCompletion().run(network, null);
+
+        Path outputPath = fileSystem.getPath("tmp-grid");
+        Path outputSv = fileSystem.getPath("tmp-grid_SV.xml");
+        Properties parameters = new Properties();
+        parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
+
+        network.write("CGMES", parameters, outputPath);
+        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+
+        parameters.setProperty(CgmesExport.MAX_P_MISMATCH_CONVERGED, "0.000001");
+        network.write("CGMES", parameters, outputPath);
+        assertEquals("diverged", readFirstTopologicalIslandDescription(outputSv));
+    }
+
+    private static String readFirstTopologicalIslandDescription(Path sv) {
+        String description = "";
+        boolean insideTopologicalIsland = false;
+        try (InputStream is = Files.newInputStream(sv)) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            while (reader.hasNext()) {
+                int token = reader.next();
+                if (token == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
+                        insideTopologicalIsland = true;
+                    } else if (insideTopologicalIsland && reader.getLocalName().equals(CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION)) {
+                        description = reader.getElementText();
+                    }
+                } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
+                    break;
+                }
+            }
+            reader.close();
+        } catch (IOException | XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        return description;
     }
 
     private static String buildNetworkSvTapStepsString(Network network) {
