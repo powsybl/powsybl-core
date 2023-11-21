@@ -41,7 +41,7 @@ public class XmlWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeStartNodes(String name) {
+    public void writeStartNodes() {
         // nothing to do
     }
 

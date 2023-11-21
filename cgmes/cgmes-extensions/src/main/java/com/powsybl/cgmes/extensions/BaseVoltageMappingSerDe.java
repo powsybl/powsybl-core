@@ -44,7 +44,7 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
         Map<Double, BaseVoltageMapping.BaseVoltageSource> sortedBaseVoltages = extension.getBaseVoltages().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-        writer.writeStartNodes(BASE_VOLTAGE_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         sortedBaseVoltages.forEach((nominalV, baseVoltageSource) -> {
             writer.writeStartNode(getNamespaceUri(), BASE_VOLTAGE_ROOT_ELEMENT);
             writer.writeDoubleAttribute("nominalVoltage", nominalV);

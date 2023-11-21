@@ -42,7 +42,7 @@ public class LinePositionSerDe<T extends Identifiable<T>> extends AbstractExtens
 
     @Override
     public void write(LinePosition<T> linePosition, SerializerContext context) {
-        context.getWriter().writeStartNodes(COORDINATE_ARRAY_NODE);
+        context.getWriter().writeStartNodes();
         for (Coordinate point : linePosition.getCoordinates()) {
             context.getWriter().writeStartNode(getNamespaceUri(), COORDINATE_ROOT_NODE);
             context.getWriter().writeDoubleAttribute("longitude", point.getLongitude());

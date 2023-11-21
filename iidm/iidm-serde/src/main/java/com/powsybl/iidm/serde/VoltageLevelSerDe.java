@@ -88,13 +88,13 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
         IidmSerDeUtil.writeIntAttributeUntilMaximumVersion(NODE_COUNT, vl.getNodeBreakerView().getMaximumNodeIndex() + 1, IidmVersion.V_1_1, context);
 
-        context.getWriter().writeStartNodes(BusbarSectionSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (BusbarSection bs : IidmSerDeUtil.sorted(vl.getNodeBreakerView().getBusbarSections(), context.getOptions())) {
             BusbarSectionSerDe.INSTANCE.write(bs, null, context);
         }
         context.getWriter().writeEndNodes();
 
-        context.getWriter().writeStartNodes(AbstractSwitchSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Switch sw : IidmSerDeUtil.sorted(vl.getNodeBreakerView().getSwitches(), context.getOptions())) {
             NodeBreakerViewSwitchSerDe.INSTANCE.write(sw, vl, context);
         }
@@ -104,7 +104,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_1, context, () -> {
             Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(vl);
-            context.getWriter().writeStartNodes(BusSerDe.ARRAY_ELEMENT_NAME);
+            context.getWriter().writeStartNodes();
             IidmSerDeUtil.sorted(vl.getBusView().getBusStream(), context.getOptions())
                     .filter(bus -> !Double.isNaN(bus.getV()) || !Double.isNaN(bus.getAngle()))
                     .forEach(bus -> {
@@ -114,7 +114,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
             context.getWriter().writeEndNodes();
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_8, context, () -> {
-            context.getWriter().writeStartNodes(INJ_ARRAY_ELEMENT_NAME);
+            context.getWriter().writeStartNodes();
             for (int node : vl.getNodeBreakerView().getNodes()) {
                 double fictP0 = vl.getNodeBreakerView().getFictitiousP0(node);
                 double fictQ0 = vl.getNodeBreakerView().getFictitiousQ0(node);
@@ -143,7 +143,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     }
 
     private void writeNodeBreakerTopologyInternalConnections(VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(NodeBreakerViewInternalConnectionSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (VoltageLevel.NodeBreakerView.InternalConnection ic : IidmSerDeUtil.sortedInternalConnections(vl.getNodeBreakerView().getInternalConnections(), context.getOptions())) {
             NodeBreakerViewInternalConnectionSerDe.INSTANCE.write(ic.getNode1(), ic.getNode2(), context);
         }
@@ -153,7 +153,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     private void writeBusBreakerTopology(VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
 
-        context.getWriter().writeStartNodes(BusSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Bus b : IidmSerDeUtil.sorted(vl.getBusBreakerView().getBuses(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
@@ -162,7 +162,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         }
         context.getWriter().writeEndNodes();
 
-        context.getWriter().writeStartNodes(AbstractSwitchSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Switch sw : IidmSerDeUtil.sorted(vl.getBusBreakerView().getSwitches(), context.getOptions())) {
             Bus b1 = vl.getBusBreakerView().getBus1(sw.getId());
             Bus b2 = vl.getBusBreakerView().getBus2(sw.getId());
@@ -179,7 +179,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     private void writeBusBranchTopology(VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
 
-        context.getWriter().writeStartNodes(BusSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Bus b : IidmSerDeUtil.sorted(vl.getBusView().getBuses(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
@@ -192,7 +192,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     }
 
     private void writeGenerators(VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(GeneratorSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Generator g : IidmSerDeUtil.sorted(vl.getGenerators(), context.getOptions())) {
             if (!context.getFilter().test(g)) {
                 continue;
@@ -203,7 +203,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     }
 
     private void writeBatteries(VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(BatterySerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Battery b : IidmSerDeUtil.sorted(vl.getBatteries(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
@@ -214,7 +214,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     }
 
     private void writeLoads(VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(LoadSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Load l : IidmSerDeUtil.sorted(vl.getLoads(), context.getOptions())) {
             if (!context.getFilter().test(l)) {
                 continue;
@@ -225,7 +225,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     }
 
     private void writeShuntCompensators(VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(ShuntSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (ShuntCompensator sc : IidmSerDeUtil.sorted(vl.getShuntCompensators(), context.getOptions())) {
             if (!context.getFilter().test(sc)) {
                 continue;
@@ -236,7 +236,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     }
 
     private void writeDanglingLines(VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(DanglingLineSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (DanglingLine dl : IidmSerDeUtil.sorted(vl.getDanglingLines(DanglingLineFilter.ALL), context.getOptions())) {
             if (!context.getFilter().test(dl) || context.getVersion().compareTo(IidmVersion.V_1_10) < 0 && dl.isPaired()) {
                 continue;
@@ -247,7 +247,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     }
 
     private void writeStaticVarCompensators(VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(StaticVarCompensatorSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (StaticVarCompensator svc : IidmSerDeUtil.sorted(vl.getStaticVarCompensators(), context.getOptions())) {
             if (!context.getFilter().test(svc)) {
                 continue;
@@ -258,7 +258,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     }
 
     private void writeVscConverterStations(VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(VscConverterStationSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (VscConverterStation cs : IidmSerDeUtil.sorted(vl.getVscConverterStations(), context.getOptions())) {
             if (!context.getFilter().test(cs)) {
                 continue;
@@ -269,7 +269,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     }
 
     private void writeLccConverterStations(VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(LccConverterStationSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (LccConverterStation cs : IidmSerDeUtil.sorted(vl.getLccConverterStations(), context.getOptions())) {
             if (!context.getFilter().test(cs)) {
                 continue;

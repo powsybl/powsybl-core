@@ -7,6 +7,7 @@
 package com.powsybl.commons.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonUtil.Context;
 import com.powsybl.commons.json.JsonUtil.ContextType;
@@ -25,16 +26,18 @@ public class JsonWriter implements TreeDataWriter {
     private static final String EXTENSION_VERSIONS = "extensionVersions";
     private final JsonGenerator jsonGenerator;
     private final String rootVersion;
+    private final Map<String, String> singleNameToArrayNameMap;
     private Map<String, String> extensionVersions;
 
     private final Deque<Context> contextQueue = new ArrayDeque<>();
 
-    public JsonWriter(OutputStream os, boolean indent, String rootVersion) throws IOException {
+    public JsonWriter(OutputStream os, boolean indent, String rootVersion, Map<String, String> singleNameToArrayNameMap) throws IOException {
         this.jsonGenerator = JsonUtil.createJsonFactory().createGenerator(os);
         if (indent) {
             jsonGenerator.useDefaultPrettyPrinter();
         }
         this.rootVersion = Objects.requireNonNull(rootVersion);
+        this.singleNameToArrayNameMap = Objects.requireNonNull(singleNameToArrayNameMap);
     }
 
     @Override
@@ -43,8 +46,8 @@ public class JsonWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeStartNodes(String name) {
-        contextQueue.push(new Context(ContextType.ARRAY, name));
+    public void writeStartNodes() {
+        contextQueue.push(new Context(ContextType.ARRAY, null));
     }
 
     @Override
@@ -54,7 +57,7 @@ public class JsonWriter implements TreeDataWriter {
             if (context.getType() != ContextType.ARRAY) {
                 throw new IllegalStateException();
             }
-            if (context.getObjectCount() > 0) {
+            if (context.getFieldName() != null) {
                 jsonGenerator.writeEndArray();
             }
         } catch (IOException e) {
@@ -68,11 +71,15 @@ public class JsonWriter implements TreeDataWriter {
             Context context = contextQueue.peekFirst();
             if (context != null) {
                 if (context.getType() == ContextType.ARRAY) {
-                    if (context.getObjectCount() == 0) {
-                        jsonGenerator.writeFieldName(context.getFieldName());
+                    if (context.getFieldName() == null) {
+                        String arrayFieldName = singleNameToArrayNameMap.get(name);
+                        if (arrayFieldName == null) {
+                            throw new PowsyblException(String.format("Cannot write start node %s with unknown corresponding array name", name));
+                        }
+                        context.setFieldName(arrayFieldName);
+                        jsonGenerator.writeFieldName(arrayFieldName);
                         jsonGenerator.writeStartArray();
                     }
-                    context.incrementObjectCount();
                 } else if (context.getType() == ContextType.OBJECT) {
                     jsonGenerator.writeFieldName(name);
                 }
@@ -80,20 +87,30 @@ public class JsonWriter implements TreeDataWriter {
             } else {
                 jsonGenerator.writeStartObject();
                 writeStringAttribute(VERSION, rootVersion);
-                writeStartNodes(EXTENSION_VERSIONS);
-                extensionVersions.forEach((extensionName, version) -> {
-                    writeStartNode("", "");
-                    writeStringAttribute("extensionName", extensionName);
-                    writeStringAttribute(VERSION, version);
-                    writeEndNode();
-                });
-                writeEndNodes();
-
+                writeExtensionVersions();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         contextQueue.push(new Context(ContextType.OBJECT, name));
+    }
+
+    private void writeExtensionVersions() throws IOException {
+        if (!extensionVersions.isEmpty()) {
+            jsonGenerator.writeFieldName(EXTENSION_VERSIONS);
+            jsonGenerator.writeStartArray();
+            extensionVersions.forEach((extensionName, version) -> {
+                try {
+                    jsonGenerator.writeStartObject();
+                    writeStringAttribute("extensionName", extensionName);
+                    writeStringAttribute(VERSION, version);
+                    jsonGenerator.writeEndObject();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+            jsonGenerator.writeEndArray();
+        }
     }
 
     @Override

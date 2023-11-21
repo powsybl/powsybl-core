@@ -46,7 +46,7 @@ public class CgmesSvMetadataSerDe extends AbstractExtensionSerDe<Network, CgmesS
         writer.writeStringAttribute("description", extension.getDescription());
         writer.writeIntAttribute("svVersion", extension.getSvVersion());
         writer.writeStringAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
-        writer.writeStartNodes(DEPENDENCY_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         for (String dep : extension.getDependencies()) {
             writer.writeStartNode(getNamespaceUri(), DEPENDENCY_ROOT_ELEMENT);
             writer.writeNodeContent(dep);
