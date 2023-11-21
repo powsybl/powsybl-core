@@ -28,7 +28,6 @@ import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -44,6 +43,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -222,7 +222,7 @@ public final class NetworkXml {
     private static void writeMainAttributes(Network n, NetworkXmlWriterContext context) {
         context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(n.getId()));
         context.getWriter().writeStringAttribute(CASE_DATE, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(n.getCaseDate()));
-        context.getWriter().writeIntAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
+        context.getWriter().writeIntAttribute(FORECAST_DISTANCE, n.getForecastDistance());
         context.getWriter().writeStringAttribute(SOURCE_FORMAT, n.getSourceFormat());
     }
 
