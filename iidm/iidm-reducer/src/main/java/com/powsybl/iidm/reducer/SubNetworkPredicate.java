@@ -24,53 +24,37 @@ public class SubNetworkPredicate implements NetworkPredicate {
         delegate = init(vl, maxDepth);
     }
 
-    static class Node {
-        private final VoltageLevel vl;
-        private final int depth;
-
-        Node(VoltageLevel vl, int depth) {
-            this.vl = vl;
-            this.depth = depth;
-        }
-    }
-
     private static IdentifierNetworkPredicate init(VoltageLevel rootVl, int maxDepth) {
         Objects.requireNonNull(rootVl);
         if (maxDepth < 0) {
             throw new IllegalArgumentException("Invalid max depth value: " + maxDepth);
         }
+
         Set<String> traversedVoltageLevelIds = new LinkedHashSet<>();
+        traversedVoltageLevelIds.add(rootVl.getId());
+        var currentDepth = Set.of(rootVl);
 
         // BFS traversal of voltage levels
-        Deque<Node> stack = new ArrayDeque<>();
-        stack.push(new Node(rootVl, 0));
-        while (!stack.isEmpty()) {
-            Node node = stack.pop();
-            traversedVoltageLevelIds.add(node.vl.getId());
-            if (node.depth < maxDepth) {
-                visitBranches(traversedVoltageLevelIds, stack, node.vl, node.depth);
+        for (int i = 0; i < maxDepth; i++) {
+            Set<VoltageLevel> nextDepth = new LinkedHashSet<>();
+            for (VoltageLevel voltageLevel : currentDepth) {
+                visitBranches(traversedVoltageLevelIds, voltageLevel, nextDepth);
             }
+            currentDepth = nextDepth;
         }
 
         return new IdentifierNetworkPredicate(traversedVoltageLevelIds);
     }
 
-    private static void visitBranches(Set<String> traversedVoltageLevelIds, Deque<Node> stack, VoltageLevel vl, int depth) {
+    private static void visitBranches(Set<String> traversedVoltageLevelIds, VoltageLevel vl, Set<VoltageLevel> nextDepth) {
         vl.visitEquipments(new DefaultTopologyVisitor() {
             private void visitBranch(Branch<?> branch, TwoSides side) {
-                VoltageLevel nextVl;
-                switch (side) {
-                    case ONE:
-                        nextVl = branch.getTerminal2().getVoltageLevel();
-                        break;
-                    case TWO:
-                        nextVl = branch.getTerminal1().getVoltageLevel();
-                        break;
-                    default:
-                        throw new IllegalStateException("Unknown side: " + side);
-                }
-                if (!traversedVoltageLevelIds.contains(nextVl.getId())) {
-                    stack.push(new Node(nextVl, depth + 1));
+                VoltageLevel nextVl = switch (side) {
+                    case ONE -> branch.getTerminal2().getVoltageLevel();
+                    case TWO -> branch.getTerminal1().getVoltageLevel();
+                };
+                if (traversedVoltageLevelIds.add(nextVl.getId())) {
+                    nextDepth.add(nextVl);
                 }
             }
 
@@ -86,29 +70,22 @@ public class SubNetworkPredicate implements NetworkPredicate {
 
             @Override
             public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
-                VoltageLevel nextVl1;
-                VoltageLevel nextVl2;
-                switch (side) {
-                    case ONE:
-                        nextVl1 = transformer.getLeg2().getTerminal().getVoltageLevel();
-                        nextVl2 = transformer.getLeg3().getTerminal().getVoltageLevel();
-                        break;
-                    case TWO:
-                        nextVl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
-                        nextVl2 = transformer.getLeg3().getTerminal().getVoltageLevel();
-                        break;
-                    case THREE:
-                        nextVl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
-                        nextVl2 = transformer.getLeg2().getTerminal().getVoltageLevel();
-                        break;
-                    default:
-                        throw new IllegalStateException("Unknown side: " + side);
+                VoltageLevel nextVl1 = switch (side) {
+                    case ONE -> transformer.getLeg2().getTerminal().getVoltageLevel();
+                    case TWO -> transformer.getLeg3().getTerminal().getVoltageLevel();
+                    case THREE -> transformer.getLeg1().getTerminal().getVoltageLevel();
+                };
+                if (traversedVoltageLevelIds.add(nextVl1.getId())) {
+                    nextDepth.add(nextVl1);
                 }
-                if (!traversedVoltageLevelIds.contains(nextVl1.getId())) {
-                    stack.push(new Node(nextVl1, depth + 1));
-                }
-                if (!traversedVoltageLevelIds.contains(nextVl2.getId())) {
-                    stack.push(new Node(nextVl2, depth + 1));
+
+                VoltageLevel nextVl2 = switch (side) {
+                    case ONE -> transformer.getLeg3().getTerminal().getVoltageLevel();
+                    case TWO -> transformer.getLeg1().getTerminal().getVoltageLevel();
+                    case THREE -> transformer.getLeg2().getTerminal().getVoltageLevel();
+                };
+                if (traversedVoltageLevelIds.add(nextVl2.getId())) {
+                    nextDepth.add(nextVl2);
                 }
             }
         });
