@@ -7,8 +7,11 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
 import java.util.*;
@@ -46,6 +49,10 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
 
     public List<Runnable> getEndTasks() {
         return endTasks;
+    }
+
+    public void executeEndTasks(Network network, Reporter reporter) {
+        Networks.executeWithReporter(network, reporter, () -> getEndTasks().forEach(Runnable::run));
     }
 
     @Override
