@@ -15,7 +15,7 @@ import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
-import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.extensions.ExtensionSerializer;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonReader;
@@ -25,7 +25,7 @@ import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serializer.anonymizer.Anonymizer;
 import com.powsybl.iidm.serializer.anonymizer.SimpleAnonymizer;
-import com.powsybl.iidm.serializer.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
+import com.powsybl.iidm.serializer.extensions.AbstractVersionableNetworkExtensionSerializer;
 import com.powsybl.iidm.serializer.util.IidmSerializerUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -72,11 +72,11 @@ public final class NetworkSerializer {
     private static final String ID = "id";
     private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
 
-    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
+    private static final Supplier<ExtensionProviders<ExtensionSerializer>> EXTENSIONS_SUPPLIER =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, EXTENSION_CATEGORY_NAME));
 
     private NetworkSerializer() {
-        ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME);
+        ExtensionProviders.createProvider(ExtensionSerializer.class, EXTENSION_CATEGORY_NAME);
     }
 
     private static void validate(Source xml, List<Source> additionalSchemas) {
@@ -112,7 +112,7 @@ public final class NetworkSerializer {
 
     public static void validate(InputStream is) {
         List<Source> additionalSchemas = new ArrayList<>();
-        for (ExtensionXmlSerializer<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+        for (ExtensionSerializer<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
             e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
         }
         validate(new StreamSource(is), additionalSchemas);
@@ -136,37 +136,37 @@ public final class NetworkSerializer {
 
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkSerializerWriterContext context) {
         TreeDataWriter writer = context.getWriter();
-        ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(), extension);
-        if (extensionXmlSerializer == null) {
-            throw new IllegalStateException("Extension XML Serializer of " + extension.getName() + " should not be null");
+        ExtensionSerializer extensionSerializer = getExtensionSerializer(context.getOptions(), extension);
+        if (extensionSerializer == null) {
+            throw new IllegalStateException("Extension Serializer of " + extension.getName() + " should not be null");
         }
-        String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions());
+        String namespaceUri = getNamespaceUri(extensionSerializer, context.getOptions());
         writer.writeStartNode(namespaceUri, extension.getName());
-        context.getExtensionVersion(extension.getName()).ifPresent(extensionXmlSerializer::checkExtensionVersionSupported);
-        extensionXmlSerializer.write(extension, context);
+        context.getExtensionVersion(extension.getName()).ifPresent(extensionSerializer::checkExtensionVersionSupported);
+        extensionSerializer.write(extension, context);
         writer.writeEndNode();
     }
 
-    private static ExtensionXmlSerializer getExtensionXmlSerializer(ExportOptions options, Extension<? extends Identifiable<?>> extension) {
+    private static ExtensionSerializer getExtensionSerializer(ExportOptions options, Extension<? extends Identifiable<?>> extension) {
         if (options.withExtension(extension.getName())) {
-            ExtensionXmlSerializer extensionXmlSerializer = options.isThrowExceptionIfExtensionNotFound()
+            ExtensionSerializer extensionSerializer = options.isThrowExceptionIfExtensionNotFound()
                     ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName())
                     : EXTENSIONS_SUPPLIER.get().findProvider(extension.getName());
-            if (extensionXmlSerializer == null) {
+            if (extensionSerializer == null) {
                 String message = "XmlSerializer for " + extension.getName() + " not found";
                 throwExceptionIfOption(options, message);
-            } else if (!extensionXmlSerializer.isSerializable(extension)) {
+            } else if (!extensionSerializer.isSerializable(extension)) {
                 return null;
             }
-            return extensionXmlSerializer;
+            return extensionSerializer;
         }
 
         return null;
     }
 
-    private static String getNamespaceUri(ExtensionXmlSerializer<?, ?> extensionXmlSerializer, ExportOptions options) {
-        String extensionVersion = getExtensionVersion(extensionXmlSerializer, options);
-        return extensionXmlSerializer.getNamespaceUri(extensionVersion);
+    private static String getNamespaceUri(ExtensionSerializer<?, ?> extensionSerializer, ExportOptions options) {
+        String extensionVersion = getExtensionVersion(extensionSerializer, options);
+        return extensionSerializer.getNamespaceUri(extensionVersion);
     }
 
     private static void writeVoltageAngleLimits(Network n, NetworkSerializerWriterContext context) {
@@ -186,7 +186,7 @@ public final class NetworkSerializer {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(context.getOptions(), e), context.getVersion(), context.getOptions()))
+                    .filter(e -> canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e), context.getVersion(), context.getOptions()))
                     .collect(Collectors.toList());
 
             if (!extensions.isEmpty()) {
@@ -201,17 +201,17 @@ public final class NetworkSerializer {
         context.getWriter().writeEndNodes();
     }
 
-    private static boolean canTheExtensionBeWritten(ExtensionXmlSerializer extensionXmlSerializer, IidmVersion version, ExportOptions options) {
-        if (extensionXmlSerializer == null) {
+    private static boolean canTheExtensionBeWritten(ExtensionSerializer extensionSerializer, IidmVersion version, ExportOptions options) {
+        if (extensionSerializer == null) {
             return false;
         }
         boolean versionExist = true;
-        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer<?, ?> networkExtensionXmlSerializer) {
-            versionExist = networkExtensionXmlSerializer.versionExists(version);
+        if (extensionSerializer instanceof AbstractVersionableNetworkExtensionSerializer<?, ?> networkExtensionSerializer) {
+            versionExist = networkExtensionSerializer.versionExists(version);
         }
         if (!versionExist) {
             String message = String.format("Version %s does not support %s extension", version,
-                    extensionXmlSerializer.getExtensionName());
+                    extensionSerializer.getExtensionName());
             throwExceptionIfOption(options, message);
         }
         return versionExist;
@@ -230,8 +230,8 @@ public final class NetworkSerializer {
             String indent = options.isIndent() ? INDENT : null;
             XmlWriter xmlWriter = new XmlWriter(os, indent, options.getCharset(), iidmNamespace, IIDM_PREFIX);
 
-            Set<ExtensionXmlSerializer<?, ?>> serializers = getExtensionSerializers(n, options);
-            for (ExtensionXmlSerializer<?, ?> extensionSerializer : serializers) {
+            Set<ExtensionSerializer<?, ?>> serializers = getExtensionSerializers(n, options);
+            for (ExtensionSerializer<?, ?> extensionSerializer : serializers) {
                 String extensionVersion = getExtensionVersion(extensionSerializer, options);
                 xmlWriter.setExtensionNamespace(extensionSerializer.getName(), extensionSerializer.getNamespaceUri(extensionVersion), extensionSerializer.getNamespacePrefix());
             }
@@ -262,16 +262,16 @@ public final class NetworkSerializer {
 
     private static Map<String, String> getExtensionVersions(Network n, ExportOptions options) {
         Map <String, String> extensionVersionsMap = new LinkedHashMap<>();
-        for (ExtensionXmlSerializer<?, ?> extensionSerializer : getExtensionSerializers(n, options)) {
+        for (ExtensionSerializer<?, ?> extensionSerializer : getExtensionSerializers(n, options)) {
             String version = getExtensionVersion(extensionSerializer, options);
             extensionVersionsMap.put(extensionSerializer.getExtensionName(), version);
         }
         return extensionVersionsMap;
     }
 
-    private static String getExtensionVersion(ExtensionXmlSerializer<?, ?> extensionSerializer, ExportOptions options) {
+    private static String getExtensionVersion(ExtensionSerializer<?, ?> extensionSerializer, ExportOptions options) {
         Optional<String> specifiedVersion = options.getExtensionVersion(extensionSerializer.getExtensionName());
-        if (extensionSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer<?, ?> versionable) {
+        if (extensionSerializer instanceof AbstractVersionableNetworkExtensionSerializer<?, ?> versionable) {
             return specifiedVersion
                     .filter(v -> versionable.checkWritingCompatibility(v, options.getVersion()))
                     .orElseGet(() -> versionable.getVersion(options.getVersion()));
@@ -283,7 +283,7 @@ public final class NetworkSerializer {
     /**
      * Gets the list of the serializers needed to export the current network
      */
-    private static Set<ExtensionXmlSerializer<?, ?>> getExtensionSerializers(Network n, ExportOptions options) {
+    private static Set<ExtensionSerializer<?, ?>> getExtensionSerializers(Network n, ExportOptions options) {
         if (options.withNoExtension()) {
             return Collections.emptySet();
         }
@@ -291,26 +291,26 @@ public final class NetworkSerializer {
         IidmVersion networkVersion = options.getVersion();
         return n.getIdentifiables().stream().flatMap(identifiable -> identifiable.getExtensions()
                         .stream()
-                        .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension))
+                        .map(extension -> (ExtensionSerializer<?, ?>) getExtensionSerializer(options, extension))
                         .filter(exs -> canTheExtensionBeWritten(exs, networkVersion, options)))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static void checkNamespaceCollisions(ExportOptions options, Set<ExtensionXmlSerializer<?, ?>> serializers) {
+    private static void checkNamespaceCollisions(ExportOptions options, Set<ExtensionSerializer<?, ?>> serializers) {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
-        for (ExtensionXmlSerializer<?, ?> extensionXmlSerializer : serializers) {
-            String namespaceUri = getNamespaceUri(extensionXmlSerializer, options);
+        for (ExtensionSerializer<?, ?> extensionSerializer : serializers) {
+            String namespaceUri = getNamespaceUri(extensionSerializer, options);
             if (extensionUris.contains(namespaceUri)) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
                 extensionUris.add(namespaceUri);
             }
 
-            if (extensionPrefixes.contains(extensionXmlSerializer.getNamespacePrefix())) {
+            if (extensionPrefixes.contains(extensionSerializer.getNamespacePrefix())) {
                 throw new PowsyblException("Extension namespace prefix collision");
             } else {
-                extensionPrefixes.add(extensionXmlSerializer.getNamespacePrefix());
+                extensionPrefixes.add(extensionSerializer.getNamespacePrefix());
             }
         }
     }
@@ -561,7 +561,7 @@ public final class NetworkSerializer {
 
         Map<String, String> extensionsMap = new HashMap<>();
         if (!config.withNoExtension()) {
-            for (ExtensionXmlSerializer<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+            for (ExtensionSerializer<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
                 extensionsMap.putAll(e.getArrayNameToSingleNameMap());
             }
         }
@@ -744,10 +744,10 @@ public final class NetworkSerializer {
                 context.getReader().skipChildNodes();
             }
 
-            ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-            if (extensionXmlSerializer != null) {
-                Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+            ExtensionSerializer extensionSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+            if (extensionSerializer != null) {
+                Extension<? extends Identifiable<?>> extension = extensionSerializer.read(identifiable, context);
+                identifiable.addExtension(extensionSerializer.getExtensionClass(), extension);
             } else {
                 extensionNamesNotFound.add(extensionName);
                 context.getReader().skipChildNodes();

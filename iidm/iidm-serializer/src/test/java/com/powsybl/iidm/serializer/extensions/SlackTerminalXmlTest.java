@@ -132,7 +132,7 @@ class SlackTerminalXmlTest extends AbstractSerializerTest {
         exporter.export(network, properties, ds);
 
         String data = new String(ds.getData("", "xiidm"));
-        assertFalse(data.contains(new SlackTerminalXmlSerializer().getNamespaceUri()));
+        assertFalse(data.contains(new SlackTerminalSerializer().getNamespaceUri()));
     }
 
 }

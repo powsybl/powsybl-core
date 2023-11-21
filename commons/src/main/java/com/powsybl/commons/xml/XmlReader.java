@@ -9,7 +9,7 @@ package com.powsybl.commons.xml;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.extensions.ExtensionSerializer;
 import com.powsybl.commons.io.AbstractTreeDataReader;
 
 import javax.xml.stream.XMLInputFactory;
@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class XmlReader extends AbstractTreeDataReader {
 
@@ -28,9 +28,9 @@ public class XmlReader extends AbstractTreeDataReader {
 
     private final XMLStreamReader reader;
     private final Map<String, String> namespaceVersionsMap;
-    private final Collection<ExtensionXmlSerializer> extensionProviders;
+    private final Collection<ExtensionSerializer> extensionProviders;
 
-    public XmlReader(InputStream is, Map<String, String> namespaceVersionMap, Collection<ExtensionXmlSerializer> extensionProviders) throws XMLStreamException {
+    public XmlReader(InputStream is, Map<String, String> namespaceVersionMap, Collection<ExtensionSerializer> extensionProviders) throws XMLStreamException {
         this.reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(Objects.requireNonNull(is));
         int state = reader.next();
         while (state == XMLStreamConstants.COMMENT) {
@@ -48,7 +48,7 @@ public class XmlReader extends AbstractTreeDataReader {
     @Override
     public Map<String, String> readVersions() {
         Map<String, String> versions = new HashMap<>();
-        for (ExtensionXmlSerializer<?, ?> e : extensionProviders) {
+        for (ExtensionSerializer<?, ?> e : extensionProviders) {
             String namespaceUri = reader.getNamespaceURI(e.getNamespacePrefix());
             if (namespaceUri != null) {
                 versions.put(e.getExtensionName(), e.getVersion(namespaceUri));

@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.serializer;
 
-import com.powsybl.commons.extensions.XmlWriterContext;
+import com.powsybl.commons.io.WriterContext;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.serializer.anonymizer.Anonymizer;
@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NetworkSerializerWriterContext extends AbstractNetworkSerializerContext<ExportOptions> implements XmlWriterContext {
+public class NetworkSerializerWriterContext extends AbstractNetworkSerializerContext<ExportOptions> implements WriterContext {
 
     private final TreeDataWriter writer;
     private final ExportOptions options;

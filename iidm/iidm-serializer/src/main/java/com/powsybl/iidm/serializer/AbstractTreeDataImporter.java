@@ -16,7 +16,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionProviders;
-import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.extensions.ExtensionSerializer;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTreeDataImporter implements Importer {
 
-    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, "network"));
+    private static final Supplier<ExtensionProviders<ExtensionSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "network"));
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTreeDataImporter.class);
 

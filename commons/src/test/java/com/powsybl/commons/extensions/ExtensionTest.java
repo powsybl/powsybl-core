@@ -158,13 +158,13 @@ class ExtensionTest extends AbstractSerializerTest {
 
     @Test
     void testProviderConflict() {
-        ExtensionXmlSerializer<?, ?> mock1 = Mockito.mock(ExtensionXmlSerializer.class);
+        ExtensionSerializer<?, ?> mock1 = Mockito.mock(ExtensionSerializer.class);
         Mockito.when(mock1.getExtensionName()).thenReturn("mock");
-        ExtensionXmlSerializer<?, ?> mock2 = Mockito.mock(ExtensionXmlSerializer.class);
+        ExtensionSerializer<?, ?> mock2 = Mockito.mock(ExtensionSerializer.class);
         Mockito.when(mock2.getExtensionName()).thenReturn("mock");
 
-        ExtensionXmlSerializer<?, ?>[] mocks = {mock1, mock2};
+        ExtensionSerializer<?, ?>[] mocks = {mock1, mock2};
 
-        assertThrows(IllegalStateException.class, () -> Arrays.stream(mocks).collect(Collectors.toMap(ExtensionXmlSerializer::getExtensionName, e -> e)));
+        assertThrows(IllegalStateException.class, () -> Arrays.stream(mocks).collect(Collectors.toMap(ExtensionSerializer::getExtensionName, e -> e)));
     }
 }

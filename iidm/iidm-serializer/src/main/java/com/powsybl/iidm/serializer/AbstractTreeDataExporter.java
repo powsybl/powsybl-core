@@ -11,7 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionProviders;
-import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.extensions.ExtensionSerializer;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
@@ -91,13 +91,13 @@ import java.util.stream.Collectors;
  *     </tr>
  * </table>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractTreeDataExporter implements Exporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTreeDataExporter.class);
 
-    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, "network"));
+    private static final Supplier<ExtensionProviders<ExtensionSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "network"));
 
     public static final String INDENT = "iidm.export.xml.indent";
     public static final String WITH_BRANCH_STATE_VARIABLES = "iidm.export.xml.with-branch-state-variables";
@@ -163,8 +163,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     }
 
     private void addExtensionsVersions(Properties parameters, ExportOptions options) {
-        EXTENSIONS_SUPPLIER.get().getProviders().forEach(extensionXmlSerializer -> {
-            String extensionName = extensionXmlSerializer.getExtensionName();
+        EXTENSIONS_SUPPLIER.get().getProviders().forEach(extensionSerializer -> {
+            String extensionName = extensionSerializer.getExtensionName();
             Parameter parameter = new Parameter("iidm.export.xml." + extensionName + ".version",
                     ParameterType.STRING, "Version of " + extensionName, null);
             String extensionVersion = Parameter.readString(getFormat(), parameters, parameter, defaultValueConfig);

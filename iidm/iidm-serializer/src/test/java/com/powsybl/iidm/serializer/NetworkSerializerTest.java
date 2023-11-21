@@ -8,10 +8,10 @@ package com.powsybl.iidm.serializer;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
-import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.extensions.XmlReaderContext;
-import com.powsybl.commons.extensions.XmlWriterContext;
+import com.powsybl.commons.extensions.AbstractExtensionSerializer;
+import com.powsybl.commons.extensions.ExtensionSerializer;
+import com.powsybl.commons.io.ReaderContext;
+import com.powsybl.commons.io.WriterContext;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
@@ -75,20 +75,20 @@ class NetworkSerializerTest extends AbstractIidmSerializerTest {
         assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
     }
 
-    @AutoService(ExtensionXmlSerializer.class)
-    public static class BusbarSectionExtXmlSerializer extends AbstractExtensionXmlSerializer<BusbarSection, BusbarSectionExt> {
+    @AutoService(ExtensionSerializer.class)
+    public static class BusbarSectionExtSerializer extends AbstractExtensionSerializer<BusbarSection, BusbarSectionExt> {
 
-        public BusbarSectionExtXmlSerializer() {
+        public BusbarSectionExtSerializer() {
             super("busbarSectionExt", "network", BusbarSectionExt.class, "busbarSectionExt.xsd",
                     "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0", "bbse");
         }
 
         @Override
-        public void write(BusbarSectionExt busbarSectionExt, XmlWriterContext context) {
+        public void write(BusbarSectionExt busbarSectionExt, WriterContext context) {
         }
 
         @Override
-        public BusbarSectionExt read(BusbarSection busbarSection, XmlReaderContext context) {
+        public BusbarSectionExt read(BusbarSection busbarSection, ReaderContext context) {
             context.getReader().readEndNode();
             return new BusbarSectionExt(busbarSection);
         }

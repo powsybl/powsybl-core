@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.serializer;
 
-import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.extensions.ExtensionSerializer;
 import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.io.ReaderContext;
 import com.powsybl.iidm.serializer.anonymizer.Anonymizer;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import static com.powsybl.iidm.serializer.IidmSerializerConstants.CURRENT_IIDM_X
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NetworkSerializerReaderContext extends AbstractNetworkSerializerContext<ImportOptions> implements XmlReaderContext {
+public class NetworkSerializerReaderContext extends AbstractNetworkSerializerContext<ImportOptions> implements ReaderContext {
 
     private final TreeDataReader reader;
 
@@ -57,7 +57,7 @@ public class NetworkSerializerReaderContext extends AbstractNetworkSerializerCon
         return version != null && version.equals(extensionVersions.get(extensionName));
     }
 
-    public Optional<String> getExtensionVersion(ExtensionXmlSerializer<?, ?> extensionXmlSerializer) {
-        return Optional.ofNullable(extensionVersions.get(extensionXmlSerializer.getExtensionName()));
+    public Optional<String> getExtensionVersion(ExtensionSerializer<?, ?> extensionSerializer) {
+        return Optional.ofNullable(extensionVersions.get(extensionSerializer.getExtensionName()));
     }
 }
