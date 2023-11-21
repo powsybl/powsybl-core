@@ -29,8 +29,8 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
     ImmutableMap<IdentifiableType, Integer> DEFAULT_CONNECTABLE_TYPE_PRIORITIES = Maps.immutableEnumMap(
             ImmutableMap.<IdentifiableType, Integer>builder()
                     .put(IdentifiableType.GENERATOR, 1)
-                    .put(IdentifiableType.LOAD, 2)
-                    .put(IdentifiableType.BUSBAR_SECTION, 3)
+                    .put(IdentifiableType.BUSBAR_SECTION, 2)
+                    .put(IdentifiableType.LOAD, 3)
                     .build()
     );
 
@@ -65,7 +65,7 @@ public interface ReferencePriorities<C extends Connectable<C>> extends Extension
      * Gets the reference priorities defined in the network for the current variant,
      * sorted by decreasing priority (i.e. higher priorities are first in the list).
      * Priorities 0 are filtered out.
-     * In case of equal priority between different equipment types, generators are put first, loads second, busbar sections third,
+     * In case of equal priority between different equipment types, generators are put first, busbar sections  second, loads third,
      * and all other equipment types last.
      * Note that this method provides "raw" priorities, API users would typically want to
      * check whether the terminals are connected, in which SynchronousComponent the Terminal belongs to, etc ...
