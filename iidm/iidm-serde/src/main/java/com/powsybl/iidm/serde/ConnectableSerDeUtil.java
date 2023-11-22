@@ -240,7 +240,7 @@ public final class ConnectableSerDeUtil {
                 || !limits.getTemporaryLimits().isEmpty()) {
             writer.writeStartNode(nsUri, type + indexToString(index));
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
-            writer.writeStartNodes(TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME);
+            writer.writeStartNodes();
             for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
                 writer.writeStringAttribute("name", tl.getName());

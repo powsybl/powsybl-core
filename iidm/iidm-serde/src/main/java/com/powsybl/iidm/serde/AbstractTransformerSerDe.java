@@ -84,7 +84,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
 
-        context.getWriter().writeStartNodes(STEP_ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), STEP_ROOT_ELEMENT_NAME);
@@ -165,7 +165,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
 
-        context.getWriter().writeStartNodes(STEP_ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), STEP_ROOT_ELEMENT_NAME);

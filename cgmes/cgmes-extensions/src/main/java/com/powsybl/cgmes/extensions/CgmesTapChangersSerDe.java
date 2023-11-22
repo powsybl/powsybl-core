@@ -44,7 +44,7 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
     public void write(CgmesTapChangers<C> extension, SerializerContext context) {
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         TreeDataWriter writer = networkContext.getWriter();
-        writer.writeStartNodes(TAP_CHANGER_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
             writer.writeStartNode(getNamespaceUri(), TAP_CHANGER_ROOT_ELEMENT);
             writer.writeStringAttribute("id", tapChanger.getId());

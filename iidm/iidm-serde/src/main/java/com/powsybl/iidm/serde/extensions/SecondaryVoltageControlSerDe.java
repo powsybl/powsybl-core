@@ -55,7 +55,7 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
     @Override
     public void write(SecondaryVoltageControl control, SerializerContext context) {
         TreeDataWriter writer = context.getWriter();
-        writer.writeStartNodes(CONTROL_ZONE_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         for (SecondaryVoltageControl.ControlZone controlZone : control.getControlZones()) {
             writer.writeStartNode(getNamespaceUri(), CONTROL_ZONE_ROOT_ELEMENT);
             writer.writeStringAttribute("name", controlZone.getName());
@@ -69,7 +69,7 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
     private void writePilotPoint(ControlZone controlZone, TreeDataWriter writer) {
         writer.writeStartNode(getNamespaceUri(), PILOT_POINT_ELEMENT);
         writer.writeDoubleAttribute("targetV", controlZone.getPilotPoint().getTargetV());
-        writer.writeStartNodes(BUSBAR_SECTION_OR_BUS_ID_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         for (String busbarSectionOrBusId : controlZone.getPilotPoint().getBusbarSectionsOrBusesIds()) {
             writer.writeStartNode(getNamespaceUri(), BUSBAR_SECTION_OR_BUS_ID_ROOT_ELEMENT);
             writer.writeNodeContent(busbarSectionOrBusId);
@@ -80,7 +80,7 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
     }
 
     private void writeControlUnits(List<ControlUnit> controlUnits, TreeDataWriter writer) {
-        writer.writeStartNodes(CONTROL_UNIT_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         for (ControlUnit controlUnit : controlUnits) {
             writer.writeStartNode(getNamespaceUri(), CONTROL_UNIT_ROOT_ELEMENT);
             writer.writeBooleanAttribute("participate", controlUnit.isParticipate());

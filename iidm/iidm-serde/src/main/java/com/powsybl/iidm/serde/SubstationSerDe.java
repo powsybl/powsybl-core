@@ -47,13 +47,13 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
 
     @Override
     protected void writeSubElements(Substation s, Network n, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(VoltageLevelSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (VoltageLevel vl : IidmSerDeUtil.sorted(s.getVoltageLevels(), context.getOptions())) {
             VoltageLevelSerDe.INSTANCE.write(vl, null, context);
         }
         context.getWriter().writeEndNodes();
 
-        context.getWriter().writeStartNodes(TwoWindingsTransformerSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         Iterable<TwoWindingsTransformer> twts = IidmSerDeUtil.sorted(s.getTwoWindingsTransformers(), context.getOptions());
         for (TwoWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt)) {
@@ -63,7 +63,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
         }
         context.getWriter().writeEndNodes();
 
-        context.getWriter().writeStartNodes(ThreeWindingsTransformerSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         Iterable<ThreeWindingsTransformer> twts2 = IidmSerDeUtil.sorted(s.getThreeWindingsTransformers(), context.getOptions());
         for (ThreeWindingsTransformer twt : twts2) {
             if (!context.getFilter().test(twt)) {

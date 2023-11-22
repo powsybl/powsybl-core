@@ -114,7 +114,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
-                context.getWriter().writeStartNodes(SECTION_ARRAY_ELEMENT_NAME);
+                context.getWriter().writeStartNodes();
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SECTION_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute("b", s.getB());

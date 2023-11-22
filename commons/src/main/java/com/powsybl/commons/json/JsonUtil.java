@@ -40,8 +40,7 @@ public final class JsonUtil {
 
     static final class Context {
         private final ContextType type;
-        private final String fieldName;
-        private int objectCount = 0;
+        private String fieldName;
 
         Context(ContextType type, String fieldName) {
             this.type = Objects.requireNonNull(type);
@@ -56,12 +55,8 @@ public final class JsonUtil {
             return fieldName;
         }
 
-        int getObjectCount() {
-            return objectCount;
-        }
-
-        void incrementObjectCount() {
-            objectCount++;
+        public void setFieldName(String fieldName) {
+            this.fieldName = fieldName;
         }
     }
 

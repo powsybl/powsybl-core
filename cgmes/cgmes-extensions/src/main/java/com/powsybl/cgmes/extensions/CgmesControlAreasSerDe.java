@@ -55,7 +55,7 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
     public void write(CgmesControlAreas extension, SerializerContext context) {
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         TreeDataWriter writer = networkContext.getWriter();
-        writer.writeStartNodes(CONTROL_AREA_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         for (CgmesControlArea controlArea : extension.getCgmesControlAreas()) {
             writer.writeStartNode(getNamespaceUri(), CONTROL_AREA_ROOT_ELEMENT);
             writer.writeStringAttribute("id", controlArea.getId());
@@ -64,13 +64,13 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
             writer.writeDoubleAttribute("netInterchange", controlArea.getNetInterchange());
             writer.writeDoubleAttribute("pTolerance", controlArea.getPTolerance());
 
-            writer.writeStartNodes(TERMINAL_ARRAY_ELEMENT);
+            writer.writeStartNodes();
             for (Terminal terminal : controlArea.getTerminals()) {
                 TerminalRefSerDe.writeTerminalRef(terminal, networkContext, getNamespaceUri(), TERMINAL_ROOT_ELEMENT);
             }
             writer.writeEndNodes();
 
-            writer.writeStartNodes(BOUNDARY_ARRAY_ELEMENT);
+            writer.writeStartNodes();
             for (Boundary boundary : controlArea.getBoundaries()) {
                 if (boundary.getDanglingLine() != null) { // TODO: delete this later, only for compatibility
                     writer.writeStartNode(getNamespaceUri(), BOUNDARY_ROOT_ELEMENT);
