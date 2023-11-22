@@ -12,13 +12,19 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.*;
 import org.apache.commons.lang3.EnumUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -270,19 +276,19 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public DateTime scenarioTime() {
-        DateTime defaultScenarioTime = DateTime.now();
+    public ZonedDateTime scenarioTime() {
+        ZonedDateTime defaultScenarioTime = ZonedDateTime.now();
         return queryDate("scenarioTime", defaultScenarioTime);
     }
 
     @Override
-    public DateTime created() {
-        DateTime defaultCreated = DateTime.now();
+    public ZonedDateTime created() {
+        ZonedDateTime defaultCreated = ZonedDateTime.now();
         return queryDate("created", defaultCreated);
     }
 
-    private DateTime queryDate(String propertyName, DateTime defaultValue) {
-        DateTime d = defaultValue;
+    private ZonedDateTime queryDate(String propertyName, ZonedDateTime defaultValue) {
+        ZonedDateTime d = defaultValue;
         if (queryCatalog.containsKey("modelDates")) {
             PropertyBags r = namedQuery("modelDates");
             if (r != null && !r.isEmpty()) {
@@ -293,8 +299,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 if (s != null && !s.isEmpty()) {
                     // Assume date time given as UTC if no explicit zone is specified
                     try {
-                        d = DateTime.parse(s, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
-                    } catch (IllegalArgumentException e) {
+                        d = parseDateTime(s);
+                    } catch (DateTimeParseException e) {
                         LOG.error("Invalid date: {}. The date has been fixed to {}.", s, defaultValue);
                         return defaultValue;
                     }
@@ -302,6 +308,32 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             }
         }
         return d;
+    }
+
+    /**
+     * Parse a date in ISO format. If the offset is not present at the end (ie. no "Z" nor "+xx:xx" or "+xxxx"), it is
+     * assumed that the date is given as UTC.
+     * @param dateAsString Date in ISO format
+     * @return the date as ZonedDateTime
+     */
+    private ZonedDateTime parseDateTime(String dateAsString) {
+        // Definition of the parser according to the expected date format
+        DateTimeFormatter dateTimeFormatterLocalised = new DateTimeFormatterBuilder()
+            // Fixed mandatory pattern
+            .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+            // Between 0 and 6 decimals
+            .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
+            // Potentially a suffix for localisation (for example "Z", "+01:00", "+3", etc.)
+            .appendPattern("[VV][x][xx][xxx]")
+            .toFormatter();
+
+        // Parsing
+        TemporalAccessor dateParsed = dateTimeFormatterLocalised.parseBest(dateAsString, ZonedDateTime::from, LocalDateTime::from);
+        if (dateParsed instanceof ZonedDateTime zonedDateTime) {
+            return zonedDateTime;
+        } else {
+            return ZonedDateTime.of((LocalDateTime) dateParsed, ZoneOffset.UTC);
+        }
     }
 
     @Override

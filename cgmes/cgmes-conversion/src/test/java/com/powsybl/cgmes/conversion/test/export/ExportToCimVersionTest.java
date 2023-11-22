@@ -12,7 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ZipFileDataSource;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Luma {@literal <zamarrenolm at aia.es>}
  */
-class ExportToCimVersionTest extends AbstractConverterTest {
+class ExportToCimVersionTest extends AbstractSerDeTest {
 
     @Test
     void testExportDataSourceEmptyBaseName() throws IOException {

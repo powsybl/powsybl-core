@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.iidm.xml.XMLExporter;
-import com.powsybl.iidm.xml.XMLImporter;
+import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.XMLExporter;
+import com.powsybl.iidm.serde.XMLImporter;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import com.powsybl.scripting.test.AbstractGroovyScriptTest;
 import org.junit.jupiter.api.AfterEach;
@@ -40,7 +40,7 @@ class NetworkLoadSaveGroovyScriptExtensionTest extends AbstractGroovyScriptTest 
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Network network = EurostagTutorialExample1Factory.create();
-        NetworkXml.write(network, fileSystem.getPath("/work/n.xiidm"));
+        NetworkSerDe.write(network, fileSystem.getPath("/work/n.xiidm"));
     }
 
     @AfterEach

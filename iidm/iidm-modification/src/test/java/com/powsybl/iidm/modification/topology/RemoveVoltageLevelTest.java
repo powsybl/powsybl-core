@@ -9,13 +9,13 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
-class RemoveVoltageLevelTest extends AbstractConverterTest {
+class RemoveVoltageLevelTest extends AbstractSerDeTest {
 
     private final Set<String> removedObjects = new HashSet<>();
     private final Set<String> beforeRemovalObjects = new HashSet<>();
@@ -89,7 +89,7 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         Network network = createNbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("C").build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-remove-voltage-level-nb.xml");
     }
 
@@ -98,7 +98,7 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         Network network = createBbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("VLGEN").build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-remove-voltage-level-bb.xml");
     }
 }

@@ -6,7 +6,7 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractPowerFactoryTest extends AbstractConverterTest {
+abstract class AbstractPowerFactoryTest extends AbstractSerDeTest {
 
     protected DataObjectIndex index;
     protected DataObject objBar;
