@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.dynamicsimulation.TimelineEvent;
 import com.powsybl.timeseries.TimeSeries;
 
 /**
@@ -40,8 +41,8 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeStringField("status", result.getStatus().name());
-        if (!result.getError().isEmpty()) {
-            jsonGenerator.writeStringField("error", result.getError());
+        if (!result.getStatusText().isEmpty()) {
+            jsonGenerator.writeStringField("error", result.getStatusText());
         }
         jsonGenerator.writeFieldName("curves");
         jsonGenerator.writeStartArray();
@@ -50,7 +51,15 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
         }
         jsonGenerator.writeEndArray();
         jsonGenerator.writeFieldName("timeLine");
-        result.getTimeLine().writeJson(jsonGenerator);
+        jsonGenerator.writeStartArray();
+        for (TimelineEvent event : result.getTimeLine()) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeNumberField("time", event.time());
+            jsonGenerator.writeStringField("modelName", event.modelName());
+            jsonGenerator.writeStringField("message", event.message());
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
         jsonGenerator.writeEndObject();
     }
 

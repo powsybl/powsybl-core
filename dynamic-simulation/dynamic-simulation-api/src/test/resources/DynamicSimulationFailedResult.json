@@ -3,17 +3,5 @@
   "status" : "FAILED",
   "error" : "Error test",
   "curves" : [ ],
-  "timeLine" : {
-    "metadata" : {
-      "name" : "timeLine",
-      "dataType" : "STRING",
-      "tags" : [ ],
-      "regularIndex" : {
-        "startTime" : 0,
-        "endTime" : 0,
-        "spacing" : 0
-      }
-    },
-    "chunks" : [ ]
-  }
+  "timeLine" : [ ]
 }

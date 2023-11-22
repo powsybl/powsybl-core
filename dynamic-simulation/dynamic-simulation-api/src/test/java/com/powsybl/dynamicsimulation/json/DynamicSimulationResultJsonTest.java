@@ -8,13 +8,14 @@ package com.powsybl.dynamicsimulation.json;
 
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.dynamicsimulation.TimelineEvent;
 import com.powsybl.timeseries.RegularTimeSeriesIndex;
-import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +35,7 @@ class DynamicSimulationResultJsonTest extends AbstractConverterTest {
             }
 
             @Override
-            public String getError() {
+            public String getStatusText() {
                 return "";
             }
 
@@ -44,8 +45,11 @@ class DynamicSimulationResultJsonTest extends AbstractConverterTest {
             }
 
             @Override
-            public StringTimeSeries getTimeLine() {
-                return DynamicSimulationResult.emptyTimeLine();
+            public List<TimelineEvent> getTimeLine() {
+                return List.of(
+                        new TimelineEvent(0.1, "CLA_2_5", "order to change topology"),
+                        new TimelineEvent(1.2, "_BUS____2-BUS____5-1_AC", "opening both sides"),
+                        new TimelineEvent(2.4, "CLA_2_4", "arming by over-current constraint"));
             }
         };
     }
@@ -59,7 +63,7 @@ class DynamicSimulationResultJsonTest extends AbstractConverterTest {
             }
 
             @Override
-            public String getError() {
+            public String getStatusText() {
                 return "Error test";
             }
 
@@ -69,7 +73,7 @@ class DynamicSimulationResultJsonTest extends AbstractConverterTest {
             }
 
             @Override
-            public StringTimeSeries getTimeLine() {
+            public List<TimelineEvent> getTimeLine() {
                 return DynamicSimulationResult.emptyTimeLine();
             }
         };

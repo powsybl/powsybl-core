@@ -11,10 +11,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -25,7 +22,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.DynamicSimulationResultImpl;
-import com.powsybl.timeseries.StringTimeSeries;
+import com.powsybl.dynamicsimulation.TimelineEvent;
 import com.powsybl.timeseries.TimeSeries;
 
 /**
@@ -42,7 +39,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         DynamicSimulationResult.Status status = null;
         String error = "";
         Map<String, TimeSeries> curves = new HashMap<>();
-        StringTimeSeries timeLine = null;
+        List<TimelineEvent> timeLine = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -67,10 +64,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
 
                 case "timeLine":
                     parser.nextToken();
-                    timeLine = (StringTimeSeries) deserializeTimeSeries(parser);
-                    if (timeLine == null) {
-                        timeLine = DynamicSimulationResult.emptyTimeLine();
-                    }
+                    deserializeTimeline(parser, timeLine);
                     break;
 
                 default:
@@ -97,6 +91,32 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
             return timeseries.get(0);
         }
         return null;
+    }
+
+    private void deserializeTimeline(JsonParser parser, List<TimelineEvent> timelineEvents) throws IOException {
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            timelineEvents.add(deserializeTimelineEvent(parser));
+        }
+    }
+
+    private TimelineEvent deserializeTimelineEvent(JsonParser parser) throws IOException {
+        double time = 0;
+        String modelName = null;
+        String message = null;
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            switch (parser.getCurrentName()) {
+                case "time":
+                    time = parser.getValueAsDouble();
+                    break;
+                case "modelName":
+                    modelName = parser.getValueAsString();
+                    break;
+                case "message":
+                    message = parser.getValueAsString();
+                    break;
+            }
+        }
+        return new TimelineEvent(time, modelName, message);
     }
 
     public static DynamicSimulationResult read(InputStream is) throws IOException {

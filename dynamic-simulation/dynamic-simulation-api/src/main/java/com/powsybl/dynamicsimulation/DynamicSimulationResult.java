@@ -6,10 +6,10 @@
  */
 package com.powsybl.dynamicsimulation;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import com.powsybl.timeseries.RegularTimeSeriesIndex;
-import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 
 import static com.powsybl.dynamicsimulation.DynamicSimulationResult.Status.SUCCEED;
@@ -27,9 +27,9 @@ public interface DynamicSimulationResult {
 
     Status getStatus();
 
-    String getError();
+    String getStatusText();
 
-    //TODO remove or flag as deprecated ?
+    @Deprecated
     default boolean isOk() {
         return SUCCEED == getStatus();
     }
@@ -43,13 +43,13 @@ public interface DynamicSimulationResult {
     /**
      * The Timeline contains information about relevant events that may have happened during the time domain simulation.
      */
-    StringTimeSeries getTimeLine();
+    List<TimelineEvent> getTimeLine();
 
     /**
      * Returns an empty timeline.
      * @return an empty timeline
      */
-    static StringTimeSeries emptyTimeLine() {
-        return TimeSeries.createString("timeLine", new RegularTimeSeriesIndex(0, 0, 0));
+    static List<TimelineEvent> emptyTimeLine() {
+        return Collections.emptyList();
     }
 }
