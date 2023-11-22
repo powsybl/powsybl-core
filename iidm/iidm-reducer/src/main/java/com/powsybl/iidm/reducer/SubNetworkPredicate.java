@@ -41,6 +41,9 @@ public class SubNetworkPredicate implements NetworkPredicate {
                 findNextDepthVoltageLevels(voltageLevel, traversedVoltageLevelIds, nextDepth);
             }
             currentDepth = nextDepth;
+            if (nextDepth != null && nextDepth.isEmpty()) {
+                break;
+            }
         }
 
         return new IdentifierNetworkPredicate(traversedVoltageLevelIds);
