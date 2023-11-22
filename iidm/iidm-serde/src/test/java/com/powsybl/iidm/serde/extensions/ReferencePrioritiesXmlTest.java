@@ -4,28 +4,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.xml.extensions;
+package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
-import com.powsybl.iidm.xml.IidmXmlConstants;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
+import com.powsybl.iidm.serde.IidmSerDeConstants;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-class ReferencePrioritiesXmlTest extends AbstractXmlConverterTest {
+class ReferencePrioritiesXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
         // network for serialization test purposes only, no load-flow would converge on this.
         Network network = Network.create("test", "test");
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)
@@ -64,8 +64,8 @@ class ReferencePrioritiesXmlTest extends AbstractXmlConverterTest {
         ReferencePriority.set(line, TwoSides.TWO, 0);
 
         roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
-                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "referencePrioritiesRef.xiidm");
+                NetworkSerDe::writeAndValidate,
+                NetworkSerDe::validateAndRead,
+                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "referencePrioritiesRef.xiidm");
     }
 }
