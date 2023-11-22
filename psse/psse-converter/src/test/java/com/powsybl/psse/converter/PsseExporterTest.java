@@ -7,7 +7,7 @@
 package com.powsybl.psse.converter;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
@@ -36,7 +36,7 @@ import java.util.Properties;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class PsseExporterTest extends AbstractConverterTest {
+class PsseExporterTest extends AbstractSerDeTest {
 
     private Network importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();
@@ -44,7 +44,7 @@ class PsseExporterTest extends AbstractConverterTest {
 
         ReadOnlyDataSource dataSource = new ResourceDataSource(basename, new ResourceSet("/", filename));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), properties);
-        network.setCaseDate(DateTime.parse("2016-01-01T10:00:00.000+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-01-01T10:00:00.000+02:00"));
         return network;
     }
 

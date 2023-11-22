@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 /**
  * This is a network test based on Eurostag tutorial example 1.
@@ -278,7 +278,7 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithLFResults(NetworkFactory factory) {
         Network network = create(factory);
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
         network.getBusBreakerView().getBus("NGEN")
                 .setV(24.500000610351563)
@@ -413,7 +413,7 @@ public final class EurostagTutorialExample1Factory {
     public static Network createWithFixedCurrentLimits(NetworkFactory networkFactory) {
         Network network = create(networkFactory);
 
-        network.setCaseDate(DateTime.parse(CASE_DATE));
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
 
         network.getSubstation("P2").setCountry(Country.BE);
 
@@ -483,7 +483,7 @@ public final class EurostagTutorialExample1Factory {
     public static Network createWithFixedLimits(NetworkFactory networkFactory) {
         Network network = create(networkFactory);
 
-        network.setCaseDate(DateTime.parse(CASE_DATE));
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
 
         network.getSubstation("P2").setCountry(Country.BE);
 
@@ -588,7 +588,7 @@ public final class EurostagTutorialExample1Factory {
     public static Network createWithFixedCurrentLimitsOnDanglingLines(NetworkFactory networkFactory) {
         Network network = createWithTieLines(networkFactory);
 
-        network.setCaseDate(DateTime.parse(CASE_DATE));
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
 
         network.getSubstation("P2").setCountry(Country.BE);
 
@@ -660,7 +660,7 @@ public final class EurostagTutorialExample1Factory {
     public static Network createWithFixedLimitsOnDanglingLines(NetworkFactory networkFactory) {
         Network network = createWithTieLines(networkFactory);
 
-        network.setCaseDate(DateTime.parse(CASE_DATE));
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
 
         network.getSubstation("P2").setCountry(Country.BE);
 
@@ -833,7 +833,7 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithTerminalMockExt(NetworkFactory networkFactory) {
         Network network = create(networkFactory);
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
         Load load = network.getLoad("LOAD");
         TerminalMockExt terminalMockExt = new TerminalMockExt(load);
@@ -844,7 +844,7 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithVoltageAngleLimit() {
         Network network = create(NetworkFactory.findDefault());
-        network.setCaseDate(DateTime.parse("2023-06-28T23:11:51.614+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2023-06-28T23:11:51.614+02:00"));
 
         network.newVoltageAngleLimit()
             .setId("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_1")

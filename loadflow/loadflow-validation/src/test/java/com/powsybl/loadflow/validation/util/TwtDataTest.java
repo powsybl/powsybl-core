@@ -7,7 +7,7 @@
 package com.powsybl.loadflow.validation.util;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.TwtData;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -26,12 +26,12 @@ class TwtDataTest {
     void test() {
         TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false, false);
 
-        assertEquals(TwtTestData.P1, twtData.getComputedP(Side.ONE), .3);
-        assertEquals(TwtTestData.Q1, twtData.getComputedQ(Side.ONE), .3);
-        assertEquals(TwtTestData.P2, twtData.getComputedP(Side.TWO), .3);
-        assertEquals(TwtTestData.Q2, twtData.getComputedQ(Side.TWO), .3);
-        assertEquals(TwtTestData.P3, twtData.getComputedP(Side.THREE), .3);
-        assertEquals(TwtTestData.Q3, twtData.getComputedQ(Side.THREE), .3);
+        assertEquals(TwtTestData.P1, twtData.getComputedP(ThreeSides.ONE), .3);
+        assertEquals(TwtTestData.Q1, twtData.getComputedQ(ThreeSides.ONE), .3);
+        assertEquals(TwtTestData.P2, twtData.getComputedP(ThreeSides.TWO), .3);
+        assertEquals(TwtTestData.Q2, twtData.getComputedQ(ThreeSides.TWO), .3);
+        assertEquals(TwtTestData.P3, twtData.getComputedP(ThreeSides.THREE), .3);
+        assertEquals(TwtTestData.Q3, twtData.getComputedQ(ThreeSides.THREE), .3);
 
         assertEquals(TwtTestData.STAR_U, twtData.getStarU(), .0001);
         assertEquals(TwtTestData.STAR_ANGLE, Math.toDegrees(twtData.getStarTheta()), .0001);
@@ -174,12 +174,12 @@ class TwtDataTest {
 
     private static boolean t3xCompareFlow(TwtData twtData, double p1, double q1, double p2, double q2, double p3, double q3) {
         T3xFlow actual = new T3xFlow();
-        actual.p1 = twtData.getComputedP(Side.ONE);
-        actual.q1 = twtData.getComputedQ(Side.ONE);
-        actual.p2 = twtData.getComputedP(Side.TWO);
-        actual.q2 = twtData.getComputedQ(Side.TWO);
-        actual.p3 = twtData.getComputedP(Side.THREE);
-        actual.q3 = twtData.getComputedQ(Side.THREE);
+        actual.p1 = twtData.getComputedP(ThreeSides.ONE);
+        actual.q1 = twtData.getComputedQ(ThreeSides.ONE);
+        actual.p2 = twtData.getComputedP(ThreeSides.TWO);
+        actual.q2 = twtData.getComputedQ(ThreeSides.TWO);
+        actual.p3 = twtData.getComputedP(ThreeSides.THREE);
+        actual.q3 = twtData.getComputedQ(ThreeSides.THREE);
 
         T3xFlow expected = new T3xFlow();
         expected.p1 = p1;

@@ -324,7 +324,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
         double p = dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0);
         double q = dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0);
-        SV svboundary = new SV(-p, -q, v, angle, Branch.Side.ONE);
+        SV svboundary = new SV(-p, -q, v, angle, TwoSides.ONE);
         // The other side power flow must be computed taking into account
         // the same criteria used for ACLineSegment: total shunt admittance
         // is divided in 2 equal shunt admittance at each side of series impedance
@@ -672,11 +672,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, modelPowerFlow);
     }
 
-    private static Branch.Side getBoundarySide(int modelEnd) {
+    private static TwoSides getBoundarySide(int modelEnd) {
         if (modelEnd == 1) {
-            return Branch.Side.TWO;
+            return TwoSides.TWO;
         } else {
-            return Branch.Side.ONE;
+            return TwoSides.ONE;
         }
     }
 

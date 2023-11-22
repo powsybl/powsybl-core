@@ -8,9 +8,6 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Interval;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -151,8 +149,7 @@ class MapModuleConfigTest {
         assertFalse(modConfig.getOptionalPathListProperty("pf3").isPresent());
 
         // time
-        assertEquals(DateTime.parse("2009-01-03T18:15:05Z"), modConfig.getDateTimeProperty("dt").withZone(DateTimeZone.UTC));
-        assertEquals(Interval.parse("2009-01-03T18:15:05Z/2009-01-09T02:54:25Z"), modConfig.getIntervalProperty("it"));
+        assertEquals(ZonedDateTime.parse("2009-01-03T18:15:05Z"), modConfig.getDateTimeProperty("dt"));
 
         assertTrue(modConfig.hasProperty("p"));
     }

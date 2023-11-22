@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.*;
 
 /**
@@ -69,9 +69,9 @@ class JoinVoltageLevelTest {
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerJoinVoltageLevelTx(), config);
 
         TwoWindingsTransformer t2x = n.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
-        Terminal t1 = t2x.getTerminal(Side.ONE);
+        Terminal t1 = t2x.getTerminal(TwoSides.ONE);
         VoltageLevel voltageLevel1 = t1.getVoltageLevel();
-        Terminal t2 = t2x.getTerminal(Side.TWO);
+        Terminal t2 = t2x.getTerminal(TwoSides.TWO);
         VoltageLevel voltageLevel2 = t2.getVoltageLevel();
 
         Substation substation = t2x.getSubstation().orElse(null);

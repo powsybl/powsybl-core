@@ -65,7 +65,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         double g = p.asDouble("gch", 0);
         double b = p.asDouble("bch", 0);
         // Assign all (g, b) to the network side
-        if (boundaryLine.getBoundarySide().equals(Branch.Side.TWO)) {
+        if (boundaryLine.getBoundarySide().equals(TwoSides.TWO)) {
             boundaryLine.setParameters(r, x, g, b, 0, 0);
         } else {
             boundaryLine.setParameters(r, x, 0, 0, g, b);
