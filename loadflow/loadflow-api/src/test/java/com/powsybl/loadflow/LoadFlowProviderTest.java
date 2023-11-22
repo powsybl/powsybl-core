@@ -37,7 +37,7 @@ class LoadFlowProviderTest {
         LoadFlowProvider provider = new LoadFlowProviderMock();
         assertEquals(3, provider.getSpecificParameters().size());
         assertEquals(List.of("parameterDouble", "parameterBoolean", "parameterString"), provider.getSpecificParameters().stream().map(Parameter::getName).collect(Collectors.toList()));
-        assertSame(DummyExtension.class, provider.getParametersExtensionClass().orElseThrow());
+        assertSame(DummyExtension.class, provider.getSpecificParametersClass().orElseThrow());
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             DummyExtension parametersExtension = (DummyExtension) provider.loadSpecificParameters(platformConfig).orElseThrow();

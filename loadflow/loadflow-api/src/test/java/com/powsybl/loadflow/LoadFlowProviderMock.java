@@ -54,7 +54,7 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     }
 
     @Override
-    public Optional<Class<? extends Extension<LoadFlowParameters>>> getParametersExtensionClass() {
+    public Optional<Class<? extends Extension<LoadFlowParameters>>> getSpecificParametersClass() {
         return Optional.of(DummyExtension.class);
     }
 

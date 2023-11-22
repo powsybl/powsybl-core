@@ -22,7 +22,7 @@ import java.util.Optional;
 public abstract class AbstractLoadFlowProvider implements LoadFlowProvider {
 
     @Override
-    public Optional<Class<? extends Extension<LoadFlowParameters>>> getParametersExtensionClass() {
+    public Optional<Class<? extends Extension<LoadFlowParameters>>> getSpecificParametersClass() {
         return Optional.empty();
     }
 

@@ -59,7 +59,12 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      */
     CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter);
 
-    Optional<Class<? extends Extension<LoadFlowParameters>>> getParametersExtensionClass();
+    /**
+     * Get specific parameters class.
+     *
+     * @return The specific parameters class
+     */
+    Optional<Class<? extends Extension<LoadFlowParameters>>> getSpecificParametersClass();
 
     /**
      * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation
