@@ -6,13 +6,15 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.ReporterModelDeserializer;
 import com.powsybl.commons.reporter.ReporterModelSerializer;
 import com.powsybl.computation.ComputationManager;
-import org.joda.time.DateTime;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -25,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-class PostProcessorReporterTest extends AbstractConverterTest {
+class PostProcessorReporterTest extends AbstractSerDeTest {
     private final Importer testImporter = new TestImporter();
     private final ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
     private final ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
@@ -50,6 +52,6 @@ class PostProcessorReporterTest extends AbstractConverterTest {
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null);
         importPostProcessorMock.process(network1, computationManager);
         assertNotNull(network1);
-        assertEquals(new DateTime(2021, 12, 20, 0, 0, 0), network1.getCaseDate());
+        assertEquals(ZonedDateTime.of(2021, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC), network1.getCaseDate());
     }
 }

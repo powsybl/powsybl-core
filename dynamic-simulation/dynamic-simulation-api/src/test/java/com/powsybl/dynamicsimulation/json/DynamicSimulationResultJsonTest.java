@@ -6,7 +6,7 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.TimelineEvent;
 import com.powsybl.timeseries.RegularTimeSeriesIndex;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-class DynamicSimulationResultJsonTest extends AbstractConverterTest {
+class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
 
     private static DynamicSimulationResult create() {
         return new DynamicSimulationResult() {

@@ -12,7 +12,7 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -27,8 +27,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private String modelId;
     private String version;
     private boolean isNodeBreaker;
-    private DateTime created;
-    private DateTime scenarioTime;
+    private ZonedDateTime created;
+    private ZonedDateTime scenarioTime;
     private PropertyBags substations;
     private PropertyBags voltageLevels;
     private PropertyBags terminals;
@@ -68,8 +68,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
         modelId = "fakeModel0";
         version = "unknown";
         isNodeBreaker = false;
-        created = DateTime.now();
-        scenarioTime = DateTime.now();
+        created = ZonedDateTime.now();
+        scenarioTime = ZonedDateTime.now();
         substations = new PropertyBags();
         voltageLevels = new PropertyBags();
         terminals = new PropertyBags();
@@ -298,12 +298,12 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public DateTime scenarioTime() {
+    public ZonedDateTime scenarioTime() {
         return scenarioTime;
     }
 
     @Override
-    public DateTime created() {
+    public ZonedDateTime created() {
         return created;
     }
 

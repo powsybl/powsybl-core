@@ -12,13 +12,12 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 
-import org.joda.time.DateTime;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -552,13 +551,13 @@ public interface Network extends Container<Network> {
     /**
      * Get the date that the network represents.
      */
-    DateTime getCaseDate();
+    ZonedDateTime getCaseDate();
 
     /**
      * Set the date that the network represents.
      * @throws IllegalArgumentException if date is null.
      */
-    Network setCaseDate(DateTime date);
+    Network setCaseDate(ZonedDateTime date);
 
     /**
      * Get the forecast distance in minutes.
@@ -578,6 +577,35 @@ public interface Network extends Container<Network> {
      * Get the variant manager of the network.
      */
     VariantManager getVariantManager();
+
+    /**
+     * <p>Allows {@link ReporterContext} to be accessed simultaneously by different threads.</p>
+     * <p>When this option is activated, the reporter context can have a different content
+     * for each thread.</p>
+     * <p>Note that to avoid memory leaks when in multi-thread configuration: </p>
+     * <ul>
+     *     <li>each reporter pushed in the ReporterContext should be popped in a "finally" section:
+     * <pre>
+     * {@code
+     *     network.getReporterContext().pushReporter(reporter);
+     *     try {
+     *         // code that can throw an exception
+     *     } finally {
+     *         network.getReporterContext().popReporter();
+     *     }
+     * }
+     * </pre>
+     * </li>
+     * <li>the context should be set in mono-thread access when multi-threading policy is no more useful.</li>
+     * </ul>
+     * @param allow allow multi-thread access to the ReporterContext
+     */
+    void allowReporterContextMultiThreadAccess(boolean allow);
+
+    /**
+     * Get the {@link ReporterContext} of the network.
+     */
+    ReporterContext getReporterContext();
 
     /**
      * Get all countries.

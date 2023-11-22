@@ -33,6 +33,33 @@ import java.util.function.Function;
  */
 public final class JsonUtil {
 
+    enum ContextType {
+        OBJECT,
+        ARRAY
+    }
+
+    static final class Context {
+        private final ContextType type;
+        private String fieldName;
+
+        Context(ContextType type, String fieldName) {
+            this.type = Objects.requireNonNull(type);
+            this.fieldName = fieldName;
+        }
+
+        ContextType getType() {
+            return type;
+        }
+
+        String getFieldName() {
+            return fieldName;
+        }
+
+        public void setFieldName(String fieldName) {
+            this.fieldName = fieldName;
+        }
+    }
+
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class));
 

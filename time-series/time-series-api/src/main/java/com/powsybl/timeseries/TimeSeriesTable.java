@@ -651,8 +651,8 @@ public class TimeSeriesTable {
         long time = tableIndex.getTimeAt(point + cachedPoint);
         switch (timeSeriesCsvConfig.timeFormat()) {
             case DATE_TIME:
-                ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
-                writer.write(dateTime.format(timeSeriesCsvConfig.dateTimeFormatter()));
+                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+                writer.write(zonedDateTime.format(timeSeriesCsvConfig.dateTimeFormatter()));
                 break;
             case FRACTIONS_OF_SECOND:
                 writer.write(Double.toString(time / 1000.0));

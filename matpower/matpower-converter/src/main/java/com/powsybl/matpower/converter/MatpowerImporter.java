@@ -22,7 +22,7 @@ import com.powsybl.matpower.model.*;
 
 import org.apache.commons.math3.complex.Complex;
 import org.jgrapht.alg.util.Pair;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -478,7 +478,7 @@ public class MatpowerImporter implements Importer {
         Network network = networkFactory.createNetwork(dataSource.getBaseName(), MatpowerConstants.FORMAT);
 
         //there is no time & date declared in the MATPOWER file: set a default now()
-        network.setCaseDate(DateTime.now());
+        network.setCaseDate(ZonedDateTime.now());
 
         try {
             try (InputStream iStream = dataSource.newInputStream(null, MatpowerConstants.EXT)) {

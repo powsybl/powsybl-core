@@ -6,7 +6,7 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Terminal.BusView;
 
@@ -106,8 +106,8 @@ abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(line.getId()).thenReturn(lineId);
         Mockito.when(line.getTerminal1()).thenReturn(lineTerminal1);
         Mockito.when(line.getTerminal2()).thenReturn(lineTerminal2);
-        Mockito.when(line.getTerminal(Side.ONE)).thenReturn(lineTerminal1);
-        Mockito.when(line.getTerminal(Side.TWO)).thenReturn(lineTerminal2);
+        Mockito.when(line.getTerminal(TwoSides.ONE)).thenReturn(lineTerminal1);
+        Mockito.when(line.getTerminal(TwoSides.TWO)).thenReturn(lineTerminal2);
         Mockito.when(line.getR()).thenReturn(0.409999);
         Mockito.when(line.getX()).thenReturn(2.47000);
         Mockito.when(line.getG1()).thenReturn(0.0);
@@ -162,8 +162,8 @@ abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(transformer.getId()).thenReturn(twtId);
         Mockito.when(transformer.getTerminal1()).thenReturn(twtTerminal1);
         Mockito.when(transformer.getTerminal2()).thenReturn(twtTerminal2);
-        Mockito.when(transformer.getTerminal(Side.ONE)).thenReturn(twtTerminal1);
-        Mockito.when(transformer.getTerminal(Side.TWO)).thenReturn(twtTerminal2);
+        Mockito.when(transformer.getTerminal(TwoSides.ONE)).thenReturn(twtTerminal1);
+        Mockito.when(transformer.getTerminal(TwoSides.TWO)).thenReturn(twtTerminal2);
         Mockito.when(transformer.getR()).thenReturn(0.121);
         Mockito.when(transformer.getX()).thenReturn(47.9);
         Mockito.when(transformer.getG()).thenReturn(0.0);
