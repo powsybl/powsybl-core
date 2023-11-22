@@ -9,10 +9,8 @@ package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.CgmesOnDataSource;
-import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.*;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
@@ -32,6 +30,10 @@ import com.powsybl.triplestore.api.TripleStoreOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,16 +45,23 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static java.util.function.Predicate.not;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 @AutoService(Importer.class)
 public class CgmesImport implements Importer {
 
-    enum FictitiousSwitchesCreationMode {
+    public enum FictitiousSwitchesCreationMode {
         ALWAYS,
         ALWAYS_EXCEPT_SWITCHES,
-        NEVER;
+        NEVER
+    }
+
+    public enum AssembledSeparatingBy {
+        NAME,
+        MODELING_AUTHORITY
     }
 
     public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
@@ -138,7 +147,9 @@ public class CgmesImport implements Importer {
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(reporter);
         if (Parameter.readBoolean(getFormat(), p, IMPORT_ASSEMBLED_AS_SUBNETWORKS_PARAMETER, defaultValueConfig)) {
-            Set<ReadOnlyDataSource> dss = AssembledChecker.separate(ds);
+            AssembledSeparatingBy separatingBy = AssembledSeparatingBy.valueOf(Parameter.readString(getFormat(),
+                            p, IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY_PARAMETER, defaultValueConfig));
+            Set<ReadOnlyDataSource> dss = new AssembledChecker(ds).separate(separatingBy);
             if (dss.size() > 1) {
                 return Network.merge(dss.stream()
                         .map(ds1 -> importData1(ds1, networkFactory, p, reporter))
@@ -170,13 +181,12 @@ public class CgmesImport implements Importer {
 
         @Override
         public boolean exists(String suffix, String ext) throws IOException {
-            return filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext))
-                    && ds.exists(suffix, ext);
+            return ds.exists(suffix, ext) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
         }
 
         @Override
         public boolean exists(String fileName) throws IOException {
-            return filter.test(fileName) && ds.exists(fileName);
+            return ds.exists(fileName) && filter.test(fileName);
         }
 
         @Override
@@ -201,33 +211,95 @@ public class CgmesImport implements Importer {
         }
     }
 
-    static final class AssembledChecker {
-        private AssembledChecker() {
+    static class AssembledChecker {
+        private final ReadOnlyDataSource dataSource;
+        private XMLInputFactory xmlInputFactory;
+
+        AssembledChecker(ReadOnlyDataSource dataSource) {
+            this.dataSource = dataSource;
         }
 
-        private static Set<ReadOnlyDataSource> separate(ReadOnlyDataSource ds) {
-            // If it is a CGM,
-            // create a filtered dataset for each IGM.
+        Set<ReadOnlyDataSource> separate(AssembledSeparatingBy separatingBy) {
+            // If it is a CGM, create a filtered dataset for each IGM.
+            // In the dataset for each IGM we must include:
+            // - Its own files.
+            // - The boundaries (we will read the boundaries multiple times, one for each IGM).
+            // - Any other shared instance files (files that do not contain the name of any IGMs identified).
+            // An example of shared file is the unique SV from a CGM solved case
+            // Shared files will be also loaded multiple times, one for each IGM
+            return switch (separatingBy) {
+                case MODELING_AUTHORITY -> separateByModelingAuthority();
+                case NAME -> separateByIgmName();
+            };
+        }
+
+        private Set<ReadOnlyDataSource> separateByModelingAuthority() {
+            xmlInputFactory = XMLInputFactory.newInstance();
+            Map<String, List<String>> igmNames = new CgmesOnDataSource(dataSource).names().stream()
+                    // We consider IGMs only the modeling authorities that have an EQ file
+                    // The CGM SV should have the MA of the merging agent
+                    .filter(CgmesSubset.EQUIPMENT::isValidName)
+                    .collect(Collectors.toMap(this::readModelingAuthority, name -> new ArrayList<>(List.of(name))));
+            if (LOGGER.isInfoEnabled() && !igmNames.isEmpty()) {
+                LOGGER.info("IGM EQ files identified by Modeling Authority");
+                igmNames.forEach((k, v) -> LOGGER.info("  {} {}", k, v.get(0)));
+            }
+            Set<String> shared = new HashSet<>();
+            new CgmesOnDataSource(dataSource).names().stream()
+                    // We read the modeling authorities present in the rest of instance files
+                    // and mark the instance name as linked to an IGM or as shared
+                    .filter(not(CgmesSubset.EQUIPMENT::isValidName))
+                    .filter(not(AssembledChecker::isBoundary))
+                    .forEach(name -> {
+                        String ma = readModelingAuthority(name);
+                        if (igmNames.containsKey(ma)) {
+                            igmNames.get(ma).add(name);
+                        } else {
+                            shared.add(name);
+                        }
+                    });
+            // Build one data source for each IGM found
+            return igmNames.keySet().stream()
+                    .map(ma -> new FilteredReadOnlyDataSource(dataSource,
+                            name -> isBoundary(name) || igmNames.get(ma).contains(name) || shared.contains(name)))
+                    .collect(Collectors.toSet());
+        }
+
+        private String readModelingAuthority(String name) {
+            String modellingAuthority = "unknown";
+            try (InputStream is = dataSource.newInputStream(name)) {
+                XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(is);
+                boolean stopReading = false;
+                while (reader.hasNext() && !stopReading) {
+                    int token = reader.next();
+                    if (token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.MODELING_AUTHORITY_SET)) {
+                        modellingAuthority = reader.getElementText();
+                        stopReading = true;
+                    } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.FULL_MODEL)) {
+                        // Try to finish parsing the input file as soon as we can
+                        // If we do not have found a modelling authority set inside the FullModel object, exit with unknown
+                        stopReading = true;
+                    }
+                }
+                reader.close();
+            } catch (IOException | XMLStreamException e) {
+                throw new PowsyblException(e);
+            }
+            return modellingAuthority;
+        }
+
+        private Set<ReadOnlyDataSource> separateByIgmName() {
             // Here we obtain the IGM name from the EQ filenames,
             // and rely on it to find related SSH, TP files,
-            // FIXME(Luma) we should read each EQ and obtain the Modeling Authority Set
-
-            Set<String> igmNames = new CgmesOnDataSource(ds).names().stream()
+            Set<String> igmNames = new CgmesOnDataSource(dataSource).names().stream()
                     .filter(CgmesSubset.EQUIPMENT::isValidName)
                     // We rely on the CIMXML pattern:
                     // <effectiveDateTime>_<businessProcess>_<sourcingActor>_<modelPart>_<fileVersion>
                     // we define igmName := sourcingActor
                     .map(name -> name.split("_")[2])
                     .collect(Collectors.toSet());
-
-            // In the dataset for each IGM we include:
-            // - its own files (contain its name)
-            // - the boundaries (we will read the boundaries multiple times, one for each IGM)
-            // - any other shared instance files (files that do not contain the name of any IGMs identified)
-            // An example of shared file is the unique SV from a CGM solved case
-            // Shared files will be also loaded multiple times, one for each IGM
             return igmNames.stream()
-                    .map(igmName -> new FilteredReadOnlyDataSource(ds, name -> name.contains(igmName)
+                    .map(igmName -> new FilteredReadOnlyDataSource(dataSource, name -> name.contains(igmName)
                             || isBoundary(name)
                             || isShared(name, igmNames)))
                     .collect(Collectors.toSet());
@@ -465,6 +537,7 @@ public class CgmesImport implements Importer {
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
     public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
     public static final String IMPORT_ASSEMBLED_AS_SUBNETWORKS = "iidm.import.cgmes.assembled-as-subnetworks";
+    public static final String IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY = "iidm.import.cgmes.assembled-as-subnetworks-separating-by";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -584,6 +657,12 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Import assembled models as subnetworks",
             Boolean.FALSE);
+    private static final Parameter IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY_PARAMETER = new Parameter(
+            IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY,
+            ParameterType.STRING,
+            "Choose how subnetworks from assembled input must be separated: based on filenames or by modeling authority",
+            AssembledSeparatingBy.NAME.name(),
+            Arrays.stream(AssembledSeparatingBy.values()).map(Enum::name).collect(Collectors.toList()));
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -605,7 +684,8 @@ public class CgmesImport implements Importer {
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
             DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
-            IMPORT_ASSEMBLED_AS_SUBNETWORKS_PARAMETER);
+            IMPORT_ASSEMBLED_AS_SUBNETWORKS_PARAMETER,
+            IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;

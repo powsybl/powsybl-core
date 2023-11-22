@@ -66,9 +66,24 @@ class CgmesConformity3ConversionTest {
     }
 
     @Test
-    void microGridBaseCaseAssembled() {
+    void microGridBaseCaseAssembledSeparatingByFilename() {
         Properties params = new Properties();
         params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "true");
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
+        assertEquals(2, n.getSubnetworks().size());
+        assertEquals(List.of("BE", "NL"),
+                n.getSubnetworks().stream()
+                        .map(n1 -> n1.getSubstations().iterator().next().getCountry().map(Objects::toString).orElse(""))
+                        .sorted()
+                        .toList());
+        checkExportSvTerminals(n);
+    }
+
+    @Test
+    void microGridBaseCaseAssembledSeparatingByModelingAuthority() {
+        Properties params = new Properties();
+        params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "true");
+        params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY, CgmesImport.AssembledSeparatingBy.MODELING_AUTHORITY.name());
         Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
         assertEquals(2, n.getSubnetworks().size());
         assertEquals(List.of("BE", "NL"),
