@@ -6,7 +6,7 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.DanglingLine;
@@ -27,7 +27,7 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class AmplNetworkWriterTest extends AbstractConverterTest {
+class AmplNetworkWriterTest extends AbstractSerDeTest {
 
     private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
         try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {

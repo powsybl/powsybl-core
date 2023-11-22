@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class XmlWriter implements TreeDataWriter {
 
@@ -41,7 +41,7 @@ public class XmlWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeStartNodes(String name) {
+    public void writeStartNodes() {
         // nothing to do
     }
 

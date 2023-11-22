@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimatedAdder;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,7 +25,7 @@ public abstract class AbstractThreeWindingsTransformerToBeEstimatedTest {
     @Test
     public void test() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
-        network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
         ThreeWindingsTransformerToBeEstimated ext = twt.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)

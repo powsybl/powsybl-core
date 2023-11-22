@@ -9,7 +9,7 @@ package com.powsybl.loadflow.json;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-class LoadFlowResultJsonTest extends AbstractConverterTest {
+class LoadFlowResultJsonTest extends AbstractSerDeTest {
 
     private static Map<String, String> createMetrics() {
         return ImmutableMap.<String, String>builder().put("nbiter", "4")
