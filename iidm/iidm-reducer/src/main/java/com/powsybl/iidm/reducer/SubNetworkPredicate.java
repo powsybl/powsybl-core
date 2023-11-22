@@ -30,7 +30,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
             throw new IllegalArgumentException("Invalid max depth value: " + maxDepth);
         }
 
-        Set<String> traversedVoltageLevelIds = new LinkedHashSet<>();
+        Set<String> traversedVoltageLevelIds = new HashSet<>();
         traversedVoltageLevelIds.add(rootVl.getId());
         var currentDepth = Set.of(rootVl);
 
@@ -38,7 +38,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
         for (int i = 1; i <= maxDepth; i++) {
             Set<VoltageLevel> nextDepth = i < maxDepth ? new LinkedHashSet<>() : null; // No need to calculate the last nextDepth set
             for (VoltageLevel voltageLevel : currentDepth) {
-                visitBranches(traversedVoltageLevelIds, voltageLevel, nextDepth);
+                findNextDepthVoltageLevels(voltageLevel, traversedVoltageLevelIds, nextDepth);
             }
             currentDepth = nextDepth;
         }
@@ -46,47 +46,24 @@ public class SubNetworkPredicate implements NetworkPredicate {
         return new IdentifierNetworkPredicate(traversedVoltageLevelIds);
     }
 
-    private static void visitBranches(Set<String> traversedVoltageLevelIds, VoltageLevel vl, Set<VoltageLevel> nextDepth) {
-        vl.visitEquipments(new DefaultTopologyVisitor() {
-            private void visitBranch(Branch<?> branch, TwoSides side) {
-                VoltageLevel nextVl = switch (side) {
-                    case ONE -> branch.getTerminal2().getVoltageLevel();
-                    case TWO -> branch.getTerminal1().getVoltageLevel();
-                };
-                if (traversedVoltageLevelIds.add(nextVl.getId()) && nextDepth != null) {
-                    nextDepth.add(nextVl);
-                }
-            }
+    private static void findNextDepthVoltageLevels(VoltageLevel vl, Set<String> traversedVoltageLevelIds, Set<VoltageLevel> nextDepth) {
+        vl.getLineStream().forEach(l -> visitBranch(l, traversedVoltageLevelIds, vl, nextDepth));
+        vl.getTwoWindingsTransformerStream().forEach(t -> visitBranch(t, traversedVoltageLevelIds, vl, nextDepth));
+        vl.getThreeWindingsTransformerStream().forEach(t -> visitConnectable(t, traversedVoltageLevelIds, vl, nextDepth));
+    }
 
-            @Override
-            public void visitLine(Line line, TwoSides side) {
-                visitBranch(line, side);
-            }
+    private static void visitBranch(Branch<?> branch, Set<String> traversedVoltageLevelIds, VoltageLevel vl, Set<VoltageLevel> nextDepth) {
+        visitTerminals(List.of(branch.getTerminal1(), branch.getTerminal2()), traversedVoltageLevelIds, vl, nextDepth);
+    }
 
-            @Override
-            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
-                visitBranch(transformer, side);
-            }
+    private static void visitConnectable(Connectable<?> connectable, Set<String> traversedVoltageLevelIds, VoltageLevel voltageLevel, Set<VoltageLevel> nextDepth) {
+        visitTerminals(connectable.getTerminals(), traversedVoltageLevelIds, voltageLevel, nextDepth);
+    }
 
-            @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
-                VoltageLevel nextVl1 = switch (side) {
-                    case ONE -> transformer.getLeg2().getTerminal().getVoltageLevel();
-                    case TWO -> transformer.getLeg3().getTerminal().getVoltageLevel();
-                    case THREE -> transformer.getLeg1().getTerminal().getVoltageLevel();
-                };
-                if (traversedVoltageLevelIds.add(nextVl1.getId()) && nextDepth != null) {
-                    nextDepth.add(nextVl1);
-                }
-
-                VoltageLevel nextVl2 = switch (side) {
-                    case ONE -> transformer.getLeg3().getTerminal().getVoltageLevel();
-                    case TWO -> transformer.getLeg1().getTerminal().getVoltageLevel();
-                    case THREE -> transformer.getLeg2().getTerminal().getVoltageLevel();
-                };
-                if (traversedVoltageLevelIds.add(nextVl2.getId()) && nextDepth != null) {
-                    nextDepth.add(nextVl2);
-                }
+    private static void visitTerminals(List<? extends Terminal> terminals, Set<String> traversedVoltageLevelIds, VoltageLevel voltageLevel, Set<VoltageLevel> nextDepth) {
+        terminals.stream().map(Terminal::getVoltageLevel).forEach(vl -> {
+            if (!vl.getId().equals(voltageLevel.getId()) && traversedVoltageLevelIds.add(vl.getId()) && nextDepth != null) {
+                nextDepth.add(vl);
             }
         });
     }
