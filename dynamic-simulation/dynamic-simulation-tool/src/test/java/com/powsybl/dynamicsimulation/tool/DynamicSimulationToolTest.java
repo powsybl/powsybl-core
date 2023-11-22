@@ -88,22 +88,9 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         String expectedOutputFile = """
                         {
                           "version" : "1.0",
-                          "isOK" : true,
-                          "logs" : null,
+                          "status" : "SUCCEED",
                           "curves" : [ ],
-                          "timeLine" : {
-                            "metadata" : {
-                              "name" : "timeLine",
-                              "dataType" : "STRING",
-                              "tags" : [ ],
-                              "regularIndex" : {
-                                "startTime" : 0,
-                                "endTime" : 0,
-                                "spacing" : 0
-                              }
-                            },
-                            "chunks" : [ ]
-                          }
+                          "timeLine" : [ ]
                         }""";
         assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-file", "outputTest.json"}, 0, expectedOut, "");
         ComparisonUtils.compareTxt(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.json")));
