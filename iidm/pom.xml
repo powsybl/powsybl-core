@@ -33,7 +33,7 @@
         <module>iidm-scripting</module>
         <module>iidm-tck</module>
         <module>iidm-test</module>
-        <module>iidm-xml-converter</module>
+        <module>iidm-serde</module>
     </modules>
 
 </project>

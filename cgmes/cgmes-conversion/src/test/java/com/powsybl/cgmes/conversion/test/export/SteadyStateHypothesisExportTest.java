@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
@@ -16,14 +17,15 @@ import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluator;
@@ -42,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-class SteadyStateHypothesisExportTest extends AbstractConverterTest {
+class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
     @Test
     void microGridBE() throws IOException, XMLStreamException {
@@ -156,8 +158,8 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         actual.removeExtension(CgmesControlAreas.class);
 
         // Export original and with new SSH
-        NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        NetworkSerDe.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
+        NetworkSerDe.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
 
         // Compare
         ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffsIidm);
@@ -341,4 +343,44 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         return null;
     }
 
+    @Test
+    void microGridCgmesExportPreservingOriginalClassesOfLoads() throws IOException, XMLStreamException {
+        ReadOnlyDataSource ds = Cgmes3ModifiedCatalog.microGridBaseCaseAllTypesOfLoads().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridCgmesExportPreservingOriginalClassesOfLoads";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+
+        InputStream expectedSsh = Repackager.newInputStream(ds, Repackager::ssh);
+        String actualSsh = exportSshAsString(actual, 5);
+
+        DifferenceEvaluator knownDiffsSsh = DifferenceEvaluators.chain(
+                ExportXmlCompare::ignoringFullModelDependentOn,
+                ExportXmlCompare::ignoringFullModelModelingAuthoritySet,
+                ExportXmlCompare::ignoringRdfChildNodeListLength,
+                ExportXmlCompare::ignoringChildLookupNull,
+                ExportXmlCompare::ignoringTextValueShuntCompensatorControlEnabled,
+                ExportXmlCompare::ignoringTextValueTapChangerControlEnabled,
+                ExportXmlCompare::ignoringRdfChildLookupTerminal,
+                ExportXmlCompare::ignoringRdfChildLookupEquivalentInjection,
+                ExportXmlCompare::ignoringRdfChildLookupStaticVarCompensator,
+                ExportXmlCompare::ignoringRdfChildLookupRegulatingControl);
+        ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh);
+    }
+
+    private static void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
+        String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
+        if (eqbd != null) {
+            try (InputStream is = originalDataSource.newInputStream(eqbd)) {
+                Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
+            }
+        }
+    }
 }

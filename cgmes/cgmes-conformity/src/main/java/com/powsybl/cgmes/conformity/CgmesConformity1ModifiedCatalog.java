@@ -755,6 +755,22 @@ public final class CgmesConformity1ModifiedCatalog {
                         MICRO_GRID_BD_TP));
     }
 
+    public static GridModelReferenceResources microT4BeBbOffSvcControlV() {
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_off_svc_control_v/";
+        return new GridModelReferenceResources(
+                "MicroGrid-T4-Off-SVC-V",
+                null,
+                new ResourceSet(baseModified,
+                        MICRO_GRID_T4_EQ,
+                        MICRO_GRID_T4_SSH),
+                new ResourceSet(MICRO_GRID_T4_BASE,
+                        MICRO_GRID_T4_SV,
+                        MICRO_GRID_T4_TP),
+                new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
+                        MICRO_GRID_BD_TP));
+    }
+
     public static GridModelReferenceResources microT4BeBbSvcNoRegulatingControl() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_svc_no_regulating_control/";

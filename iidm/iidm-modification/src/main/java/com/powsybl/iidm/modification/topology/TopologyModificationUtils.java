@@ -170,8 +170,8 @@ public final class TopologyModificationUtils {
         }
     }
 
-    public static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
-        if (side == Branch.Side.ONE) {
+    public static void addLoadingLimits(Line created, LoadingLimitsBags limits, TwoSides side) {
+        if (side == TwoSides.ONE) {
             limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
             limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
             limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits1(), lim));

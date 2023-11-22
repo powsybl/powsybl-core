@@ -145,39 +145,9 @@ public class FullModel {
         try {
             XMLStreamReader xmlReader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilStartElement(new String[] {"/", CgmesNames.RDF, CgmesNames.FULL_MODEL}, xmlReader, () -> {
+                XmlUtil.readUntilStartElement(new String[] {"/", CgmesNames.RDF, CgmesNames.FULL_MODEL}, xmlReader, elementName1 -> {
                     context.id = xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.ABOUT);
-                    XmlUtil.readUntilEndElement(CgmesNames.FULL_MODEL, xmlReader, () -> {
-                        switch (xmlReader.getLocalName()) {
-                            case CgmesNames.SCENARIO_TIME:
-                                context.scenarioTime = ZonedDateTime.parse(XmlUtil.readText(CgmesNames.SCENARIO_TIME, xmlReader));
-                                break;
-                            case CgmesNames.CREATED:
-                                context.created = ZonedDateTime.parse(XmlUtil.readText(CgmesNames.CREATED, xmlReader));
-                                break;
-                            case CgmesNames.DESCRIPTION:
-                                context.description = XmlUtil.readText(CgmesNames.DESCRIPTION, xmlReader);
-                                break;
-                            case CgmesNames.VERSION:
-                                context.version = Integer.parseInt(XmlUtil.readText(CgmesNames.VERSION, xmlReader));
-                                break;
-                            case CgmesNames.PROFILE:
-                                context.profiles.add(XmlUtil.readText(CgmesNames.PROFILE, xmlReader));
-                                break;
-                            case CgmesNames.DEPENDENT_ON:
-                                context.dependentOn.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
-                                break;
-                            case CgmesNames.SUPERSEDES:
-                                context.supersedes.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
-                                break;
-                            case CgmesNames.MODELING_AUTHORITY_SET:
-                                context.modelingAuthoritySet = XmlUtil.readText(CgmesNames.MODELING_AUTHORITY_SET, xmlReader);
-                                break;
-                            default:
-                                // not yet interesting like superseded
-                                break;
-                        }
-                    });
+                    XmlUtil.readSubElements(xmlReader, subElementName -> readSubElement(subElementName, context, xmlReader));
                 });
             } finally {
                 xmlReader.close();
@@ -192,5 +162,31 @@ public class FullModel {
         }
         return new FullModel(context.id, context.scenarioTime, context.created, context.description, context.version,
                              context.profiles, context.dependentOn, context.supersedes, context.modelingAuthoritySet);
+    }
+
+    private static void readSubElement(String subElementName, ParsingContext context, XMLStreamReader xmlReader) {
+        try {
+            switch (subElementName) {
+                case CgmesNames.SCENARIO_TIME -> context.scenarioTime = ZonedDateTime.parse(xmlReader.getElementText());
+                case CgmesNames.CREATED -> context.created = ZonedDateTime.parse(xmlReader.getElementText());
+                case CgmesNames.DESCRIPTION -> context.description = XmlUtil.readText(xmlReader);
+                case CgmesNames.VERSION -> context.version = Integer.parseInt(xmlReader.getElementText());
+                case CgmesNames.PROFILE -> context.profiles.add(XmlUtil.readText(xmlReader));
+                case CgmesNames.DEPENDENT_ON -> {
+                    context.dependentOn.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
+                    XmlUtil.readEndElementOrThrow(xmlReader);
+                }
+                case CgmesNames.SUPERSEDES -> {
+                    context.supersedes.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
+                    XmlUtil.readEndElementOrThrow(xmlReader);
+                }
+                case CgmesNames.MODELING_AUTHORITY_SET -> context.modelingAuthoritySet = XmlUtil.readText(xmlReader);
+                default -> {
+                    // not yet interesting like superseded
+                }
+            }
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
     }
 }

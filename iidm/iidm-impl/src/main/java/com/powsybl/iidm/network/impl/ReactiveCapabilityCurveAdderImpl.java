@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.Validable;
@@ -74,6 +76,13 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
                             minQ + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
                 } else {
                     LOGGER.warn("{}duplicate point for active power {}", owner.getMessageHeader(), p);
+                    owner.getNetwork().getReporterContext().getReporter().report(Report.builder()
+                            .withKey("validationWarning")
+                            .withDefaultMessage("${parent} duplicate point for active power {p}")
+                            .withValue("parent", owner.getMessageHeader())
+                            .withValue("p", p)
+                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .build());
                 }
             }
             // TODO: to be activated in IIDM v1.1

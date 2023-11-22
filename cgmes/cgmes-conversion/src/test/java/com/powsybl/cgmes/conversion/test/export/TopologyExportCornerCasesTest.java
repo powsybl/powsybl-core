@@ -1,7 +1,7 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
@@ -12,7 +12,7 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TopologyExportCornerCasesTest extends AbstractConverterTest {
+class TopologyExportCornerCasesTest extends AbstractSerDeTest {
 
     @Test
     void testExportSwitchesBusBreaker() {

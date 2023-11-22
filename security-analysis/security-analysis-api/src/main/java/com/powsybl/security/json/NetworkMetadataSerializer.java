@@ -13,11 +13,13 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.NetworkMetadata;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class NetworkMetadataSerializer extends StdSerializer<NetworkMetadata> {
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
     public NetworkMetadataSerializer() {
         super(NetworkMetadata.class);
@@ -29,7 +31,7 @@ public class NetworkMetadataSerializer extends StdSerializer<NetworkMetadata> {
 
         jsonGenerator.writeStringField("id", networkMetadata.getId());
         jsonGenerator.writeStringField("sourceFormat", networkMetadata.getSourceFormat());
-        jsonGenerator.writeStringField("caseDate", networkMetadata.getCaseDate().toString());
+        jsonGenerator.writeStringField("caseDate", DATE_TIME_FORMATTER.format(networkMetadata.getCaseDate()));
         jsonGenerator.writeNumberField("forecastDistance", networkMetadata.getForecastDistance());
 
         JsonUtil.writeExtensions(networkMetadata, jsonGenerator, serializerProvider);
