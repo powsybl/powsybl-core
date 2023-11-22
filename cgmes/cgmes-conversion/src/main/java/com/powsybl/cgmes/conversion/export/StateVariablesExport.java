@@ -72,7 +72,7 @@ public final class StateVariablesExport {
         String cimNamespace = context.getCim().getNamespace();
         for (TopologicalIsland island : islands) {
             if (!angleRefs.containsKey(island.key)) {
-                Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined slack bus: it is ignored", island.key);
+                Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined angle reference bus: it is ignored", island.key);
                 LOG.info(log.get());
                 continue;
             }
@@ -139,7 +139,7 @@ public final class StateVariablesExport {
         final String key;
         final List<String> topologicalNodes;
         // We need to export the load flow status for the island,
-        // from QoCDC 3.31 rule TIConvergenceStatMissing:
+        // from QoCDC 3.3.1 rule TIConvergenceStatMissing:
         //      The cim:IdentifiedObject.description of cim:TopologicalIsland shall have one the
         //      following string values: “converged” and “diverged” which represents the
         //      convergence status of the cim:TopologicalIsland.

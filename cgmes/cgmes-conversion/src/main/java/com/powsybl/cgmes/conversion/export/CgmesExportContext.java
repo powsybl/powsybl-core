@@ -60,7 +60,7 @@ public class CgmesExportContext {
     public static final boolean EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE = true;
     public static final boolean EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE = false;
     public static final boolean ENCODE_IDS_DEFAULT_VALUE = true;
-    public static final boolean EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE = false;
+    public static final boolean EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE = true;
     // From QoCDC 3.3.1 rules IGMConvergence, KirchhoffsFirstLaw, ... that refer to SV_INJECTION_LIMIT=0.1
     public static final double MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final double MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
