@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * The naming strategy aims at clarifying and facilitating the naming of the different network elements created via the
  * different {@link com.powsybl.iidm.modification.NetworkModification} classes. Based on the name of the network element
- * the user wish to create (a VoltageLevel, a BranchFeederBay, etc.), all the other elements created during the
+ * the user wishes to create (a VoltageLevel, a BranchFeederBay, etc.), all the other elements created during the
  * NetworkModification will be given a name using this name as baseline and prefixes/suffixes according to the naming
  * strategy chosen by the user. The naming strategy can be either the default one
  * ({@link com.powsybl.iidm.modification.topology.DefaultNamingStrategy}) or a new implementation of the present class
