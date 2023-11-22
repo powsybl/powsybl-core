@@ -21,7 +21,7 @@ public interface Extension<T> {
     /**
      * Return the holder of this extension
      *
-     * @return the holder of this extension or null if this extension is not holded
+     * @return the holder of this extension or null if this extension is not held
      */
     T getExtendable();
 
@@ -29,8 +29,7 @@ public interface Extension<T> {
      * Set the holder of this extension.
      *
      * @param extendable The new holder of this extension, could be null
-     * @throws a PowsyblException if this extension is already holded.
+     * @throws com.powsybl.commons.PowsyblException if this extension is already held.
      */
     void setExtendable(T extendable);
-
 }
