@@ -48,8 +48,11 @@ public class SubNetworkPredicate implements NetworkPredicate {
 
     private static void findNextDepthVoltageLevels(VoltageLevel vl, Set<String> traversedVoltageLevelIds, Set<VoltageLevel> nextDepth) {
         vl.getLineStream().forEach(l -> visitBranch(l, traversedVoltageLevelIds, vl, nextDepth));
+        vl.getDanglingLineStream().forEach(dl -> dl.getTieLine().ifPresent(tl -> visitBranch(tl, traversedVoltageLevelIds, vl, nextDepth)));
         vl.getTwoWindingsTransformerStream().forEach(t -> visitBranch(t, traversedVoltageLevelIds, vl, nextDepth));
         vl.getThreeWindingsTransformerStream().forEach(t -> visitConnectable(t, traversedVoltageLevelIds, vl, nextDepth));
+        vl.getLccConverterStationStream().forEach(t -> visitHvdc(t, traversedVoltageLevelIds, nextDepth));
+        vl.getVscConverterStationStream().forEach(t -> visitHvdc(t, traversedVoltageLevelIds, nextDepth));
     }
 
     private static void visitBranch(Branch<?> branch, Set<String> traversedVoltageLevelIds, VoltageLevel vl, Set<VoltageLevel> nextDepth) {
@@ -60,12 +63,21 @@ public class SubNetworkPredicate implements NetworkPredicate {
         visitTerminals(connectable.getTerminals(), traversedVoltageLevelIds, voltageLevel, nextDepth);
     }
 
+    private static void visitHvdc(HvdcConverterStation<?> hvdc, Set<String> traversedVoltageLevelIds, Set<VoltageLevel> nextDepth) {
+        hvdc.getOtherConverterStation().ifPresent(otherHvdcCc ->
+                addVoltageLevel(otherHvdcCc.getTerminal().getVoltageLevel(), traversedVoltageLevelIds, nextDepth));
+    }
+
     private static void visitTerminals(List<? extends Terminal> terminals, Set<String> traversedVoltageLevelIds, VoltageLevel voltageLevel, Set<VoltageLevel> nextDepth) {
-        terminals.stream().map(Terminal::getVoltageLevel).forEach(vl -> {
-            if (!vl.getId().equals(voltageLevel.getId()) && traversedVoltageLevelIds.add(vl.getId()) && nextDepth != null) {
-                nextDepth.add(vl);
-            }
-        });
+        terminals.stream().map(Terminal::getVoltageLevel)
+                .filter(vl -> !vl.getId().equals(voltageLevel.getId()))
+                .forEach(vl -> addVoltageLevel(vl, traversedVoltageLevelIds, nextDepth));
+    }
+
+    private static void addVoltageLevel(VoltageLevel vl, Set<String> traversedVoltageLevelIds, Set<VoltageLevel> nextDepth) {
+        if (traversedVoltageLevelIds.add(vl.getId()) && nextDepth != null) {
+            nextDepth.add(vl);
+        }
     }
 
     @Override
