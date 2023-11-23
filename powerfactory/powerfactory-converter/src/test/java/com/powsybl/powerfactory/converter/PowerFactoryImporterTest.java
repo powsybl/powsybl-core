@@ -6,24 +6,16 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
-import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.powerfactory.model.StudyCase;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
-import org.joda.time.DateTime;
+import com.powsybl.powerfactory.model.StudyCase;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -31,10 +23,11 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -42,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class PowerFactoryImporterTest extends AbstractConverterTest {
+class PowerFactoryImporterTest extends AbstractSerDeTest {
 
     @Test
     void testBase() {
@@ -85,10 +78,10 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
                         null);
 
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
-        network.setCaseDate(DateTime.parse("2021-01-01T10:00:00.000+02:00"));
-        NetworkXml.write(network, file);
+        network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
+        NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
+            compareXml(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -473,12 +466,12 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
         // The case does not have the reactive of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
-        assertEquals(0.0, t3wtData427.getComputedP(Side.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.TWO) - generator2.getTargetP(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.TWO) - generator2.getTargetQ(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.THREE) + load7.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.THREE) + load7.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.TWO) - generator2.getTargetP(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.THREE) + load7.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.THREE) + load7.getQ0(), tol);
     }
 
     @Test
@@ -547,12 +540,12 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
         // The case does not have the reactive of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
-        assertEquals(0.0, t3wtData427.getComputedP(Side.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.TWO) + t2wtData62.getComputedP2() - generator2.getTargetP(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.TWO) + t2wtData62.getComputedQ2() - generator2.getTargetQ(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.THREE) + t2wtData57.getComputedP2() + load7.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.THREE) + t2wtData57.getComputedQ2() + load7.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.TWO) + t2wtData62.getComputedP2() - generator2.getTargetP(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) + t2wtData62.getComputedQ2() - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.THREE) + t2wtData57.getComputedP2() + load7.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.THREE) + t2wtData57.getComputedQ2() + load7.getQ0(), tol);
     }
 
 }

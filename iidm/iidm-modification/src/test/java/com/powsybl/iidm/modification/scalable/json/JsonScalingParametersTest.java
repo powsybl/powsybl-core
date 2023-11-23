@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.modification.scalable.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class JsonScalingParametersTest extends AbstractConverterTest {
+class JsonScalingParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {

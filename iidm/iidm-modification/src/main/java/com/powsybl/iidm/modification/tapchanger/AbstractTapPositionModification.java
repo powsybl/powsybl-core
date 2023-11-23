@@ -9,7 +9,9 @@ package com.powsybl.iidm.modification.tapchanger;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
@@ -31,7 +33,7 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
      *
      * @implNote Must NOT be empty if element == TransformerElement.THREE_WINDING_TRANSFORMER
      */
-    private final ThreeWindingsTransformer.Side legSide;
+    private final ThreeSides legSide;
 
     /**
      * @param tapPosition the new tap position
@@ -40,7 +42,7 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
      *                    Ignored on two windings transformers.
      */
     protected AbstractTapPositionModification(String transformerId, int tapPosition,
-                                              ThreeWindingsTransformer.Side legSide) {
+                                              ThreeSides legSide) {
         this.transformerId = Objects.requireNonNull(transformerId);
         this.tapPosition = tapPosition;
         this.legSide = legSide;
@@ -53,7 +55,7 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
                                                 boolean throwException);
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       Reporter reporter) {
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(getTransformerId());
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(getTransformerId());
@@ -104,11 +106,11 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
         return tapPosition;
     }
 
-    public Optional<ThreeWindingsTransformer.Side> getOptionalLeg() {
+    public Optional<ThreeSides> getOptionalLeg() {
         return Optional.ofNullable(legSide);
     }
 
-    public ThreeWindingsTransformer.Side getLegSide() {
+    public ThreeSides getLegSide() {
         return legSide;
     }
 

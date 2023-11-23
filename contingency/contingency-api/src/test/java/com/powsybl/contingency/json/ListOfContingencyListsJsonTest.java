@@ -8,7 +8,7 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.contingency.list.*;
@@ -31,7 +31,7 @@ import java.util.Objects;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-class ListOfContingencyListsJsonTest extends AbstractConverterTest {
+class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
 
     private static ListOfContingencyLists create() {
         List<ContingencyList> contingencyLists = new ArrayList<>();

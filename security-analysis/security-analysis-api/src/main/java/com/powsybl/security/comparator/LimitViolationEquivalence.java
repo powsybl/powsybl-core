@@ -6,11 +6,11 @@
  */
 package com.powsybl.security.comparator;
 
-import java.util.Objects;
-
 import com.google.common.base.Equivalence;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
+
+import java.util.Objects;
 
 /**
  *

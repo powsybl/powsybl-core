@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-class TopologyModificationUtilsTest extends AbstractConverterTest {
+class TopologyModificationUtilsTest extends AbstractSerDeTest {
 
     @Test
     void testFeederOrders() {

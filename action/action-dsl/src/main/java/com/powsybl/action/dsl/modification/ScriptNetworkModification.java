@@ -9,6 +9,7 @@ package com.powsybl.action.dsl.modification;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import groovy.lang.Closure;
 
@@ -30,7 +31,7 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         script.call(network, computationManager);
     }
