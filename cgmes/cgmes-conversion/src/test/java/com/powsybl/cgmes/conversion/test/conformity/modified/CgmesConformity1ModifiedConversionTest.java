@@ -29,14 +29,14 @@ import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBags;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -482,7 +482,7 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEIncorrectDate().dataSource(),
                 NetworkFactory.findDefault(), null);
         assertEquals(0, network.getForecastDistance());
-        assertTrue(new Duration(DateTime.now(), network.getCaseDate()).getStandardMinutes() < 10);
+        assertTrue(Duration.between(ZonedDateTime.now(), network.getCaseDate()).toMinutes() < 10);
         CgmesSvMetadata cgmesSvMetadata = network.getExtension(CgmesSvMetadata.class);
         assertNotNull(cgmesSvMetadata);
         assertEquals(1, cgmesSvMetadata.getSvVersion());
@@ -623,6 +623,12 @@ class CgmesConformity1ModifiedConversionTest {
         assertNotNull(off2);
         assertEquals(REACTIVE_POWER, off2.getRegulationMode());
         assertEquals(0.0d, off2.getReactivePowerSetpoint(), 0.0d);
+
+        Network modified3 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), NetworkFactory.findDefault(), null);
+        StaticVarCompensator off3 = modified3.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
+        assertNotNull(off3);
+        assertEquals(OFF, off3.getRegulationMode());
+        assertEquals(231.123, off3.getVoltageSetpoint(), 0.0);
     }
 
     @Test

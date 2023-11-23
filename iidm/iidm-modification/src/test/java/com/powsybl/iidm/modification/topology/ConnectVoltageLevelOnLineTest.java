@@ -9,18 +9,18 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
+class ConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
 
     @Test
     void attachVoltageLevelOnLineNbTest() throws IOException {
@@ -38,7 +38,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine(network.getLine("CJ"))
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/fictitious-line-split-vl.xml");
     }
 
@@ -50,7 +50,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-line-split-nb-vl.xml");
     }
 
@@ -62,7 +62,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-line-split-bb-vl.xml");
     }
 
@@ -115,7 +115,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine(network.getLine("CJ"))
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/fictitious-line-split-vl-complete.xml");
     }
 
@@ -127,7 +127,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine(network.getLine("CJ"))
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/fictitious-line-split-vl.xml");
     }
 
@@ -162,7 +162,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
 
     @Test
     void testIgnore() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         NetworkModification modification1 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network.getLine("NHV1_NHV2_1"))
@@ -173,7 +173,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
         modification2.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-tutorial-example1.xml");
     }
 

@@ -9,7 +9,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -26,7 +26,7 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-class ExtendedAmplExporterV1Test extends AbstractConverterTest {
+class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
 
     private AmplExportConfig v2Config;
 

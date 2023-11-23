@@ -91,7 +91,7 @@ public interface AmplColumnsExporter {
 
     void writeThreeWindingsTransformerLegToFormatter(TableFormatter formatter, ThreeWindingsTransformer twt,
                                                      int middleBusNum, int middleVlNum,
-                                                     ThreeWindingsTransformer.Side side) throws IOException;
+                                                     ThreeSides side) throws IOException;
 
     void writeTieLineVoltageLevelToFormatter(TableFormatter formatter, TieLine tieLine) throws IOException;
 

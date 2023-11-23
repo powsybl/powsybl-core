@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
@@ -35,7 +35,7 @@ public final class FourSubstationsNodeBreakerFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("fourSubstations", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         // First substation
@@ -169,7 +169,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setTapPosition(15)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                 .setRegulating(false)
-                .setRegulationTerminal(twt.getTerminal(Branch.Side.ONE))
+                .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
                 .beginStep().setR(39.78473).setX(29.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
                 .beginStep().setR(31.720245).setX(21.720242).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-40.18).endStep()
                 .beginStep().setR(23.655737).setX(13.655735).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-37.54).endStep()
@@ -214,7 +214,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setRegulating(true)
                 .setTargetV(225.0)
                 .setTargetDeadband(0)
-                .setRegulationTerminal(twt.getTerminal(Branch.Side.ONE))
+                .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
                 .add();
         twt.getTerminal1().setP(-80.0).setQ(-10.0);
         twt.getTerminal2().setP(80.0809).setQ(5.4857);

@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -277,10 +277,10 @@ class BranchDataTest {
         // (P with 10e-2, Q with 10e-4)
         LOG.debug("");
         LOG.debug("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
-        Flow line1 = flow(pline, Side.ONE);
-        Flow line2 = flow(pline, Side.TWO);
-        Flow pst1 = flow(ppst, Side.ONE);
-        Flow pst2 = flow(ppst, Side.TWO);
+        Flow line1 = flow(pline, TwoSides.ONE);
+        Flow line2 = flow(pline, TwoSides.TWO);
+        Flow pst1 = flow(ppst, TwoSides.ONE);
+        Flow pst2 = flow(ppst, TwoSides.TWO);
         checkBusBalance("End 1", TOLERANCE_BALANCE_EXACT, TOLERANCE_BALANCE_EXACT, line1, pst1, load);
         checkBusBalance("End 2", 1e-2, 1e-4, line2, pst2, generator);
     }
@@ -311,10 +311,10 @@ class BranchDataTest {
         LOG.debug("");
         LOG.debug("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
         LOG.debug("After moving phase shifter to side 1");
-        Flow line1 = flow(pline, Side.ONE);
-        Flow line2 = flow(pline, Side.TWO);
-        Flow pst1 = flow(ppst, Side.ONE);
-        Flow pst2 = flow(ppst, Side.TWO);
+        Flow line1 = flow(pline, TwoSides.ONE);
+        Flow line2 = flow(pline, TwoSides.TWO);
+        Flow pst1 = flow(ppst, TwoSides.ONE);
+        Flow pst2 = flow(ppst, TwoSides.TWO);
         checkBusBalance("End 1", TOLERANCE_BALANCE_EXACT, TOLERANCE_BALANCE_EXACT, line1, pst1, load);
         checkBusBalance("End 2", 1e-2, 1e-4, line2, pst2, generator);
     }
@@ -811,9 +811,9 @@ class BranchDataTest {
         BranchData r1 = checkTestCase(label, w1);
         BranchData r2 = checkTestCase(label, w2);
         BranchData r3 = checkTestCase(label, w3);
-        Flow f1 = flow(r1, Side.TWO);
-        Flow f2 = flow(r2, Side.TWO);
-        Flow f3 = flow(r3, Side.TWO);
+        Flow f1 = flow(r1, TwoSides.TWO);
+        Flow f2 = flow(r2, TwoSides.TWO);
+        Flow f3 = flow(r3, TwoSides.TWO);
         checkBusBalance(label, toleranceBalance, f1, f2, f3);
     }
 
@@ -954,7 +954,7 @@ class BranchDataTest {
         return sum;
     }
 
-    private Flow flow(BranchData b, Side side) {
+    private Flow flow(BranchData b, TwoSides side) {
         Flow f = new Flow();
         f.id = b.getId();
         f.p = b.getComputedP(side);

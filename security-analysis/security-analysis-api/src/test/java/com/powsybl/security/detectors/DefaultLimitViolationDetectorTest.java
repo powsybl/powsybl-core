@@ -64,14 +64,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentLimitOverloadOnSide2OfLine1() {
         Line line1 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_1");
-        detector.checkCurrent(line1, Branch.Side.TWO, 1101, violationsCollector::add);
+        detector.checkCurrent(line1, TwoSides.TWO, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(600, l.getAcceptableDuration());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
@@ -81,19 +81,19 @@ class DefaultLimitViolationDetectorTest {
     void testLimitReductionOnCurrentPermanentLimit() {
         final double i = 460;
         Line line1 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_1");
-        Optional<? extends LoadingLimits> line1Limits = line1.getLimits(LimitType.CURRENT, Branch.Side.ONE);
+        Optional<? extends LoadingLimits> line1Limits = line1.getLimits(LimitType.CURRENT, TwoSides.ONE);
         assertTrue(line1Limits.isPresent()
             && line1Limits.get().getTemporaryLimits().isEmpty()
             && line1Limits.get().getPermanentLimit() > i); // no overload expected
 
         // no violation if limitReduction is 1
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkLimitViolation(line1, Branch.Side.ONE, i, violationsCollector::add, LimitType.CURRENT);
+        cdetector.checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT);
         assertTrue(violationsCollector.isEmpty());
 
         // violation reported if limitReduction is 0.9
         cdetector = new DefaultLimitViolationDetector(0.9f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkLimitViolation(line1, Branch.Side.ONE, i, violationsCollector::add, LimitType.CURRENT);
+        cdetector.checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
@@ -107,14 +107,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectTemporaryLimitOverloadOnSide2OfLine1() {
         Line line1 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_1");
-        detector.checkCurrent(line1, Branch.Side.TWO, 1201, violationsCollector::add);
+        detector.checkCurrent(line1, TwoSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(60, l.getAcceptableDuration());
                 });
     }
@@ -122,13 +122,13 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectHighestTemporaryLimitOverloadOnSide1OfLine2() {
         Line line2 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_2");
-        detector.checkCurrent(line2, Branch.Side.ONE, 1250, violationsCollector::add);
+        detector.checkCurrent(line2, TwoSides.ONE, 1250, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1250, l.getValue(), 0d);
-                    assertSame(Branch.Side.ONE, l.getBranchSide());
+                    assertSame(TwoSides.ONE, l.getSideAsTwoSides());
                     assertEquals(60, l.getAcceptableDuration());
                 });
     }
@@ -136,14 +136,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentLimitOverloadOnSide2OfTieLine1() {
         TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        detector.checkCurrent(tieLine1, Branch.Side.TWO, 1101, violationsCollector::add);
+        detector.checkCurrent(tieLine1, TwoSides.TWO, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(600, l.getAcceptableDuration());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
@@ -153,19 +153,19 @@ class DefaultLimitViolationDetectorTest {
     void testLimitReductionOnCurrentPermanentLimitOnTieLine() {
         final double i = 460;
         TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        Optional<? extends LoadingLimits> line1Limits = tieLine1.getDanglingLine(Branch.Side.ONE).getCurrentLimits();
+        Optional<? extends LoadingLimits> line1Limits = tieLine1.getDanglingLine(TwoSides.ONE).getCurrentLimits();
         assertTrue(line1Limits.isPresent()
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected
 
         // no violation if limitReduction is 1
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkLimitViolation(tieLine1, Branch.Side.ONE, i, violationsCollector::add, LimitType.CURRENT);
+        cdetector.checkLimitViolation(tieLine1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT);
         assertTrue(violationsCollector.isEmpty());
 
         // violation reported if limitReduction is 0.9
         cdetector = new DefaultLimitViolationDetector(0.9f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkLimitViolation(tieLine1, Branch.Side.ONE, i, violationsCollector::add, LimitType.CURRENT);
+        cdetector.checkLimitViolation(tieLine1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
@@ -179,14 +179,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectTemporaryLimitOverloadOnSide2OfTieLine1() {
         TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        detector.checkCurrent(tieLine1, Branch.Side.TWO, 1201, violationsCollector::add);
+        detector.checkCurrent(tieLine1, TwoSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(60, l.getAcceptableDuration());
                 });
     }
@@ -194,13 +194,13 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectHighestTemporaryLimitOverloadOnSide1OfTieLine2() {
         TieLine tieLine2 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_2");
-        detector.checkCurrent(tieLine2, Branch.Side.ONE, 1250, violationsCollector::add);
+        detector.checkCurrent(tieLine2, TwoSides.ONE, 1250, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1250, l.getValue(), 0d);
-                    assertSame(Branch.Side.ONE, l.getBranchSide());
+                    assertSame(TwoSides.ONE, l.getSideAsTwoSides());
                     assertEquals(60, l.getAcceptableDuration());
                 });
     }
@@ -306,14 +306,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentActivePowerLimitOnSide2OfLine1() {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
-        detector.checkPermanentLimit(line1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkPermanentLimit(line1, TwoSides.TWO, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getBranchSide());
+                      assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                       assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
@@ -321,14 +321,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentApparentPowerLimitOnSide2OfLine1() {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
-        detector.checkPermanentLimit(line1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkPermanentLimit(line1, TwoSides.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getBranchSide());
+                      assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                       assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                       assertEquals(1.0f, l.getLimitReduction());
                   });
@@ -337,14 +337,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectTemporaryActivePowerLimitOnSide2OfLine1() {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
-        detector.checkTemporary(line1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkTemporary(line1, TwoSides.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getBranchSide());
+                      assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                       assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
@@ -353,14 +353,14 @@ class DefaultLimitViolationDetectorTest {
     void detectTemporaryApparentPowerLimitOnSide2OfLine1() {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
-        detector.checkTemporary(line1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkTemporary(line1, TwoSides.TWO, 1.0f, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getBranchSide());
+                      assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                       assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
@@ -370,14 +370,14 @@ class DefaultLimitViolationDetectorTest {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkActivePower(line1, Branch.Side.TWO, 1201, violationsCollector::add);
+        cdetector.checkActivePower(line1, TwoSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getBranchSide());
+                      assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                   });
     }
 
@@ -386,14 +386,14 @@ class DefaultLimitViolationDetectorTest {
         ThreeWindingsTransformer transformer = networkWithActiveLimitsOn3WT.getThreeWindingsTransformer("3WT");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkActivePower(transformer, ThreeWindingsTransformer.Side.TWO, 1201, violationsCollector::add);
+        cdetector.checkActivePower(transformer, ThreeSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(100, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.TWO, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.TWO, l.getSide());
                 });
     }
 
@@ -402,14 +402,14 @@ class DefaultLimitViolationDetectorTest {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkApparentPower(line1, Branch.Side.TWO, 1201, violationsCollector::add);
+        cdetector.checkApparentPower(line1, TwoSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getBranchSide());
+                      assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                   });
     }
 
@@ -418,14 +418,14 @@ class DefaultLimitViolationDetectorTest {
         ThreeWindingsTransformer transformer = networkWithApparentLimitsOn3WT.getThreeWindingsTransformer("3WT");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkApparentPower(transformer, ThreeWindingsTransformer.Side.THREE, 1201, violationsCollector::add);
+        cdetector.checkApparentPower(transformer, ThreeSides.THREE, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(10, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.THREE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.THREE, l.getSide());
                 });
     }
 
@@ -436,21 +436,21 @@ class DefaultLimitViolationDetectorTest {
             Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
             DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-            cdetector.checkLimitViolation(line1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE);
+            cdetector.checkLimitViolation(line1, TwoSides.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE);
         });
     }
 
     @Test
     void detectPermanentActivePowerLimitOnSide2OfTieLine1() {
         TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        detector.checkPermanentLimit(tieLine1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkPermanentLimit(tieLine1, TwoSides.TWO, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
@@ -458,14 +458,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentApparentPowerLimitOnSide2OfTieLine1() {
         TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        detector.checkPermanentLimit(tieLine1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkPermanentLimit(tieLine1, TwoSides.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(1.0f, l.getLimitReduction());
                 });
@@ -474,14 +474,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectTemporaryActivePowerLimitOnSide2OfTieLine1() {
         TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        detector.checkTemporary(tieLine1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkTemporary(tieLine1, TwoSides.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
@@ -490,14 +490,14 @@ class DefaultLimitViolationDetectorTest {
     void detectTemporaryApparentPowerLimitOnSide2OfTieLine1() {
         TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
 
-        detector.checkTemporary(tieLine1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkTemporary(tieLine1, TwoSides.TWO, 1.0f, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
@@ -507,14 +507,14 @@ class DefaultLimitViolationDetectorTest {
         TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkActivePower(tieLine1, Branch.Side.TWO, 1201, violationsCollector::add);
+        cdetector.checkActivePower(tieLine1, TwoSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                 });
     }
 
@@ -523,14 +523,14 @@ class DefaultLimitViolationDetectorTest {
         TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkApparentPower(tieLine1, Branch.Side.TWO, 1201, violationsCollector::add);
+        cdetector.checkApparentPower(tieLine1, TwoSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getBranchSide());
+                    assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                 });
     }
 
@@ -538,20 +538,20 @@ class DefaultLimitViolationDetectorTest {
     void testCheckLimitViolationUnsupportedVoltageOnTieLine() {
         TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        assertThrows(UnsupportedOperationException.class, () -> cdetector.checkLimitViolation(tieLine1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE));
+        assertThrows(UnsupportedOperationException.class, () -> cdetector.checkLimitViolation(tieLine1, TwoSides.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE));
     }
 
     @Test
     void detectPermanentCurrentLimitOverloadOn3WT() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
-        detector.checkCurrent(transformer, ThreeWindingsTransformer.Side.THREE, 1101, violationsCollector::add);
+        detector.checkCurrent(transformer, ThreeSides.THREE, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(10, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.THREE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.THREE, l.getSide());
                     assertEquals(2147483647, l.getAcceptableDuration());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
@@ -560,14 +560,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentCurrentLimitOverloadOn3WT2() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
-        detector.checkCurrent(transformer, ThreeWindingsTransformer.Side.THREE, 13, violationsCollector::add);
+        detector.checkCurrent(transformer, ThreeSides.THREE, 13, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(12, l.getLimit(), 0d);
                     assertEquals(13, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.THREE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.THREE, l.getSide());
                     assertEquals(600, l.getAcceptableDuration());
                     assertEquals("20'", l.getLimitName());
                 });
@@ -577,14 +577,14 @@ class DefaultLimitViolationDetectorTest {
     void detectTemporaryCurrentLimitOverloadOn3WT() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
         // also test with branch one or two
-        detector.checkTemporary(transformer, ThreeWindingsTransformer.Side.THREE, 1.0f, 12, violationsCollector::add, LimitType.CURRENT);
+        detector.checkTemporary(transformer, ThreeSides.THREE, 1.0f, 12, violationsCollector::add, LimitType.CURRENT);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(12, l.getLimit(), 0d);
                     assertEquals(12, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.THREE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.THREE, l.getSide());
                     assertEquals(600, l.getAcceptableDuration());
                 });
     }
@@ -592,14 +592,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentApparentPowerLimitOn3WT() {
         ThreeWindingsTransformer transformer = networkWithApparentLimitsOn3WT.getThreeWindingsTransformer("3WT");
-        detector.checkPermanentLimit(transformer, ThreeWindingsTransformer.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkPermanentLimit(transformer, ThreeSides.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.TWO, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.TWO, l.getSide());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(1.0f, l.getLimitReduction());
                 });
@@ -608,14 +608,14 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectPermanentActivePowerLimitOn3WT() {
         ThreeWindingsTransformer transformer = networkWithActiveLimitsOn3WT.getThreeWindingsTransformer("3WT");
-        detector.checkPermanentLimit(transformer, ThreeWindingsTransformer.Side.ONE, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkPermanentLimit(transformer, ThreeSides.ONE, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(1000, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(ThreeWindingsTransformer.Side.ONE, l.getThreeWindingsTransformerSide());
+                    assertSame(ThreeSides.ONE, l.getSide());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }

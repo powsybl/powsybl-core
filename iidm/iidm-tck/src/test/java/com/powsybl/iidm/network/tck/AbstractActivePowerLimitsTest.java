@@ -64,12 +64,12 @@ public abstract class AbstractActivePowerLimitsTest {
 
         // limits1
         testLimits1(l.getActivePowerLimits1().orElse(null));
-        testLimits1((ActivePowerLimits) l.getLimits(LimitType.ACTIVE_POWER, Branch.Side.ONE).orElse(null));
+        testLimits1((ActivePowerLimits) l.getLimits(LimitType.ACTIVE_POWER, TwoSides.ONE).orElse(null));
 
         // limits2
         ActivePowerLimits limits2 = l.getActivePowerLimits2().orElseThrow(IllegalStateException::new);
         testLimits2(limits2);
-        testLimits2((ActivePowerLimits) l.getLimits(LimitType.ACTIVE_POWER, Branch.Side.TWO).orElse(null));
+        testLimits2((ActivePowerLimits) l.getLimits(LimitType.ACTIVE_POWER, TwoSides.TWO).orElse(null));
 
         limits2.remove();
         assertTrue(l.getActivePowerLimits2().isEmpty());

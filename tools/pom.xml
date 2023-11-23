@@ -61,10 +61,6 @@
             <artifactId>commons-cli</artifactId>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-computation</artifactId>
             <version>${project.version}</version>

@@ -8,7 +8,7 @@ package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.action.AbstractTapChangerRegulationAction;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public abstract class AbstractTapChangerRegulationActionDeserializer<T extends A
         String id;
         String transformerId;
         boolean regulating;
-        ThreeWindingsTransformer.Side side = null;
+        ThreeSides side = null;
     }
 
     protected boolean deserializeCommonAttributes(JsonParser jsonParser, ParsingContext context, String name) throws IOException {
@@ -38,7 +38,7 @@ public abstract class AbstractTapChangerRegulationActionDeserializer<T extends A
                 context.transformerId = jsonParser.nextTextValue();
                 return true;
             case "side":
-                context.side = ThreeWindingsTransformer.Side.valueOf(jsonParser.nextTextValue());
+                context.side = ThreeSides.valueOf(jsonParser.nextTextValue());
                 return true;
             case "regulating":
                 jsonParser.nextToken();

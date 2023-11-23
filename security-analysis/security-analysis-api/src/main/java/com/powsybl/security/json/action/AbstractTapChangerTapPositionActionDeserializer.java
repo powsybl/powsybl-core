@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.action.AbstractTapChangerTapPositionAction;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public abstract class AbstractTapChangerTapPositionActionDeserializer<T extends 
         String transformerId;
         int tapPosition;
         Boolean relativeValue;
-        ThreeWindingsTransformer.Side side = null;
+        ThreeSides side = null;
     }
 
     protected boolean deserializeCommonAttributes(JsonParser jsonParser, ParsingContext context, String name, String version) throws IOException {
@@ -55,7 +55,7 @@ public abstract class AbstractTapChangerTapPositionActionDeserializer<T extends 
                 context.relativeValue = jsonParser.getValueAsBoolean();
                 return true;
             case "side":
-                context.side = ThreeWindingsTransformer.Side.valueOf(jsonParser.nextTextValue());
+                context.side = ThreeSides.valueOf(jsonParser.nextTextValue());
                 return true;
             default:
                 return false;
