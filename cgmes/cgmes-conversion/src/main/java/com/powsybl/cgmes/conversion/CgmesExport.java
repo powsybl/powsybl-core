@@ -324,7 +324,7 @@ public class CgmesExport implements Exporter {
             MAX_Q_MISMATCH_CONVERGED,
             ParameterType.DOUBLE,
             "Max mismatch in reactive power to consider a bus converged when exporting load flow status of topological islands",
-            CgmesExportContext.MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE);
+            CgmesExportContext.MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
@@ -338,7 +338,10 @@ public class CgmesExport implements Exporter {
             MODELING_AUTHORITY_SET_PARAMETER,
             MODEL_DESCRIPTION_PARAMETER,
             EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER,
-            SOURCING_ACTOR_PARAMETER);
+            SOURCING_ACTOR_PARAMETER,
+            EXPORT_LOAD_FLOW_STATUS_PARAMETER,
+            MAX_P_MISMATCH_CONVERGED_PARAMETER,
+            MAX_Q_MISMATCH_CONVERGED_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }

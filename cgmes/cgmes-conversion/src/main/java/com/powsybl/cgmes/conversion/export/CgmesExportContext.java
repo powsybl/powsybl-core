@@ -736,8 +736,8 @@ public class CgmesExportContext {
         return maxQMismatchConverged;
     }
 
-    public CgmesExportContext setMaxQMismatchConverged(double maxPMismatchConverged) {
-        this.maxQMismatchConverged = maxPMismatchConverged;
+    public CgmesExportContext setMaxQMismatchConverged(double maxQMismatchConverged) {
+        this.maxQMismatchConverged = maxQMismatchConverged;
         return this;
     }
 
