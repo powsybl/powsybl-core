@@ -22,8 +22,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * Creates symmetrical matrix topology in a given voltage level,
- * containing a given number of busbar with a given number of sections each.
- * <p>
+ * containing a given number of busbar with a given number of sections each.<br/>
  * See {@link CreateVoltageLevelTopologyBuilder}.
  *
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
