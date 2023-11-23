@@ -227,9 +227,9 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                     String chunkingPrefixId = namingStrategy.getChunkPrefix(switchPrefixId, switchKinds, busBarNum, sectionNum, sectionNum + 1);
 
                     // Breaker and disconnectors creation
-                    createNBDisconnector(newNode1, node1, namingStrategy.getDisconnectorBetweenChunksId(bbs1, chunkingPrefixId, newNode1, node1), voltageLevel.getNodeBreakerView(), false);
+                    createNBDisconnector(node1, newNode1, namingStrategy.getDisconnectorBetweenChunksId(bbs1, chunkingPrefixId, node1, newNode1), voltageLevel.getNodeBreakerView(), false);
                     createNBBreaker(newNode1, newNode2, namingStrategy.getBreakerId(chunkingPrefixId, busBarNum, sectionNum), voltageLevel.getNodeBreakerView(), false);
-                    createNBDisconnector(newNode2, node2, namingStrategy.getDisconnectorBetweenChunksId(bbs2, chunkingPrefixId, newNode2, node2), voltageLevel.getNodeBreakerView(), false);
+                    createNBDisconnector(node2, newNode2, namingStrategy.getDisconnectorBetweenChunksId(bbs2, chunkingPrefixId, node2, newNode2), voltageLevel.getNodeBreakerView(), false);
                 } else if (switchKind == SwitchKind.DISCONNECTOR) {
                     // Prefix
                     String sectioningPrefix = namingStrategy.getSectioningPrefix(switchPrefixId, bbs1, busBarNum, sectionNum, sectionNum + 1);
