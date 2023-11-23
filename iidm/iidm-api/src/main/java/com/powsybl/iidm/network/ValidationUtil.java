@@ -10,7 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -346,7 +346,7 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkCaseDate(Validable validable, DateTime caseDate) {
+    public static void checkCaseDate(Validable validable, ZonedDateTime caseDate) {
         if (caseDate == null) {
             throw new ValidationException(validable, "case date is invalid");
         }

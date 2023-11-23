@@ -6,7 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.ucte.network.io.UcteReader;
 import com.powsybl.ucte.network.io.UcteWriter;
@@ -20,7 +20,7 @@ import java.nio.file.Path;
  * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class UcteFileReadWriteTest extends AbstractConverterTest {
+class UcteFileReadWriteTest extends AbstractSerDeTest {
 
     private static final String REFERENCE = "/20170322_1844_SN3_FR2.uct";
 

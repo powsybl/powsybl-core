@@ -11,7 +11,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.SecurityAnalysisResultMerger;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
@@ -149,7 +149,7 @@ public class ParallelLoadFlowActionSimulator {
             // copy input files to slave workingDir
             Path networkDest = workingDir.resolve("network.xiidm");
             LOGGER.debug("Copying network to file {}", networkDest);
-            NetworkXml.write(network, networkDest);
+            NetworkSerDe.write(network, networkDest);
 
             Path dslFileDest = workingDir.resolve("strategy.groovy");
             LOGGER.debug("Copying strategy file to {}", dslFileDest);

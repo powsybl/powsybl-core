@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -34,7 +34,7 @@ import java.util.Collections;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-class JsonOperatorStrategyExtensionTest extends AbstractConverterTest {
+class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
 
     @Test
     void testWrite() throws IOException {

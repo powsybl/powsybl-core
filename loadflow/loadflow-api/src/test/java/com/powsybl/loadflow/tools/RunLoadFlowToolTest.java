@@ -6,7 +6,7 @@
  */
 package com.powsybl.loadflow.tools;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
@@ -24,12 +25,26 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class RunLoadFlowToolTest extends AbstractConverterTest {
+class RunLoadFlowToolTest extends AbstractSerDeTest {
 
     @Test
     void printLoadFlowResultTest() throws IOException {
         LoadFlowResult result = new LoadFlowResultImpl(true, Collections.emptyMap(), "",
-                Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 8, "mySlack", 0.01, 300.45)));
+                List.of(
+                    new LoadFlowResultImpl.ComponentResultImpl(0, 0,
+                            LoadFlowResult.ComponentResult.Status.CONVERGED, "Success", Collections.emptyMap(), 8,
+                            "myRefBus", List.of(new LoadFlowResultImpl.SlackBusResultImpl("mySlack", 0.01)),
+                            300.45),
+                    new LoadFlowResultImpl.ComponentResultImpl(1, 1,
+                            LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, "Newton-Raphson Iteration Limit",
+                            Collections.emptyMap(), 40,
+                            "myOtherRefBus", List.of(
+                                new LoadFlowResultImpl.SlackBusResultImpl("mySlack1", 12.34),
+                                new LoadFlowResultImpl.SlackBusResultImpl("mySlack2", 45.67)
+                            ),
+                            2678.22)
+                )
+        );
         try (StringWriter writer = new StringWriter()) {
             RunLoadFlowTool.printLoadFlowResult(result, writer, new AsciiTableFormatterFactory(), new TableFormatterConfig(Locale.US, "inv"));
             writer.flush();

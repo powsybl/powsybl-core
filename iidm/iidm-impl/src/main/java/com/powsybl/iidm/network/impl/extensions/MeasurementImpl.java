@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil;
 
 import java.util.*;
@@ -21,13 +22,13 @@ class MeasurementImpl implements Measurement {
     private final String id;
     private final Measurement.Type type;
     private final Map<String, String> properties = new HashMap<>();
-    private final Measurement.Side side;
+    private final ThreeSides side;
 
     private double value;
     private double standardDeviation;
     private boolean valid;
 
-    MeasurementImpl(MeasurementsImpl<? extends Connectable<?>> measurements, String id, Measurement.Type type, Map<String, String> properties, double value, double standardDeviation, boolean valid, Measurement.Side side) {
+    MeasurementImpl(MeasurementsImpl<? extends Connectable<?>> measurements, String id, Measurement.Type type, Map<String, String> properties, double value, double standardDeviation, boolean valid, ThreeSides side) {
         this.measurements = Objects.requireNonNull(measurements);
         this.id = id;
         this.type = type;
@@ -106,7 +107,7 @@ class MeasurementImpl implements Measurement {
     }
 
     @Override
-    public Side getSide() {
+    public ThreeSides getSide() {
         return side;
     }
 

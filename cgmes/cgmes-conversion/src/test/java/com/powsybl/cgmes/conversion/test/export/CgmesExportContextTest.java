@@ -14,8 +14,8 @@ import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
+import java.time.ZonedDateTime;
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -82,7 +82,7 @@ class CgmesExportContextTest {
         assertEquals(16, context.getCimVersion());
         assertEquals(CgmesNamespace.CIM_16_NAMESPACE, context.getCim().getNamespace());
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context.getTopologyKind());
-        assertTrue(new Duration(DateTime.now(), context.getScenarioTime()).getStandardMinutes() < 1);
+        assertTrue(Duration.between(ZonedDateTime.now(), context.getScenarioTime()).toMinutes() < 1);
         assertEquals("SV Model", context.getSvModelDescription().getDescription());
         assertEquals(1, context.getSvModelDescription().getVersion());
         assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
@@ -95,7 +95,7 @@ class CgmesExportContextTest {
         CgmesExportContext context = new CgmesExportContext()
             .setCimVersion(14)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
-            .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
+            .setScenarioTime(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"))
             .setExportBoundaryPowerFlows(true)
             .setExportFlowsForSwitches(false);
         context.getSvModelDescription()
@@ -108,7 +108,7 @@ class CgmesExportContextTest {
         assertEquals(14, context.getCimVersion());
         assertEquals(CgmesNamespace.CIM_14_NAMESPACE, context.getCim().getNamespace());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
-        assertEquals(DateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
+        assertEquals(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
         assertEquals("test", context.getSvModelDescription().getDescription());
         assertEquals(2, context.getSvModelDescription().getVersion());
         assertEquals(2, context.getSvModelDescription().getDependencies().size());

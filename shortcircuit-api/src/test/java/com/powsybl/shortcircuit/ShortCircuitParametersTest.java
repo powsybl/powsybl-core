@@ -19,7 +19,7 @@ import com.powsybl.commons.config.YamlModuleConfigRepository;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
 import org.apache.commons.lang3.Range;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-class ShortCircuitParametersTest extends AbstractConverterTest {
+class ShortCircuitParametersTest extends AbstractSerDeTest {
 
     private static final String DUMMY_EXTENSION_NAME = "dummy-extension";
 
@@ -211,11 +211,11 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         List<VoltageRange> voltageRanges = parameters.getVoltageRanges();
         assertEquals(3, voltageRanges.size());
         assertEquals(1, voltageRanges.get(0).getRangeCoefficient());
-        assertEquals(Range.between(380., 420.), voltageRanges.get(0).getRange());
+        assertEquals(Range.of(380., 420.), voltageRanges.get(0).getRange());
         assertEquals(1.2, voltageRanges.get(1).getRangeCoefficient());
-        assertEquals(Range.between(215., 235.), voltageRanges.get(1).getRange());
+        assertEquals(Range.of(215., 235.), voltageRanges.get(1).getRange());
         assertEquals(1.05, voltageRanges.get(2).getRangeCoefficient());
-        assertEquals(Range.between(80., 100.), voltageRanges.get(2).getRange());
+        assertEquals(Range.of(80., 100.), voltageRanges.get(2).getRange());
         assertFalse(parameters.isDetailedReport());
     }
 
@@ -288,11 +288,11 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         List<VoltageRange> voltageRanges = parameters.getVoltageRanges();
         assertEquals(3, voltageRanges.size());
         assertEquals(1.05, voltageRanges.get(0).getRangeCoefficient());
-        assertEquals(Range.between(380., 410.), voltageRanges.get(0).getRange());
+        assertEquals(Range.of(380., 410.), voltageRanges.get(0).getRange());
         assertEquals(1.1, voltageRanges.get(1).getRangeCoefficient());
-        assertEquals(Range.between(0., 225.), voltageRanges.get(1).getRange());
+        assertEquals(Range.of(0., 225.), voltageRanges.get(1).getRange());
         assertEquals(1.09, voltageRanges.get(2).getRangeCoefficient());
-        assertEquals(Range.between(230., 375.), voltageRanges.get(2).getRange());
+        assertEquals(Range.of(230., 375.), voltageRanges.get(2).getRange());
     }
 
     @Test

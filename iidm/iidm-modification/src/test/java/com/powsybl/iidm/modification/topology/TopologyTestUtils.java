@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -39,7 +39,7 @@ final class TopologyTestUtils {
 
     static Network createNbNetwork() {
         Network network = FictitiousSwitchFactory.create();
-        network.setCaseDate(DateTime.parse("2021-08-27T14:44:56.567+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2021-08-27T14:44:56.567+02:00"));
         network.newVoltageLevel().setId(VLTEST).setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         return network;
     }
@@ -60,7 +60,7 @@ final class TopologyTestUtils {
 
     private static Network createNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2021-08-27T14:44:56.567+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2021-08-27T14:44:56.567+02:00"));
         return network;
     }
 

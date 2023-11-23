@@ -13,12 +13,14 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.NetworkMetadata;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class NetworkMetadataDeserializer extends StdDeserializer<NetworkMetadata
     public NetworkMetadata deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String id = null;
         String sourceFormat = null;
-        DateTime caseDate = null;
+        ZonedDateTime caseDate = null;
         int forecastDistance = 0;
 
         List<Extension<NetworkMetadata>> extensions = Collections.emptyList();
@@ -54,7 +56,7 @@ public class NetworkMetadataDeserializer extends StdDeserializer<NetworkMetadata
                     break;
 
                 case "caseDate":
-                    caseDate = DateTime.parse(parser.nextTextValue());
+                    caseDate = ZonedDateTime.parse(parser.nextTextValue());
                     break;
 
                 case "forecastDistance":

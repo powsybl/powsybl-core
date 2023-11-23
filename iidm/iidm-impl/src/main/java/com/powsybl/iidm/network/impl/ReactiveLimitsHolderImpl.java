@@ -42,6 +42,11 @@ class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
     }
 
     @Override
+    public NetworkImpl getNetwork() {
+        return connectable.getNetwork();
+    }
+
+    @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
         ReactiveLimits oldValue = this.reactiveLimits;
         this.reactiveLimits = Objects.requireNonNull(reactiveLimits);
