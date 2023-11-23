@@ -51,9 +51,17 @@ public class LimitReductionDefinitionList {
             return limitType;
         }
 
+        public double getLimitReduction() {
+            return limitReduction;
+        }
+
         public LimitReductionDefinition setLimitReduction(double limitReduction) {
             this.limitReduction = limitReduction;
             return this;
+        }
+
+        public List<ContingencyContext> getContingencyContexts() {
+            return contingencyContexts;
         }
 
         public LimitReductionDefinition setContingencyContexts(List<ContingencyContext> contingencyContexts) {
@@ -61,9 +69,17 @@ public class LimitReductionDefinitionList {
             return this;
         }
 
+        public List<AbstractNetworkElementCriterion> getNetworkElementCriteria() {
+            return networkElementCriteria;
+        }
+
         public LimitReductionDefinition setNetworkElementCriteria(List<AbstractNetworkElementCriterion> criteria) {
             this.networkElementCriteria = criteria;
             return this;
+        }
+
+        public List<LimitDurationCriterion> getDurationCriteria() {
+            return durationCriteria;
         }
 
         public LimitReductionDefinition setDurationCriteria(List<LimitDurationCriterion> durationCriteria) {
