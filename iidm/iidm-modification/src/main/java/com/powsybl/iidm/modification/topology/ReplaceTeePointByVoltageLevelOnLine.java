@@ -118,39 +118,21 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
-        Line tpLine1 = network.getLine(teePointLine1Id);
+        Line tpLine1 = getLineFromNetwork(network, teePointLine1Id, reporter, throwException);
         if (tpLine1 == null) {
-            notFoundLineReport(reporter, teePointLine1Id);
-            LOGGER.error(LINE_NOT_FOUND_LOG_MESSAGE, teePointLine1Id);
-            if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine1Id));
-            } else {
-                return;
-            }
+            return;
         }
 
-        Line tpLine2 = network.getLine(teePointLine2Id);
+        Line tpLine2 = getLineFromNetwork(network, teePointLine2Id, reporter, throwException);
         if (tpLine2 == null) {
-            notFoundLineReport(reporter, teePointLine2Id);
-            LOGGER.error(LINE_NOT_FOUND_LOG_MESSAGE, teePointLine2Id);
-            if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine2Id));
-            } else {
-                return;
-            }
+            return;
         }
 
-        Line tpLineToRemove = network.getLine(teePointLineToRemoveId);
+        Line tpLineToRemove = getLineFromNetwork(network, teePointLineToRemoveId, reporter, throwException);
         if (tpLineToRemove == null) {
-            notFoundLineReport(reporter, teePointLineToRemoveId);
-            LOGGER.error(LINE_NOT_FOUND_LOG_MESSAGE, teePointLineToRemoveId);
-            if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLineToRemoveId));
-            } else {
-                return;
-            }
+            return;
         }
 
         // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
@@ -182,7 +164,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
         // Create the breaker topology
-        if (!createTopology(newLine1Adder, newLine2Adder, tappedVoltageLevel, reporter, throwException)) {
+        if (!createTopology(newLine1Adder, newLine2Adder, tappedVoltageLevel, namingStrategy, reporter, throwException)) {
             return;
         }
 
@@ -214,7 +196,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         tpLine2.remove();
         removedLineReport(reporter, teePointLine2Id);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLine2Id);
-        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, throwException, computationManager, reporter);
+        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, reporter);
         removedLineReport(reporter, teePointLineToRemoveId);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLineToRemoveId);
 
@@ -235,7 +217,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         removeVoltageLevelAndSubstation(teePoint, reporter);
     }
 
-    private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, Reporter reporter, boolean throwException) {
+    private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, Reporter reporter, boolean throwException) {
         TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = tappedVoltageLevel.getBusBreakerView().getBus(bbsOrBusId);
@@ -244,13 +226,14 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
             Bus bus1 = tappedVoltageLevel.getBusBreakerView()
                 .newBus()
-                .setId(newLine1Id + "_BUS_1")
+                .setId(namingStrategy.getBusId(newLine1Id))
                 .add();
             Bus bus2 = tappedVoltageLevel.getBusBreakerView()
                 .newBus()
-                .setId(newLine2Id + "_BUS_2")
+                .setId(namingStrategy.getBusId(newLine2Id))
                 .add();
-            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, tappedVoltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(newLine1Id, 1), tappedVoltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(newLine2Id, 2), tappedVoltageLevel.getBusBreakerView());
             newLine1Adder.setBus2(bus1.getId());
             newLine1Adder.setConnectableBus2(bus1.getId());
             newLine2Adder.setBus1(bus2.getId());
@@ -271,17 +254,29 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             // Topology creation
             if (position == null) {
                 // No position extension is present so only one disconnector is needed
-                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbs);
-                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, newLine1Id, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, newLine2Id, bbs);
                 LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);
             } else {
                 List<BusbarSection> bbsList = getParallelBusbarSections(tappedVoltageLevel, position);
-                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, newLine1Id, bbsList, bbs);
-                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, newLine2Id, bbsList, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, newLine1Id, bbsList, bbs);
+                createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, newLine2Id, bbsList, bbs);
             }
         }
         return true;
+    }
+
+    private Line getLineFromNetwork(Network network, String lineId, Reporter reporter, boolean throwException) {
+        Line line = network.getLine(lineId);
+        if (line == null) {
+            notFoundLineReport(reporter, lineId);
+            LOGGER.error(LINE_NOT_FOUND_LOG_MESSAGE, lineId);
+            if (throwException) {
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
+            }
+        }
+        return line;
     }
 
     private boolean errorWhenBusNull(Reporter reporter, VoltageLevel voltageLevel, boolean throwException) {

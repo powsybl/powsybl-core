@@ -26,7 +26,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFi
 /**
  * Connect an existing voltage level (in practice a voltage level where we have some loads or generations) to an
  * existing line through a tee point.
- * This method cuts an existing line in two, creating a fictitious voltage level between them (the tee point). Then it links an existing voltage level to
+ * <br/>This method cuts an existing line in two, creating a fictitious voltage level between them (the tee point). Then it links an existing voltage level to
  * this fictitious voltage level in creating a new line from a given line adder.
  *
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -69,8 +69,9 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
-                            boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
-                            String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder) {
+                     boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
+                     String line1Id, String line1Name, String line2Id, String line2Name,
+                     Line line, LineAdder lineAdder) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
@@ -118,7 +119,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         // Checks
         if (failChecks(network, throwException, reporter, LOG)) {
@@ -196,11 +197,11 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(originalLineId + "_BUS")
+                    .setId(namingStrategy.getBusId(originalLineId))
                     .add();
             lineAdder.setBus2(bus1.getId());
             voltageLevel.getBusBreakerView().newSwitch()
-                    .setId(originalLineId + "_SW")
+                    .setId(namingStrategy.getSwitchId(originalLineId))
                     .setOpen(false)
                     .setBus1(bus1.getId())
                     .setBus2(bus.getId())
@@ -217,12 +218,12 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
             // Topology creation
             if (position == null) {
                 // No position extension is present so only one disconnector is needed
-                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, originalLineId, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);
             } else {
                 List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
-                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, originalLineId, bbsList, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbsList, bbs);
             }
         } else {
             throw new IllegalStateException();
