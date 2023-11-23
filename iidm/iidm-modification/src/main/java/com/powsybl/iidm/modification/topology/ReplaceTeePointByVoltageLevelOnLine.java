@@ -170,8 +170,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
                 ? tpLineToRemove.getTerminal2().getVoltageLevel()
                 : tpLineToRemove.getTerminal1().getVoltageLevel();
 
-        Branch.Side tpLine1OtherVlSide = tpLine1.getTerminal1().getVoltageLevel() == teePoint ? Branch.Side.TWO : Branch.Side.ONE;
-        Branch.Side tpLine2OtherVlSide = tpLine2.getTerminal1().getVoltageLevel() == teePoint ? Branch.Side.TWO : Branch.Side.ONE;
+        TwoSides tpLine1OtherVlSide = tpLine1.getTerminal1().getVoltageLevel() == teePoint ? TwoSides.TWO : TwoSides.ONE;
+        TwoSides tpLine2OtherVlSide = tpLine2.getTerminal1().getVoltageLevel() == teePoint ? TwoSides.TWO : TwoSides.ONE;
 
         // Set parameters of the new lines newLine1 and newLine2
         LineAdder newLine1Adder = createLineAdder(newLine1Id, newLine1Name, tpLine1.getTerminal(tpLine1OtherVlSide).getVoltageLevel().getId(), tappedVoltageLevel.getId(), network, tpLine1, tpLineToRemove);
@@ -187,8 +187,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         }
 
         // get line tpLine1 limits
-        Branch.Side tpLine1Limits1Side = tpLine1OtherVlSide;
-        Branch.Side tpLine1Limits2Side = tpLine1OtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+        TwoSides tpLine1Limits1Side = tpLine1OtherVlSide;
+        TwoSides tpLine1Limits2Side = tpLine1OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
         LoadingLimitsBags limits1TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits1Side),
             () -> tpLine1.getApparentPowerLimits(tpLine1Limits1Side),
             () -> tpLine1.getCurrentLimits(tpLine1Limits1Side));
@@ -197,8 +197,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             () -> tpLine1.getCurrentLimits(tpLine1Limits2Side));
 
         // get line tpLine2 limits
-        Branch.Side tpLine2Limits1Side = tpLine2OtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
-        Branch.Side tpLine2Limits2Side = tpLine2OtherVlSide;
+        TwoSides tpLine2Limits1Side = tpLine2OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
+        TwoSides tpLine2Limits2Side = tpLine2OtherVlSide;
 
         LoadingLimitsBags limits1TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits1Side),
             () -> tpLine2.getApparentPowerLimits(tpLine2Limits1Side),
@@ -220,14 +220,14 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         // Create the two new lines
         Line newLine1 = newLine1Adder.add();
-        addLoadingLimits(newLine1, limits1TpLine1, Branch.Side.ONE);
-        addLoadingLimits(newLine1, limits2TpLine1, Branch.Side.TWO);
+        addLoadingLimits(newLine1, limits1TpLine1, TwoSides.ONE);
+        addLoadingLimits(newLine1, limits2TpLine1, TwoSides.TWO);
         createdLineReport(reporter, newLine1Id);
         LOGGER.info("Line {} created", newLine1Id);
 
         Line newLine2 = newLine2Adder.add();
-        addLoadingLimits(newLine2, limits1TpLine2, Branch.Side.ONE);
-        addLoadingLimits(newLine2, limits2TpLine2, Branch.Side.TWO);
+        addLoadingLimits(newLine2, limits1TpLine2, TwoSides.ONE);
+        addLoadingLimits(newLine2, limits2TpLine2, TwoSides.TWO);
         createdLineReport(reporter, newLine2Id);
         LOGGER.info("Line {} created", newLine2Id);
 

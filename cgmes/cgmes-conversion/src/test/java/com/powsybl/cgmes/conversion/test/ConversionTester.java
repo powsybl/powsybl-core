@@ -22,11 +22,11 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import com.powsybl.iidm.xml.XMLExporter;
+import com.powsybl.iidm.serde.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
@@ -268,12 +268,12 @@ public class ConversionTester {
 
     public static void invalidateFlows(Network n) {
         n.getLineStream().forEach(line -> {
-            invalidateFlow(line.getTerminal(Side.ONE));
-            invalidateFlow(line.getTerminal(Side.TWO));
+            invalidateFlow(line.getTerminal(TwoSides.ONE));
+            invalidateFlow(line.getTerminal(TwoSides.TWO));
         });
         n.getTwoWindingsTransformerStream().forEach(twt -> {
-            invalidateFlow(twt.getTerminal(Side.ONE));
-            invalidateFlow(twt.getTerminal(Side.TWO));
+            invalidateFlow(twt.getTerminal(TwoSides.ONE));
+            invalidateFlow(twt.getTerminal(TwoSides.TWO));
         });
         n.getShuntCompensatorStream().forEach(sh -> {
             Terminal terminal = sh.getTerminal();

@@ -44,7 +44,7 @@ public abstract class AbstractTapChangerTest {
                                 .setConnectableBus1("busA")
                                 .setConnectableBus2("busB")
                             .add();
-        terminal = twt.getTerminal(Branch.Side.ONE);
+        terminal = twt.getTerminal(TwoSides.ONE);
     }
 
     @Test
@@ -642,7 +642,7 @@ public abstract class AbstractTapChangerTest {
                 .setLowTapPosition(0)
                 .setTapPosition(1)
                 .setRegulating(true)
-                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeSides.TWO))
                 .beginStep()
                     .setR(39.78473)
                     .setX(39.784725)
@@ -671,7 +671,7 @@ public abstract class AbstractTapChangerTest {
                 .setLowTapPosition(2)
                 .setTapPosition(3)
                 .setRegulating(false)
-                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeSides.TWO))
                 .beginStep()
                     .setR(39.78473)
                     .setX(39.784725)

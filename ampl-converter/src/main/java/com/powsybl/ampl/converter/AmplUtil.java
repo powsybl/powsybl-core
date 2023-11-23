@@ -248,7 +248,7 @@ public final class AmplUtil {
         mapper.reset(AmplSubset.HVDC_LINE);
     }
 
-    public static String getLegSuffix(ThreeWindingsTransformer.Side leg) {
+    public static String getLegSuffix(ThreeSides leg) {
         Objects.requireNonNull(leg);
         return switch (leg) {
             case ONE -> AmplConstants.LEG1_SUFFIX;

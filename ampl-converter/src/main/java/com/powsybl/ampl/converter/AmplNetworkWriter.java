@@ -422,17 +422,17 @@ public class AmplNetworkWriter {
 
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus1Id)) {
                 columnsExporter.writeThreeWindingsTransformerLegToFormatter(formatter, twt, middleBusNum, middleVlNum,
-                    ThreeWindingsTransformer.Side.ONE);
+                        ThreeSides.ONE);
                 addExtensions(num1, twt);
             }
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus2Id)) {
                 columnsExporter.writeThreeWindingsTransformerLegToFormatter(formatter, twt, middleBusNum, middleVlNum,
-                    ThreeWindingsTransformer.Side.TWO);
+                        ThreeSides.TWO);
                 addExtensions(num2, twt);
             }
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus3Id)) {
                 columnsExporter.writeThreeWindingsTransformerLegToFormatter(formatter, twt, middleBusNum, middleVlNum,
-                    ThreeWindingsTransformer.Side.THREE);
+                        ThreeSides.THREE);
                 addExtensions(num3, twt);
             }
         }

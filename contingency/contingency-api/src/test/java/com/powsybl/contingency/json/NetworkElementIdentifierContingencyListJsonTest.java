@@ -8,7 +8,7 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.contingency.list.ContingencyList;
@@ -30,7 +30,7 @@ import java.util.Objects;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-class NetworkElementIdentifierContingencyListJsonTest extends AbstractConverterTest {
+class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new ContingencyJsonModule());
     private static final ObjectWriter WRITER = MAPPER.writerWithDefaultPrettyPrinter();

@@ -553,7 +553,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
     private void writeThreeWindingsTransformerCurrentLimits(TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            for (ThreeWindingsTransformer.Side side : ThreeWindingsTransformer.Side.values()) {
+            for (ThreeSides side : ThreeSides.values()) {
                 Optional<CurrentLimits> currentLimits = twt.getLeg(side).getCurrentLimits();
                 if (currentLimits.isPresent()) {
                     String branchId = twt.getId() + AmplUtil.getLegSuffix(side);
@@ -673,7 +673,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
         int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
         SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN,
-            Branch.Side.ONE).otherSide(
+            TwoSides.ONE).otherSide(
             dl, true);
         double nomV = t.getVoltageLevel().getNominalV();
         double v = sv.getU() / nomV;
@@ -888,7 +888,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double p1 = t.getP();
         double q1 = t.getQ();
         SV sv = new SV(p1, q1, bus != null ? bus.getV() : Double.NaN, bus != null ? bus.getAngle() : Double.NaN,
-            Branch.Side.ONE).otherSide(
+            TwoSides.ONE).otherSide(
             dl, true);
         double p2 = sv.getP();
         double q2 = sv.getQ();
@@ -997,7 +997,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     @Override
     public void writeThreeWindingsTransformerLegToFormatter(TableFormatter formatter, ThreeWindingsTransformer twt,
                                                             int middleBusNum, int middleVlNum,
-                                                            ThreeWindingsTransformer.Side legSide) throws IOException {
+                                                            ThreeSides legSide) throws IOException {
         ThreeWindingsTransformer.Leg twtLeg = twt.getLeg(legSide);
         Terminal terminal = twtLeg.getTerminal();
         Bus bus = AmplUtil.getBus(terminal);

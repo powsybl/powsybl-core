@@ -8,12 +8,9 @@ package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.Sets;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLineFilter;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -314,7 +311,7 @@ public final class TieLineUtil {
         } else if (zeroImpedanceLine(adm2)) {
             return adm1;
         } else {
-            return LinkData.kronChain(adm1, Branch.Side.TWO, adm2, Branch.Side.ONE);
+            return LinkData.kronChain(adm1, TwoSides.TWO, adm2, TwoSides.ONE);
         }
     }
 

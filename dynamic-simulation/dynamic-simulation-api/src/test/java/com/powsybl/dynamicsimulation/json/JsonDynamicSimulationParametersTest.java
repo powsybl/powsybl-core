@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-class JsonDynamicSimulationParametersTest extends AbstractConverterTest {
+class JsonDynamicSimulationParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {
