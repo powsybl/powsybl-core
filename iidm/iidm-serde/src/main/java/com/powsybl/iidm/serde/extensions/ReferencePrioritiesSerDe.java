@@ -32,6 +32,8 @@ import java.util.Map;
 public class ReferencePrioritiesSerDe<C extends Connectable<C>> extends AbstractExtensionSerDe<C,
         ReferencePriorities<C>> {
 
+    public static final String REFERENCE_PRIORITY_ROOT_ELEMENT_NAME = "referencePriority";
+
     public ReferencePrioritiesSerDe() {
         super("referencePriorities", "network", ReferencePriorities.class, "referencePriorities.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/reference_priorities/1_0", "refpri");
@@ -39,7 +41,7 @@ public class ReferencePrioritiesSerDe<C extends Connectable<C>> extends Abstract
 
     @Override
     public Map<String, String> getArrayNameToSingleNameMap() {
-        return Map.of("referencePriorities", "referencePriority");
+        return Map.of("referencePriorities", REFERENCE_PRIORITY_ROOT_ELEMENT_NAME);
     }
 
     @Override
@@ -48,7 +50,7 @@ public class ReferencePrioritiesSerDe<C extends Connectable<C>> extends Abstract
         writer.writeStartNodes();
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         for (ReferencePriority referencePriority : extension.getReferencePriorities()) {
-            writer.writeStartNode(getNamespaceUri(), "referencePriority");
+            writer.writeStartNode(getNamespaceUri(), REFERENCE_PRIORITY_ROOT_ELEMENT_NAME);
             writer.writeIntAttribute("priority", referencePriority.getPriority());
             TerminalRefSerDe.writeTerminalRefAttribute(referencePriority.getTerminal(), networkContext);
             writer.writeEndNode();
@@ -63,7 +65,7 @@ public class ReferencePrioritiesSerDe<C extends Connectable<C>> extends Abstract
         ReferencePrioritiesAdder<C> referencePrioritiesAdder = extendable.newExtension(ReferencePrioritiesAdder.class);
         ReferencePriorities<C> referencePriorities = referencePrioritiesAdder.add();
         reader.readChildNodes(elementName -> {
-            if (elementName.equals("referencePriority")) {
+            if (elementName.equals(REFERENCE_PRIORITY_ROOT_ELEMENT_NAME)) {
                 int priority = reader.readIntAttribute("priority");
                 Terminal terminal = TerminalRefSerDe.readTerminal(networkContext, extendable.getNetwork());
                 referencePriorities.newReferencePriority()
