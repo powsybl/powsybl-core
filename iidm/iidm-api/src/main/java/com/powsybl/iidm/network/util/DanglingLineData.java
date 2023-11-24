@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.math3.complex.Complex;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.util.LinkData.Flow;
 
@@ -118,7 +118,7 @@ public class DanglingLineData {
     private void dlDataWhenThereAreVoltageAndFlowAtNetworkSide(double networkU, double networkTheta,
         Complex networkFlow, boolean splitShuntAdmittance) {
 
-        SV sv = new SV(networkFlow.getReal(), networkFlow.getImaginary(), networkU, Math.toDegrees(networkTheta), Branch.Side.ONE)
+        SV sv = new SV(networkFlow.getReal(), networkFlow.getImaginary(), networkU, Math.toDegrees(networkTheta), TwoSides.ONE)
             .otherSide(danglingLine, splitShuntAdmittance);
 
         boundaryBusU = sv.getU();
@@ -148,7 +148,7 @@ public class DanglingLineData {
     private void dcApproximationDlDataWhenThereAreVoltageAndFlowAtNetworkSide(double networkTheta, Complex networkFlow,
         boolean splitShuntAdmittance) {
 
-        SV sv = new SV(networkFlow.getReal(), Double.NaN, Double.NaN, Math.toDegrees(networkTheta), Branch.Side.ONE)
+        SV sv = new SV(networkFlow.getReal(), Double.NaN, Double.NaN, Math.toDegrees(networkTheta), TwoSides.ONE)
             .otherSide(danglingLine, splitShuntAdmittance);
 
         boundaryBusU = sv.getU();
