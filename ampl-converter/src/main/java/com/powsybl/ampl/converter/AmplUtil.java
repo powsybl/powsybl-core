@@ -11,6 +11,8 @@ import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -21,6 +23,10 @@ public final class AmplUtil {
 
     public static Iterable<Bus> getBuses(Network n) {
         return n.getBusView().getBuses();
+    }
+
+    public static String getBusId(Bus bus) {
+        return bus == null ? null : bus.getId();
     }
 
     public static Bus getBus(Terminal t) {
@@ -54,12 +60,28 @@ public final class AmplUtil {
         return mapper;
     }
 
-    static String getXnodeBusId(TieLine tieLine) {
+    public static String getXnodeBusId(TieLine tieLine) {
         return tieLine.getPairingKey();
     }
 
-    static String getXnodeVoltageLevelId(TieLine tieLine) {
+    public static String getXnodeVoltageLevelId(TieLine tieLine) {
         return tieLine.getPairingKey();
+    }
+
+    public static String getThreeWindingsTransformerMiddleBusId(ThreeWindingsTransformer twt) {
+        return twt.getId(); // same id as the transformer
+    }
+
+    public static String getThreeWindingsTransformerMiddleVoltageLevelId(ThreeWindingsTransformer twt) {
+        return twt.getId(); // same id as the transformer
+    }
+
+    public static String getDanglingLineMiddleBusId(DanglingLine dl) {
+        return dl.getId(); // same id as the dangling line
+    }
+
+    public static String getDanglingLineMiddleVoltageLevelId(DanglingLine dl) {
+        return dl.getId(); // same id as the dangling line
     }
 
     public static void fillMapper(StringToIntMapper<AmplSubset> mapper, Network network) {
@@ -224,6 +246,15 @@ public final class AmplUtil {
         mapper.reset(AmplSubset.THREE_WINDINGS_TRANSFO);
         mapper.reset(AmplSubset.STATIC_VAR_COMPENSATOR);
         mapper.reset(AmplSubset.HVDC_LINE);
+    }
+
+    public static String getLegSuffix(ThreeSides leg) {
+        Objects.requireNonNull(leg);
+        return switch (leg) {
+            case ONE -> AmplConstants.LEG1_SUFFIX;
+            case TWO -> AmplConstants.LEG2_SUFFIX;
+            case THREE -> AmplConstants.LEG3_SUFFIX;
+        };
     }
 
 }
