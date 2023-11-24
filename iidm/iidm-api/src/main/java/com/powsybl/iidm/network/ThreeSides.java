@@ -9,8 +9,8 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 
-/*
- @author Bertrand Rix <bertrand.rix at artelys.com>
+/**
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public enum ThreeSides {
     ONE(1, TwoSides.ONE),
