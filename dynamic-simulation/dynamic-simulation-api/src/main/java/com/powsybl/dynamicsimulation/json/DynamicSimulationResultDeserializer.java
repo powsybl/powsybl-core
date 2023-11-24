@@ -114,6 +114,8 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                 case "message":
                     message = parser.getValueAsString();
                     break;
+                default:
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new TimelineEvent(time, modelName, message);

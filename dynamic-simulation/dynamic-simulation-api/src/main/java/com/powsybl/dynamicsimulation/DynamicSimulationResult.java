@@ -29,7 +29,10 @@ public interface DynamicSimulationResult {
 
     String getStatusText();
 
-    @Deprecated
+    /**
+     * @deprecated use DynamicSimulationResult.Status instead
+     */
+    @Deprecated(since = "6.1.0")
     default boolean isOk() {
         return SUCCEED == getStatus();
     }
