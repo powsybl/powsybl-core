@@ -45,7 +45,8 @@ class KinsolTest {
         });
         double[] x = new double[] {1, 0};
         KinsolParameters parameters = new KinsolParameters(15, false);
-        solver.solve(x, parameters);
+        KinsolSolveStatus status = solver.solve(x, parameters);
+        assertSame(KinsolSolveStatus.KIN_SUCCESS, status);
         assertArrayEquals(new double[] {0.85545, -0.235992}, x, 1e-6);
     }
 }

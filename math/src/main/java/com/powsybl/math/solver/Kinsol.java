@@ -60,9 +60,10 @@ public class Kinsol {
         return 0;
     }
 
-    public void solve(double[] x, KinsolParameters parameters) {
+    public KinsolSolveStatus solve(double[] x, KinsolParameters parameters) {
         var solverContext = new KinsolContext(x, j, functionUpdater, jacobianUpdater);
-        solve(x, j.getColumnStart(), j.getRowIndices(), j.getValues(), solverContext,
+        int status = solve(x, j.getColumnStart(), j.getRowIndices(), j.getValues(), solverContext,
                 parameters.getMaxIterations(), parameters.isLineSearch(), getPrintLevel());
+        return KinsolSolveStatus.fromValue(status);
     }
 }

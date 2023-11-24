@@ -10,22 +10,41 @@ package com.powsybl.math.solver;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum KinsolSolveStatus {
-    KIN_SUCCESS,
-    KIN_INITIAL_GUESS_OK,
-    KIN_STEP_LT_STPTOL,
-    KIN_MEM_NULL,
-    KIN_ILL_INPUT,
-    KIN_NO_MALLOC,
-    KIN_MEM_FAIL,
-    KIN_LINESEARCH_NONCONV,
-    KIN_MAXITER_REACHED,
-    KIN_MXNEWT_5X_EXCEEDED,
-    KIN_LINESEARCH_BCFAIL,
-    KIN_LINSOLV_NO_RECOVERY,
-    KIN_LINIT_FAIL,
-    KIN_LSETUP_FAIL,
-    KIN_LSOLVE_FAIL,
-    KIN_SYSFUNC_FAIL,
-    KIN_FIRST_SYSFUNC_ERR,
-    KIN_REPTD_SYSFUNC_ERR
+    KIN_SUCCESS(0),
+    KIN_INITIAL_GUESS_OK(1),
+    KIN_STEP_LT_STPTOL(2),
+    KIN_MEM_NULL(-1),
+    KIN_ILL_INPUT(-2),
+    KIN_NO_MALLOC(-3),
+    KIN_MEM_FAIL(-4),
+    KIN_LINESEARCH_NONCONV(-5),
+    KIN_MAXITER_REACHED(-6),
+    KIN_MXNEWT_5X_EXCEEDED(-7),
+    KIN_LINESEARCH_BCFAIL(-8),
+    KIN_LINSOLV_NO_RECOVERY(-9),
+    KIN_LINIT_FAIL(-10),
+    KIN_LSETUP_FAIL(-11),
+    KIN_LSOLVE_FAIL(-12),
+    KIN_SYSFUNC_FAIL(-13),
+    KIN_FIRST_SYSFUNC_ERR(-14),
+    KIN_REPTD_SYSFUNC_ERR(-15);
+
+    private final int value;
+
+    KinsolSolveStatus(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    static KinsolSolveStatus fromValue(int value) {
+        for (KinsolSolveStatus status : KinsolSolveStatus.values()) {
+            if (status.getValue() == value) {
+                return status;
+            }
+        }
+        throw new KinsolException("Unkown solver status value: " + value);
+    }
 }
