@@ -65,11 +65,23 @@ public final class ComparisonUtils {
 
     public static void compareTxt(InputStream expected, String actual) {
         try {
-            String expectedStr = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8));
-            String actualStr = TestUtil.normalizeLineSeparator(actual);
-            assertEquals(expectedStr, actualStr);
+            compareTxt(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8), actual);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static void compareTxt(String expected, InputStream actual) {
+        try {
+            compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void compareTxt(String expected, String actual) {
+        String expectedStr = TestUtil.normalizeLineSeparator(expected);
+        String actualStr = TestUtil.normalizeLineSeparator(actual);
+        assertEquals(expectedStr, actualStr);
     }
 }

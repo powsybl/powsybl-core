@@ -32,7 +32,7 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
      * @param tapPosition   the new tap position
      * @param leg           defines on which leg of the three winding transformer the modification will be done.
      */
-    public RatioTapPositionModification(String transformerId, int tapPosition, ThreeWindingsTransformer.Side leg) {
+    public RatioTapPositionModification(String transformerId, int tapPosition, ThreeSides leg) {
         super(transformerId, tapPosition, Objects.requireNonNull(leg));
     }
 

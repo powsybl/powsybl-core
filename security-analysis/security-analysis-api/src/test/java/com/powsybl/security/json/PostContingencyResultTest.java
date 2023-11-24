@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.*;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-class PostContingencyResultTest extends AbstractConverterTest {
+class PostContingencyResultTest extends AbstractSerDeTest {
 
     @Test
     void testGetters() {

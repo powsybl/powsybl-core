@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
 
+import java.util.function.Predicate;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -54,7 +56,11 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     boolean connect(TerminalExt terminal);
 
+    boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate);
+
     boolean disconnect(TerminalExt terminal);
+
+    boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable);
 
     default void invalidateCache() {
         invalidateCache(false);

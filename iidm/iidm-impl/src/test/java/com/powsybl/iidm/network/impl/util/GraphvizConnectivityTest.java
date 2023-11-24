@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -22,7 +22,7 @@ import java.util.Random;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class GraphvizConnectivityTest extends AbstractConverterTest {
+class GraphvizConnectivityTest extends AbstractSerDeTest {
 
     @Test
     void test() throws IOException, NoSuchAlgorithmException {

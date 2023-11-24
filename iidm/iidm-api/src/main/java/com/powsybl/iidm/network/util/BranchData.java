@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
@@ -429,7 +429,7 @@ public class BranchData {
         return computedQ2;
     }
 
-    public double getComputedP(Side side) {
+    public double getComputedP(TwoSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -441,7 +441,7 @@ public class BranchData {
         }
     }
 
-    public double getComputedQ(Side side) {
+    public double getComputedQ(TwoSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:

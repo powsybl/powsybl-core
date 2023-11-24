@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -34,7 +35,7 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       Reporter reporter) {
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();

@@ -10,7 +10,9 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ import java.util.stream.Stream;
  */
 abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements NetworkExt {
 
-    private DateTime caseDate = new DateTime(); // default is the time at which the network has been created
+    private ZonedDateTime caseDate = ZonedDateTime.now(ZoneOffset.UTC); // default is the time at which the network has been created
 
     private int forecastDistance = 0;
 
@@ -39,12 +41,12 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     }
 
     @Override
-    public DateTime getCaseDate() {
+    public ZonedDateTime getCaseDate() {
         return caseDate;
     }
 
     @Override
-    public Network setCaseDate(DateTime caseDate) {
+    public Network setCaseDate(ZonedDateTime caseDate) {
         ValidationUtil.checkCaseDate(this, caseDate);
         this.caseDate = caseDate;
         return this;

@@ -8,9 +8,6 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Interval;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -19,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -85,8 +83,7 @@ class YamlPlatformConfigTest {
             assertEquals(fileSystem.getPath("/work/a"), module1.getPathProperty("p"));
             assertEquals(Arrays.asList(fileSystem.getPath("/work/a"), fileSystem.getPath("/work/b")), module1.getPathListProperty("pl"));
             assertEquals(String.class, module1.getClassProperty("cl", String.class));
-            assertEquals(DateTime.parse("2015-01-01T00:00:00Z"), module1.getDateTimeProperty("dt").withZone(DateTimeZone.UTC));
-            assertEquals(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), module1.getIntervalProperty("it"));
+            assertEquals(ZonedDateTime.parse("2015-01-01T00:00:00Z"), module1.getDateTimeProperty("dt"));
         }
     }
 }
