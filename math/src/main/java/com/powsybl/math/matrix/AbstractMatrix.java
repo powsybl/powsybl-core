@@ -20,7 +20,7 @@ public abstract class AbstractMatrix implements Matrix {
      *
      * @return an estimation of non zero value count
      */
-    protected abstract int getEstimatedNonZeroValueCount();
+    public abstract int getNonZeroValueCount();
 
     /**
      * Check that row {@code i} and column {@code j} are in matrix bounds.
@@ -43,7 +43,7 @@ public abstract class AbstractMatrix implements Matrix {
     @Override
     public Matrix copy(MatrixFactory factory) {
         Objects.requireNonNull(factory);
-        Matrix matrix = factory.create(getRowCount(), getColumnCount(), getEstimatedNonZeroValueCount());
+        Matrix matrix = factory.create(getRowCount(), getColumnCount(), getNonZeroValueCount());
         iterateNonZeroValue(matrix::set);
         return matrix;
     }

@@ -8,6 +8,7 @@ package com.powsybl.math.matrix;
 
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
+import com.powsybl.math.MathNative;
 import org.scijava.nativelib.NativeLoader;
 
 import java.io.IOException;
@@ -26,15 +27,8 @@ import java.util.Objects;
  */
 public class SparseMatrix extends AbstractMatrix {
 
-    private static native void nativeInit();
-
     static {
-        try {
-            NativeLoader.loadLibrary("math");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        nativeInit();
+        MathNative.init();
     }
 
     /**
@@ -172,7 +166,7 @@ public class SparseMatrix extends AbstractMatrix {
      *
      * @return columm start index vector
      */
-    int[] getColumnStart() {
+    public int[] getColumnStart() {
         return columnStart;
     }
 
@@ -190,7 +184,7 @@ public class SparseMatrix extends AbstractMatrix {
      *
      * @return row index vector
      */
-    int[] getRowIndices() {
+    public int[] getRowIndices() {
         return rowIndices.getData();
     }
 
@@ -199,7 +193,7 @@ public class SparseMatrix extends AbstractMatrix {
      *
      * @return non zero value vector
      */
-    double[] getValues() {
+    public double[] getValues() {
         return values.getData();
     }
 
@@ -424,7 +418,7 @@ public class SparseMatrix extends AbstractMatrix {
     }
 
     @Override
-    protected int getEstimatedNonZeroValueCount() {
+    public int getNonZeroValueCount() {
         return values.size();
     }
 
