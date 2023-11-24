@@ -57,8 +57,8 @@ public class PropertyCriterion implements Criterion {
         switch (equipmentToCheck) {
             case SELF:
                 return identifiable.hasProperty(propertyKey) && propertyValues.contains(identifiable.getProperty(propertyKey));
-            case VOLTAGE_LEVEL:
-            case SUBSTATION:
+            case VOLTAGE_LEVEL,
+                    SUBSTATION:
                 return filterEquipement(identifiable, type);
             default:
                 return false;
@@ -71,18 +71,18 @@ public class PropertyCriterion implements Criterion {
 
     private boolean filterEquipement(Identifiable<?> identifiable, IdentifiableType type) {
         switch (type) {
-            case STATIC_VAR_COMPENSATOR:
-            case SHUNT_COMPENSATOR:
-            case BUSBAR_SECTION:
-            case GENERATOR:
-            case DANGLING_LINE:
-            case LOAD:
-            case BATTERY:
+            case STATIC_VAR_COMPENSATOR,
+                    SHUNT_COMPENSATOR,
+                    BUSBAR_SECTION,
+                    GENERATOR,
+                    DANGLING_LINE,
+                    LOAD,
+                    BATTERY:
                 return filterSubstationOrVoltageLevel(((Injection) identifiable).getTerminal().getVoltageLevel());
             case SWITCH:
                 return filterSubstationOrVoltageLevel(((Switch) identifiable).getVoltageLevel());
-            case TWO_WINDINGS_TRANSFORMER:
-            case LINE:
+            case TWO_WINDINGS_TRANSFORMER,
+                    LINE:
                 return filterBranch(((Branch) identifiable).getTerminal1().getVoltageLevel(),
                         ((Branch) identifiable).getTerminal2().getVoltageLevel());
             case HVDC_LINE:
@@ -91,7 +91,7 @@ public class PropertyCriterion implements Criterion {
             case THREE_WINDINGS_TRANSFORMER:
                 return filterThreeWindingsTransformer((ThreeWindingsTransformer) identifiable);
             default:
-                throw new PowsyblException(String.format("type {} has no implementation for ContingencyElement", type));
+                throw new PowsyblException(String.format("type %s has no implementation for ContingencyElement", type));
         }
     }
 
