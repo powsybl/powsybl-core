@@ -10,6 +10,7 @@ package com.powsybl.tools.test;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.CommandLineTools;
@@ -76,7 +77,7 @@ public abstract class AbstractToolTest {
                 assertTrue(actual.isEmpty(), () -> "Expected output is empty but actual output = " + actual);
             } else {
                 if (strict) {
-                    assertEquals(expected, actual);
+                    ComparisonUtils.compareTxt(expected, actual);
                 } else {
                     assertTrue(Pattern.compile(expected).matcher(actual).find(), () ->
                         """
