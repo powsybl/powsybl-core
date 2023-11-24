@@ -7,7 +7,7 @@
 package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,13 +36,13 @@ class SecurityAnalysisResultMergerTest {
     @BeforeEach
     void setup() {
         // create pre-contingency results, just one violation on line1
-        LimitViolation line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000f, 0.95f, 1100, Branch.Side.ONE);
+        LimitViolation line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000f, 0.95f, 1100, TwoSides.ONE);
         preContingencyResult = new LimitViolationsResult(Collections.singletonList(line1Violation), Collections.singletonList("action1"));
 
         // create post-contingency results, still the line1 violation plus line2 violation
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        LimitViolation line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900f, 0.95f, 950, Branch.Side.ONE);
+        LimitViolation line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900f, 0.95f, 950, TwoSides.ONE);
         postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
 
         Contingency contingency2 = Mockito.mock(Contingency.class);

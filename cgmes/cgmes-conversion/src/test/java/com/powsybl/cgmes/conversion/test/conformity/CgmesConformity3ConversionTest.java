@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.xml.XmlUtil;
@@ -74,8 +75,15 @@ class CgmesConformity3ConversionTest {
             String terminal2 = tieLine.getDanglingLine2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
             String terminal1Resource = "#_" + terminal1;
             String terminal2Resource = "#_" + terminal2;
-            assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
-            assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
+
+            String eiTerminal1 = tieLine.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            String eiTerminal2 = tieLine.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            String eiTerminal1Resource = "#_" + eiTerminal1;
+            String eiTerminal2Resource = "#_" + eiTerminal2;
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", eiTerminal1Resource));
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", eiTerminal2Resource));
         }
     }
 
@@ -89,24 +97,4 @@ class CgmesConformity3ConversionTest {
         }
         return baos.toByteArray();
     }
-
-    private static boolean xmlContains(byte[] xml, String clazz, String ns, String attr, String expectedValue) {
-        try (InputStream is = new ByteArrayInputStream(xml)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
-            while (reader.hasNext()) {
-                if (reader.next() == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(clazz)) {
-                    String actualValue = reader.getAttributeValue(ns, attr);
-                    if (expectedValue.equals(actualValue)) {
-                        reader.close();
-                        return true;
-                    }
-                }
-            }
-            reader.close();
-        } catch (XMLStreamException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        return false;
-    }
-
 }

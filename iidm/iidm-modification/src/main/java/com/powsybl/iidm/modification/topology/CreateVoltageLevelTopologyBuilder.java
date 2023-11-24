@@ -116,7 +116,6 @@ public class CreateVoltageLevelTopologyBuilder {
      * If it is {@link SwitchKind#BREAKER}, a closed disconnector, a closed breaker and a closed disconnector are created.
      * If it is {@link SwitchKind#DISCONNECTOR}, a closed disconnector is created.
      * If it is null, no switch is created: the sections are disconnected.
-     *
      * In bus/breaker topology, all the switching devices are by default breakers.
      *
      * @param switchKinds
@@ -132,7 +131,6 @@ public class CreateVoltageLevelTopologyBuilder {
      * The switch kinds can be {@link SwitchKind#BREAKER}, {@link SwitchKind#DISCONNECTOR} or null.
      * If it is {@link SwitchKind#BREAKER}, a closed disconnector, a closed breaker and a closed disconnector are created.
      * If it is {@link SwitchKind#DISCONNECTOR}, a closed disconnector is created.
-     *
      * In bus/breaker topology, all the switching devices are by default breakers.
      *
      * @param switchKinds

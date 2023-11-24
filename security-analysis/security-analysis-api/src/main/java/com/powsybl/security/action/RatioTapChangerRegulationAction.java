@@ -7,7 +7,7 @@
  */
 package com.powsybl.security.action;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.OptionalDouble;
 
@@ -26,7 +26,7 @@ public class RatioTapChangerRegulationAction extends AbstractTapChangerRegulatio
         this(id, transformerId, null, regulating, targetV);
     }
 
-    public RatioTapChangerRegulationAction(String id, String transformerId, ThreeWindingsTransformer.Side side, boolean regulating, Double targetV) {
+    public RatioTapChangerRegulationAction(String id, String transformerId, ThreeSides side, boolean regulating, Double targetV) {
         super(id, transformerId, side, regulating);
         this.targetV = targetV;
     }
@@ -44,11 +44,11 @@ public class RatioTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return new RatioTapChangerRegulationAction(id, transformerId, null, true, null);
     }
 
-    public static RatioTapChangerRegulationAction activateRegulationAndChangeTargetV(String id, String transformerId, ThreeWindingsTransformer.Side side, Double targetV) {
+    public static RatioTapChangerRegulationAction activateRegulationAndChangeTargetV(String id, String transformerId, ThreeSides side, Double targetV) {
         return new RatioTapChangerRegulationAction(id, transformerId, side, true, targetV);
     }
 
-    public static RatioTapChangerRegulationAction activateRegulation(String id, String transformerId, ThreeWindingsTransformer.Side side) {
+    public static RatioTapChangerRegulationAction activateRegulation(String id, String transformerId, ThreeSides side) {
         return new RatioTapChangerRegulationAction(id, transformerId, side, true, null);
     }
 
@@ -56,7 +56,7 @@ public class RatioTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return new RatioTapChangerRegulationAction(id, transformerId, null, false, null);
     }
 
-    public static RatioTapChangerRegulationAction deactivateRegulation(String id, String transformerId, ThreeWindingsTransformer.Side side) {
+    public static RatioTapChangerRegulationAction deactivateRegulation(String id, String transformerId, ThreeSides side) {
         return new RatioTapChangerRegulationAction(id, transformerId, side, false, null);
     }
 

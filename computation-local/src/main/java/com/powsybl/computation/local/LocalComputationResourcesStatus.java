@@ -7,7 +7,9 @@
 package com.powsybl.computation.local;
 
 import com.powsybl.computation.ComputationResourcesStatus;
-import org.joda.time.DateTime;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import java.util.Collections;
 import java.util.Map;
@@ -20,7 +22,7 @@ class LocalComputationResourcesStatus implements ComputationResourcesStatus {
 
     private final int availableCores;
 
-    private DateTime date;
+    private ZonedDateTime date;
 
     private int busyCores = 0;
 
@@ -29,7 +31,7 @@ class LocalComputationResourcesStatus implements ComputationResourcesStatus {
     }
 
     @Override
-    public synchronized DateTime getDate() {
+    public synchronized ZonedDateTime getDate() {
         return date;
     }
 
@@ -49,12 +51,12 @@ class LocalComputationResourcesStatus implements ComputationResourcesStatus {
     }
 
     synchronized void incrementNumberOfBusyCores() {
-        date = new DateTime();
+        date = ZonedDateTime.now(ZoneOffset.UTC);
         busyCores++;
     }
 
     synchronized void decrementNumberOfBusyCores() {
-        date = new DateTime();
+        date = ZonedDateTime.now(ZoneOffset.UTC);
         busyCores--;
     }
 

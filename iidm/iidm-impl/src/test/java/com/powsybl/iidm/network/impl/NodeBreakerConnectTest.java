@@ -150,6 +150,21 @@ class NodeBreakerConnectTest {
     }
 
     @Test
+    void testNodeBreakerConnectViaVoltageLevelConnectedLoad() {
+        Network network = createNetwork();
+        Load l = network.getLoad("LD");
+        assertTrue(l.getTerminal().isConnected());
+        assertTrue(network.getSwitch("B2").isOpen());
+
+        if (l.getTerminal() instanceof TerminalExt terminal) {
+            NodeBreakerVoltageLevel voltageLevel = (NodeBreakerVoltageLevel) network.getVoltageLevel("VL");
+            voltageLevel.connect(terminal);
+        }
+        assertTrue(network.getSwitch("B2").isOpen());
+        assertTrue(l.getTerminal().isConnected());
+    }
+
+    @Test
     void testNodeBreakerDisconnectDisconnectedLoad() {
         Network network = createNetwork();
         network.getSwitch("B3").setOpen(true);
@@ -166,7 +181,10 @@ class NodeBreakerConnectTest {
         Network network = createDiamondNetwork();
         Load l = network.getLoad("L");
         assertTrue(l.getTerminal().isConnected());
-        l.getTerminal().disconnect();
+        if (l.getTerminal() instanceof TerminalExt terminal) {
+            NodeBreakerVoltageLevel voltageLevel = (NodeBreakerVoltageLevel) network.getVoltageLevel("VL");
+            voltageLevel.disconnect(terminal);
+        }
         assertFalse(l.getTerminal().isConnected());
     }
 }
