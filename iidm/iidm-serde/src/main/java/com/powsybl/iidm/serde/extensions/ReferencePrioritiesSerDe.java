@@ -23,6 +23,8 @@ import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.TerminalRefSerDe;
 
+import java.util.Map;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -33,6 +35,11 @@ public class ReferencePrioritiesSerDe<C extends Connectable<C>> extends Abstract
     public ReferencePrioritiesSerDe() {
         super("referencePriorities", "network", ReferencePriorities.class, "referencePriorities.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/reference_priorities/1_0", "refpri");
+    }
+
+    @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of("referencePriorities", "referencePriority");
     }
 
     @Override
