@@ -32,10 +32,9 @@ public class LimitViolationDetectorWithLimitReduction {
         this.limitReductionDefinitionList = limitReductionDefinitionList;
     }
 
-    public HashMap<LimitType, HashMap<LoadingLimitType, Double>> getLimitsWithAppliedReduction(Contingency contingency, Identifiable identifiable, Branch.Side side, LimitType limitType) {
-        //NB : How to deal with Side ? We have Branch.Side, HvdcLine.Side, ThreeWindingsTransformer.Side...
+    public HashMap<LimitType, HashMap<LoadingLimitType, Double>> getLimitsWithAppliedReduction(Contingency contingency, Identifiable identifiable, ThreeSides side, LimitType limitType) {
 
-        //TODO Apply contingency on network (or on a network variant)
+        //TODO Apply contingency on network (or on a network variant) : NO, use only contingency id in method signature
 
         for (LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition : limitReductionDefinitionList.getLimitReductionDefinitions()) {
             if (limitReductionDefinition.getLimitType() == limitType &&
@@ -44,21 +43,21 @@ public class LimitViolationDetectorWithLimitReduction {
                 if (identifiable instanceof Line line) {
                     switch (limitType) {
                         case CURRENT:
-                            Optional<CurrentLimits> currentLimits = line.getCurrentLimits(side);
+                            Optional<CurrentLimits> currentLimits = line.getCurrentLimits(side.toTwoSides());
                             if (currentLimits.isPresent()) {
                                 manageLimits(currentLimits.get(), limitReductionDefinition);
                             }
                             //TODO add limits to return HashMap
                             break;
                         case ACTIVE_POWER:
-                            Optional<ActivePowerLimits> activePowerLimits = line.getActivePowerLimits(side);
+                            Optional<ActivePowerLimits> activePowerLimits = line.getActivePowerLimits(side.toTwoSides());
                             if (activePowerLimits.isPresent()) {
                                 manageLimits(activePowerLimits.get(), limitReductionDefinition);
                             }
                             //TODO add limits to return HashMap
                             break;
                         case APPARENT_POWER:
-                            Optional<ApparentPowerLimits> apparentPowerLimits = line.getApparentPowerLimits(side);
+                            Optional<ApparentPowerLimits> apparentPowerLimits = line.getApparentPowerLimits(side.toTwoSides());
                             if (apparentPowerLimits.isPresent()) {
                                 manageLimits(apparentPowerLimits.get(), limitReductionDefinition);
                             }
