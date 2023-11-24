@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -43,7 +43,7 @@ class LoadModelXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1-zip-load-model.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("eurostag-tutorial-example1-zip-load-model.xml", CURRENT_IIDM_VERSION));
 
         // backward compatibility, load model is skipped
         roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
@@ -67,7 +67,7 @@ class LoadModelXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1-expo-load-model.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("eurostag-tutorial-example1-expo-load-model.xml", CURRENT_IIDM_VERSION));
 
         // backward compatibility, load model is skipped
         roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");

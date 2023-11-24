@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -40,7 +40,7 @@ class CoordinatedReactiveControlXmlTest extends AbstractSerDeTest {
         Network network2 = roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("/coordinatedReactiveControl.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("/coordinatedReactiveControl.xml", CURRENT_IIDM_VERSION));
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);

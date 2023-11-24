@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -26,7 +26,7 @@ class NodeBreakerInternalConnectionsTest extends AbstractIidmSerDeTest {
                 networkWithInternalConnections(),
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("internalConnections.xiidm", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("internalConnections.xiidm", CURRENT_IIDM_VERSION));
 
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("internalConnections.xiidm");

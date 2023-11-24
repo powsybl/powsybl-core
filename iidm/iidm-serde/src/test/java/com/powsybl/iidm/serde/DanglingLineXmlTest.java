@@ -35,7 +35,7 @@ class DanglingLineXmlTest extends AbstractIidmSerDeTest {
         Network network = DanglingLineNetworkFactory.createWithGeneration();
         network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
         network.getDanglingLine("DL").setProperty("test", "test");
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::read, getVersionedNetworkPath("danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::read, getVersionedNetworkPath("danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION));
 
         // backward compatibility checks from version 1.3
         roundTripVersionedXmlFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmVersion.V_1_3);
