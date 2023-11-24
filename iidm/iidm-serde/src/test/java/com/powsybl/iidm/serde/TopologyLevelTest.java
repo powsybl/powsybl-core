@@ -19,7 +19,7 @@ import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Teofil Calin Banc<teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin Banc {@literal <teofil-calin.banc at rte-france.com>}
  */
 class TopologyLevelTest extends AbstractIidmSerDeTest {
 
