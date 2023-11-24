@@ -65,7 +65,7 @@ public final class XmlUtil {
                         return true;
                     } else {
                         // Skip the current element
-                        readSubElements(reader);
+                        skipSubElements(reader);
                     }
                     break;
 
@@ -82,8 +82,8 @@ public final class XmlUtil {
         throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");
     }
 
-    public static void readSubElements(XMLStreamReader reader) {
-        readSubElements(reader, elementName -> readSubElements(reader));
+    public static void skipSubElements(XMLStreamReader reader) {
+        readSubElements(reader, elementName -> skipSubElements(reader));
     }
 
     public static void readSubElements(XMLStreamReader reader, TreeDataReader.ChildNodeReader childNodeReader) {
@@ -105,6 +105,36 @@ public final class XmlUtil {
     public static String readText(XMLStreamReader reader) throws XMLStreamException {
         String text = reader.getElementText();
         return text.isEmpty() ? null : text;
+    }
+
+    public static Integer readIntAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Integer.valueOf(attributeValue) : null;
+    }
+
+    public static int readIntAttribute(XMLStreamReader reader, String name, int defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
+    }
+
+    public static Boolean readBooleanAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Boolean.valueOf(attributeValue) : null;
+    }
+
+    public static boolean readBooleanAttribute(XMLStreamReader reader, String name, boolean defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Boolean.parseBoolean(attributeValue) : defaultValue;
+    }
+
+    public static double readDoubleAttribute(XMLStreamReader reader, String name, double defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Double.parseDouble(attributeValue) : defaultValue;
+    }
+
+    public static float readFloatAttribute(XMLStreamReader reader, String name, float defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Float.parseFloat(attributeValue) : defaultValue;
     }
 
     public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {

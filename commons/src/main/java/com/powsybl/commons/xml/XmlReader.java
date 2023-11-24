@@ -59,14 +59,12 @@ public class XmlReader extends AbstractTreeDataReader {
 
     @Override
     public double readDoubleAttribute(String name, double defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Double.parseDouble(attributeValue) : defaultValue;
+        return XmlUtil.readDoubleAttribute(reader, name, defaultValue);
     }
 
     @Override
     public float readFloatAttribute(String name, float defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Float.parseFloat(attributeValue) : defaultValue;
+        return XmlUtil.readFloatAttribute(reader, name, defaultValue);
     }
 
     @Override
@@ -76,26 +74,22 @@ public class XmlReader extends AbstractTreeDataReader {
 
     @Override
     public Integer readIntAttribute(String name) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Integer.valueOf(attributeValue) : null;
+        return XmlUtil.readIntAttribute(reader, name);
     }
 
     @Override
     public int readIntAttribute(String name, int defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
+        return XmlUtil.readIntAttribute(reader, name, defaultValue);
     }
 
     @Override
     public Boolean readBooleanAttribute(String name) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Boolean.valueOf(attributeValue) : null;
+        return XmlUtil.readBooleanAttribute(reader, name);
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Boolean.parseBoolean(attributeValue) : defaultValue;
+        return XmlUtil.readBooleanAttribute(reader, name, defaultValue);
     }
 
     @Override

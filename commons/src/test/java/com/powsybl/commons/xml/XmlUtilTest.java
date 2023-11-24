@@ -43,7 +43,7 @@ class XmlUtilTest {
                     depths.put(elementName, 0);
                     XmlUtil.readSubElements(xmlReader, elementName1 -> {
                         depths.put(elementName1, 1);
-                        XmlUtil.readSubElements(xmlReader);
+                        XmlUtil.skipSubElements(xmlReader);
                     });
                 });
             } finally {
@@ -66,7 +66,7 @@ class XmlUtilTest {
                     if (elementName.equals("b")) {
                         XmlUtil.readSubElements(xmlReader, elementName1 -> {
                             depths.put(elementName1, 1);
-                            XmlUtil.readSubElements(xmlReader);
+                            XmlUtil.skipSubElements(xmlReader);
                         });
                     }
                 });
