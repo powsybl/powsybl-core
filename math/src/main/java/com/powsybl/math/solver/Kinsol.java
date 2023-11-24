@@ -46,8 +46,8 @@ public class Kinsol {
         this.jacobianUpdater = Objects.requireNonNull(jacobianUpdater);
     }
 
-    public native int solve(double[] x, int[] ap, int[] ai, double[] ax, KinsolContext context,
-                            int maxIter, boolean lineSearch, int level);
+    public native KinsolResult solve(double[] x, int[] ap, int[] ai, double[] ax, KinsolContext context,
+                                     int maxIter, boolean lineSearch, int level);
 
     private static int getPrintLevel() {
         if (LOGGER.isTraceEnabled()) {
@@ -60,10 +60,9 @@ public class Kinsol {
         return 0;
     }
 
-    public KinsolSolveStatus solve(double[] x, KinsolParameters parameters) {
+    public KinsolResult solve(double[] x, KinsolParameters parameters) {
         var solverContext = new KinsolContext(x, j, functionUpdater, jacobianUpdater);
-        int status = solve(x, j.getColumnStart(), j.getRowIndices(), j.getValues(), solverContext,
+        return solve(x, j.getColumnStart(), j.getRowIndices(), j.getValues(), solverContext,
                 parameters.getMaxIterations(), parameters.isLineSearch(), getPrintLevel());
-        return KinsolSolveStatus.fromValue(status);
     }
 }

@@ -9,7 +9,7 @@ package com.powsybl.math.solver;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public enum KinsolSolveStatus {
+public enum KinsolStatus {
     KIN_SUCCESS(0),
     KIN_INITIAL_GUESS_OK(1),
     KIN_STEP_LT_STPTOL(2),
@@ -31,7 +31,7 @@ public enum KinsolSolveStatus {
 
     private final int value;
 
-    KinsolSolveStatus(int value) {
+    KinsolStatus(int value) {
         this.value = value;
     }
 
@@ -39,8 +39,8 @@ public enum KinsolSolveStatus {
         return value;
     }
 
-    static KinsolSolveStatus fromValue(int value) {
-        for (KinsolSolveStatus status : KinsolSolveStatus.values()) {
+    static KinsolStatus fromValue(int value) {
+        for (KinsolStatus status : KinsolStatus.values()) {
             if (status.getValue() == value) {
                 return status;
             }
