@@ -15,17 +15,14 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * Creates symmetrical matrix topology in a given voltage level,
- * containing a given number of busbar with a given number of sections each.
- *
+ * containing a given number of busbar with a given number of sections each.<br/>
  * See {@link CreateVoltageLevelTopologyBuilder}.
  *
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -33,7 +30,6 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateVoltageLevelTopology.class);
-    private static final String SEPARATOR = "_";
 
     private final String voltageLevelId;
 
@@ -134,7 +130,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         //checks
         if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, throwException, reporter)) {
             return;
@@ -156,29 +152,29 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                 LOG.warn("Voltage level {} is BUS_BREAKER. Switchkinds is ignored.", voltageLevelId);
             }
             // Create buses
-            createBuses(voltageLevel);
+            createBuses(voltageLevel, namingStrategy);
             // Create switches between buses
-            createBusBreakerSwitches(voltageLevel);
+            createBusBreakerSwitches(voltageLevel, namingStrategy);
         } else {
             // Check switch kinds
             if (!checkSwitchKinds(switchKinds, sectionCount, reporter, throwException)) {
                 return;
             }
             // Create busbar sections
-            createBusbarSections(voltageLevel);
+            createBusbarSections(voltageLevel, namingStrategy);
             // Create switches
-            createSwitches(voltageLevel);
+            createSwitches(voltageLevel, namingStrategy);
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
         createdNewSymmetricalTopology(reporter, voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
     }
 
-    private void createBusbarSections(VoltageLevel voltageLevel) {
+    private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
         int node = 0;
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
             for (int busbarNum = lowBusOrBusbarIndex; busbarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busbarNum++) {
                 BusbarSection bbs = voltageLevel.getNodeBreakerView().newBusbarSection()
-                        .setId(busOrBusbarSectionPrefixId + SEPARATOR + busbarNum + SEPARATOR + sectionNum)
+                        .setId(namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, switchKinds, busbarNum, sectionNum))
                         .setNode(node)
                         .add();
                 bbs.newExtension(BusbarSectionPositionAdder.class)
@@ -190,48 +186,62 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
     }
 
-    private void createBuses(VoltageLevel voltageLevel) {
+    private void createBuses(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
             for (int busNum = lowBusOrBusbarIndex; busNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busNum++) {
                 voltageLevel.getBusBreakerView().newBus()
-                        .setId(busOrBusbarSectionPrefixId + SEPARATOR + busNum + SEPARATOR + sectionNum)
+                        .setId(namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum))
                         .add();
             }
         }
     }
 
-    private void createBusBreakerSwitches(VoltageLevel voltageLevel) {
+    private void createBusBreakerSwitches(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount - 1; sectionNum++) {
             for (int busNum = lowBusOrBusbarIndex; busNum < lowSectionIndex + alignedBusesOrBusbarCount; busNum++) {
-                String bus1Id = busOrBusbarSectionPrefixId + SEPARATOR + busNum + SEPARATOR + sectionNum;
-                String bus2Id = busOrBusbarSectionPrefixId + SEPARATOR + busNum + SEPARATOR + (sectionNum + 1);
-                createBusBreakerSwitch(bus1Id, bus2Id, switchPrefixId, SEPARATOR + busNum + SEPARATOR + sectionNum, voltageLevel.getBusBreakerView());
+                String bus1Id = namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum);
+                String bus2Id = namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum + 1);
+                createBusBreakerSwitch(bus1Id, bus2Id, namingStrategy.getSwitchId(switchPrefixId, busNum, sectionNum), voltageLevel.getBusBreakerView());
             }
         }
     }
 
-    private void createSwitches(VoltageLevel voltageLevel) {
+    private void createSwitches(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount - 1; sectionNum++) {
             SwitchKind switchKind = switchKinds.get(sectionNum - 1);
             for (int busBarNum = lowBusOrBusbarIndex; busBarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busBarNum++) {
+                // Busbarsections on which to connect the disconnectors
+                BusbarSection bbs1 = voltageLevel.getNodeBreakerView().getBusbarSection(namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, switchKinds, busBarNum, sectionNum));
+                BusbarSection bbs2 = voltageLevel.getNodeBreakerView().getBusbarSection(namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, switchKinds, busBarNum, sectionNum + 1));
+
+                // Nodes
+                int node1 = getNode(bbs1.getId(), voltageLevel);
+                int node2 = getNode(bbs2.getId(), voltageLevel);
+
                 if (switchKind == SwitchKind.BREAKER) {
-                    int node1 = getNode(busBarNum, sectionNum, busOrBusbarSectionPrefixId, voltageLevel);
-                    int node2 = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-                    int node3 = node2 + 1;
-                    int node4 = getNode(busBarNum, sectionNum + 1, busOrBusbarSectionPrefixId, voltageLevel);
-                    createNBDisconnector(node1, node2, SEPARATOR + busBarNum + SEPARATOR + sectionNum, switchPrefixId, voltageLevel.getNodeBreakerView(), false);
-                    createNBBreaker(node2, node3, SEPARATOR + busBarNum + SEPARATOR + sectionNum, switchPrefixId, voltageLevel.getNodeBreakerView(), false);
-                    createNBDisconnector(node3, node4, SEPARATOR + busBarNum + SEPARATOR + sectionNum, switchPrefixId, voltageLevel.getNodeBreakerView(), false);
+                    // New nodes
+                    int newNode1 = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+                    int newNode2 = newNode1 + 1;
+
+                    // Prefix
+                    String chunkingPrefixId = namingStrategy.getChunkPrefix(switchPrefixId, switchKinds, busBarNum, sectionNum, sectionNum + 1);
+
+                    // Breaker and disconnectors creation
+                    createNBDisconnector(node1, newNode1, namingStrategy.getDisconnectorBetweenChunksId(bbs1, chunkingPrefixId, node1, newNode1), voltageLevel.getNodeBreakerView(), false);
+                    createNBBreaker(newNode1, newNode2, namingStrategy.getBreakerId(chunkingPrefixId, busBarNum, sectionNum), voltageLevel.getNodeBreakerView(), false);
+                    createNBDisconnector(newNode2, node2, namingStrategy.getDisconnectorBetweenChunksId(bbs2, chunkingPrefixId, newNode2, node2), voltageLevel.getNodeBreakerView(), false);
                 } else if (switchKind == SwitchKind.DISCONNECTOR) {
-                    int node1 = getNode(busBarNum, sectionNum, busOrBusbarSectionPrefixId, voltageLevel);
-                    int node2 = getNode(busBarNum, sectionNum + 1, busOrBusbarSectionPrefixId, voltageLevel);
-                    createNBDisconnector(node1, node2, SEPARATOR + busBarNum + SEPARATOR + sectionNum, switchPrefixId, voltageLevel.getNodeBreakerView(), false);
+                    // Prefix
+                    String sectioningPrefix = namingStrategy.getSectioningPrefix(switchPrefixId, bbs1, busBarNum, sectionNum, sectionNum + 1);
+
+                    // Disconnector creation
+                    createNBDisconnector(node1, node2, namingStrategy.getDisconnectorId(sectioningPrefix, node1, node2), voltageLevel.getNodeBreakerView(), false);
                 } // other cases cannot happen (has been checked in the constructor)
             }
         }
     }
 
-    private static int getNode(int busBarNum, int sectionNum, String busBarSectionPrefixId, VoltageLevel voltageLevel) {
-        return voltageLevel.getNodeBreakerView().getBusbarSection(busBarSectionPrefixId + SEPARATOR + busBarNum + SEPARATOR + sectionNum).getTerminal().getNodeBreakerView().getNode();
+    private static int getNode(String busBarSectionId, VoltageLevel voltageLevel) {
+        return voltageLevel.getNodeBreakerView().getBusbarSection(busBarSectionId).getTerminal().getNodeBreakerView().getNode();
     }
 }

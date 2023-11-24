@@ -217,9 +217,9 @@ public final class TopologyModificationUtils {
         });
     }
 
-    static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
+    static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
-                .setId(prefix + "_BREAKER" + suffix)
+                .setId(id)
                 .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(open)
@@ -229,9 +229,9 @@ public final class TopologyModificationUtils {
                 .add();
     }
 
-    static void createNBDisconnector(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
+    static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
-                .setId(prefix + "_DISCONNECTOR" + suffix)
+                .setId(id)
                 .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.DISCONNECTOR)
                 .setOpen(open)
@@ -240,14 +240,9 @@ public final class TopologyModificationUtils {
                 .add();
     }
 
-    static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String prefix, VoltageLevel.BusBreakerView view) {
-        createBusBreakerSwitch(busId1, middleBusId, prefix, "_1", view);
-        createBusBreakerSwitch(middleBusId, busId2, prefix, "_2", view);
-    }
-
-    static void createBusBreakerSwitch(String busId1, String busId2, String prefix, String suffix, VoltageLevel.BusBreakerView view) {
+    static void createBusBreakerSwitch(String busId1, String busId2, String id, VoltageLevel.BusBreakerView view) {
         view.newSwitch()
-                .setId(prefix + "_SW" + suffix)
+                .setId(id)
                 .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(busId1)
@@ -343,35 +338,36 @@ public final class TopologyModificationUtils {
     /**
      * Creates a breaker and a disconnector between the connectable and the specified busbar
      */
-    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, String prefix, BusbarSection bbs) {
-        createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, prefix, "", List.of(bbs), bbs);
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
+        createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, List.of(bbs), bbs);
     }
 
     /**
-     * Creates a breaker and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
+     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
      */
-    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, String prefix, List<BusbarSection> bbsList, BusbarSection bbs) {
-        createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, prefix, "", bbsList, bbs);
-    }
-
-    /**
-     * Creates a breaker and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
-     */
-    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, String prefix, String suffix, List<BusbarSection> bbsList, BusbarSection bbs) {
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         // Closed breaker
-        createNBBreaker(connectableNode, forkNode, suffix, prefix, voltageLevel.getNodeBreakerView(), false);
+        createNBBreaker(connectableNode, forkNode, namingStrategy.getBreakerId(baseId), voltageLevel.getNodeBreakerView(), false);
 
         // Disconnectors - only the one on the chosen busbarsection is closed
-        createDisconnectorTopology(voltageLevel, forkNode, prefix, bbsList, bbs);
+        createDisconnectorTopology(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs);
     }
 
     /**
      * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
      */
-    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+        createDisconnectorTopology(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs, 0);
+    }
+
+    /**
+     * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
+     */
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, int side) {
+        // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), b != bbs);
+            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(b, baseId, forkNode, bbsNode, side), voltageLevel.getNodeBreakerView(), b != bbs);
         });
     }
 
@@ -395,7 +391,7 @@ public final class TopologyModificationUtils {
         Optional<Integer> sliceMin = allOrders.get(sectionIndex).stream().min(Comparator.naturalOrder());
         int min = previousSliceMax.map(o -> o + 1).orElse(0);
         int max = sliceMin.or(() -> getMinOrderUsedAfter(allOrders, sectionIndex)).map(o -> o - 1).orElse(Integer.MAX_VALUE);
-        return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+        return Optional.ofNullable(min <= max ? Range.of(min, max) : null);
     }
 
     /**
@@ -418,7 +414,7 @@ public final class TopologyModificationUtils {
         Optional<Integer> sliceMax = allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
         int min = sliceMax.or(() -> getMaxOrderUsedBefore(allOrders, sectionIndex)).map(o -> o + 1).orElse(0);
         int max = nextSliceMin.map(o -> o - 1).orElse(Integer.MAX_VALUE);
-        return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+        return Optional.ofNullable(min <= max ? Range.of(min, max) : null);
     }
 
     /**
@@ -436,9 +432,9 @@ public final class TopologyModificationUtils {
             int max = getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE);
             int min = getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(0);
 
-            return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+            return Optional.ofNullable(min <= max ? Range.of(min, max) : null);
         }
-        return Optional.of(Range.between(0, Integer.MAX_VALUE));
+        return Optional.of(Range.of(0, Integer.MAX_VALUE));
     }
 
     /**
