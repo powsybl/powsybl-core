@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
@@ -220,7 +221,7 @@ class CreateVoltageLevelTopologyTest extends AbstractSerDeTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
-        modification.apply(network, reporter);
+        modification.apply(network, LocalComputationManager.getDefault(), reporter);
         testReporter(reporter, "/reporter/create-voltage-level-topology-report.txt");
     }
 
