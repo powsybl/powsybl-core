@@ -47,6 +47,14 @@ public abstract class AbstractToolTest {
 
     private CommandLineTools tools;
 
+    private static final String ASSERT_MATCH_TEXT_BLOCK = """
+                         Actual output does not contains expected output
+                         Expected:
+                         %s
+                         Actual:
+                         %s
+                         """;
+
     @BeforeEach
     public void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
@@ -79,14 +87,7 @@ public abstract class AbstractToolTest {
                 if (strict) {
                     ComparisonUtils.compareTxt(expected, actual);
                 } else {
-                    assertTrue(Pattern.compile(expected).matcher(actual).find(), () ->
-                        """
-                         Actual output does not contains expected output
-                         Expected:
-                         %s
-                         Actual:
-                         %s
-                         """.formatted(expected, actual));
+                    assertTrue(Pattern.compile(expected).matcher(actual).find(), () -> ASSERT_MATCH_TEXT_BLOCK.formatted(expected, actual));
                 }
             }
         }
