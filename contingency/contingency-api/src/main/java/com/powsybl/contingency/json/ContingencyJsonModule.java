@@ -9,8 +9,10 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.contingency.list.*;
-import com.powsybl.contingency.contingency.list.criterion.Criterion;
+import com.powsybl.iidm.network.util.criterion.Criterion;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.iidm.network.util.criterion.json.CriterionDeserializer;
+import com.powsybl.iidm.network.util.criterion.json.CriterionSerializer;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

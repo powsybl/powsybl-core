@@ -9,9 +9,9 @@ package com.powsybl.contingency.contingency.list;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.contingency.list.criterion.Criterion;
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
-import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
+import com.powsybl.iidm.network.util.criterion.Criterion;
+import com.powsybl.iidm.network.util.criterion.PropertyCriterion;
+import com.powsybl.iidm.network.util.criterion.RegexCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 

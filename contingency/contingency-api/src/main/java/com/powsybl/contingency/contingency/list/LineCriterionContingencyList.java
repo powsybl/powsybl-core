@@ -8,6 +8,10 @@ package com.powsybl.contingency.contingency.list;
 
 import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.util.criterion.PropertyCriterion;
+import com.powsybl.iidm.network.util.criterion.RegexCriterion;
+import com.powsybl.iidm.network.util.criterion.TwoCountriesCriterion;
+import com.powsybl.iidm.network.util.criterion.TwoNominalVoltageCriterion;
 
 import java.util.List;
 

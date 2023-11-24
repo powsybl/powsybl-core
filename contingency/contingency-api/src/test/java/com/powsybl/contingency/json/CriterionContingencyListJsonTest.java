@@ -14,6 +14,7 @@ import com.powsybl.contingency.contingency.list.*;
 import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.util.criterion.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
