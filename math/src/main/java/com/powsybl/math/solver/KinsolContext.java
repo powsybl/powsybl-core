@@ -9,6 +9,7 @@ package com.powsybl.math.solver;
 import com.powsybl.math.matrix.SparseMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.util.Objects;
 
@@ -27,20 +28,24 @@ public class KinsolContext {
 
     private final Kinsol.JacobianUpdater jacobianUpdater;
 
-    public KinsolContext(double[] x, SparseMatrix j, Kinsol.FunctionUpdater functionUpdater, Kinsol.JacobianUpdater jacobianUpdater) {
+    private final Level logLevel;
+
+    public KinsolContext(double[] x, SparseMatrix j, Kinsol.FunctionUpdater functionUpdater, Kinsol.JacobianUpdater jacobianUpdater,
+                         Level logLevel) {
         this.x = Objects.requireNonNull(x);
         this.j = Objects.requireNonNull(j);
         this.functionUpdater = Objects.requireNonNull(functionUpdater);
         this.jacobianUpdater = Objects.requireNonNull(jacobianUpdater);
+        this.logLevel = Objects.requireNonNull(logLevel);
     }
 
     public void logError(int errorCode, String module, String function, String message) {
-        LOGGER.error("KinSol error: code={}, module='{}', function='{}', message='{}'",
+        LOGGER.error("KinSol: code={}, module='{}', function='{}', message='{}'",
                 errorCode, module, function, message);
     }
 
     public void logInfo(String module, String function, String message) {
-        LOGGER.info("KinSol info: module='{}', function='{}', message='{}'",
+        LOGGER.atLevel(logLevel).log("KinSol: module='{}', function='{}', message='{}'",
                 module, function, message);
     }
 

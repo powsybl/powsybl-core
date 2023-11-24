@@ -9,11 +9,8 @@ package com.powsybl.math.matrix;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
 import com.powsybl.math.MathNative;
-import org.scijava.nativelib.NativeLoader;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;

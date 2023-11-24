@@ -10,6 +10,7 @@ import com.powsybl.math.MathNative;
 import com.powsybl.math.matrix.SparseMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.util.Objects;
 
@@ -49,20 +50,30 @@ public class Kinsol {
     public native KinsolResult solve(double[] x, int[] ap, int[] ai, double[] ax, KinsolContext context,
                                      int maxIter, boolean lineSearch, int level);
 
-    private static int getPrintLevel() {
+    private static Level getLogLevel() {
         if (LOGGER.isTraceEnabled()) {
-            return 3;
+            return Level.TRACE;
         } else if (LOGGER.isDebugEnabled()) {
-            return 2;
+            return Level.DEBUG;
         } else if (LOGGER.isInfoEnabled()) {
-            return 1;
+            return Level.INFO;
         }
-        return 0;
+        return Level.WARN;
+    }
+
+    private static int getPrintLevel(Level level) {
+        return switch (level) {
+            case INFO -> 1;
+            case DEBUG -> 2;
+            case TRACE -> 3;
+            default -> 0;
+        };
     }
 
     public KinsolResult solve(double[] x, KinsolParameters parameters) {
-        var solverContext = new KinsolContext(x, j, functionUpdater, jacobianUpdater);
-        return solve(x, j.getColumnStart(), j.getRowIndices(), j.getValues(), solverContext,
-                parameters.getMaxIterations(), parameters.isLineSearch(), getPrintLevel());
+        Level logLevel = getLogLevel();
+        var context = new KinsolContext(x, j, functionUpdater, jacobianUpdater, logLevel);
+        return solve(x, j.getColumnStart(), j.getRowIndices(), j.getValues(), context,
+                parameters.getMaxIterations(), parameters.isLineSearch(), getPrintLevel(logLevel));
     }
 }
