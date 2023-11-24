@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.*;
-import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.util.criterion.*;
