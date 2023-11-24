@@ -177,6 +177,11 @@ public class XmlWriter implements TreeDataWriter {
     }
 
     @Override
+    public void writeStringArrayAttribute(String name, Collection<String> values) {
+        writeStringAttribute(name, String.join(",", values));
+    }
+
+    @Override
     public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
         if (value != null) {
             names.add(name);
