@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -187,13 +188,22 @@ public class JsonReader extends AbstractTreeDataReader {
 
     @Override
     public List<Integer> readIntArrayAttribute(String name) {
+        return readArrayAttribute(name, JsonUtil::parseIntegerArray);
+    }
+
+    @Override
+    public List<String> readStringArrayAttribute(String name) {
+        return readArrayAttribute(name, JsonUtil::parseStringArray);
+    }
+
+    private <T> List<T> readArrayAttribute(String name, Function<JsonParser, List<T>> arrayParser) {
         Objects.requireNonNull(name);
         String fieldName = getFieldName();
         currentJsonTokenConsumed = true;
         if (!name.equals(fieldName)) {
             throw createUnexpectedNameException(name, fieldName);
         }
-        return JsonUtil.parseIntegerArray(parser);
+        return arrayParser.apply(parser);
     }
 
     @Override
