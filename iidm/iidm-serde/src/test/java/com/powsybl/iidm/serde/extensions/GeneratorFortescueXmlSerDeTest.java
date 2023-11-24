@@ -6,13 +6,12 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.GeneratorFortescue;
 import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -24,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class GeneratorFortescueXmlSerDeTest extends AbstractSerDeTest {
+class GeneratorFortescueXmlSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testXmlSerializer() throws IOException {
@@ -42,9 +41,7 @@ class GeneratorFortescueXmlSerDeTest extends AbstractSerDeTest {
                 .withGroundingX(0.3d)
                 .add();
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read, "/fortescue/generatorFortescueRef.xml");
+        Network network2 = fullRoundTripTest(network, "/fortescue/generatorFortescueRef.xml");
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);

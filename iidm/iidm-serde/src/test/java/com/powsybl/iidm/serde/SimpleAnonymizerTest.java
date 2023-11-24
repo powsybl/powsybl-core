@@ -50,10 +50,7 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
         new XMLExporter(platformConfig).export(network2, null, dataSource2);
 
         // check that re-imported IIDM XML has been deanonymized and is equals to reference file
-        roundTripXmlTest(network2,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(network2, "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test

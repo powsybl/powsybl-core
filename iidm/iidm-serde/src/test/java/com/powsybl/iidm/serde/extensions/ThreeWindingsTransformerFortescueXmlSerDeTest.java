@@ -6,13 +6,12 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescueAdder;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ThreeWindingsTransformerFortescueXmlSerDeTest extends AbstractSerDeTest {
+class ThreeWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testXmlSerializer() throws IOException {
@@ -56,9 +55,7 @@ class ThreeWindingsTransformerFortescueXmlSerDeTest extends AbstractSerDeTest {
                     .withGroundingX(0.5d)
                 .add();
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read, "/fortescue/threeWindingsTransformerFortescueRef.xml");
+        Network network2 = fullRoundTripTest(network, "/fortescue/threeWindingsTransformerFortescueRef.xml");
 
         var twt2 = network2.getThreeWindingsTransformer("3WT");
         assertNotNull(twt2);

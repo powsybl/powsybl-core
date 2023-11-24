@@ -20,10 +20,7 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripLccTest() throws IOException {
-        roundTripXmlTest(HvdcTestNetwork.createLcc(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("LccRoundTripRef.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(HvdcTestNetwork.createLcc(), "LccRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("LccRoundTripRef.xml");
@@ -31,10 +28,7 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripVscTest() throws IOException {
-        roundTripXmlTest(HvdcTestNetwork.createVsc(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("VscRoundTripRef.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(HvdcTestNetwork.createVsc(), "VscRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("VscRoundTripRef.xml");

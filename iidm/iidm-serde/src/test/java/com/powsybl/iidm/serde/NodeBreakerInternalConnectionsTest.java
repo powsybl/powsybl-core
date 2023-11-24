@@ -22,11 +22,7 @@ class NodeBreakerInternalConnectionsTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripXmlTest(
-                networkWithInternalConnections(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("internalConnections.xiidm", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(networkWithInternalConnections(), "internalConnections.xiidm", CURRENT_IIDM_VERSION);
 
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("internalConnections.xiidm");

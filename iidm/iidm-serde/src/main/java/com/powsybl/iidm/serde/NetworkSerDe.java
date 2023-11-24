@@ -18,6 +18,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionSerDe;
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonReader;
@@ -490,7 +491,11 @@ public final class NetworkSerDe {
 
     public static Anonymizer writeAndValidate(Network n, ExportOptions options, Path xmlFile) {
         Anonymizer anonymizer = write(n, options, xmlFile);
-        validate(xmlFile);
+        if (options.getFormat() == TreeDataFormat.XML) {
+            validate(xmlFile);
+        } else {
+            LOGGER.warn("Non-XML file written {} (format {}) could not be validated", xmlFile, options.getFormat());
+        }
         return anonymizer;
     }
 
@@ -750,7 +755,11 @@ public final class NetworkSerDe {
     }
 
     public static Network validateAndRead(Path xmlFile, ImportOptions options) {
-        validate(xmlFile);
+        if (options.getFormat() == TreeDataFormat.XML) {
+            validate(xmlFile);
+        } else {
+            LOGGER.warn("Non-XML file {} (format {}) could not be validated", xmlFile, options.getFormat());
+        }
         return read(xmlFile, options);
     }
 

@@ -6,13 +6,12 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -24,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.com>}
  */
-class IdentifiableShortCircuitXmlSerDeTest extends AbstractSerDeTest {
+class IdentifiableShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testXmlSerializer() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
@@ -37,9 +36,7 @@ class IdentifiableShortCircuitXmlSerDeTest extends AbstractSerDeTest {
                 .add();
         IdentifiableShortCircuit voltageLevelShortCircuits = vlhv1.getExtension(IdentifiableShortCircuit.class);
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read, "/shortcircuits/voltageLevelShortCircuitRef.xml");
+        Network network2 = fullRoundTripTest(network, "/shortcircuits/voltageLevelShortCircuitRef.xml");
 
         VoltageLevel vlhv2 = network2.getVoltageLevel("VLHV1");
         assertNotNull(vlhv2);

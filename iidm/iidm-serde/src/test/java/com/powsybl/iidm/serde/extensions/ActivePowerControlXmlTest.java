@@ -6,19 +6,17 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
-class ActivePowerControlXmlTest extends AbstractSerDeTest {
+class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -40,10 +38,7 @@ class ActivePowerControlXmlTest extends AbstractSerDeTest {
         Generator generator = network.getGenerator("GEN");
         generator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(generator, false, 3.0, 1.0));
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("/activePowerControlRoundTripRef.xml", CURRENT_IIDM_VERSION));
+        Network network2 = fullRoundTripTest(network, "/activePowerControlRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);

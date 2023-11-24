@@ -23,9 +23,6 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("reactiveLimitsRoundTripRef.xml");
 
-        roundTripXmlTest(ReactiveLimitsTestNetworkFactory.create(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("reactiveLimitsRoundTripRef.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(ReactiveLimitsTestNetworkFactory.create(), "reactiveLimitsRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 }

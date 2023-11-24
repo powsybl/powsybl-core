@@ -10,12 +10,12 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -35,7 +35,7 @@ class DanglingLineXmlTest extends AbstractIidmSerDeTest {
         Network network = DanglingLineNetworkFactory.createWithGeneration();
         network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
         network.getDanglingLine("DL").setProperty("test", "test");
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::read, getVersionedNetworkPath("danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION));
+        fullRoundTripTest(network, "danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // backward compatibility checks from version 1.3
         roundTripVersionedXmlFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmVersion.V_1_3);

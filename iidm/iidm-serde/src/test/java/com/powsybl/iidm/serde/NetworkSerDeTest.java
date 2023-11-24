@@ -12,7 +12,6 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
-import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
@@ -45,10 +44,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripXmlTest(createEurostagTutorialExample1(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(createEurostagTutorialExample1(), "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
@@ -176,14 +172,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");
         merged.addExtension(NetworkSourceExtension.class, source);
 
-        roundTripXmlTest(merged,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION));
-        roundTripTest(merged,
-                (n, jsonFile) -> NetworkSerDe.write(n, new ExportOptions().setFormat(TreeDataFormat.JSON), jsonFile),
-                jsonFile -> NetworkSerDe.read(jsonFile, new ImportOptions().setFormat(TreeDataFormat.JSON)),
-                getVersionedNetworkPath("subnetworks.json", IidmSerDeConstants.CURRENT_IIDM_VERSION));
+        fullRoundTripTest(merged, "subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         roundTripVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
         roundTripVersionedJsonFromMinToCurrentVersionTest("subnetworks.json", IidmVersion.V_1_11);

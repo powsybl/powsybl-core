@@ -27,10 +27,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("threeWindingsTransformerRoundTripRef.xml");
 
-        roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(), "threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test
@@ -57,10 +54,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         createPtc(twt.getLeg2().newPhaseTapChanger());
         createPtc(twt.getLeg3().newPhaseTapChanger());
 
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(network, "completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     private void createPtc(PhaseTapChangerAdder adder) {

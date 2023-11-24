@@ -6,17 +6,16 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class LoadingLimitsBugTest extends AbstractSerDeTest {
+class LoadingLimitsBugTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -44,8 +43,7 @@ class LoadingLimitsBugTest extends AbstractSerDeTest {
                 .setPermanentLimit(100)
                 .add();
         // check that XIIDM 1.5 is not ill-formed
-        ExportOptions options = new ExportOptions()
-                .setVersion(IidmVersion.V_1_5.toString("."));
-        roundTripXmlTest(network, (n, path) -> NetworkSerDe.writeAndValidate(n, options, path), NetworkSerDe::validateAndRead, "/loading-limits-bug.xml");
+        fullRoundTripTest(network, "/loading-limits-bug.xml",
+                new ExportOptions().setVersion(IidmVersion.V_1_5.toString(".")));
     }
 }

@@ -6,13 +6,12 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.LineFortescue;
 import com.powsybl.iidm.network.extensions.LineFortescueAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class LineFortescueXmlSerDeTest extends AbstractSerDeTest {
+class LineFortescueXmlSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testXmlSerializer() throws IOException {
@@ -38,9 +37,7 @@ class LineFortescueXmlSerDeTest extends AbstractSerDeTest {
                 .withOpenPhaseC(true)
                 .add();
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read, "/fortescue/lineFortescueRef.xml");
+        Network network2 = fullRoundTripTest(network, "/fortescue/lineFortescueRef.xml");
 
         Line l2 = network2.getLine("NHV1_NHV2_1");
         assertNotNull(l2);

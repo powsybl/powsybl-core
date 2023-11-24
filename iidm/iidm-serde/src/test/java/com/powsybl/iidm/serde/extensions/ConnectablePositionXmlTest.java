@@ -6,12 +6,11 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.ExportOptions;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ConnectablePositionXmlTest extends AbstractSerDeTest {
+class ConnectablePositionXmlTest extends AbstractIidmSerDeTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -111,10 +110,7 @@ class ConnectablePositionXmlTest extends AbstractSerDeTest {
                 .add()
                 .add();
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                "/connectablePositionRef_V1_1.xml");
+        Network network2 = fullRoundTripTest(network, "/connectablePositionRef_V1_1.xml");
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator);
@@ -146,9 +142,7 @@ class ConnectablePositionXmlTest extends AbstractSerDeTest {
         assertEquals(linePosition2.getFeeder1().getOrder(), linePosition2.getFeeder2().getOrder());
 
         // test v 1.0
-        roundTripXmlTest(network, (n, p) -> {
-            ExportOptions options = new ExportOptions().addExtensionVersion(ConnectablePosition.NAME, "1.0");
-            NetworkSerDe.writeAndValidate(n, options, p);
-        }, NetworkSerDe::read, "/connectablePositionRef_V1_0.xml");
+        fullRoundTripTest(network, "/connectablePositionRef_V1_0.xml",
+                new ExportOptions().addExtensionVersion(ConnectablePosition.NAME, "1.0"));
     }
 }

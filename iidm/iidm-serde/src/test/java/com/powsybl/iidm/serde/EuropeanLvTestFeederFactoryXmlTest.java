@@ -20,9 +20,7 @@ class EuropeanLvTestFeederFactoryXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripXmlTest(EuropeanLvTestFeederFactory.create(),
-            (n, xmlFile) -> NetworkSerDe.writeAndValidate(n, new ExportOptions().setSorted(true), xmlFile),
-            NetworkSerDe::read,
-            getVersionedNetworkPath("europeanLvTestFeederRef.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(EuropeanLvTestFeederFactory.create(), "europeanLvTestFeederRef.xml", CURRENT_IIDM_VERSION,
+                new ExportOptions().setSorted(true));
     }
 }

@@ -6,19 +6,17 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author José Antonio Marqués <marquesja at aia.es
  */
-class ThreeWindingsTransformerPhaseAngleClockXmlSerDeTest extends AbstractSerDeTest {
+class ThreeWindingsTransformerPhaseAngleClockXmlSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -36,10 +34,7 @@ class ThreeWindingsTransformerPhaseAngleClockXmlSerDeTest extends AbstractSerDeT
 
         transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(3).withPhaseAngleClockLeg3(1).add();
 
-        Network network2 = roundTripXmlTest(network,
-            NetworkSerDe::writeAndValidate,
-            NetworkSerDe::read,
-            getVersionedNetworkPath("/threeWindingsTransformerPhaseAngleClock.xml", CURRENT_IIDM_VERSION));
+        Network network2 = fullRoundTripTest(network, "/threeWindingsTransformerPhaseAngleClock.xml", CURRENT_IIDM_VERSION);
 
         ThreeWindingsTransformerPhaseAngleClock pacXml = network2.getThreeWindingsTransformer("3WT").getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
         assertNotNull(pacXml);

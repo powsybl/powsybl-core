@@ -9,11 +9,13 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -57,10 +59,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     protected void roundTripVersionedXmlTest(String file, IidmVersion... versions) throws IOException {
         for (IidmVersion version : versions) {
-            roundTripXmlTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version)),
-                    writeAndValidate(version),
-                    NetworkSerDe::validateAndRead,
-                    getVersionedNetworkPath(file, version));
+            fullRoundTripTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version)), file, version);
         }
     }
 
@@ -149,8 +148,106 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         roundTripAllVersionedXmlTest(file);
     }
 
-    private static BiConsumer<Network, Path> writeAndValidate(IidmVersion version) {
-        ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-        return (n, p) -> NetworkSerDe.writeAndValidate(n, options, p);
+    /**
+     * Writes given network to JSON file, then reads the resulting file, then write the resulting network
+     * to the given path in XML format and validates the result with iidm .
+     */
+    private static void writeAndValidate(Network n, ExportOptions options, Path xmlFile) {
+        options.setFormat(TreeDataFormat.JSON);
+        Anonymizer anonymizer = NetworkSerDe.write(n, options, xmlFile);
+        try (InputStream is = Files.newInputStream(xmlFile)) {
+            Network n2 = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);
+            options.setFormat(TreeDataFormat.XML);
+            NetworkSerDe.write(n2, options, xmlFile);
+            NetworkSerDe.validate(xmlFile);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Full round trip from given network with reference xml file:
+     * <ul>
+     *     <li>write given network to a JSON file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>validate the resulting file</li>
+     *     <li>compare the resulting file to reference file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>compare the resulting file to reference file</li>
+     * </ul>
+     * @param network the network to start with
+     * @param refXmlFile the name of the reference file resource, including its path
+     * @return the Network read just before the end of the round trip
+     */
+    public Network fullRoundTripTest(Network network, String refXmlFile) throws IOException {
+        return fullRoundTripTest(network, refXmlFile, new ExportOptions());
+    }
+
+    /**
+     * Full round trip from given network with versioned reference xml file:
+     * <ul>
+     *     <li>write given network to a JSON file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>validate the resulting file</li>
+     *     <li>compare the resulting file to reference file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>compare the resulting file to reference file</li>
+     * </ul>
+     * @param network the network to start with
+     * @param filename the filename of the reference versioned file resource
+     * @return the Network read just before the end of the round trip
+     */
+    public Network fullRoundTripTest(Network network, String filename, IidmVersion version) throws IOException {
+        return fullRoundTripTest(network, filename, version, new ExportOptions());
+    }
+
+    /**
+     * Full round trip from given network with versioned reference xml file:
+     * <ul>
+     *     <li>write given network to a JSON file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>validate the resulting file</li>
+     *     <li>compare the resulting file to reference file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>compare the resulting file to reference file</li>
+     * </ul>
+     * @param network the network to start with
+     * @param filename the filename of the reference versioned file resource
+     * @param version the version to use for exporting and for the versioned filename
+     * @param exportOptions the options to use for exporting
+     * @return the Network read just before the end of the round trip
+     */
+    public Network fullRoundTripTest(Network network, String filename, IidmVersion version, ExportOptions exportOptions) throws IOException {
+        return fullRoundTripTest(network, getVersionedNetworkPath(filename, version), exportOptions.setVersion(version.toString(".")));
+    }
+
+    /**
+     * Full round trip from given network with reference xml file:
+     * <ul>
+     *     <li>write given network to a JSON file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>validate the resulting file</li>
+     *     <li>compare the resulting file to reference file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>compare the resulting file to reference file</li>
+     * </ul>
+     * @param network the network to start with
+     * @param refXmlFile the name of the reference file resource, including its path
+     * @param exportOptions the options to use for exporting
+     * @return the Network read just before the end of the round trip
+     */
+    public Network fullRoundTripTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
+        return roundTripXmlTest(network,
+                (n, path) -> writeAndValidate(n, exportOptions, path),
+                NetworkSerDe::read,
+                refXmlFile);
     }
 }

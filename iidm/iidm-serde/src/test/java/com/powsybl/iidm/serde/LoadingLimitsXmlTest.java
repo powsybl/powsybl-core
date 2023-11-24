@@ -6,18 +6,18 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.function.Supplier;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -37,10 +37,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(dl::newActivePowerLimits);
         createLoadingLimits(dl::newApparentPowerLimits);
         createLoadingLimits(dl::newCurrentLimits);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("dl-loading-limits.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(network, "dl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
         roundTripVersionedXmlFromMinToCurrentVersionTest("dl-loading-limits.xml", IidmVersion.V_1_5);
@@ -85,10 +82,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(twt::newApparentPowerLimits2);
         createLoadingLimits(twt::newCurrentLimits1);
         createLoadingLimits(twt::newCurrentLimits2);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("eurostag-loading-limits.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(network, "eurostag-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
         roundTripVersionedXmlFromMinToCurrentVersionTest("eurostag-loading-limits.xml", IidmVersion.V_1_5);
@@ -125,10 +119,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(tl.getDanglingLine2()::newApparentPowerLimits);
         createLoadingLimits(tl.getDanglingLine1()::newCurrentLimits);
         createLoadingLimits(tl.getDanglingLine2()::newCurrentLimits);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("tl-loading-limits.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
         roundTripVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
@@ -165,10 +156,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(() -> twt.getLeg2().newApparentPowerLimits());
         createLoadingLimits(() -> twt.getLeg3().newActivePowerLimits());
         createLoadingLimits(() -> twt.getLeg3().newApparentPowerLimits());
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("t3w-loading-limits.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(network, "t3w-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
         roundTripVersionedXmlFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmVersion.V_1_5);
