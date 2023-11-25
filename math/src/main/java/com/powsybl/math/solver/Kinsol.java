@@ -22,7 +22,7 @@ public class Kinsol {
     private static final Logger LOGGER = LoggerFactory.getLogger(Kinsol.class);
 
     static {
-        MathNative.init();
+        MathNative.INSTANCE.init();
     }
 
     public interface FunctionUpdater {
@@ -48,7 +48,7 @@ public class Kinsol {
     }
 
     public native KinsolResult solve(double[] x, int[] ap, int[] ai, double[] ax, KinsolContext context,
-                                     int maxIter, boolean lineSearch, int level);
+                                     boolean transpose, int maxIterations, boolean lineSearch, int level);
 
     private static Level getLogLevel() {
         if (LOGGER.isTraceEnabled()) {
@@ -71,9 +71,17 @@ public class Kinsol {
     }
 
     public KinsolResult solve(double[] x, KinsolParameters parameters) {
+        return solve(x, parameters, false);
+    }
+
+    public KinsolResult solveTransposed(double[] x, KinsolParameters parameters) {
+        return solve(x, parameters, true);
+    }
+
+    private KinsolResult solve(double[] x, KinsolParameters parameters, boolean transpose) {
         Level logLevel = getLogLevel();
         var context = new KinsolContext(x, j, functionUpdater, jacobianUpdater, logLevel);
         return solve(x, j.getColumnStart(), j.getRowIndices(), j.getValues(), context,
-                parameters.getMaxIterations(), parameters.isLineSearch(), getPrintLevel(logLevel));
+                transpose, parameters.getMaxIterations(), parameters.isLineSearch(), getPrintLevel(logLevel));
     }
 }

@@ -25,7 +25,7 @@ import java.util.Objects;
 public class SparseMatrix extends AbstractMatrix {
 
     static {
-        MathNative.init();
+        MathNative.INSTANCE.init();
     }
 
     /**
