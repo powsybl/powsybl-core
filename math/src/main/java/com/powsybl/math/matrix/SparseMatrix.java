@@ -8,7 +8,6 @@ package com.powsybl.math.matrix;
 
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
-import com.powsybl.math.MathNative;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -23,10 +22,6 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SparseMatrix extends AbstractMatrix {
-
-    static {
-        MathNative.INSTANCE.init();
-    }
 
     /**
      * Sparse Element implementation.

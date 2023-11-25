@@ -6,7 +6,7 @@
  */
 package com.powsybl.math.solver;
 
-import com.powsybl.math.MathNative;
+import com.powsybl.math.AbstractMathNative;
 import com.powsybl.math.matrix.SparseMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +17,9 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class Kinsol {
+public class Kinsol extends AbstractMathNative {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Kinsol.class);
-
-    static {
-        MathNative.INSTANCE.init();
-    }
 
     public interface FunctionUpdater {
 

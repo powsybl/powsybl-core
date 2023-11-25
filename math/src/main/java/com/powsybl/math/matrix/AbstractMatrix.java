@@ -6,6 +6,8 @@
  */
 package com.powsybl.math.matrix;
 
+import com.powsybl.math.AbstractMathNative;
+
 import java.util.Objects;
 
 /**
@@ -13,7 +15,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractMatrix implements Matrix {
+public abstract class AbstractMatrix extends AbstractMathNative implements Matrix {
 
     /**
      * Get an estimation of non zero value count.
