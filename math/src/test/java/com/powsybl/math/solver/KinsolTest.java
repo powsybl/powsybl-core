@@ -44,7 +44,7 @@ class KinsolTest {
             j2.setAtIndex(3, dq2dph2);
         });
         double[] x = new double[] {1, 0};
-        KinsolParameters parameters = new KinsolParameters(15, false);
+        KinsolParameters parameters = new KinsolParameters();
         KinsolResult result = solver.solve(x, parameters);
         assertSame(KinsolStatus.KIN_SUCCESS, result.getStatus());
         assertEquals(9, result.getIterations());

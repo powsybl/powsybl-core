@@ -44,7 +44,8 @@ public class Kinsol extends AbstractMathNative {
     }
 
     public native KinsolResult solve(double[] x, int[] ap, int[] ai, double[] ax, KinsolContext context,
-                                     boolean transpose, int maxIterations, boolean lineSearch, int level);
+                                     boolean transpose, int maxIters, int msbset, int msbsetsub, double fnormtol,
+                                     double scsteptol, boolean lineSearch, int level);
 
     private static Level getLogLevel() {
         if (LOGGER.isTraceEnabled()) {
@@ -75,9 +76,14 @@ public class Kinsol extends AbstractMathNative {
     }
 
     private KinsolResult solve(double[] x, KinsolParameters parameters, boolean transpose) {
+        LOGGER.info("Running Kinsol using parameters: maxIters={}, msbset={}, msbsetsub={}, fnormtol={}, scsteptol={}, lineSearch={}",
+                parameters.getMaxIters(), parameters.getMsbset(), parameters.getMsbsetsub(), parameters.getFnormtol(),
+                parameters.getScsteptol(), parameters.isLineSearch());
         Level logLevel = getLogLevel();
         var context = new KinsolContext(x, j, functionUpdater, jacobianUpdater, logLevel);
         return solve(x, j.getColumnStart(), j.getRowIndices(), j.getValues(), context,
-                transpose, parameters.getMaxIterations(), parameters.isLineSearch(), getPrintLevel(logLevel));
+                transpose, parameters.getMaxIters(), parameters.getMsbset(), parameters.getMsbsetsub(),
+                parameters.getFnormtol(), parameters.getScsteptol(), parameters.isLineSearch(),
+                getPrintLevel(logLevel));
     }
 }

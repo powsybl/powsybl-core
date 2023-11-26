@@ -11,20 +11,69 @@ package com.powsybl.math.solver;
  */
 public class KinsolParameters {
 
-    private final int maxIterations;
+    private int maxIters = 200;
 
-    private final boolean lineSearch;
+    private int msbset = 0; // means default value
 
-    public KinsolParameters(int maxIterations, boolean lineSearch) {
-        this.maxIterations = maxIterations;
-        this.lineSearch = lineSearch;
+    private int msbsetsub = 0; // means default value
+
+    private double fnormtol = 0; // means default value
+
+    private double scsteptol = 0; // means default value
+
+    private boolean lineSearch = false;
+
+    public int getMaxIters() {
+        return maxIters;
     }
 
-    public int getMaxIterations() {
-        return maxIterations;
+    public KinsolParameters setMaxIters(int maxIters) {
+        this.maxIters = maxIters;
+        return this;
+    }
+
+    public int getMsbset() {
+        return msbset;
+    }
+
+    public KinsolParameters setMsbset(int msbset) {
+        this.msbset = msbset;
+        return this;
+    }
+
+    public int getMsbsetsub() {
+        return msbsetsub;
+    }
+
+    public KinsolParameters setMsbsetsub(int msbsetsub) {
+        this.msbsetsub = msbsetsub;
+        return this;
+    }
+
+    public double getFnormtol() {
+        return fnormtol;
+    }
+
+    public KinsolParameters setFnormtol(double fnormtol) {
+        this.fnormtol = fnormtol;
+        return this;
+    }
+
+    public double getScsteptol() {
+        return scsteptol;
+    }
+
+    public KinsolParameters setScsteptol(double scsteptol) {
+        this.scsteptol = scsteptol;
+        return this;
     }
 
     public boolean isLineSearch() {
         return lineSearch;
+    }
+
+    public KinsolParameters setLineSearch(boolean lineSearch) {
+        this.lineSearch = lineSearch;
+        return this;
     }
 }
