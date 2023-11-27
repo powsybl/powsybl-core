@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,9 +40,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
             context.getWriter().writeStringAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
         if (!s.getGeographicalTags().isEmpty()) {
-            context.getWriter().writeStringAttribute("geographicalTags", s.getGeographicalTags().stream()
-                    .map(tag -> context.getAnonymizer().anonymizeString(tag))
-                    .collect(Collectors.joining(",")));
+            context.getWriter().writeStringArrayAttribute("geographicalTags", s.getGeographicalTags().stream().map(tag -> context.getAnonymizer().anonymizeString(tag)).toList());
         }
     }
 
@@ -86,14 +85,11 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
                 .map(c -> context.getAnonymizer().deanonymizeCountry(Country.valueOf(c)))
                 .orElse(null);
         String tso = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("tso"));
-        String geographicalTags = context.getReader().readStringAttribute("geographicalTags");
-        if (geographicalTags != null) {
-            adder.setGeographicalTags(Arrays.stream(geographicalTags.split(","))
-                    .map(tag -> context.getAnonymizer().deanonymizeString(tag))
-                    .toArray(String[]::new));
-        }
+        String[] geographicalTags = context.getReader().readStringArrayAttribute("geographicalTags").stream()
+                .map(tag -> context.getAnonymizer().deanonymizeString(tag)).toArray(String[]::new);
         return adder.setCountry(country)
                 .setTso(tso)
+                .setGeographicalTags(geographicalTags)
                 .add();
     }
 
