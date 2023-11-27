@@ -75,7 +75,7 @@ public class XmlReader extends AbstractTreeDataReader {
 
     @Override
     public Integer readIntAttribute(String name) {
-        return XmlUtil.readIntAttribute(reader, name);
+        return XmlUtil.readIntegerAttribute(reader, name);
     }
 
     @Override

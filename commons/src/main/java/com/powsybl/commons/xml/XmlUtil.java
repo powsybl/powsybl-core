@@ -107,7 +107,7 @@ public final class XmlUtil {
         return text.isEmpty() ? null : text;
     }
 
-    public static Integer readIntAttribute(XMLStreamReader reader, String name) {
+    public static Integer readIntegerAttribute(XMLStreamReader reader, String name) {
         String attributeValue = reader.getAttributeValue(null, name);
         return attributeValue != null ? Integer.valueOf(attributeValue) : null;
     }

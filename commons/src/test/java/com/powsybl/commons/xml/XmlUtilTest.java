@@ -16,8 +16,12 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -26,11 +30,46 @@ class XmlUtilTest {
 
     private static final String XML = String.join(System.lineSeparator(),
             "<a>",
-            "    <b>",
+            "    <b attrBool=\"true\" attrInt=\"34\" attrDbl=\"2e-65\" attrFlt=\"0.054864\">",
             "        <c/>",
             "    </b>",
             "    <d/>",
             "</a>");
+
+    @Test
+    void readAttributes() throws XMLStreamException {
+        AtomicReference<Boolean> attrBoolBoxed = new AtomicReference<>(false);
+        AtomicBoolean attrBool = new AtomicBoolean(false);
+        AtomicReference<Integer> attrInteger = new AtomicReference<>(-1);
+        AtomicInteger attrInt = new AtomicInteger(-1);
+        AtomicReference<Double> attrDbl = new AtomicReference<>(0d);
+        AtomicReference<Float> attrFloat = new AtomicReference<>(0f);
+        try (StringReader reader = new StringReader(XML)) {
+            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            xmlReader.next();
+            try {
+                XmlUtil.readSubElements(xmlReader, elementName -> {
+                    if ("b".equals(elementName)) {
+                        attrBoolBoxed.set(XmlUtil.readBooleanAttribute(xmlReader, "attrBool"));
+                        attrBool.set(XmlUtil.readBooleanAttribute(xmlReader, "attrBool", false));
+                        attrInteger.set(XmlUtil.readIntegerAttribute(xmlReader, "attrInt"));
+                        attrInt.set(XmlUtil.readIntAttribute(xmlReader, "attrInt", -1));
+                        attrDbl.set(XmlUtil.readDoubleAttribute(xmlReader, "attrDbl", 0));
+                        attrFloat.set(XmlUtil.readFloatAttribute(xmlReader, "attrFlt", 0));
+                    }
+                });
+            } finally {
+                xmlReader.close();
+            }
+        }
+
+        assertTrue(attrBoolBoxed::get);
+        assertTrue(attrBool.get());
+        assertEquals(34, attrInteger.get());
+        assertEquals(34, attrInt.get());
+        assertEquals(2e-65, attrDbl.get(), 1e-80);
+        assertEquals(0.054864f, attrFloat.get(), 1e-15);
+    }
 
     @Test
     void readUntilEndElementWithDepthTest() throws XMLStreamException {
@@ -97,7 +136,7 @@ class XmlUtilTest {
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilStartElement(path, xmlReader, (String elementName) -> assertEquals(expected, xmlReader.getLocalName()));
+                XmlUtil.readUntilStartElement(path, xmlReader, elementName -> assertEquals(expected, xmlReader.getLocalName()));
             } finally {
                 xmlReader.close();
             }
