@@ -11,31 +11,31 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
-import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 
 /**
- * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class BranchStatusSerDe<C extends Connectable<C>> extends AbstractExtensionSerDe<C, OperatingStatus<C>> {
+public class OperatingStatusSerDe<I extends Identifiable<I>> extends AbstractExtensionSerDe<I, OperatingStatus<I>> {
 
-    public BranchStatusSerDe() {
-        super("branchStatus", "network", OperatingStatus.class,
-                "branchStatus.xsd", "http://www.powsybl.org/schema/iidm/ext/branch_status/1_0",
-                "bs");
+    public OperatingStatusSerDe() {
+        super(OperatingStatus.NAME, "network", OperatingStatus.class,
+                "operatingStatus.xsd", "http://www.powsybl.org/schema/iidm/ext/operating_status/1_0",
+                "os");
     }
 
     @Override
-    public void write(OperatingStatus<C> branchStatus, SerializerContext context) {
-        throw new UnsupportedOperationException("This is a deprecated extension (replaced by `OperatingStatus`) and it should be never written anymore");
+    public void write(OperatingStatus<I> status, SerializerContext context) {
+        context.getWriter().writeNodeContent(status.getStatus().name());
     }
 
     @Override
-    public OperatingStatus<C> read(C connectable, DeserializerContext context) {
+    public OperatingStatus<I> read(I identifiable, DeserializerContext context) {
         OperatingStatus.Status status = OperatingStatus.Status.valueOf(context.getReader().readContent());
-        OperatingStatusAdder<C> adder = connectable.newExtension(OperatingStatusAdder.class);
+        OperatingStatusAdder<I> adder = identifiable.newExtension(OperatingStatusAdder.class);
         return adder.withStatus(status)
                 .add();
     }
