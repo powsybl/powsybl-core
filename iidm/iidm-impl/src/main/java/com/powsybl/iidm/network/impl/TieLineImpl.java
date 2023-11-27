@@ -12,16 +12,14 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
-import java.util.Collection;
 import java.util.Optional;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
+class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine, FlowsLimitsDefaultHolder1, FlowsLimitsDefaultHolder2 {
 
     @Override
     public NetworkImpl getNetwork() {
@@ -187,103 +185,13 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits1() {
-        return danglingLine1.getOperationalLimits();
+    public OperationalLimitsGroupsImpl getOperationalLimitsHolder1() {
+        return danglingLine1.getOperationalLimitsHolder();
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits1() {
-        return danglingLine1.getCurrentLimits();
-    }
-
-    @Override
-    public CurrentLimits getNullableCurrentLimits1() {
-        return getCurrentLimits1().orElse(null);
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits1() {
-        return danglingLine1.newCurrentLimits();
-    }
-
-    @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return danglingLine1.getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits1() {
-        return getApparentPowerLimits1().orElse(null);
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return danglingLine1.newApparentPowerLimits();
-    }
-
-    @Override
-    public Collection<OperationalLimits> getOperationalLimits2() {
-        return danglingLine2.getOperationalLimits();
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return danglingLine1.getActivePowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getNullableActivePowerLimits1() {
-        return getActivePowerLimits1().orElse(null);
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return danglingLine1.newActivePowerLimits();
-    }
-
-    @Override
-    public Optional<CurrentLimits> getCurrentLimits2() {
-        return danglingLine2.getCurrentLimits();
-    }
-
-    @Override
-    public CurrentLimits getNullableCurrentLimits2() {
-        return getCurrentLimits2().orElse(null);
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits2() {
-        return danglingLine2.newCurrentLimits();
-    }
-
-    @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return danglingLine2.getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits2() {
-        return getApparentPowerLimits2().orElse(null);
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return danglingLine2.newApparentPowerLimits();
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return danglingLine2.getActivePowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getNullableActivePowerLimits2() {
-        return getActivePowerLimits2().orElse(null);
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return danglingLine2.newActivePowerLimits();
+    public OperationalLimitsGroupsImpl getOperationalLimitsHolder2() {
+        return danglingLine2.getOperationalLimitsHolder();
     }
 
     @Override

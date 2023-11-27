@@ -6,24 +6,25 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ApparentPowerLimits;
-import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
-import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ApparentPowerLimits, ApparentPowerLimitsAdder> implements ApparentPowerLimitsAdder {
 
-    ApparentPowerLimitsAdderImpl(OperationalLimitsOwner owner) {
-        super(owner);
+    OperationalLimitsGroupImpl group;
+
+    public ApparentPowerLimitsAdderImpl(OperationalLimitsGroupImpl group, Validable validable) {
+        super(validable);
+        this.group = group;
     }
 
     @Override
     public ApparentPowerLimits add() {
         checkLoadingLimits();
-        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(owner, permanentLimit, temporaryLimits);
-        owner.setOperationalLimits(LimitType.APPARENT_POWER, limits);
+        ApparentPowerLimitsImpl limits = new ApparentPowerLimitsImpl(group, permanentLimit, temporaryLimits);
+        group.setApparentPowerLimits(limits);
         return limits;
     }
 }

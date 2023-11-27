@@ -43,20 +43,6 @@ public final class ConnectableSerDeUtil {
         return index != null ? index.toString() : "";
     }
 
-    public static boolean hasValidOperationalLimits(Branch<?> branch, NetworkSerializerContext context) {
-        if (context.getVersion().compareTo(IidmVersion.V_1_5) >= 0) {
-            return !branch.getOperationalLimits1().isEmpty() || !branch.getOperationalLimits2().isEmpty();
-        }
-        return branch.getCurrentLimits1().isPresent() || branch.getCurrentLimits2().isPresent();
-    }
-
-    public static boolean hasValidOperationalLimits(FlowsLimitsHolder limitsHolder, NetworkSerializerContext context) {
-        if (context.getVersion().compareTo(IidmVersion.V_1_5) >= 0) {
-            return !limitsHolder.getOperationalLimits().isEmpty();
-        }
-        return limitsHolder.getCurrentLimits().isPresent();
-    }
-
     public static void writeNodeOrBus(Integer index, Terminal t, NetworkSerializerContext context) {
         if (index != null) {
             context.getWriter().writeStringAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));

@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine {
+class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, FlowsLimitsDefaultHolder {
 
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
@@ -249,7 +249,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final GenerationImpl generation;
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder;
+    private final OperationalLimitsGroupsImpl operationalLimitsHolder;
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
@@ -273,7 +273,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.g = g;
         this.b = b;
         this.pairingKey = pairingKey;
-        this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
+        this.operationalLimitsHolder = new OperationalLimitsGroupsImpl(this, "limits");
         this.boundary = new DanglingLineBoundaryImpl(this);
         this.generation = generation != null ? generation.attach(this) : null;
     }
@@ -286,7 +286,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         network.get().getIndex().checkAndAdd(this);
     }
 
-    OperationalLimitsHolderImpl getLimitsHolder() {
+    OperationalLimitsGroupsImpl getLimitsHolder() {
         return operationalLimitsHolder;
     }
 
@@ -425,53 +425,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits() {
-        return operationalLimitsHolder.getOperationalLimits();
-    }
-
-    @Override
-    public Optional<CurrentLimits> getCurrentLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
-    }
-
-    @Override
-    public CurrentLimits getNullableCurrentLimits() {
-        return operationalLimitsHolder.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
-    }
-
-    @Override
-    public ActivePowerLimits getNullableActivePowerLimits() {
-        return operationalLimitsHolder.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
-    }
-
-    @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits() {
-        return operationalLimitsHolder.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits() {
-        return operationalLimitsHolder.newCurrentLimits();
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits() {
-        return operationalLimitsHolder.newActivePowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return operationalLimitsHolder.newApparentPowerLimits();
+    public OperationalLimitsGroupsImpl getOperationalLimitsHolder() {
+        return operationalLimitsHolder;
     }
 
     @Override

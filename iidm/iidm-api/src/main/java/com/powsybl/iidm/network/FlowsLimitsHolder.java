@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -15,23 +14,45 @@ import java.util.Optional;
  */
 public interface FlowsLimitsHolder {
 
-    default Collection<OperationalLimits> getOperationalLimits() {
-        return getCurrentLimits()
-                .map(l -> Collections.singletonList((OperationalLimits) l))
-                .orElseGet(Collections::emptyList);
+    List<OperationalLimitsGroup> getOperationalLimitsGroups();
+
+    Optional<String> getDefaultIdOperationalLimitsGroups();
+
+    Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id);
+
+    Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup();
+
+    OperationalLimitsGroup newOperationalLimitsGroup(String id);
+
+    void setDefaultOperationalLimitsGroupTo(String id);
+
+    void removeOperationalLimitsGroup(String id);
+
+    void cancelDefaultOperationalLimitsGroup();
+
+    default Optional<CurrentLimits> getCurrentLimits() {
+        return getDefaultOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
-    Optional<CurrentLimits> getCurrentLimits();
+    default CurrentLimits getNullableCurrentLimits() {
+        return getCurrentLimits().orElse(null);
+    }
 
-    CurrentLimits getNullableCurrentLimits();
+    default Optional<ActivePowerLimits> getActivePowerLimits() {
+        return getDefaultOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getActivePowerLimits);
+    }
 
-    Optional<ActivePowerLimits> getActivePowerLimits();
+    default ActivePowerLimits getNullableActivePowerLimits() {
+        return getActivePowerLimits().orElse(null);
+    }
 
-    ActivePowerLimits getNullableActivePowerLimits();
+    default Optional<ApparentPowerLimits> getApparentPowerLimits() {
+        return getDefaultOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
+    }
 
-    Optional<ApparentPowerLimits> getApparentPowerLimits();
-
-    ApparentPowerLimits getNullableApparentPowerLimits();
+    default ApparentPowerLimits getNullableApparentPowerLimits() {
+        return getApparentPowerLimits().orElse(null);
+    }
 
     CurrentLimitsAdder newCurrentLimits();
 

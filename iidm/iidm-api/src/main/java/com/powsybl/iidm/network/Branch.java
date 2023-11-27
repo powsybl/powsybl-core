@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -98,7 +96,7 @@ import java.util.Optional;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface Branch<I extends Branch<I>> extends Identifiable<I> {
+public interface Branch<I extends Branch<I>> extends Identifiable<I>, FlowsLimitsHolder1, FlowsLimitsHolder2 {
 
     /**
      * Get the first terminal.
@@ -115,54 +113,6 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     Terminal getTerminal(String voltageLevelId);
 
     TwoSides getSide(Terminal terminal);
-
-    default Collection<OperationalLimits> getOperationalLimits1() {
-        return getCurrentLimits1()
-                .map(l -> Collections.singletonList((OperationalLimits) l))
-                .orElseGet(Collections::emptyList);
-    }
-
-    Optional<CurrentLimits> getCurrentLimits1();
-
-    CurrentLimits getNullableCurrentLimits1();
-
-    Optional<ActivePowerLimits> getActivePowerLimits1();
-
-    ActivePowerLimits getNullableActivePowerLimits1();
-
-    Optional<ApparentPowerLimits> getApparentPowerLimits1();
-
-    ApparentPowerLimits getNullableApparentPowerLimits1();
-
-    CurrentLimitsAdder newCurrentLimits1();
-
-    ActivePowerLimitsAdder newActivePowerLimits1();
-
-    ApparentPowerLimitsAdder newApparentPowerLimits1();
-
-    default Collection<OperationalLimits> getOperationalLimits2() {
-        return getCurrentLimits2()
-                .map(l -> Collections.singletonList((OperationalLimits) l))
-                .orElseGet(Collections::emptyList);
-    }
-
-    Optional<CurrentLimits> getCurrentLimits2();
-
-    CurrentLimits getNullableCurrentLimits2();
-
-    Optional<ActivePowerLimits> getActivePowerLimits2();
-
-    ActivePowerLimits getNullableActivePowerLimits2();
-
-    Optional<ApparentPowerLimits> getApparentPowerLimits2();
-
-    ApparentPowerLimits getNullableApparentPowerLimits2();
-
-    CurrentLimitsAdder newCurrentLimits2();
-
-    ActivePowerLimitsAdder newActivePowerLimits2();
-
-    ApparentPowerLimitsAdder newApparentPowerLimits2();
 
     default Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
         switch (side) {

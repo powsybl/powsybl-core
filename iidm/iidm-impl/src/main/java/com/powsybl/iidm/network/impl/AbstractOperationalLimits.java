@@ -15,13 +15,9 @@ import java.util.Objects;
  */
 abstract class AbstractOperationalLimits implements OperationalLimits {
 
-    protected final OperationalLimitsOwner owner;
+    protected final OperationalLimitsGroupImpl group;
 
-    AbstractOperationalLimits(OperationalLimitsOwner owner) {
-        this.owner = Objects.requireNonNull(owner);
-    }
-
-    public void remove() {
-        owner.setOperationalLimits(getLimitType(), null);
+    AbstractOperationalLimits(OperationalLimitsGroupImpl group) {
+        this.group = Objects.requireNonNull(group);
     }
 }

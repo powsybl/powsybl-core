@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -17,9 +16,7 @@ import java.util.TreeMap;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends AbstractOperationalLimits implements LoadingLimits {
-
     private double permanentLimit;
-
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
     static class TemporaryLimitImpl implements TemporaryLimit {
@@ -60,7 +57,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
         }
     }
 
-    AbstractLoadingLimits(OperationalLimitsOwner owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         super(owner);
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
@@ -73,10 +70,10 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
     @Override
     public L setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
+        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit);
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
-        owner.notifyUpdate(getLimitType(), "permanentLimit", oldValue, this.permanentLimit);
+        group.notifyUpdateIfDefaultLimits(getLimitType(), "permanentLimit", oldValue, this.permanentLimit);
         return (L) this;
     }
 

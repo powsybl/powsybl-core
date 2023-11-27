@@ -6,23 +6,28 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.Validable;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLimits, CurrentLimitsAdder> implements CurrentLimitsAdder {
+class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLimits, CurrentLimitsAdder> implements CurrentLimitsAdder {
 
-    public CurrentLimitsAdderImpl(OperationalLimitsOwner owner) {
-        super(owner);
+    OperationalLimitsGroupImpl group;
+
+    public CurrentLimitsAdderImpl(OperationalLimitsGroupImpl group, Validable validable) {
+        super(validable);
+        this.group = group;
     }
 
     @Override
-    public CurrentLimitsImpl add() {
+    public CurrentLimits add() {
         checkLoadingLimits();
-        CurrentLimitsImpl limits = new CurrentLimitsImpl(owner, permanentLimit, temporaryLimits);
-        owner.setOperationalLimits(LimitType.CURRENT, limits);
+        CurrentLimitsImpl limits = new CurrentLimitsImpl(group, permanentLimit, temporaryLimits);
+        group.setCurrentLimits(limits);
         return limits;
     }
 
