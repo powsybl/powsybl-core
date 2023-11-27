@@ -210,7 +210,6 @@ public final class StateVariablesExport {
             equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
             equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
         });
-        equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
         network.getTwoWindingsTransformerStream().forEach(b -> writeConnectableBranchPowerFlow(cimNamespace, writer, context, b));
         network.getLineStream().forEach(b -> writeConnectableBranchPowerFlow(cimNamespace, writer, context, b));
@@ -222,7 +221,24 @@ public final class StateVariablesExport {
                 writePowerFlowTerminalFromAlias(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", b.getDanglingLine1().getBoundary().getP(), b.getDanglingLine1().getBoundary().getQ(), cimNamespace, writer, context);
                 writePowerFlowTerminalFromAlias(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", b.getDanglingLine2().getBoundary().getP(), b.getDanglingLine2().getBoundary().getQ(), cimNamespace, writer, context);
             }
+            // Compute also equivalent injection values for boundary lines that have been left inside the CGM,
+            // hey have been organised in tie lines
+            String eit1 = b.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            if (eit1 == null) {
+                LOG.warn("Missing equivalent injection terminal for dangling line {}. For proper export models must be combined in a Network with subnetworks instead of assembled", b.getDanglingLine1().getId());
+            } else {
+                equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -b.getDanglingLine1().getBoundary().getP() : v - b.getDanglingLine1().getBoundary().getP());
+                equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -b.getDanglingLine1().getBoundary().getQ() : v - b.getDanglingLine1().getBoundary().getQ());
+            }
+            String eit2 = b.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            if (eit2 == null) {
+                LOG.warn("Missing equivalent injection terminal for dangling line {}. For proper export models must be combined in a Network with subnetworks instead of assembled", b.getDanglingLine2().getId());
+            } else {
+                equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -b.getDanglingLine2().getBoundary().getP() : v - b.getDanglingLine2().getBoundary().getP());
+                equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -b.getDanglingLine2().getBoundary().getQ() : v - b.getDanglingLine2().getBoundary().getQ());
+            }
         });
+        equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
         network.getThreeWindingsTransformerStream().forEach(twt -> {
             writePowerFlowTerminalFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, twt.getLeg1().getTerminal(), cimNamespace, writer, context);

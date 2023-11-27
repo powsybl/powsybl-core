@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.Identifiables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public final class MeasurementValidationUtil {
         }
     }
 
-    public static <C extends Connectable<C>> void checkSide(Measurement.Type type, Measurement.Side side, Connectable<C> c) {
+    public static <C extends Connectable<C>> void checkSide(Measurement.Type type, ThreeSides side, Connectable<C> c) {
         if (side != null && c instanceof Injection) {
             throw new PowsyblException("Inconsistent side for measurement of injection");
         } else if (side == null && type != OTHER && !(c instanceof Injection)) {

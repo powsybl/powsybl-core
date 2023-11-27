@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
@@ -27,7 +27,7 @@ public final class FictitiousSwitchFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("fictitious", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         Substation s = network.newSubstation()
@@ -243,7 +243,7 @@ public final class FictitiousSwitchFactory {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(930.6667)
                 .setRegulating(false)
-                .setRegulationTerminal(twtCI.getTerminal(Branch.Side.ONE))
+                .setRegulationTerminal(twtCI.getTerminal(TwoSides.ONE))
                 .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
                 .beginStep().setR(31.720245).setX(31.720242).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-40.18).endStep()
                 .beginStep().setR(23.655737).setX(23.655735).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-37.54).endStep()

@@ -8,9 +8,8 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,30 +32,15 @@ class SidesTest {
     }
 
     @Test
-    void threeSidesToBranchSideTest() {
-        assertSame(Branch.Side.ONE, ThreeSides.ONE.toBranchSide());
-        assertSame(Branch.Side.TWO, ThreeSides.TWO.toBranchSide());
-        assertThrows(PowsyblException.class, ThreeSides.THREE::toBranchSide);
+    void threeSidesToTwoSidesTest() {
+        assertSame(TwoSides.ONE, ThreeSides.ONE.toTwoSides());
+        assertSame(TwoSides.TWO, ThreeSides.TWO.toTwoSides());
+        assertThrows(PowsyblException.class, ThreeSides.THREE::toTwoSides);
     }
 
     @Test
-    void threeSidesToThreeWindingsTransformerSideTest() {
-        assertSame(ThreeWindingsTransformer.Side.ONE, ThreeSides.ONE.toThreeWindingsTransformerSide());
-        assertSame(ThreeWindingsTransformer.Side.TWO, ThreeSides.TWO.toThreeWindingsTransformerSide());
-        assertSame(ThreeWindingsTransformer.Side.THREE, ThreeSides.THREE.toThreeWindingsTransformerSide());
+    void twoSidesToThreeSidesTest() {
+        assertSame(ThreeSides.ONE, TwoSides.ONE.toThreeSides());
+        assertSame(ThreeSides.TWO, TwoSides.TWO.toThreeSides());
     }
-
-    @Test
-    void branchSideToThreeSidesTest() {
-        assertSame(ThreeSides.ONE, Branch.Side.ONE.toThreeSides());
-        assertSame(ThreeSides.TWO, Branch.Side.TWO.toThreeSides());
-    }
-
-    @Test
-    void threeWindingsTransformerSideToThreeSidesTest() {
-        assertSame(ThreeSides.ONE, ThreeWindingsTransformer.Side.ONE.toThreeSides());
-        assertSame(ThreeSides.TWO, ThreeWindingsTransformer.Side.TWO.toThreeSides());
-        assertSame(ThreeSides.THREE, ThreeWindingsTransformer.Side.THREE.toThreeSides());
-    }
-
 }

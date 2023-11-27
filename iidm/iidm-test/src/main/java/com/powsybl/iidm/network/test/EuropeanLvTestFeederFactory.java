@@ -16,7 +16,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.commons.configuration2.INIConfiguration;
 import org.apache.commons.configuration2.SubnodeConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -392,7 +392,7 @@ public final class EuropeanLvTestFeederFactory {
 
     public static Network create(NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork("EuropeanLvTestFeeder", "csv");
-        network.setCaseDate(DateTime.parse("2023-04-11T23:59:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2023-04-11T23:59:00.000+01:00"));
         Transformer transformer = parseCsv("/europeanLvTestFeeder/Transformer.csv", Transformer.class).get(0);
         createSource(transformer, network);
         createBuses(network);

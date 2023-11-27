@@ -6,11 +6,11 @@
  */
 package com.powsybl.security.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.*;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
@@ -37,16 +37,16 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ExporterTest extends AbstractConverterTest {
+class ExporterTest extends AbstractSerDeTest {
 
     private static final Network NETWORK = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
     private static SecurityAnalysisResult create() {
         // Create a LimitViolation(CURRENT) to ensure backward compatibility works
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
 
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.TWO);
+        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, TwoSides.TWO);
         violation2.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0, 230.0));
         violation2.addExtension(CurrentExtension.class, new CurrentExtension(95.0));
 
@@ -54,8 +54,8 @@ class ExporterTest extends AbstractConverterTest {
         LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
-        LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.ONE);
-        LimitViolation violation6 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.TWO);
+        LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, TwoSides.ONE);
+        LimitViolation violation6 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, "20'", 1200, 100, 1.0f, 110.0, TwoSides.TWO);
 
         Contingency contingency = Contingency.builder("contingency")
                 .addBranch("NHV1_NHV2_2", "VLNHV1")
@@ -87,7 +87,7 @@ class ExporterTest extends AbstractConverterTest {
 
     @Test
     void testCompatibilityV1Deserialization() {
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.json"));
         Assertions.assertThat(result.getPreContingencyLimitViolationsResult().getLimitViolations()).hasSize(1);

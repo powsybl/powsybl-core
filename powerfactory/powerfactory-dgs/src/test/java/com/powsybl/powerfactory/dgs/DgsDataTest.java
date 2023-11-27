@@ -8,7 +8,7 @@ package com.powsybl.powerfactory.dgs;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import com.powsybl.powerfactory.model.StudyCase;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class DgsDataTest extends AbstractConverterTest {
+class DgsDataTest extends AbstractSerDeTest {
 
     private String toJson(StudyCase studyCase) throws IOException {
         try (StringWriter writer = new StringWriter()) {

@@ -20,12 +20,12 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.xml.ExportOptions;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
@@ -48,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class StateVariablesExportTest extends AbstractConverterTest {
+class StateVariablesExportTest extends AbstractSerDeTest {
 
     @Test
     void microGridBE() throws IOException, XMLStreamException {
@@ -477,8 +477,8 @@ class StateVariablesExportTest extends AbstractConverterTest {
         new CgmesExportContext().addIidmMappings(expected0);
 
         // Export to XIIDM and re-import to test serialization of CGMES-IIDM extension
-        NetworkXml.write(expected0, tmpDir.resolve("temp.xiidm"));
-        Network expected = NetworkXml.read(tmpDir.resolve("temp.xiidm"));
+        NetworkSerDe.write(expected0, tmpDir.resolve("temp.xiidm"));
+        Network expected = NetworkSerDe.read(tmpDir.resolve("temp.xiidm"));
 
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
@@ -527,8 +527,8 @@ class StateVariablesExportTest extends AbstractConverterTest {
         // comparison without extensions, only Networks
         ExportOptions exportOptions = new ExportOptions().setSorted(true);
         exportOptions.setExtensions(Collections.emptySet());
-        NetworkXml.writeAndValidate(expected, exportOptions, tmpDir.resolve("expected.xml"));
-        NetworkXml.writeAndValidate(actual, exportOptions, tmpDir.resolve("actual.xml"));
+        NetworkSerDe.writeAndValidate(expected, exportOptions, tmpDir.resolve("expected.xml"));
+        NetworkSerDe.writeAndValidate(actual, exportOptions, tmpDir.resolve("actual.xml"));
 
         // Compare
         ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));

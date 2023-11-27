@@ -6,7 +6,7 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.StudyType;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class JsonFaultParametersTest extends AbstractConverterTest {
+class JsonFaultParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {

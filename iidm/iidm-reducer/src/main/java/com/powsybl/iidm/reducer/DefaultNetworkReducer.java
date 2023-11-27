@@ -129,6 +129,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
             replaceHvdcLine(hvdcLine, vl2, terminal2, station2);
         } else {
             hvdcLine.remove();
+            station1.remove();
+            station2.remove();
         }
         observers.forEach(o -> o.hvdcLineRemoved(hvdcLine));
     }
@@ -147,15 +149,15 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceLineByDanglingLine(Line line, VoltageLevel vl, Terminal terminal) {
-        Branch.Side side = line.getSide(terminal);
+        TwoSides side = line.getSide(terminal);
 
         DanglingLineAdder dlAdder = vl.newDanglingLine()
                 .setId(line.getId())
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
                 .setX(line.getX() / 2)
-                .setB(side == Branch.Side.ONE ? line.getB1() : line.getB2())
-                .setG(side == Branch.Side.ONE ? line.getG1() : line.getG2())
+                .setB(side == TwoSides.ONE ? line.getB1() : line.getB2())
+                .setG(side == TwoSides.ONE ? line.getG1() : line.getG2())
                 .setP0(checkP(terminal))
                 .setQ0(checkQ(terminal));
         fillNodeOrBus(dlAdder, terminal);
@@ -208,6 +210,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
             VscConverterStation vscStation = (VscConverterStation) station;
             if (vscStation.isVoltageRegulatorOn()) {
                 replaceHvdcLineByGenerator(hvdcLine, vl, terminal);
+            } else {
+                replaceHvdcLineByLoad(hvdcLine, vl, terminal);
             }
         } else {
             replaceHvdcLineByLoad(hvdcLine, vl, terminal);

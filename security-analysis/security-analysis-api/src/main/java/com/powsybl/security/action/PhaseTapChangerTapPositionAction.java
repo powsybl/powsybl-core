@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.action;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 
 /**
  * An action changing the tap position of a phase-shifting transformer.
@@ -21,7 +21,7 @@ public class PhaseTapChangerTapPositionAction extends AbstractTapChangerTapPosit
         super(id, transformerId, relativeValue, tapPosition, null);
     }
 
-    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition, ThreeWindingsTransformer.Side side) {
+    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition, ThreeSides side) {
         super(id, transformerId, relativeValue, tapPosition, side);
     }
 

@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -17,9 +17,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.apache.commons.lang3.Range;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -35,9 +35,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CreateBranchFeederBaysTest extends AbstractConverterTest {
+class CreateBranchFeederBaysTest extends AbstractSerDeTest {
 
-    private final Network bbNetwork = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+    private final Network bbNetwork = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
     private final Network nbNetwork = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
     @Test
@@ -62,7 +62,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withDirection2(TOP)
                 .build();
         modification.apply(nbNetwork);
-        roundTripXmlTest(nbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(nbNetwork, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/network-node-breaker-with-new-line.xml");
     }
 
@@ -87,7 +87,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withDirection2(TOP)
                 .build();
         modification.apply(bbNetwork);
-        roundTripXmlTest(bbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(bbNetwork, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-create-line-feeder-bays.xml");
     }
 
@@ -111,7 +111,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withDirection2(BOTTOM)
                 .build();
         modification.apply(nbNetwork);
-        roundTripTest(nbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(nbNetwork, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/network-node-breaker-with-new-line-order-used.xml");
     }
 
@@ -135,7 +135,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withDirection2(BOTTOM)
                 .build();
         modification.apply(nbNetwork);
-        roundTripXmlTest(nbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(nbNetwork, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/network-node-breaker-with-new-internal-line.xml");
     }
 
@@ -282,7 +282,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withDirection2(TOP)
                 .build();
         modification.apply(nbNetwork);
-        roundTripXmlTest(nbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(nbNetwork, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/network-node-breaker-with-new-twt-feeders-bbs.xml");
     }
 
@@ -307,7 +307,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withDirection2(TOP)
                 .build();
         modification.apply(bbNetwork);
-        roundTripXmlTest(bbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(bbNetwork, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-create-twt-feeder-bays.xml");
     }
 

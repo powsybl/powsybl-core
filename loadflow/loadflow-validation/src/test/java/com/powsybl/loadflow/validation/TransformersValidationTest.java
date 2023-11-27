@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
@@ -40,7 +40,7 @@ class TransformersValidationTest extends AbstractValidationTest {
     private final int lowTapPosition = 0;
     private final int highTapPosition = 30;
     private final double targetV = 92.7781;
-    private final Side regulatedSide = Side.ONE;
+    private final TwoSides regulatedSide = TwoSides.ONE;
     private final double v = 92.8007;
     private final double lowV = 88.13;
     private final double highV = 97.342;

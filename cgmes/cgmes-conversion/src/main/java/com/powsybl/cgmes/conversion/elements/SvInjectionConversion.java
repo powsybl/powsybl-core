@@ -7,6 +7,8 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
@@ -18,7 +20,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
 
     public SvInjectionConversion(PropertyBag p, Context context) {
-        super("SvInjection", p, context);
+        super(CgmesNames.SV_INJECTION, p, context);
         String tn = p.getId("TopologicalNode");
         if (!findVoltageLevel(tn)) {
             return;
@@ -59,6 +61,12 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
             load.getTerminal().setP(p0);
             load.getTerminal().setQ(q0);
         }
+
+        addSpecificProperties(load);
+    }
+
+    private static void addSpecificProperties(Load load) {
+        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SV_INJECTION);
     }
 
     private void connect(LoadAdder adder) {

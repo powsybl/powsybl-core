@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
@@ -27,7 +27,7 @@ public final class MultipleExtensionsTestNetworkFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("test", "test");
-        network.setCaseDate(DateTime.parse("2017-11-17T12:00:00+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-11-17T12:00:00+01:00"));
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)
