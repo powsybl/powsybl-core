@@ -15,7 +15,7 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
 
     enum RegulationMode {
         VOLTAGE,
-        REACTIVE_POWER_CONTROL
+        REACTIVE_POWER
     }
 
     /**

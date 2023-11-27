@@ -272,7 +272,7 @@ public abstract class AbstractTapChangerTest {
         ratioTapChanger.setRegulationValue(3.5);
         ratioTapChangerInLeg2.setTapPosition(2);
         ratioTapChangerInLeg2.setRegulating(false);
-        ratioTapChangerInLeg2.setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL);
+        ratioTapChangerInLeg2.setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER);
         ratioTapChangerInLeg2.setRegulationValue(31.5);
         ratioTapChangerInLeg3.setTapPosition(4);
         ratioTapChangerInLeg3.setRegulating(false);
@@ -294,7 +294,7 @@ public abstract class AbstractTapChangerTest {
         assertEquals(3.5, ratioTapChanger.getRegulationValue(), 0.0);
         assertEquals(2, ratioTapChangerInLeg2.getTapPosition());
         assertFalse(ratioTapChangerInLeg2.isRegulating());
-        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL, ratioTapChangerInLeg2.getRegulationMode());
+        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER, ratioTapChangerInLeg2.getRegulationMode());
         assertEquals(31.5, ratioTapChangerInLeg2.getRegulationValue(), 0.0);
         assertEquals(4, ratioTapChangerInLeg3.getTapPosition());
         assertFalse(ratioTapChangerInLeg3.isRegulating());
@@ -442,8 +442,8 @@ public abstract class AbstractTapChangerTest {
         assertEquals(2, ratioTapChanger.getTapPosition());
         ratioTapChanger.setRegulationValue(110.0);
         assertEquals(110.0, ratioTapChanger.getRegulationValue(), 0.0);
-        ratioTapChanger.setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL);
-        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL, ratioTapChanger.getRegulationMode());
+        ratioTapChanger.setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER);
+        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER, ratioTapChanger.getRegulationMode());
         ratioTapChanger.setRegulationValue(-50.0);
         assertEquals(-50.0, ratioTapChanger.getRegulationValue(), 0.0);
         ratioTapChanger.setRegulating(false);
@@ -543,7 +543,7 @@ public abstract class AbstractTapChangerTest {
         assertTrue(e.getMessage().contains("a regulation value has to be set for a regulating ratio tap changer"));
 
         ValidationException e2 = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
-                RatioTapChanger.RegulationMode.REACTIVE_POWER_CONTROL, Double.NaN, 1.0, terminal));
+                RatioTapChanger.RegulationMode.REACTIVE_POWER, Double.NaN, 1.0, terminal));
         assertTrue(e2.getMessage().contains("a regulation value has to be set for a regulating ratio tap changer"));
     }
 
