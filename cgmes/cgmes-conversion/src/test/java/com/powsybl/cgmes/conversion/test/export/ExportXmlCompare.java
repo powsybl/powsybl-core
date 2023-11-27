@@ -569,7 +569,7 @@ final class ExportXmlCompare {
         if (result == ComparisonResult.DIFFERENT) {
             String cxpath = comparison.getControlDetails().getXPath();
             if (cxpath != null && cxpath.contains("FullModel") && cxpath.contains("Model.DependentOn")) {
-                    return ComparisonResult.EQUAL;
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
