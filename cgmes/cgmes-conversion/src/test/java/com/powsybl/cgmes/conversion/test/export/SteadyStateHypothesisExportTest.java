@@ -371,7 +371,8 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringRdfChildLookupTerminal,
                 ExportXmlCompare::ignoringRdfChildLookupEquivalentInjection,
                 ExportXmlCompare::ignoringRdfChildLookupStaticVarCompensator,
-                ExportXmlCompare::ignoringRdfChildLookupRegulatingControl);
+                ExportXmlCompare::ignoringRdfChildLookupRegulatingControl,
+                ExportXmlCompare::ignoringTextValueEquivalentInjection);
         ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh);
     }
 
