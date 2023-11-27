@@ -123,8 +123,11 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmes3BusbarSectionShortCircuitData() {
+        Properties importParams = new Properties();
+        // Avoid importing assembled micro grid as subnetworks, to have access to whole CGMES model
+        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
         Network network = new CgmesImport().importData(Cgmes3Catalog.microGrid().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), importParams);
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         assertNotNull(cgmesModelExtension);
