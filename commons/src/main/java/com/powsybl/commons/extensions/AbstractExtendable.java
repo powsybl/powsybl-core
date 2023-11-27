@@ -6,10 +6,7 @@
  */
 package com.powsybl.commons.extensions;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -18,7 +15,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
 
     private final Map<Class<?>, Extension<T>> extensions = new HashMap<>();
 
-    private final Map<String, Extension<T>> extensionsByName = new HashMap<>();
+    private final Map<String, Extension<T>> extensionsByName = new LinkedHashMap<>();
 
     @Override
     public <E extends Extension<T>> void addExtension(Class<? super E> type, E extension) {
