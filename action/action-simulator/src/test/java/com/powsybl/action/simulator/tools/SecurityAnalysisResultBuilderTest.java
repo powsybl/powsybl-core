@@ -8,7 +8,7 @@ package com.powsybl.action.simulator.tools;
 
 import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.results.PostContingencyResult;
@@ -31,11 +31,11 @@ class SecurityAnalysisResultBuilderTest {
     }
 
     private List<LimitViolation> createPreContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, "IST", Integer.MAX_VALUE, 0.0, 100f, 101, Branch.Side.ONE));
+        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, "IST", Integer.MAX_VALUE, 0.0, 100f, 101, TwoSides.ONE));
     }
 
     private List<LimitViolation> createPostContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, "IST", Integer.MAX_VALUE, 0.0, 100f, 110, Branch.Side.ONE));
+        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, "IST", Integer.MAX_VALUE, 0.0, 100f, 110, TwoSides.ONE));
     }
 
     private void testLimitViolation(LimitViolationsResult result, boolean convergent, List<String> equipmentsId, List<String> actionsId) {

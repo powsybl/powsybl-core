@@ -7,7 +7,7 @@
 package com.powsybl.computation;
 
 import java.util.Map;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 /**
  *
@@ -15,7 +15,7 @@ import org.joda.time.DateTime;
  */
 public interface ComputationResourcesStatus {
 
-    DateTime getDate();
+    ZonedDateTime getDate();
 
     int getAvailableCores();
 

@@ -12,8 +12,9 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,7 +27,7 @@ public abstract class AbstractMeasurementsTest {
     @Test
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
 
         Load load = network.getLoad("LOAD");
         load.newExtension(MeasurementsAdder.class).add();
@@ -45,7 +46,7 @@ public abstract class AbstractMeasurementsTest {
                 .newMeasurement()
                 .setId("MEAS_TWT_Q_2")
                 .setType(Measurement.Type.REACTIVE_POWER)
-                .setSide(Measurement.Side.TWO)
+                .setSide(ThreeSides.TWO)
                 .setValue(-600.07)
                 .setStandardDeviation(10.2)
                 .putProperty("source", "test2")
@@ -55,7 +56,7 @@ public abstract class AbstractMeasurementsTest {
                 .setId("MEAS_TWT_Q_2")
                 .setEnsureIdUnicity(true)
                 .setType(Measurement.Type.REACTIVE_POWER)
-                .setSide(Measurement.Side.ONE)
+                .setSide(ThreeSides.ONE)
                 .setValue(605.2)
                 .setValid(true)
                 .putProperty("source", "test3")
@@ -89,7 +90,7 @@ public abstract class AbstractMeasurementsTest {
         assertNotNull(twtQ1);
         assertEquals("MEAS_TWT_Q_2#0", twtQ1.getId());
         assertEquals(Measurement.Type.REACTIVE_POWER, twtQ1.getType());
-        assertEquals(Measurement.Side.ONE, twtQ1.getSide());
+        assertEquals(ThreeSides.ONE, twtQ1.getSide());
         assertEquals(605.2, twtQ1.getValue(), 0.0);
         assertTrue(Double.isNaN(twtQ1.getStandardDeviation()));
         assertTrue(twtQ1.isValid());
@@ -100,7 +101,7 @@ public abstract class AbstractMeasurementsTest {
         assertNotNull(twtQ2);
         assertEquals("MEAS_TWT_Q_2", twtQ2.getId());
         assertEquals(Measurement.Type.REACTIVE_POWER, twtQ2.getType());
-        assertEquals(Measurement.Side.TWO, twtQ2.getSide());
+        assertEquals(ThreeSides.TWO, twtQ2.getSide());
         assertEquals(-600.07, twtQ2.getValue(), 0.0);
         assertEquals(10.2, twtQ2.getStandardDeviation(), 0.0);
         assertTrue(twtQ2.isValid());

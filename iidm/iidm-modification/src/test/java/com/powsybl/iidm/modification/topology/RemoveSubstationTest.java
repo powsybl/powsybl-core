@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Maissa Souissi {@literal <maissa.souissi at rte-france.com>}
  */
-class RemoveSubstationTest extends AbstractConverterTest {
+class RemoveSubstationTest {
     private final List<String> removedObjects = new ArrayList<>();
 
     @AfterEach

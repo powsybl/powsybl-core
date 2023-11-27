@@ -286,9 +286,9 @@ public class MatpowerExporter implements Exporter {
 
         private final Branch<?> branch;
 
-        private final Branch.Side side;
+        private final TwoSides side;
 
-        public FlowsLimitsHolderBranchAdapter(Branch<?> branch, Branch.Side side) {
+        public FlowsLimitsHolderBranchAdapter(Branch<?> branch, TwoSides side) {
             this.branch = branch;
             this.side = side;
         }
@@ -345,7 +345,7 @@ public class MatpowerExporter implements Exporter {
             Terminal t2 = l.getTerminal2();
             createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
                     .ifPresent(branch -> {
-                        createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), new FlowsLimitsHolderBranchAdapter(l, Branch.Side.TWO)),
+                        createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(l, TwoSides.TWO)),
                                      t1.getVoltageLevel(), branch);
                         model.addBranch(branch);
                     });
@@ -389,7 +389,7 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setR(r / zb);
                 mBranch.setX(x / zb);
                 mBranch.setB(b * zb);
-                createLimits(List.of(new FlowsLimitsHolderBranchAdapter(twt, Branch.Side.ONE), new FlowsLimitsHolderBranchAdapter(twt, Branch.Side.TWO)),
+                createLimits(List.of(new FlowsLimitsHolderBranchAdapter(twt, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(twt, TwoSides.TWO)),
                              t1.getVoltageLevel(), mBranch);
                 model.addBranch(mBranch);
             }
@@ -402,7 +402,7 @@ public class MatpowerExporter implements Exporter {
             Terminal t2 = l.getDanglingLine2().getTerminal();
             createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
                     .ifPresent(branch -> {
-                        createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), new FlowsLimitsHolderBranchAdapter(l, Branch.Side.TWO)),
+                        createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(l, TwoSides.TWO)),
                                      t1.getVoltageLevel(), branch);
                         model.addBranch(branch);
                     });
@@ -677,17 +677,17 @@ public class MatpowerExporter implements Exporter {
         int[] branchCount = new int[1];
         bus.visitConnectedEquipments(new DefaultTopologyVisitor() {
             @Override
-            public void visitLine(Line line, Branch.Side side) {
+            public void visitLine(Line line, TwoSides side) {
                 branchCount[0]++;
             }
 
             @Override
-            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
                 branchCount[0]++;
             }
 
             @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
                 branchCount[0]++;
             }
 
