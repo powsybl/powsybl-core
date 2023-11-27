@@ -26,14 +26,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DateParsingTest {
 
     @Test
-
     void test() {
         Conversion.Config config = new Conversion.Config();
         GridModelReferenceResources gridModel = new GridModelReferenceResources(
-                "dateParsing", null, new ResourceSet("/", "timeParsing.xml"));
+                "dateParsing", null, new ResourceSet("/", "dateParsing.xml"));
         Network n = networkModel(gridModel, config);
 
-        ZonedDateTime caseDateExpected = ZonedDateTime.of(2030, 1, 2, 9, 0, 0, 321, ZoneOffset.UTC);
+        ZonedDateTime caseDateExpected = ZonedDateTime.of(2030, 1, 2, 9, 0, 0, 987654321, ZoneOffset.UTC);
         ZonedDateTime createdDateExpected = ZonedDateTime.of(2021, 5, 18, 7, 43, 27, 0, ZoneOffset.of("+01"));
         long forecastMinutes = Duration.between(createdDateExpected, caseDateExpected).toMinutes();
 
