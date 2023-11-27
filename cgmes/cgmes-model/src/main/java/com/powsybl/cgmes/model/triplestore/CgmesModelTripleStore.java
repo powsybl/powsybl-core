@@ -322,7 +322,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             // Fixed mandatory pattern
             .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
             // Between 0 and 6 decimals
-            .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 7, true)
+            .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 9, true)
             // Potentially a suffix for localisation (for example "Z", "+01:00", "+3", etc.)
             .appendPattern("[VV][x][xx][xxx]")
             .toFormatter();
