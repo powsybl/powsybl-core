@@ -30,13 +30,16 @@ class SourceForIidmIdentifiersTest {
     void microGridMasterResourceIdsExplicit() {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.SOURCE_FOR_IIDM_ID, CgmesImport.SOURCE_FOR_IIDM_ID_MRID);
+        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), importParams);
         network.getIdentifiables().forEach(idf -> assertFalse(idf.getId().startsWith("_")));
     }
 
     @Test
     void microGridMasterResourceIdsDefault() {
-        Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), null);
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), importParams);
         network.getIdentifiables().forEach(idf -> assertFalse(idf.getId().startsWith("_")));
     }
 
@@ -44,6 +47,7 @@ class SourceForIidmIdentifiersTest {
     void microGridRDFIds() {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.SOURCE_FOR_IIDM_ID, CgmesImport.SOURCE_FOR_IIDM_ID_RDFID);
+        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), importParams);
         network.getIdentifiables().forEach(idf -> assertTrue(idf.getId().startsWith("_") || idf.getId().startsWith("urn:uuid:")));
     }

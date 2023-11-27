@@ -239,10 +239,16 @@ public class CgmesImport implements Importer {
                     // We consider IGMs only the modeling authorities that have an EQ file
                     // The CGM SV should have the MA of the merging agent
                     .filter(CgmesSubset.EQUIPMENT::isValidName)
-                    .collect(Collectors.toMap(this::readModelingAuthority, name -> new ArrayList<>(List.of(name))));
+                    .map(name -> readModelingAuthority(name).map(ma -> Map.entry(ma, name)))
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(List.of(e.getValue()))));
             if (LOGGER.isInfoEnabled() && !igmNames.isEmpty()) {
-                LOGGER.info("IGM EQ files identified by Modeling Authority");
+                LOGGER.info("IGM EQ files identified by Modeling Authority:");
                 igmNames.forEach((k, v) -> LOGGER.info("  {} {}", k, v.get(0)));
+            }
+            // If we only have found one IGM there is no need to partition
+            if (igmNames.size() == 1) {
+                return Set.of(dataSource);
             }
             Set<String> shared = new HashSet<>();
             new CgmesOnDataSource(dataSource).names().stream()
@@ -251,22 +257,36 @@ public class CgmesImport implements Importer {
                     .filter(not(CgmesSubset.EQUIPMENT::isValidName))
                     .filter(not(AssembledChecker::isBoundary))
                     .forEach(name -> {
-                        String ma = readModelingAuthority(name);
-                        if (igmNames.containsKey(ma)) {
-                            igmNames.get(ma).add(name);
+                        Optional<String> ma = readModelingAuthority(name);
+                        if (ma.isPresent() && igmNames.containsKey(ma.get())) {
+                            igmNames.get(ma.get()).add(name);
                         } else {
                             shared.add(name);
                         }
                     });
             // Build one data source for each IGM found
+            if (LOGGER.isInfoEnabled() && !igmNames.isEmpty()) {
+                LOGGER.info("IGM files identified by Modeling Authority:");
+                igmNames.forEach((k, v) -> LOGGER.info("  {} {}", k, String.join(",", v)));
+                if (!shared.isEmpty()) {
+                    LOGGER.info("Shared files:");
+                    shared.forEach(name -> LOGGER.info("  {}", name));
+                }
+                LOGGER.info("Boundaries:");
+                try {
+                    dataSource.listNames(".*").stream().filter(name -> isBoundary(name)).forEach(name -> LOGGER.info("  {}", name));
+                } catch (IOException e) {
+                    throw new PowsyblException(e);
+                }
+            }
             return igmNames.keySet().stream()
                     .map(ma -> new FilteredReadOnlyDataSource(dataSource,
                             name -> isBoundary(name) || igmNames.get(ma).contains(name) || shared.contains(name)))
                     .collect(Collectors.toSet());
         }
 
-        private String readModelingAuthority(String name) {
-            String modellingAuthority = "unknown";
+        private Optional<String> readModelingAuthority(String name) {
+            String modellingAuthority = null;
             try (InputStream is = dataSource.newInputStream(name)) {
                 XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(is);
                 boolean stopReading = false;
@@ -285,7 +305,7 @@ public class CgmesImport implements Importer {
             } catch (IOException | XMLStreamException e) {
                 throw new PowsyblException(e);
             }
-            return modellingAuthority;
+            return Optional.ofNullable(modellingAuthority);
         }
 
         private Set<ReadOnlyDataSource> separateByIgmName() {
@@ -656,12 +676,12 @@ public class CgmesImport implements Importer {
             IMPORT_ASSEMBLED_AS_SUBNETWORKS,
             ParameterType.BOOLEAN,
             "Import assembled models as subnetworks",
-            Boolean.FALSE);
+            Boolean.TRUE);
     private static final Parameter IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY_PARAMETER = new Parameter(
             IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY,
             ParameterType.STRING,
             "Choose how subnetworks from assembled input must be separated: based on filenames or by modeling authority",
-            AssembledSeparatingBy.NAME.name(),
+            AssembledSeparatingBy.MODELING_AUTHORITY.name(),
             Arrays.stream(AssembledSeparatingBy.values()).map(Enum::name).collect(Collectors.toList()));
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(

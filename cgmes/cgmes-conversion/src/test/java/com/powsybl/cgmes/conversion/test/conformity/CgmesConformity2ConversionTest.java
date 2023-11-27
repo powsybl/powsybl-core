@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test.conformity;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity2Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,9 +31,12 @@ class CgmesConformity2ConversionTest {
 
     @BeforeAll
     static void setUpBeforeClass() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
         tester = new ConversionTester(
-            TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig());
+                importParams,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
     }
 
     @BeforeEach

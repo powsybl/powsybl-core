@@ -35,11 +35,14 @@ class CgmesConformity3ConversionTest {
 
     @Test
     void microGridBaseCaseBEMergedWithNL() {
-        Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+
+        Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
         assertNotEquals("unknown", be.getId());
         int nSubBE = be.getSubstationCount();
         int nDlBE = be.getDanglingLineCount();
-        Network nl = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource());
+        Network nl = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource(), importParams);
         assertNotEquals("unknown", nl.getId());
         int nSubNL = nl.getSubstationCount();
         int nDlNL = nl.getDanglingLineCount();
@@ -69,6 +72,7 @@ class CgmesConformity3ConversionTest {
     void microGridBaseCaseAssembledSeparatingByFilename() {
         Properties params = new Properties();
         params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "true");
+        params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY, CgmesImport.AssembledSeparatingBy.NAME.name());
         Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
         assertEquals(2, n.getSubnetworks().size());
         assertEquals(List.of("BE", "NL"),

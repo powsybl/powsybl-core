@@ -25,6 +25,7 @@ class CgmesConversionContextExtensionTest {
     void test() {
         Properties properties = new Properties();
         properties.put(CgmesImport.STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION, "true");
+        properties.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), NetworkFactory.findDefault(), properties);
         CgmesConversionContextExtension extension = network.getExtension(CgmesConversionContextExtension.class);
         assertNotNull(extension);

@@ -13,9 +13,11 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Importers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Map;
 import java.util.Properties;
@@ -26,6 +28,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class FunctionalLogsTest {
+
+    private Properties importParams;
+
+    @BeforeEach
+    void setUp() {
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+    }
 
     @Test
     void testImportMicroGridBaseCaseBE() throws IOException {
@@ -47,17 +57,12 @@ class FunctionalLogsTest {
 
     @Test
     void testImportMiniGridNodeBreaker() throws IOException {
-        Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         checkResult("/functional-logs/miniGridNodeBreaker.txt",
-                importReport(CgmesConformity1Catalog.miniNodeBreaker(), importParams));
+                importReport(CgmesConformity1Catalog.miniNodeBreaker()));
     }
 
     private ReporterModel importReport(GridModelReference testCase) {
-        return importReport(testCase, null);
-    }
-
-    private ReporterModel importReport(GridModelReference testCase, Properties importParams) {
         ReporterModel reporter = new ReporterModel("testFunctionalLogs",
                 "Test importing ${name}", Map.of("name", new TypedValue(testCase.name(), TypedValue.UNTYPED)));
         Importers.importData("CGMES", testCase.dataSource(), importParams, reporter);
@@ -67,7 +72,9 @@ class FunctionalLogsTest {
     private void checkResult(String resourceName, ReporterModel reporter) throws IOException {
         StringWriter sw = new StringWriter();
         reporter.export(sw);
-        String expected = new String(getClass().getResourceAsStream(resourceName).readAllBytes());
-        assertEquals(expected, sw.toString());
+        try (InputStream is = getClass().getResourceAsStream(resourceName)) {
+            String expected = new String(is.readAllBytes());
+            assertEquals(expected, sw.toString());
+        }
     }
 }

@@ -8,16 +8,19 @@
 package com.powsybl.cgmes.conversion.test.export.issues;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,10 +29,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class SwitchExportTest extends AbstractSerDeTest {
 
+    private Properties importParams;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        super.setUp();
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+    }
+
     @Test
     void testSwitchTypePreservedBusBranch() {
         // Load a bus/branch network containing a generic "Switch", not a breaker
-        Network network = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseNLSwitchTypePreserved().dataSource());
+        Network network = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseNLSwitchTypePreserved().dataSource(), importParams);
         String basename = "micro-nl";
         network.write("CGMES", null, tmpDir.resolve(basename));
 
@@ -47,7 +59,7 @@ class SwitchExportTest extends AbstractSerDeTest {
     @Test
     void testSwitchTypePreservedNodeBreaker() {
         // Load a node/branch network containing a "ProtectedSwitch"
-        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniGridNodeBreakerSwitchTypePreserved().dataSource());
+        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniGridNodeBreakerSwitchTypePreserved().dataSource(), importParams);
         String basename = "mini";
         network.write("CGMES", null, tmpDir.resolve(basename));
 
