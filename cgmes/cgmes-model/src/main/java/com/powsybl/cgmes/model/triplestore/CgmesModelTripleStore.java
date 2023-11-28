@@ -321,9 +321,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         DateTimeFormatter dateTimeFormatterLocalised = new DateTimeFormatterBuilder()
             // Fixed mandatory pattern
             .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-            // Between 0 and 6 decimals
-            .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
-            // Potentially a suffix for localisation (for example "Z", "+01:00", "+3", etc.)
+            // Between 0 and 9 decimals (9 is the maximum)
+            .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
+            // Potentially a suffix for localisation (VV: zoneId, x: +HHmm, xx: +HHMM, xxx: +HH:MM)
             .appendPattern("[VV][x][xx][xxx]")
             .toFormatter();
 
