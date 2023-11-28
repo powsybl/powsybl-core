@@ -49,6 +49,20 @@
             <artifactId>jama</artifactId>
         </dependency>
         <dependency>
+            <groupId>us.hebi.matlab.mat</groupId>
+            <artifactId>mfl-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>us.hebi.matlab.mat</groupId>
+            <artifactId>mfl-ejml</artifactId>
+            <version>${mfl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-core</artifactId>
+            <version>0.43.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.scijava</groupId>
             <artifactId>native-lib-loader</artifactId>
         </dependency>
