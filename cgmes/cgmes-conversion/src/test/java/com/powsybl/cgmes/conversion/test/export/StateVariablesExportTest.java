@@ -539,6 +539,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         context.getSvModelDescription().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
+        context.setExportSvInjectionsForSlacks(false);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSv))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);

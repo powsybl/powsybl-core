@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm.SpanningTree;
 import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
@@ -24,10 +25,16 @@ import java.util.*;
  */
 public class SwitchesFlow {
     private final VoltageLevel voltageLevel;
+    private final String slackBusId;
     private final Map<String, SwFlow> switchesFlows;
 
     public SwitchesFlow(VoltageLevel voltageLevel) {
+        this(voltageLevel, null);
+    }
+
+    public SwitchesFlow(VoltageLevel voltageLevel, String slackBusId) {
         this.voltageLevel = voltageLevel;
+        this.slackBusId = slackBusId;
         switchesFlows = new HashMap<>();
 
         compute();
@@ -191,13 +198,52 @@ public class SwitchesFlow {
             }));
     }
 
+    public Terminal getEquivalentTerminalInsideBusBreakerBus(int node) {
+        Terminal[] equivalentTerminal = new Terminal[1];
+        VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
+            if (sw != null && (sw.isOpen() || sw.isRetained())) {
+                return TraverseResult.TERMINATE_PATH;
+            }
+            Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
+            if (t != null) {
+                equivalentTerminal[0] = t;
+                return TraverseResult.TERMINATE_TRAVERSER;
+            }
+            return TraverseResult.CONTINUE;
+        };
+        voltageLevel.getNodeBreakerView().traverse(node, traverser);
+        return equivalentTerminal[0];
+    }
+
+    private boolean isSlack(SwNode swNode) {
+        Bus bus = null;
+        if (swNode.bus != null) {
+            bus = swNode.bus;
+        } else {
+            Terminal t = voltageLevel.getNodeBreakerView().getOptionalTerminal(swNode.node)
+                    .orElseGet(() -> getEquivalentTerminalInsideBusBreakerBus(swNode.node));
+            if (t != null) {
+                bus = t.getBusBreakerView().getBus();
+            }
+        }
+        return bus != null && bus.getId().equals(slackBusId);
+    }
+
     private void connectedComponentSwitchesFlow(Map<String, SwNode> swNodeInjection,
         SimpleWeightedGraph<SwNode, SwEdge> graph, Set<SwNode> connectedSet) {
         // Discard isolated nodes
         if (connectedSet.size() <= 1) {
             return;
         }
-        Optional<SwNode> swRoot = connectedSet.stream().sorted(Comparator.comparing(SwitchesFlow::getKey)).findFirst();
+        // We chose the slack bus (if there is one) as the root of the tree,
+        // This way, the potential mismatch of the whole busview bus will be assigned entirely
+        // to the bus/breaker view that is labeled as slack
+        // We always look in the sorted nodes list to ensure a deterministic selection of the root
+        List<SwNode> sortedNodes = connectedSet.stream().sorted(Comparator.comparing(SwitchesFlow::getKey)).toList();
+        Optional<SwNode> swRoot = sortedNodes.stream()
+                .filter(this::isSlack)
+                .findFirst()
+                .or(() -> sortedNodes.stream().findFirst());
         if (swRoot.isEmpty()) {
             return;
         }

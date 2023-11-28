@@ -53,6 +53,7 @@ public final class StateVariablesExport {
 
             writeVoltagesForTopologicalNodes(network, context, writer);
             writeVoltagesForBoundaryNodes(network, cimNamespace, writer, context);
+            writeSvInjectionsForSlacks(network, cimNamespace, writer, context);
             writePowerFlows(network, cimNamespace, writer, context);
             writeShuntCompensatorSections(network, cimNamespace, writer, context);
             writeTapSteps(network, cimNamespace, writer, context);
@@ -130,6 +131,60 @@ public final class StateVariablesExport {
         angleRefs.put(topologicalNodeId, topologicalNodeId);
     }
 
+    private static final class BusTools {
+        private BusTools() {
+            // Empty
+        }
+
+        static Optional<Bus> getBusViewBus(Bus bus) {
+            if (bus.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
+                return Optional.of(bus.getVoltageLevel().getBusView().getMergedBus(bus.getId()));
+            } else {
+                if (bus.getConnectedTerminalCount() > 0) {
+                    return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
+                } else {
+                    return bus.getVoltageLevel().getBusView().getBusStream()
+                            .filter(busViewBus -> bus.getVoltageLevel().getBusBreakerView().getBusesFromBusViewBusId(busViewBus.getId()).contains(bus))
+                            .findFirst();
+                }
+            }
+        }
+
+        static boolean hasAnyFinite(Bus bus, Function<Terminal, Double> value) {
+            return bus.getConnectedTerminalStream().map(value).anyMatch(Double::isFinite);
+        }
+
+        static double sum(Bus bus, Function<Terminal, Double> value) {
+            return bus.getConnectedTerminalStream()
+                    .map(value)
+                    .filter(pq -> !Double.isNaN(pq))
+                    .mapToDouble(Double::valueOf)
+                    .sum();
+        }
+
+        static boolean isSlack(Bus bus) {
+            SlackTerminal st = bus.getVoltageLevel().getExtension(SlackTerminal.class);
+            return st != null && !st.isEmpty() && st.getTerminal().getBusView().getBus() == bus;
+        }
+
+        static void logDetail(Bus bus) {
+            if (LOG.isDebugEnabled()) {
+                bus.getConnectedTerminalStream().forEach(t -> LOG.debug(String.format("  %7.2f  %7.2f  %s %s %s",
+                        t.getP(), t.getQ(),
+                        t.getConnectable().getType(), t.getConnectable().getNameOrId(), t.getConnectable().getId())));
+            }
+        }
+
+        public static String findSlackBusBreakerId(VoltageLevel vl) {
+            SlackTerminal st = vl.getExtension(SlackTerminal.class);
+            if (st != null && !st.isEmpty() && st.getTerminal().getBusBreakerView().getBus() != null) {
+                return st.getTerminal().getBusBreakerView().getBus().getId();
+            } else {
+                return null;
+            }
+        }
+    }
+
     private static final class TopologicalIsland {
         static final String CONVERGED = "converged";
         static final String DIVERGED = "diverged";
@@ -191,7 +246,7 @@ public final class StateVariablesExport {
 
         boolean isInAccordanceWithKirchhoffsFirstLaw(Bus bus) {
             // Instead of checking switch flows, we check that the corresponding bus view bus is balanced
-            Optional<Bus> optionalBusViewBus = getBusViewBus(bus);
+            Optional<Bus> optionalBusViewBus = BusTools.getBusViewBus(bus);
             if (optionalBusViewBus.isEmpty()) {
                 LOG.error("Can not check if bus is in accordance with Kirchhoff's first law. No BusView bus can be found for: {}", bus);
                 return false;
@@ -200,64 +255,26 @@ public final class StateVariablesExport {
             // We do not check the same bus view bus more than once
             if (checkedBusViewBuses.contains(busViewBus)
                     || busViewBus.getConnectedTerminalCount() == 0
-                    || isSlack(busViewBus)) {
+                    || BusTools.isSlack(busViewBus)) {
                 return true;
             }
             boolean isInAccordance;
-            if (hasAnyFinite(busViewBus, Terminal::getP) && hasAnyFinite(busViewBus, Terminal::getQ)) {
-                double sumP = sumTerminals(busViewBus, Terminal::getP);
-                double sumQ = sumTerminals(busViewBus, Terminal::getQ);
+            if (BusTools.hasAnyFinite(busViewBus, Terminal::getP) && BusTools.hasAnyFinite(busViewBus, Terminal::getQ)) {
+                double sumP = BusTools.sum(busViewBus, Terminal::getP);
+                double sumQ = BusTools.sum(busViewBus, Terminal::getQ);
                 isInAccordance = Math.abs(sumP) < maxPMismatchConverged && Math.abs(sumQ) < maxQMismatchConverged;
                 if (!isInAccordance && LOG.isInfoEnabled()) {
                     LOG.info("Bus {} is not in accordance with Kirchhoff's first law. Mismatch = {}", bus, String.format("(%.4f, %.4f)", sumP, sumQ));
-                    logDetail(busViewBus);
+                    BusTools.logDetail(busViewBus);
                     LOG.debug(String.format("  %7.2f  %7.2f  Sum", sumP, sumQ));
                 }
             } else {
                 isInAccordance = false;
                 LOG.info("Bus {} is not in accordance with Kirchhoff's first law. All connected terminals have invalid values", bus);
-                logDetail(busViewBus);
+                BusTools.logDetail(busViewBus);
             }
             checkedBusViewBuses.add(busViewBus);
             return isInAccordance;
-        }
-
-        private boolean isSlack(Bus bus) {
-            SlackTerminal st = bus.getVoltageLevel().getExtension(SlackTerminal.class);
-            return st != null && !st.isEmpty() && st.getTerminal().getBusView().getBus() == bus;
-        }
-
-        private boolean hasAnyFinite(Bus bus, Function<Terminal, Double> value) {
-            return bus.getConnectedTerminalStream().map(value).anyMatch(Double::isFinite);
-        }
-
-        private double sumTerminals(Bus bus, Function<Terminal, Double> value) {
-            return bus.getConnectedTerminalStream()
-                    .map(value)
-                    .filter(pq -> !Double.isNaN(pq))
-                    .mapToDouble(Double::valueOf)
-                    .sum();
-        }
-
-        private void logDetail(Bus bus) {
-            if (LOG.isDebugEnabled()) {
-                bus.getConnectedTerminalStream()
-                        .forEach(t -> LOG.info(String.format("  %7.2f  %7.2f  %s %s %s", t.getP(), t.getQ(), t.getConnectable().getType(), t.getConnectable().getNameOrId(), t.getConnectable().getId())));
-            }
-        }
-
-        Optional<Bus> getBusViewBus(Bus bus) {
-            if (bus.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
-                return Optional.of(bus.getVoltageLevel().getBusView().getMergedBus(bus.getId()));
-            } else {
-                if (bus.getConnectedTerminalCount() > 0) {
-                    return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
-                } else {
-                    return bus.getVoltageLevel().getBusView().getBusStream()
-                            .filter(busViewBus -> bus.getVoltageLevel().getBusBreakerView().getBusesFromBusViewBusId(busViewBus.getId()).contains(bus))
-                            .findFirst();
-                }
-            }
         }
     }
 
@@ -318,6 +335,32 @@ public final class StateVariablesExport {
         writer.writeEndElement();
         CgmesExportUtil.writeReference(SV_VOLTAGE_TOPOLOGICAL_NODE, topologicalNode, cimNamespace, writer, context);
         writer.writeEndElement();
+    }
+
+    private static void writeSvInjectionsForSlacks(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        if (context.isExportSvInjectionsForSlacks()) {
+            for (VoltageLevel vl : network.getVoltageLevels()) {
+                SlackTerminal st = vl.getExtension(SlackTerminal.class);
+                if (st != null && !st.isEmpty()) {
+                    Bus bus = st.getTerminal().getBusBreakerView().getBus();
+                    Optional<Bus> optionalBusViewBus = BusTools.getBusViewBus(bus);
+                    if (optionalBusViewBus.isPresent()) {
+                        // The total mismatch of the slack (as busview bus) has been left in the bus/breaker bus labeled as slack.
+                        // This is ensured by the calculation of flows through switches (SwitchesFlow).
+                        // We compute the total mismatch left by power flow calculation in the busview bus and
+                        // create an SvInjection that is assigned to the bus/breaker view bus.
+                        Bus busViewBus = optionalBusViewBus.get();
+                        double sumP = BusTools.sum(busViewBus, Terminal::getP);
+                        double sumQ = BusTools.sum(busViewBus, Terminal::getQ);
+                        if (Math.abs(sumP) > context.getMaxPMismatchConverged() || Math.abs(sumQ) > context.getMaxQMismatchConverged()) {
+                            String topologicalNodeId = context.getNamingStrategy().getCgmesId(bus);
+                            String svInjectionId = CgmesExportUtil.getUniqueId();
+                            writeSvInjection(svInjectionId, -sumP, -sumQ, topologicalNodeId, cimNamespace, writer, context);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private static void writePowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
@@ -384,7 +427,7 @@ public final class StateVariablesExport {
 
         if (context.exportFlowsForSwitches()) {
             network.getVoltageLevelStream().forEach(vl -> {
-                SwitchesFlow swflows = new SwitchesFlow(vl);
+                SwitchesFlow swflows = new SwitchesFlow(vl, BusTools.findSlackBusBreakerId(vl));
                 vl.getSwitches().forEach(sw -> {
                     if (context.isExportedEquipment(sw)) {
                         writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()), cimNamespace, writer, context);
@@ -468,13 +511,18 @@ public final class StateVariablesExport {
     }
 
     private static void writeSvInjection(Load svInjection, String topologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        String svInjectionId = context.getNamingStrategy().getCgmesId(svInjection);
+        writeSvInjection(svInjectionId, svInjection.getP0(), svInjection.getQ0(), topologicalNode, cimNamespace, writer, context);
+    }
+
+    private static void writeSvInjection(String svInjectionId, double p, double q, String topologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeStartId("SvInjection", context.getNamingStrategy().getCgmesId(svInjection), false, cimNamespace, writer, context);
+            CgmesExportUtil.writeStartId("SvInjection", svInjectionId, false, cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "SvInjection.pInjection");
-            writer.writeCharacters(CgmesExportUtil.format(svInjection.getP0()));
+            writer.writeCharacters(CgmesExportUtil.format(p));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SvInjection.qInjection");
-            writer.writeCharacters(CgmesExportUtil.format(svInjection.getQ0()));
+            writer.writeCharacters(CgmesExportUtil.format(q));
             writer.writeEndElement();
             CgmesExportUtil.writeReference("SvInjection.TopologicalNode", topologicalNode, cimNamespace, writer, context);
             writer.writeEndElement();
