@@ -13,9 +13,9 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.SwitchesFlow;
-import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,9 +147,12 @@ public final class StateVariablesExport {
         String loadFlowStatus = CONVERGED;
         final double maxPMismatchConverged;
         final double maxQMismatchConverged;
+        final Set<Bus> checkedBusViewBuses = new HashSet<>();
+        final boolean checkConvergedInAllBuses;
 
         private TopologicalIsland(String key, List<String> topologicalNodes, CgmesExportContext context) {
             this.key = key;
+            this.checkConvergedInAllBuses = false;
             this.topologicalNodes = topologicalNodes;
             this.maxPMismatchConverged = context.getMaxPMismatchConverged();
             this.maxQMismatchConverged = context.getMaxQMismatchConverged();
@@ -171,10 +174,10 @@ public final class StateVariablesExport {
         }
 
         void updateLoadFlowStatus(Bus bus) {
-            if (loadFlowStatus.equals(DIVERGED)) {
+            if (loadFlowStatus.equals(DIVERGED) && !checkConvergedInAllBuses) {
                 return;
             }
-            if (!(isValidVoltage(bus.getV()) && isValidAngle(bus.getAngle()) && isInAccordanceWithKirchoffsFirstLaw(bus))) {
+            if (!(isValidVoltage(bus.getV()) && isValidAngle(bus.getAngle()) && isInAccordanceWithKirchhoffsFirstLaw(bus))) {
                 loadFlowStatus = DIVERGED;
             }
         }
@@ -187,43 +190,86 @@ public final class StateVariablesExport {
             return Double.isFinite(a);
         }
 
-        boolean isInAccordanceWithKirchoffsFirstLaw(Bus bus) {
+        boolean isInAccordanceWithKirchhoffsFirstLaw(Bus bus) {
             // Instead of checking switch flows, we check that the corresponding bus view bus is balanced
-            // Maybe we will check the same bus view bus more than once
-            Optional<Bus> bus0 = getBusViewBus(bus);
-            if (bus0.isEmpty()) {
-                LOG.warn("Can not check if bus is in accordance with Kirchoff's first law. No BusView bus can be found for: {}", bus);
+            Optional<Bus> optionalBusViewBus = getBusViewBus(bus);
+            if (optionalBusViewBus.isEmpty()) {
+                LOG.error("Can not check if bus is in accordance with Kirchhoff's first law. No BusView bus can be found for: {}", bus);
                 return false;
             }
-            Complex sumTerminalFlows = bus0.get().getConnectedTerminalStream()
-                    .filter(this::isValidTerminal)
-                    .map(t -> new Complex(t.getP(), t.getQ()))
-                    .reduce(Complex.ZERO, Complex::add);
-            boolean isInAccordance = Math.abs(sumTerminalFlows.getReal()) < maxPMismatchConverged && Math.abs(sumTerminalFlows.getImaginary()) < maxQMismatchConverged;
-            if (!isInAccordance && LOG.isInfoEnabled()) {
-                LOG.info("Bus {} is not in accordance with Kirchoff's first law. Mismatch = {}", bus, sumTerminalFlows);
-                bus0.get().getConnectedTerminalStream()
-                        .filter(this::isValidTerminal)
-                        .forEach(t -> LOG.info(String.format("  %7.2f  %7.2f  %s %s %s", t.getP(), t.getQ(), t.getConnectable().getType(), t.getConnectable().getNameOrId(), t.getConnectable().getId())));
-                LOG.info(String.format("  %7.2f  %7.2f", sumTerminalFlows.getReal(), sumTerminalFlows.getImaginary()));
+            Bus busViewBus = optionalBusViewBus.get();
+            // We do not check the same bus view bus more than once
+            if (checkedBusViewBuses.contains(busViewBus)
+                    || busViewBus.getConnectedTerminalCount() == 0
+                    || isSlack(busViewBus)
+                    || isAngleReference(busViewBus)) {
+                return true;
             }
+            boolean isInAccordance;
+            if (hasAnyFinite(busViewBus, Terminal::getP) && hasAnyFinite(busViewBus, Terminal::getQ)) {
+                double sumP = sumTerminals(busViewBus, Terminal::getP);
+                double sumQ = sumTerminals(busViewBus, Terminal::getQ);
+                isInAccordance = Math.abs(sumP) < maxPMismatchConverged && Math.abs(sumQ) < maxQMismatchConverged;
+                if (!isInAccordance && LOG.isInfoEnabled()) {
+                    LOG.info("Bus {} is not in accordance with Kirchhoff's first law. Mismatch = {}", bus, String.format("(%.4f, %.4f)", sumP, sumQ));
+                    logDetail(busViewBus);
+                    LOG.debug(String.format("  %7.2f  %7.2f  Sum", sumP, sumQ));
+                }
+            } else {
+                isInAccordance = false;
+                LOG.info("Bus {} is not in accordance with Kirchhoff's first law. All connected terminals have invalid values", bus);
+                logDetail(busViewBus);
+            }
+            checkedBusViewBuses.add(busViewBus);
             return isInAccordance;
+        }
+
+        private boolean isSlack(Bus bus) {
+            SlackTerminal st = bus.getVoltageLevel().getExtension(SlackTerminal.class);
+            return st != null && !st.isEmpty() && st.getTerminal().getBusView().getBus() == bus;
+        }
+
+        private boolean isAngleReference(Bus bus) {
+            ReferenceTerminals reft = bus.getNetwork().getExtension(ReferenceTerminals.class);
+            if (reft == null) {
+                return false;
+            } else {
+                Set<Terminal> refts = reft.getReferenceTerminals();
+                return bus.getConnectedTerminalStream().anyMatch(refts::contains);
+            }
+        }
+
+        private boolean hasAnyFinite(Bus bus, Function<Terminal, Double> value) {
+            return bus.getConnectedTerminalStream().map(value).anyMatch(Double::isFinite);
+        }
+
+        private double sumTerminals(Bus bus, Function<Terminal, Double> value) {
+            return bus.getConnectedTerminalStream()
+                    .map(value)
+                    .filter(pq -> !Double.isNaN(pq))
+                    .mapToDouble(Double::valueOf)
+                    .sum();
+        }
+
+        private void logDetail(Bus bus) {
+            if (LOG.isDebugEnabled()) {
+                bus.getConnectedTerminalStream()
+                        .forEach(t -> LOG.info(String.format("  %7.2f  %7.2f  %s %s %s", t.getP(), t.getQ(), t.getConnectable().getType(), t.getConnectable().getNameOrId(), t.getConnectable().getId())));
+            }
         }
 
         Optional<Bus> getBusViewBus(Bus bus) {
             if (bus.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
                 return Optional.of(bus.getVoltageLevel().getBusView().getMergedBus(bus.getId()));
             } else {
-                return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
+                if (bus.getConnectedTerminalCount() > 0) {
+                    return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
+                } else {
+                    return bus.getVoltageLevel().getBusView().getBusStream()
+                            .filter(busViewBus -> bus.getVoltageLevel().getBusBreakerView().getBusesFromBusViewBusId(busViewBus.getId()).contains(bus))
+                            .findFirst();
+                }
             }
-        }
-
-        boolean isValidTerminal(Terminal t) {
-            // Static var compensators with mode OFF do not have p, q set at their terminal after load flow calculation
-            // Busbar sections do not have flow
-            return !(t.getConnectable().getType() == IdentifiableType.STATIC_VAR_COMPENSATOR
-                    && ((StaticVarCompensator) t.getConnectable()).getRegulationMode() == StaticVarCompensator.RegulationMode.OFF
-                    || t.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION);
         }
     }
 
