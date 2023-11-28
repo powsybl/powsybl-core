@@ -424,7 +424,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
     @Test
     void testVoltageRangeWithSpecificVoltageOutOfBounds() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> new VoltageRange(100, 150, 0.9, 200));
-        assertEquals("Declared voltage should be in voltageRange [100.0..150.0] but it is 200.0", e.getMessage());
+        assertEquals("Range voltage should be in voltageRange [100.0..150.0] but it is 200.0", e.getMessage());
     }
 
     @Test

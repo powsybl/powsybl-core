@@ -23,9 +23,10 @@
     "maximumNominalVoltage" : 230.0,
     "voltageRangeCoefficient" : 1.0
   }, {
-    "minimumNominalVoltage" : 235.0,
-    "maximumNominalVoltage" : 400.0,
-    "voltageRangeCoefficient" : 1.05
+    "minimumNominalVoltage" : 231.0,
+    "maximumNominalVoltage" : 250.0,
+    "voltageRangeCoefficient" : 1.05,
+    "voltage" : 240.0
   } ]
 }, {
   "version" : "1.2",

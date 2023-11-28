@@ -93,7 +93,7 @@ public class VoltageRange {
 
     private static double checkVoltage(double voltage, Range<Double> voltageRange) {
         if (!Double.isNaN(voltage) && !voltageRange.contains(voltage)) {
-            throw new PowsyblException("Declared voltage should be in voltageRange " + voltageRange + " but it is " + voltage);
+            throw new PowsyblException("Range voltage should be in voltageRange " + voltageRange + " but it is " + voltage);
         }
         return voltage;
     }

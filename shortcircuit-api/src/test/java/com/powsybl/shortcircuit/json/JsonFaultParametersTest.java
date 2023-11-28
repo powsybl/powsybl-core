@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,7 +32,7 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
         parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 20, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null));
-        List<VoltageRange> voltageRanges = List.of(new VoltageRange(0, 230, 1), new VoltageRange(235, 400, 1.05));
+        List<VoltageRange> voltageRanges = List.of(new VoltageRange(0, 230, 1), new VoltageRange(231, 250, 1.05, 240));
         parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfileMode.CONFIGURED, voltageRanges));
         parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfileMode.NOMINAL, null));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN, false, false, false, false, null, null));
@@ -46,7 +47,7 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
     //
     @Test
     void readVersion10() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileVersion10.json"), fileSystem.getPath("/FaultParametersFileVersion10.json"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileVersion10.json")), fileSystem.getPath("/FaultParametersFileVersion10.json"));
         List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileVersion10.json"));
         assertEquals(4, parameters.size());
 
@@ -85,7 +86,7 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
 
     @Test
     void readVersion11() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileVersion11.json"), fileSystem.getPath("/FaultParametersFileVersion11.json"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileVersion11.json")), fileSystem.getPath("/FaultParametersFileVersion11.json"));
         List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileVersion11.json"));
         assertEquals(1, parameters.size());
 
@@ -100,7 +101,7 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
 
     @Test
     void readVersion12() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileVersion12.json"), fileSystem.getPath("/FaultParametersFileVersion12.json"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileVersion12.json")), fileSystem.getPath("/FaultParametersFileVersion12.json"));
         List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileVersion12.json"));
         assertEquals(1, parameters.size());
 
@@ -116,7 +117,7 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
 
     @Test
     void readUnexpectedField() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileInvalid.json"), fileSystem.getPath("/FaultParametersFileInvalid.json"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileInvalid.json")), fileSystem.getPath("/FaultParametersFileInvalid.json"));
 
         Path path = fileSystem.getPath("/FaultParametersFileInvalid.json");
         UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
@@ -125,7 +126,7 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
 
     @Test
     void readParameters() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFile.json"), fileSystem.getPath("/FaultParametersFile.json"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFile.json")), fileSystem.getPath("/FaultParametersFile.json"));
         List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFile.json"));
         assertEquals(5, parameters.size());
 
@@ -138,7 +139,7 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
 
     @Test
     void readParametersMissingVoltageRanges() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileWithoutVoltageRanges.json"), fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileWithoutVoltageRanges.json")), fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json"));
         Path path = fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
@@ -146,7 +147,7 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
 
     @Test
     void readParametersEmptyVoltageRange() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileEmptyVoltageRanges.json"), fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileEmptyVoltageRanges.json")), fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json"));
         Path path = fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
