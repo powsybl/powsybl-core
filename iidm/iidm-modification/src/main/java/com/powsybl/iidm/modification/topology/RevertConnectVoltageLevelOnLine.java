@@ -79,7 +79,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         Line line1 = checkAndGetLine(network, line1Id, reporter, throwException);
         Line line2 = checkAndGetLine(network, line2Id, reporter, throwException);
