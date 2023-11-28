@@ -164,9 +164,14 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     }
 
     public static class DummyExtension extends AbstractExtension<LoadFlowParameters> {
-        double parameterDouble;
-        boolean parameterBoolean;
-        String parameterString;
+
+        public static final double PARAMETER_DOUBLE_DEFAULT_VALUE = 0;
+        public static final boolean PARAMETER_BOOLEAN_DEFAULT_VALUE = false;
+        public static final String PARAMETER_STRING_DEFAULT_VALUE = null;
+
+        private double parameterDouble = PARAMETER_DOUBLE_DEFAULT_VALUE;
+        private boolean parameterBoolean = PARAMETER_BOOLEAN_DEFAULT_VALUE;
+        private String parameterString = PARAMETER_STRING_DEFAULT_VALUE;
 
         public DummyExtension() {
             super();
@@ -186,27 +191,27 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
             return "dummy-extension";
         }
 
+        public double getParameterDouble() {
+            return this.parameterDouble;
+        }
+
+        public void setParameterDouble(double parameterDouble) {
+            this.parameterDouble = parameterDouble;
+        }
+
         public boolean isParameterBoolean() {
             return this.parameterBoolean;
+        }
+
+        public void setParameterBoolean(boolean parameterBoolean) {
+            this.parameterBoolean = parameterBoolean;
         }
 
         public String getParameterString() {
             return this.parameterString;
         }
 
-        double getParameterDouble() {
-            return this.parameterDouble;
-        }
-
-        void setParameterDouble(double parameterDouble) {
-            this.parameterDouble = parameterDouble;
-        }
-
-        void setParameterBoolean(boolean parameterBoolean) {
-            this.parameterBoolean = parameterBoolean;
-        }
-
-        void setParameterString(String parameterString) {
+        public void setParameterString(String parameterString) {
             this.parameterString = parameterString;
         }
     }
@@ -258,8 +263,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
         public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
             ObjectMapper objectMapper = createMapper();
             ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-            DummyExtension updatedParameters = objectReader.readValue(jsonParser, DummyExtension.class);
-            return updatedParameters;
+            return objectReader.readValue(jsonParser, DummyExtension.class);
         }
 
         @Override
