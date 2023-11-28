@@ -13,7 +13,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.SwitchesFlow;
 import org.slf4j.Logger;
@@ -201,8 +200,7 @@ public final class StateVariablesExport {
             // We do not check the same bus view bus more than once
             if (checkedBusViewBuses.contains(busViewBus)
                     || busViewBus.getConnectedTerminalCount() == 0
-                    || isSlack(busViewBus)
-                    || isAngleReference(busViewBus)) {
+                    || isSlack(busViewBus)) {
                 return true;
             }
             boolean isInAccordance;
@@ -227,16 +225,6 @@ public final class StateVariablesExport {
         private boolean isSlack(Bus bus) {
             SlackTerminal st = bus.getVoltageLevel().getExtension(SlackTerminal.class);
             return st != null && !st.isEmpty() && st.getTerminal().getBusView().getBus() == bus;
-        }
-
-        private boolean isAngleReference(Bus bus) {
-            ReferenceTerminals reft = bus.getNetwork().getExtension(ReferenceTerminals.class);
-            if (reft == null) {
-                return false;
-            } else {
-                Set<Terminal> refts = reft.getReferenceTerminals();
-                return bus.getConnectedTerminalStream().anyMatch(refts::contains);
-            }
         }
 
         private boolean hasAnyFinite(Bus bus, Function<Terminal, Double> value) {
