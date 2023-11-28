@@ -19,7 +19,7 @@ import java.util.Optional;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractLoadFlowProvider implements LoadFlowProvider {
+public abstract class AbstractNoSpecificParametersLoadFlowProvider implements LoadFlowProvider {
 
     @Override
     public Optional<Class<? extends Extension<LoadFlowParameters>>> getSpecificParametersClass() {

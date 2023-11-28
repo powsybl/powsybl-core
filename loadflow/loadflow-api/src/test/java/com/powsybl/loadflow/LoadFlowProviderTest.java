@@ -64,7 +64,7 @@ class LoadFlowProviderTest {
 
     @Test
     void abstractLoadFlowProviderTest() throws IOException {
-        var provider = new AbstractLoadFlowProvider() {
+        var provider = new AbstractNoSpecificParametersLoadFlowProvider() {
             @Override
             public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
                 return null;

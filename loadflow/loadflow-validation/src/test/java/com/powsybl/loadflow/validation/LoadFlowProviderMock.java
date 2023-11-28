@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(LoadFlowProvider.class)
-public class LoadFlowProviderMock extends AbstractLoadFlowProvider {
+public class LoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
 
     @Override
     public String getName() {

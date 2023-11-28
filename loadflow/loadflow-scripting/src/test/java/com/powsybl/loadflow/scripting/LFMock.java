@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 @AutoService(LoadFlowProvider.class)
-public class LFMock extends AbstractLoadFlowProvider {
+public class LFMock extends AbstractNoSpecificParametersLoadFlowProvider {
 
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, Reporter reporter) {

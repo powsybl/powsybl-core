@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(LoadFlowProvider.class)
-public class LoadFlowProviderMock extends AbstractLoadFlowProvider {
+public class LoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowProviderMock.class);
 
