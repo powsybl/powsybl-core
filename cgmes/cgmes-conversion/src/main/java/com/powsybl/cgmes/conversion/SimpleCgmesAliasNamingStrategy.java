@@ -31,17 +31,17 @@ public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStra
     }
 
     @Override
-    public String getCgmesId(Identifiable<?> identifiable, String subObject) {
+    public String getCgmesId(Identifiable<?> identifiable, String subObject, String namespace) {
         // ConnectivityNodes built as identifiers plus a suffix _CN must be fixed also in base naming strategy
         boolean mustBeFixed = "CN".equals(subObject);
         if (!mustBeFixed) {
             return identifiable.getId() + "_" + subObject;
         }
-        return super.getCgmesId(identifiable, subObject);
+        return super.getCgmesId(identifiable, subObject, namespace);
     }
 
     @Override
-    public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
+    public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType, String namespace) {
         // We assume all identifiers stored in aliases came from original CGMES models
         // and we do not try to fix them
         if (identifiable instanceof DanglingLine dl) {
@@ -52,12 +52,12 @@ public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStra
     }
 
     @Override
-    public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
+    public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName, String namespace) {
         // We only try to fix subRegionId and regionId identifiers stored in properties
         // Any other identifer stored in a property comes from original CGMES data
         // and is assumed to be correct
         if (propertyName.endsWith("egionId")) {
-            return super.getCgmesIdFromProperty(identifiable, propertyName);
+            return super.getCgmesIdFromProperty(identifiable, propertyName, namespace);
         } else {
             return identifiable.getProperty(propertyName);
         }

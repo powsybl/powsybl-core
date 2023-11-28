@@ -104,21 +104,21 @@ public final class SteadyStateHypothesisExport {
                 // An original "closed" switch with any terminal disconnected
                 // will be exported as "open" with terminals connected
                 if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1).isPresent()) {
-                    writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_1), true, cimNamespace, writer, context);
+                    writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_1, context.getUuidNamespace()), true, cimNamespace, writer, context); //TODO: is it correct
                 }
                 if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2).isPresent()) {
-                    writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_2), true, cimNamespace, writer, context);
+                    writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_2, context.getUuidNamespace()), true, cimNamespace, writer, context); //TODO: is it correct
                 }
             }
         }
         for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             // Terminal for equivalent injection at boundary is always connected
             if (dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), true, cimNamespace, writer, context);
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", context.getUuidNamespace()), true, cimNamespace, writer, context); //TODO: is it correct
             }
             // Terminal for boundary side of original line/switch is always connected
             if (dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").isPresent()) {
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary"), true, cimNamespace, writer, context);
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", context.getUuidNamespace()), true, cimNamespace, writer, context); //TODO: is it correct
             }
         }
     }
@@ -130,7 +130,7 @@ public final class SteadyStateHypothesisExport {
             String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             if (!exported.contains(ei) && ei != null) {
                 // Ensure equivalent injection identifier is valid
-                String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+                String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", context.getUuidNamespace()); //TODO: is it correct?
                 // regulationStatus and regulationTarget are optional,
                 // but test cases contain the attributes with disabled and 0
                 boolean regulationStatus = false;
@@ -151,7 +151,7 @@ public final class SteadyStateHypothesisExport {
         if (twt.getAliasFromType(aliasType).isEmpty()) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tapChangerKind + 2;
         }
-        return context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
+        return context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType, context.getUuidNamespace()); //TODO: is it correct
     }
 
     private static void writeTapChangers(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -170,11 +170,11 @@ public final class SteadyStateHypothesisExport {
             int i = 1;
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
-                    String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + i);
+                    String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + i, context.getUuidNamespace()); //TODO: is it correct?
                     writeTapChanger(twt, ptcId, leg.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
                 }
                 if (leg.hasRatioTapChanger()) {
-                    String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + i);
+                    String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + i, context.getUuidNamespace()); //TODO: is it correct?
                     writeTapChanger(twt, rtcId, leg.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
                 }
                 i++;
@@ -240,7 +240,7 @@ public final class SteadyStateHypothesisExport {
         if (s.hasProperty(REGULATING_CONTROL_PROPERTY)) {
             // PowSyBl has considered the control as discrete, with a certain targetDeadband
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, REGULATING_CONTROL_PROPERTY);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, REGULATING_CONTROL_PROPERTY, context.getUuidNamespace()); //TODO: is it correct
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
                 s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
@@ -315,7 +315,7 @@ public final class SteadyStateHypothesisExport {
         if (g.hasProperty(REGULATING_CONTROL_PROPERTY)) {
             // PowSyBl has considered the control as continuous and with targetDeadband of size 0
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, REGULATING_CONTROL_PROPERTY);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, REGULATING_CONTROL_PROPERTY, context.getUuidNamespace()); //TODO: is it correct?
             double targetDeadband = 0;
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
                 g.isVoltageRegulatorOn(), targetDeadband, g.getTargetV(), "k");
@@ -347,7 +347,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
 
             if (svc.hasProperty(REGULATING_CONTROL_PROPERTY)) {
-                String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, REGULATING_CONTROL_PROPERTY);
+                String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, REGULATING_CONTROL_PROPERTY, context.getUuidNamespace()); //TODO: is it correct?
                 double targetDeadband = 0;
                 // Regulating control could be reactive power or voltage
                 double targetValue;
@@ -741,7 +741,7 @@ public final class SteadyStateHypothesisExport {
     private static GeneratingUnit generatingUnitForGeneratorAndBatteries(Injection<?> i, CgmesExportContext context) {
         if (i.hasProperty(GENERATING_UNIT_PROPERTY) && (i.getExtension(ActivePowerControl.class) != null || i.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"))) {
             GeneratingUnit gu = new GeneratingUnit();
-            gu.id = context.getNamingStrategy().getCgmesIdFromProperty(i, GENERATING_UNIT_PROPERTY);
+            gu.id = context.getNamingStrategy().getCgmesIdFromProperty(i, GENERATING_UNIT_PROPERTY, context.getUuidNamespace()); //TODO: is it correct
             if (i.getExtension(ActivePowerControl.class) != null) {
                 gu.participationFactor = i.getExtension(ActivePowerControl.class).getParticipationFactor();
             } else {
@@ -792,7 +792,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeControlArea(CgmesControlArea area, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String areaId = context.getNamingStrategy().getCgmesId(area.getId());
+        String areaId = context.getNamingStrategy().getCgmesId(area.getId(), context.getUuidNamespace()); //TODO: is it correct
         CgmesExportUtil.writeStartAbout("ControlArea", areaId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
         writer.writeCharacters(CgmesExportUtil.format(area.getNetInterchange()));

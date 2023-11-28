@@ -29,7 +29,7 @@ public final class ModelDescriptionEq {
 
     public static void write(XMLStreamWriter writer, CgmesExportContext.ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId();
+        String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId("FullModel", context.getUuidNamespace()); //TODO: what to put here?
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
         modelDescription.setIds(modelId);
         context.updateDependencies();

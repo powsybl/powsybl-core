@@ -34,6 +34,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.export.CgmesExportContext.DEFAULT_UUID_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -46,9 +47,9 @@ class CgmesMappingTest extends AbstractSerDeTest {
     @Test
     void testExplicitMappingConstructors() {
         AbstractCgmesAliasNamingStrategy nss = new SimpleCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
-        assertEquals("uuid1", nss.getCgmesId("1"));
+        assertEquals("uuid1", nss.getCgmesId("1", DEFAULT_UUID_NAMESPACE));
         AbstractCgmesAliasNamingStrategy nsf = new FixedCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
-        assertEquals("uuid1", nsf.getCgmesId("1"));
+        assertEquals("uuid1", nsf.getCgmesId("1", DEFAULT_UUID_NAMESPACE));
     }
 
     @Test

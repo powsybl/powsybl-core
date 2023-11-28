@@ -43,6 +43,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.export.CgmesExportContext.DEFAULT_UUID_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -366,7 +367,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         if (optionalTapChangerId.isPresent()) {
             tapChangerId = optionalTapChangerId.get();
         } else {
-            tapChangerId = CgmesExportUtil.getUniqueId();
+            tapChangerId = CgmesExportUtil.getUniqueId(eq.getId() + "TapChangerId", DEFAULT_UUID_NAMESPACE);
             eq.addAlias(tapChangerId, aliasType);  // record as alias to be used when the sv file is exported
         }
         svTapSteps.add(tapChangerId, tapPosition);

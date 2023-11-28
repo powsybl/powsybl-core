@@ -78,15 +78,15 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     }
 
     @Override
-    public String getCgmesId(Identifiable<?> identifiable, String subObject) {
+    public String getCgmesId(Identifiable<?> identifiable, String subObject, String namespace) {
         //  This is a hack to save in the naming strategy an identifier for something that is not an identifiable:
         //  Connectivity nodes linked to bus/breaker view buses
         String id = identifiable.getId() + "_" + subObject;
-        return getCgmesId(identifiable, id, "_" + subObject + "_" + "UUID");
+        return getCgmesId(identifiable, id, "_" + subObject + "_" + "UUID", namespace);
     }
 
     @Override
-    public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
+    public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType, String namespace) {
         // This is a hack to save in the naming strategy an identifier for something comes as an alias of an identifiable
         // Equivalent injections of dangling lines
         // Transformer ends of power transformers
@@ -102,11 +102,11 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
             id = identifiable.getAliasFromType(aliasType)
                     .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
         }
-        return getCgmesId(realIdentifiable, id, "_" + aliasType + "_" + "UUID");
+        return getCgmesId(realIdentifiable, id, "_" + aliasType + "_" + "UUID", namespace);
     }
 
     @Override
-    public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
+    public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName, String namespace) {
         // This is a hack to save in the naming strategy an identifier for something comes as named property of identifiable
         // Generating units and regulating controls of generators
         String id = identifiable.getProperty(propertyName);
@@ -114,11 +114,11 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         if (id == null) {
             return null;
         }
-        return getCgmesId(identifiable, id, "_" + propertyName + "_" + "UUID");
+        return getCgmesId(identifiable, id, "_" + propertyName + "_" + "UUID", namespace);
     }
 
     @Override
-    public String getCgmesId(String identifier) {
+    public String getCgmesId(String identifier, String namespace) {
         // This is a hack to save in the naming strategy an identifier for something that has no related IIDM object
         // Control Area identifiers
         if (idByUuid.containsValue(identifier)) {
@@ -128,7 +128,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         if (CgmesExportUtil.isValidCimMasterRID(identifier)) {
             uuid = identifier;
         } else {
-            uuid = CgmesExportUtil.getUniqueId();
+            uuid = CgmesExportUtil.getUniqueId(identifier, namespace);
             // Only store the IDs that have been created during the export
             idByUuid.put(uuid, identifier);
         }
@@ -168,7 +168,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         }
     }
 
-    private String getCgmesId(Identifiable<?> identifiable, String id, String aliasName) {
+    private String getCgmesId(Identifiable<?> identifiable, String id, String aliasName, String namespace) {
         if (idByUuid.containsValue(id)) {
             return idByUuid.inverse().get(id);
         }
@@ -179,7 +179,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
             uuid = id;
         } else {
-            uuid = CgmesExportUtil.getUniqueId();
+            uuid = CgmesExportUtil.getUniqueId(id, namespace);
             // Only store the IDs that have been created during the export
             idByUuid.put(uuid, id);
         }

@@ -26,19 +26,19 @@ public interface NamingStrategy {
 
     String getCgmesId(Identifiable<?> identifiable);
 
-    default String getCgmesId(Identifiable<?> identifiable, String subObject) {
+    default String getCgmesId(Identifiable<?> identifiable, String subObject, String namespace) {
         return identifiable.getId() + "_" + subObject;
     }
 
-    default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
+    default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType, String namespace) {
         return identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
     }
 
-    default String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
+    default String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName, String namespace) {
         return identifiable.getProperty(propertyName);
     }
 
-    default String getCgmesId(String identifier) {
+    default String getCgmesId(String identifier, String namespace) {
         return identifier;
     }
 

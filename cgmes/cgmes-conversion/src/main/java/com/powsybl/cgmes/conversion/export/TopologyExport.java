@@ -112,8 +112,8 @@ public final class TopologyExport {
             writeTopologicalNode(tn1, tname1, bus1, vl, cimNamespace, writer, context);
             writeTopologicalNode(tn2, tname2, bus2, vl, cimNamespace, writer, context);
 
-            String cgmesTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
-            String cgmesTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2);
+            String cgmesTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, context.getUuidNamespace()); //TODO: is it correct
+            String cgmesTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, context.getUuidNamespace()); //TODO: is it correct
 
             writeSwitchTerminal(tn1, cgmesTerminal1, cimNamespace, writer, context);
             writeSwitchTerminal(tn2, cgmesTerminal2, cimNamespace, writer, context);
@@ -147,7 +147,7 @@ public final class TopologyExport {
         if (vl.getNetwork().getIdentifiable(disconnectedBusId) != null) { // can happen, particularly with busbar sections - must be distinct or mRIDs will be identical
             disconnectedBusId += "_TN";
         }
-        return context.getNamingStrategy().getCgmesId(disconnectedBusId);
+        return context.getNamingStrategy().getCgmesId(disconnectedBusId, context.getUuidNamespace()); //TODO is it correct
     }
 
     private static void writeTopologicalNode(String tn, String tname, Bus bus, VoltageLevel voltageLevel, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -210,8 +210,8 @@ public final class TopologyExport {
     }
 
     private static void writeBoundaryTerminal(DanglingLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
-        String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+        String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", context.getUuidNamespace()); //TODO is it correct
+        String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", context.getUuidNamespace()); //TODO: is it correct
         String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
         // Topological nodes of boundaries are published by external entities and should be ok,
         // we do not make an additional effort to ensure a valid CGMES id has been assigned
@@ -254,7 +254,7 @@ public final class TopologyExport {
                             dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }
-                String fictTopologicalNodeId = CgmesExportUtil.getUniqueId();
+                String fictTopologicalNodeId = CgmesExportUtil.getUniqueId(dl.getId() + "fictTopologicalNode", context.getUuidNamespace()); //TODO: what to put here?
                 dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
                 writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
             }

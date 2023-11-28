@@ -22,16 +22,20 @@ class LoadGroups {
         return uniqueGroupByClass.values();
     }
 
-    String groupFor(String loadClassName) {
+    String groupFor(String loadClassName, CgmesExportContext context) {
         if (loadClassName.equals(CgmesNames.ENERGY_CONSUMER)
                 || loadClassName.equals(CgmesNames.STATION_SUPPLY)) {
             return null;
         }
-        return uniqueGroupByClass.computeIfAbsent(loadClassName, this::createGroupFor).id;
+        LoadGroup loadGroup = uniqueGroupByClass.get(loadClassName);
+        if (loadGroup == null) {
+            loadGroup = createGroupFor(loadClassName, context);
+        }
+        return loadGroup.id;
     }
 
-    LoadGroup createGroupFor(String loadClassName) {
-        String id = CgmesExportUtil.getUniqueId();
+    LoadGroup createGroupFor(String loadClassName, CgmesExportContext context) {
+        String id = CgmesExportUtil.getUniqueId(loadClassName + "LoadGroup", context.getUuidNamespace()); //TODO what to put here
         String className = GROUP_CLASS_NAMES.get(loadClassName);
         String groupName = GROUP_NAMES.get(loadClassName);
         return new LoadGroup(className, id, groupName);

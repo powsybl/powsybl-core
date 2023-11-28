@@ -91,7 +91,8 @@ public class CgmesExport implements Exporter {
         CgmesExportContext context = new CgmesExportContext(
                 network,
                 referenceDataProvider,
-                NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
+                NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)),
+                Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER))
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
@@ -233,6 +234,7 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
     public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
     private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
+    private static final String UUID_NAMESPACE = "iidm.export.cgmes.uuid-namespace";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -304,6 +306,12 @@ public class CgmesExport implements Exporter {
             "Export transformers with highest voltage at end1",
             CgmesExportContext.EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE);
 
+    private static final Parameter UUID_NAMESPACE_PARAMETER = new Parameter(
+            UUID_NAMESPACE,
+            ParameterType.STRING,
+            "Namespace to use for UUID generation",
+            null);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
@@ -316,7 +324,8 @@ public class CgmesExport implements Exporter {
             MODELING_AUTHORITY_SET_PARAMETER,
             MODEL_DESCRIPTION_PARAMETER,
             EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER,
-            SOURCING_ACTOR_PARAMETER);
+            SOURCING_ACTOR_PARAMETER,
+            UUID_NAMESPACE_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }
