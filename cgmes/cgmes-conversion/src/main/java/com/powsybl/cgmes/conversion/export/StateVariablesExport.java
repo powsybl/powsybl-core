@@ -192,7 +192,7 @@ public final class StateVariablesExport {
         String loadFlowStatus = CONVERGED;
         final double maxPMismatchConverged;
         final double maxQMismatchConverged;
-        final Set<Bus> checkedBusViewBuses = new HashSet<>();
+        final Map<Bus, Boolean> checkedBusViewBuses = new HashMap<>();
         final boolean checkConvergedInAllBuses;
 
         private TopologicalIsland(String key, List<String> topologicalNodes, CgmesExportContext context) {
@@ -243,17 +243,20 @@ public final class StateVariablesExport {
                 return false;
             }
             Bus busViewBus = optionalBusViewBus.get();
-            // We do not check the same bus view bus more than once
-            if (checkedBusViewBuses.contains(busViewBus)
-                    || busViewBus.getConnectedTerminalCount() == 0
+            if (busViewBus.getConnectedTerminalCount() == 0
                     || BusTools.isSlack(busViewBus)) {
                 return true;
             }
+            // We do not check the same bus view bus more than once
+            if (checkedBusViewBuses.containsKey(busViewBus)) {
+                return checkedBusViewBuses.get(busViewBus);
+            }
+
             boolean isInAccordance;
             if (BusTools.hasAnyFinite(busViewBus, Terminal::getP) && BusTools.hasAnyFinite(busViewBus, Terminal::getQ)) {
                 double sumP = BusTools.sum(busViewBus, Terminal::getP);
                 double sumQ = BusTools.sum(busViewBus, Terminal::getQ);
-                isInAccordance = Math.abs(sumP) < maxPMismatchConverged && Math.abs(sumQ) < maxQMismatchConverged;
+                isInAccordance = Math.abs(sumP) <= maxPMismatchConverged && Math.abs(sumQ) <= maxQMismatchConverged;
                 if (!isInAccordance && LOG.isInfoEnabled()) {
                     LOG.info("Bus {} is not in accordance with Kirchhoff's first law. Mismatch = {}", bus, String.format("(%.4f, %.4f)", sumP, sumQ));
                     BusTools.logDetail(busViewBus);
@@ -264,7 +267,7 @@ public final class StateVariablesExport {
                 LOG.info("Bus {} is not in accordance with Kirchhoff's first law. All connected terminals have invalid values", bus);
                 BusTools.logDetail(busViewBus);
             }
-            checkedBusViewBuses.add(busViewBus);
+            checkedBusViewBuses.put(busViewBus, isInAccordance);
             return isInAccordance;
         }
     }
