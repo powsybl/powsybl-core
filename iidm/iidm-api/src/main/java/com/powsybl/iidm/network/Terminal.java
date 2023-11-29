@@ -230,44 +230,21 @@ public interface Terminal {
         if (c instanceof Injection) {
             return Optional.empty();
         } else if (c instanceof Branch<?> branch) {
-            return Optional.of(toSide(branch.getSide(terminal)));
+            return Optional.of(branch.getSide(terminal).toThreeSides());
         } else if (c instanceof ThreeWindingsTransformer transformer) {
-            return Optional.of(toSide(transformer.getSide(terminal)));
+            return Optional.of(transformer.getSide(terminal));
         } else {
             throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
         }
-    }
-
-    private static ThreeSides toSide(Branch.Side side) {
-        return switch (side) {
-            case ONE -> ThreeSides.ONE;
-            case TWO -> ThreeSides.TWO;
-        };
-    }
-
-    private static ThreeSides toSide(ThreeWindingsTransformer.Side side) {
-        return switch (side) {
-            case ONE -> ThreeSides.ONE;
-            case TWO -> ThreeSides.TWO;
-            case THREE -> ThreeSides.THREE;
-        };
     }
 
     static Terminal getTerminal(Identifiable<?> identifiable, ThreeSides side) {
         if (identifiable instanceof Injection<?> injection) {
             return injection.getTerminal();
         } else if (identifiable instanceof Branch<?> branch) {
-            return switch (side) {
-                case ONE -> branch.getTerminal1();
-                case TWO -> branch.getTerminal2();
-                case THREE -> throw new IllegalStateException("Unexpected Branch side: " + side.name());
-            };
+            return branch.getTerminal(side.toTwoSides());
         } else if (identifiable instanceof ThreeWindingsTransformer transformer) {
-            return switch (side) {
-                case ONE -> transformer.getLeg1().getTerminal();
-                case TWO -> transformer.getLeg2().getTerminal();
-                case THREE -> transformer.getLeg3().getTerminal();
-            };
+            return transformer.getTerminal(side);
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }

@@ -6,7 +6,7 @@
  */
 package com.powsybl.shortcircuit.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
+class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
 
     @Test
     void testGetFormats() {

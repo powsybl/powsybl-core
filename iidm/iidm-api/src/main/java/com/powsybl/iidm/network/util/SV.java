@@ -33,7 +33,7 @@ public class SV {
      * @param a phase on the side of the branch we consider.
      * @param side the side of the branch we consider.
      */
-    public SV(double p, double q, double u, double a, Branch.Side side) {
+    public SV(double p, double q, double u, double a, TwoSides side) {
         this.p = p;
         this.q = q;
         this.u = u;
@@ -49,7 +49,7 @@ public class SV {
 
     private final double a;
 
-    private final Branch.Side side;
+    private final TwoSides side;
 
     public double getP() {
         return p;
@@ -67,7 +67,7 @@ public class SV {
         return a;
     }
 
-    public Branch.Side getSide() {
+    public TwoSides getSide() {
         return side;
     }
 
@@ -245,7 +245,7 @@ public class SV {
         } else if (isAllDataForCalculatingOtherSideDcApproximation(zb)) {
             return otherSideDcApproximation(x, 1 / rho, -alpha, zb, true); // we always consider useRatio true
         } else {
-            Branch.Side otherSide = (side == Branch.Side.ONE) ? Branch.Side.TWO : Branch.Side.ONE;
+            TwoSides otherSide = (side == TwoSides.ONE) ? TwoSides.TWO : TwoSides.ONE;
             return new SV(Double.NaN, Double.NaN, Double.NaN, Double.NaN, otherSide);
         }
     }
@@ -253,19 +253,19 @@ public class SV {
     private SV otherSide(LinkData.BranchAdmittanceMatrix adm) {
         Complex v;
         Complex s;
-        Branch.Side otherSide;
-        if (side == Branch.Side.ONE) {
+        TwoSides otherSide;
+        if (side == TwoSides.ONE) {
             Complex v1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
             Complex s1 = new Complex(p, q);
             v = voltageAtEnd2(adm, v1, s1);
             s = flowAtEnd2(adm, v1, v);
-            otherSide = Branch.Side.TWO;
+            otherSide = TwoSides.TWO;
         } else {
             Complex v2 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
             Complex s2 = new Complex(p, q);
             v = voltageAtEnd1(adm, v2, s2);
             s = flowAtEnd1(adm, v, v2);
-            otherSide = Branch.Side.ONE;
+            otherSide = TwoSides.ONE;
         }
         return new SV(s.getReal(), s.getImaginary(), v.abs(), Math.toDegrees(v.getArgument()), otherSide);
     }
@@ -275,13 +275,13 @@ public class SV {
         double xpu = x / zb;
         double b = useRatio ? 1 / (xpu * ratio) : 1 / xpu;
         double aOtherSide;
-        Branch.Side otherSide;
-        if (side == Branch.Side.ONE) {
+        TwoSides otherSide;
+        if (side == TwoSides.ONE) {
             aOtherSide = Math.toDegrees(Math.toRadians(a) - angle - p / b);
-            otherSide = Branch.Side.TWO;
+            otherSide = TwoSides.TWO;
         } else {
             aOtherSide = Math.toDegrees(Math.toRadians(a) + angle - p / b);
-            otherSide = Branch.Side.ONE;
+            otherSide = TwoSides.ONE;
         }
         return new SV(pOtherSide, Double.NaN, Double.NaN, aOtherSide, otherSide);
     }

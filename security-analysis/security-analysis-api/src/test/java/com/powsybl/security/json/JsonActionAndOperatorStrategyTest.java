@@ -13,12 +13,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.action.*;
 import com.powsybl.security.condition.AllViolationCondition;
 import com.powsybl.security.condition.AnyViolationCondition;
@@ -40,7 +40,7 @@ import static com.powsybl.security.LimitViolationType.*;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
+class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
 
     @Test
     void actionRoundTrip() throws IOException {
@@ -49,27 +49,27 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new MultipleActionsAction("id2", Collections.singletonList(new SwitchAction("id3", "switchId2", true))));
         actions.add(new LineConnectionAction("id3", "lineId3", true, true));
         actions.add(new LineConnectionAction("id4", "lineId4", false));
-        actions.add(new PhaseTapChangerTapPositionAction("id5", "transformerId1", true, 5, ThreeWindingsTransformer.Side.TWO));
+        actions.add(new PhaseTapChangerTapPositionAction("id5", "transformerId1", true, 5, ThreeSides.TWO));
         actions.add(new PhaseTapChangerTapPositionAction("id6", "transformerId2", false, 12));
-        actions.add(new PhaseTapChangerTapPositionAction("id7", "transformerId3", true, -5, ThreeWindingsTransformer.Side.ONE));
-        actions.add(new PhaseTapChangerTapPositionAction("id8", "transformerId3", false, 2, ThreeWindingsTransformer.Side.THREE));
+        actions.add(new PhaseTapChangerTapPositionAction("id7", "transformerId3", true, -5, ThreeSides.ONE));
+        actions.add(new PhaseTapChangerTapPositionAction("id8", "transformerId3", false, 2, ThreeSides.THREE));
         actions.add(new GeneratorActionBuilder().withId("id9").withGeneratorId("generatorId1").withActivePowerRelativeValue(true).withActivePowerValue(100.0).build());
         actions.add(new GeneratorActionBuilder().withId("id10").withGeneratorId("generatorId2").withVoltageRegulatorOn(true).withTargetV(225.0).build());
         actions.add(new GeneratorActionBuilder().withId("id11").withGeneratorId("generatorId2").withVoltageRegulatorOn(false).withTargetQ(400.0).build());
         actions.add(new LoadActionBuilder().withId("id12").withLoadId("loadId1").withRelativeValue(false).withActivePowerValue(50.0).build());
         actions.add(new LoadActionBuilder().withId("id13").withLoadId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
-        actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeWindingsTransformer.Side.THREE));
+        actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeSides.THREE));
         actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));
-        actions.add(RatioTapChangerRegulationAction.activateRegulation("id16", "transformerId5", ThreeWindingsTransformer.Side.THREE));
-        actions.add(PhaseTapChangerRegulationAction.activateAndChangeRegulationMode("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
+        actions.add(RatioTapChangerRegulationAction.activateRegulation("id16", "transformerId5", ThreeSides.THREE));
+        actions.add(PhaseTapChangerRegulationAction.activateAndChangeRegulationMode("id17", "transformerId5", ThreeSides.ONE,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 10.0));
         actions.add(PhaseTapChangerRegulationAction.deactivateRegulation("id18",
-                "transformerId6", ThreeWindingsTransformer.Side.ONE));
+                "transformerId6", ThreeSides.ONE));
         actions.add(PhaseTapChangerRegulationAction.activateAndChangeRegulationMode("id19",
-                "transformerId6", ThreeWindingsTransformer.Side.ONE,
+                "transformerId6", ThreeSides.ONE,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 15.0));
         actions.add(RatioTapChangerRegulationAction.activateRegulationAndChangeTargetV("id20", "transformerId5", 90.0));
-        actions.add(RatioTapChangerRegulationAction.deactivateRegulation("id21", "transformerId5", ThreeWindingsTransformer.Side.THREE));
+        actions.add(RatioTapChangerRegulationAction.deactivateRegulation("id21", "transformerId5", ThreeSides.THREE));
         actions.add(new HvdcActionBuilder()
                 .withId("id22")
                 .withHvdcId("hvdc1")

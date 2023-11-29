@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
@@ -24,7 +24,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("three-windings-transformer", "test");
-        network.setCaseDate(DateTime.parse("2018-03-05T13:30:30.486+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2018-03-05T13:30:30.486+01:00"));
         Substation substation = network.newSubstation()
                 .setId("SUBSTATION")
                 .setCountry(Country.FR)
@@ -190,7 +190,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("three-windings-transformer-with-unsorted-ends", "test");
-        network.setCaseDate(DateTime.parse("2018-03-05T13:30:30.486+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2018-03-05T13:30:30.486+01:00"));
         Substation substation = network.newSubstation()
                 .setId("SUBSTATION")
                 .setCountry(Country.FR)

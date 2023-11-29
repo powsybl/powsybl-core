@@ -17,10 +17,10 @@ import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.tuple.Pair;
-import org.joda.time.DateTime;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ public class CgmesExportContext {
 
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
-    private DateTime scenarioTime = DateTime.now();
+    private ZonedDateTime scenarioTime = ZonedDateTime.now();
     private Reporter reporter = Reporter.NO_OP;
     private String boundaryEqId; // may be null
     private String boundaryTpId; // may be null
@@ -654,11 +654,11 @@ public class CgmesExportContext {
         return this;
     }
 
-    public DateTime getScenarioTime() {
+    public ZonedDateTime getScenarioTime() {
         return scenarioTime;
     }
 
-    public CgmesExportContext setScenarioTime(DateTime scenarioTime) {
+    public CgmesExportContext setScenarioTime(ZonedDateTime scenarioTime) {
         this.scenarioTime = Objects.requireNonNull(scenarioTime);
         return this;
     }

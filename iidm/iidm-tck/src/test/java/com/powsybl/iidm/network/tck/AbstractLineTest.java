@@ -81,8 +81,8 @@ public abstract class AbstractLineTest {
         assertSame(busB, acLine.getTerminal2().getBusBreakerView().getBus());
         assertSame(busA, acLine.getTerminal("vl1").getBusBreakerView().getConnectableBus());
         assertSame(busB, acLine.getTerminal("vl2").getBusBreakerView().getConnectableBus());
-        assertSame(busA, acLine.getTerminal(Branch.Side.ONE).getBusBreakerView().getConnectableBus());
-        assertSame(busB, acLine.getTerminal(Branch.Side.TWO).getBusBreakerView().getConnectableBus());
+        assertSame(busA, acLine.getTerminal(TwoSides.ONE).getBusBreakerView().getConnectableBus());
+        assertSame(busB, acLine.getTerminal(TwoSides.TWO).getBusBreakerView().getConnectableBus());
 
         assertEquals(IdentifiableType.LINE, acLine.getType());
 
@@ -124,8 +124,8 @@ public abstract class AbstractLineTest {
                 .add();
         assertSame(currentLimits1, acLine.getCurrentLimits1().orElse(null));
         assertSame(currentLimits2, acLine.getCurrentLimits2().orElse(null));
-        assertSame(currentLimits1, acLine.getLimits(LimitType.CURRENT, Branch.Side.ONE).orElse(null));
-        assertSame(currentLimits2, acLine.getLimits(LimitType.CURRENT, Branch.Side.TWO).orElse(null));
+        assertSame(currentLimits1, acLine.getLimits(LimitType.CURRENT, TwoSides.ONE).orElse(null));
+        assertSame(currentLimits2, acLine.getLimits(LimitType.CURRENT, TwoSides.TWO).orElse(null));
 
         // add power on line
         Terminal terminal1 = acLine.getTerminal1();
@@ -133,22 +133,22 @@ public abstract class AbstractLineTest {
         terminal1.setQ(Math.sqrt(2.0));
         busA.setV(1.0);
         // i1 = 1000
-        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE, 0.9f, LimitType.CURRENT));
-        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
+        assertTrue(acLine.checkPermanentLimit(TwoSides.ONE, 0.9f, LimitType.CURRENT));
+        assertTrue(acLine.checkPermanentLimit(TwoSides.ONE, LimitType.CURRENT));
         assertTrue(acLine.checkPermanentLimit1(LimitType.CURRENT));
-        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE, 0.9f, LimitType.CURRENT));
-        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT));
+        assertNotNull(acLine.checkTemporaryLimits(TwoSides.ONE, 0.9f, LimitType.CURRENT));
+        assertNotNull(acLine.checkTemporaryLimits(TwoSides.ONE, LimitType.CURRENT));
 
         Terminal terminal2 = acLine.getTerminal2();
         terminal2.setP(1.0);
         terminal2.setQ(Math.sqrt(2.0));
         busB.setV(1.0e3);
         // i2 = 1
-        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
-        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
+        assertFalse(acLine.checkPermanentLimit(TwoSides.TWO, 0.9f, LimitType.CURRENT));
+        assertFalse(acLine.checkPermanentLimit(TwoSides.TWO, LimitType.CURRENT));
         assertFalse(acLine.checkPermanentLimit2(LimitType.CURRENT));
-        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
-        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
+        assertNull(acLine.checkTemporaryLimits(TwoSides.TWO, 0.9f, LimitType.CURRENT));
+        assertNull(acLine.checkTemporaryLimits(TwoSides.TWO, LimitType.CURRENT));
     }
 
     @Test

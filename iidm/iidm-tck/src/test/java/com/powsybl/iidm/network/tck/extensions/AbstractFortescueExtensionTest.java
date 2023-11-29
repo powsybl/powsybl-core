@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class AbstractFortescueExtensionTest {
 
     @Test
-    void testGenerator() {
+    public void testGenerator() {
         var network = EurostagTutorialExample1Factory.create();
         var gen = network.getGenerator("GEN");
         GeneratorFortescue fortescue = gen.newExtension(GeneratorFortescueAdder.class)
@@ -57,7 +57,7 @@ public abstract class AbstractFortescueExtensionTest {
     }
 
     @Test
-    void testLine() {
+    public void testLine() {
         var network = EurostagTutorialExample1Factory.create();
         var l = network.getLine("NHV1_NHV2_1");
         LineFortescue fortescue = l.newExtension(LineFortescueAdder.class)
@@ -83,7 +83,7 @@ public abstract class AbstractFortescueExtensionTest {
     }
 
     @Test
-    void testTwoWindingsTransformer() {
+    public void testTwoWindingsTransformer() {
         var network = EurostagTutorialExample1Factory.create();
         var twt = network.getTwoWindingsTransformer("NGEN_NHV1");
         TwoWindingsTransformerFortescue fortescue = twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
@@ -129,7 +129,7 @@ public abstract class AbstractFortescueExtensionTest {
     }
 
     @Test
-    void testThreeWindingsTransformer() {
+    public void testThreeWindingsTransformer() {
         var network = ThreeWindingsTransformerNetworkFactory.create();
         var twt = network.getThreeWindingsTransformer("3WT");
         ThreeWindingsTransformerFortescue fortescue = twt.newExtension(ThreeWindingsTransformerFortescueAdder.class)
@@ -190,7 +190,7 @@ public abstract class AbstractFortescueExtensionTest {
     }
 
     @Test
-    void testLoad() {
+    public void testLoad() {
         var network = EurostagTutorialExample1Factory.create();
         var load = network.getLoad("LOAD");
         LoadAsymmetrical asym = load.newExtension(LoadAsymmetricalAdder.class)

@@ -8,11 +8,11 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
+class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractSerDeTest {
 
     private static LineAdder createLineAdder(Line line, Network network) {
         return network.newLine()
@@ -128,7 +128,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/fictitious-replace-tee-point-by-voltage-level-on-line-nb.xml");
         testReporter(reporter, "/reporter/replace-tee-point-by-vl-on-line-nb-report.txt");
     }
@@ -156,7 +156,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-replace-tee-point-by-voltage-level-on-line-nbbb.xml");
         testReporter(reporter, "/reporter/replace-tee-point-by-vl-on-line-nb-bb-report.txt");
     }
@@ -203,7 +203,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, reporter3);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
                 "/eurostag-replace-tee-point-by-voltage-level-on-line-bb.xml");
         testReporter(reporter3, "/reporter/replace-tee-point-by-vl-on-line-bb-report.txt");
     }
