@@ -40,31 +40,37 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
     protected boolean deserializeCommonAttributes(JsonParser parser, DeserializationContext ctx,
                                                   ParsingContext parsingCtx, String name) throws IOException {
         switch (name) {
-            case "name":
+            case "name" -> {
                 parsingCtx.name = parser.nextTextValue();
                 return true;
-            case "countryCriterion":
+            }
+            case "countryCriterion" -> {
                 parser.nextToken();
                 parsingCtx.countryCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
-            case "nominalVoltageCriterion":
+            }
+            case "nominalVoltageCriterion" -> {
                 parser.nextToken();
                 parsingCtx.nominalVoltageCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
-            case "propertyCriteria":
+            }
+            case "propertyCriteria" -> {
                 parser.nextToken();
                 parsingCtx.propertyCriteria = JsonUtil.readList(ctx, parser, Criterion.class);
                 return true;
-            case "regexCriterion":
+            }
+            case "regexCriterion" -> {
                 parser.nextToken();
                 parsingCtx.regexCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
-            case "version":
-            case "type":
+            }
+            case "version", "type" -> {
                 parser.nextToken();
                 return true;
-            default:
+            }
+            default -> {
                 return false;
+            }
         }
     }
 

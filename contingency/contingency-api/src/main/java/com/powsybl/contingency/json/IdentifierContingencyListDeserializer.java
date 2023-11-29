@@ -37,31 +37,21 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
+                case "version" -> {
                     version = parser.nextTextValue();
                     deserializationContext.setAttribute("version", version);
-                    break;
-
-                case "identifiableType":
+                }
+                case "identifiableType" -> {
                     JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType", version, "1.0");
                     parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
-                    parser.nextToken();
-                    break;
-
-                case "identifiers":
+                }
+                case "name" -> name = parser.nextTextValue();
+                case "type" -> parser.nextToken();
+                case "identifiers" -> {
                     parser.nextToken();
                     networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new IdentifierContingencyList(name, networkElementIdentifiers);

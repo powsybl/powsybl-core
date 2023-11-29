@@ -30,29 +30,22 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
     @Override
     public ListOfContingencyLists deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
+        String version;
         List<ContingencyList> contingencyLists = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
-                    parser.nextToken();
-                    break;
-
-                case "contingencyLists":
+                case "version" -> {
+                    version = parser.nextTextValue();
+                    deserializationContext.setAttribute("version", version);
+                }
+                case "name" -> name = parser.nextTextValue();
+                case "type" -> parser.nextToken();
+                case "contingencyLists" -> {
                     parser.nextToken();
                     contingencyLists = JsonUtil.readList(deserializationContext, parser, ContingencyList.class);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new ListOfContingencyLists(name, contingencyLists);
