@@ -174,15 +174,6 @@ public final class StateVariablesExport {
                         t.getConnectable().getType(), t.getConnectable().getNameOrId(), t.getConnectable().getId())));
             }
         }
-
-        public static String findSlackBusBreakerId(VoltageLevel vl) {
-            SlackTerminal st = vl.getExtension(SlackTerminal.class);
-            if (st != null && !st.isEmpty() && st.getTerminal().getBusBreakerView().getBus() != null) {
-                return st.getTerminal().getBusBreakerView().getBus().getId();
-            } else {
-                return null;
-            }
-        }
     }
 
     private static final class TopologicalIsland {
@@ -427,7 +418,9 @@ public final class StateVariablesExport {
 
         if (context.exportFlowsForSwitches()) {
             network.getVoltageLevelStream().forEach(vl -> {
-                SwitchesFlow swflows = new SwitchesFlow(vl, BusTools.findSlackBusBreakerId(vl));
+                SlackTerminal st = vl.getExtension(SlackTerminal.class);
+                Terminal slackTerminal = st != null && !st.isEmpty() ? st.getTerminal() : null;
+                SwitchesFlow swflows = new SwitchesFlow(vl, slackTerminal);
                 vl.getSwitches().forEach(sw -> {
                     if (context.isExportedEquipment(sw)) {
                         writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()), cimNamespace, writer, context);

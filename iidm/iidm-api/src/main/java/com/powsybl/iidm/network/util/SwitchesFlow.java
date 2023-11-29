@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.math.graph.TraverseResult;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm.SpanningTree;
 import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
@@ -25,16 +24,16 @@ import java.util.*;
  */
 public class SwitchesFlow {
     private final VoltageLevel voltageLevel;
-    private final String slackBusId;
+    private final Terminal slackTerminal;
     private final Map<String, SwFlow> switchesFlows;
 
     public SwitchesFlow(VoltageLevel voltageLevel) {
         this(voltageLevel, null);
     }
 
-    public SwitchesFlow(VoltageLevel voltageLevel, String slackBusId) {
-        this.voltageLevel = voltageLevel;
-        this.slackBusId = slackBusId;
+    public SwitchesFlow(VoltageLevel voltageLevel, Terminal slackTerminal) {
+        this.voltageLevel = Objects.requireNonNull(voltageLevel);
+        this.slackTerminal = slackTerminal;
         switchesFlows = new HashMap<>();
 
         compute();
@@ -198,35 +197,12 @@ public class SwitchesFlow {
             }));
     }
 
-    public Terminal getEquivalentTerminalInsideBusBreakerBus(int node) {
-        Terminal[] equivalentTerminal = new Terminal[1];
-        VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
-            if (sw != null && (sw.isOpen() || sw.isRetained())) {
-                return TraverseResult.TERMINATE_PATH;
-            }
-            Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
-            if (t != null) {
-                equivalentTerminal[0] = t;
-                return TraverseResult.TERMINATE_TRAVERSER;
-            }
-            return TraverseResult.CONTINUE;
-        };
-        voltageLevel.getNodeBreakerView().traverse(node, traverser);
-        return equivalentTerminal[0];
-    }
-
     private boolean isSlack(SwNode swNode) {
-        Bus bus = null;
-        if (swNode.bus != null) {
-            bus = swNode.bus;
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            return slackTerminal != null && swNode.node == slackTerminal.getNodeBreakerView().getNode();
         } else {
-            Terminal t = voltageLevel.getNodeBreakerView().getOptionalTerminal(swNode.node)
-                    .orElseGet(() -> getEquivalentTerminalInsideBusBreakerBus(swNode.node));
-            if (t != null) {
-                bus = t.getBusBreakerView().getBus();
-            }
+            return swNode.bus.equals(slackTerminal.getBusBreakerView().getBus());
         }
-        return bus != null && bus.getId().equals(slackBusId);
     }
 
     private void connectedComponentSwitchesFlow(Map<String, SwNode> swNodeInjection,
