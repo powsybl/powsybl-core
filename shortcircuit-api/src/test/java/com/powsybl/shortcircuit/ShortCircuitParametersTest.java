@@ -438,4 +438,14 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParametersWithRangeVoltage.json");
     }
+
+    @Test
+    void testVoltageRange() {
+        VoltageRange voltageRange0 = new VoltageRange(350.0, 400.0, 1.05, 380.0);
+        VoltageRange voltageRange1 = new VoltageRange(350.0, 400.0, 1.05, 380.0);
+        assertEquals(voltageRange1, voltageRange0);
+        assertNotEquals(null, voltageRange0);
+        assertNotEquals(new VoltageRange(350.0, 400.0, 1.05), voltageRange0);
+        assertEquals(voltageRange0.hashCode(), voltageRange1.hashCode());
+    }
 }
