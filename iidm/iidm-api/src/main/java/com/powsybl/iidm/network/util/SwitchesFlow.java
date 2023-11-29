@@ -58,10 +58,6 @@ public class SwitchesFlow {
         return switchesFlows.isEmpty();
     }
 
-    public boolean hasFlow(String id) {
-        return switchesFlows.containsKey(id);
-    }
-
     public double getP1(String switchId) {
         if (switchesFlows.containsKey(switchId)) {
             return switchesFlows.get(switchId).p1;
@@ -177,8 +173,7 @@ public class SwitchesFlow {
 
     private static void calculateInjectionsNodeBreaker(VoltageLevel voltageLevel, Map<String, SwNode> swNodeInjection) {
         int[] nodes = voltageLevel.getNodeBreakerView().getNodes();
-        for (int i = 0; i < nodes.length; i++) {
-            int node = nodes[i];
+        for (int node : nodes) {
             Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
             if (terminal != null) {
                 double p = getTerminalP(terminal);
@@ -201,7 +196,7 @@ public class SwitchesFlow {
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             return slackTerminal != null && swNode.node == slackTerminal.getNodeBreakerView().getNode();
         } else {
-            return swNode.bus.equals(slackTerminal.getBusBreakerView().getBus());
+            return slackTerminal != null && swNode.bus.equals(slackTerminal.getBusBreakerView().getBus());
         }
     }
 
@@ -225,7 +220,7 @@ public class SwitchesFlow {
         }
 
         AsSubgraph<SwNode, SwEdge> subGraph = new AsSubgraph<>(graph, connectedSet);
-        SpanningTree<SwEdge> tree = new KruskalMinimumSpanningTree<SwNode, SwEdge>(subGraph).getSpanningTree();
+        SpanningTree<SwEdge> tree = new KruskalMinimumSpanningTree<>(subGraph).getSpanningTree();
 
         List<List<SwNode>> levels = new ArrayList<>();
         Map<SwNode, SwEdge> parent = new HashMap<>();
