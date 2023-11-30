@@ -126,7 +126,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     }
 
     private static void addEquivalentInjectionReference(Context context, DanglingLine dl1, BoundaryLine boundaryLine, String boundaryNode) {
-        EquivalentInjectionConversion eqic = getEquivalentInjectionConversionForAssembledDanglingLine(context, boundaryNode, boundaryLine);
+        EquivalentInjectionConversion eqic = getEquivalentInjectionConversionForDanglingLine(context, boundaryNode, boundaryLine);
         if (eqic != null) {
             dl1.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, eqic.id);
             CgmesTerminal cgmesTerminal = context.cgmes().terminal(eqic.terminalId());
