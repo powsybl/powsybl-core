@@ -126,10 +126,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testScada() throws IOException {
         Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
-        roundTripXmlTest(network,
-                NetworkSerDe::write,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_VERSION));
+        fullRoundTripTest(network, "scadaNetwork.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
         roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
