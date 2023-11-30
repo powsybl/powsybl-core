@@ -11,6 +11,7 @@ import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.StudyType;
 import com.powsybl.shortcircuit.VoltageRange;
+import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -113,6 +114,32 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
         assertFalse(firstParam.isWithVoltageResult());
         assertEquals(20, firstParam.getMinVoltageDropProportionalThreshold(), 0);
         assertEquals(0.8, firstParam.getSubTransientCoefficient());
+    }
+
+    @Test
+    void readVersion13() throws IOException {
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileVersion13.json")), fileSystem.getPath("/FaultParametersFileVersion13.json"));
+        List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileVersion13.json"));
+        assertEquals(1, parameters.size());
+
+        FaultParameters param = parameters.get(0);
+        assertEquals("f00", param.getId());
+        assertFalse(param.isWithLimitViolations());
+        assertEquals(StudyType.SUB_TRANSIENT, param.getStudyType());
+        assertTrue(param.isWithFeederResult());
+        assertFalse(param.isWithVoltageResult());
+        assertEquals(20, param.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(0.8, param.getSubTransientCoefficient());
+        assertEquals(InitialVoltageProfileMode.CONFIGURED, param.getInitialVoltageProfileMode());
+        assertEquals(2, param.getVoltageRanges().size());
+        VoltageRange voltageRange1 = param.getVoltageRanges().get(0);
+        assertEquals(Range.of(0., 230.), voltageRange1.getRange());
+        assertEquals(1.0, voltageRange1.getRangeCoefficient());
+        assertTrue(Double.isNaN(voltageRange1.getVoltage()));
+        VoltageRange voltageRange2 = param.getVoltageRanges().get(1);
+        assertEquals(Range.of(231., 250.), voltageRange2.getRange());
+        assertEquals(1.05, voltageRange2.getRangeCoefficient());
+        assertEquals(240., voltageRange2.getVoltage());
     }
 
     @Test

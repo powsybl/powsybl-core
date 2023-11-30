@@ -305,8 +305,13 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
         assertEquals(0.7, parameters.getSubTransientCoefficient(), 0);
-        assertEquals(InitialVoltageProfileMode.NOMINAL, parameters.getInitialVoltageProfileMode());
         assertFalse(parameters.isDetailedReport());
+        assertEquals(InitialVoltageProfileMode.CONFIGURED, parameters.getInitialVoltageProfileMode());
+        assertEquals(1, parameters.getVoltageRanges().size());
+        VoltageRange voltageRange = parameters.getVoltageRanges().get(0);
+        assertEquals(Range.of(380., 410.), voltageRange.getRange());
+        assertEquals(1.05, voltageRange.getRangeCoefficient());
+        assertEquals(380., voltageRange.getVoltage());
     }
 
     @Test
