@@ -121,6 +121,7 @@ public final class CgmesNames {
     public static final String GENERATOR_OR_MOTOR = "generatorOrMotor";
 
     public static final String CONNECTIVITY_NODE_CONTAINER = "ConnectivityNodeContainer";
+    public static final String IDENTIFIED_OBJECT_DESCRIPTION = "IdentifiedObject.description";
 
     private CgmesNames() {
     }
