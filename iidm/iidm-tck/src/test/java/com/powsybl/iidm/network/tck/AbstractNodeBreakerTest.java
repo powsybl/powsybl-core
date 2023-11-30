@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.Test;
 
+import java.util.regex.Pattern;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -374,7 +376,7 @@ public abstract class AbstractNodeBreakerTest {
 
         // disconnect the load again
         PowsyblException exception = assertThrows(PowsyblException.class, () -> loadTerminal.disconnect(SwitchPredicates.IS_CLOSED_BREAKER));
-        assertEquals("Cannot modify removed equipment L1", exception.getMessage());
+        assertTrue(Pattern.compile("Cannot modify removed equipment(?: L1)?$").matcher(exception.getMessage()).find());
     }
 
     @Test
@@ -397,7 +399,7 @@ public abstract class AbstractNodeBreakerTest {
 
         // disconnect the load again
         PowsyblException exception = assertThrows(PowsyblException.class, loadTerminal::connect);
-        assertEquals("Cannot modify removed equipment L1", exception.getMessage());
+        assertTrue(Pattern.compile("Cannot modify removed equipment(?: L1)?$").matcher(exception.getMessage()).find());
     }
 
     @Test

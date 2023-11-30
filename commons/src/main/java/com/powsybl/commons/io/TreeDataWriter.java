@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface TreeDataWriter extends AutoCloseable {
 
-    void writeStartNodes(String name);
+    void writeStartNodes();
 
     void writeEndNodes();
 

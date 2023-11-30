@@ -216,7 +216,6 @@ public class JsonReader extends AbstractTreeDataReader {
                     }
                     case START_OBJECT -> {
                         Context arrayContext = checkNodeChain(ContextType.ARRAY);
-                        arrayContext.incrementObjectCount();
                         contextQueue.add(new Context(ContextType.OBJECT, arrayContext.getFieldName()));
                         childNodeReader.onStartNode(arrayElementNameToSingleElementName.get(arrayContext.getFieldName()));
                     }

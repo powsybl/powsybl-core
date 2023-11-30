@@ -8,31 +8,26 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.ampl.converter.util.AmplDatTableFormatter;
+import com.powsybl.ampl.converter.version.AmplColumnsExporter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.ConnectedComponents;
-import com.powsybl.iidm.network.util.SV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
-import static com.powsybl.ampl.converter.AmplConstants.VARIANT;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -41,37 +36,9 @@ public class AmplNetworkWriter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AmplNetworkWriter.class);
 
-    private static final String XNODE_COUNTRY_NAME = "XNODE";
-    private static final String FAULT = "fault";
-    private static final String DESCRIPTION = "description";
-    private static final String SUBSTATION = "substation";
-    private static final String TARGET_V = "targetV (pu)";
-    private static final String TARGET_Q = "targetQ (MVar)";
-    private static final String CON_BUS = "con. bus";
-    private static final String MINP = "minP (MW)";
-    private static final String MAXP = "maxP (MW)";
-    private static final String V_REGUL = "v regul.";
-    private static final String ACTIVE_POWER = "P (MW)";
-    private static final String REACTIVE_POWER = "Q (MVar)";
-    private static final String MIN_Q_MAX_P = "minQmaxP (MVar)";
-    private static final String MIN_Q0 = "minQ0 (MVar)";
-    private static final String MIN_Q_MIN_P = "minQminP (MVar)";
-    private static final String MAX_Q_MAX_P = "maxQmaxP (MVar)";
-    private static final String MAX_Q0 = "maxQ0 (MVar)";
-    private static final String MAX_Q_MIN_P = "maxQminP (MVar)";
-    private static final String NUM = "num";
-    private static final String BUS = "bus";
-    private static final String P0 = "p0 (MW)";
-    private static final String Q0 = "q0 (MW)";
-    private static final String ID = "id";
-
     private final Network network;
 
     private final int variantIndex;
-
-    private final int faultNum;
-
-    private final int actionNum;
 
     private final DataSource dataSource;
 
@@ -82,6 +49,8 @@ public class AmplNetworkWriter {
     private final Map<String, List<AmplExtension>> extensionMap;
 
     private final AmplExportConfig config;
+
+    private final AmplColumnsExporter columnsExporter;
 
     private static class AmplExportContext {
 
@@ -103,13 +72,14 @@ public class AmplNetworkWriter {
                              boolean append, StringToIntMapper<AmplSubset> mapper, AmplExportConfig config) {
         this.network = Objects.requireNonNull(network);
         this.variantIndex = variantIndex;
-        this.faultNum = faultNum;
-        this.actionNum = actionNum;
         this.dataSource = Objects.requireNonNull(dataSource);
         this.append = append;
         this.mapper = Objects.requireNonNull(mapper);
         this.config = Objects.requireNonNull(config);
         extensionMap = new HashMap<>();
+        this.columnsExporter = config.getVersion()
+            .getColumnsExporter()
+            .create(config, network, mapper, variantIndex, faultNum, actionNum);
     }
 
     public AmplNetworkWriter(Network network, DataSource dataSource, int faultNum, int actionNum,
@@ -128,14 +98,6 @@ public class AmplNetworkWriter {
 
     public static String getTableTitle(Network network, String tableName) {
         return tableName + " (" + network.getId() + "/" + network.getVariantManager().getWorkingVariantId() + ")";
-    }
-
-    private static String getThreeWindingsTransformerMiddleBusId(ThreeWindingsTransformer twt) {
-        return twt.getId(); // same id as the transformer
-    }
-
-    private static String getThreeWindingsTransformerMiddleVoltageLevelId(ThreeWindingsTransformer twt) {
-        return twt.getId(); // same id as the transformer
     }
 
     private static int getThreeWindingsTransformerMiddleBusComponentNum(AmplExportContext context, ThreeWindingsTransformer twt) {
@@ -157,14 +119,6 @@ public class AmplNetworkWriter {
         }
 
         return middleCcNum;
-    }
-
-    private static String getDanglingLineMiddleBusId(DanglingLine dl) {
-        return dl.getId(); // same id as the dangling line
-    }
-
-    private static String getDanglingLineMiddleVoltageLevelId(DanglingLine dl) {
-        return dl.getId(); // same id as the dangling line
     }
 
     private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, DanglingLine dl) {
@@ -198,13 +152,6 @@ public class AmplNetworkWriter {
         return xNodeCcNum;
     }
 
-    private static double getPermanentLimit(CurrentLimits limits) {
-        if (limits != null) {
-            return limits.getPermanentLimit();
-        }
-        return Double.NaN;
-    }
-
     private static boolean isBusExported(AmplExportContext context, String busId) {
         return busId != null && context.busIdsToExport.contains(busId);
     }
@@ -214,100 +161,35 @@ public class AmplNetworkWriter {
     }
 
     private void writeSubstations() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_substations", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_substations", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Substations"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column("unused1"),
-                     new Column("unused2"),
-                     new Column("nomV (KV)"),
-                     new Column("minV (pu)"),
-                     new Column("maxV (pu)"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column("country"),
-                     new Column(ID),
-                     new Column(DESCRIPTION))) {
+                 getTableTitle("Substations"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getSubstationsColumns())) {
             for (VoltageLevel vl : network.getVoltageLevels()) {
-                int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
-                double nomV = vl.getNominalV();
-                double minV = vl.getLowVoltageLimit() / nomV;
-                double maxV = vl.getHighVoltageLimit() / nomV;
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell("")
-                        .writeCell(0)
-                        .writeCell(nomV)
-                        .writeCell(minV)
-                        .writeCell(maxV)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(vl.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
-                        .writeCell(vl.getId())
-                        .writeCell(vl.getNameOrId());
-                addExtensions(num, vl);
+                columnsExporter.writeVoltageLevelToFormatter(formatter, vl);
+                addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId()), vl);
             }
             // voltage level associated to 3 windings transformers middle bus
             for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-                String vlId = getThreeWindingsTransformerMiddleVoltageLevelId(twt);
-                int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell("")
-                        .writeCell(0)
-                        .writeCell(twt.getRatedU0())
-                        .writeCell(Float.NaN)
-                        .writeCell(Float.NaN)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(twt.getLeg1().getTerminal().getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
-                        .writeCell(vlId)
-                        .writeCell("");
-                addExtensions(num, twt);
+                columnsExporter.writeThreeWindingsTransformerVoltageLevelToFormatter(formatter, twt);
+                addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL,
+                    AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt)), twt);
             }
             // voltage level associated to dangling lines middle bus
             for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
-                String vlId = getDanglingLineMiddleVoltageLevelId(dl);
-                int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
-                VoltageLevel vl = dl.getTerminal().getVoltageLevel();
-                double nomV = vl.getNominalV();
-                double minV = vl.getLowVoltageLimit() / nomV;
-                double maxV = vl.getHighVoltageLimit() / nomV;
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell("")
-                        .writeCell(0)
-                        .writeCell(nomV)
-                        .writeCell(minV)
-                        .writeCell(maxV)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(vl.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
-                        .writeCell(dl.getId() + "_voltageLevel")
-                        .writeCell("");
-                addExtensions(num, dl);
+                columnsExporter.writeDanglingLineVoltageLevelToFormatter(formatter, dl);
+                addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getDanglingLineMiddleVoltageLevelId(dl)),
+                    dl);
             }
             if (config.isExportXNodes()) {
                 for (TieLine tieLine : network.getTieLines()) {
-                    String vlId = AmplUtil.getXnodeVoltageLevelId(tieLine);
-                    int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
-                    formatter.writeCell(variantIndex)
-                            .writeCell(num)
-                            .writeCell("")
-                            .writeCell(0)
-                            .writeCell(tieLine.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV())
-                            .writeCell(Float.NaN)
-                            .writeCell(Float.NaN)
-                            .writeCell(faultNum)
-                            .writeCell(actionNum)
-                            .writeCell(XNODE_COUNTRY_NAME)
-                            .writeCell(AmplUtil.getXnodeBusId(tieLine) + "_voltageLevel")
-                            .writeCell("");
-                    addExtensions(num, tieLine);
+                    columnsExporter.writeTieLineVoltageLevelToFormatter(formatter, tieLine);
+                    addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tieLine)),
+                        tieLine);
                 }
             }
         }
@@ -333,23 +215,14 @@ public class AmplNetworkWriter {
     }
 
     private void writeBuses(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_buses", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_buses", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Buses"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column(SUBSTATION),
-                     new Column("cc"),
-                     new Column("v (pu)"),
-                     new Column("theta (rad)"),
-                     new Column("p (MW)"),
-                     new Column("q (MVar)"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID))) {
+                 getTableTitle("Buses"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getBusesColumns())) {
 
             writeBuses(context, formatter);
 
@@ -367,26 +240,9 @@ public class AmplNetworkWriter {
         for (Bus b : AmplUtil.getBuses(network)) {
             int ccNum = ConnectedComponents.getCcNum(b);
             if (connectedComponentToExport(ccNum)) {
-                String id = b.getId();
-                VoltageLevel vl = b.getVoltageLevel();
-                context.busIdsToExport.add(id);
-                int num = mapper.getInt(AmplSubset.BUS, id);
-                int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
-                double nomV = vl.getNominalV();
-                double v = b.getV() / nomV;
-                double theta = Math.toRadians(b.getAngle());
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell(vlNum)
-                        .writeCell(ccNum)
-                        .writeCell(v)
-                        .writeCell(theta)
-                        .writeCell(b.getP())
-                        .writeCell(b.getQ())
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id);
-                addExtensions(num, b);
+                context.busIdsToExport.add(b.getId());
+                columnsExporter.writeBusesColumnsToFormatter(formatter, b);
+                addExtensions(mapper.getInt(AmplSubset.BUS, b.getId()), b);
             }
         }
     }
@@ -419,61 +275,19 @@ public class AmplNetworkWriter {
             int middleCcNum = getThreeWindingsTransformerMiddleBusComponentNum(context, twt);
 
             if (connectedComponentToExport(middleCcNum)) {
-                String middleBusId = getThreeWindingsTransformerMiddleBusId(twt);
-                String middleVlId = getThreeWindingsTransformerMiddleVoltageLevelId(twt);
+                String middleBusId = AmplUtil.getThreeWindingsTransformerMiddleBusId(twt);
                 context.busIdsToExport.add(middleBusId);
-                int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
-                int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
-
-                double v = !Objects.equals(twt.getProperty("v"), null) ?
-                        Double.parseDouble(twt.getProperty("v")) / twt.getRatedU0()
-                        : Double.NaN;
-                double angle = !Objects.equals(twt.getProperty("angle"), null) ?
-                        Math.toRadians(Double.parseDouble(twt.getProperty("angle")))
-                        : Double.NaN;
-
-                formatter.writeCell(variantIndex)
-                        .writeCell(middleBusNum)
-                        .writeCell(middleVlNum)
-                        .writeCell(middleCcNum)
-                        .writeCell(v)
-                        .writeCell(angle)
-                        .writeCell(0.0)
-                        .writeCell(0.0)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(middleBusId);
+                columnsExporter.writeThreeWindingsTranformersMiddleBusesColumnsToFormatter(formatter, twt, middleCcNum);
             }
         }
     }
 
     private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
-            Terminal t = dl.getTerminal();
-            Bus b = AmplUtil.getBus(dl.getTerminal());
-
             int middleCcNum = getDanglingLineMiddleBusComponentNum(context, dl);
             if (connectedComponentToExport(middleCcNum)) {
-                String middleBusId = getDanglingLineMiddleBusId(dl);
-                String middleVlId = getDanglingLineMiddleVoltageLevelId(dl);
-                context.busIdsToExport.add(middleBusId);
-                int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
-                int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
-                SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN, TwoSides.ONE).otherSide(dl, true);
-                double nomV = t.getVoltageLevel().getNominalV();
-                double v = sv.getU() / nomV;
-                double theta = Math.toRadians(sv.getA());
-                formatter.writeCell(variantIndex)
-                        .writeCell(middleBusNum)
-                        .writeCell(middleVlNum)
-                        .writeCell(middleCcNum)
-                        .writeCell(v)
-                        .writeCell(theta)
-                        .writeCell(0.0) // 0 MW injected at dangling line internal bus
-                        .writeCell(0.0) // 0 MVar injected at dangling line internal bus
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(middleBusId);
+                context.busIdsToExport.add(AmplUtil.getDanglingLineMiddleBusId(dl));
+                columnsExporter.writeDanglingLineMiddleBusesToFormatter(formatter, dl, middleCcNum);
             }
         }
     }
@@ -483,58 +297,21 @@ public class AmplNetworkWriter {
 
             int xNodeCcNum = getTieLineMiddleBusComponentNum(context, tieLine);
             if (connectedComponentToExport(xNodeCcNum)) {
-                String xNodeBusId = AmplUtil.getXnodeBusId(tieLine);
-                int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
-                int xNodeVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tieLine));
-                formatter.writeCell(variantIndex)
-                        .writeCell(xNodeBusNum)
-                        .writeCell(xNodeVlNum)
-                        .writeCell(xNodeCcNum)
-                        .writeCell(Float.NaN)
-                        .writeCell(Double.NaN)
-                        .writeCell(0.0)
-                        .writeCell(0.0)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(xNodeBusId);
+                columnsExporter.writeTieLineMiddleBusesToFormatter(formatter, tieLine, xNodeCcNum);
             }
         }
     }
 
     private void writeBranches(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_branches", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_branches", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Branches"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column("bus1"),
-                     new Column("bus2"),
-                     new Column("3wt num"),
-                     new Column("sub.1"),
-                     new Column("sub.2"),
-                     new Column("r (pu)"),
-                     new Column("x (pu)"),
-                     new Column("g1 (pu)"),
-                     new Column("g2 (pu)"),
-                     new Column("b1 (pu)"),
-                     new Column("b2 (pu)"),
-                     new Column("cst ratio (pu)"),
-                     new Column("ratio tc"),
-                     new Column("phase tc"),
-                     new Column("p1 (MW)"),
-                     new Column("p2 (MW)"),
-                     new Column("q1 (MVar)"),
-                     new Column("q2 (MVar)"),
-                     new Column("patl1 (A)"),
-                     new Column("patl2 (A)"),
-                     new Column("merged"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID),
-                     new Column(DESCRIPTION))) {
+                 getTableTitle("Branches"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getBranchesColumns()
+             )) {
 
             writeLines(context, formatter);
 
@@ -558,53 +335,15 @@ public class AmplNetworkWriter {
                 LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", l.getId());
                 continue;
             }
-            String bus1Id = getBusId(bus1);
-            int bus1Num = getBusNum(bus1);
-            String bus2Id = getBusId(bus2);
-            int bus2Num = getBusNum(bus2);
+            String bus1Id = AmplUtil.getBusId(bus1);
+            String bus2Id = AmplUtil.getBusId(bus2);
             if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, bus2Id))) {
                 continue;
             }
-            VoltageLevel vl1 = t1.getVoltageLevel();
-            VoltageLevel vl2 = t2.getVoltageLevel();
-            context.voltageLevelIdsToExport.add(vl1.getId());
-            context.voltageLevelIdsToExport.add(vl2.getId());
-            String id = l.getId();
-            int num = mapper.getInt(AmplSubset.BRANCH, id);
-            int vl1Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl1.getId());
-            int vl2Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl2.getId());
-
-            double vb = vl1.getNominalV();
-            double zb = vb * vb / AmplConstants.SB;
-
-            formatter.writeCell(variantIndex)
-                    .writeCell(num)
-                    .writeCell(bus1Num)
-                    .writeCell(bus2Num)
-                    .writeCell(-1)
-                    .writeCell(vl1Num)
-                    .writeCell(vl2Num)
-                    .writeCell(l.getR() / zb)
-                    .writeCell(l.getX() / zb)
-                    .writeCell(l.getG1() * zb)
-                    .writeCell(l.getG2() * zb)
-                    .writeCell(l.getB1() * zb)
-                    .writeCell(l.getB2() * zb)
-                    .writeCell(1f) // constant ratio
-                    .writeCell(-1) // no ratio tap changer
-                    .writeCell(-1) // no phase tap changer
-                    .writeCell(t1.getP())
-                    .writeCell(t2.getP())
-                    .writeCell(t1.getQ())
-                    .writeCell(t2.getQ())
-                    .writeCell(getPermanentLimit(l.getCurrentLimits1().orElse(null)))
-                    .writeCell(getPermanentLimit(l.getCurrentLimits2().orElse(null)))
-                    .writeCell(false)
-                    .writeCell(faultNum)
-                    .writeCell(actionNum)
-                    .writeCell(id)
-                    .writeCell(l.getNameOrId());
-            addExtensions(num, l);
+            context.voltageLevelIdsToExport.add(t1.getVoltageLevel().getId());
+            context.voltageLevelIdsToExport.add(t2.getVoltageLevel().getId());
+            columnsExporter.writeLinesToFormatter(formatter, l);
+            addExtensions(mapper.getInt(AmplSubset.BRANCH, l.getId()), l);
         }
     }
 
@@ -618,120 +357,15 @@ public class AmplNetworkWriter {
                 LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", l.getId());
                 continue;
             }
-            String bus1Id = getBusId(bus1);
-            int bus1Num = getBusNum(bus1);
-            String bus2Id = getBusId(bus2);
-            int bus2Num = getBusNum(bus2);
+            String bus1Id = AmplUtil.getBusId(bus1);
+            String bus2Id = AmplUtil.getBusId(bus2);
             if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, bus2Id))) {
                 continue;
             }
-            VoltageLevel vl1 = t1.getVoltageLevel();
-            VoltageLevel vl2 = t2.getVoltageLevel();
-            context.voltageLevelIdsToExport.add(vl1.getId());
-            context.voltageLevelIdsToExport.add(vl2.getId());
-            String id = l.getId();
-            int num = mapper.getInt(AmplSubset.BRANCH, id);
-            int vl1Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl1.getId());
-            int vl2Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl2.getId());
-
-            double vb = vl1.getNominalV();
-            double zb = vb * vb / AmplConstants.SB;
-
-            boolean merged = !config.isExportXNodes();
-            if (config.isExportXNodes()) {
-                String dl1Id = l.getDanglingLine1().getId();
-                String dl2Id = l.getDanglingLine2().getId();
-                int dl1Num = mapper.getInt(AmplSubset.BRANCH, dl1Id);
-                int dl2Num = mapper.getInt(AmplSubset.BRANCH, dl2Id);
-                String xNodeBusId = AmplUtil.getXnodeBusId(l);
-                String xnodeVoltageLevelId = AmplUtil.getXnodeVoltageLevelId(l);
-                int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
-                int xNodeVoltageLevelNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, xnodeVoltageLevelId);
-
-                formatter.writeCell(variantIndex)
-                        .writeCell(dl1Num)
-                        .writeCell(bus1Num)
-                        .writeCell(xNodeBusNum)
-                        .writeCell(-1)
-                        .writeCell(vl1Num)
-                        .writeCell(xNodeVoltageLevelNum)
-                        .writeCell(l.getDanglingLine1().getR() / zb)
-                        .writeCell(l.getDanglingLine1().getX() / zb)
-                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
-                        .writeCell(1f) // constant ratio
-                        .writeCell(-1) // no ratio tap changer
-                        .writeCell(-1) // no phase tap changer
-                        .writeCell(t1.getP())
-                        .writeCell(l.getDanglingLine1().getBoundary().getP()) // xnode node flow side 1
-                        .writeCell(t1.getQ())
-                        .writeCell(l.getDanglingLine1().getBoundary().getQ()) // xnode node flow side 1
-                        .writeCell(getPermanentLimit(l.getDanglingLine1().getCurrentLimits().orElse(null)))
-                        .writeCell(Float.NaN)
-                        .writeCell(merged)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(dl1Id)
-                        .writeCell(l.getDanglingLine1().getNameOrId());
-                formatter.writeCell(variantIndex)
-                        .writeCell(dl2Num)
-                        .writeCell(xNodeBusNum)
-                        .writeCell(bus2Num)
-                        .writeCell(-1)
-                        .writeCell(xNodeVoltageLevelNum)
-                        .writeCell(vl2Num)
-                        .writeCell(l.getDanglingLine2().getR() / zb)
-                        .writeCell(l.getDanglingLine2().getX() / zb)
-                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
-                        .writeCell(1f) // constant ratio
-                        .writeCell(-1) // no ratio tap changer
-                        .writeCell(-1) // no phase tap changer
-                        .writeCell(l.getDanglingLine2().getBoundary().getP()) // xnode node flow side 2
-                        .writeCell(t2.getP())
-                        .writeCell(l.getDanglingLine2().getBoundary().getQ()) // xnode node flow side 2
-                        .writeCell(t2.getQ())
-                        .writeCell(Float.NaN)
-                        .writeCell(getPermanentLimit(l.getDanglingLine2().getCurrentLimits().orElse(null)))
-                        .writeCell(merged)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(dl2Id)
-                        .writeCell(l.getDanglingLine2().getNameOrId());
-            } else {
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell(bus1Num)
-                        .writeCell(bus2Num)
-                        .writeCell(-1)
-                        .writeCell(vl1Num)
-                        .writeCell(vl2Num)
-                        .writeCell(l.getR() / zb)
-                        .writeCell(l.getX() / zb)
-                        .writeCell(l.getG1() * zb)
-                        .writeCell(l.getG2() * zb)
-                        .writeCell(l.getB1() * zb)
-                        .writeCell(l.getB2() * zb)
-                        .writeCell(1f) // constant ratio
-                        .writeCell(-1) // no ratio tap changer
-                        .writeCell(-1) // no phase tap changer
-                        .writeCell(t1.getP())
-                        .writeCell(t2.getP())
-                        .writeCell(t1.getQ())
-                        .writeCell(t2.getQ())
-                        .writeCell(getPermanentLimit(l.getDanglingLine1().getCurrentLimits().orElse(null)))
-                        .writeCell(getPermanentLimit(l.getDanglingLine2().getCurrentLimits().orElse(null)))
-                        .writeCell(merged)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id)
-                        .writeCell(l.getNameOrId());
-            }
-            addExtensions(num, l);
+            context.voltageLevelIdsToExport.add(t1.getVoltageLevel().getId());
+            context.voltageLevelIdsToExport.add(t2.getVoltageLevel().getId());
+            columnsExporter.writeTieLineToFormatter(formatter, l);
+            addExtensions(mapper.getInt(AmplSubset.BRANCH, l.getId()), l);
         }
     }
 
@@ -741,81 +375,18 @@ public class AmplNetworkWriter {
             Terminal t2 = twt.getTerminal2();
             Bus bus1 = AmplUtil.getBus(t1);
             Bus bus2 = AmplUtil.getBus(t2);
-            if (bus1 != null && bus2 != null && bus1 == bus2) {
+            if (bus1 != null && bus1 == bus2) {
                 LOGGER.warn("Skipping transformer '{}' connected to the same bus at both sides", twt.getId());
                 continue;
             }
-            String bus1Id = getBusId(bus1);
-            int bus1Num = getBusNum(bus1);
-            String bus2Id = getBusId(bus2);
-            int bus2Num = getBusNum(bus2);
-            if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, bus2Id))) {
+            if (isOnlyMainCc() && !(isBusExported(context, AmplUtil.getBusId(bus1)) || isBusExported(context,
+                AmplUtil.getBusId(bus2)))) {
                 continue;
             }
-            VoltageLevel vl1 = t1.getVoltageLevel();
-            VoltageLevel vl2 = t2.getVoltageLevel();
-            context.voltageLevelIdsToExport.add(vl1.getId());
-            context.voltageLevelIdsToExport.add(vl2.getId());
-            String id = twt.getId();
-            int num = mapper.getInt(AmplSubset.BRANCH, id);
-            int vl1Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl1.getId());
-            int vl2Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl2.getId());
-            double vb1 = vl1.getNominalV();
-            double vb2 = vl2.getNominalV();
-            double zb2 = vb2 * vb2 / AmplConstants.SB;
-            double r = twt.getR() / zb2;
-            double x = twt.getX() / zb2;
-            double g1;
-            double g2;
-            double b1;
-            double b2;
-            if (config.isTwtSplitShuntAdmittance()) {
-                g1 = twt.getG() * zb2 / 2;
-                g2 = g1;
-                b1 = twt.getB() * zb2 / 2;
-                b2 = b1;
-            } else {
-                g1 = twt.getG() * zb2;
-                g2 = 0;
-                b1 = twt.getB() * zb2;
-                b2 = 0;
-            }
-
-            double ratedU1 = twt.getRatedU1();
-            double ratedU2 = twt.getRatedU2();
-            double ratio = ratedU2 / vb2 / (ratedU1 / vb1);
-            RatioTapChanger rtc = twt.getRatioTapChanger();
-            PhaseTapChanger ptc = twt.getPhaseTapChanger();
-            int rtcNum = rtc != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId()) : -1;
-            int ptcNum = ptc != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId()) : -1;
-            formatter.writeCell(variantIndex)
-                    .writeCell(num)
-                    .writeCell(bus1Num)
-                    .writeCell(bus2Num)
-                    .writeCell(-1)
-                    .writeCell(vl1Num)
-                    .writeCell(vl2Num)
-                    .writeCell(r)
-                    .writeCell(x)
-                    .writeCell(g1)
-                    .writeCell(g2)
-                    .writeCell(b1)
-                    .writeCell(b2)
-                    .writeCell(ratio)
-                    .writeCell(rtcNum)
-                    .writeCell(ptcNum)
-                    .writeCell(t1.getP())
-                    .writeCell(t2.getP())
-                    .writeCell(t1.getQ())
-                    .writeCell(t2.getQ())
-                    .writeCell(getPermanentLimit(twt.getCurrentLimits1().orElse(null)))
-                    .writeCell(getPermanentLimit(twt.getCurrentLimits2().orElse(null)))
-                    .writeCell(false) // TODO to update
-                    .writeCell(faultNum)
-                    .writeCell(actionNum)
-                    .writeCell(id)
-                    .writeCell(twt.getNameOrId());
-            addExtensions(num, twt);
+            context.voltageLevelIdsToExport.add(t1.getVoltageLevel().getId());
+            context.voltageLevelIdsToExport.add(t2.getVoltageLevel().getId());
+            columnsExporter.writeTwoWindingsTranformerToFormatter(formatter, twt);
+            addExtensions(mapper.getInt(AmplSubset.BRANCH, twt.getId()), twt);
         }
     }
 
@@ -837,155 +408,31 @@ public class AmplNetworkWriter {
             String id1 = twt.getId() + AmplConstants.LEG1_SUFFIX;
             String id2 = twt.getId() + AmplConstants.LEG2_SUFFIX;
             String id3 = twt.getId() + AmplConstants.LEG3_SUFFIX;
-            int num3wt = mapper.getInt(AmplSubset.THREE_WINDINGS_TRANSFO, twt.getId());
             int num1 = mapper.getInt(AmplSubset.BRANCH, id1);
             int num2 = mapper.getInt(AmplSubset.BRANCH, id2);
             int num3 = mapper.getInt(AmplSubset.BRANCH, id3);
-            int vl1Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl1.getId());
-            int vl2Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl2.getId());
-            int vl3Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl3.getId());
-            String bus1Id = getBusId(bus1);
-            int bus1Num = getBusNum(bus1);
-            String bus2Id = getBusId(bus2);
-            int bus2Num = getBusNum(bus2);
-            String bus3Id = getBusId(bus3);
-            int bus3Num = getBusNum(bus3);
+            String bus1Id = AmplUtil.getBusId(bus1);
+            String bus2Id = AmplUtil.getBusId(bus2);
+            String bus3Id = AmplUtil.getBusId(bus3);
 
-            double vb0 = twt.getRatedU0();
-            double vb1 = vl1.getNominalV();
-            double vb2 = vl2.getNominalV();
-            double vb3 = vl3.getNominalV();
-
-            double zb0 = vb0 * vb0 / AmplConstants.SB;
-
-            double r1 = twt.getLeg1().getR() / zb0;
-            double x1 = twt.getLeg1().getX() / zb0;
-            double g1 = twt.getLeg1().getG() * zb0;
-            double b1 = twt.getLeg1().getB() * zb0;
-
-            double r2 = twt.getLeg2().getR() / zb0;
-            double x2 = twt.getLeg2().getX() / zb0;
-            double g2 = twt.getLeg2().getG() * zb0;
-            double b2 = twt.getLeg2().getB() * zb0;
-
-            double r3 = twt.getLeg3().getR() / zb0;
-            double x3 = twt.getLeg3().getX() / zb0;
-            double g3 = twt.getLeg3().getG() * zb0;
-            double b3 = twt.getLeg3().getB() * zb0;
-
-            double ratedU1 = twt.getLeg1().getRatedU();
-            double ratedU2 = twt.getLeg2().getRatedU();
-            double ratedU3 = twt.getLeg3().getRatedU();
-
-            double ratio1 = 1. / (ratedU1 / vb1);
-            double ratio2 = 1. / (ratedU2 / vb2);
-            double ratio3 = 1. / (ratedU3 / vb3);
-
-            RatioTapChanger rtc1 = twt.getLeg1().getRatioTapChanger();
-            RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-            RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-            PhaseTapChanger ptc1 = twt.getLeg1().getPhaseTapChanger();
-            PhaseTapChanger ptc2 = twt.getLeg2().getPhaseTapChanger();
-            PhaseTapChanger ptc3 = twt.getLeg3().getPhaseTapChanger();
-            int rtc1Num = rtc1 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id1) : -1;
-            int rtc2Num = rtc2 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id2) : -1;
-            int rtc3Num = rtc3 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id3) : -1;
-            int ptc1Num = ptc1 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id1) : -1;
-            int ptc2Num = ptc2 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id2) : -1;
-            int ptc3Num = ptc3 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id3) : -1;
-
-            int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, getThreeWindingsTransformerMiddleVoltageLevelId(twt));
-            String middleBusId = getThreeWindingsTransformerMiddleBusId(twt);
+            int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL,
+                AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt));
+            String middleBusId = AmplUtil.getThreeWindingsTransformerMiddleBusId(twt);
             int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
 
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus1Id)) {
-                formatter.writeCell(variantIndex)
-                        .writeCell(num1)
-                        .writeCell(bus1Num)
-                        .writeCell(middleBusNum)
-                        .writeCell(num3wt)
-                        .writeCell(vl1Num)
-                        .writeCell(middleVlNum)
-                        .writeCell(r1)
-                        .writeCell(x1)
-                        .writeCell(g1)
-                        .writeCell(0.0)
-                        .writeCell(b1)
-                        .writeCell(0.0)
-                        .writeCell(ratio1)
-                        .writeCell(rtc1Num)
-                        .writeCell(ptc1Num)
-                        .writeCell(t1.getP())
-                        .writeCell(Double.NaN)
-                        .writeCell(t1.getQ())
-                        .writeCell(Double.NaN)
-                        .writeCell(getPermanentLimit(twt.getLeg1().getCurrentLimits().orElse(null)))
-                        .writeCell(Double.NaN)
-                        .writeCell(false)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id1)
-                        .writeCell("");
+                columnsExporter.writeThreeWindingsTransformerLegToFormatter(formatter, twt, middleBusNum, middleVlNum,
+                        ThreeSides.ONE);
                 addExtensions(num1, twt);
             }
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus2Id)) {
-                formatter.writeCell(variantIndex)
-                        .writeCell(num2)
-                        .writeCell(bus2Num)
-                        .writeCell(middleBusNum)
-                        .writeCell(num3wt)
-                        .writeCell(vl2Num)
-                        .writeCell(middleVlNum)
-                        .writeCell(r2)
-                        .writeCell(x2)
-                        .writeCell(g2)
-                        .writeCell(0.0)
-                        .writeCell(b2)
-                        .writeCell(0.0)
-                        .writeCell(ratio2)
-                        .writeCell(rtc2Num)
-                        .writeCell(ptc2Num)
-                        .writeCell(t2.getP())
-                        .writeCell(Double.NaN)
-                        .writeCell(t2.getQ())
-                        .writeCell(Double.NaN)
-                        .writeCell(getPermanentLimit(twt.getLeg2().getCurrentLimits().orElse(null)))
-                        .writeCell(Double.NaN)
-                        .writeCell(false)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id2)
-                        .writeCell("");
+                columnsExporter.writeThreeWindingsTransformerLegToFormatter(formatter, twt, middleBusNum, middleVlNum,
+                        ThreeSides.TWO);
                 addExtensions(num2, twt);
             }
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus3Id)) {
-                formatter.writeCell(variantIndex)
-                        .writeCell(num3)
-                        .writeCell(bus3Num)
-                        .writeCell(middleBusNum)
-                        .writeCell(num3wt)
-                        .writeCell(vl3Num)
-                        .writeCell(middleVlNum)
-                        .writeCell(r3)
-                        .writeCell(x3)
-                        .writeCell(g3)
-                        .writeCell(0.0)
-                        .writeCell(b3)
-                        .writeCell(0.0)
-                        .writeCell(ratio3)
-                        .writeCell(rtc3Num)
-                        .writeCell(ptc3Num)
-                        .writeCell(t3.getP())
-                        .writeCell(Double.NaN)
-                        .writeCell(t3.getQ())
-                        .writeCell(Double.NaN)
-                        .writeCell(getPermanentLimit(twt.getLeg3().getCurrentLimits().orElse(null)))
-                        .writeCell(Double.NaN)
-                        .writeCell(false)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id3)
-                        .writeCell("");
+                columnsExporter.writeThreeWindingsTransformerLegToFormatter(formatter, twt, middleBusNum, middleVlNum,
+                        ThreeSides.THREE);
                 addExtensions(num3, twt);
             }
         }
@@ -995,83 +442,29 @@ public class AmplNetworkWriter {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
-            String bus1Id = getBusId(bus1);
-            int bus1Num = getBusNum(bus1);
-            String middleBusId = getDanglingLineMiddleBusId(dl);
-            int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
+            String bus1Id = AmplUtil.getBusId(bus1);
+            String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
             if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, middleBusId))) {
                 continue;
             }
             VoltageLevel vl = t.getVoltageLevel();
-            String middleVlId = getDanglingLineMiddleVoltageLevelId(dl);
+            String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
             context.voltageLevelIdsToExport.add(vl.getId());
             context.voltageLevelIdsToExport.add(middleVlId);
-            String id = dl.getId();
-            int num = mapper.getInt(AmplSubset.BRANCH, id);
-            int vl1Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
-            int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
-            double vb = vl.getNominalV();
-            double zb = vb * vb / AmplConstants.SB;
-            double p1 = t.getP();
-            double q1 = t.getQ();
-            SV sv = new SV(p1, q1, bus1 != null ? bus1.getV() : Double.NaN, bus1 != null ? bus1.getAngle() : Double.NaN, TwoSides.ONE).otherSide(dl, true);
-            double p2 = sv.getP();
-            double q2 = sv.getQ();
-            double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));
-            formatter.writeCell(variantIndex)
-                    .writeCell(num)
-                    .writeCell(bus1Num)
-                    .writeCell(middleBusNum)
-                    .writeCell(-1)
-                    .writeCell(vl1Num)
-                    .writeCell(middleVlNum)
-                    .writeCell(dl.getR() / zb)
-                    .writeCell(dl.getX() / zb)
-                    .writeCell(dl.getG() / 2 * zb)
-                    .writeCell(dl.getG() / 2 * zb)
-                    .writeCell(dl.getB() / 2 * zb)
-                    .writeCell(dl.getB() / 2 * zb)
-                    .writeCell(1f)  // constant ratio
-                    .writeCell(-1) // no ratio tap changer
-                    .writeCell(-1) // no phase tap changer
-                    .writeCell(p1)
-                    .writeCell(p2)
-                    .writeCell(q1)
-                    .writeCell(q2)
-                    .writeCell(patl)
-                    .writeCell(patl)
-                    .writeCell(false)
-                    .writeCell(faultNum)
-                    .writeCell(actionNum)
-                    .writeCell(id)
-                    .writeCell(dl.getNameOrId());
-            addExtensions(num, dl);
+            columnsExporter.writeDanglingLineToFormatter(formatter, dl);
+            addExtensions(mapper.getInt(AmplSubset.BRANCH, dl.getId()), dl);
         }
     }
 
-    private String getBusId(Bus bus) {
-        return bus == null ? null : bus.getId();
-    }
-
-    private int getBusNum(Bus bus) {
-        return bus == null ? -1 : mapper.getInt(AmplSubset.BUS, bus.getId());
-    }
-
     private void writeTapChangerTable() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_tct", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_tct", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Tap changer table"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column("tap"),
-                     new Column("var ratio"),
-                     new Column("x (pu)"),
-                     new Column("angle (rad)"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()))) {
+                 getTableTitle("Tap changer table"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getTapChangerTableColumns())) {
 
             writeTwoWindingsTransformerTapChangerTable(formatter);
 
@@ -1081,174 +474,39 @@ public class AmplNetworkWriter {
 
     private void writeTwoWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            Terminal t2 = twt.getTerminal2();
-            double vb2 = t2.getVoltageLevel().getNominalV();
-            double zb2 = vb2 * vb2 / AmplConstants.SB;
-
-            RatioTapChanger rtc = twt.getRatioTapChanger();
-            if (rtc != null) {
-                String id = twt.getId() + "_ratio_table";
-                writeRatioTapChanger(formatter, id, zb2, twt.getX(), rtc);
-            }
-
-            PhaseTapChanger ptc = twt.getPhaseTapChanger();
-            if (ptc != null) {
-                String id = twt.getId() + "_phase_table";
-                writePhaseTapChanger(formatter, id, zb2, twt.getX(), ptc);
-            }
+            columnsExporter.writeTwoWindingsTransformerTapChangerTableToFormatter(formatter, twt);
         }
     }
 
     private void writeThreeWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            int legNumber = 0;
-            for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-                legNumber++;
-
-                double vb = twt.getRatedU0();
-                double zb = vb * vb / AmplConstants.SB;
-
-                RatioTapChanger rtc = leg.getRatioTapChanger();
-                if (rtc != null) {
-                    String id = twt.getId() + "_leg" + legNumber + "_ratio_table";
-                    writeRatioTapChanger(formatter, id, zb, leg.getX(), rtc);
-                }
-                PhaseTapChanger ptc = leg.getPhaseTapChanger();
-                if (ptc != null) {
-                    String id = twt.getId() + "_leg" + legNumber + "_phase_table";
-                    writePhaseTapChanger(formatter, id, zb, leg.getX(), ptc);
-                }
-            }
-        }
-    }
-
-    private void writeRatioTapChanger(TableFormatter formatter, String id, double zb2, double reactance, RatioTapChanger rtc) throws IOException {
-        int num = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, id);
-
-        for (int position = rtc.getLowTapPosition(); position <= rtc.getHighTapPosition(); position++) {
-            RatioTapChangerStep step = rtc.getStep(position);
-            double x = reactance * (1 + step.getX() / 100) / zb2;
-            formatter.writeCell(variantIndex)
-                    .writeCell(num)
-                    .writeCell(position - rtc.getLowTapPosition() + 1)
-                    .writeCell(step.getRho())
-                    .writeCell(x)
-                    .writeCell(0.0)
-                    .writeCell(faultNum)
-                    .writeCell(actionNum);
-        }
-    }
-
-    private void writePhaseTapChanger(TableFormatter formatter, String id, double zb2, double reactance, PhaseTapChanger ptc) throws IOException {
-        int num = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, id);
-
-        for (int position = ptc.getLowTapPosition(); position <= ptc.getHighTapPosition(); position++) {
-            PhaseTapChangerStep step = ptc.getStep(position);
-            double x = reactance * (1 + step.getX() / 100) / zb2;
-            formatter.writeCell(variantIndex)
-                    .writeCell(num)
-                    .writeCell(position - ptc.getLowTapPosition() + 1)
-                    .writeCell(step.getRho())
-                    .writeCell(x)
-                    .writeCell(Math.toRadians(step.getAlpha()))
-                    .writeCell(faultNum)
-                    .writeCell(actionNum);
-        }
-    }
-
-    private void writeRatioTapChanger(TableFormatter formatter, Identifiable<?> twt, RatioTapChanger rtc, String leg) {
-        try {
-            String rtcId = twt.getId() + leg;
-            String tcsId = twt.getId() + leg + "_ratio_table";
-            int rtcNum = mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, rtcId);
-            int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
-            formatter.writeCell(variantIndex)
-                    .writeCell(rtcNum)
-                    .writeCell(rtc.getTapPosition() - rtc.getLowTapPosition() + 1)
-                    .writeCell(tcsNum)
-                    .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
-            if (config.isExportRatioTapChangerVoltageTarget()) {
-                formatter.writeCell(rtc.getTargetV());
-            }
-            formatter.writeCell(faultNum)
-                    .writeCell(actionNum)
-                    .writeCell(rtcId);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            columnsExporter.writeThreeWindingsTransformerTapChangerTableToFormatter(formatter, twt);
         }
     }
 
     private void writeRatioTapChangers() throws IOException {
-        List<Column> columns = new ArrayList<>(8);
-        columns.add(new Column(VARIANT));
-        columns.add(new Column(NUM));
-        columns.add(new Column("tap"));
-        columns.add(new Column("table"));
-        columns.add(new Column("onLoad"));
-        if (config.isExportRatioTapChangerVoltageTarget()) {
-            columns.add(new Column("targetV"));
-        }
-        columns.add(new Column(FAULT));
-        columns.add(new Column(config.getActionType().getLabel()));
-        columns.add(new Column(ID));
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_rtc", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_rtc", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Ratio tap changers"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     columns.toArray(new Column[columns.size()]))) {
-            for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-                twt.getOptionalRatioTapChanger().ifPresent(rtc -> writeRatioTapChanger(formatter, twt, rtc, ""));
-            }
-            for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-                twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> writeRatioTapChanger(formatter, twt, rtc, AmplConstants.LEG1_SUFFIX));
-                twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> writeRatioTapChanger(formatter, twt, rtc, AmplConstants.LEG2_SUFFIX));
-                twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> writeRatioTapChanger(formatter, twt, rtc, AmplConstants.LEG3_SUFFIX));
-            }
-        }
-    }
-
-    private void writePhaseTapChanger(TableFormatter formatter, Identifiable<?> twt, PhaseTapChanger ptc, String leg) {
-        try {
-            String ptcId = twt.getId() + leg;
-            String tcsId = twt.getId() + leg + "_phase_table";
-            int ptcNum = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
-            int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
-            formatter.writeCell(variantIndex)
-                    .writeCell(ptcNum)
-                    .writeCell(ptc.getTapPosition() - ptc.getLowTapPosition() + 1)
-                    .writeCell(tcsNum)
-                    .writeCell(faultNum)
-                    .writeCell(actionNum)
-                    .writeCell(ptcId);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+                 getTableTitle("Ratio tap changers"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getRtcColumns())) {
+            columnsExporter.writeRtcToFormatter(formatter);
         }
     }
 
     private void writePhaseTapChangers() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_ptc", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_ptc", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Phase tap changers"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column("tap"),
-                     new Column("table"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID))) {
-            for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-                twt.getOptionalPhaseTapChanger().ifPresent(ptc -> writePhaseTapChanger(formatter, twt, ptc, ""));
-            }
-            for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-                twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> writePhaseTapChanger(formatter, twt, ptc, AmplConstants.LEG1_SUFFIX));
-                twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> writePhaseTapChanger(formatter, twt, ptc, AmplConstants.LEG2_SUFFIX));
-                twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> writePhaseTapChanger(formatter, twt, ptc, AmplConstants.LEG3_SUFFIX));
-            }
+                 getTableTitle("Phase tap changers"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getPtcColumns())) {
+            columnsExporter.writePtcToFormatter(formatter);
         }
     }
 
@@ -1266,79 +524,38 @@ public class AmplNetworkWriter {
     }
 
     private void writeLoads(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_loads", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_loads", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Loads"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column(BUS),
-                     new Column(SUBSTATION),
-                     new Column(P0),
-                     new Column("q0 (MVar)"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID),
-                     new Column(DESCRIPTION),
-                     new Column("p (MW)"),
-                     new Column("q (MVar)"))) {
+                 getTableTitle("Loads"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getLoadsColumns())) {
             List<String> skipped = new ArrayList<>();
             for (Load l : network.getLoads()) {
                 Terminal t = l.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
-                int busNum = -1;
                 if (bus != null) {
                     busId = bus.getId();
-                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
                 }
                 if (!exportLoad(context, busId)) {
                     skipped.add(l.getId());
                     continue;
                 }
-                String id = l.getId();
-                context.loadsToExport.add(id);
-                int num = mapper.getInt(AmplSubset.LOAD, id);
-                int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell(busNum)
-                        .writeCell(vlNum)
-                        .writeCell(l.getP0())
-                        .writeCell(l.getQ0())
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id)
-                        .writeCell(l.getNameOrId())
-                        .writeCell(t.getP())
-                        .writeCell(t.getQ());
-                addExtensions(num, l);
+                context.loadsToExport.add(l.getId());
+
+                columnsExporter.writeLoadtoFormatter(formatter, l);
+                addExtensions(mapper.getInt(AmplSubset.LOAD, l.getId()), l);
             }
             for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
-                String middleBusId = getDanglingLineMiddleBusId(dl);
-                String id = dl.getId();
-                int num = mapper.getInt(AmplSubset.LOAD, id);
-                int busNum = mapper.getInt(AmplSubset.BUS, middleBusId);
+                String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
                 if (!exportLoad(context, middleBusId)) {
                     skipped.add(dl.getId());
                     continue;
                 }
-                String middleVlId = getDanglingLineMiddleVoltageLevelId(dl);
-                int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell(busNum)
-                        .writeCell(vlNum)
-                        .writeCell(dl.getP0())
-                        .writeCell(dl.getQ0())
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(dl.getId() + "_load")
-                        .writeCell("")
-                        .writeCell(dl.getTerminal().getP())
-                        .writeCell(dl.getTerminal().getQ());
+                columnsExporter.writeDanglingLineLoadToFormatter(formatter, dl);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip loads {} because not connected and not connectable", skipped);
@@ -1361,90 +578,34 @@ public class AmplNetworkWriter {
     }
 
     private void writeShunts(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_shunts", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_shunts", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Shunts"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column(BUS),
-                     new Column(CON_BUS),
-                     new Column(SUBSTATION),
-                     new Column("minB (pu)"),
-                     new Column("maxB (pu)"),
-                     new Column("inter. points"),
-                     new Column("b (pu)"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID),
-                     new Column(DESCRIPTION),
-                     new Column(ACTIVE_POWER),
-                     new Column(REACTIVE_POWER),
-                     new Column("sections count"))) {
+                 getTableTitle("Shunts"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getShuntsColumns())) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShuntCompensators()) {
                 Terminal t = sc.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
-                int busNum = -1;
                 if (bus != null) {
                     busId = bus.getId();
-                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
                 }
-                int conBusNum = -1;
                 // take connectable bus if exists
                 String conBusId = null;
                 Bus conBus = AmplUtil.getConnectableBus(t);
                 if (conBus != null) {
                     conBusId = conBus.getId();
-                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
                 }
                 if (!exportGeneratorOrShunt(context, busId, conBusId)) {
                     skipped.add(sc.getId());
-                    continue;
-                }
-                String id = sc.getId();
-                int num = mapper.getInt(AmplSubset.SHUNT, id);
-                int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-                double vb = t.getVoltageLevel().getNominalV();
-                double zb = vb * vb / AmplConstants.SB;
-                double b1 = 0;
-                double b2;
-                int points = 0;
-                int sectionCount = 1;
-                if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
-                    // TODO non linear shunt has to be converted as multiple sections shunt.
-                    if (sc.getSectionCount() > 1) {
-                        b1 = sc.getB(sc.getSectionCount() - 1) * zb;
-                    }
-                    b2 = sc.getB() * zb;
                 } else {
-                    b2 = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * sc.getMaximumSectionCount() * zb;
-                    points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
-                    sectionCount = sc.getSectionCount();
+                    columnsExporter.writeShuntCompensatorToFormatter(formatter, sc);
+                    addExtensions(mapper.getInt(AmplSubset.SHUNT, sc.getId()), sc);
                 }
-                double b = sc.getB() * zb;
-                double minB = Math.min(b1, b2);
-                double maxB = Math.max(b1, b2);
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell(busNum)
-                        .writeCell(conBusNum != -1 ? conBusNum : busNum)
-                        .writeCell(vlNum)
-                        .writeCell(minB)
-                        .writeCell(maxB)
-                        .writeCell(points)
-                        .writeCell(b)
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id)
-                        .writeCell(sc.getNameOrId())
-                        .writeCell(t.getP())
-                        .writeCell(t.getQ())
-                        .writeCell(sectionCount);
-                addExtensions(num, sc);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip shunts {} because not connected and not connectable", skipped);
@@ -1453,62 +614,18 @@ public class AmplNetworkWriter {
     }
 
     private void writeStaticVarCompensators() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_static_var_compensators", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(
+            dataSource.newOutputStream("_network_static_var_compensators", "txt", append), StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Static VAR compensators"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column(BUS),
-                     new Column(CON_BUS),
-                     new Column(SUBSTATION),
-                     new Column("minB (pu)"),
-                     new Column("maxB (pu)"),
-                     new Column(V_REGUL),
-                     new Column(TARGET_V),
-                     new Column(TARGET_Q),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID),
-                     new Column(DESCRIPTION),
-                     new Column(ACTIVE_POWER),
-                     new Column(REACTIVE_POWER))) {
+                 getTableTitle("Static VAR compensators"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getStaticVarCompensatorColumns())) {
             List<String> skipped = new ArrayList<>();
             for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-
-                String id = svc.getId();
-                int num = mapper.getInt(AmplSubset.STATIC_VAR_COMPENSATOR, id);
-
-                Terminal t = svc.getTerminal();
-
-                int busNum = AmplUtil.getBusNum(mapper, t);
-
-                int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
-
-                double vlSet = svc.getVoltageSetpoint();
-                double vb = t.getVoltageLevel().getNominalV();
-                double zb = vb * vb / AmplConstants.SB; // Base impedance
-
-                int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell(busNum)
-                        .writeCell(conBusNum)
-                        .writeCell(vlNum)
-                        .writeCell(svc.getBmin() * zb)
-                        .writeCell(svc.getBmax() * zb)
-                        .writeCell(svc.getRegulationMode().equals(RegulationMode.VOLTAGE))
-                        .writeCell(vlSet / vb)
-                        .writeCell(svc.getReactivePowerSetpoint())
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id)
-                        .writeCell(svc.getNameOrId())
-                        .writeCell(t.getP())
-                        .writeCell(t.getQ());
-                addExtensions(num, svc);
+                columnsExporter.writeStaticVarCompensatorToFormatter(formatter, svc);
+                addExtensions(mapper.getInt(AmplSubset.STATIC_VAR_COMPENSATOR, svc.getId()), svc);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip static VAR compensators {} because not connected and not connectable", skipped);
@@ -1517,88 +634,35 @@ public class AmplNetworkWriter {
     }
 
     private void writeGenerators(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_generators", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_generators", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Generators"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column(BUS),
-                     new Column(CON_BUS),
-                     new Column(SUBSTATION),
-                     new Column(MINP),
-                     new Column(MAXP),
-                     new Column(MIN_Q_MAX_P),
-                     new Column(MIN_Q0),
-                     new Column(MIN_Q_MIN_P),
-                     new Column(MAX_Q_MAX_P),
-                     new Column(MAX_Q0),
-                     new Column(MAX_Q_MIN_P),
-                     new Column(V_REGUL),
-                     new Column(TARGET_V),
-                     new Column("targetP (MW)"),
-                     new Column(TARGET_Q),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID),
-                     new Column(DESCRIPTION),
-                     new Column(ACTIVE_POWER),
-                     new Column(REACTIVE_POWER))) {
+                 getTableTitle("Generators"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getGeneratorsColumns())) {
             List<String> skipped = new ArrayList<>();
             for (Generator g : network.getGenerators()) {
                 Terminal t = g.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
-                int busNum = -1;
                 if (bus != null) {
                     busId = bus.getId();
-                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
                 }
                 String conBusId = null;
-                int conBusNum = -1;
                 // take connectable bus if exists
                 Bus conBus = AmplUtil.getConnectableBus(t);
                 if (conBus != null) {
                     conBusId = conBus.getId();
-                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
                 }
                 if (!exportGeneratorOrShunt(context, busId, conBusId)) {
                     skipped.add(g.getId());
-                    continue;
+                } else {
+                    context.generatorIdsToExport.add(g.getId());
+                    columnsExporter.writeGeneratorToFormatter(formatter, g);
+                    addExtensions(mapper.getInt(AmplSubset.GENERATOR, g.getId()), g);
                 }
-                String id = g.getId();
-                context.generatorIdsToExport.add(id);
-                int num = mapper.getInt(AmplSubset.GENERATOR, id);
-                int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-                double minP = g.getMinP();
-                double maxP = g.getMaxP();
-
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell(busNum)
-                        .writeCell(conBusNum != -1 ? conBusNum : busNum)
-                        .writeCell(vlNum)
-                        .writeCell(minP)
-                        .writeCell(maxP)
-                        .writeCell(g.getReactiveLimits().getMinQ(maxP))
-                        .writeCell(g.getReactiveLimits().getMinQ(0))
-                        .writeCell(g.getReactiveLimits().getMinQ(minP))
-                        .writeCell(g.getReactiveLimits().getMaxQ(maxP))
-                        .writeCell(g.getReactiveLimits().getMaxQ(0))
-                        .writeCell(g.getReactiveLimits().getMaxQ(minP))
-                        .writeCell(g.isVoltageRegulatorOn())
-                        .writeCell(g.getTargetV() / g.getRegulatingTerminal().getVoltageLevel().getNominalV())
-                        .writeCell(g.getTargetP())
-                        .writeCell(g.getTargetQ())
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id)
-                        .writeCell(g.getNameOrId())
-                        .writeCell(t.getP())
-                        .writeCell(t.getQ());
-                addExtensions(num, g);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip generators {} because not connected and not connectable", skipped);
@@ -1607,85 +671,30 @@ public class AmplNetworkWriter {
     }
 
     private void writeBatteries(AmplExportContext context) throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_batteries", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_batteries", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Batteries"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column(BUS),
-                     new Column(CON_BUS),
-                     new Column(SUBSTATION),
-                     new Column(P0),
-                     new Column(Q0),
-                     new Column(MINP),
-                     new Column(MAXP),
-                     new Column(MIN_Q_MAX_P),
-                     new Column(MIN_Q0),
-                     new Column(MIN_Q_MIN_P),
-                     new Column(MAX_Q_MAX_P),
-                     new Column(MAX_Q0),
-                     new Column(MAX_Q_MIN_P),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID),
-                     new Column(DESCRIPTION),
-                     new Column(ACTIVE_POWER),
-                     new Column(REACTIVE_POWER))) {
+                 getTableTitle("Batteries"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getBatteriesColumns())) {
             List<String> skipped = new ArrayList<>();
             for (Battery b : network.getBatteries()) {
                 Terminal t = b.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
-                int busNum = -1;
                 if (bus != null) {
                     busId = bus.getId();
-                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
                 }
-                int conBusNum = -1;
                 // take connectable bus if exists
-                Bus conBus = AmplUtil.getConnectableBus(t);
-                if (conBus != null) {
-                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
-                }
                 if (!isBusExported(context, busId)) {
                     skipped.add(b.getId());
-                    continue;
+                } else {
+                    context.batteryIdsToExport.add(b.getId());
+                    columnsExporter.writeBatteryToFormatter(formatter, b);
+                    addExtensions(mapper.getInt(AmplSubset.BATTERY, b.getId()), b);
                 }
-
-                String id = b.getId();
-                context.batteryIdsToExport.add(id);
-                int num = mapper.getInt(AmplSubset.BATTERY, id);
-                int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-                double targetP = b.getTargetP();
-                double targetQ = b.getTargetQ();
-                double minP = b.getMinP();
-                double maxP = b.getMaxP();
-
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell(busNum)
-                        .writeCell(conBusNum != -1 ? conBusNum : busNum)
-                        .writeCell(vlNum)
-                        .writeCell(targetP)
-                        .writeCell(targetQ)
-                        .writeCell(minP)
-                        .writeCell(maxP)
-                        .writeCell(b.getReactiveLimits().getMinQ(maxP))
-                        .writeCell(b.getReactiveLimits().getMinQ(0))
-                        .writeCell(b.getReactiveLimits().getMinQ(minP))
-                        .writeCell(b.getReactiveLimits().getMaxQ(maxP))
-                        .writeCell(b.getReactiveLimits().getMaxQ(0))
-                        .writeCell(b.getReactiveLimits().getMaxQ(minP))
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id)
-                        .writeCell(b.getNameOrId())
-                        .writeCell(t.getP())
-                        .writeCell(t.getQ());
-                addExtensions(num, b);
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip batteries {} because not connected and not connectable", skipped);
@@ -1693,272 +702,72 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeTemporaryCurrentLimits(CurrentLimits limits, TableFormatter formatter, String branchId, boolean side1, String sideId) throws IOException {
-        int branchNum = mapper.getInt(AmplSubset.BRANCH, branchId);
-        for (TemporaryLimit tl : limits.getTemporaryLimits()) {
-            String limitId = branchId + "_" + sideId + "_" + tl.getAcceptableDuration();
-            int limitNum = mapper.getInt(AmplSubset.TEMPORARY_CURRENT_LIMIT, limitId);
-            formatter.writeCell(variantIndex)
-                    .writeCell(limitNum)
-                    .writeCell(branchNum)
-                    .writeCell(side1 ? 1 : 2)
-                    .writeCell(tl.getValue())
-                    .writeCell(tl.getAcceptableDuration())
-                    .writeCell(faultNum)
-                    .writeCell(actionNum);
-        }
-    }
-
     private void writeCurrentLimits() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_limits", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_limits", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("Temporary current limits"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column("branch"),
-                     new Column("side"),
-                     new Column("limit (A)"),
-                     new Column("accept. duration (s)"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()))) {
+                 getTableTitle("Temporary current limits"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getCurrentLimitsColumns())) {
 
-            writeBranchCurrentLimits(formatter);
-
-            writeThreeWindingsTransformerCurrentLimits(formatter);
-
-            writeDanglingLineCurrentLimits(formatter);
-        }
-    }
-
-    private void writeBranchCurrentLimits(TableFormatter formatter) throws IOException {
-        for (Branch<?> branch : network.getBranches()) {
-            String branchId = branch.getId();
-            Optional<CurrentLimits> currentLimits1 = branch.getCurrentLimits1();
-            if (currentLimits1.isPresent()) {
-                writeTemporaryCurrentLimits(currentLimits1.get(), formatter, branchId, true, "_1_");
-            }
-            Optional<CurrentLimits> currentLimits2 = branch.getCurrentLimits2();
-            if (currentLimits2.isPresent()) {
-                writeTemporaryCurrentLimits(currentLimits2.get(), formatter, branchId, false, "_2_");
-            }
-        }
-    }
-
-    private void writeThreeWindingsTransformerCurrentLimits(TableFormatter formatter) throws IOException {
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            Optional<CurrentLimits> currentLimits1 = twt.getLeg1().getCurrentLimits();
-            if (currentLimits1.isPresent()) {
-                String branchId = twt.getId() + AmplConstants.LEG1_SUFFIX;
-                writeTemporaryCurrentLimits(currentLimits1.get(), formatter, branchId, true, "");
-            }
-            Optional<CurrentLimits> currentLimits2 = twt.getLeg2().getCurrentLimits();
-            if (currentLimits2.isPresent()) {
-                String branchId = twt.getId() + AmplConstants.LEG2_SUFFIX;
-                writeTemporaryCurrentLimits(currentLimits2.get(), formatter, branchId, true, "");
-            }
-            Optional<CurrentLimits> currentLimits3 = twt.getLeg3().getCurrentLimits();
-            if (currentLimits3.isPresent()) {
-                String branchId = twt.getId() + AmplConstants.LEG3_SUFFIX;
-                writeTemporaryCurrentLimits(currentLimits3.get(), formatter, branchId, true, "");
-            }
-        }
-    }
-
-    private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
-            String branchId = dl.getId();
-            Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
-            if (currentLimits.isPresent()) {
-                writeTemporaryCurrentLimits(currentLimits.get(), formatter, branchId, true, "");
-            }
+            columnsExporter.writeCurrentLimits(formatter);
         }
     }
 
     private void writeHvdcLines() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_hvdc", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_hvdc", "txt", append),
+            StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("HVDC lines"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column("type"),
-                     new Column("converterStation1"),
-                     new Column("converterStation2"),
-                     new Column("r (ohm)"),
-                     new Column("nomV (KV)"),
-                     new Column("convertersMode"),
-                     new Column("targetP (MW)"),
-                     new Column(MAXP),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID),
-                     new Column(DESCRIPTION))) {
+                 getTableTitle("HVDC lines"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getHvdcLinesColumns())) {
             for (HvdcLine hvdcLine : network.getHvdcLines()) {
-                String id = hvdcLine.getId();
-                int num = mapper.getInt(AmplSubset.HVDC_LINE, id);
-                HvdcType type = hvdcLine.getConverterStation1().getHvdcType();
-                AmplSubset subset = type.equals(HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION;
-                formatter.writeCell(variantIndex)
-                        .writeCell(num)
-                        .writeCell(type.equals(HvdcType.VSC) ? 1 : 2)
-                        .writeCell(mapper.getInt(subset, hvdcLine.getConverterStation1().getId()))
-                        .writeCell(mapper.getInt(subset, hvdcLine.getConverterStation2().getId()))
-                        .writeCell(hvdcLine.getR())
-                        .writeCell(hvdcLine.getNominalV())
-                        .writeCell(hvdcLine.getConvertersMode().name())
-                        .writeCell(hvdcLine.getActivePowerSetpoint())
-                        .writeCell(hvdcLine.getMaxP())
-                        .writeCell(faultNum)
-                        .writeCell(actionNum)
-                        .writeCell(id)
-                        .writeCell(hvdcLine.getNameOrId());
-                addExtensions(num, hvdcLine);
+                columnsExporter.writeHvdcToFormatter(formatter, hvdcLine);
+                addExtensions(mapper.getInt(AmplSubset.HVDC_LINE, hvdcLine.getId()), hvdcLine);
             }
         }
     }
 
-    private HashMap<String, HvdcLine> getHvdcLinesMap() {
-        HashMap<String, HvdcLine> lineMap = new HashMap<>();
-        network.getHvdcLines().forEach(line -> {
-            if (line.getConverterStation1() != null) {
-                lineMap.put(line.getConverterStation1().getId(), line);
-            }
-            if (line.getConverterStation2() != null) {
-                lineMap.put(line.getConverterStation2().getId(), line);
-            }
-        });
-        return lineMap;
-    }
-
     private void writeLccConverterStations() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_lcc_converter_stations", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(
+            dataSource.newOutputStream("_network_lcc_converter_stations", "txt", append), StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("LCC Converter Stations"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column(BUS),
-                     new Column(CON_BUS),
-                     new Column(SUBSTATION),
-                     new Column("lossFactor (%PDC)"),
-                     new Column("powerFactor"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID),
-                     new Column(DESCRIPTION),
-                     new Column(ACTIVE_POWER),
-                     new Column(REACTIVE_POWER))) {
+                 getTableTitle("LCC Converter Stations"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getLccConverterStationsColumns())) {
 
             for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
                 if (hvdcStation.getHvdcType().equals(HvdcType.LCC)) {
-                    Terminal t = hvdcStation.getTerminal();
-                    int busNum = AmplUtil.getBusNum(mapper, t);
-                    int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
-
                     LccConverterStation lccStation = (LccConverterStation) hvdcStation;
-                    int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-
-                    int num = mapper.getInt(AmplSubset.LCC_CONVERTER_STATION, lccStation.getId());
-
-                    formatter.writeCell(variantIndex)
-                            .writeCell(num)
-                            .writeCell(busNum)
-                            .writeCell(conBusNum != -1 ? conBusNum : busNum)
-                            .writeCell(vlNum)
-                            .writeCell(lccStation.getLossFactor())
-                            .writeCell(lccStation.getPowerFactor())
-                            .writeCell(faultNum)
-                            .writeCell(actionNum)
-                            .writeCell(lccStation.getId())
-                            .writeCell(lccStation.getNameOrId())
-                            .writeCell(t.getP())
-                            .writeCell(t.getQ());
-                    addExtensions(num, lccStation);
+                    columnsExporter.writeLccConverterStationToFormatter(formatter, lccStation);
+                    addExtensions(mapper.getInt(AmplSubset.LCC_CONVERTER_STATION, lccStation.getId()), lccStation);
                 }
             }
         }
     }
 
     private void writeVscConverterStations() throws IOException {
-        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_vsc_converter_stations", "txt", append), StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(
+            dataSource.newOutputStream("_network_vsc_converter_stations", "txt", append), StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
-                     getTableTitle("VSC Converter Stations"),
-                     AmplConstants.INVALID_FLOAT_VALUE,
-                     !append,
-                     AmplConstants.LOCALE,
-                     new Column(VARIANT),
-                     new Column(NUM),
-                     new Column(BUS),
-                     new Column(CON_BUS),
-                     new Column(SUBSTATION),
-                     new Column(MINP),
-                     new Column(MAXP),
-                     new Column(MIN_Q_MAX_P),
-                     new Column(MIN_Q0),
-                     new Column(MIN_Q_MIN_P),
-                     new Column(MAX_Q_MAX_P),
-                     new Column(MAX_Q0),
-                     new Column(MAX_Q_MIN_P),
-                     new Column(V_REGUL),
-                     new Column(TARGET_V),
-                     new Column(TARGET_Q),
-                     new Column("lossFactor (%PDC)"),
-                     new Column(FAULT),
-                     new Column(config.getActionType().getLabel()),
-                     new Column(ID),
-                     new Column(DESCRIPTION),
-                     new Column(ACTIVE_POWER),
-                     new Column(REACTIVE_POWER))) {
-
-            HashMap<String, HvdcLine> lineMap = getHvdcLinesMap();
+                 getTableTitle("VSC Converter Stations"),
+                 AmplConstants.INVALID_FLOAT_VALUE,
+                 !append,
+                 AmplConstants.LOCALE,
+                 columnsExporter.getVscConverterStationsColumns())) {
 
             for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
                 if (hvdcStation.getHvdcType().equals(HvdcType.VSC)) {
-                    String id = hvdcStation.getId();
-                    Terminal t = hvdcStation.getTerminal();
-                    int busNum = AmplUtil.getBusNum(mapper, t);
-                    int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
-
-                    double maxP = lineMap.get(id) != null ? lineMap.get(id).getMaxP() : Double.NaN;
-
                     VscConverterStation vscStation = (VscConverterStation) hvdcStation;
-                    int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-                    double vlSet = vscStation.getVoltageSetpoint();
-                    double vb = t.getVoltageLevel().getNominalV();
-                    double minP = -maxP;
+                    columnsExporter.writeVscConverterStationToFormatter(formatter, vscStation);
+                    addExtensions(mapper.getInt(AmplSubset.VSC_CONVERTER_STATION, vscStation.getId()), vscStation);
 
-                    int num = mapper.getInt(AmplSubset.VSC_CONVERTER_STATION, vscStation.getId());
-                    formatter.writeCell(variantIndex)
-                            .writeCell(num)
-                            .writeCell(busNum)
-                            .writeCell(conBusNum != -1 ? conBusNum : busNum)
-                            .writeCell(vlNum)
-                            .writeCell(minP)
-                            .writeCell(maxP)
-                            .writeCell(vscStation.getReactiveLimits().getMinQ(maxP))
-                            .writeCell(vscStation.getReactiveLimits().getMinQ(0))
-                            .writeCell(vscStation.getReactiveLimits().getMinQ(minP))
-                            .writeCell(vscStation.getReactiveLimits().getMaxQ(maxP))
-                            .writeCell(vscStation.getReactiveLimits().getMaxQ(0))
-                            .writeCell(vscStation.getReactiveLimits().getMaxQ(minP))
-                            .writeCell(vscStation.isVoltageRegulatorOn())
-                            .writeCell(vlSet / vb)
-                            .writeCell(vscStation.getReactivePowerSetpoint())
-                            .writeCell(vscStation.getLossFactor())
-                            .writeCell(faultNum)
-                            .writeCell(actionNum)
-                            .writeCell(vscStation.getId())
-                            .writeCell(vscStation.getNameOrId())
-                            .writeCell(t.getP())
-                            .writeCell(t.getQ());
-                    addExtensions(num, vscStation);
                 }
             }
         }
@@ -1985,8 +794,17 @@ public class AmplNetworkWriter {
         writeVscConverterStations();
         writeLccConverterStations();
         writeHvdcLines();
+        writeHeaders();
 
         addNetworkExtensions();
         exportExtensions();
+    }
+
+    private void writeHeaders() throws IOException {
+        try (Writer writer = new OutputStreamWriter(
+            dataSource.newOutputStream("_headers", "txt", append), StandardCharsets.UTF_8)
+        ) {
+            columnsExporter.writeHeaderFile(writer);
+        }
     }
 }

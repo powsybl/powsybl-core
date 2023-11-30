@@ -14,21 +14,21 @@
             <iidm:busbarSection id="BBS_TEST_1_4" node="9"/>
             <iidm:busbarSection id="BBS_TEST_2_4" node="10"/>
             <iidm:busbarSection id="BBS_TEST_3_4" node="11"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_1_1" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="12"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_0_12" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="12"/>
             <iidm:switch id="SW_TEST_BREAKER_1_1" kind="BREAKER" retained="true" open="false" node1="12" node2="13"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_1_1#0" kind="DISCONNECTOR" retained="false" open="false" node1="13" node2="3"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_2_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="14"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_13_3" kind="DISCONNECTOR" retained="false" open="false" node1="13" node2="3"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_1_14" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="14"/>
             <iidm:switch id="SW_TEST_BREAKER_2_1" kind="BREAKER" retained="true" open="false" node1="14" node2="15"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_2_1#0" kind="DISCONNECTOR" retained="false" open="false" node1="15" node2="4"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_3_1" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="16"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_15_4" kind="DISCONNECTOR" retained="false" open="false" node1="15" node2="4"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_2_16" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="16"/>
             <iidm:switch id="SW_TEST_BREAKER_3_1" kind="BREAKER" retained="true" open="false" node1="16" node2="17"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_3_1#0" kind="DISCONNECTOR" retained="false" open="false" node1="17" node2="5"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_1_2" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="6"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_2_2" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="7"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_3_2" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="8"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_1_3" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="9"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_2_3" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="10"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_3_3" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="11"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_17_5" kind="DISCONNECTOR" retained="false" open="false" node1="17" node2="5"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_3_6" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="6"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_4_7" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="7"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_5_8" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="8"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_6_9" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="9"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_7_10" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="10"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_8_11" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="11"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:substation id="A" country="FR">

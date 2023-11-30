@@ -48,7 +48,7 @@ public class CgmesSshMetadataSerDe extends AbstractExtensionSerDe<Network, Cgmes
         writer.writeStringAttribute("description", extension.getDescription());
         writer.writeIntAttribute("sshVersion", extension.getSshVersion());
         writer.writeStringAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
-        writer.writeStartNodes(DEPENDENCY_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         for (String dep : extension.getDependencies()) {
             writer.writeStartNode(getNamespaceUri(), DEPENDENCY_ROOT_ELEMENT);
             writer.writeNodeContent(dep);

@@ -22,7 +22,7 @@ public final class AliasesSerDe {
 
     public static void write(Identifiable<?> identifiable, String rootElementName, NetworkSerializerContext context) {
         IidmSerDeUtil.assertMinimumVersionIfNotDefault(!identifiable.getAliases().isEmpty(), rootElementName, ROOT_ELEMENT_NAME, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_3, context);
-        context.getWriter().writeStartNodes(ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (String alias : identifiable.getAliases()) {
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_4, context,

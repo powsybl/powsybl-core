@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.*;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +22,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -40,7 +40,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         AmplExporter exporter = new AmplExporter();
         assertEquals("AMPL", exporter.getFormat());
         assertEquals("IIDM to AMPL converter", exporter.getComment());
-        assertEquals(5, exporter.getParameters().size());
+        assertEquals(6, exporter.getParameters().size());
     }
 
     @Test
@@ -241,5 +241,38 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
     private void export(Network network, Properties properties, DataSource dataSource) {
         AmplExporter exporter = new AmplExporter();
         exporter.export(network, properties, dataSource);
+    }
+
+    @Test
+    void writeHeaders() throws IOException {
+        Network network = Network.create("dummy_network", "test");
+        MemDataSource dataSource = new MemDataSource();
+        export(network, new Properties(), dataSource);
+        assertEqualsToRef(dataSource, "_headers", "inputs/headers.txt");
+    }
+
+    @Test
+    void writeHeadersWithVersion() throws IOException {
+        Network network = Network.create("dummy_network", "test");
+        MemDataSource dataSource = new MemDataSource();
+
+        Properties properties = new Properties();
+        properties.put("iidm.export.ampl.export-version", "1.0");
+
+        export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_headers", "inputs/headers.txt");
+    }
+
+    @Test
+    void writeHeadersWithUnknownVersion() {
+        Network network = Network.create("dummy_network", "test");
+        MemDataSource dataSource = new MemDataSource();
+
+        Properties properties = new Properties();
+        properties.put("iidm.export.ampl.export-version", "V1_0");
+
+        Exception e = assertThrows(IllegalArgumentException.class, () -> export(network, properties, dataSource));
+        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0]"));
+
     }
 }

@@ -27,7 +27,7 @@ public final class PropertiesSerDe {
 
     public static void write(Identifiable<?> identifiable, NetworkSerializerContext context) {
         if (identifiable.hasProperty()) {
-            context.getWriter().writeStartNodes(ARRAY_ELEMENT_NAME);
+            context.getWriter().writeStartNodes();
             for (String name : IidmSerDeUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), ROOT_ELEMENT_NAME);

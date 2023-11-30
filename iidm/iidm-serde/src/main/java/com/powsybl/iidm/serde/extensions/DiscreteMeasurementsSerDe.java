@@ -49,7 +49,7 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
     @Override
     public void write(DiscreteMeasurements<I> extension, SerializerContext context) {
         TreeDataWriter writer = context.getWriter();
-        writer.writeStartNodes(DISCRETE_MEASUREMENT_ARRAY);
+        writer.writeStartNodes();
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), DISCRETE_MEASUREMENT_ROOT);
             writer.writeStringAttribute("id", discreteMeasurement.getId());
@@ -71,7 +71,7 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
             }
             writer.writeBooleanAttribute("valid", discreteMeasurement.isValid());
 
-            writer.writeStartNodes(PROPERTY_ARRAY);
+            writer.writeStartNodes();
             for (String name : discreteMeasurement.getPropertyNames()) {
                 writer.writeStartNode(getNamespaceUri(), PROPERTY_ROOT);
                 writer.writeStringAttribute("name", name);

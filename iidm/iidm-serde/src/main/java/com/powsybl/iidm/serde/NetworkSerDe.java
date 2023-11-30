@@ -8,6 +8,8 @@ package com.powsybl.iidm.serde;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -173,7 +175,7 @@ public final class NetworkSerDe {
 
     private static void writeVoltageAngleLimits(Network n, NetworkSerializerContext context) {
         if (n.getVoltageAngleLimitsStream().findAny().isPresent()) {
-            context.getWriter().writeStartNodes(VoltageAngleLimitSerDe.ARRAY_ELEMENT_NAME);
+            context.getWriter().writeStartNodes();
             for (VoltageAngleLimit voltageAngleLimit : n.getVoltageAngleLimits()) {
                 VoltageAngleLimitSerDe.write(voltageAngleLimit, context);
             }
@@ -182,7 +184,7 @@ public final class NetworkSerDe {
     }
 
     private static void writeExtensions(Network n, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(EXTENSION_ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Identifiable<?> identifiable : IidmSerDeUtil.sorted(n.getIdentifiables(), context.getOptions())) {
             if (!context.isExportedEquipment(identifiable) || !isElementWrittenInsideNetwork(identifiable, n, context)) {
                 continue;
@@ -249,7 +251,7 @@ public final class NetworkSerDe {
 
     private static JsonWriter createJsonWriter(OutputStream os, ExportOptions options) {
         try {
-            return new JsonWriter(os, options.isIndent(), options.getVersion().toString("."));
+            return new JsonWriter(os, options.isIndent(), options.getVersion().toString("."), createSingleNameToArrayNameMap(options));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -333,7 +335,7 @@ public final class NetworkSerDe {
     }
 
     private static void writeSubnetworks(Network n, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(NETWORK_ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Network subnetwork : IidmSerDeUtil.sorted(n.getSubnetworks(), context.getOptions())) {
             IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME,
                     IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_11, context);
@@ -343,7 +345,7 @@ public final class NetworkSerDe {
     }
 
     private static void writeVoltageLevels(Network n, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(VoltageLevelSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (VoltageLevel voltageLevel : IidmSerDeUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(voltageLevel, n, context) && voltageLevel.getSubstation().isEmpty()) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME,
@@ -355,7 +357,7 @@ public final class NetworkSerDe {
     }
 
     private static void writeSubstations(Network n, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes(SubstationSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Substation s : IidmSerDeUtil.sorted(n.getSubstations(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(s, n, context)) {
                 SubstationSerDe.INSTANCE.write(s, n, context);
@@ -366,7 +368,7 @@ public final class NetworkSerDe {
 
     private static void writeLines(Network n, NetworkSerializerContext context) {
         BusFilter filter = context.getFilter();
-        context.getWriter().writeStartNodes(LineSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (Line l : IidmSerDeUtil.sorted(n.getLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
                 LineSerDe.INSTANCE.write(l, n, context);
@@ -377,7 +379,7 @@ public final class NetworkSerDe {
 
     private static void writeTieLines(Network n, NetworkSerializerContext context) {
         BusFilter filter = context.getFilter();
-        context.getWriter().writeStartNodes(TieLineSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (TieLine l : IidmSerDeUtil.sorted(n.getTieLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
                 TieLineSerDe.INSTANCE.write(l, n, context);
@@ -388,7 +390,7 @@ public final class NetworkSerDe {
 
     private static void writeHvdcLines(Network n, NetworkSerializerContext context) {
         BusFilter filter = context.getFilter();
-        context.getWriter().writeStartNodes(HvdcLineSerDe.ARRAY_ELEMENT_NAME);
+        context.getWriter().writeStartNodes();
         for (HvdcLine l : IidmSerDeUtil.sorted(n.getHvdcLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l.getConverterStation1()) && filter.test(l.getConverterStation2())) {
                 HvdcLineSerDe.INSTANCE.write(l, n, context);
@@ -529,7 +531,15 @@ public final class NetworkSerDe {
         }
     }
 
+    private static Map<String, String> createSingleNameToArrayNameMap(ExportOptions config) {
+        return createArrayNameSingleNameBiMap(!config.withNoExtension()).inverse();
+    }
+
     private static Map<String, String> createArrayNameToSingleNameMap(ImportOptions config) {
+        return createArrayNameSingleNameBiMap(!config.withNoExtension());
+    }
+
+    private static BiMap<String, String> createArrayNameSingleNameBiMap(boolean withExtensions) {
         Map<String, String> basicMap = Map.ofEntries(
                 Map.entry(NETWORK_ARRAY_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME),
                 Map.entry(EXTENSION_ARRAY_ELEMENT_NAME, EXTENSION_ROOT_ELEMENT_NAME),
@@ -562,20 +572,16 @@ public final class NetworkSerDe {
                 Map.entry(VscConverterStationSerDe.ARRAY_ELEMENT_NAME, VscConverterStationSerDe.ROOT_ELEMENT_NAME));
 
         Map<String, String> extensionsMap = new HashMap<>();
-        if (!config.withNoExtension()) {
+        if (withExtensions) {
             for (ExtensionSerDe<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
                 extensionsMap.putAll(e.getArrayNameToSingleNameMap());
             }
         }
 
-        if (extensionsMap.isEmpty()) {
-            return basicMap;
-        } else {
-            Map<String, String> mergedMap = new HashMap<>();
-            mergedMap.putAll(basicMap);
-            mergedMap.putAll(extensionsMap);
-            return mergedMap;
-        }
+        BiMap<String, String> biMergedMap = HashBiMap.create();
+        biMergedMap.putAll(basicMap);
+        biMergedMap.putAll(extensionsMap);
+        return biMergedMap;
     }
 
     private static Map<String, String> getNamespaceVersionMap() {
