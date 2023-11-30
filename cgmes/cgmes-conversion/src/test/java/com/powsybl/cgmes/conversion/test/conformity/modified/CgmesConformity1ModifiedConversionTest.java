@@ -364,7 +364,7 @@ class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), null);
         Line line = network.getLine("ffbabc27-1ccd-4fdc-b037-e341706c8d29");
         CurrentLimits limits = line.getCurrentLimits1().orElse(null);
-        assertNull(limits);
+        assertNotNull(limits);
     }
 
     @Test

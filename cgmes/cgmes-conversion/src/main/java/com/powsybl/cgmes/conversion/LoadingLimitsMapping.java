@@ -6,12 +6,14 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.google.common.collect.Iterables;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
+
+import static java.lang.Integer.MAX_VALUE;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -31,12 +33,50 @@ public class LoadingLimitsMapping {
 
     void addAll() {
         for (Map.Entry<String, LoadingLimitsAdder<?, ?>> entry : adders.entrySet()) {
-            if (!Double.isNaN(entry.getValue().getPermanentLimit())) {
-                entry.getValue().add();
-            } else {
-                context.ignored("Missing permanent limit for LoadingLimit set {}. Any temporary limits in the set will be ignored", entry.getKey());
+
+            if (!Double.isNaN(entry.getValue().getPermanentLimit()) || entry.getValue().hasTemporaryLimits()) {
+                LoadingLimits limits = entry.getValue().add();
+
+                if (Double.isNaN(limits.getPermanentLimit())) {
+
+                    Collection<LoadingLimits.TemporaryLimit> temporaryLimitsToRemove = new ArrayList<>();
+                    double lowestTemporaryLimitWithInfiniteAcceptableDuration = MAX_VALUE;
+
+                    boolean isTemporaryLimitWithInfiniteAcceptableDuration = false;
+
+                    for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
+                        if (isAcceptableDurationInfinite(temporaryLimit)) {
+                            isTemporaryLimitWithInfiniteAcceptableDuration = true;
+                            lowestTemporaryLimitWithInfiniteAcceptableDuration = Math.min(lowestTemporaryLimitWithInfiniteAcceptableDuration, temporaryLimit.getValue());
+                            temporaryLimitsToRemove.add(temporaryLimit);
+                        }
+                    }
+                    limits.getTemporaryLimits().removeAll(temporaryLimitsToRemove);
+
+                    if (isTemporaryLimitWithInfiniteAcceptableDuration) {
+                        context.fixed("Operational Limit Set of " + entry.getKey(),
+                                "An operational limit set without permanent limit is considered with permanent limit" +
+                                        "equal to lowest TATL value with infinite acceptable duration",
+                                Double.NaN, lowestTemporaryLimitWithInfiniteAcceptableDuration);
+                        limits.setPermanentLimit(lowestTemporaryLimitWithInfiniteAcceptableDuration);
+                    } else {
+                        double firstTemporaryLimit = Iterables.get(limits.getTemporaryLimits(), 0).getValue();
+                        double lowestTatlCoefficient = context.config().getLowestTatlCoefficient();
+                        double fixedPermanentLimit = firstTemporaryLimit * lowestTatlCoefficient;
+                        context.fixed("Operational Limit Set of " + entry.getKey(),
+                                "An operational limit set without permanent limit is considered with permanent limit" +
+                                        "equal to lowest TATL value weighted by a coefficient of " + lowestTatlCoefficient,
+                                Double.NaN, fixedPermanentLimit);
+                        limits.setPermanentLimit(fixedPermanentLimit);
+
+                    }
+                }
             }
         }
         adders.clear();
+    }
+
+    private boolean isAcceptableDurationInfinite(LoadingLimits.TemporaryLimit temporaryLimit) {
+        return temporaryLimit.getAcceptableDuration() == MAX_VALUE;
     }
 }

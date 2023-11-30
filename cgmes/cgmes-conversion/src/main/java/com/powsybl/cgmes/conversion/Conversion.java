@@ -969,6 +969,15 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
+        public double getLowestTatlCoefficient() {
+            return lowestTatlCoefficient;
+        }
+
+        public Config setLowestTatlCoefficient(double lowestTatlCoefficient) {
+            this.lowestTatlCoefficient = lowestTatlCoefficient;
+            return this;
+        }
+
         public CgmesImport.FictitiousSwitchesCreationMode getCreateFictitiousSwitchesForDisconnectedTerminalsMode() {
             return createFictitiousSwitchesForDisconnectedTerminalsMode;
         }
@@ -1017,6 +1026,8 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
+
+        private double lowestTatlCoefficient = 1;
     }
 
     private final CgmesModel cgmes;
