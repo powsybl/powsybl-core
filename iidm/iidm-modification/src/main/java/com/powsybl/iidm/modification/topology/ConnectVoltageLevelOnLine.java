@@ -33,6 +33,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
 
     /**
      * Constructor.
+     * <br/>
+     * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      *
      * @param positionPercent        When the existing line is cut, percent is equal to the ratio between the parameters of the first line
      *                       and the parameters of the line that is cut multiplied by 100. 100 minus percent is equal to the ratio
@@ -43,7 +45,6 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
      * @param line2Id        The non-null ID of the line segment at side 2.
      * @param line2Name      The name of the line segment at side 2.
      * @param line           The line on which the voltage level is to be attached.
-     * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
                               String line2Id, String line2Name, Line line) {
@@ -51,7 +52,7 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         // Checks
         if (failChecks(network, throwException, reporter, LOG)) {
@@ -72,13 +73,14 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(line.getId() + "_BUS_1")
+                    .setId(namingStrategy.getBusId(line1Id))
                     .add();
             Bus bus2 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(line.getId() + "_BUS_2")
+                    .setId(namingStrategy.getBusId(line2Id))
                     .add();
-            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), line.getId(), voltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(line1Id, 1), voltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(line2Id, 2), voltageLevel.getBusBreakerView());
             adder1.setBus2(bus1.getId());
             adder2.setBus1(bus2.getId());
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
@@ -94,14 +96,14 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
             // Topology creation
             if (position == null) {
                 // No position extension is present so the line is connected only on the required busbar section
-                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, line1Id, bbs);
-                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, line2Id, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, line1Id, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, line2Id, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);
             } else {
                 List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
-                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, line1Id, bbsList, bbs);
-                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, line2Id, bbsList, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, line1Id, bbsList, bbs);
+                createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, line2Id, bbsList, bbs);
             }
         } else {
             throw new IllegalStateException();

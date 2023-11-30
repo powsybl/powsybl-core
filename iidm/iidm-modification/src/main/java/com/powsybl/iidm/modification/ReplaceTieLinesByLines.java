@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.topology.TopologyModificationUtils;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
     private static final Logger LOG = LoggerFactory.getLogger(ReplaceTieLinesByLines.class);
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         for (TieLine tl : network.getTieLineStream().toList()) {
             DanglingLine dl1 = tl.getDanglingLine1();
             DanglingLine dl2 = tl.getDanglingLine2();

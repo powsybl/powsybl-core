@@ -45,7 +45,7 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
     @Override
     public void write(Measurements<C> extension, SerializerContext context) {
         TreeDataWriter writer = context.getWriter();
-        writer.writeStartNodes(MEASUREMENT_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         for (Measurement measurement : extension.getMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), MEASUREMENT_ROOT_ELEMENT);
             if (measurement.getId() != null) {
@@ -63,7 +63,7 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
     }
 
     private void writeProperties(Measurement measurement, TreeDataWriter writer) {
-        writer.writeStartNodes(PROPERTY_ARRAY_ELEMENT);
+        writer.writeStartNodes();
         for (String name : measurement.getPropertyNames()) {
             writer.writeStartNode(getNamespaceUri(), PROPERTY_ROOT_ELEMENT);
             writer.writeStringAttribute("name", name);

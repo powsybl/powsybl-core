@@ -31,7 +31,7 @@ public class ReactiveLimitsSerDe {
             case CURVE:
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_CURVE);
-                context.getWriter().writeStartNodes(POINT_ARRAY_ELEMENT_NAME);
+                context.getWriter().writeStartNodes();
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), POINT_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute("p", point.getP());
