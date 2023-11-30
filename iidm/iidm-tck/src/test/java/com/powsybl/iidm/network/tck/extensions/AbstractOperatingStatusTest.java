@@ -50,6 +50,6 @@ public abstract class AbstractOperatingStatusTest {
         OperatingStatusAdder operatingStatusAdder = g.newExtension(OperatingStatusAdder.class)
                 .withStatus(OperatingStatus.Status.PLANNED_OUTAGE);
         PowsyblException e = assertThrows(PowsyblException.class, operatingStatusAdder::add);
-        assertEquals("Operating status extension is no allowed on identifiable type: GENERATOR", e.getMessage());
+        assertEquals("Operating status extension is not allowed on identifiable type: GENERATOR", e.getMessage());
     }
 }
