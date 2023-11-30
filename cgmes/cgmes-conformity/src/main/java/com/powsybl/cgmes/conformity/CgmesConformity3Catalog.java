@@ -70,5 +70,4 @@ public final class CgmesConformity3Catalog {
                         "20171002T0930Z_ENTSO-E_EQ_BD_2.xml" // We include the boundary explicitly
         ));
     }
-
 }
