@@ -7,25 +7,19 @@
 package com.powsybl.loadflow.validation;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowProvider;
-import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.loadflow.LoadFlowResultImpl;
+import com.powsybl.loadflow.*;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(LoadFlowProvider.class)
-public class LoadFlowProviderMock implements LoadFlowProvider {
+public class LoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
 
     @Override
     public String getName() {
@@ -38,18 +32,8 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     }
 
     @Override
-    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters) {
+    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, Reporter reporter) {
         network.getGenerator("GEN").getTerminal().setP(92f);
         return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
-    }
-
-    @Override
-    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
-        return Optional.empty();
     }
 }

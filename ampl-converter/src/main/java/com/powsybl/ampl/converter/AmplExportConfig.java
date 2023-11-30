@@ -7,6 +7,8 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.ampl.converter.version.AmplExportVersion;
+
 import java.util.Objects;
 
 /**
@@ -38,6 +40,8 @@ public class AmplExportConfig {
 
     private ExportScope exportScope;
 
+    private AmplExportVersion version;
+
     private boolean exportXNodes;
 
     private ExportActionType actionType;
@@ -47,15 +51,24 @@ public class AmplExportConfig {
     private boolean twtSplitShuntAdmittance;
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType) {
-        this(exportScope, exportXNodes, actionType, false, false);
+        this(exportScope, exportXNodes, actionType, false, false, AmplExportVersion.defaultVersion());
     }
 
-    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance) {
+    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType,
+                            boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance) {
+        this(exportScope, exportXNodes, actionType, exportRatioTapChangerVoltageTarget, twtSplitShuntAdmittance,
+            AmplExportVersion.defaultVersion());
+    }
+
+    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType,
+                            boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance,
+                            AmplExportVersion version) {
         this.exportScope = Objects.requireNonNull(exportScope);
         this.exportXNodes = exportXNodes;
         this.actionType = Objects.requireNonNull(actionType);
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
         this.twtSplitShuntAdmittance = twtSplitShuntAdmittance;
+        this.version = Objects.requireNonNull(version);
     }
 
     public ExportScope getExportScope() {
@@ -100,6 +113,15 @@ public class AmplExportConfig {
 
     public AmplExportConfig setTwtSplitShuntAdmittance(boolean twtSplitShuntAdmittance) {
         this.twtSplitShuntAdmittance = twtSplitShuntAdmittance;
+        return this;
+    }
+
+    public AmplExportVersion getVersion() {
+        return version;
+    }
+
+    public AmplExportConfig setVersion(AmplExportVersion version) {
+        this.version = Objects.requireNonNull(version);
         return this;
     }
 
