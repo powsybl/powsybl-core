@@ -6,10 +6,8 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -18,7 +16,7 @@ import java.time.ZonedDateTime;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CimCharacteristicsSerDeTest extends AbstractSerDeTest {
+class CimCharacteristicsSerDeTest extends AbstractCgmesExtensionTest {
 
     @Test
     void test() throws IOException {
@@ -27,7 +25,6 @@ class CimCharacteristicsSerDeTest extends AbstractSerDeTest {
                 .setTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                 .setCimVersion(14)
                 .add();
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag_cim_characteristics.xml");
+        fullRoundTripTest(network, "/eurostag_cim_characteristics.xml");
     }
 }
