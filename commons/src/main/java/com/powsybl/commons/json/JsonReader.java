@@ -199,10 +199,10 @@ public class JsonReader extends AbstractTreeDataReader {
     private <T> List<T> readArrayAttribute(String name, Function<JsonParser, List<T>> arrayParser) {
         Objects.requireNonNull(name);
         String fieldName = getFieldName();
-        currentJsonTokenConsumed = true;
         if (!name.equals(fieldName)) {
-            throw createUnexpectedNameException(name, fieldName);
+            return Collections.emptyList();
         }
+        currentJsonTokenConsumed = true;
         return arrayParser.apply(parser);
     }
 

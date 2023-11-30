@@ -8,7 +8,6 @@ package com.powsybl.commons.xml;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.AbstractTreeDataReader;
@@ -117,7 +116,7 @@ public class XmlReader extends AbstractTreeDataReader {
     private String[] readAndSplitStringArray(String name) {
         String arrayString = readStringAttribute(name);
         if (arrayString == null) {
-            throw new PowsyblException("Missing attribute '" + name + "'");
+            return new String[0];
         }
         return arrayString.split(",");
     }
