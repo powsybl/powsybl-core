@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -342,13 +342,13 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeOnlyOneNetwork() {
+    public void failMergeOnlyOneNetwork() {
         Exception e = assertThrows(IllegalArgumentException.class, () -> Network.merge(MERGE, n1));
         assertTrue(e.getMessage().contains("At least 2 networks are expected"));
     }
 
     @Test
-    void failMergeOnSubnetworks() {
+    public void failMergeOnSubnetworks() {
         Network merge = Network.merge(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network other1 = Network.create("other1", "format");
@@ -362,7 +362,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeSubnetworks() {
+    public void failMergeSubnetworks() {
         Network merge = Network.merge(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network other = Network.create("other", "format");
@@ -373,7 +373,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeContainingSubnetworks() {
+    public void failMergeContainingSubnetworks() {
         Network merge = Network.merge(MERGE, n1, n2);
         Network other = Network.create("other", "format");
 
@@ -383,7 +383,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void testNoEmptyAdditionalSubnetworkIsCreated() {
+    public void testNoEmptyAdditionalSubnetworkIsCreated() {
         Network merge = Network.merge(MERGE, n1, n2);
         assertEquals(2, merge.getSubnetworks().size());
         assertNull(merge.getSubnetwork(MERGE));
@@ -504,8 +504,8 @@ public abstract class AbstractMergeNetworkTest {
 
     @Test
     public void test() {
-        DateTime d1 = n1.getCaseDate();
-        DateTime d2 = n2.getCaseDate();
+        ZonedDateTime d1 = n1.getCaseDate();
+        ZonedDateTime d2 = n2.getCaseDate();
         addCommonSubstationsAndVoltageLevels();
         addLoad(n1, 1);
         addLoad(n2, 2);
@@ -554,7 +554,7 @@ public abstract class AbstractMergeNetworkTest {
                 .add();
     }
 
-    private static void checks(Network merge, int num, String sourceFormat, DateTime d) {
+    private static void checks(Network merge, int num, String sourceFormat, ZonedDateTime d) {
         Network n = merge.getSubnetwork("n" + num);
         assertNotNull(n);
         assertEquals(sourceFormat, n.getSourceFormat());

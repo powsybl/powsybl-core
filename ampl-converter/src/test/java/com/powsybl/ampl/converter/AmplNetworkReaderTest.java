@@ -55,7 +55,7 @@ class AmplNetworkReaderTest {
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
         twt.getLeg1().newPhaseTapChanger()
                 .setTapPosition(1)
-                .setRegulationTerminal(twt.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .setRegulationTerminal(twt.getTerminal(ThreeSides.TWO))
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                 .setRegulationValue(200)
                 .beginStep()

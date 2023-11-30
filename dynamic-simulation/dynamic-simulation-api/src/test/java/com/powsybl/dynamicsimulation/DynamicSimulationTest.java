@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import com.powsybl.commons.reporter.Reporter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -71,7 +72,7 @@ class DynamicSimulationTest {
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), parameters));
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), parameters));
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), parameters));
-        assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), computationManager, parameters));
+        assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), computationManager, parameters, Reporter.NO_OP));
     }
 
     @Test
@@ -86,6 +87,6 @@ class DynamicSimulationTest {
         assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), parameters));
         assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), parameters));
         assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), parameters));
-        assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), computationManager, parameters));
+        assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), computationManager, parameters, Reporter.NO_OP));
     }
 }

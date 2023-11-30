@@ -7,7 +7,7 @@
 package com.powsybl.loadflow.validation.io;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.util.TwtTestData;
@@ -130,7 +130,7 @@ abstract class AbstractValidationFormatterWriterTest {
     protected final int lowTapPosition = 0;
     protected final int highTapPosition = 30;
     protected final double twtTargetV = 92.7781;
-    protected final Side regulatedSide = Side.ONE;
+    protected final TwoSides regulatedSide = TwoSides.ONE;
     protected final double twtV = 92.8007;
     protected final boolean mainComponent = true;
 

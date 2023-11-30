@@ -13,11 +13,11 @@ import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.iidm.xml.XMLImporter;
+import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.XMLImporter;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-class CgmesMappingTest extends AbstractConverterTest {
+class CgmesMappingTest extends AbstractSerDeTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesMappingTest.class);
 
@@ -87,6 +87,7 @@ class CgmesMappingTest extends AbstractConverterTest {
     void testExportUsingCgmesNamingStrategy(String namingStrategy, Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds, ReadOnlyDataSource originalDataSource) throws IOException {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, namingStrategy);
+        exportParams.put(CgmesExport.EXPORT_SV_INJECTIONS_FOR_SLACKS, "false");
         String outputFolder = "exportedCgmes" + baseName;
         DataSource exportedCgmes = tmpDataSource(outputFolder, baseName);
         network.write("CGMES", exportParams, exportedCgmes);
@@ -354,8 +355,8 @@ class CgmesMappingTest extends AbstractConverterTest {
     }
 
     private Network export2IidmAndImport(Network network) {
-        NetworkXml.write(network, tmpDir.resolve("export.iidm"));
-        return NetworkXml.read(tmpDir.resolve("export.iidm"));
+        NetworkSerDe.write(network, tmpDir.resolve("export.iidm"));
+        return NetworkSerDe.read(tmpDir.resolve("export.iidm"));
     }
 
     private DataSource tmpDataSource(String folder, String baseName) throws IOException {

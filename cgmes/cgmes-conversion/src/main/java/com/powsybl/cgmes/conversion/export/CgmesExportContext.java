@@ -17,10 +17,10 @@ import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.tuple.Pair;
-import org.joda.time.DateTime;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ public class CgmesExportContext {
 
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
-    private DateTime scenarioTime = DateTime.now();
+    private ZonedDateTime scenarioTime = ZonedDateTime.now();
     private Reporter reporter = Reporter.NO_OP;
     private String boundaryEqId; // may be null
     private String boundaryTpId; // may be null
@@ -60,9 +60,19 @@ public class CgmesExportContext {
     public static final boolean EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE = true;
     public static final boolean EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE = false;
     public static final boolean ENCODE_IDS_DEFAULT_VALUE = true;
+    public static final boolean EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE = true;
+    // From QoCDC 3.3.1 rules IGMConvergence, KirchhoffsFirstLaw, ... that refer to SV_INJECTION_LIMIT=0.1
+    public static final double MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
+    public static final double MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
+    public static final boolean EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE = true;
+
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
     private boolean exportTransformersWithHighestVoltageAtEnd1 = EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE;
+    private boolean exportLoadFlowStatus = EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE;
+    private double maxPMismatchConverged = MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE;
+    private double maxQMismatchConverged = MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE;
+    private boolean isExportSvInjectionsForSlacks = EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
@@ -654,11 +664,11 @@ public class CgmesExportContext {
         return this;
     }
 
-    public DateTime getScenarioTime() {
+    public ZonedDateTime getScenarioTime() {
         return scenarioTime;
     }
 
-    public CgmesExportContext setScenarioTime(DateTime scenarioTime) {
+    public CgmesExportContext setScenarioTime(ZonedDateTime scenarioTime) {
         this.scenarioTime = Objects.requireNonNull(scenarioTime);
         return this;
     }
@@ -703,6 +713,42 @@ public class CgmesExportContext {
 
     public CgmesExportContext setExportTransformersWithHighestVoltageAtEnd1(boolean exportTransformersWithHighestVoltageAtEnd1) {
         this.exportTransformersWithHighestVoltageAtEnd1 = exportTransformersWithHighestVoltageAtEnd1;
+        return this;
+    }
+
+    public boolean isExportLoadFlowStatus() {
+        return exportLoadFlowStatus;
+    }
+
+    public CgmesExportContext setExportLoadFlowStatus(boolean exportLoadFlowStatus) {
+        this.exportLoadFlowStatus = exportLoadFlowStatus;
+        return this;
+    }
+
+    public double getMaxPMismatchConverged() {
+        return maxPMismatchConverged;
+    }
+
+    public CgmesExportContext setMaxPMismatchConverged(double maxPMismatchConverged) {
+        this.maxPMismatchConverged = maxPMismatchConverged;
+        return this;
+    }
+
+    public double getMaxQMismatchConverged() {
+        return maxQMismatchConverged;
+    }
+
+    public CgmesExportContext setMaxQMismatchConverged(double maxQMismatchConverged) {
+        this.maxQMismatchConverged = maxQMismatchConverged;
+        return this;
+    }
+
+    public boolean isExportSvInjectionsForSlacks() {
+        return isExportSvInjectionsForSlacks;
+    }
+
+    public CgmesExportContext setExportSvInjectionsForSlacks(boolean exportSvInjectionsForSlacks) {
+        this.isExportSvInjectionsForSlacks = exportSvInjectionsForSlacks;
         return this;
     }
 

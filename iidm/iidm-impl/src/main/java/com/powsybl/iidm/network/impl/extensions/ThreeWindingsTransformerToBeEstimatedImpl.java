@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated;
 
@@ -50,7 +51,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
-    public boolean shouldEstimateRatioTapChanger(ThreeWindingsTransformer.Side side) {
+    public boolean shouldEstimateRatioTapChanger(ThreeSides side) {
         switch (side) {
             case ONE:
                 return rtc1Status;
@@ -78,7 +79,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
-    public boolean shouldEstimatePhaseTapChanger(ThreeWindingsTransformer.Side side) {
+    public boolean shouldEstimatePhaseTapChanger(ThreeSides side) {
         switch (side) {
             case ONE:
                 return ptc1Status;
@@ -109,7 +110,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger(boolean toBeEstimated, ThreeSides side) {
         switch (side) {
             case ONE:
                 rtc1Status = toBeEstimated;
@@ -145,7 +146,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger(boolean toBeEstimated, ThreeSides side) {
         switch (side) {
             case ONE:
                 ptc1Status = toBeEstimated;

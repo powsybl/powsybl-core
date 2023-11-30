@@ -18,17 +18,17 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     }
 
     @Override
-    public void visitLine(Line line, Branch.Side side) {
+    public void visitLine(Line line, TwoSides side) {
         // empty default implementation
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
         // empty default implementation
     }
 
     @Override
-    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
         // empty default implementation
     }
 
