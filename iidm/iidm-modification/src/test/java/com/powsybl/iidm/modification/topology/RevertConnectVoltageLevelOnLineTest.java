@@ -8,10 +8,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -22,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-class RevertConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
+class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
 
     @Test
     void revertConnectVoltageLevelOnLineNbTest() throws IOException {
@@ -87,8 +85,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
                 .withLineId("CJ")
                 .build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/fictitious-revert-connect-voltage-level-on-line-vl.xml");
+        roundTripXmlTest(network, "/fictitious-revert-connect-voltage-level-on-line-vl.xml");
         testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-nb-report.txt");
     }
 
@@ -109,8 +106,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
                 .withLineId("NHV1_NHV2_1")
                 .build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-revert-connect-voltage-level-on-line-nb-vl.xml");
+        roundTripXmlTest(network, "/eurostag-revert-connect-voltage-level-on-line-nb-vl.xml");
         testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-bb-nb-report.txt");
     }
 
@@ -131,8 +127,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
                 .withLineId("NHV1_NHV2_1")
                 .build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-revert-connect-voltage-level-on-line-bb-vl.xml");
+        roundTripXmlTest(network, "/eurostag-revert-connect-voltage-level-on-line-bb-vl.xml");
         testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-bb-report.txt");
     }
 

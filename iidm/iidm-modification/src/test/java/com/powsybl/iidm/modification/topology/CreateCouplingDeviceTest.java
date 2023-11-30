@@ -8,13 +8,11 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -24,14 +22,13 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testReporter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-class CreateCouplingDeviceTest extends AbstractSerDeTest {
+class CreateCouplingDeviceTest extends AbstractModificationTest {
 
     @Test
     void createCouplingDevice2BusbarSectionsSameSectionIndex() throws IOException {
@@ -42,8 +39,7 @@ class CreateCouplingDeviceTest extends AbstractSerDeTest {
                 .withSwitchPrefixId("sw")
                 .build();
         couplingDeviceModif.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/testNetworkNodeBreakerWithCouplingDeviceSameSectionIndex.xml");
+        roundTripXmlTest(network, "/testNetworkNodeBreakerWithCouplingDeviceSameSectionIndex.xml");
     }
 
     @Test
@@ -54,8 +50,7 @@ class CreateCouplingDeviceTest extends AbstractSerDeTest {
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
         couplingDeviceModif.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/testNetworkNodeBreakerWithCouplingDeviceDifferentSectionIndex.xml");
+        roundTripXmlTest(network, "/testNetworkNodeBreakerWithCouplingDeviceDifferentSectionIndex.xml");
     }
 
     @Test
@@ -98,8 +93,7 @@ class CreateCouplingDeviceTest extends AbstractSerDeTest {
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/testNetworkNodeBreakerWithCouplingDeviceWithoutExtensions.xml");
+        roundTripXmlTest(network, "/testNetworkNodeBreakerWithCouplingDeviceWithoutExtensions.xml");
     }
 
     @Test
@@ -110,8 +104,7 @@ class CreateCouplingDeviceTest extends AbstractSerDeTest {
                 .withBusOrBusbarSectionId2("VLTEST23")
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/testNetwork3BusbarSectionsWithCouplingDevice.xiidm");
+        roundTripXmlTest(network, "/testNetwork3BusbarSectionsWithCouplingDevice.xiidm");
     }
 
     @Test
@@ -123,8 +116,7 @@ class CreateCouplingDeviceTest extends AbstractSerDeTest {
                 .build();
         modification.apply(network);
 
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/network_test_bus_breaker_with_coupling_device.xiidm");
+        roundTripXmlTest(network, "/network_test_bus_breaker_with_coupling_device.xiidm");
     }
 
     @Test
