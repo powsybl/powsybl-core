@@ -69,6 +69,12 @@ class CgmesConformity3ConversionTest {
     }
 
     @Test
+    void microGridBaseCaseAssembled() {
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource());
+        checkExportSvTerminals(n);
+    }
+
+    @Test
     void microGridBaseCaseAssembledSeparatingByFilename() {
         Properties params = new Properties();
         params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "true");

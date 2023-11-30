@@ -68,6 +68,6 @@ public final class CgmesConformity3Catalog {
                         "20210325T1530Z_1D_ASSEMBLED_TP_001.xml",
                         "20210325T1530Z_1D_ASSEMBLED_SV_001.xml",
                         "20171002T0930Z_ENTSO-E_EQ_BD_2.xml" // We include the boundary explicitly
-                ));
+        ));
     }
 }
