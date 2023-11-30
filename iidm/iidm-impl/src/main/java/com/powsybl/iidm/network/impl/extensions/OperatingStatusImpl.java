@@ -23,7 +23,7 @@ public class OperatingStatusImpl<I extends Identifiable<I>> extends AbstractExte
     public OperatingStatusImpl(I identifiable, Status status) {
         super(identifiable);
         if (!OperatingStatus.isAllowedIdentifiable(identifiable)) {
-            throw new PowsyblException("Operating status extension is no allowed on identifiable type: " + identifiable.getType());
+            throw new PowsyblException("Operating status extension is not allowed on identifiable type: " + identifiable.getType());
         }
         this.status = status;
     }

@@ -12,6 +12,9 @@ import com.powsybl.iidm.network.Identifiable;
 import java.util.Objects;
 
 /**
+ *  An extension to describe the operating status of an equipment. This is typically used in addition to an equipment
+ *  disconnection (so using topological changes), to specify the reason of the disconnection: for instance a planned
+ *  outage.
  * `Identifiable` is needed as generic type because we also have to support HVDC lines which are not `Connectable`
  * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */

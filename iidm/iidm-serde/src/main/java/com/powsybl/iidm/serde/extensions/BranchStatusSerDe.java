@@ -16,6 +16,9 @@ import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 
 /**
+ * This deserializer is only kept for backward compatibility, to be able to still read an old IIDM serialized file
+ * containing the branch status extension.
+ *
  * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
@@ -29,7 +32,7 @@ public class BranchStatusSerDe<C extends Connectable<C>> extends AbstractExtensi
 
     @Override
     public void write(OperatingStatus<C> branchStatus, SerializerContext context) {
-        throw new UnsupportedOperationException("This is a deprecated extension (replaced by `OperatingStatus`) and it should be never written anymore");
+        throw new UnsupportedOperationException("This is a deprecated extension (replaced by `OperatingStatus`) and it should never be written anymore");
     }
 
     @Override
