@@ -39,46 +39,46 @@ public abstract class AbstractSerDeTest {
         fileSystem.close();
     }
 
-    protected <T> T roundTripXmlTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> out, Function<Path, T> in, String ref) throws IOException {
-        return roundTripTest(data, transformer, out, in, ComparisonUtils::compareXml, ref);
+    protected <T> T roundTripXmlTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read, String ref) throws IOException {
+        return roundTripTest(data, transformer, write, read, ComparisonUtils::compareXml, ref);
     }
 
-    protected <T> T roundTripTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, String ref) throws IOException {
-        return roundTripTest(data, out, in, ComparisonUtils::compareTxt, ref);
+    protected <T> T roundTripTest(T data, BiConsumer<T, Path> write, Function<Path, T> read, String ref) throws IOException {
+        return roundTripTest(data, write, read, ComparisonUtils::compareTxt, ref);
     }
 
-    protected <T> Path writeXmlTest(T data, BiConsumer<T, Path> out, String ref) throws IOException {
-        return writeTest(data, out, ComparisonUtils::compareXml, ref);
+    protected <T> Path writeXmlTest(T data, BiConsumer<T, Path> write, String ref) throws IOException {
+        return writeTest(data, write, ComparisonUtils::compareXml, ref);
     }
 
-    protected <T> Path writeTest(T data, BiConsumer<T, Path> out, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
+    protected <T> Path writeTest(T data, BiConsumer<T, Path> write, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
         Path xmlFile = tmpDir.resolve("data");
-        out.accept(data, xmlFile);
+        write.accept(data, xmlFile);
         try (InputStream is = Files.newInputStream(xmlFile)) {
             compare.accept(getClass().getResourceAsStream(ref), is);
         }
         return xmlFile;
     }
 
-    protected <T> T roundTripTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
-        return roundTripTest(data, (t, p) -> t, out, in, compare, ref);
+    protected <T> T roundTripTest(T data, BiConsumer<T, Path> write, Function<Path, T> read, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
+        return roundTripTest(data, (t, p) -> t, write, read, compare, ref);
     }
 
-    protected <T> T roundTripTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> out, Function<Path, T> in, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
+    protected <T> T roundTripTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
         // Transform the data (used for cascading round trips)
         Path transformFile = tmpDir.resolve("data");
         T transformedData = transformer.apply(data, transformFile);
 
         // Export the data and check the result with the reference
-        Path xmlFile = writeTest(transformedData, out, compare, ref);
+        Path xmlFile = writeTest(transformedData, write, compare, ref);
         try (InputStream is1 = Files.newInputStream(xmlFile)) {
             compare.accept(getClass().getResourceAsStream(ref), is1);
         }
 
         // Read the exported data, export the retrieved data and check the result with the reference
-        T data2 = in.apply(xmlFile);
+        T data2 = read.apply(xmlFile);
         Path xmlFile2 = tmpDir.resolve("data2");
-        out.accept(data2, xmlFile2);
+        write.accept(data2, xmlFile2);
         try (InputStream is2 = Files.newInputStream(xmlFile2)) {
             compare.accept(getClass().getResourceAsStream(ref), is2);
         }
