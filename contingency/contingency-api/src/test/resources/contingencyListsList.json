@@ -139,5 +139,27 @@
         } ]
       } ]
     } ]
+  }, {
+    "type" : "identifier",
+    "name" : "identifierlist",
+    "version" : "1.2",
+    "identifiers" : [ {
+      "type" : "VOLTAGE_LEVELS_AND_ORDER",
+      "contingencyId" : "contingency1",
+      "voltageLevelId1" : "VL1",
+      "voltageLevelId2" : "VL2",
+      "order" : "1"
+    }, {
+      "type" : "ID_BASED",
+      "contingencyId" : "contingency2",
+      "identifier" : "identifier"
+    }, {
+      "type" : "LIST",
+      "contingencyId" : "contingency3",
+      "identifierList" : [ {
+        "type" : "ID_BASED",
+        "identifier" : "identifier2"
+      } ]
+    } ]
   } ]
 }

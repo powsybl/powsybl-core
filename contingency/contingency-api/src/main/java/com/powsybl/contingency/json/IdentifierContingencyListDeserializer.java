@@ -34,12 +34,11 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
         String name = null;
         String version = null;
         List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
-
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version" -> {
                     version = parser.nextTextValue();
-                    deserializationContext.setAttribute("version", version);
+                    deserializationContext.setAttribute("identifierListVersion", version);
                 }
                 case "identifiableType" -> {
                     JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType", version, "1.0");

@@ -1,7 +1,7 @@
 {
-  "version" : "1.0",
   "type" : "identifier",
   "name" : "list1",
+  "version" : "1.0",
   "identifiableType" : "type",
   "identifiers" : [ {
     "type" : "ID_BASED",

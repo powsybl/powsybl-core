@@ -30,14 +30,11 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
     @Override
     public ListOfContingencyLists deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
-        String version;
         List<ContingencyList> contingencyLists = Collections.emptyList();
-
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version" -> {
-                    version = parser.nextTextValue();
-                    deserializationContext.setAttribute("version", version);
+                    deserializationContext.setAttribute("version", parser.nextTextValue());
                 }
                 case "name" -> name = parser.nextTextValue();
                 case "type" -> parser.nextToken();

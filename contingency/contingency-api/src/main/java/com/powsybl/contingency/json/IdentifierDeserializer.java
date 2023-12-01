@@ -37,7 +37,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         String voltageLevelId1 = null;
         String voltageLevelId2 = null;
         String contingencyId = null;
-        String version = (String) deserializationContext.getAttribute("version");
+        String version = (String) deserializationContext.getAttribute("identifierListVersion");
         List<NetworkElementIdentifier> networkElementIdentifierList = Collections.emptyList();
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
