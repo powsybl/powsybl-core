@@ -150,27 +150,10 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         }
     }
 
-
     private static IidmVersion[] allPreviousVersions(IidmVersion maxVersionExcluded) {
         return Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(maxVersionExcluded) < 0)
                 .toArray(IidmVersion[]::new);
-    }
-
-    /**
-     * @deprecated Use {@link #roundTripVersionedXmlTest(String, IidmVersion...)} instead.
-     */
-    @Deprecated
-    protected void roundTripVersionnedXmlTest(String file, IidmVersion... versions) throws IOException {
-        roundTripVersionedXmlTest(file, versions);
-    }
-
-    /**
-     * @deprecated Use {@link #roundTripAllVersionedXmlTest(String)} instead.
-     */
-    @Deprecated
-    protected void roundTripAllVersionnedXmlTest(String file) throws IOException {
-        roundTripAllVersionedXmlTest(file);
     }
 
     /**
