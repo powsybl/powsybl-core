@@ -88,11 +88,11 @@ public class CgmesExport implements Exporter {
         }
         ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, countryName, importer, params);
 
-        CgmesExportContext context = new CgmesExportContext(
-                network,
-                referenceDataProvider,
-                NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)),
-                Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER, defaultValueConfig))
+        String uuidNamespace = Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER, defaultValueConfig);
+        NamingStrategy namingStrategy = NamingStrategyFactory.create(
+                Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig),
+                uuidNamespace);
+        CgmesExportContext context = new CgmesExportContext(network, referenceDataProvider, namingStrategy, uuidNamespace)
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))

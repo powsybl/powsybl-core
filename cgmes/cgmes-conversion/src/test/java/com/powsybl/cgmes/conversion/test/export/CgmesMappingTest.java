@@ -46,10 +46,10 @@ class CgmesMappingTest extends AbstractSerDeTest {
 
     @Test
     void testExplicitMappingConstructors() {
-        AbstractCgmesAliasNamingStrategy nss = new SimpleCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
-        assertEquals("uuid1", nss.getCgmesId("1", DEFAULT_UUID_NAMESPACE));
-        AbstractCgmesAliasNamingStrategy nsf = new FixedCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
-        assertEquals("uuid1", nsf.getCgmesId("1", DEFAULT_UUID_NAMESPACE));
+        AbstractCgmesAliasNamingStrategy nss = new SimpleCgmesAliasNamingStrategy(Map.of("uuid1", "1"), DEFAULT_UUID_NAMESPACE);
+        assertEquals("uuid1", nss.getCgmesId("1"));
+        AbstractCgmesAliasNamingStrategy nsf = new FixedCgmesAliasNamingStrategy(Map.of("uuid1", "1"), DEFAULT_UUID_NAMESPACE);
+        assertEquals("uuid1", nsf.getCgmesId("1"));
     }
 
     @Test

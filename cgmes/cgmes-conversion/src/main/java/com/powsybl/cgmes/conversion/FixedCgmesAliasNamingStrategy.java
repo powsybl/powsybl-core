@@ -13,12 +13,12 @@ import java.util.Map;
  */
 public class FixedCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
 
-    public FixedCgmesAliasNamingStrategy() {
-        super();
+    public FixedCgmesAliasNamingStrategy(String uuidNamespace) {
+        super(uuidNamespace);
     }
 
-    public FixedCgmesAliasNamingStrategy(Map<String, String> idByUuid) {
-        super(idByUuid);
+    public FixedCgmesAliasNamingStrategy(Map<String, String> idByUuid, String uuidNamespace) {
+        super(idByUuid, uuidNamespace);
     }
 
     @Override

@@ -236,19 +236,19 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext(Network network) {
-        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY), DEFAULT_UUID_NAMESPACE);
+        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, DEFAULT_UUID_NAMESPACE), DEFAULT_UUID_NAMESPACE);
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider) {
-        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY), DEFAULT_UUID_NAMESPACE);
+        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, DEFAULT_UUID_NAMESPACE), DEFAULT_UUID_NAMESPACE);
     }
 
     public CgmesExportContext(Network network, String uuidNamespace) {
-        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY), uuidNamespace);
+        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, uuidNamespace), uuidNamespace);
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, String uuidNamespace) {
-        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY), uuidNamespace);
+        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, uuidNamespace), uuidNamespace);
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy,
@@ -325,7 +325,7 @@ public class CgmesExportContext {
             } else {
                 // Only add with this name if the id is not already mapped
                 // We can not have the same id mapped to two different names
-                String regionId = namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID, this.getUuidNamespace()); //TODO: does it work
+                String regionId = namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID);
                 regionName = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME);
                 if (!regionsIdsByRegionName.containsValue(regionId)) {
                     regionsIdsByRegionName.computeIfAbsent(regionName, k -> regionId);
@@ -341,7 +341,7 @@ public class CgmesExportContext {
                 String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> CgmesExportUtil.getUniqueId(geoTag, this.uuidNamespace)); // TODO DOES IT WORK
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID, id);
             } else {
-                subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID, this.uuidNamespace)); // TODO: does it work
+                subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID));
             }
         }
     }

@@ -95,12 +95,19 @@ public final class CgmesExportUtil {
                 || ENTSOE_BD_EXCEPTIONS_PATTERN2.matcher(id).matches();
     }
 
+    // FIXME(Luma) For easy testing while we work on moving to name-based UUIDs
+    private static final boolean XXX_USE_NAME_BASED_UUIDS = true;
+
     public static String getUniqueId(String name, String namespace) {
-        // Generate UUID based on namespace for stability
-        if (namespace == null) {
-            return Generators.nameBasedGenerator().generate(name).toString();
+        if (XXX_USE_NAME_BASED_UUIDS) {
+            // Generate UUID based on namespace for stability
+            if (namespace == null) {
+                return Generators.nameBasedGenerator().generate(name).toString();
+            } else {
+                return Generators.nameBasedGenerator(UUID.fromString(namespace)).generate(name).toString();
+            }
         } else {
-            return Generators.nameBasedGenerator(UUID.fromString(namespace)).generate(name).toString();
+            return UUID.randomUUID().toString();
         }
     }
 
@@ -435,7 +442,7 @@ public final class CgmesExportUtil {
             int sequenceNumber = getTerminalSequenceNumber(t, Collections.emptyList()); // never a dangling line here
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
-        return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType, context.getUuidNamespace());
+        return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
     }
 
     public static List<DanglingLine> getBoundaryDanglingLines(Network network) {
