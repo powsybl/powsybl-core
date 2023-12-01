@@ -96,6 +96,10 @@ public class CgmesExport implements Exporter {
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
+                .setExportLoadFlowStatus(Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig))
+                .setMaxPMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
+                .setMaxQMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
+                .setExportSvInjectionsForSlacks(Parameter.readBoolean(getFormat(), params, EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER, defaultValueConfig))
                 .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider))
@@ -232,6 +236,10 @@ public class CgmesExport implements Exporter {
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
     public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
+    public static final String EXPORT_LOAD_FLOW_STATUS = "iidm.export.cgmes.export-load-flow-status";
+    public static final String MAX_P_MISMATCH_CONVERGED = "iidm.export.cgmes.max-p-mismatch-converged";
+    public static final String MAX_Q_MISMATCH_CONVERGED = "iidm.export.cgmes.max-q-mismatch-converged";
+    public static final String EXPORT_SV_INJECTIONS_FOR_SLACKS = "iidm.export.cgmes.export-sv-injections-for-slacks";
     public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
     private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
     private static final String UUID_NAMESPACE = "iidm.export.cgmes.uuid-namespace";
@@ -306,6 +314,27 @@ public class CgmesExport implements Exporter {
             "Export transformers with highest voltage at end1",
             CgmesExportContext.EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE);
 
+    private static final Parameter EXPORT_LOAD_FLOW_STATUS_PARAMETER = new Parameter(
+            EXPORT_LOAD_FLOW_STATUS,
+            ParameterType.BOOLEAN,
+            "Export load flow status of topological islands",
+            CgmesExportContext.EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE);
+    private static final Parameter MAX_P_MISMATCH_CONVERGED_PARAMETER = new Parameter(
+            MAX_P_MISMATCH_CONVERGED,
+            ParameterType.DOUBLE,
+            "Max mismatch in active power to consider a bus converged when exporting load flow status of topological islands",
+            CgmesExportContext.MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE);
+    private static final Parameter MAX_Q_MISMATCH_CONVERGED_PARAMETER = new Parameter(
+            MAX_Q_MISMATCH_CONVERGED,
+            ParameterType.DOUBLE,
+            "Max mismatch in reactive power to consider a bus converged when exporting load flow status of topological islands",
+            CgmesExportContext.MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE);
+    private static final Parameter EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER = new Parameter(
+            EXPORT_SV_INJECTIONS_FOR_SLACKS,
+            ParameterType.BOOLEAN,
+            "Export SvInjections with the mismatch of slack buses",
+            CgmesExportContext.EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE);
+
     private static final Parameter UUID_NAMESPACE_PARAMETER = new Parameter(
             UUID_NAMESPACE,
             ParameterType.STRING,
@@ -325,6 +354,10 @@ public class CgmesExport implements Exporter {
             MODEL_DESCRIPTION_PARAMETER,
             EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER,
             SOURCING_ACTOR_PARAMETER,
+            EXPORT_LOAD_FLOW_STATUS_PARAMETER,
+            MAX_P_MISMATCH_CONVERGED_PARAMETER,
+            MAX_Q_MISMATCH_CONVERGED_PARAMETER,
+            EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER,
             UUID_NAMESPACE_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);

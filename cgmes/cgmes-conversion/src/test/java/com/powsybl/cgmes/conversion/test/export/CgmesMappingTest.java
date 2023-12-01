@@ -88,6 +88,7 @@ class CgmesMappingTest extends AbstractSerDeTest {
     void testExportUsingCgmesNamingStrategy(String namingStrategy, Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds, ReadOnlyDataSource originalDataSource) throws IOException {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, namingStrategy);
+        exportParams.put(CgmesExport.EXPORT_SV_INJECTIONS_FOR_SLACKS, "false");
         String outputFolder = "exportedCgmes" + baseName;
         DataSource exportedCgmes = tmpDataSource(outputFolder, baseName);
         network.write("CGMES", exportParams, exportedCgmes);

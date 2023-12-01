@@ -73,7 +73,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         Identifiable<?> busOrBbs1 = network.getIdentifiable(busOrBbsId1);
         Identifiable<?> busOrBbs2 = network.getIdentifiable(busOrBbsId2);
         if (failBbs(busOrBbs1, busOrBbs2, reporter, throwException)) {
@@ -98,15 +98,15 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             }
             return;
         }
-        if (switchPrefixId == null) {
-            switchPrefixId = voltageLevel1.getId();
-        }
         if (busOrBbs1 instanceof Bus && busOrBbs2 instanceof Bus) {
+            if (switchPrefixId == null) {
+                switchPrefixId = voltageLevel1.getId();
+            }
             // buses are identifiable: voltage level is BUS_BREAKER
-            createBusBreakerSwitch(busOrBbsId1, busOrBbsId2, switchPrefixId, "", voltageLevel1.getBusBreakerView());
+            createBusBreakerSwitch(busOrBbsId1, busOrBbsId2, namingStrategy.getSwitchId(switchPrefixId), voltageLevel1.getBusBreakerView());
         } else if (busOrBbs1 instanceof BusbarSection bbs1 && busOrBbs2 instanceof BusbarSection bbs2) {
             // busbar sections exist: voltage level is NODE_BREAKER
-            applyOnBusbarSections(voltageLevel1, voltageLevel2, bbs1, bbs2, reporter);
+            applyOnBusbarSections(voltageLevel1, voltageLevel2, bbs1, bbs2, namingStrategy, reporter);
         }
         LOGGER.info("New coupling device was added to voltage level {} between {} and {}", voltageLevel1.getId(), busOrBbs1, busOrBbs2);
         newCouplingDeviceAddedReport(reporter, voltageLevel1.getId(), busOrBbsId1, busOrBbsId2);
@@ -115,14 +115,17 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     /**
      * Apply the modification on the two specified busbar sections
      */
-    private void applyOnBusbarSections(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, BusbarSection bbs1, BusbarSection bbs2, Reporter reporter) {
+    private void applyOnBusbarSections(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, BusbarSection bbs1, BusbarSection bbs2, NamingStrategy namingStrategy, Reporter reporter) {
+        if (switchPrefixId == null) {
+            switchPrefixId = namingStrategy.getSwitchBaseId(voltageLevel1, bbs1, bbs2);
+        }
         // busbar sections exist: voltage level is NODE_BREAKER
         int breakerNode1 = voltageLevel1.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int breakerNode2 = breakerNode1 + 1;
         int nbOpenDisconnectors = 0;
 
         // Breaker
-        createNBBreaker(breakerNode1, breakerNode2, "", switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
+        createNBBreaker(breakerNode1, breakerNode2, namingStrategy.getBreakerId(switchPrefixId), voltageLevel1.getNodeBreakerView(), false);
 
         // Positions
         BusbarSectionPosition position1 = bbs1.getExtension(BusbarSectionPosition.class);
@@ -138,21 +141,21 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         if (position1 != null) {
 
             // List of the bars for the first section and creation of the topology
-            List<BusbarSection> bbsList1 = computeBbsListAndCreateTopology(voltageLevel1, position1, bbs1, bbsOnSameSection, breakerNode1, avoidLastBarOnFirstSide);
+            List<BusbarSection> bbsList1 = computeBbsListAndCreateTopology(voltageLevel1, bbs1, namingStrategy, bbsOnSameSection, breakerNode1, avoidLastBarOnFirstSide, 1);
 
             nbOpenDisconnectors += bbsList1.size() - 1;
         } else {
-            createDisconnectorTopology(voltageLevel1, breakerNode1, switchPrefixId, List.of(bbs1), bbs1);
+            createDisconnectorTopology(voltageLevel1, breakerNode1, namingStrategy, switchPrefixId, List.of(bbs1), bbs1);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs1.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs1);
         }
         if (position2 != null) {
             // List of the bars for the second section and creation of the topology
-            List<BusbarSection> bbsList2 = computeBbsListAndCreateTopology(voltageLevel2, position2, bbs2, bbsOnSameSection, breakerNode2, !avoidLastBarOnFirstSide);
+            List<BusbarSection> bbsList2 = computeBbsListAndCreateTopology(voltageLevel2, bbs2, namingStrategy, bbsOnSameSection, breakerNode2, !avoidLastBarOnFirstSide, 2);
 
             nbOpenDisconnectors += bbsList2.size() - 1;
         } else {
-            createDisconnectorTopology(voltageLevel2, breakerNode2, switchPrefixId, List.of(bbs2), bbs2);
+            createDisconnectorTopology(voltageLevel2, breakerNode2, namingStrategy, switchPrefixId, List.of(bbs2), bbs2);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs2.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs2);
         }
@@ -184,15 +187,18 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
      * Computes the list of the bars on which to connect the coupling device for the current side and creates the
      * disconnectors for the different parallel busbar sections.
      * @param voltageLevel Voltage level in which the busbar sections are located
-     * @param position Position of the current bar
      * @param bbs Current bar
+     * @param namingStrategy Naming strategy used to name the disconnectors created
      * @param bbsOnSameSection True if the two busbar sections are located on the same section
      * @param breakerNode Node on the current site of the breaker
      * @param avoidLastBar If true, the last bar will not be connected, if false the first one will not be connected.
+     * @param side Side of the coupling device on which to connect the bars
      * @return List of the busbar sections on which a connection was made
      */
-    private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSectionPosition position, BusbarSection bbs, boolean bbsOnSameSection, int breakerNode, boolean avoidLastBar) {
+    private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSection bbs, NamingStrategy namingStrategy, boolean bbsOnSameSection, int breakerNode, boolean avoidLastBar, int side) {
 
+        // Position of the bar
+        BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
         // List of the bars parallel to the given position
         List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
 
@@ -208,7 +214,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         }
 
         // Disconnectors
-        createDisconnectorTopology(voltageLevel, breakerNode, switchPrefixId, bbsList, bbs);
+        createDisconnectorTopology(voltageLevel, breakerNode, namingStrategy, switchPrefixId, bbsList, bbs, bbsOnSameSection ? side : 0);
         return bbsList;
     }
 
