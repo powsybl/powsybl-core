@@ -71,17 +71,13 @@ public abstract class AbstractSerDeTest {
 
         // Export the data and check the result with the reference
         Path xmlFile = writeTest(transformedData, write, compare, ref);
-        try (InputStream is1 = Files.newInputStream(xmlFile)) {
-            compare.accept(getClass().getResourceAsStream(ref), is1);
-        }
 
-        // Read the exported data, export the retrieved data and check the result with the reference
+        // Read the exported data
         T data2 = read.apply(xmlFile);
-        Path xmlFile2 = tmpDir.resolve("data2");
-        write.accept(data2, xmlFile2);
-        try (InputStream is2 = Files.newInputStream(xmlFile2)) {
-            compare.accept(getClass().getResourceAsStream(ref), is2);
-        }
+
+        // Export the retrieved data and check the result with the reference
+        writeTest(data2, write, compare, ref);
+
         return data2;
     }
 
