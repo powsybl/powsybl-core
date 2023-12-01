@@ -65,7 +65,7 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
         Network network2 = roundTripXmlTest(network,
                                             NetworkSerDe::writeAndValidate,
                                             NetworkSerDe::read,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "/generatorEntsoeCategoryRef.xml");
+                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_VERSION) + "/generatorEntsoeCategoryRef.xml");
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);

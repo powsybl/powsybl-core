@@ -36,6 +36,6 @@ class TwoWindingsTransformerToBeEstimatedXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::validateAndRead,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "twoWindingsTransformerToBeEstimated.xiidm");
+                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_VERSION) + "twoWindingsTransformerToBeEstimated.xiidm");
     }
 }

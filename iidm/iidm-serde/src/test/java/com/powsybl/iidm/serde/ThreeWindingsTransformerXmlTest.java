@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Luma Zamarreno {@literal <zamarrenolm at aia.es>}
@@ -30,7 +30,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION));
     }
 
     @Test
@@ -60,7 +60,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION));
     }
 
     private void createPtc(PhaseTapChangerAdder adder) {

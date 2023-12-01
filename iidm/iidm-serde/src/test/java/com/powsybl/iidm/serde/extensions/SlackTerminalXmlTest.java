@@ -22,7 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.Properties;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -89,7 +89,7 @@ class SlackTerminalXmlTest extends AbstractSerDeTest {
             NetworkSerDe::writeAndValidate,
             NetworkSerDe::read,
             ComparisonUtils::compareXml,
-            getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
+            getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION));
 
         VoltageLevel vl2 = network2.getVoltageLevel(voltageLevelId);
         assertNotNull(vl2);
