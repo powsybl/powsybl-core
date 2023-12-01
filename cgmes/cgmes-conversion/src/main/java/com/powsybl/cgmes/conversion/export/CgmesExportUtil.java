@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.fasterxml.uuid.Generators;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
@@ -95,7 +96,9 @@ public final class CgmesExportUtil {
     }
 
     public static String getUniqueId(String name, String namespace) {
-        return UuidGenerator.generateType5Uuid(namespace, name).toString();
+        // Generate UUID based on namespace for stability
+        return Generators.nameBasedGenerator(UUID.fromString(namespace)).generate(name).toString();
+
     }
 
     public static void writeRdfRoot(String cimNamespace, String euPrefix, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
