@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -60,19 +59,8 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         });
 
         // check that it doesn't fail for versions previous to 1.2 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmVersion.V_1_3, version -> {
-            try {
-                writeXmlTest(network, (n, p) -> write(n, p, version), getVersionedNetworkPath("nonLinearShuntRoundTripRef.xml", version));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-    }
-
-    private static void write(Network network, Path path, IidmVersion version) {
-        ExportOptions options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR)
-                .setVersion(version.toString("."));
-        NetworkSerDe.write(network, options, path);
+        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
+        testWriteXmlAllPreviousVersions(network, options, "nonLinearShuntRoundTripRef.xml", IidmVersion.V_1_3);
     }
 
     @Test

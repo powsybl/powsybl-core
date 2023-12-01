@@ -81,9 +81,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * strictly older than the current IIDM version.
      */
     protected void roundTripAllPreviousVersionedXmlTest(String file) throws IOException {
-        roundTripVersionedXmlTest(file, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(CURRENT_IIDM_VERSION) < 0)
-                .toArray(IidmVersion[]::new));
+        roundTripVersionedXmlTest(file, allPreviousVersions(CURRENT_IIDM_VERSION));
     }
 
     /**
@@ -91,9 +89,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * strictly older than the current IIDM version.
      */
     protected void roundTripAllPreviousVersionedJsonTest(String file) throws IOException {
-        roundTripVersionedJsonTest(file, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(CURRENT_IIDM_VERSION) < 0)
-                .toArray(IidmVersion[]::new));
+        roundTripVersionedJsonTest(file, allPreviousVersions(CURRENT_IIDM_VERSION));
     }
 
     /**
@@ -130,6 +126,35 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(maxVersion) < 0)
                 .forEach(test);
+    }
+
+    /**
+     * Execute a write test for the given network, for all IIDM versions strictly older than a given maximum IIDM
+     * version, and compare to the given versioned xml reference test resource.
+     */
+    protected void testWriteXmlAllPreviousVersions(Network network, ExportOptions exportOptions, String filename,
+                                                   IidmVersion maxVersionExcluded) throws IOException {
+        testWriteVersionedXml(network, exportOptions, filename, allPreviousVersions(maxVersionExcluded));
+    }
+
+    /**
+     * Execute a write test for the given network, for all IIDM versions given, and compare to the given versioned xml
+     * reference test resource.
+     */
+    protected void testWriteVersionedXml(Network network, ExportOptions exportOptions, String filename,
+                                                   IidmVersion... versions) throws IOException {
+        for (IidmVersion version : versions) {
+            writeXmlTest(network,
+                    (n, p) -> NetworkSerDe.write(n, exportOptions.setVersion(version.toString(".")), p),
+                    getVersionedNetworkPath(filename, version));
+        }
+    }
+
+
+    private static IidmVersion[] allPreviousVersions(IidmVersion maxVersionExcluded) {
+        return Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(maxVersionExcluded) < 0)
+                .toArray(IidmVersion[]::new);
     }
 
     /**
