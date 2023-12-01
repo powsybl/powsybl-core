@@ -155,7 +155,6 @@ class CgmesMappingTest extends AbstractSerDeTest {
         }
         Collection<Diff> notExpected = diffs.stream().filter(d -> !knownErrorsSubstationsIds.contains(d.substationId)).collect(Collectors.toList());
         if (notExpected.size() > 0) {
-            System.out.println("differences found and not previously known:");
             notExpected.forEach(d -> LOG.error(d.toString()));
             fail();
         }

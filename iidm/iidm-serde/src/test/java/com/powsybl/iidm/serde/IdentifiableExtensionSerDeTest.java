@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -69,7 +69,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(MultipleExtensionsTestNetworkFactory.create(),
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("multiple-extensions.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("multiple-extensions.xml", CURRENT_IIDM_VERSION));
 
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("multiple-extensions.xml");
@@ -139,7 +139,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         Network network2 = roundTripXmlTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(),
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_VERSION));
         Load loadXml = network2.getLoad("LOAD");
         TerminalMockExt terminalMockExtXml = loadXml.getExtension(TerminalMockExt.class);
         assertNotNull(terminalMockExtXml);

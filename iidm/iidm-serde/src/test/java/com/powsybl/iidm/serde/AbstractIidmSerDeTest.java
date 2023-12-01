@@ -17,7 +17,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -83,7 +83,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     protected void roundTripAllPreviousVersionedXmlTest(String file) throws IOException {
         roundTripVersionedXmlTest(file, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(CURRENT_IIDM_XML_VERSION) < 0)
+                .filter(v -> v.compareTo(CURRENT_IIDM_VERSION) < 0)
                 .toArray(IidmVersion[]::new));
     }
 
@@ -93,7 +93,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     protected void roundTripAllPreviousVersionedJsonTest(String file) throws IOException {
         roundTripVersionedJsonTest(file, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(CURRENT_IIDM_XML_VERSION) < 0)
+                .filter(v -> v.compareTo(CURRENT_IIDM_VERSION) < 0)
                 .toArray(IidmVersion[]::new));
     }
 
@@ -103,7 +103,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     protected void roundTripVersionedXmlFromMinToCurrentVersionTest(String file, IidmVersion minVersion) throws IOException {
         roundTripVersionedXmlTest(file, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_XML_VERSION) < 0)
+                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_VERSION) < 0)
                 .toArray(IidmVersion[]::new));
     }
 
@@ -113,7 +113,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     protected void roundTripVersionedJsonFromMinToCurrentVersionTest(String file, IidmVersion minVersion) throws IOException {
         roundTripVersionedJsonTest(file, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_XML_VERSION) < 0)
+                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_VERSION) < 0)
                 .toArray(IidmVersion[]::new));
     }
 

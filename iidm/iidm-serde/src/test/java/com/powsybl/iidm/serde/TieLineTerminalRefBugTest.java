@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
@@ -20,6 +20,6 @@ class TieLineTerminalRefBugTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
-        assertDoesNotThrow(() -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("tieLineTerminalRefBug.xml", CURRENT_IIDM_XML_VERSION))));
+        assertDoesNotThrow(() -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("tieLineTerminalRefBug.xml", CURRENT_IIDM_VERSION))));
     }
 }

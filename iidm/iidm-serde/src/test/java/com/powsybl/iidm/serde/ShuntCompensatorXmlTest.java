@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -34,7 +34,7 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("shuntRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("shuntRoundTripRef.xml", CURRENT_IIDM_VERSION));
 
         // backward compatibility
         roundTripVersionedXmlFromMinToCurrentVersionTest("shuntRoundTripRef.xml", IidmVersion.V_1_2);
@@ -48,7 +48,7 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_VERSION));
 
         // backward compatibility from version 1.2
         roundTripVersionedXmlFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmVersion.V_1_3);

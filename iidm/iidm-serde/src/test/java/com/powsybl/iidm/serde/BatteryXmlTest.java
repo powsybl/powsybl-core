@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -23,7 +23,7 @@ class BatteryXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(BatteryNetworkFactory.create(),
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("batteryRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("batteryRoundTripRef.xml", CURRENT_IIDM_VERSION));
 
         //backward compatibility
         roundTripAllPreviousVersionedXmlTest("batteryRoundTripRef.xml");

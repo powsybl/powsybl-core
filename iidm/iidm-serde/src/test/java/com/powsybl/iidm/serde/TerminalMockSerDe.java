@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionDir;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -64,7 +64,7 @@ public class TerminalMockSerDe extends AbstractVersionableNetworkExtensionSerDe<
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "xsd/terminalMock.xsd");
+        return getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_VERSION) + "xsd/terminalMock.xsd");
     }
 
     @Override
