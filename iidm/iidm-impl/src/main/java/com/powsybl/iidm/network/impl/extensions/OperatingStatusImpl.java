@@ -6,32 +6,35 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.BranchStatus;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
 
 import java.util.Objects;
 
 /**
  * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
-public class BranchStatusImpl<C extends Connectable<C>> extends AbstractExtension<C> implements BranchStatus<C> {
+public class OperatingStatusImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements OperatingStatus<I> {
 
     private Status status;
 
-    public BranchStatusImpl(C branch, Status branchStatus) {
-        super(branch);
-        this.status = branchStatus;
+    public OperatingStatusImpl(I identifiable, Status status) {
+        super(identifiable);
+        if (!OperatingStatus.isAllowedIdentifiable(identifiable)) {
+            throw new PowsyblException("Operating status extension is not allowed on identifiable type: " + identifiable.getType());
+        }
+        this.status = status;
     }
 
     public Status getStatus() {
         return status;
     }
 
-    public BranchStatus<C> setStatus(Status branchStatus) {
+    public OperatingStatus<I> setStatus(Status branchStatus) {
         Objects.requireNonNull(branchStatus);
         this.status = branchStatus;
         return this;
     }
-
 }

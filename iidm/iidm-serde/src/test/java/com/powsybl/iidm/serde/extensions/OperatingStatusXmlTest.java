@@ -8,21 +8,20 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.BranchStatus;
-import com.powsybl.iidm.network.impl.extensions.BranchStatusImpl;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
+import com.powsybl.iidm.network.impl.extensions.OperatingStatusImpl;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
-class BranchStatusXmlTest extends AbstractSerDeTest {
+class OperatingStatusXmlTest extends AbstractSerDeTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -68,22 +67,32 @@ class BranchStatusXmlTest extends AbstractSerDeTest {
         // extend line
         Line line = network.getLine("L");
         assertNotNull(line);
-        BranchStatus<Line> lineBranchStatus = new BranchStatusImpl<>(line,
-                BranchStatus.Status.PLANNED_OUTAGE);
-        line.addExtension(BranchStatus.class, lineBranchStatus);
+        OperatingStatus<Line> lineOperatingStatus = new OperatingStatusImpl<>(line,
+                OperatingStatus.Status.PLANNED_OUTAGE);
+        line.addExtension(OperatingStatus.class, lineOperatingStatus);
 
         Network network2 = roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                "/branchStatusRef.xml");
+                "/operatingStatusRef.xml");
 
         Line line2 = network2.getLine("L");
         assertNotNull(line2);
-        BranchStatus lineBranchStatus2 = line2.getExtension(BranchStatus.class);
-        assertNotNull(lineBranchStatus2);
-        assertEquals(lineBranchStatus.getStatus(), lineBranchStatus2.getStatus());
+        OperatingStatus<Line> lineOperatingStatus2 = line2.getExtension(OperatingStatus.class);
+        assertNotNull(lineOperatingStatus2);
+        assertEquals(lineOperatingStatus.getStatus(), lineOperatingStatus2.getStatus());
 
-        lineBranchStatus2.setStatus(BranchStatus.Status.IN_OPERATION);
-        assertEquals(BranchStatus.Status.IN_OPERATION, lineBranchStatus2.getStatus());
+        lineOperatingStatus2.setStatus(OperatingStatus.Status.IN_OPERATION);
+        assertEquals(OperatingStatus.Status.IN_OPERATION, lineOperatingStatus2.getStatus());
+    }
+
+    @Test
+    void branchStatusCompatibilityTest() {
+        Network network = NetworkSerDe.read(getClass().getResourceAsStream("/branchStatusRef.xml"));
+        Line line = network.getLine("L");
+        assertNotNull(line);
+        OperatingStatus<Line> operatingStatus = line.getExtension(OperatingStatus.class);
+        assertNotNull(operatingStatus);
+        assertSame(OperatingStatus.Status.PLANNED_OUTAGE, operatingStatus.getStatus());
     }
 }
