@@ -44,12 +44,32 @@ public class MatpowerExporter implements Exporter {
     private static final String V_PROP = "v";
     private static final String ANGLE_PROP = "angle";
 
-    public static final String WITH_BUS_NAMES = "matpower.export.with-bus-names";
+    public static final String WITH_BUS_NAMES_PARAMETER_NAME = "matpower.export.with-bus-names";
+    public static final String MAX_GENERATOR_ACTIVE_POWER_LIMIT_PARAMETER_NAME = "matpower.export.max-generator-active-power-limit";
+    public static final String MAX_GENERATOR_REACTIVE_POWER_LIMIT_PARAMETER_NAME = "matpower.export.max-generator-reactive-power-limit";
 
-    private static final Parameter WITH_BUS_NAMES_PARAMETER
-            = new Parameter(WITH_BUS_NAMES, ParameterType.BOOLEAN, "Export bus names", false);
+    private static final boolean WITH_BUS_NAMES_DEFAULT_VALUE = false;
+    private static final double MAX_GENERATOR_ACTIVE_POWER_LIMIT_DEFAULT_VALUE = 10000;
+    private static final double MAX_GENERATOR_REACTIVE_POWER_LIMIT_DEFAULT_VALUE = 10000;
 
-    private static final List<Parameter> PARAMETERS = List.of(WITH_BUS_NAMES_PARAMETER);
+    private static final Parameter WITH_BUS_NAMES_PARAMETER = new Parameter(WITH_BUS_NAMES_PARAMETER_NAME,
+                                                                            ParameterType.BOOLEAN,
+                                                                            "Export bus names",
+                                                                            WITH_BUS_NAMES_DEFAULT_VALUE);
+    private static final Parameter MAX_GENERATOR_ACTIVE_POWER_LIMIT_PARAMETER
+            = new Parameter(MAX_GENERATOR_ACTIVE_POWER_LIMIT_PARAMETER_NAME,
+                            ParameterType.DOUBLE,
+                            "Max generator active power limit to export",
+                            MAX_GENERATOR_ACTIVE_POWER_LIMIT_DEFAULT_VALUE);
+    private static final Parameter MAX_GENERATOR_REACTIVE_POWER_LIMIT_PARAMETER
+            = new Parameter(MAX_GENERATOR_REACTIVE_POWER_LIMIT_PARAMETER_NAME,
+                            ParameterType.DOUBLE,
+                            "Max generator reactive power limit to export",
+                            MAX_GENERATOR_REACTIVE_POWER_LIMIT_DEFAULT_VALUE);
+
+    private static final List<Parameter> PARAMETERS = List.of(WITH_BUS_NAMES_PARAMETER,
+                                                              MAX_GENERATOR_ACTIVE_POWER_LIMIT_PARAMETER,
+                                                              MAX_GENERATOR_REACTIVE_POWER_LIMIT_PARAMETER);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -101,6 +121,10 @@ public class MatpowerExporter implements Exporter {
 
     static class Context {
 
+        private final double maxGeneratorActivePowerLimit;
+
+        private final double maxGeneratorReactivePowerLimit;
+
         String refBusId;
 
         int num = 1;
@@ -108,6 +132,11 @@ public class MatpowerExporter implements Exporter {
         final Map<String, Integer> mBusesNumbersByIds = new HashMap<>();
 
         final List<String> generatorIdsConvertedToLoad = new ArrayList<>();
+
+        public Context(double maxGeneratorActivePowerLimit, double maxGeneratorReactivePowerLimit) {
+            this.maxGeneratorActivePowerLimit = maxGeneratorActivePowerLimit;
+            this.maxGeneratorReactivePowerLimit = maxGeneratorReactivePowerLimit;
+        }
     }
 
     private static boolean isExported(Bus bus) {
@@ -547,10 +576,10 @@ public class MatpowerExporter implements Exporter {
                     mGen.setRealPowerOutput(g.getTargetP());
                     mGen.setReactivePowerOutput(g.getTargetQ());
                     mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulationOn() ? g.getTargetV() / vl.getNominalV() : 0);
-                    mGen.setMinimumRealPowerOutput(g.getMinP());
-                    mGen.setMaximumRealPowerOutput(g.getMaxP());
-                    mGen.setMinimumReactivePowerOutput(g.getReactiveLimits().getMinQ(g.getTargetP()));
-                    mGen.setMaximumReactivePowerOutput(g.getReactiveLimits().getMaxQ(g.getTargetP()));
+                    mGen.setMinimumRealPowerOutput(Math.max(g.getMinP(), -context.maxGeneratorActivePowerLimit));
+                    mGen.setMaximumRealPowerOutput(Math.min(g.getMaxP(), context.maxGeneratorActivePowerLimit));
+                    mGen.setMinimumReactivePowerOutput(Math.max(g.getReactiveLimits().getMinQ(g.getTargetP()), -context.maxGeneratorReactivePowerLimit));
+                    mGen.setMaximumReactivePowerOutput(Math.min(g.getReactiveLimits().getMaxQ(g.getTargetP()), context.maxGeneratorReactivePowerLimit));
                     model.addGenerator(mGen);
                 }
             }
@@ -622,7 +651,7 @@ public class MatpowerExporter implements Exporter {
                 double minQ = vsc.getReactiveLimits().getMinQ(targetP); // approximation
                 double maxQ = vsc.getReactiveLimits().getMaxQ(targetP); // approximation
                 boolean voltageRegulation = vsc.isVoltageRegulatorOn();
-                double maxP = vsc.getHvdcLine().getMaxP();
+                double maxP = vsc.getHvdcLine() != null ? vsc.getHvdcLine().getMaxP() : Double.MAX_VALUE;
                 addMgen(model, context, bus, vl, id, targetV, targetP, -maxP, maxP, targetQ, minQ,
                         maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
@@ -664,10 +693,10 @@ public class MatpowerExporter implements Exporter {
                 // are activated in Matpower power flow
                 mGen.setVoltageMagnitudeSetpoint(0);
             }
-            mGen.setMinimumRealPowerOutput(minP);
-            mGen.setMaximumRealPowerOutput(maxP);
-            mGen.setMinimumReactivePowerOutput(minQ);
-            mGen.setMaximumReactivePowerOutput(maxQ);
+            mGen.setMinimumRealPowerOutput(Math.max(minP, -context.maxGeneratorActivePowerLimit));
+            mGen.setMaximumRealPowerOutput(Math.min(maxP, context.maxGeneratorActivePowerLimit));
+            mGen.setMinimumReactivePowerOutput(Math.max(minQ, -context.maxGeneratorReactivePowerLimit));
+            mGen.setMaximumReactivePowerOutput(Math.min(maxQ, context.maxGeneratorReactivePowerLimit));
             mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
             model.addGenerator(mGen);
         }
@@ -706,12 +735,14 @@ public class MatpowerExporter implements Exporter {
         Objects.requireNonNull(reporter);
 
         boolean withBusNames = Parameter.readBoolean(getFormat(), parameters, WITH_BUS_NAMES_PARAMETER, defaultValueConfig);
+        double maxGeneratorActivePower = Parameter.readDouble(getFormat(), parameters, MAX_GENERATOR_ACTIVE_POWER_LIMIT_PARAMETER, defaultValueConfig);
+        double maxGeneratorReactivePower = Parameter.readDouble(getFormat(), parameters, MAX_GENERATOR_REACTIVE_POWER_LIMIT_PARAMETER, defaultValueConfig);
 
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
         model.setVersion(FORMAT_VERSION);
 
-        Context context = new Context();
+        Context context = new Context(maxGeneratorActivePower, maxGeneratorReactivePower);
         boolean hasSlack = network.getBusView().getBusStream().anyMatch(MatpowerExporter::hasSlackExtension);
         if (!hasSlack) {
             context.refBusId = network.getBusView().getBusStream()

@@ -14,6 +14,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -51,7 +52,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
 
     private void exportToMatAndCompareTo(Network network, String refJsonFile) throws IOException {
         Properties parameters = new Properties();
-        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES, "true");
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "true");
         exportToMatAndCompareTo(network, refJsonFile, parameters);
     }
 
@@ -74,10 +75,21 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testEsgTuto1WithoutActivePowerLimit() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        Generator gen = network.getGenerator("GEN");
+        gen.newMinMaxReactiveLimits()
+                .setMinQ(-Double.MAX_VALUE)
+                .setMaxQ(Double.MAX_VALUE)
+                .add();
+        exportToMatAndCompareTo(network, "/sim1-without-active-power-limit.json");
+    }
+
+    @Test
     void testEsgTuto1WithoutBusNames() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
         Properties parameters = new Properties();
-        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES, "false");
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "false");
         exportToMatAndCompareTo(network, "/sim1-without-bus-names.json", parameters);
     }
 
