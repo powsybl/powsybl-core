@@ -80,11 +80,36 @@ public final class NetworkSerDe {
     private static final Supplier<ExtensionProviders<ExtensionSerDe>> EXTENSIONS_SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
 
+    private static final Supplier<Schema> SCHEMA_SUPPLIER = Suppliers.memoize(NetworkSerDe::createSchema);
+
     private NetworkSerDe() {
         ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME);
     }
 
-    private static void validate(Source xml, List<Source> additionalSchemas) {
+    public static void validate(InputStream is) {
+        Validator validator = SCHEMA_SUPPLIER.get().newValidator();
+        try {
+            validator.validate(new StreamSource(is));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (SAXException e) {
+            throw new UncheckedSaxException(e);
+        }
+    }
+
+    public static void validate(Path file) {
+        try (InputStream is = Files.newInputStream(file)) {
+            validate(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static Schema createSchema() {
+        List<Source> additionalSchemas = new ArrayList<>();
+        for (ExtensionSerDe<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+            e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
+        }
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
@@ -105,29 +130,9 @@ public final class NetworkSerDe {
             for (int k = 0; k < additionalSchemas.size(); k++) {
                 sources[k + length] = additionalSchemas.get(k);
             }
-            Schema schema = factory.newSchema(sources);
-            Validator validator = schema.newValidator();
-            validator.validate(xml);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            return factory.newSchema(sources);
         } catch (SAXException e) {
             throw new UncheckedSaxException(e);
-        }
-    }
-
-    public static void validate(InputStream is) {
-        List<Source> additionalSchemas = new ArrayList<>();
-        for (ExtensionSerDe<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
-            e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
-        }
-        validate(new StreamSource(is), additionalSchemas);
-    }
-
-    public static void validate(Path file) {
-        try (InputStream is = Files.newInputStream(file)) {
-            validate(is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
