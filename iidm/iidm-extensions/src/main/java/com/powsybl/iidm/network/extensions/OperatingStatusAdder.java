@@ -7,17 +7,17 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
-public interface BranchStatusAdder<C extends Connectable<C>> extends ExtensionAdder<C, BranchStatus<C>> {
+public interface OperatingStatusAdder<I extends Identifiable<I>> extends ExtensionAdder<I, OperatingStatus<I>> {
 
-    default Class<BranchStatus> getExtensionClass() {
-        return BranchStatus.class;
+    default Class<OperatingStatus> getExtensionClass() {
+        return OperatingStatus.class;
     }
 
-    BranchStatusAdder<C> withStatus(BranchStatus.Status branchStatus);
+    OperatingStatusAdder<I> withStatus(OperatingStatus.Status status);
 
 }
