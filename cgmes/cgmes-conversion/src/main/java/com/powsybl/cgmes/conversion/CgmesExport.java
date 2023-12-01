@@ -92,7 +92,7 @@ public class CgmesExport implements Exporter {
                 network,
                 referenceDataProvider,
                 NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)),
-                Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER))
+                Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER, defaultValueConfig))
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
@@ -338,8 +338,8 @@ public class CgmesExport implements Exporter {
     private static final Parameter UUID_NAMESPACE_PARAMETER = new Parameter(
             UUID_NAMESPACE,
             ParameterType.STRING,
-            "Namespace to use for UUID generation",
-            null);
+            "Namespace to use for UUID generation. It must be a valid UUID itself",
+            CgmesExportContext.DEFAULT_UUID_NAMESPACE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,

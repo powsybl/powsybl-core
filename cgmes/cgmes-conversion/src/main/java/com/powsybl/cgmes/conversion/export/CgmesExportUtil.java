@@ -97,8 +97,11 @@ public final class CgmesExportUtil {
 
     public static String getUniqueId(String name, String namespace) {
         // Generate UUID based on namespace for stability
-        return Generators.nameBasedGenerator(UUID.fromString(namespace)).generate(name).toString();
-
+        if (namespace == null) {
+            return Generators.nameBasedGenerator().generate(name).toString();
+        } else {
+            return Generators.nameBasedGenerator(UUID.fromString(namespace)).generate(name).toString();
+        }
     }
 
     public static void writeRdfRoot(String cimNamespace, String euPrefix, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
