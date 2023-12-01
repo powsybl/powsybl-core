@@ -6,7 +6,6 @@
  */
 package com.powsybl.matpower.converter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
@@ -22,7 +21,6 @@ import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
