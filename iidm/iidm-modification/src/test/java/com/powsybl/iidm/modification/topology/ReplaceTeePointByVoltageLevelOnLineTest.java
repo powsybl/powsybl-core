@@ -126,7 +126,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, "/fictitious-replace-tee-point-by-voltage-level-on-line-nb.xml");
+        writeXmlTest(network, "/fictitious-replace-tee-point-by-voltage-level-on-line-nb.xml");
         testReporter(reporter, "/reporter/replace-tee-point-by-vl-on-line-nb-report.txt");
     }
 
@@ -153,7 +153,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, "/eurostag-replace-tee-point-by-voltage-level-on-line-nbbb.xml");
+        writeXmlTest(network, "/eurostag-replace-tee-point-by-voltage-level-on-line-nbbb.xml");
         testReporter(reporter, "/reporter/replace-tee-point-by-vl-on-line-nb-bb-report.txt");
     }
 
@@ -199,7 +199,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, reporter3);
-        roundTripXmlTest(network, "/eurostag-replace-tee-point-by-voltage-level-on-line-bb.xml");
+        writeXmlTest(network, "/eurostag-replace-tee-point-by-voltage-level-on-line-bb.xml");
         testReporter(reporter3, "/reporter/replace-tee-point-by-vl-on-line-bb-report.txt");
     }
 

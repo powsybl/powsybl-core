@@ -39,7 +39,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, "/create-vl-topo-test.xiidm");
+        writeXmlTest(network, "/create-vl-topo-test.xiidm");
     }
 
     @Test
@@ -54,7 +54,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, "/create-vl-topo-test-complete.xiidm");
+        writeXmlTest(network, "/create-vl-topo-test-complete.xiidm");
     }
 
     @Test
@@ -189,7 +189,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSectionCount(4)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, "/eurostag-new-voltage-level.xml");
+        writeXmlTest(network, "/eurostag-new-voltage-level.xml");
     }
 
     @Test

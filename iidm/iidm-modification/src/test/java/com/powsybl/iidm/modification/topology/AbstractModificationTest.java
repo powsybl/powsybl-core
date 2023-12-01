@@ -26,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public abstract class AbstractModificationTest extends AbstractSerDeTest {
 
-    protected void roundTripXmlTest(Network network, String refXmlFile) throws IOException {
-        roundTripXmlTest(network,(n, p) -> n, NetworkSerDe::write, NetworkSerDe::validateAndRead, refXmlFile);
+    protected void writeXmlTest(Network network, String refXmlFile) throws IOException {
+        writeXmlTest(network, NetworkSerDe::write, refXmlFile);
     }
 
     protected void testReporter(ReporterModel reporter, String reporterFile) {

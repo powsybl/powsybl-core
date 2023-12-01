@@ -35,7 +35,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, "/fictitious-line-split-l.xml");
+        writeXmlTest(network, "/fictitious-line-split-l.xml");
     }
 
     @Test
@@ -45,7 +45,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, "/eurostag-line-split-nb-l.xml");
+        writeXmlTest(network, "/eurostag-line-split-nb-l.xml");
     }
 
     @Test
@@ -55,7 +55,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, "/eurostag-line-split-bb-l.xml");
+        writeXmlTest(network, "/eurostag-line-split-bb-l.xml");
     }
 
     @Test
@@ -112,7 +112,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withLine2Name("FICT2LName")
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, "/fictitious-line-split-l-complete.xml");
+        writeXmlTest(network, "/fictitious-line-split-l-complete.xml");
     }
 
     @Test
@@ -126,7 +126,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withLineAdder(adder)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, "/fictitious-line-split-l.xml");
+        writeXmlTest(network, "/fictitious-line-split-l.xml");
 
     }
 

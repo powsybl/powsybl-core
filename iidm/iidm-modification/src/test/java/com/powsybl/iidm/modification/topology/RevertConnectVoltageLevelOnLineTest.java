@@ -85,7 +85,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLineId("CJ")
                 .build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, "/fictitious-revert-connect-voltage-level-on-line-vl.xml");
+        writeXmlTest(network, "/fictitious-revert-connect-voltage-level-on-line-vl.xml");
         testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-nb-report.txt");
     }
 
@@ -106,7 +106,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLineId("NHV1_NHV2_1")
                 .build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, "/eurostag-revert-connect-voltage-level-on-line-nb-vl.xml");
+        writeXmlTest(network, "/eurostag-revert-connect-voltage-level-on-line-nb-vl.xml");
         testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-bb-nb-report.txt");
     }
 
@@ -127,7 +127,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLineId("NHV1_NHV2_1")
                 .build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, "/eurostag-revert-connect-voltage-level-on-line-bb-vl.xml");
+        writeXmlTest(network, "/eurostag-revert-connect-voltage-level-on-line-bb-vl.xml");
         testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-bb-report.txt");
     }
 

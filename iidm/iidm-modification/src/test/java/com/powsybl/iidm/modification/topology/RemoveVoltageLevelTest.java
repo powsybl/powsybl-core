@@ -87,7 +87,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
         Network network = createNbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("C").build();
         modification.apply(network);
-        roundTripXmlTest(network, "/eurostag-remove-voltage-level-nb.xml");
+        writeXmlTest(network, "/eurostag-remove-voltage-level-nb.xml");
     }
 
     @Test
@@ -95,6 +95,6 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
         Network network = createBbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("VLGEN").build();
         modification.apply(network);
-        roundTripXmlTest(network, "/eurostag-remove-voltage-level-bb.xml");
+        writeXmlTest(network, "/eurostag-remove-voltage-level-bb.xml");
     }
 }

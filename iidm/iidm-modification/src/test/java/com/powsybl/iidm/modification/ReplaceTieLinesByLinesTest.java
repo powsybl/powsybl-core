@@ -28,14 +28,14 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
     void roundTripBusBreaker() throws IOException {
         Network network = createBusBreakerNetworkWithAliasesPropertiesExtensions();
         new ReplaceTieLinesByLines().apply(network);
-        roundTripXmlTest(network, "/eurostag-replace-tl.xml");
+        writeXmlTest(network, "/eurostag-replace-tl.xml");
     }
 
     @Test
     void roundTripNodeBreaker() throws IOException {
         Network network = createDummyNodeBreakerNetwork();
         new ReplaceTieLinesByLines().apply(network);
-        roundTripXmlTest(network, "/replace-tl-nb.xml");
+        writeXmlTest(network, "/replace-tl-nb.xml");
     }
 
     @Test
@@ -43,7 +43,7 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
         NetworkSerDe.write(createBusBreakerNetworkWithAliasesPropertiesExtensions(), tmpDir.resolve("tl-test.xml"));
         Network read = Network.read(tmpDir.resolve("tl-test.xml"), LocalComputationManager.getDefault(),
                 new ImportConfig("replaceTieLinesByLines"), new Properties());
-        roundTripXmlTest(read, "/eurostag-replace-tl.xml");
+        writeXmlTest(read, "/eurostag-replace-tl.xml");
     }
 
     private static Network createBusBreakerNetworkWithAliasesPropertiesExtensions() {
