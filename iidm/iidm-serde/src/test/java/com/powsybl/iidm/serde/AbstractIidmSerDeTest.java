@@ -230,8 +230,8 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     public Network fullRoundTripTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
         return roundTripXmlTest(network,
                 (n, p) -> jsonWriteAndRead(n, exportOptions, p),
-                (n, p) -> NetworkSerDe.writeAndValidate(n, exportOptions, p),
-                NetworkSerDe::read,
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
                 refXmlFile);
     }
 

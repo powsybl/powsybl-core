@@ -55,8 +55,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Network network = createEurostagTutorialExample1();
         network.getGenerator("GEN").setProperty("test", "foo");
         Path xmlFile = tmpDir.resolve("n.xml");
-        NetworkSerDe.writeAndValidate(network, xmlFile);
-        Network readNetwork = NetworkSerDe.read(xmlFile);
+        NetworkSerDe.write(network, xmlFile);
+        Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
         assertEquals("foo", readNetwork.getGenerator("GEN").getProperty("test"));
     }
 

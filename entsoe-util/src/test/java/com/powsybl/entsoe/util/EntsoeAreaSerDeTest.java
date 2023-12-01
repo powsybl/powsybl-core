@@ -52,8 +52,8 @@ class EntsoeAreaSerDeTest extends AbstractSerDeTest {
 
         Network network2 = roundTripXmlTest(network,
                 this::jsonWriteAndRead,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
+                NetworkSerDe::write,
+                NetworkSerDe::validateAndRead,
                 "/entsoeAreaRef.xml");
 
         Substation s2 = network2.getSubstation("S");

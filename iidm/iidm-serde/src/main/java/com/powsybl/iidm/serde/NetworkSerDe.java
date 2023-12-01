@@ -485,20 +485,6 @@ public final class NetworkSerDe {
         }
     }
 
-    public static Anonymizer writeAndValidate(Network n, Path xmlFile) {
-        return writeAndValidate(n, new ExportOptions(), xmlFile);
-    }
-
-    public static Anonymizer writeAndValidate(Network n, ExportOptions options, Path xmlFile) {
-        Anonymizer anonymizer = write(n, options, xmlFile);
-        if (options.getFormat() == TreeDataFormat.XML) {
-            validate(xmlFile);
-        } else {
-            LOGGER.warn("Non-XML file written {} (format {}) could not be validated", xmlFile, options.getFormat());
-        }
-        return anonymizer;
-    }
-
     public static Network read(InputStream is) {
         return read(is, new ImportOptions(), null);
     }
