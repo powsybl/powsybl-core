@@ -149,23 +149,6 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
-     * Writes given network to JSON file, then reads the resulting file, then write the resulting network
-     * to the given path in XML format and validates the result with iidm .
-     */
-    private static void writeAndValidate(Network n, ExportOptions options, Path xmlFile) {
-        options.setFormat(TreeDataFormat.JSON);
-        Anonymizer anonymizer = NetworkSerDe.write(n, options, xmlFile);
-        try (InputStream is = Files.newInputStream(xmlFile)) {
-            Network n2 = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);
-            options.setFormat(TreeDataFormat.XML);
-            NetworkSerDe.write(n2, options, xmlFile);
-            NetworkSerDe.validate(xmlFile);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    /**
      * Full round trip from given network with reference xml file:
      * <ul>
      *     <li>write given network to a JSON file</li>
@@ -246,8 +229,25 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     public Network fullRoundTripTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
         return roundTripXmlTest(network,
-                (n, path) -> writeAndValidate(n, exportOptions, path),
+                (n, p) -> jsonWriteAndRead(n, exportOptions, p),
+                (n, p) -> NetworkSerDe.writeAndValidate(n, exportOptions, p),
                 NetworkSerDe::read,
                 refXmlFile);
+    }
+
+    /**
+     * Writes given network to JSON file, then reads the resulting file and returns the resulting network
+     */
+    private static Network jsonWriteAndRead(Network networkInput, ExportOptions options, Path path) {
+        TreeDataFormat previousFormat = options.getFormat();
+        options.setFormat(TreeDataFormat.JSON);
+        Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
+        try (InputStream is = Files.newInputStream(path)) {
+            Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);
+            options.setFormat(previousFormat);
+            return networkOutput;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

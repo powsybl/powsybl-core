@@ -17,6 +17,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -38,8 +39,8 @@ public abstract class AbstractSerDeTest {
         fileSystem.close();
     }
 
-    protected <T> T roundTripXmlTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, String ref) throws IOException {
-        return roundTripTest(data, out, in, ComparisonUtils::compareXml, ref);
+    protected <T> T roundTripXmlTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> out, Function<Path, T> in, String ref) throws IOException {
+        return roundTripTest(data, transformer, out, in, ComparisonUtils::compareXml, ref);
     }
 
     protected <T> T roundTripTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, String ref) throws IOException {
@@ -60,11 +61,20 @@ public abstract class AbstractSerDeTest {
     }
 
     protected <T> T roundTripTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
+        return roundTripTest(data, (t, p) -> t, out, in, compare, ref);
+    }
+
+    protected <T> T roundTripTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> out, Function<Path, T> in, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
+        // Transform the data (used for cascading round trips)
+        Path transformFile = tmpDir.resolve("data");
+        T transformedData = transformer.apply(data, transformFile);
+
         // Export the data and check the result with the reference
-        Path xmlFile = writeTest(data, out, compare, ref);
+        Path xmlFile = writeTest(transformedData, out, compare, ref);
         try (InputStream is1 = Files.newInputStream(xmlFile)) {
             compare.accept(getClass().getResourceAsStream(ref), is1);
         }
+
         // Read the exported data, export the retrieved data and check the result with the reference
         T data2 = in.apply(xmlFile);
         Path xmlFile2 = tmpDir.resolve("data2");
