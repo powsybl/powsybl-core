@@ -61,6 +61,12 @@ class CgmesConformity3ConversionTest {
         checkExportSvTerminals(merge);
     }
 
+    @Test
+    void microGridBaseCaseAssembled() {
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource());
+        checkExportSvTerminals(n);
+    }
+
     private void checkExportSvTerminals(Network network) {
         CgmesExportContext context = new CgmesExportContext(network);
         context.getSvModelDescription().setVersion(2);
