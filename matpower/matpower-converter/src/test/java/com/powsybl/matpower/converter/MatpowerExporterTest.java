@@ -14,10 +14,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.matpower.model.MatpowerModel;
@@ -200,5 +197,19 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         var network = EurostagTutorialExample1Factory.create();
         network.getGenerator("GEN").setTargetQ(Double.NaN);
         exportToMatAndCompareTo(network, "/sim1-with-nan-target-q.json");
+    }
+
+    @Test
+    void testVscNpeIssue() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
+        vlgen.newVscConverterStation()
+                .setId("VSC")
+                .setConnectableBus("NGEN")
+                .setVoltageRegulatorOn(true)
+                .setVoltageSetpoint(100)
+                .setLossFactor(0)
+                .add();
+        exportToMatAndCompareTo(network, "/vsc-npe-issue.json");
     }
 }
