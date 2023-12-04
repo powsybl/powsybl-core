@@ -12,7 +12,7 @@ import java.util.Map;
 
 import com.powsybl.timeseries.TimeSeries;
 
-import static com.powsybl.dynamicsimulation.DynamicSimulationResult.Status.SUCCEED;
+import static com.powsybl.dynamicsimulation.DynamicSimulationResult.Status.SUCCESS;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -21,8 +21,8 @@ import static com.powsybl.dynamicsimulation.DynamicSimulationResult.Status.SUCCE
 public interface DynamicSimulationResult {
 
     enum Status {
-        SUCCEED,
-        FAILED
+        SUCCESS,
+        FAILURE
     }
 
     Status getStatus();
@@ -34,7 +34,7 @@ public interface DynamicSimulationResult {
      */
     @Deprecated(since = "6.1.0")
     default boolean isOk() {
-        return SUCCEED == getStatus();
+        return SUCCESS == getStatus();
     }
 
     Map<String, TimeSeries> getCurves();

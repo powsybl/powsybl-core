@@ -20,13 +20,13 @@ import com.powsybl.timeseries.TimeSeries;
 public class DynamicSimulationResultImpl implements DynamicSimulationResult {
 
     private final Status status;
-    private final String error;
+    private final String statusText;
     private final Map<String, TimeSeries> curves;
     private final List<TimelineEvent> timeLine;
 
-    public DynamicSimulationResultImpl(Status status, String error, Map<String, TimeSeries> curves, List<TimelineEvent> timeLine) {
+    public DynamicSimulationResultImpl(Status status, String statusText, Map<String, TimeSeries> curves, List<TimelineEvent> timeLine) {
         this.status = Objects.requireNonNull(status);
-        this.error = error;
+        this.statusText = Objects.requireNonNull(statusText);
         this.curves = Objects.requireNonNull(curves);
         this.timeLine = Objects.requireNonNull(timeLine);
         timeLine.forEach(Objects::requireNonNull);
@@ -37,7 +37,7 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
     }
 
     public static DynamicSimulationResultImpl createSucceededResult(Map<String, TimeSeries> curves, List<TimelineEvent> timeLine) {
-        return new DynamicSimulationResultImpl(Status.SUCCEED, curves, timeLine);
+        return new DynamicSimulationResultImpl(Status.SUCCESS, curves, timeLine);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
 
     @Override
     public String getStatusText() {
-        return error;
+        return statusText;
     }
 
     @Override

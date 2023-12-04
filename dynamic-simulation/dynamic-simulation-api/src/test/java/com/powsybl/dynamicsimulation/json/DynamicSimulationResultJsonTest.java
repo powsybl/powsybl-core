@@ -31,7 +31,7 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
 
             @Override
             public Status getStatus() {
-                return Status.SUCCEED;
+                return Status.SUCCESS;
             }
 
             @Override
@@ -59,7 +59,7 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
 
             @Override
             public Status getStatus() {
-                return Status.FAILED;
+                return Status.FAILURE;
             }
 
             @Override
