@@ -23,7 +23,7 @@ class ContingencyContextTest {
 
     @Test
     void testOnlyContingencies() {
-        ContingencyContext context = new ContingencyContext(null, ContingencyContextType.ONLY_CONTINGENCIES);
+        ContingencyContext context = ContingencyContext.create(null, ContingencyContextType.ONLY_CONTINGENCIES);
         assertEquals("ContingencyContext(contingencyId='', contextType=ONLY_CONTINGENCIES)", context.toString());
     }
 }
