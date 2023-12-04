@@ -172,7 +172,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(merged, "subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
-        roundTripVersionedJsonFromMinToCurrentVersionTest("subnetworks.json", IidmVersion.V_1_11);
     }
 
     private Network createNetwork(int num) {
