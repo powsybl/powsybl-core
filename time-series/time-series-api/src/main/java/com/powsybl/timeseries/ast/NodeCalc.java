@@ -137,6 +137,9 @@ public interface NodeCalc {
                 case TimeNodeCalc.NAME -> {
                     return TimeNodeCalc.parseJson(parser);
                 }
+                case BinaryMinCalc.NAME -> {
+                    return BinaryMinCalc.parseJson(parser);
+                }
                 default -> {
                     // Do nothing
                 }

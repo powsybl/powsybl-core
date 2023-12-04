@@ -121,4 +121,16 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     public Double visit(TimeSeriesNameNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         throw new IllegalStateException("NodeCalc should have been resolved before");
     }
+
+    @Override
+    public Double visit(BinaryMinCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+        double leftValue = left;
+        double rightValue = right;
+        return Math.min(leftValue, rightValue);
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryMinCalc nodeCalc, DoubleMultiPoint multiPoint) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
 }

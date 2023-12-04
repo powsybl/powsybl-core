@@ -73,6 +73,11 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     }
 
     @Override
+    public String visit(BinaryMinCalc nodeCalc, Void arg, String left, String right) {
+        return left + ".min(" + right + ")";
+    }
+
+    @Override
     public NodeCalc iterate(TimeNodeCalc nodeCalc, Void arg) {
         return nodeCalc.getChild();
     }
@@ -96,5 +101,11 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     public NodeCalc iterate(MaxNodeCalc nodeCalc, Void arg) {
         return nodeCalc.getChild();
     }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryMinCalc nodeCalc, Void arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
+
 
 }

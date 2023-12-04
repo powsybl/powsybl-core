@@ -91,4 +91,14 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     public R visit(TimeSeriesNumNodeCalc nodeCalc, A arg) {
         return null;
     }
+
+    @Override
+    public R visit(BinaryMinCalc nodeCalc, A arg, R left, R right) {
+        return null;
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryMinCalc nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
 }

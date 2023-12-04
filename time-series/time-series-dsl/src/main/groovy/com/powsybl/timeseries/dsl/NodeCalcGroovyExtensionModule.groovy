@@ -8,6 +8,7 @@ package com.powsybl.timeseries.dsl
 
 import com.powsybl.commons.PowsyblException
 import com.powsybl.timeseries.ast.BigDecimalNodeCalc
+import com.powsybl.timeseries.ast.BinaryMinCalc
 import com.powsybl.timeseries.ast.BinaryOperation
 import com.powsybl.timeseries.ast.DoubleNodeCalc
 import com.powsybl.timeseries.ast.FloatNodeCalc
@@ -295,5 +296,10 @@ class NodeCalcGroovyExtensionModule {
 
     static NodeCalc max(NodeCalc self, BigDecimal value) {
         new MaxNodeCalc(self, value.doubleValue())
+    }
+
+    // Binary min
+    static NodeCalc min(NodeCalc self, NodeCalc value) {
+        new BinaryMinCalc(self, value)
     }
 }

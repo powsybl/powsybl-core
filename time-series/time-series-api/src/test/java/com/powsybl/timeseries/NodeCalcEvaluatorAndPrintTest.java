@@ -126,4 +126,14 @@ class NodeCalcEvaluatorAndPrintTest {
         NodeCalc node = new MaxNodeCalc(new TimeSeriesNameNodeCalc("foo"), 2);
         assertEquals("timeSeries['foo'].max(2.0)", NodeCalcPrinter.print(node));
     }
+
+    @Test
+    void testBinaryMin() {
+        NodeCalc node = new BinaryMinCalc(new FloatNodeCalc(1f), new FloatNodeCalc(2f));
+        assertEquals(1f, NodeCalcEvaluator.eval(node, null), 0f);
+        assertEquals("1.0.min(2.0)", NodeCalcPrinter.print(node));
+
+        node = new BinaryMinCalc(new TimeSeriesNameNodeCalc("foo"), new FloatNodeCalc(2f));
+        assertEquals("timeSeries['foo'].min(2.0)", NodeCalcPrinter.print(node));
+    }
 }

@@ -91,4 +91,14 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     public NodeCalc visit(TimeSeriesNumNodeCalc nodeCalc, A arg) {
         return new TimeSeriesNumNodeCalc(nodeCalc.getTimeSeriesNum());
     }
+
+    @Override
+    public NodeCalc visit(BinaryMinCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return new BinaryMinCalc(left, right);
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryMinCalc nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
 }
