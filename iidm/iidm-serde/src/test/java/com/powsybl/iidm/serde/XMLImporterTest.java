@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -78,7 +78,7 @@ class XMLImporterTest extends AbstractSerDeTest {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             writer.newLine();
             writer.write("<!--sfsfs-->");
-            writer.write("<iidm:network xmlns:iidm=\"" + CURRENT_IIDM_XML_VERSION.getNamespaceURI() + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + CURRENT_IIDM_VERSION.getNamespaceURI() + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -98,12 +98,12 @@ class XMLImporterTest extends AbstractSerDeTest {
         //   /test5.xiidm that contains unsupported extensions
         //   /test6.xiidm + /test6_mapping.csv
         //   /test7.xiidm that contains a comment after xml prolog
-        writeNetwork("/test0.xiidm", CURRENT_IIDM_XML_VERSION, false);
-        writeNetwork("/test1.iidm", CURRENT_IIDM_XML_VERSION, false);
-        writeNetwork("/test2.xml", CURRENT_IIDM_XML_VERSION, false);
-        writeNetwork("/test3.txt", CURRENT_IIDM_XML_VERSION, false);
-        writeNetwork("/test5.xiidm", CURRENT_IIDM_XML_VERSION, true);
-        writeNetwork("/test6.xiidm", CURRENT_IIDM_XML_VERSION, false);
+        writeNetwork("/test0.xiidm", CURRENT_IIDM_VERSION, false);
+        writeNetwork("/test1.iidm", CURRENT_IIDM_VERSION, false);
+        writeNetwork("/test2.xml", CURRENT_IIDM_VERSION, false);
+        writeNetwork("/test3.txt", CURRENT_IIDM_VERSION, false);
+        writeNetwork("/test5.xiidm", CURRENT_IIDM_VERSION, true);
+        writeNetwork("/test6.xiidm", CURRENT_IIDM_VERSION, false);
         writeNetwork("/testDummy.xiidm", "http://wwww.dummy.foo/", false);
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath("/test6_mapping.csv"), StandardCharsets.UTF_8)) {
             writer.write("ZZ;test");
@@ -112,7 +112,7 @@ class XMLImporterTest extends AbstractSerDeTest {
             writer.newLine();
         }
         writeNetworkWithComment("/test7.xiidm");
-        writeNetworkWithExtension("/test8.xiidm", CURRENT_IIDM_XML_VERSION.getNamespaceURI());
+        writeNetworkWithExtension("/test8.xiidm", CURRENT_IIDM_VERSION.getNamespaceURI());
 
         importer = new XMLImporter();
     }
@@ -145,7 +145,7 @@ class XMLImporterTest extends AbstractSerDeTest {
 
     @Test
     void getComment() {
-        assertEquals("IIDM XML v " + CURRENT_IIDM_XML_VERSION.toString(".") + " importer", importer.getComment());
+        assertEquals("IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
     }
 
     @Test

@@ -44,7 +44,7 @@ class GeneratorStartupXmlTest extends AbstractIidmSerDeTest {
         Network network2 = roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("generatorStartupRef.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("generatorStartupRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION));
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);
@@ -60,11 +60,11 @@ class GeneratorStartupXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network, (n, path) -> NetworkSerDe.writeAndValidate(n,
                         new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0"), path),
                 NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("generatorStartupRef-1.0.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("generatorStartupRef-1.0.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION));
         roundTripXmlTest(network, (n, path) -> NetworkSerDe.writeAndValidate(n,
                         new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0-itesla"), path),
                 NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("generatorStartupRef-1.0-itesla.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("generatorStartupRef-1.0-itesla.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION));
     }
 
     private static Network createTestNetwork() {

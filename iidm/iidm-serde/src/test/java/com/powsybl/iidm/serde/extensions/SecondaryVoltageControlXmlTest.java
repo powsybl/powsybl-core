@@ -23,7 +23,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -46,7 +46,7 @@ class SecondaryVoltageControlXmlTest extends AbstractSerDeTest {
         Network network2 = roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("/secondaryVoltageControlRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("/secondaryVoltageControlRoundTripRef.xml", CURRENT_IIDM_VERSION));
 
         SecondaryVoltageControl control2 = network2.getExtension(SecondaryVoltageControl.class);
         assertNotNull(control2);

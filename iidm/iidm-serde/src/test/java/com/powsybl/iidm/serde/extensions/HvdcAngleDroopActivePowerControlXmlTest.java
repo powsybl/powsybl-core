@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -38,7 +38,7 @@ class HvdcAngleDroopActivePowerControlXmlTest extends AbstractSerDeTest {
         Network network2 = roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("hvdcAngleDroopActivePowerControlRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("hvdcAngleDroopActivePowerControlRef.xml", CURRENT_IIDM_VERSION));
 
         HvdcLine hvdcLine2 = network2.getHvdcLine("L");
         assertEquals(hvdcLine2.getExtension(HvdcAngleDroopActivePowerControl.class), extension);

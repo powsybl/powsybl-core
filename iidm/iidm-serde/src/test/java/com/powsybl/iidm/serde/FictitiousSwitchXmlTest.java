@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -23,7 +23,7 @@ class FictitiousSwitchXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(FictitiousSwitchFactory.create(),
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("fictitiousSwitchRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("fictitiousSwitchRef.xml", CURRENT_IIDM_VERSION));
 
         //backward compatibility
         roundTripAllPreviousVersionedXmlTest("fictitiousSwitchRef.xml");

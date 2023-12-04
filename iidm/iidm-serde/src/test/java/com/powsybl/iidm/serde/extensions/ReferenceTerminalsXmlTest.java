@@ -73,6 +73,6 @@ class ReferenceTerminalsXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::validateAndRead,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "referenceTerminalsRef.xiidm");
+                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_VERSION) + "referenceTerminalsRef.xiidm");
     }
 }

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -39,7 +39,7 @@ class TwoWindingsTransformerPhaseAngleClockXmlSerDeTest extends AbstractSerDeTes
         Network network2 = roundTripXmlTest(network,
             NetworkSerDe::writeAndValidate,
             NetworkSerDe::read,
-            getVersionedNetworkPath("/twoWindingsTransformerPhaseAngleClock.xml", CURRENT_IIDM_XML_VERSION));
+            getVersionedNetworkPath("/twoWindingsTransformerPhaseAngleClock.xml", CURRENT_IIDM_VERSION));
 
         TwoWindingsTransformerPhaseAngleClock pacXml = network2.getTwoWindingsTransformer("NHV2_NLOAD")
             .getExtension(TwoWindingsTransformerPhaseAngleClock.class);
