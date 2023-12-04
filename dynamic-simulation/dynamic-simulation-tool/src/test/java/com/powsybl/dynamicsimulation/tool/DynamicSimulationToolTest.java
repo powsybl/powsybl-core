@@ -88,7 +88,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         String expectedOutputFile = """
                         {
                           "version" : "1.0",
-                          "status" : "SUCCEED",
+                          "status" : "SUCCESS",
                           "curves" : [ ],
                           "timeLine" : [ ]
                         }""";
