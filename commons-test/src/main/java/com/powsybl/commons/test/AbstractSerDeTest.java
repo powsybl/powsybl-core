@@ -83,17 +83,17 @@ public abstract class AbstractSerDeTest {
     }
 
     /**
-     * Write the given data with given write function, and compare the resulting XML file to given reference with the
+     * Write the given data with given write function, and compare the resulting file to given reference with the
      * comparison method provided.
      * @return the path of written XML file.
      */
     protected <T> Path writeTest(T data, BiConsumer<T, Path> write, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
-        Path xmlFile = tmpDir.resolve("data");
-        write.accept(data, xmlFile);
-        try (InputStream is = Files.newInputStream(xmlFile)) {
+        Path file = tmpDir.resolve("data");
+        write.accept(data, file);
+        try (InputStream is = Files.newInputStream(file)) {
             compare.accept(getClass().getResourceAsStream(ref), is);
         }
-        return xmlFile;
+        return file;
     }
 
     protected <T> T roundTripTest(T data, BiConsumer<T, Path> write, Function<Path, T> read, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
@@ -106,18 +106,18 @@ public abstract class AbstractSerDeTest {
         T transformedData = transformer.apply(data, transformFile);
 
         // Export the data and check the result with the reference
-        Path xmlFile = writeTest(transformedData, write, compare, ref);
+        Path file1 = writeTest(transformedData, write, compare, ref);
 
         // Read the exported data
-        T data2 = read.apply(xmlFile);
+        T data2 = read.apply(file1);
 
-        // Export the retrieved data and check the result with first written xml file
+        // Export the retrieved data and check the result with first written file
         // This is done to avoid the complexity of the DiffBuilder
-        Path xmlFile2 = tmpDir.resolve("data2");
-        write.accept(data, xmlFile2);
-        assertEquals(-1, Files.mismatch(xmlFile, xmlFile2),
-                "XML file A written after transforming given data " +
-                        "differs from XML file B obtained after reading A and writing the resulting data");
+        Path file2 = tmpDir.resolve("data2");
+        write.accept(data, file2);
+        assertEquals(-1, Files.mismatch(file1, file2),
+                "File A written after transforming given data differs from " +
+                        "file B obtained after reading A and writing the resulting data");
 
         return data2;
     }
