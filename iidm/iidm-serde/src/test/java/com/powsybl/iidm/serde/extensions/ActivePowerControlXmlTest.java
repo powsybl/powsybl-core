@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -43,7 +43,7 @@ class ActivePowerControlXmlTest extends AbstractSerDeTest {
         Network network2 = roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("/activePowerControlRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("/activePowerControlRoundTripRef.xml", CURRENT_IIDM_VERSION));
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);

@@ -58,7 +58,7 @@ class DiscreteMeasurementsXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::validateAndRead,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "disMeasRef.xiidm");
+                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_VERSION) + "disMeasRef.xiidm");
         roundTripVersionedXmlFromMinToCurrentVersionTest("disMeasRef.xiidm", IidmVersion.V_1_5);
     }
 }

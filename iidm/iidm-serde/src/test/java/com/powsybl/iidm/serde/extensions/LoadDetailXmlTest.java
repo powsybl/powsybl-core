@@ -75,7 +75,7 @@ class LoadDetailXmlTest extends AbstractIidmSerDeTest {
         Network network2 = roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "loadDetailRef.xml");
+                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_VERSION) + "loadDetailRef.xml");
 
         Load load2 = network2.getLoad("L");
         assertNotNull(load2);
@@ -98,7 +98,7 @@ class LoadDetailXmlTest extends AbstractIidmSerDeTest {
         NetworkSerDe.writeAndValidate(network, tmp);
 
         try (InputStream is = Files.newInputStream(tmp)) {
-            compareXml(getVersionedNetworkAsStream("loadDetailRef.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION), is);
+            compareXml(getVersionedNetworkAsStream("loadDetailRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION), is);
         }
     }
 }

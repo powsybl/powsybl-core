@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -38,7 +38,7 @@ class HvdcOperatorActiveRangeXmlTest extends AbstractSerDeTest {
         Network network2 = roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("hvdcOperatorActiveRangeRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("hvdcOperatorActiveRangeRef.xml", CURRENT_IIDM_VERSION));
 
         HvdcLine hvdcLine2 = network2.getHvdcLine("L");
         assertEquals(hvdcLine2.getExtension(HvdcOperatorActivePowerRange.class), extension);

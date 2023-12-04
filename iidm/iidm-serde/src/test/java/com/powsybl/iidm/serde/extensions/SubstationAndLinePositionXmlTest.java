@@ -18,7 +18,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -42,7 +42,7 @@ class SubstationAndLinePositionXmlTest extends AbstractSerDeTest {
         Network network2 = roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("/substationAndLinePositionRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("/substationAndLinePositionRoundTripRef.xml", CURRENT_IIDM_VERSION));
 
         var substationPosition = network2.getSubstation("P1").getExtension(SubstationPosition.class);
         assertNotNull(substationPosition);
