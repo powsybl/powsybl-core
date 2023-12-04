@@ -20,4 +20,10 @@ class ContingencyContextTest {
         ContingencyContext context = new ContingencyContext("c1", ContingencyContextType.SPECIFIC);
         assertEquals("ContingencyContext(contingencyId='c1', contextType=SPECIFIC)", context.toString());
     }
+
+    @Test
+    void testOnlyContingencies() {
+        ContingencyContext context = new ContingencyContext(null, ContingencyContextType.ONLY_CONTINGENCIES);
+        assertEquals("ContingencyContext(contingencyId='', contextType=ONLY_CONTINGENCIES)", context.toString());
+    }
 }
