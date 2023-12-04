@@ -566,12 +566,14 @@ public class MatpowerExporter implements Exporter {
 
     private static void setBranchRX(String id, MBranch mBranch, double rpu, double xpu) {
         double zpu = Math.hypot(rpu, xpu);
+        double newRpu = rpu;
         double newXpu = xpu;
         if (zpu < MIN_Z_PU) {
             LOGGER.warn("Branch '{}' has a low impedance {}, cut to {}", id, zpu, MIN_Z_PU);
+            newRpu = 0;
             newXpu = MIN_Z_PU;
         }
-        mBranch.setR(rpu);
+        mBranch.setR(newRpu);
         mBranch.setX(newXpu);
     }
 
