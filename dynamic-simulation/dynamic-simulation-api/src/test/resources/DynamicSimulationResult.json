@@ -1,6 +1,6 @@
 {
   "version" : "1.0",
-  "status" : "SUCCEED",
+  "status" : "SUCCESS",
   "curves" : [ {
     "metadata" : {
       "name" : "curve1",

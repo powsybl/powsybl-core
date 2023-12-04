@@ -1,6 +1,6 @@
 {
   "version" : "1.0",
-  "status" : "FAILED",
+  "status" : "FAILURE",
   "error" : "Error test",
   "curves" : [ ],
   "timeLine" : [ ]
