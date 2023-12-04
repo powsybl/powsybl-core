@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -42,7 +42,7 @@ public class JsonImporter extends AbstractTreeDataImporter {
 
     @Override
     public String getComment() {
-        return "IIDM JSON v " + CURRENT_IIDM_XML_VERSION.toString(".") + " importer";
+        return "IIDM JSON v " + CURRENT_IIDM_VERSION.toString(".") + " importer";
     }
 
     @Override
