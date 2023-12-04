@@ -15,6 +15,7 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.matpower.model.MatpowerModel;
@@ -211,5 +212,11 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .setLossFactor(0)
                 .add();
         exportToMatAndCompareTo(network, "/vsc-npe-issue.json");
+    }
+
+    @Test
+    void testDanglingLineWithGeneration() throws IOException {
+        var network = DanglingLineNetworkFactory.createWithGeneration();
+        exportToMatAndCompareTo(network, "/dangling-line-generation.json");
     }
 }
