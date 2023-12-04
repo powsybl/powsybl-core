@@ -36,7 +36,7 @@ class CgmesConformity3ConversionTest {
     @Test
     void microGridBaseCaseBEMergedWithNL() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
 
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
         assertNotEquals("unknown", be.getId());
@@ -77,8 +77,8 @@ class CgmesConformity3ConversionTest {
     @Test
     void microGridBaseCaseAssembledSeparatingByFilename() {
         Properties params = new Properties();
-        params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "true");
-        params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY, CgmesImport.AssembledSeparatingBy.NAME.name());
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "true");
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.FILENAME.name());
         Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
         assertEquals(2, n.getSubnetworks().size());
         assertEquals(List.of("BE", "NL"),
@@ -92,8 +92,8 @@ class CgmesConformity3ConversionTest {
     @Test
     void microGridBaseCaseAssembledSeparatingByModelingAuthority() {
         Properties params = new Properties();
-        params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "true");
-        params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY, CgmesImport.AssembledSeparatingBy.MODELING_AUTHORITY.name());
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "true");
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.MODELING_AUTHORITY.name());
         Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
         assertEquals(2, n.getSubnetworks().size());
         assertEquals(List.of("BE", "NL"),

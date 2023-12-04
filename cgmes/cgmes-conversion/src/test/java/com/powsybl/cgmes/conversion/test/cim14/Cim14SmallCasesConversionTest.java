@@ -33,7 +33,7 @@ class Cim14SmallCasesConversionTest {
     @BeforeAll
     static void setUp() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         tester = new ConversionTester(
                 importParams,
                 TripleStoreFactory.onlyDefaultImplementation(),
@@ -72,7 +72,7 @@ class Cim14SmallCasesConversionTest {
     @Test
     void m7busesNoSequenceNumbers() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network networkSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7buses().dataSource(), importParams);
         Network networkNoSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7busesNoSequenceNumbers().dataSource(), importParams);
         // Make sure we have not lost any line or switch

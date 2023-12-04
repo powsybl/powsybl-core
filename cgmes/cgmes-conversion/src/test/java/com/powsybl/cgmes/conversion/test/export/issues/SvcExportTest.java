@@ -35,7 +35,7 @@ class SvcExportTest extends AbstractSerDeTest {
 
         // Import a test case with SVC RC disabled and check we have kept the RC id ant its target value
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Network.read(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator(svcId);
         assertNotNull(svc);

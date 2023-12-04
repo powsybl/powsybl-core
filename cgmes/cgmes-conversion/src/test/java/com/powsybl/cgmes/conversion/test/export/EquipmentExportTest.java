@@ -65,7 +65,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     public void setUp() throws IOException {
         super.setUp();
         importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @Test
@@ -1067,13 +1067,17 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
-        NetworkSerDe.writeAndValidate(expectedNetwork, exportOptions, tmpDir.resolve("expected.xml"));
-        NetworkSerDe.writeAndValidate(actualNetwork, exportOptions, tmpDir.resolve("actual.xml"));
+
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expectedNetwork, exportOptions, expectedPath);
+        NetworkSerDe.write(actualNetwork, exportOptions, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareEQNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffs);
+        ExportXmlCompare.compareEQNetworks(expectedPath, actualPath, knownDiffs);
 
-        compareTemporaryLimits(Network.read(tmpDir.resolve("expected.xml")), Network.read(tmpDir.resolve("actual.xml")));
+        compareTemporaryLimits(Network.read(expectedPath), Network.read(actualPath));
     }
 
     private void compareTemporaryLimits(Network expected, Network actual) {

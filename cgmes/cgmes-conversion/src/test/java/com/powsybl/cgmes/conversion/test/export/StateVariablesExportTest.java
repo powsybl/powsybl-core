@@ -56,7 +56,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     public void setUp() throws IOException {
         super.setUp();
         importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @Test
@@ -490,7 +490,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     private static Network importNetwork(ReadOnlyDataSource ds) {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         return new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
     }
 
@@ -592,10 +592,13 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         // comparison without extensions, only Networks
         ExportOptions exportOptions = new ExportOptions().setSorted(true);
         exportOptions.setExtensions(Collections.emptySet());
-        NetworkSerDe.writeAndValidate(expected, exportOptions, tmpDir.resolve("expected.xml"));
-        NetworkSerDe.writeAndValidate(actual, exportOptions, tmpDir.resolve("actual.xml"));
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expected, exportOptions, expectedPath);
+        NetworkSerDe.write(actual, exportOptions, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        ExportXmlCompare.compareNetworks(expectedPath, actualPath);
     }
 }

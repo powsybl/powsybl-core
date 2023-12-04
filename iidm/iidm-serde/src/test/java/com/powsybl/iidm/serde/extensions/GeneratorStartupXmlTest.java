@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -41,10 +40,7 @@ class GeneratorStartupXmlTest extends AbstractIidmSerDeTest {
                 .withForcedOutageRate(0.7)
                 .add();
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("generatorStartupRef.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
+        Network network2 = allFormatsRoundTripTest(network, "generatorStartupRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);
@@ -57,14 +53,10 @@ class GeneratorStartupXmlTest extends AbstractIidmSerDeTest {
         assertEquals(startup.getForcedOutageRate(), startup2.getForcedOutageRate(), 0);
 
         // backward compatibility
-        roundTripXmlTest(network, (n, path) -> NetworkSerDe.writeAndValidate(n,
-                        new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0"), path),
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("generatorStartupRef-1.0.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
-        roundTripXmlTest(network, (n, path) -> NetworkSerDe.writeAndValidate(n,
-                        new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0-itesla"), path),
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("generatorStartupRef-1.0-itesla.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(network, "generatorStartupRef-1.0.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION,
+                new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0"));
+        allFormatsRoundTripTest(network, "generatorStartupRef-1.0-itesla.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION,
+                new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0-itesla"));
     }
 
     private static Network createTestNetwork() {

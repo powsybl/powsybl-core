@@ -53,7 +53,7 @@ class MultipleDataSourceTest {
                     .map(DataSource::fromPath)
                     .collect(Collectors.toList());
             Properties importParams = new Properties();
-            importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+            importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
             Network network = Network.read(files, importParams);
             assertNotNull(network);
         }

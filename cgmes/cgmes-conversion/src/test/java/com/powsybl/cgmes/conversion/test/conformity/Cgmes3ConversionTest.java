@@ -38,7 +38,7 @@ class Cgmes3ConversionTest {
         ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
         assertTrue(importer.exists(ds));
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = importer.importData(ds, NetworkFactory.findDefault(), importParams);
         assertNotNull(network);
     }
@@ -46,7 +46,7 @@ class Cgmes3ConversionTest {
     @Test
     void microGrid() throws IOException {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -59,7 +59,7 @@ class Cgmes3ConversionTest {
     void microGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -104,7 +104,7 @@ class Cgmes3ConversionTest {
     @Test
     void microGridWithAndWithoutTpSv() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
 
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.microGrid().dataSource(),
@@ -123,7 +123,7 @@ class Cgmes3ConversionTest {
     @Test
     void miniGrid() throws IOException {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -135,7 +135,7 @@ class Cgmes3ConversionTest {
     @Test
     void miniGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
             importParams,
@@ -187,7 +187,7 @@ class Cgmes3ConversionTest {
     @Test
     void miniGridWithAndWithoutTpSv() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
 
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.miniGrid().dataSource(),
@@ -206,7 +206,7 @@ class Cgmes3ConversionTest {
     @Test
     void smallGrid() throws IOException {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -219,7 +219,7 @@ class Cgmes3ConversionTest {
     void smallGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
 
         ConversionTester t = new ConversionTester(
             importParams,
@@ -251,7 +251,7 @@ class Cgmes3ConversionTest {
     @Test
     void smallGridWithAndWithoutTpSv() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
 
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.smallGrid().dataSource(),
@@ -270,7 +270,7 @@ class Cgmes3ConversionTest {
     @Test
     void svedala() throws IOException {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -283,7 +283,7 @@ class Cgmes3ConversionTest {
     void svedalaWithDifferentFictitiousSwitchesCreationModes() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE, "NEVER");
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(importParams, null,
                 TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig());
@@ -291,7 +291,7 @@ class Cgmes3ConversionTest {
 
         importParams = new Properties();
         importParams.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE, "ALWAYS_EXCEPT_SWITCHES");
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         t = new ConversionTester(importParams, null,
                 TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig());
@@ -302,7 +302,7 @@ class Cgmes3ConversionTest {
     void svedalaConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -333,7 +333,7 @@ class Cgmes3ConversionTest {
     @Test
     void svedalaWithAndWithoutTpSv() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
 
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.svedala().dataSource(),

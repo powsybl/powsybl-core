@@ -53,7 +53,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
     public void setUp() throws IOException {
         super.setUp();
         importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @Test
@@ -161,11 +161,14 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         actual.removeExtension(CgmesControlAreas.class);
 
         // Export original and with new SSH
-        NetworkSerDe.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkSerDe.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expected, expectedPath);
+        NetworkSerDe.write(actual, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffsIidm);
+        ExportXmlCompare.compareNetworks(expectedPath, actualPath, knownDiffsIidm);
     }
 
     @Test
@@ -249,7 +252,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
         CgmesControlAreas controlAreas = be.getExtension(CgmesControlAreas.class);
         assertNotNull(controlAreas);
-        System.out.println("cgmes control areas = " + controlAreas);
         assertFalse(controlAreas.getCgmesControlAreas().isEmpty());
         CgmesControlArea controlArea = controlAreas.getCgmesControlAreas().iterator().next();
         assertEquals(236.9798, controlArea.getNetInterchange(), 1e-10);

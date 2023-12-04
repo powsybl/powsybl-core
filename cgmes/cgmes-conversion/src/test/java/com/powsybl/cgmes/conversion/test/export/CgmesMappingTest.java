@@ -50,7 +50,7 @@ class CgmesMappingTest extends AbstractSerDeTest {
     public void setUp() throws IOException {
         super.setUp();
         importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @Test
@@ -163,7 +163,6 @@ class CgmesMappingTest extends AbstractSerDeTest {
         }
         Collection<Diff> notExpected = diffs.stream().filter(d -> !knownErrorsSubstationsIds.contains(d.substationId)).collect(Collectors.toList());
         if (!notExpected.isEmpty()) {
-            System.out.println("differences found and not previously known:");
             notExpected.forEach(d -> LOG.error(d.toString()));
             fail();
         }

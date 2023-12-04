@@ -81,7 +81,7 @@ class CgmesImportPreAndPostProcessorsTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         modelResources = CgmesConformity1Catalog.microGridBaseCaseBE();
         importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @AfterEach

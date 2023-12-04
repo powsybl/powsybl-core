@@ -32,7 +32,7 @@ class CgmesConformity2ConversionTest {
     @BeforeAll
     static void setUpBeforeClass() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         tester = new ConversionTester(
                 importParams,
                 TripleStoreFactory.onlyDefaultImplementation(),

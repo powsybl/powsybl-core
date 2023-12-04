@@ -42,7 +42,7 @@ class CgmesConformity1ConversionTest {
     @BeforeAll
     static void setUpBeforeClass() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         tester = new ConversionTester(
                 importParams,
                 TripleStoreFactory.onlyDefaultImplementation(),
@@ -53,7 +53,7 @@ class CgmesConformity1ConversionTest {
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @AfterEach
@@ -123,7 +123,7 @@ class CgmesConformity1ConversionTest {
         exportParams.put(CgmesExport.PROFILES, "SSH,SV");
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         importParams.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -142,7 +142,7 @@ class CgmesConformity1ConversionTest {
         // the interpretation of the location of tap changer
         // relative to the transmission impedance is correct
         importParams.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -192,7 +192,7 @@ class CgmesConformity1ConversionTest {
         // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
         // have proper balances from SV values
         importParams.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),

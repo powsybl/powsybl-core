@@ -56,7 +56,7 @@ class CgmesConformity1ModifiedConversionTest {
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @AfterEach

@@ -75,7 +75,7 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         new CgmesExport().export(network, params, zip);
 
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network100 = Network.read(zip, importParams);
 
         CgmesModel cgmesModel100 = network100.getExtension(CgmesModelExtension.class).getCgmesModel();
@@ -85,7 +85,7 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
     private static Network ieee14Cim14() {
         ReadOnlyDataSource dataSource = Cim14SmallCasesCatalog.ieee14().dataSource();
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         return new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
     }
 
@@ -98,7 +98,7 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
 
         // Reimport and verify contents of Network
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network networkCimVersion = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve(cimZipFilename + ".zip")), importParams);
         CimCharacteristics cim = networkCimVersion.getExtension(CimCharacteristics.class);
 

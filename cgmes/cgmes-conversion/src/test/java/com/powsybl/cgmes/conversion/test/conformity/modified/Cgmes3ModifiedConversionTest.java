@@ -37,7 +37,7 @@ class Cgmes3ModifiedConversionTest {
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @AfterEach
@@ -48,9 +48,7 @@ class Cgmes3ModifiedConversionTest {
     @Test
     void microGridSingleFile() {
         Network network0 = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), importParams);
-        System.out.println(network0.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().tabulateLocals());
         Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), importParams);
-        System.out.println(network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().tabulateLocals());
         assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
         assertEquals(5, network.getDanglingLineCount());
     }

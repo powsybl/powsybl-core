@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -66,13 +66,10 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testMultipleExtensions() throws IOException {
-        roundTripXmlTest(MultipleExtensionsTestNetworkFactory.create(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("multiple-extensions.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(MultipleExtensionsTestNetworkFactory.create(), "multiple-extensions.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("multiple-extensions.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("multiple-extensions.xml");
     }
 
     // Define a network extension without XML serializer
@@ -136,17 +133,14 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testTerminalExtension() throws IOException {
-        Network network2 = roundTripXmlTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_XML_VERSION));
+        Network network2 = allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(), "eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_VERSION);
         Load loadXml = network2.getLoad("LOAD");
         TerminalMockExt terminalMockExtXml = loadXml.getExtension(TerminalMockExt.class);
         assertNotNull(terminalMockExtXml);
         assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
 
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
     }
 
     @Test

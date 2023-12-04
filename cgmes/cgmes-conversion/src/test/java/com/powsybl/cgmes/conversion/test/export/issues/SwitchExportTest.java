@@ -35,7 +35,7 @@ class SwitchExportTest extends AbstractSerDeTest {
     public void setUp() throws IOException {
         super.setUp();
         importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @Test

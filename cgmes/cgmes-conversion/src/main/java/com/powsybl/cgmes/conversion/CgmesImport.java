@@ -59,8 +59,8 @@ public class CgmesImport implements Importer {
         NEVER
     }
 
-    public enum AssembledSeparatingBy {
-        NAME,
+    public enum SubnetworkDefinedBy {
+        FILENAME,
         MODELING_AUTHORITY
     }
 
@@ -146,9 +146,9 @@ public class CgmesImport implements Importer {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(reporter);
-        if (Parameter.readBoolean(getFormat(), p, IMPORT_ASSEMBLED_AS_SUBNETWORKS_PARAMETER, defaultValueConfig)) {
-            AssembledSeparatingBy separatingBy = AssembledSeparatingBy.valueOf(Parameter.readString(getFormat(),
-                            p, IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY_PARAMETER, defaultValueConfig));
+        if (Parameter.readBoolean(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER, defaultValueConfig)) {
+            SubnetworkDefinedBy separatingBy = SubnetworkDefinedBy.valueOf(Parameter.readString(getFormat(),
+                            p, IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER, defaultValueConfig));
             Set<ReadOnlyDataSource> dss = new AssembledChecker(ds).separate(separatingBy);
             if (dss.size() > 1) {
                 return Network.merge(dss.stream()
@@ -219,7 +219,7 @@ public class CgmesImport implements Importer {
             this.dataSource = dataSource;
         }
 
-        Set<ReadOnlyDataSource> separate(AssembledSeparatingBy separatingBy) {
+        Set<ReadOnlyDataSource> separate(SubnetworkDefinedBy separatingBy) {
             // If it is a CGM, create a filtered dataset for each IGM.
             // In the dataset for each IGM we must include:
             // - Its own files.
@@ -229,7 +229,7 @@ public class CgmesImport implements Importer {
             // Shared files will be also loaded multiple times, one for each IGM
             return switch (separatingBy) {
                 case MODELING_AUTHORITY -> separateByModelingAuthority();
-                case NAME -> separateByIgmName();
+                case FILENAME -> separateByIgmName();
             };
         }
 
@@ -556,8 +556,8 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
     public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
-    public static final String IMPORT_ASSEMBLED_AS_SUBNETWORKS = "iidm.import.cgmes.assembled-as-subnetworks";
-    public static final String IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY = "iidm.import.cgmes.assembled-as-subnetworks-separating-by";
+    public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
+    public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -672,17 +672,17 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Force disconnection of dangling line network side if boundary side is disconnected",
             Boolean.TRUE);
-    private static final Parameter IMPORT_ASSEMBLED_AS_SUBNETWORKS_PARAMETER = new Parameter(
-            IMPORT_ASSEMBLED_AS_SUBNETWORKS,
+    private static final Parameter IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER = new Parameter(
+            IMPORT_CGM_WITH_SUBNETWORKS,
             ParameterType.BOOLEAN,
-            "Import assembled models as subnetworks",
+            "Import CGM with subnetworks",
             Boolean.TRUE);
-    private static final Parameter IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY_PARAMETER = new Parameter(
-            IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY,
+    private static final Parameter IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER = new Parameter(
+            IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY,
             ParameterType.STRING,
-            "Choose how subnetworks from assembled input must be separated: based on filenames or by modeling authority",
-            AssembledSeparatingBy.MODELING_AUTHORITY.name(),
-            Arrays.stream(AssembledSeparatingBy.values()).map(Enum::name).collect(Collectors.toList()));
+            "Choose how subnetworks from CGM must be imported: defined by filenames or by modeling authority",
+            SubnetworkDefinedBy.MODELING_AUTHORITY.name(),
+            Arrays.stream(SubnetworkDefinedBy.values()).map(Enum::name).collect(Collectors.toList()));
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -704,8 +704,8 @@ public class CgmesImport implements Importer {
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
             DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
-            IMPORT_ASSEMBLED_AS_SUBNETWORKS_PARAMETER,
-            IMPORT_ASSEMBLED_AS_SUBNETWORKS_SEPARATING_BY_PARAMETER);
+            IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
+            IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;

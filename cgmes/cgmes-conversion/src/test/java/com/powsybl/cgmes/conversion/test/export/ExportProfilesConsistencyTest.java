@@ -53,7 +53,7 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     private Network importNetwork(ReadOnlyDataSource dataSource) {
         Properties params = new Properties();
         params.put(CgmesImport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
-        params.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         return Importers.importData("CGMES", dataSource, params);
     }
 

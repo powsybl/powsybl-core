@@ -81,7 +81,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_ASSEMBLED_AS_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"), LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), importParams);
         if (checkAllTerminalsConnected) {
             checkAllTerminalsConnected(network, name + "_from_CGMES");
