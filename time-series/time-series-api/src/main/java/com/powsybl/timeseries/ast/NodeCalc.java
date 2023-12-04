@@ -107,38 +107,39 @@ public interface NodeCalc {
         if (token == JsonToken.FIELD_NAME) {
             String fieldName = parser.getCurrentName();
             switch (fieldName) {
-                case IntegerNodeCalc.NAME:
+                case IntegerNodeCalc.NAME -> {
                     return IntegerNodeCalc.parseJson(parser);
-
-                case FloatNodeCalc.NAME:
+                }
+                case FloatNodeCalc.NAME -> {
                     return FloatNodeCalc.parseJson(parser);
-
-                case DoubleNodeCalc.NAME:
+                }
+                case DoubleNodeCalc.NAME -> {
                     return DoubleNodeCalc.parseJson(parser);
-
-                case BigDecimalNodeCalc.NAME:
+                }
+                case BigDecimalNodeCalc.NAME -> {
                     return BigDecimalNodeCalc.parseJson(parser);
-
-                case BinaryOperation.NAME:
+                }
+                case BinaryOperation.NAME -> {
                     return BinaryOperation.parseJson(parser);
-
-                case UnaryOperation.NAME:
+                }
+                case UnaryOperation.NAME -> {
                     return UnaryOperation.parseJson(parser);
-
-                case MinNodeCalc.NAME:
+                }
+                case MinNodeCalc.NAME -> {
                     return MinNodeCalc.parseJson(parser);
-
-                case MaxNodeCalc.NAME:
+                }
+                case MaxNodeCalc.NAME -> {
                     return MaxNodeCalc.parseJson(parser);
-
-                case TimeSeriesNameNodeCalc.NAME:
+                }
+                case TimeSeriesNameNodeCalc.NAME -> {
                     return TimeSeriesNameNodeCalc.parseJson(parser);
-
-                case TimeNodeCalc.NAME:
+                }
+                case TimeNodeCalc.NAME -> {
                     return TimeNodeCalc.parseJson(parser);
-
-                default:
-                    break;
+                }
+                default -> {
+                    // Do nothing
+                }
             }
         }
         throw createUnexpectedToken(token);

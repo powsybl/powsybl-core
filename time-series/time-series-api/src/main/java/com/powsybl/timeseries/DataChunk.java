@@ -204,24 +204,24 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     static void parseFieldName(JsonParser parser, JsonParsingContext context) throws IOException {
         String fieldName = parser.getCurrentName();
         switch (fieldName) {
-            case "offset":
+            case "offset" -> {
                 context.offset = parser.nextIntValue(-1);
                 context.doubleValues = null;
                 context.stringValues = null;
-                break;
-            case "uncompressedLength":
+            }
+            case "uncompressedLength" -> {
                 context.uncompressedLength = parser.nextIntValue(-1);
-                break;
-            case "stepLengths":
+            }
+            case "stepLengths" -> {
                 context.stepLengths = new TIntArrayList();
                 context.valuesOrLengthArray = true;
-                break;
-            case "values":
-            case "stepValues":
+            }
+            case "values", "stepValues" -> {
                 context.valuesOrLengthArray = true;
-                break;
-            default:
-                break;
+            }
+            default -> {
+                // Do nothing
+            }
         }
     }
 
@@ -288,38 +288,27 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
-                    case FIELD_NAME:
-                        parseFieldName(parser, context);
-                        break;
-                    case END_OBJECT:
+                    case FIELD_NAME -> parseFieldName(parser, context);
+                    case END_OBJECT -> {
                         parseEndObject(context);
                         if (single) {
                             return;
-                        } else {
-                            break;
                         }
-                    case END_ARRAY:
+                    }
+                    case END_ARRAY -> {
                         if (context.valuesOrLengthArray) {
                             context.valuesOrLengthArray = false;
                         } else {
                             return; // end of chunk parsing
                         }
-                        break;
-                    case VALUE_NUMBER_FLOAT:
-                        context.addDoubleValue(parser.getDoubleValue());
-                        break;
-                    case VALUE_NUMBER_INT:
-                        parseValueNumberInt(parser, context);
-                        break;
-                    case VALUE_STRING:
-                        context.addStringValue(parser.getValueAsString());
-                        break;
-                    case VALUE_NULL:
-                        context.addStringValue(null);
-                        break;
-
-                    default:
-                        break;
+                    }
+                    case VALUE_NUMBER_FLOAT -> context.addDoubleValue(parser.getDoubleValue());
+                    case VALUE_NUMBER_INT -> parseValueNumberInt(parser, context);
+                    case VALUE_STRING -> context.addStringValue(parser.getValueAsString());
+                    case VALUE_NULL -> context.addStringValue(null);
+                    default -> {
+                        // Do nothing
+                    }
                 }
             }
         } catch (IOException e) {

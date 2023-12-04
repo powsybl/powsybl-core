@@ -86,17 +86,10 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     switch (fieldName) {
-                        case "startTime":
-                            startTime = parser.nextLongValue(-1);
-                            break;
-                        case "endTime":
-                            endTime = parser.nextLongValue(-1);
-                            break;
-                        case "spacing":
-                            spacing = parser.nextLongValue(-1);
-                            break;
-                        default:
-                            throw new IllegalStateException("Unexpected field " + fieldName);
+                        case "startTime" -> startTime = parser.nextLongValue(-1);
+                        case "endTime" -> endTime = parser.nextLongValue(-1);
+                        case "spacing" -> spacing = parser.nextLongValue(-1);
+                        default -> throw new IllegalStateException("Unexpected field " + fieldName);
                     }
                 } else if (token == JsonToken.END_OBJECT) {
                     if (startTime == -1 || endTime == -1 || spacing == -1) {

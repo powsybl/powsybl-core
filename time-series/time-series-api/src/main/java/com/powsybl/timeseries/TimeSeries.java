@@ -261,19 +261,16 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         void parseTokenTime(String[] tokens) {
             switch (timeSeriesCsvConfig.timeFormat()) {
-                case DATE_TIME:
-                    times.add(ZonedDateTime.parse(tokens[0]).toInstant().toEpochMilli());
-                    break;
-                case FRACTIONS_OF_SECOND:
+                case DATE_TIME -> times.add(ZonedDateTime.parse(tokens[0]).toInstant().toEpochMilli());
+                case FRACTIONS_OF_SECOND -> {
                     Double time = Double.parseDouble(tokens[0]) * 1000;
                     times.add(time.longValue());
-                    break;
-                case MILLIS:
+                }
+                case MILLIS -> {
                     Double millis = Double.parseDouble(tokens[0]);
                     times.add(millis.longValue());
-                    break;
-                default:
-                    throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
+                }
+                default -> throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
             }
         }
 
@@ -498,26 +495,23 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     switch (fieldName) {
-                        case "metadata":
-                            metadata = TimeSeriesMetadata.parseJson(parser);
-                            break;
-                        case "chunks":
+                        case "metadata" -> metadata = TimeSeriesMetadata.parseJson(parser);
+                        case "chunks" -> {
                             if (metadata == null) {
                                 throw new TimeSeriesException("metadata is null");
                             }
                             parseChunks(parser, metadata, timeSeriesList);
                             metadata = null;
-                            break;
-                        case "name":
-                            name = parser.nextTextValue();
-                            break;
-                        case "expr":
+                        }
+                        case "name" -> name = parser.nextTextValue();
+                        case "expr" -> {
                             Objects.requireNonNull(name);
                             NodeCalc nodeCalc = NodeCalc.parseJson(parser);
                             timeSeriesList.add(new CalculatedTimeSeries(name, nodeCalc));
-                            break;
-                        default:
-                            break;
+                        }
+                        default -> {
+                            // Do nothing
+                        }
                     }
                 } else if (token == JsonToken.END_OBJECT && single) {
                     break;
