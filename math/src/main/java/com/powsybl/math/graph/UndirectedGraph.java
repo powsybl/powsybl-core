@@ -271,6 +271,7 @@ public interface UndirectedGraph<V, E> {
      * At the end of the method, the encountered array contains {@literal true} for all the traversed vertices, {@literal false} otherwise.
      *
      * @param v the vertex index where the traverse has to start.
+     * @param traversalType the type of traversal (breadth-first or depth-first)
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
      * @param encountered the list of traversed vertices.
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
@@ -282,6 +283,7 @@ public interface UndirectedGraph<V, E> {
      * Traverse the entire graph, starting at the specified vertex v.
      * This method allocates a boolean array and calls {@link #traverse(int, TraversalType, Traverser, boolean[])}.
      * @param v the vertex index where the traverse has to start.
+     * @param traversalType the type of traversal (breadth-first or depth-first)
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
@@ -293,6 +295,7 @@ public interface UndirectedGraph<V, E> {
      * This method allocates a boolean array and calls {@link #traverse(int, TraversalType, Traverser, boolean[])} for each entry of
      * the array.
      * @param v the array of vertex indices where the traverse has to start.
+     * @param traversalType the type of traversal (breadth-first or depth-first)
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise

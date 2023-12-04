@@ -79,7 +79,7 @@ public class SensitivityValue {
 
     static final class ParsingContext {
         private int factorIndex;
-        private int contingencyIndex;
+        private int contingencyIndex = -1;
         private double value;
         private double functionReference;
     }

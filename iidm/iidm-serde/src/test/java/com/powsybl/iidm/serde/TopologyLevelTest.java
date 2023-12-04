@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Teofil Calin Banc<teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin Banc {@literal <teofil-calin.banc at rte-france.com>}
  */
 class TopologyLevelTest extends AbstractIidmSerDeTest {
 
@@ -43,15 +43,15 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
 
     private void testConversion(Network network) throws IOException {
         writeXmlTest(network, TopologyLevelTest::writeNodeBreaker,
-                getVersionedNetworkPath("fictitiousSwitchRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("fictitiousSwitchRef.xml", CURRENT_IIDM_VERSION));
 
         network.getSwitchStream().forEach(sw -> sw.setRetained(false));
         network.getSwitch("BJ").setRetained(true);
 
         writeXmlTest(network, TopologyLevelTest::writeBusBreaker,
-                getVersionedNetworkPath("fictitiousSwitchRef-bbk.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("fictitiousSwitchRef-bbk.xml", CURRENT_IIDM_VERSION));
         writeXmlTest(network, TopologyLevelTest::writeBusBranch,
-                getVersionedNetworkPath("fictitiousSwitchRef-bbr.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("fictitiousSwitchRef-bbr.xml", CURRENT_IIDM_VERSION));
     }
 
     private static void writeNodeBreaker(Network network, Path path) {

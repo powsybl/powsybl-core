@@ -246,7 +246,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
         CgmesControlAreas controlAreas = be.getExtension(CgmesControlAreas.class);
         assertNotNull(controlAreas);
-        System.out.println("cgmes control areas = " + controlAreas);
         assertFalse(controlAreas.getCgmesControlAreas().isEmpty());
         CgmesControlArea controlArea = controlAreas.getCgmesControlAreas().iterator().next();
         assertEquals(236.9798, controlArea.getNetInterchange(), 1e-10);

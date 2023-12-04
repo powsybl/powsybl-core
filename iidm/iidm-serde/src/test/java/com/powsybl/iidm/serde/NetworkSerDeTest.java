@@ -29,7 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -48,7 +48,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(createEurostagTutorialExample1(),
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION));
 
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
@@ -133,7 +133,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::write,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_VERSION));
 
         // backward compatibility
         roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
@@ -158,7 +158,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void failImportWithSeveralSubnetworkLevels() throws URISyntaxException {
         Path path = Path.of(getClass().getResource(getVersionedNetworkPath("multiple-subnetwork-levels.xml",
-                CURRENT_IIDM_XML_VERSION)).toURI());
+                CURRENT_IIDM_VERSION)).toURI());
         PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.validateAndRead(path));
         assertTrue(e.getMessage().contains("Only one level of subnetworks is currently supported."));
     }
@@ -179,11 +179,11 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(merged,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION));
         roundTripTest(merged,
                 (n, jsonFile) -> NetworkSerDe.write(n, new ExportOptions().setFormat(TreeDataFormat.JSON), jsonFile),
                 jsonFile -> NetworkSerDe.read(jsonFile, new ImportOptions().setFormat(TreeDataFormat.JSON)),
-                getVersionedNetworkPath("subnetworks.json", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("subnetworks.json", IidmSerDeConstants.CURRENT_IIDM_VERSION));
 
         roundTripVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
         roundTripVersionedJsonFromMinToCurrentVersionTest("subnetworks.json", IidmVersion.V_1_11);

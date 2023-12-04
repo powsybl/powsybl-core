@@ -20,7 +20,7 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -38,7 +38,7 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
 
         // check we have 2 files, the anonymized IIDM XML and a CSV mapping file and compare to anonymized reference files
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            compareXml(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_XML_VERSION), is);
+            compareXml(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_VERSION), is);
         }
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("_mapping", "csv"))) {
             compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-example1-mapping.csv"), is);
@@ -53,7 +53,7 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network2,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION));
     }
 
     @Test

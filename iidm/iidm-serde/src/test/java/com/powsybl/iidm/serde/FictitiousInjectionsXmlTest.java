@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -31,7 +31,7 @@ class FictitiousInjectionsXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("eurostag-fict-inj.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("eurostag-fict-inj.xml", CURRENT_IIDM_VERSION));
 
         // backward compatibility
         roundTripVersionedXmlFromMinToCurrentVersionTest("eurostag-fict-inj.xml", IidmVersion.V_1_8);
@@ -49,7 +49,7 @@ class FictitiousInjectionsXmlTest extends AbstractIidmSerDeTest {
         roundTripXmlTest(network,
                 NetworkSerDe::writeAndValidate,
                 NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("fictitiousSwitchRef-fict-inj.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("fictitiousSwitchRef-fict-inj.xml", CURRENT_IIDM_VERSION));
 
         // backward compatibility
         roundTripVersionedXmlFromMinToCurrentVersionTest("fictitiousSwitchRef-fict-inj.xml", IidmVersion.V_1_8);
