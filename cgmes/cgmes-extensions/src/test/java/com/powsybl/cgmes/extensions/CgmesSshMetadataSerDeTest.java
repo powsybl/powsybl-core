@@ -30,6 +30,6 @@ class CgmesSshMetadataSerDeTest extends AbstractCgmesExtensionTest {
                 .addDependency("http://dependency1")
                 .addDependency("http://dependency2")
                 .add();
-        fullRoundTripTest(network, "/eurostag_cgmes_ssh_metadata.xml");
+        allFormatsRoundTripTest(network, "/eurostag_cgmes_ssh_metadata.xml");
     }
 }

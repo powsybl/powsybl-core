@@ -34,10 +34,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(dl::newActivePowerLimits);
         createLoadingLimits(dl::newApparentPowerLimits);
         createLoadingLimits(dl::newCurrentLimits);
-        fullRoundTripTest(network, "dl-loading-limits.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "dl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("dl-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("dl-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -74,10 +74,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(twt::newApparentPowerLimits2);
         createLoadingLimits(twt::newCurrentLimits1);
         createLoadingLimits(twt::newCurrentLimits2);
-        fullRoundTripTest(network, "eurostag-loading-limits.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "eurostag-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("eurostag-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("eurostag-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -106,10 +106,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(tl.getDanglingLine2()::newApparentPowerLimits);
         createLoadingLimits(tl.getDanglingLine1()::newCurrentLimits);
         createLoadingLimits(tl.getDanglingLine2()::newCurrentLimits);
-        fullRoundTripTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -138,10 +138,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(() -> twt.getLeg2().newApparentPowerLimits());
         createLoadingLimits(() -> twt.getLeg3().newActivePowerLimits());
         createLoadingLimits(() -> twt.getLeg3().newApparentPowerLimits());
-        fullRoundTripTest(network, "t3w-loading-limits.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "t3w-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {

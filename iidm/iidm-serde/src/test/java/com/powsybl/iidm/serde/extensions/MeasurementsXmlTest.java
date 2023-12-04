@@ -65,6 +65,6 @@ class MeasurementsXmlTest extends AbstractIidmSerDeTest {
                 .putProperty("source", "test2")
                 .add();
 
-        fullRoundTripTest(network, "measRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "measRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
     }
 }

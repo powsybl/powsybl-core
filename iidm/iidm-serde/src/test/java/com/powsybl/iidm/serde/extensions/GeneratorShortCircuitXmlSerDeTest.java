@@ -36,7 +36,7 @@ class GeneratorShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
                 .withStepUpTransformerX(20)
                 .add();
 
-        Network network2 = fullRoundTripTest(network, "/shortcircuits/generatorShortCircuitRef.xml");
+        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/generatorShortCircuitRef.xml");
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);

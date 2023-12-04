@@ -35,7 +35,7 @@ class CoordinatedReactiveControlXmlTest extends AbstractIidmSerDeTest {
 
         gen.newExtension(CoordinatedReactiveControlAdder.class).withQPercent(100.0).add();
 
-        Network network2 = fullRoundTripTest(network, "/coordinatedReactiveControl.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/coordinatedReactiveControl.xml", CURRENT_IIDM_VERSION);
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);

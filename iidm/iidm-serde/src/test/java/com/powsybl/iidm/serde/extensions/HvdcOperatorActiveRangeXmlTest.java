@@ -33,7 +33,7 @@ class HvdcOperatorActiveRangeXmlTest extends AbstractIidmSerDeTest {
         HvdcLine hvdcLine = network.getHvdcLine("L");
         HvdcOperatorActivePowerRange extension = hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class).withOprFromCS1toCS2(1.0f).withOprFromCS2toCS1(2.0f).add();
 
-        Network network2 = fullRoundTripTest(network, "hvdcOperatorActiveRangeRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "hvdcOperatorActiveRangeRef.xml", CURRENT_IIDM_VERSION);
 
         HvdcLine hvdcLine2 = network2.getHvdcLine("L");
         assertEquals(hvdcLine2.getExtension(HvdcOperatorActivePowerRange.class), extension);

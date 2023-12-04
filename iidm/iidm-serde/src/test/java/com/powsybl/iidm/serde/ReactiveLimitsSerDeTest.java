@@ -21,8 +21,8 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("reactiveLimitsRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("reactiveLimitsRoundTripRef.xml");
 
-        fullRoundTripTest(ReactiveLimitsTestNetworkFactory.create(), "reactiveLimitsRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(ReactiveLimitsTestNetworkFactory.create(), "reactiveLimitsRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 }

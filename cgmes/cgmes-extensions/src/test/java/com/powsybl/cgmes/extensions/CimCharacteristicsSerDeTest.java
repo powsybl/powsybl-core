@@ -25,6 +25,6 @@ class CimCharacteristicsSerDeTest extends AbstractCgmesExtensionTest {
                 .setTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                 .setCimVersion(14)
                 .add();
-        fullRoundTripTest(network, "/eurostag_cim_characteristics.xml");
+        allFormatsRoundTripTest(network, "/eurostag_cim_characteristics.xml");
     }
 }

@@ -36,7 +36,7 @@ class IdentifiableShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
                 .add();
         IdentifiableShortCircuit voltageLevelShortCircuits = vlhv1.getExtension(IdentifiableShortCircuit.class);
 
-        Network network2 = fullRoundTripTest(network, "/shortcircuits/voltageLevelShortCircuitRef.xml");
+        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/voltageLevelShortCircuitRef.xml");
 
         VoltageLevel vlhv2 = network2.getVoltageLevel("VLHV1");
         assertNotNull(vlhv2);

@@ -44,10 +44,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        fullRoundTripTest(createEurostagTutorialExample1(), "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(createEurostagTutorialExample1(), "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
     @Test
@@ -126,10 +126,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testScada() throws IOException {
         Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
-        fullRoundTripTest(network, "scadaNetwork.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "scadaNetwork.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
     }
 
     @Test
@@ -169,9 +169,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");
         merged.addExtension(NetworkSourceExtension.class, source);
 
-        fullRoundTripTest(merged, "subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(merged, "subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
-        roundTripVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
         roundTripVersionedJsonFromMinToCurrentVersionTest("subnetworks.json", IidmVersion.V_1_11);
     }
 

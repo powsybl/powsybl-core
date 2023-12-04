@@ -38,7 +38,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
         Generator generator = network.getGenerator("GEN");
         generator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(generator, false, 3.0, 1.0));
 
-        Network network2 = fullRoundTripTest(network, "/activePowerControlRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);

@@ -34,7 +34,7 @@ class ThreeWindingsTransformerPhaseAngleClockXmlSerDeTest extends AbstractIidmSe
 
         transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(3).withPhaseAngleClockLeg3(1).add();
 
-        Network network2 = fullRoundTripTest(network, "/threeWindingsTransformerPhaseAngleClock.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/threeWindingsTransformerPhaseAngleClock.xml", CURRENT_IIDM_VERSION);
 
         ThreeWindingsTransformerPhaseAngleClock pacXml = network2.getThreeWindingsTransformer("3WT").getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
         assertNotNull(pacXml);

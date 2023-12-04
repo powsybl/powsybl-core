@@ -35,7 +35,7 @@ class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractIidmSerDeTest {
 
         svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(0.5).add();
 
-        Network network2 = fullRoundTripTest(network, "/voltagePerReactivePowerControl.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/voltagePerReactivePowerControl.xml", CURRENT_IIDM_VERSION);
 
         StaticVarCompensator svc2 = network2.getStaticVarCompensator("SVC2");
         assertNotNull(svc2);

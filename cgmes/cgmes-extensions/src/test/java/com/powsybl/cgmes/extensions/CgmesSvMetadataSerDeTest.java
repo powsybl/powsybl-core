@@ -29,6 +29,6 @@ class CgmesSvMetadataSerDeTest extends AbstractCgmesExtensionTest {
                 .addDependency("http://dependency1")
                 .addDependency("http://dependency2")
                 .add();
-        fullRoundTripTest(network, "/eurostag_cgmes_sv_metadata.xml");
+        allFormatsRoundTripTest(network, "/eurostag_cgmes_sv_metadata.xml");
     }
 }

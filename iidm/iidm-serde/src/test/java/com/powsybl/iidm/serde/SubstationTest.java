@@ -27,6 +27,6 @@ class SubstationTest extends AbstractIidmSerDeTest {
         Substation s1 = n.newSubstation().setId("sub1").setGeographicalTags("geoTag1", "geoTag2").add();
         s1.newVoltageLevel().setId("VL1").setNominalV(1).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         n.newSubstation().setId("sub2").setGeographicalTags("geoTag3", "geoTag4").add();
-        fullRoundTripTest(n, "/geographicalTags.xml");
+        allFormatsRoundTripTest(n, "/geographicalTags.xml");
     }
 }

@@ -26,18 +26,18 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("staticVarCompensatorRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("staticVarCompensatorRoundTripRef.xml");
 
         Network network = SvcTestCaseFactory.create();
         addProperties(network);
-        fullRoundTripTest(network, "staticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "staticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test
     void remoteRegulationRoundTripTest() throws IOException {
         Network network = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
         addProperties(network);
-        fullRoundTripTest(network, "regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test

@@ -30,10 +30,10 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         Network network = ShuntTestCaseFactory.createWithActivePower();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
-        fullRoundTripTest(network, "shuntRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "shuntRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("shuntRoundTripRef.xml", IidmVersion.V_1_2);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("shuntRoundTripRef.xml", IidmVersion.V_1_2);
     }
 
     @Test
@@ -41,10 +41,10 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         Network network = ShuntTestCaseFactory.createNonLinear();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
-        fullRoundTripTest(network, "nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.2
-        roundTripVersionedXmlFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmVersion.V_1_3);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmVersion.V_1_3);
 
         // check that it fails for versions previous to 1.2
         testForAllPreviousVersions(IidmVersion.V_1_3, version -> {

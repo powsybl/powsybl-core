@@ -25,7 +25,7 @@ import java.nio.file.Path;
  */
 public abstract class AbstractCgmesExtensionTest extends AbstractSerDeTest {
 
-    protected void fullRoundTripTest(Network network, String xmlRefFile) throws IOException {
+    protected void allFormatsRoundTripTest(Network network, String xmlRefFile) throws IOException {
         roundTripXmlTest(network, this::jsonWriteAndRead, NetworkSerDe::write, NetworkSerDe::validateAndRead, xmlRefFile);
     }
 

@@ -76,7 +76,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         RemoteReactivePowerControl rrpc = network.getGenerator("G").getExtension(RemoteReactivePowerControl.class);
         assertNotNull(rrpc);
 
-        Network network2 = fullRoundTripTest(network, "remoteReactivePowerControlRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "remoteReactivePowerControlRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Generator gen2 = network2.getGenerator("G");
         Line line = network.getLine("L12");
@@ -90,7 +90,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         assertEquals(line.getSide(rrpc.getRegulatingTerminal()), line2.getSide(rrpc2.getRegulatingTerminal()));
 
         // backward compatibility checks from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("remoteReactivePowerControlRef.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("remoteReactivePowerControlRef.xml", IidmVersion.V_1_5);
 
         // check it fails for all versions < 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {

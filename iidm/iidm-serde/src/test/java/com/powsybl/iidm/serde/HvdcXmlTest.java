@@ -20,17 +20,17 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripLccTest() throws IOException {
-        fullRoundTripTest(HvdcTestNetwork.createLcc(), "LccRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(HvdcTestNetwork.createLcc(), "LccRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("LccRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("LccRoundTripRef.xml");
     }
 
     @Test
     void roundTripVscTest() throws IOException {
-        fullRoundTripTest(HvdcTestNetwork.createVsc(), "VscRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(HvdcTestNetwork.createVsc(), "VscRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("VscRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("VscRoundTripRef.xml");
     }
 }

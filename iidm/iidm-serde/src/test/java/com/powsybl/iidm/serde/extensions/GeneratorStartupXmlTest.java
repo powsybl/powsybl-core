@@ -40,7 +40,7 @@ class GeneratorStartupXmlTest extends AbstractIidmSerDeTest {
                 .withForcedOutageRate(0.7)
                 .add();
 
-        Network network2 = fullRoundTripTest(network, "generatorStartupRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "generatorStartupRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);
@@ -53,9 +53,9 @@ class GeneratorStartupXmlTest extends AbstractIidmSerDeTest {
         assertEquals(startup.getForcedOutageRate(), startup2.getForcedOutageRate(), 0);
 
         // backward compatibility
-        fullRoundTripTest(network, "generatorStartupRef-1.0.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION,
+        allFormatsRoundTripTest(network, "generatorStartupRef-1.0.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION,
                 new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0"));
-        fullRoundTripTest(network, "generatorStartupRef-1.0-itesla.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION,
+        allFormatsRoundTripTest(network, "generatorStartupRef-1.0-itesla.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION,
                 new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0-itesla"));
     }
 

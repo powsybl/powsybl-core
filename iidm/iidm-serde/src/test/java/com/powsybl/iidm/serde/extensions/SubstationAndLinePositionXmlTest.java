@@ -37,7 +37,7 @@ class SubstationAndLinePositionXmlTest extends AbstractIidmSerDeTest {
                 .withCoordinates(List.of(new Coordinate(48, 2), new Coordinate(48.1, 2.1)))
                 .add();
 
-        Network network2 = fullRoundTripTest(network, "/substationAndLinePositionRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/substationAndLinePositionRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         var substationPosition = network2.getSubstation("P1").getExtension(SubstationPosition.class);
         assertNotNull(substationPosition);

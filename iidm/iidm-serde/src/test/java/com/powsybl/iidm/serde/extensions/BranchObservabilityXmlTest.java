@@ -71,7 +71,7 @@ class BranchObservabilityXmlTest extends AbstractIidmSerDeTest {
                 .add();
 
         for (var version : fromMinToCurrentVersion(IidmVersion.V_1_6)) {
-            Network network2 = fullRoundTripTest(network, "/branchObservabilityRoundTripRef.xml", version, new ExportOptions().setSorted(true));
+            Network network2 = allFormatsRoundTripTest(network, "/branchObservabilityRoundTripRef.xml", version, new ExportOptions().setSorted(true));
 
             line1 = network2.getLine("NHV1_NHV2_1");
             assertNotNull(line1);

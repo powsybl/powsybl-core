@@ -26,7 +26,7 @@ class NodeBreakerPropertiesOnBusTest extends AbstractIidmSerDeTest {
 
         // can export and reload a network in current and older XIIDM versions
         for (IidmVersion version : IidmVersion.values()) {
-            fullRoundTripTest(network, "nodebreaker-busproperties.xml", version);
+            allFormatsRoundTripTest(network, "nodebreaker-busproperties.xml", version);
         }
     }
 }

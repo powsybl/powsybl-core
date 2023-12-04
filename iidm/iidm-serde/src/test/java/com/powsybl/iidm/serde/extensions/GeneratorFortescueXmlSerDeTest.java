@@ -41,7 +41,7 @@ class GeneratorFortescueXmlSerDeTest extends AbstractIidmSerDeTest {
                 .withGroundingX(0.3d)
                 .add();
 
-        Network network2 = fullRoundTripTest(network, "/fortescue/generatorFortescueRef.xml");
+        Network network2 = allFormatsRoundTripTest(network, "/fortescue/generatorFortescueRef.xml");
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);

@@ -61,7 +61,7 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
         assertNotNull(generator);
         GeneratorEntsoeCategory entsoeCategory = generator.newExtension(GeneratorEntsoeCategoryAdder.class).withCode(4).add();
 
-        Network network2 = fullRoundTripTest(network, "/generatorEntsoeCategoryRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/generatorEntsoeCategoryRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);

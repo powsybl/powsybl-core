@@ -26,7 +26,7 @@ class DanglingLineXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
-        roundTripAllVersionedXmlTest("danglingLine.xml");
+        allFormatsRoundTripAllVersionedXmlTest("danglingLine.xml");
     }
 
     @Test
@@ -34,10 +34,10 @@ class DanglingLineXmlTest extends AbstractIidmSerDeTest {
         Network network = DanglingLineNetworkFactory.createWithGeneration();
         network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
         network.getDanglingLine("DL").setProperty("test", "test");
-        fullRoundTripTest(network, "danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // backward compatibility checks from version 1.3
-        roundTripVersionedXmlFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmVersion.V_1_3);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmVersion.V_1_3);
 
         // check it fails for all versions < 1.3
         testForAllPreviousVersions(IidmVersion.V_1_3, version -> {

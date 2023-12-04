@@ -49,6 +49,6 @@ class CgmesControlAreasSerDeTest extends AbstractCgmesExtensionTest {
                 .add(network.getLine("NHV1_NHV2_1").getTerminal1());
         network.getExtension(CgmesControlAreas.class).getCgmesControlArea("cgmesControlAreaId").add(network.getDanglingLine("DL").getBoundary());
 
-        fullRoundTripTest(network, "/eurostag_cgmes_control_area.xml");
+        allFormatsRoundTripTest(network, "/eurostag_cgmes_control_area.xml");
     }
 }

@@ -33,7 +33,7 @@ class HvdcAngleDroopActivePowerControlXmlTest extends AbstractIidmSerDeTest {
         HvdcLine hvdcLine = network.getHvdcLine("L");
         HvdcAngleDroopActivePowerControl extension = hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class).withEnabled(true).withDroop(0.1f).withP0(200).add();
 
-        Network network2 = fullRoundTripTest(network, "hvdcAngleDroopActivePowerControlRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "hvdcAngleDroopActivePowerControlRef.xml", CURRENT_IIDM_VERSION);
 
         HvdcLine hvdcLine2 = network2.getHvdcLine("L");
         assertEquals(hvdcLine2.getExtension(HvdcAngleDroopActivePowerControl.class), extension);

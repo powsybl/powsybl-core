@@ -37,7 +37,7 @@ class LineFortescueXmlSerDeTest extends AbstractIidmSerDeTest {
                 .withOpenPhaseC(true)
                 .add();
 
-        Network network2 = fullRoundTripTest(network, "/fortescue/lineFortescueRef.xml");
+        Network network2 = allFormatsRoundTripTest(network, "/fortescue/lineFortescueRef.xml");
 
         Line l2 = network2.getLine("NHV1_NHV2_1");
         assertNotNull(l2);

@@ -41,7 +41,7 @@ class InjectionObservabilityXmlTest extends AbstractIidmSerDeTest {
 
         Generator generator = network.getGenerator("GEN");
         generator.addExtension(InjectionObservability.class, new InjectionObservabilityImpl<>(generator, false, 0.02d, true, 0.5d, true, 0.0d, true));
-        Network network2 = fullRoundTripTest(network, "/injectionObservabilityRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/injectionObservabilityRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);

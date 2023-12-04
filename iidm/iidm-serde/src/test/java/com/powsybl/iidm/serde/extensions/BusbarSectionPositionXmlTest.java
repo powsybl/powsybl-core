@@ -51,7 +51,7 @@ class BusbarSectionPositionXmlTest extends AbstractIidmSerDeTest {
         BusbarSectionPositionImpl busbarSectionPosition = new BusbarSectionPositionImpl(busbarSection, 0, 1);
         busbarSection.addExtension(BusbarSectionPosition.class, busbarSectionPosition);
 
-        Network network2 = fullRoundTripTest(network, "/busbarSectionPositionRef.xml");
+        Network network2 = allFormatsRoundTripTest(network, "/busbarSectionPositionRef.xml");
 
         BusbarSection busbarSection2 = network2.getVoltageLevel("VL").getNodeBreakerView().getBusbarSection("BBS");
         BusbarSectionPositionImpl busbarSectionPosition2 = busbarSection2.getExtension(BusbarSectionPosition.class);
