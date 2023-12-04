@@ -20,11 +20,8 @@ class PhaseShifterXmlTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("phaseShifterRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("phaseShifterRoundTripRef.xml");
 
-        roundTripXmlTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("phaseShifterRoundTripRef.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(), "phaseShifterRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 }

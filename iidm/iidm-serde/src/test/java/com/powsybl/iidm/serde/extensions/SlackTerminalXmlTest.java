@@ -7,12 +7,11 @@
 package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.XMLExporter;
 import org.junit.jupiter.api.Test;
@@ -21,14 +20,13 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
-import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-class SlackTerminalXmlTest extends AbstractSerDeTest {
+class SlackTerminalXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -48,10 +46,7 @@ class SlackTerminalXmlTest extends AbstractSerDeTest {
 
         vl.newExtension(SlackTerminalAdder.class).withTerminal(t).add();
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                "/slackTerminal.xml");
+        Network network2 = allFormatsRoundTripTest(network, "/slackTerminal.xml");
 
         VoltageLevel vl2 = network2.getVoltageLevel(voltageLevelId);
         assertNotNull(vl2);
@@ -85,11 +80,7 @@ class SlackTerminalXmlTest extends AbstractSerDeTest {
         // Removing slackTerminal from current variant
         assertTrue(st.setTerminal(null).isEmpty());
 
-        Network network2 = roundTripTest(network,
-            NetworkSerDe::writeAndValidate,
-            NetworkSerDe::read,
-            ComparisonUtils::compareXml,
-            getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION));
+        Network network2 = allFormatsRoundTripTest(network, "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
 
         VoltageLevel vl2 = network2.getVoltageLevel(voltageLevelId);
         assertNotNull(vl2);

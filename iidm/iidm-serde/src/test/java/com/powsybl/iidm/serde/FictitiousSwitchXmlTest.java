@@ -20,13 +20,10 @@ class FictitiousSwitchXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripXmlTest(FictitiousSwitchFactory.create(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("fictitiousSwitchRef.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(FictitiousSwitchFactory.create(), "fictitiousSwitchRef.xml", CURRENT_IIDM_VERSION);
 
         //backward compatibility
-        roundTripAllPreviousVersionedXmlTest("fictitiousSwitchRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("fictitiousSwitchRef.xml");
     }
 
 }
