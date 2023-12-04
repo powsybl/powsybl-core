@@ -158,11 +158,14 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         actual.removeExtension(CgmesControlAreas.class);
 
         // Export original and with new SSH
-        NetworkSerDe.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkSerDe.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expected, expectedPath);
+        NetworkSerDe.write(actual, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffsIidm);
+        ExportXmlCompare.compareNetworks(expectedPath, actualPath, knownDiffsIidm);
     }
 
     @Test

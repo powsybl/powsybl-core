@@ -12,7 +12,6 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
-import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
@@ -45,13 +44,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripXmlTest(createEurostagTutorialExample1(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(createEurostagTutorialExample1(), "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
     @Test
@@ -59,8 +55,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Network network = createEurostagTutorialExample1();
         network.getGenerator("GEN").setProperty("test", "foo");
         Path xmlFile = tmpDir.resolve("n.xml");
-        NetworkSerDe.writeAndValidate(network, xmlFile);
-        Network readNetwork = NetworkSerDe.read(xmlFile);
+        NetworkSerDe.write(network, xmlFile);
+        Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
         assertEquals("foo", readNetwork.getGenerator("GEN").getProperty("test"));
     }
 
@@ -130,13 +126,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testScada() throws IOException {
         Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
-        roundTripXmlTest(network,
-                NetworkSerDe::write,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(network, "scadaNetwork.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
     }
 
     @Test
@@ -176,17 +169,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");
         merged.addExtension(NetworkSourceExtension.class, source);
 
-        roundTripXmlTest(merged,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION));
-        roundTripTest(merged,
-                (n, jsonFile) -> NetworkSerDe.write(n, new ExportOptions().setFormat(TreeDataFormat.JSON), jsonFile),
-                jsonFile -> NetworkSerDe.read(jsonFile, new ImportOptions().setFormat(TreeDataFormat.JSON)),
-                getVersionedNetworkPath("subnetworks.json", IidmSerDeConstants.CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(merged, "subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
-        roundTripVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
-        roundTripVersionedJsonFromMinToCurrentVersionTest("subnetworks.json", IidmVersion.V_1_11);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
     }
 
     private Network createNetwork(int num) {

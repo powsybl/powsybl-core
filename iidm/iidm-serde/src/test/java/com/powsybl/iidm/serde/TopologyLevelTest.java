@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,36 +41,14 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
     }
 
     private void testConversion(Network network) throws IOException {
-        writeXmlTest(network, TopologyLevelTest::writeNodeBreaker,
-                getVersionedNetworkPath("fictitiousSwitchRef.xml", CURRENT_IIDM_VERSION));
+
+        ExportOptions options = new ExportOptions();
+        testWriteVersionedXml(network, options.setTopologyLevel(TopologyLevel.NODE_BREAKER), "fictitiousSwitchRef.xml", CURRENT_IIDM_VERSION);
 
         network.getSwitchStream().forEach(sw -> sw.setRetained(false));
         network.getSwitch("BJ").setRetained(true);
 
-        writeXmlTest(network, TopologyLevelTest::writeBusBreaker,
-                getVersionedNetworkPath("fictitiousSwitchRef-bbk.xml", CURRENT_IIDM_VERSION));
-        writeXmlTest(network, TopologyLevelTest::writeBusBranch,
-                getVersionedNetworkPath("fictitiousSwitchRef-bbr.xml", CURRENT_IIDM_VERSION));
-    }
-
-    private static void writeNodeBreaker(Network network, Path path) {
-        ExportOptions options = new ExportOptions()
-                .setTopologyLevel(TopologyLevel.NODE_BREAKER);
-
-        NetworkSerDe.write(network, options, path);
-    }
-
-    private static void writeBusBreaker(Network network, Path path) {
-        ExportOptions options = new ExportOptions()
-                .setTopologyLevel(TopologyLevel.BUS_BREAKER);
-
-        NetworkSerDe.write(network, options, path);
-    }
-
-    private static void writeBusBranch(Network network, Path path) {
-        ExportOptions options = new ExportOptions()
-                .setTopologyLevel(TopologyLevel.BUS_BRANCH);
-
-        NetworkSerDe.write(network, options, path);
+        testWriteVersionedXml(network, options.setTopologyLevel(TopologyLevel.BUS_BREAKER), "fictitiousSwitchRef-bbk.xml", CURRENT_IIDM_VERSION);
+        testWriteVersionedXml(network, options.setTopologyLevel(TopologyLevel.BUS_BRANCH), "fictitiousSwitchRef-bbr.xml", CURRENT_IIDM_VERSION);
     }
 }

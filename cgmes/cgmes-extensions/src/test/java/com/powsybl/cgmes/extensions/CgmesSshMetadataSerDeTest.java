@@ -6,10 +6,8 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -19,7 +17,7 @@ import java.time.ZonedDateTime;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class CgmesSshMetadataSerDeTest extends AbstractSerDeTest {
+class CgmesSshMetadataSerDeTest extends AbstractCgmesExtensionTest {
 
     @Test
     void test() throws IOException {
@@ -32,6 +30,6 @@ class CgmesSshMetadataSerDeTest extends AbstractSerDeTest {
                 .addDependency("http://dependency1")
                 .addDependency("http://dependency2")
                 .add();
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead, "/eurostag_cgmes_ssh_metadata.xml");
+        allFormatsRoundTripTest(network, "/eurostag_cgmes_ssh_metadata.xml");
     }
 }
