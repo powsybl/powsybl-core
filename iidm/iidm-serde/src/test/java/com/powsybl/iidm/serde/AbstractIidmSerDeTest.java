@@ -9,11 +9,13 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -53,14 +55,11 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
-     * Execute a round trip test on the test resource IIDM-XML file with a given file name for the given IIDM versions.
+     * Execute an all-formats round trip test on the test resource IIDM-XML file with a given file name for the given IIDM versions.
      */
-    protected void roundTripVersionedXmlTest(String file, IidmVersion... versions) throws IOException {
+    protected void allFormatsRoundTripFromVersionedXmlTest(String file, IidmVersion... versions) throws IOException {
         for (IidmVersion version : versions) {
-            roundTripXmlTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version)),
-                    writeAndValidate(version),
-                    NetworkSerDe::validateAndRead,
-                    getVersionedNetworkPath(file, version));
+            allFormatsRoundTripTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version)), file, version);
         }
     }
 
@@ -78,13 +77,11 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
-     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions
-     * strictly older than the current IIDM version.
+     * Execute an all-formats round trip test on the test resource IIDM-XML file with a given file name for all IIDM
+     * versions strictly older than the current IIDM version.
      */
-    protected void roundTripAllPreviousVersionedXmlTest(String file) throws IOException {
-        roundTripVersionedXmlTest(file, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(CURRENT_IIDM_VERSION) < 0)
-                .toArray(IidmVersion[]::new));
+    protected void allFormatsRoundTripAllPreviousVersionedXmlTest(String file) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, allPreviousVersions(CURRENT_IIDM_VERSION));
     }
 
     /**
@@ -92,17 +89,15 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * strictly older than the current IIDM version.
      */
     protected void roundTripAllPreviousVersionedJsonTest(String file) throws IOException {
-        roundTripVersionedJsonTest(file, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(CURRENT_IIDM_VERSION) < 0)
-                .toArray(IidmVersion[]::new));
+        roundTripVersionedJsonTest(file, allPreviousVersions(CURRENT_IIDM_VERSION));
     }
 
     /**
      * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions
      * equals or more recent than a given minimum IIDM version <b>and</b> strictly older than the current IIDM version.
      */
-    protected void roundTripVersionedXmlFromMinToCurrentVersionTest(String file, IidmVersion minVersion) throws IOException {
-        roundTripVersionedXmlTest(file, Stream.of(IidmVersion.values())
+    protected void allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest(String file, IidmVersion minVersion) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_VERSION) < 0)
                 .toArray(IidmVersion[]::new));
     }
@@ -120,8 +115,8 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     /**
      * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions.
      */
-    protected void roundTripAllVersionedXmlTest(String file) throws IOException {
-        roundTripVersionedXmlTest(file, IidmVersion.values());
+    protected void allFormatsRoundTripAllVersionedXmlTest(String file) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, IidmVersion.values());
     }
 
     /**
@@ -134,23 +129,133 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
-     * @deprecated Use {@link #roundTripVersionedXmlTest(String, IidmVersion...)} instead.
+     * Execute a write test for the given network, for all IIDM versions strictly older than a given maximum IIDM
+     * version, and compare to the given versioned xml reference test resource.
      */
-    @Deprecated
-    protected void roundTripVersionnedXmlTest(String file, IidmVersion... versions) throws IOException {
-        roundTripVersionedXmlTest(file, versions);
+    protected void testWriteXmlAllPreviousVersions(Network network, ExportOptions exportOptions, String filename,
+                                                   IidmVersion maxVersionExcluded) throws IOException {
+        testWriteVersionedXml(network, exportOptions, filename, allPreviousVersions(maxVersionExcluded));
     }
 
     /**
-     * @deprecated Use {@link #roundTripAllVersionedXmlTest(String)} instead.
+     * Execute a write test for the given network, for all IIDM versions given, and compare to the given versioned xml
+     * reference test resource.
      */
-    @Deprecated
-    protected void roundTripAllVersionnedXmlTest(String file) throws IOException {
-        roundTripAllVersionedXmlTest(file);
+    protected void testWriteVersionedXml(Network network, ExportOptions exportOptions, String filename,
+                                                   IidmVersion... versions) throws IOException {
+        for (IidmVersion version : versions) {
+            writeXmlTest(network,
+                    (n, p) -> NetworkSerDe.write(n, exportOptions.setVersion(version.toString(".")), p),
+                    getVersionedNetworkPath(filename, version));
+        }
     }
 
-    private static BiConsumer<Network, Path> writeAndValidate(IidmVersion version) {
-        ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-        return (n, p) -> NetworkSerDe.writeAndValidate(n, options, p);
+    private static IidmVersion[] allPreviousVersions(IidmVersion maxVersionExcluded) {
+        return Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(maxVersionExcluded) < 0)
+                .toArray(IidmVersion[]::new);
+    }
+
+    /**
+     * All-formats round trip from given network with reference xml file:
+     * <ul>
+     *     <li>write given network to a JSON file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>validate the resulting file</li>
+     *     <li>compare the resulting file to reference file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>compare the resulting file to reference file</li>
+     * </ul>
+     * @param network the network to start with
+     * @param refXmlFile the name of the reference file resource, including its path
+     * @return the Network read just before the end of the round trip
+     */
+    public Network allFormatsRoundTripTest(Network network, String refXmlFile) throws IOException {
+        return allFormatsRoundTripTest(network, refXmlFile, new ExportOptions());
+    }
+
+    /**
+     * All-formats round trip from given network with versioned reference xml file:
+     * <ul>
+     *     <li>write given network to a JSON file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>validate the resulting file</li>
+     *     <li>compare the resulting file to reference file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>compare the resulting file to reference file</li>
+     * </ul>
+     * @param network the network to start with
+     * @param filename the filename of the reference versioned file resource
+     * @return the Network read just before the end of the round trip
+     */
+    public Network allFormatsRoundTripTest(Network network, String filename, IidmVersion version) throws IOException {
+        return allFormatsRoundTripTest(network, filename, version, new ExportOptions());
+    }
+
+    /**
+     * All-formats round trip from given network with versioned reference xml file:
+     * <ul>
+     *     <li>write given network to a JSON file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>validate the resulting file</li>
+     *     <li>compare the resulting file to reference file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>compare the resulting file to reference file</li>
+     * </ul>
+     * @param network the network to start with
+     * @param filename the filename of the reference versioned file resource
+     * @param version the version to use for exporting and for the versioned filename
+     * @param exportOptions the options to use for exporting
+     * @return the Network read just before the end of the round trip
+     */
+    public Network allFormatsRoundTripTest(Network network, String filename, IidmVersion version, ExportOptions exportOptions) throws IOException {
+        return allFormatsRoundTripTest(network, getVersionedNetworkPath(filename, version), exportOptions.setVersion(version.toString(".")));
+    }
+
+    /**
+     * All-formats round trip from given network with reference xml file:
+     * <ul>
+     *     <li>write given network to a JSON file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>validate the resulting file</li>
+     *     <li>compare the resulting file to reference file</li>
+     *     <li>read the resulting file</li>
+     *     <li>write the resulting network to a XML file</li>
+     *     <li>compare the resulting file to reference file</li>
+     * </ul>
+     * @param network the network to start with
+     * @param refXmlFile the name of the reference file resource, including its path
+     * @param exportOptions the options to use for exporting
+     * @return the Network read just before the end of the round trip
+     */
+    public Network allFormatsRoundTripTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
+        return roundTripXmlTest(network,
+                (n, p) -> jsonWriteAndRead(n, exportOptions, p),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                refXmlFile);
+    }
+
+    /**
+     * Writes given network to JSON file, then reads the resulting file and returns the resulting network
+     */
+    private static Network jsonWriteAndRead(Network networkInput, ExportOptions options, Path path) {
+        TreeDataFormat previousFormat = options.getFormat();
+        options.setFormat(TreeDataFormat.JSON);
+        Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
+        try (InputStream is = Files.newInputStream(path)) {
+            Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);
+            options.setFormat(previousFormat);
+            return networkOutput;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

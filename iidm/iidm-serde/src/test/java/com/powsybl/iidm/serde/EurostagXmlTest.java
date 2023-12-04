@@ -20,12 +20,9 @@ class EurostagXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void loadFlowResultsTest() throws IOException {
-        roundTripXmlTest(EurostagTutorialExample1Factory.createWithLFResults(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial1-lf.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithLFResults(), "eurostag-tutorial1-lf.xml", CURRENT_IIDM_VERSION);
 
         //backward compatibility
-        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial1-lf.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial1-lf.xml");
     }
 }

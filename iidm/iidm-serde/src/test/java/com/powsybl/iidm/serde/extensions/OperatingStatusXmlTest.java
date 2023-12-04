@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.impl.extensions.OperatingStatusImpl;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
-class OperatingStatusXmlTest extends AbstractSerDeTest {
+class OperatingStatusXmlTest extends AbstractIidmSerDeTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -71,10 +71,7 @@ class OperatingStatusXmlTest extends AbstractSerDeTest {
                 OperatingStatus.Status.PLANNED_OUTAGE);
         line.addExtension(OperatingStatus.class, lineOperatingStatus);
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                "/operatingStatusRef.xml");
+        Network network2 = allFormatsRoundTripTest(network, "/operatingStatusRef.xml");
 
         Line line2 = network2.getLine("L");
         assertNotNull(line2);

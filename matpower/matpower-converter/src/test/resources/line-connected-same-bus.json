@@ -4,7 +4,7 @@
   "version" : "2",
   "buses" : [ {
     "number" : 1,
-    "type" : "PV",
+    "type" : "REF",
     "name" : "VLGEN_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
@@ -19,7 +19,7 @@
     "minimumVoltageMagnitude" : 0.0
   }, {
     "number" : 2,
-    "type" : "REF",
+    "type" : "PQ",
     "name" : "VLHV1_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
@@ -30,8 +30,8 @@
     "voltageAngle" : 0.0,
     "baseVoltage" : 380.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 1.3157894736842106,
-    "minimumVoltageMagnitude" : 1.0526315789473684
+    "maximumVoltageMagnitude" : 0.0,
+    "minimumVoltageMagnitude" : 0.0
   }, {
     "number" : 3,
     "type" : "PQ",
@@ -45,8 +45,8 @@
     "voltageAngle" : 0.0,
     "baseVoltage" : 380.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 1.3157894736842106,
-    "minimumVoltageMagnitude" : 0.7894736842105263
+    "maximumVoltageMagnitude" : 0.0,
+    "minimumVoltageMagnitude" : 0.0
   }, {
     "number" : 4,
     "type" : "PQ",
@@ -85,28 +85,6 @@
     "rampThirtyMinutes" : 0.0,
     "rampQ" : 0.0,
     "apf" : 0.0
-  }, {
-    "number" : 1,
-    "realPowerOutput" : 607.0,
-    "reactivePowerOutput" : 301.0,
-    "maximumReactivePowerOutput" : 10000.0,
-    "minimumReactivePowerOutput" : -10000.0,
-    "voltageMagnitudeSetpoint" : 1.0208333333333333,
-    "totalMbase" : 0.0,
-    "status" : 1,
-    "maximumRealPowerOutput" : 9999.99,
-    "minimumRealPowerOutput" : -9999.99,
-    "pc1" : 0.0,
-    "pc2" : 0.0,
-    "qc1Min" : 0.0,
-    "qc1Max" : 0.0,
-    "qc2Min" : 0.0,
-    "qc2Max" : 0.0,
-    "rampAgc" : 0.0,
-    "rampTenMinutes" : 0.0,
-    "rampThirtyMinutes" : 0.0,
-    "rampQ" : 0.0,
-    "apf" : 0.0
   } ],
   "branches" : [ {
     "from" : 2,
@@ -114,9 +92,9 @@
     "r" : 0.002077562326869806,
     "x" : 0.022853185595567867,
     "b" : 0.557384,
-    "rateA" : 418.0,
-    "rateB" : 456.0,
-    "rateC" : 570.0,
+    "rateA" : 0.0,
+    "rateB" : 0.0,
+    "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
     "status" : 1.0,
@@ -128,8 +106,8 @@
     "r" : 0.002077562326869806,
     "x" : 0.022853185595567867,
     "b" : 0.557384,
-    "rateA" : 418.0,
-    "rateB" : 456.0,
+    "rateA" : 0.0,
+    "rateB" : 0.0,
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,

@@ -6,18 +6,15 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.function.Supplier;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -37,13 +34,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(dl::newActivePowerLimits);
         createLoadingLimits(dl::newApparentPowerLimits);
         createLoadingLimits(dl::newCurrentLimits);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("dl-loading-limits.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(network, "dl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("dl-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("dl-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -58,13 +52,8 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         });
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
-            try {
-                writeXmlTest(network, (n, p) -> write(n, p, version), getVersionedNetworkPath("dl-loading-limits.xml", version));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
+        testWriteXmlAllPreviousVersions(network, options, "dl-loading-limits.xml", IidmVersion.V_1_5);
     }
 
     @Test
@@ -85,13 +74,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(twt::newApparentPowerLimits2);
         createLoadingLimits(twt::newCurrentLimits1);
         createLoadingLimits(twt::newCurrentLimits2);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("eurostag-loading-limits.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(network, "eurostag-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("eurostag-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("eurostag-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -106,13 +92,8 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         });
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
-            try {
-                writeTest(network, (n, p) -> write(n, p, version), ComparisonUtils::compareXml, getVersionedNetworkPath("eurostag-loading-limits.xml", version));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
+        testWriteXmlAllPreviousVersions(network, options, "eurostag-loading-limits.xml", IidmVersion.V_1_5);
     }
 
     @Test
@@ -125,13 +106,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(tl.getDanglingLine2()::newApparentPowerLimits);
         createLoadingLimits(tl.getDanglingLine1()::newCurrentLimits);
         createLoadingLimits(tl.getDanglingLine2()::newCurrentLimits);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("tl-loading-limits.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -146,13 +124,8 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         });
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
-            try {
-                writeXmlTest(network, (n, p) -> write(n, p, version), getVersionedNetworkPath("tl-loading-limits.xml", version));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
+        testWriteXmlAllPreviousVersions(network, options, "tl-loading-limits.xml", IidmVersion.V_1_5);
     }
 
     @Test
@@ -165,13 +138,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(() -> twt.getLeg2().newApparentPowerLimits());
         createLoadingLimits(() -> twt.getLeg3().newActivePowerLimits());
         createLoadingLimits(() -> twt.getLeg3().newApparentPowerLimits());
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("t3w-loading-limits.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(network, "t3w-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -186,13 +156,8 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         });
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
-        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
-            try {
-                writeXmlTest(network, (n, p) -> write(n, p, version), getVersionedNetworkPath("t3w-loading-limits.xml", version));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
+        testWriteXmlAllPreviousVersions(network, options, "t3w-loading-limits.xml", IidmVersion.V_1_5);
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier) {
@@ -209,11 +174,5 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
                 .setName("10'")
                 .endTemporaryLimit()
                 .add();
-    }
-
-    private static void write(Network network, Path path, IidmVersion version) {
-        ExportOptions options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR)
-                .setVersion(version.toString("."));
-        NetworkSerDe.write(network, options, path);
     }
 }
