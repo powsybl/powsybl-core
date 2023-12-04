@@ -162,7 +162,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Path actualPath = tmpDir.resolve("actual.xml");
         NetworkSerDe.write(expected, expectedPath);
         NetworkSerDe.write(actual, actualPath);
-        NetworkSerDe.validate(expectedPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
         ExportXmlCompare.compareNetworks(expectedPath, actualPath, knownDiffsIidm);

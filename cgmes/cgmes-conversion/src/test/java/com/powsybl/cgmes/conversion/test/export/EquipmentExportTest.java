@@ -1062,7 +1062,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path actualPath = tmpDir.resolve("actual.xml");
         NetworkSerDe.write(expectedNetwork, exportOptions, expectedPath);
         NetworkSerDe.write(actualNetwork, exportOptions, actualPath);
-        NetworkSerDe.validate(expectedPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
         ExportXmlCompare.compareEQNetworks(expectedPath, actualPath, knownDiffs);
