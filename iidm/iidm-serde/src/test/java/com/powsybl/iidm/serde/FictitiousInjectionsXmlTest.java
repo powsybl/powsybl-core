@@ -9,10 +9,10 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
@@ -28,13 +28,10 @@ class FictitiousInjectionsXmlTest extends AbstractIidmSerDeTest {
         network.getBusBreakerView().getBus("NGEN").setFictitiousP0(1.0).setFictitiousQ0(2.0);
         network.getBusBreakerView().getBus("NLOAD").setFictitiousP0(3.0);
         network.getBusBreakerView().getBus("NHV1").setFictitiousQ0(4.0);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("eurostag-fict-inj.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(network, "eurostag-fict-inj.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("eurostag-fict-inj.xml", IidmVersion.V_1_8);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("eurostag-fict-inj.xml", IidmVersion.V_1_8);
     }
 
     @Test
@@ -46,12 +43,9 @@ class FictitiousInjectionsXmlTest extends AbstractIidmSerDeTest {
                 .setFictitiousQ0(1, 2.0)
                 .setFictitiousP0(2, 3.0)
                 .setFictitiousQ0(2, 4.0);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("fictitiousSwitchRef-fict-inj.xml", CURRENT_IIDM_VERSION));
+        allFormatsRoundTripTest(network, "fictitiousSwitchRef-fict-inj.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("fictitiousSwitchRef-fict-inj.xml", IidmVersion.V_1_8);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("fictitiousSwitchRef-fict-inj.xml", IidmVersion.V_1_8);
     }
 }

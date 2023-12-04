@@ -6,25 +6,23 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class SubstationAndLinePositionXmlTest extends AbstractSerDeTest {
+class SubstationAndLinePositionXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -39,10 +37,7 @@ class SubstationAndLinePositionXmlTest extends AbstractSerDeTest {
                 .withCoordinates(List.of(new Coordinate(48, 2), new Coordinate(48.1, 2.1)))
                 .add();
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("/substationAndLinePositionRoundTripRef.xml", CURRENT_IIDM_VERSION));
+        Network network2 = allFormatsRoundTripTest(network, "/substationAndLinePositionRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         var substationPosition = network2.getSubstation("P1").getExtension(SubstationPosition.class);
         assertNotNull(substationPosition);
