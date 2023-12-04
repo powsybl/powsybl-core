@@ -11,17 +11,18 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at rte-france.com>}
  */
 public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
 
-    public SimpleCgmesAliasNamingStrategy(String uuidNamespace) {
+    public SimpleCgmesAliasNamingStrategy(UUID uuidNamespace) {
         super(uuidNamespace);
     }
 
-    public SimpleCgmesAliasNamingStrategy(Map<String, String> idByUuid, String uuidNamespace) {
+    public SimpleCgmesAliasNamingStrategy(Map<String, String> idByUuid, UUID uuidNamespace) {
         super(idByUuid, uuidNamespace);
     }
 

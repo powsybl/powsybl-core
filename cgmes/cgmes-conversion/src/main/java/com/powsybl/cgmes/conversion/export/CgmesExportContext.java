@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -65,7 +66,7 @@ public class CgmesExportContext {
     public static final double MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final double MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final boolean EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE = true;
-    public static final String DEFAULT_UUID_NAMESPACE = null;
+    public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate("powsybl.org");
 
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
@@ -76,7 +77,6 @@ public class CgmesExportContext {
     private boolean isExportSvInjectionsForSlacks = EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
-    private String uuidNamespace = DEFAULT_UUID_NAMESPACE; //TODO: add default value (Powsybl?)
 
     private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
@@ -85,6 +85,7 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
+    private final UUID uuidNamespace;
 
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
@@ -233,6 +234,7 @@ public class CgmesExportContext {
 
     public CgmesExportContext() {
         referenceDataProvider = null;
+        uuidNamespace = DEFAULT_UUID_NAMESPACE;
     }
 
     public CgmesExportContext(Network network) {
@@ -243,16 +245,16 @@ public class CgmesExportContext {
         this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, DEFAULT_UUID_NAMESPACE), DEFAULT_UUID_NAMESPACE);
     }
 
-    public CgmesExportContext(Network network, String uuidNamespace) {
+    public CgmesExportContext(Network network, UUID uuidNamespace) {
         this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, uuidNamespace), uuidNamespace);
     }
 
-    public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, String uuidNamespace) {
+    public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, UUID uuidNamespace) {
         this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, uuidNamespace), uuidNamespace);
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy,
-                              String uuidNamespace) {
+                              UUID uuidNamespace) {
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         this.uuidNamespace = uuidNamespace;
@@ -302,15 +304,15 @@ public class CgmesExportContext {
             network.newExtension(BaseVoltageMappingAdder.class).add();
             bvMapping = network.getExtension(BaseVoltageMapping.class);
         }
-        addIidmMappingsBaseVoltages(bvMapping, network, this.uuidNamespace);
-        addIidmMappingsTerminals(network, this.uuidNamespace);
-        addIidmMappingsGenerators(network, this.uuidNamespace);
-        addIidmMappingsBatteries(network, this.uuidNamespace);
-        addIidmMappingsShuntCompensators(network, this.uuidNamespace);
-        addIidmMappingsStaticVarCompensators(network, this.uuidNamespace);
-        addIidmMappingsEndsAndTapChangers(network, this.uuidNamespace);
-        addIidmMappingsEquivalentInjection(network, this.uuidNamespace);
-        addIidmMappingsControlArea(network, this.uuidNamespace);
+        addIidmMappingsBaseVoltages(bvMapping, network);
+        addIidmMappingsTerminals(network);
+        addIidmMappingsGenerators(network);
+        addIidmMappingsBatteries(network);
+        addIidmMappingsShuntCompensators(network);
+        addIidmMappingsStaticVarCompensators(network);
+        addIidmMappingsEndsAndTapChangers(network);
+        addIidmMappingsEquivalentInjection(network);
+        addIidmMappingsControlArea(network);
     }
 
     private void addIidmMappingsSubstations(Network network) {
@@ -363,7 +365,7 @@ public class CgmesExportContext {
         return region;
     }
 
-    private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network, String uuidNamespace) {
+    private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {
         if (mapping.isBaseVoltageEmpty()) {
             // Here we do not have previous information about base voltages
             // (The mapping is filled when the Network has been imported from CGMES)
@@ -390,16 +392,16 @@ public class CgmesExportContext {
         baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
     }
 
-    private void addIidmMappingsTerminals(Network network, String uuidNamespace) {
+    private void addIidmMappingsTerminals(Network network) {
         for (Connectable<?> c : network.getConnectables()) {
             if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c, network, uuidNamespace); //TODO: what to put here?
+                    addIidmMappingsTerminal(t, c, network); //TODO: what to put here?
                 }
             }
         }
-        addIidmMappingsSwitchTerminals(network, uuidNamespace);
-        addIidmMappingsHvdcTerminals(network, uuidNamespace);
+        addIidmMappingsSwitchTerminals(network);
+        addIidmMappingsHvdcTerminals(network);
     }
 
     public boolean isExportEquipment() {
@@ -436,7 +438,7 @@ public class CgmesExportContext {
         return this;
     }
 
-    private static void addIidmMappingsSwitchTerminals(Network network, String uuidNamespace) {
+    private void addIidmMappingsSwitchTerminals(Network network) {
         for (Switch sw : network.getSwitches()) {
             String terminal1Id = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1").orElse(null);
             if (terminal1Id == null) {
@@ -451,7 +453,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsHvdcTerminals(Network network, String uuidNamespace) {
+    private void addIidmMappingsHvdcTerminals(Network network) {
         for (HvdcLine line : network.getHvdcLines()) {
             String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "1").orElse(null);
             if (dcNode1 == null) {
@@ -486,7 +488,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c, Network network, String uuidNamespace) {
+    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c, Network network) {
         if (c instanceof DanglingLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
             if (terminalId == null) {
@@ -514,7 +516,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsGenerators(Network network, String uuidNamespace) {
+    private void addIidmMappingsGenerators(Network network) {
         for (Generator generator : network.getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
             if (generatingUnit == null) {
@@ -529,7 +531,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsBatteries(Network network, String uuidNamespace) {
+    private void addIidmMappingsBatteries(Network network) {
         for (Battery battery : network.getBatteries()) {
             String generatingUnit = battery.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
             if (generatingUnit == null) {
@@ -540,7 +542,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsShuntCompensators(Network network, String uuidNamespace) {
+    private void addIidmMappingsShuntCompensators(Network network) {
         for (ShuntCompensator shuntCompensator : network.getShuntCompensators()) {
             if ("true".equals(shuntCompensator.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
                 continue;
@@ -553,7 +555,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsStaticVarCompensators(Network network, String uuidNamespace) {
+    private void addIidmMappingsStaticVarCompensators(Network network) {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
             if (regulatingControlId == null && (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()) || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
@@ -563,30 +565,30 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsEndsAndTapChangers(Network network, String uuidNamespace) {
+    private void addIidmMappingsEndsAndTapChangers(Network network) {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            addIidmTransformerEnd(twt, 1, uuidNamespace); //TODO: what to put here?
-            addIidmTransformerEnd(twt, 2, uuidNamespace); //TODO: what to put here?
+            addIidmTransformerEnd(twt, 1);
+            addIidmTransformerEnd(twt, 2);
             //  For two winding transformers we can not check-and-add based on endNumber
             //  The resulting IIDM tap changer is always at end1
             //  But the original position of tap changer could be 1 or 2
-            addIidmTapChanger2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, uuidNamespace);
-            addIidmTapChanger2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, uuidNamespace);
+            addIidmTapChanger2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
+            addIidmTapChanger2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
         }
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            addIidmTransformerEnd(twt, 1, uuidNamespace); //TODO: what to put here?
-            addIidmTransformerEnd(twt, 2, uuidNamespace); //TODO: what to put here?
-            addIidmTransformerEnd(twt, 3, uuidNamespace); //TODO: what to put here?
-            addIidmTapChanger(twt, twt.getLeg1().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 1, uuidNamespace);
-            addIidmTapChanger(twt, twt.getLeg1().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 1, uuidNamespace);
-            addIidmTapChanger(twt, twt.getLeg2().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 2, uuidNamespace);
-            addIidmTapChanger(twt, twt.getLeg2().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 2, uuidNamespace);
-            addIidmTapChanger(twt, twt.getLeg3().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 3, uuidNamespace);
-            addIidmTapChanger(twt, twt.getLeg3().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 3, uuidNamespace);
+            addIidmTransformerEnd(twt, 1);
+            addIidmTransformerEnd(twt, 2);
+            addIidmTransformerEnd(twt, 3);
+            addIidmTapChanger(twt, twt.getLeg1().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 1);
+            addIidmTapChanger(twt, twt.getLeg1().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 1);
+            addIidmTapChanger(twt, twt.getLeg2().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 2);
+            addIidmTapChanger(twt, twt.getLeg2().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 2);
+            addIidmTapChanger(twt, twt.getLeg3().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 3);
+            addIidmTapChanger(twt, twt.getLeg3().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 3);
         }
     }
 
-    private static void addIidmTransformerEnd(Identifiable<?> eq, int end, String uuidNamespace) {
+    private void addIidmTransformerEnd(Identifiable<?> eq, int end) {
         String endId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end).orElse(null);
         if (endId == null) {
             endId = CgmesExportUtil.getUniqueId(eq.getId() + CgmesNames.TRANSFORMER_END + end, uuidNamespace);
@@ -594,7 +596,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmTapChanger(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName, int endNumber, String uuidNamespace) {
+    private void addIidmTapChanger(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName, int endNumber) {
         if (tc != null) {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + endNumber;
             if (eq.getAliasFromType(aliasType).isEmpty()) {
@@ -604,7 +606,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmTapChanger2wt(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName, String uuidNamespace) {
+    private void addIidmTapChanger2wt(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName) {
         if (tc != null) {
             String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 1;
             String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 2;
@@ -618,7 +620,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsEquivalentInjection(Network network, String uuidNamespace) {
+    private void addIidmMappingsEquivalentInjection(Network network) {
         for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
@@ -634,7 +636,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsControlArea(Network network, String uuidNamespace) {
+    private void addIidmMappingsControlArea(Network network) {
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
         if (cgmesControlAreas == null) {
             network.newExtension(CgmesControlAreasAdder.class).add();
@@ -764,13 +766,8 @@ public class CgmesExportContext {
         return this;
     }
 
-    public String getUuidNamespace() {
+    public UUID getUuidNamespace() {
         return uuidNamespace;
-    }
-
-    public CgmesExportContext setUuidNamespace(String uuidNamespace) {
-        this.uuidNamespace = uuidNamespace;
-        return this;
     }
 
     public String encode(String id) {

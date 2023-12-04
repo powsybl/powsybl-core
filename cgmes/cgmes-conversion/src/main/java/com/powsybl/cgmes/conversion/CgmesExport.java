@@ -88,7 +88,8 @@ public class CgmesExport implements Exporter {
         }
         ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, countryName, importer, params);
 
-        String uuidNamespace = Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER, defaultValueConfig);
+        // The UUID namespace parameter must be a valid UUID itself
+        UUID uuidNamespace = UUID.fromString(Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER, defaultValueConfig));
         NamingStrategy namingStrategy = NamingStrategyFactory.create(
                 Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig),
                 uuidNamespace);
@@ -338,8 +339,8 @@ public class CgmesExport implements Exporter {
     private static final Parameter UUID_NAMESPACE_PARAMETER = new Parameter(
             UUID_NAMESPACE,
             ParameterType.STRING,
-            "Namespace to use for UUID generation. It must be a valid UUID itself",
-            CgmesExportContext.DEFAULT_UUID_NAMESPACE);
+            "Namespace to use for name-based UUID generation. It must be a valid UUID itself",
+            CgmesExportContext.DEFAULT_UUID_NAMESPACE.toString());
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,

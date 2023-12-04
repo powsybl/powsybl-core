@@ -290,7 +290,7 @@ public class CgmesImport implements Importer {
 
         // FIXME(Luma) When using a naming strategy for CGMES import we should not need an uuid namespace,
         //   because we won't be creating new UUIDs
-        String uuidNamespace = CgmesExportContext.DEFAULT_UUID_NAMESPACE;
+        UUID uuidNamespace = CgmesExportContext.DEFAULT_UUID_NAMESPACE;
         if (idMappingFilePath == null) {
             config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", uuidNamespace));
         } else {

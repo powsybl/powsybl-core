@@ -98,13 +98,14 @@ public final class CgmesExportUtil {
     // FIXME(Luma) For easy testing while we work on moving to name-based UUIDs
     private static final boolean XXX_USE_NAME_BASED_UUIDS = true;
 
-    public static String getUniqueId(String name, String namespace) {
+    public static String getUniqueId(String name, UUID namespace) {
         if (XXX_USE_NAME_BASED_UUIDS) {
             // Generate UUID based on namespace for stability
+            // If no namespace is given we still provide a UUID from the given name
             if (namespace == null) {
                 return Generators.nameBasedGenerator().generate(name).toString();
             } else {
-                return Generators.nameBasedGenerator(UUID.fromString(namespace)).generate(name).toString();
+                return Generators.nameBasedGenerator(namespace).generate(name).toString();
             }
         } else {
             return UUID.randomUUID().toString();

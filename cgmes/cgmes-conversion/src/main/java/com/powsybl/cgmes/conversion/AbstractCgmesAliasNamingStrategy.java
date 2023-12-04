@@ -19,10 +19,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -30,13 +27,14 @@ import java.util.Optional;
 public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy {
 
     private final BiMap<String, String> idByUuid = HashBiMap.create();
-    private final String uuidNamespace;
+    // The namespace for generating stable name-based UUIDs is also a UUID
+    private final UUID uuidNamespace;
 
-    protected AbstractCgmesAliasNamingStrategy(String uuidNamespace) {
+    protected AbstractCgmesAliasNamingStrategy(UUID uuidNamespace) {
         this.uuidNamespace = uuidNamespace;
     }
 
-    protected AbstractCgmesAliasNamingStrategy(Map<String, String> idByUuid, String uuidNamespace) {
+    protected AbstractCgmesAliasNamingStrategy(Map<String, String> idByUuid, UUID uuidNamespace) {
         this.idByUuid.putAll(Objects.requireNonNull(idByUuid));
         this.uuidNamespace = uuidNamespace;
     }

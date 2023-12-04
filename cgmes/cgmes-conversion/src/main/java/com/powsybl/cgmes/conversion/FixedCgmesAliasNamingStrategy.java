@@ -7,17 +7,18 @@
 package com.powsybl.cgmes.conversion;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at rte-france.com>}
  */
 public class FixedCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
 
-    public FixedCgmesAliasNamingStrategy(String uuidNamespace) {
+    public FixedCgmesAliasNamingStrategy(UUID uuidNamespace) {
         super(uuidNamespace);
     }
 
-    public FixedCgmesAliasNamingStrategy(Map<String, String> idByUuid, String uuidNamespace) {
+    public FixedCgmesAliasNamingStrategy(Map<String, String> idByUuid, UUID uuidNamespace) {
         super(idByUuid, uuidNamespace);
     }
 
