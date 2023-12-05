@@ -31,7 +31,7 @@ public class XmlWriter implements TreeDataWriter {
     private final List<String> values = new ArrayList<>();
     private final List<String> prefixes = new ArrayList<>();
     private final List<String> namespaces = new ArrayList<>();
-    private final Map<String, Namespace> extensionNamespaces = new HashMap<>();
+    private final Map<String, Namespace> extensionNamespaces = new LinkedHashMap<>();
 
     public XmlWriter(OutputStream os, String indent, Charset charset, String rootNamespaceURI, String rootPrefix) throws XMLStreamException {
         this.writer = XmlUtil.initializeWriter(!StringUtils.isEmpty(indent), indent,
@@ -174,6 +174,11 @@ public class XmlWriter implements TreeDataWriter {
         writeStringAttribute(name, values.stream()
                 .map(i -> Integer.toString(i))
                 .collect(Collectors.joining(",")));
+    }
+
+    @Override
+    public void writeStringArrayAttribute(String name, Collection<String> values) {
+        writeStringAttribute(name, String.join(",", values));
     }
 
     @Override

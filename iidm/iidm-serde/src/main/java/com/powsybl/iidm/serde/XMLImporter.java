@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -58,7 +58,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
 
     @Override
     public String getComment() {
-        return "IIDM XML v " + CURRENT_IIDM_XML_VERSION.toString(".") + " importer";
+        return "IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer";
     }
 
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {

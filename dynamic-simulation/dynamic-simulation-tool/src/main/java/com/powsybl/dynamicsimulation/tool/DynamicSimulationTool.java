@@ -218,7 +218,7 @@ public class DynamicSimulationTool implements Tool {
             "dynamic simulation results",
             formatterConfig,
             new Column("Result"))) {
-            formatter.writeCell(result.isOk());
+            formatter.writeCell(result.getStatus().name());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
