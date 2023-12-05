@@ -158,7 +158,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         // Remove aliases of equivalent injections, so they will have to be created during export
         for (DanglingLine danglingLine : expected.getDanglingLines(DanglingLineFilter.ALL)) {
-            danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         }
         Network actual = exportImportBusBranch(expected, dataSource);
@@ -1139,13 +1139,17 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
-        NetworkSerDe.writeAndValidate(expectedNetwork, exportOptions, tmpDir.resolve("expected.xml"));
-        NetworkSerDe.writeAndValidate(actualNetwork, exportOptions, tmpDir.resolve("actual.xml"));
+
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expectedNetwork, exportOptions, expectedPath);
+        NetworkSerDe.write(actualNetwork, exportOptions, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareEQNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffs);
+        ExportXmlCompare.compareEQNetworks(expectedPath, actualPath, knownDiffs);
 
-        compareTemporaryLimits(Network.read(tmpDir.resolve("expected.xml")), Network.read(tmpDir.resolve("actual.xml")));
+        compareTemporaryLimits(Network.read(expectedPath), Network.read(actualPath));
     }
 
     private void compareTemporaryLimits(Network expected, Network actual) {

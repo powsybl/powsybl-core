@@ -127,17 +127,15 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
     private void readBoundariesAndTerminals(NetworkDeserializerContext networkContext, CgmesControlArea cgmesControlArea, Network network) {
         TreeDataReader reader = networkContext.getReader();
         reader.readChildNodes(elementName -> {
-            String id;
-            String side;
             switch (elementName) {
                 case BOUNDARY_ROOT_ELEMENT -> {
-                    id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
-                    Identifiable identifiable = network.getIdentifiable(id);
+                    String id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
+                    TwoSides side = reader.readEnumAttribute("side", TwoSides.class);
+                    Identifiable<?> identifiable = network.getIdentifiable(id);
                     if (identifiable instanceof DanglingLine dl) {
                         cgmesControlArea.add(dl.getBoundary());
                     } else if (identifiable instanceof TieLine tl) {
-                        side = reader.readStringAttribute("side");
-                        cgmesControlArea.add(tl.getDanglingLine(TwoSides.valueOf(side)).getBoundary());
+                        cgmesControlArea.add(tl.getDanglingLine(side).getBoundary());
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
                     }

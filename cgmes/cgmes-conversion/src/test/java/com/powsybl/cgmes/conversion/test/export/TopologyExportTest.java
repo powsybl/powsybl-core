@@ -93,11 +93,14 @@ class TopologyExportTest extends AbstractSerDeTest {
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
-        NetworkSerDe.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkSerDe.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expected, expectedPath);
+        NetworkSerDe.write(actual, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        ExportXmlCompare.compareNetworks(expectedPath, actualPath);
     }
 
     private void prepareNetworkForComparison(Network network) {

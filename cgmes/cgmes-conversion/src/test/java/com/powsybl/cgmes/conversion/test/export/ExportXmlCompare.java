@@ -669,7 +669,7 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringRdfChildLookupEquivalentInjection(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("EquivalentInjection")) {
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains(CgmesNames.EQUIVALENT_INJECTION)) {
                 return ComparisonResult.EQUAL;
             }
         }

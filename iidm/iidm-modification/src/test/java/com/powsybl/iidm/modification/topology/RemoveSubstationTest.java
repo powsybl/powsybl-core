@@ -19,13 +19,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testReporter;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Maissa Souissi {@literal <maissa.souissi at rte-france.com>}
  */
-class RemoveSubstationTest {
+class RemoveSubstationTest extends AbstractModificationTest {
     private final List<String> removedObjects = new ArrayList<>();
 
     @AfterEach

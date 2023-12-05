@@ -70,7 +70,7 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
 
     @Override
     public String getVersion() {
-        return getVersion(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION);
+        return getVersion(IidmSerDeConstants.CURRENT_IIDM_VERSION);
     }
 
     public boolean versionExists(IidmVersion networkVersion) {
