@@ -33,7 +33,7 @@ import java.util.function.Function;
  */
 public final class JsonUtil {
 
-    private final static String UNEXPECTED_TOKEN = "Unexpected token ";
+    private static final String UNEXPECTED_TOKEN = "Unexpected token ";
 
     enum ContextType {
         OBJECT,
