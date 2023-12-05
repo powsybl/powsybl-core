@@ -133,4 +133,22 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     public Pair<NodeCalc, NodeCalc> iterate(BinaryMinCalc nodeCalc, A arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
+
+    @Override
+    public NodeCalc visit(BinaryMaxCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        NodeCalc newLeft = left;
+        if (newLeft != null) {
+            nodeCalc.setLeft(newLeft);
+        }
+        NodeCalc newRight = right;
+        if (newRight != null) {
+            nodeCalc.setRight(newRight);
+        }
+        return null;
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryMaxCalc nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
 }

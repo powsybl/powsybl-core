@@ -222,6 +222,8 @@ class CalculatedTimeSeriesGroovyDslTest {
         evaluate("timeSeries['foo'].max(5)", 5);
         evaluate("min(timeSeries['foo'], timeSeries['bar'])", 2f);
         evaluate("min(timeSeries['foo'], timeSeries['baz'])", new double[]{-1f, 3f});
+        evaluate("max(timeSeries['foo'], timeSeries['bar'])", 3f);
+        evaluate("max(timeSeries['foo'], timeSeries['baz'])", new double[]{3f, 4f});
     }
 
     @Test

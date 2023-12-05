@@ -140,6 +140,9 @@ public interface NodeCalc {
                 case BinaryMinCalc.NAME -> {
                     return BinaryMinCalc.parseJson(parser);
                 }
+                case BinaryMaxCalc.NAME -> {
+                    return BinaryMaxCalc.parseJson(parser);
+                }
                 default -> {
                     // Do nothing
                 }

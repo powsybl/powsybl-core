@@ -110,6 +110,9 @@ class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoad
         binding.min = { NodeCalc leftNode, NodeCalc rightNode ->
             new BinaryMinCalc(leftNode, rightNode)
         }
+        binding.max = { NodeCalc leftNode, NodeCalc rightNode ->
+            new BinaryMaxCalc(leftNode, rightNode)
+        }
     }
 
     static CompilerConfiguration createCompilerConfig() {
