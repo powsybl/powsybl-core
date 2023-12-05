@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.powsybl.timeseries.TimeSeries;
+import com.powsybl.timeseries.DoubleTimeSeries;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -21,10 +21,10 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
 
     private final Status status;
     private final String statusText;
-    private final Map<String, TimeSeries> curves;
+    private final Map<String, DoubleTimeSeries> curves;
     private final List<TimelineEvent> timeLine;
 
-    public DynamicSimulationResultImpl(Status status, String statusText, Map<String, TimeSeries> curves, List<TimelineEvent> timeLine) {
+    public DynamicSimulationResultImpl(Status status, String statusText, Map<String, DoubleTimeSeries> curves, List<TimelineEvent> timeLine) {
         this.status = Objects.requireNonNull(status);
         this.statusText = Objects.requireNonNull(statusText);
         this.curves = Objects.requireNonNull(curves);
@@ -32,11 +32,11 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
         timeLine.forEach(Objects::requireNonNull);
     }
 
-    public DynamicSimulationResultImpl(Status status, Map<String, TimeSeries> curves, List<TimelineEvent> timeLine) {
+    public DynamicSimulationResultImpl(Status status, Map<String, DoubleTimeSeries> curves, List<TimelineEvent> timeLine) {
         this(status, "", curves, timeLine);
     }
 
-    public static DynamicSimulationResultImpl createSucceededResult(Map<String, TimeSeries> curves, List<TimelineEvent> timeLine) {
+    public static DynamicSimulationResultImpl createSuccessResult(Map<String, DoubleTimeSeries> curves, List<TimelineEvent> timeLine) {
         return new DynamicSimulationResultImpl(Status.SUCCESS, curves, timeLine);
     }
 
@@ -51,7 +51,7 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
     }
 
     @Override
-    public Map<String, TimeSeries> getCurves() {
+    public Map<String, DoubleTimeSeries> getCurves() {
         return Collections.unmodifiableMap(curves);
     }
 

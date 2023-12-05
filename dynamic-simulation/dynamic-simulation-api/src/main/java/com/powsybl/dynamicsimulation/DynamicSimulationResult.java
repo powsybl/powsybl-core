@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.powsybl.timeseries.TimeSeries;
+import com.powsybl.timeseries.DoubleTimeSeries;
 
 import static com.powsybl.dynamicsimulation.DynamicSimulationResult.Status.SUCCESS;
 
@@ -37,9 +37,9 @@ public interface DynamicSimulationResult {
         return SUCCESS == getStatus();
     }
 
-    Map<String, TimeSeries> getCurves();
+    Map<String, DoubleTimeSeries> getCurves();
 
-    default TimeSeries getCurve(String curve) {
+    default DoubleTimeSeries getCurve(String curve) {
         return getCurves().get(curve);
     }
 

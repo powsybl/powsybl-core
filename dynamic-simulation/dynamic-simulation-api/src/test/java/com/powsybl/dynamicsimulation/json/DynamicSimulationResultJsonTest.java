@@ -9,6 +9,7 @@ package com.powsybl.dynamicsimulation.json;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.TimelineEvent;
+import com.powsybl.timeseries.DoubleTimeSeries;
 import com.powsybl.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.timeseries.TimeSeries;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
             }
 
             @Override
-            public Map<String, TimeSeries> getCurves() {
+            public Map<String, DoubleTimeSeries> getCurves() {
                 return Collections.singletonMap("curve1", TimeSeries.createDouble("curve1", new RegularTimeSeriesIndex(0, 5, 1), 0.0, 0.1, 0.1, 0.2, 0.1, 0.0));
             }
 
@@ -68,7 +69,7 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
             }
 
             @Override
-            public Map<String, TimeSeries> getCurves() {
+            public Map<String, DoubleTimeSeries> getCurves() {
                 return Collections.emptyMap();
             }
 

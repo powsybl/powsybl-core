@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.TimelineEvent;
-import com.powsybl.timeseries.TimeSeries;
+import com.powsybl.timeseries.DoubleTimeSeries;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -46,7 +46,7 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
         }
         jsonGenerator.writeFieldName("curves");
         jsonGenerator.writeStartArray();
-        for (Entry<String, TimeSeries> entry : result.getCurves().entrySet()) {
+        for (Entry<String, DoubleTimeSeries> entry : result.getCurves().entrySet()) {
             entry.getValue().writeJson(jsonGenerator);
         }
         jsonGenerator.writeEndArray();
