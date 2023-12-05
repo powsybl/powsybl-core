@@ -21,6 +21,11 @@
     <name>Contingency DSL</name>
     <description>A DSL to describe contingency</description>
 
+    <properties>
+      <!-- TODO do we really want to discard groovydocs? -->
+      <groovydoc.attach>false</groovydoc.attach>
+    </properties>
+
     <build>
         <plugins>
             <plugin>

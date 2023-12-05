@@ -22,6 +22,11 @@
     <name>Time series DSL</name>
     <description>Time series Groovy DSL</description>
 
+    <properties>
+      <!-- TODO do we really want to discard groovydocs? -->
+      <groovydoc.attach>false</groovydoc.attach>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
