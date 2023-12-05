@@ -8,6 +8,8 @@ on:
       - 'full-sonar-analysis-**'
   pull_request:
 
+permissions: {}
+
 jobs:
   build:
     name: Build OS ${{ matrix.os }}
