@@ -23,4 +23,6 @@ public abstract class AbstractNetworkElementCriterion {
 
     protected abstract NetworkElementCriterionType getNetworkElementCriterionType();
 
+    public abstract boolean accept(NetworkElementVisitor networkElementVisitor);
+
 }

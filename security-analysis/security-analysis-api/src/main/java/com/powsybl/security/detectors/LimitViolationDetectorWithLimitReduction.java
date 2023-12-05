@@ -7,12 +7,13 @@
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.*;
+import com.powsybl.security.detectors.criterion.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion;
 import com.powsybl.security.detectors.criterion.network.AbstractNetworkElementCriterion;
+import com.powsybl.security.detectors.criterion.network.NetworkElementVisitor;
 
 import java.util.*;
 
@@ -32,13 +33,11 @@ public class LimitViolationDetectorWithLimitReduction {
         this.limitReductionDefinitionList = limitReductionDefinitionList;
     }
 
-    public HashMap<LimitType, HashMap<LoadingLimitType, Double>> getLimitsWithAppliedReduction(Contingency contingency, Identifiable identifiable, ThreeSides side, LimitType limitType) {
-
-        //TODO Apply contingency on network (or on a network variant) : NO, use only contingency id in method signature
+    public HashMap<LimitType, HashMap<LoadingLimitType, Double>> getLimitsWithAppliedReduction(String contingencyId, Identifiable identifiable, ThreeSides side, LimitType limitType) {
 
         for (LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition : limitReductionDefinitionList.getLimitReductionDefinitions()) {
             if (limitReductionDefinition.getLimitType() == limitType &&
-                    isContingencyContextApplicable(limitReductionDefinition.getContingencyContexts(), contingency) &&
+                    isContingencyContextApplicable(limitReductionDefinition.getContingencyContexts(), contingencyId) &&
                     isEquipmentAffectedByLimitReduction(identifiable.getId(), limitReductionDefinition.getNetworkElementCriteria())) {
                 if (identifiable instanceof Line line) {
                     switch (limitType) {
@@ -58,9 +57,7 @@ public class LimitViolationDetectorWithLimitReduction {
                             break;
                         case APPARENT_POWER:
                             Optional<ApparentPowerLimits> apparentPowerLimits = line.getApparentPowerLimits(side.toTwoSides());
-                            if (apparentPowerLimits.isPresent()) {
-                                manageLimits(apparentPowerLimits.get(), limitReductionDefinition);
-                            }
+                            apparentPowerLimits.ifPresent(powerLimits -> manageLimits(powerLimits, limitReductionDefinition));
                             //TODO add limits to return HashMap
                             break;
                     }
@@ -100,14 +97,14 @@ public class LimitViolationDetectorWithLimitReduction {
         }
     }
 
-    private boolean isContingencyContextApplicable(List<ContingencyContext> contingencyContextList, Contingency contingency) {
+    private boolean isContingencyContextApplicable(List<ContingencyContext> contingencyContextList, String contingencyId) {
         for (ContingencyContext contingencyContext : contingencyContextList) {
             if (contingencyContext.getContextType() == ContingencyContextType.ALL_CONTINGENCIES ||
                     contingencyContext.getContextType() == ContingencyContextType.ALL) {
                 return true;
             }
             if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC &&
-                    contingencyContext.getContingencyId().equals(contingency.getId())) {
+                    contingencyContext.getContingencyId().equals(contingencyId)) {
                 return true;
             }
         }
@@ -116,23 +113,10 @@ public class LimitViolationDetectorWithLimitReduction {
 
     private boolean isEquipmentAffectedByLimitReduction(String networkElementId, List<AbstractNetworkElementCriterion> networkElementCriteria) {
         Identifiable identifiable = network.getIdentifiable(networkElementId);
-        for (AbstractNetworkElementCriterion networkElementCriterion : networkElementCriteria) {
-            if (networkElementCriterion.getNetworkElementIds().contains(networkElementId)) {
-                return true;
-            }
-            if (identifiable instanceof Line) {
-                //TODO
-            } else if (identifiable instanceof HvdcLine) {
-                //TODO
-            } else if (identifiable instanceof TieLine) {
-                //TODO
-            } else if (identifiable instanceof TwoWindingsTransformer) {
-                //TODO
-            } else if (identifiable instanceof ThreeWindingsTransformer) {
-                //TODO
-            }
-        }
-        return false;
+
+        NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(identifiable);
+
+        return networkElementCriteria.stream().map(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor)).anyMatch(isEquipmentAffected -> isEquipmentAffected);
     }
 
     private boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
@@ -140,8 +124,9 @@ public class LimitViolationDetectorWithLimitReduction {
     }
 
     private boolean isTemporaryLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition, LoadingLimits.TemporaryLimit temporaryLimit) {
-        limitReductionDefinition.getDurationCriteria().stream().filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY));
-        //TODO
-        return false;
+        return limitReductionDefinition.getDurationCriteria().stream()
+                .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))
+                .map(limitDurationCriterion -> (AbstractTemporaryDurationCriterion) limitDurationCriterion)
+                .anyMatch(temporaryLimitDurationCriterion -> temporaryLimitDurationCriterion.isTemporaryLimitWithinCriterionBounds(temporaryLimit));
     }
 }

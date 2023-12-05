@@ -7,6 +7,8 @@
  */
 package com.powsybl.security.detectors.criterion.duration;
 
+import com.powsybl.iidm.network.LoadingLimits;
+
 /**
  * Describes equality temporary duration criterion
  *
@@ -28,5 +30,10 @@ public class EqualityTemporaryDurationCriterion extends AbstractTemporaryDuratio
 
     public double getDurationEqualityValue() {
         return durationEqualityValue;
+    }
+
+    @Override
+    public boolean isTemporaryLimitWithinCriterionBounds(LoadingLimits.TemporaryLimit temporaryLimit) {
+        return temporaryLimit.getAcceptableDuration() == getDurationEqualityValue();
     }
 }

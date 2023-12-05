@@ -7,6 +7,8 @@
  */
 package com.powsybl.security.detectors.criterion.duration;
 
+import com.powsybl.iidm.network.LoadingLimits;
+
 /**
  * Describes interval temporary duration criterion
  *
@@ -23,6 +25,21 @@ public class IntervalTemporaryDurationCriterion extends AbstractTemporaryDuratio
     @Override
     public TemporaryDurationCriterionType getComparisonType() {
         return COMPARISON_TYPE;
+    }
+
+    @Override
+    public boolean isTemporaryLimitWithinCriterionBounds(LoadingLimits.TemporaryLimit temporaryLimit) {
+        int temporaryLimitAcceptableDuration = temporaryLimit.getAcceptableDuration();
+        if (temporaryLimitAcceptableDuration < lowBound || temporaryLimitAcceptableDuration > highBound) {
+            return false;
+        }
+        if (!lowClosed && temporaryLimitAcceptableDuration == lowBound) {
+            return false;
+        }
+        if (!highClosed && temporaryLimitAcceptableDuration == highBound) {
+            return false;
+        }
+        return true;
     }
 
     public double getLowBound() {

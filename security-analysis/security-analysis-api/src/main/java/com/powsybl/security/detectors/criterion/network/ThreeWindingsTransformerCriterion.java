@@ -5,12 +5,12 @@ import com.powsybl.iidm.network.util.criterion.ThreeNominalVoltageCriterion;
 
 import java.util.Set;
 
-public class ThreeWindingTransformerCriterion extends AbstractNetworkElementCriterion {
+public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementCriterion {
 
     SingleCountryCriterion singleCountryCriterion;
     ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(null, null, null);
 
-    public ThreeWindingTransformerCriterion(Set<String> networkElementIds) {
+    public ThreeWindingsTransformerCriterion(Set<String> networkElementIds) {
         super(networkElementIds);
     }
 
@@ -19,11 +19,16 @@ public class ThreeWindingTransformerCriterion extends AbstractNetworkElementCrit
         return NetworkElementCriterionType.THREE_WINDING_TRANSFORMER;
     }
 
+    @Override
+    public boolean accept(NetworkElementVisitor networkElementVisitor) {
+        return networkElementVisitor.visitThreeWindingsTransformerCriterion(this);
+    }
+
     public SingleCountryCriterion getSingleCountryCriterion() {
         return singleCountryCriterion;
     }
 
-    public ThreeWindingTransformerCriterion setSingleCountryCriterion(SingleCountryCriterion singleCountryCriterion) {
+    public ThreeWindingsTransformerCriterion setSingleCountryCriterion(SingleCountryCriterion singleCountryCriterion) {
         this.singleCountryCriterion = singleCountryCriterion;
         return this;
     }
@@ -32,7 +37,7 @@ public class ThreeWindingTransformerCriterion extends AbstractNetworkElementCrit
         return threeNominalVoltageCriterion;
     }
 
-    public ThreeWindingTransformerCriterion setThreeNominalVoltageCriterion(ThreeNominalVoltageCriterion threeNominalVoltageCriterion) {
+    public ThreeWindingsTransformerCriterion setThreeNominalVoltageCriterion(ThreeNominalVoltageCriterion threeNominalVoltageCriterion) {
         this.threeNominalVoltageCriterion = threeNominalVoltageCriterion;
         return this;
     }

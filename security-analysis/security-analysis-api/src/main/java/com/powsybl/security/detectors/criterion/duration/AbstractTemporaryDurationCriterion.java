@@ -7,6 +7,8 @@
  */
 package com.powsybl.security.detectors.criterion.duration;
 
+import com.powsybl.iidm.network.LoadingLimits;
+
 import static com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion.LimitDurationType.TEMPORARY;
 
 /**
@@ -17,7 +19,7 @@ import static com.powsybl.security.detectors.criterion.duration.LimitDurationCri
 
 public abstract class AbstractTemporaryDurationCriterion implements LimitDurationCriterion {
 
-    enum TemporaryDurationCriterionType {
+    public enum TemporaryDurationCriterionType {
         ALL,
         EQUALITY,
         INTERVAL
@@ -31,5 +33,7 @@ public abstract class AbstractTemporaryDurationCriterion implements LimitDuratio
     public LimitDurationType getType() {
         return TYPE;
     }
+
+    public abstract boolean isTemporaryLimitWithinCriterionBounds(LoadingLimits.TemporaryLimit temporaryLimit);
 
 }

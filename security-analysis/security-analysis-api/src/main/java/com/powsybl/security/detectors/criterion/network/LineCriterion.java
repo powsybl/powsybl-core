@@ -19,6 +19,11 @@ public class LineCriterion extends AbstractNetworkElementCriterion {
         return NetworkElementCriterionType.LINE;
     }
 
+    @Override
+    public boolean accept(NetworkElementVisitor networkElementVisitor) {
+        return networkElementVisitor.visitLineCriterion(this);
+    }
+
     public TwoCountriesCriterion getTwoCountriesCriterion() {
         return twoCountriesCriterion;
     }

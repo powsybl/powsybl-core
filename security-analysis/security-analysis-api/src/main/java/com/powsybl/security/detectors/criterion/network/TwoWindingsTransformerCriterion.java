@@ -5,12 +5,12 @@ import com.powsybl.iidm.network.util.criterion.TwoNominalVoltageCriterion;
 
 import java.util.Set;
 
-public class TwoWindingTransformerCriterion extends AbstractNetworkElementCriterion {
+public class TwoWindingsTransformerCriterion extends AbstractNetworkElementCriterion {
 
     SingleCountryCriterion singleCountryCriterion;
     TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(null, null);
 
-    public TwoWindingTransformerCriterion(Set<String> networkElementIds) {
+    public TwoWindingsTransformerCriterion(Set<String> networkElementIds) {
         super(networkElementIds);
     }
 
@@ -19,11 +19,16 @@ public class TwoWindingTransformerCriterion extends AbstractNetworkElementCriter
         return NetworkElementCriterionType.TWO_WINDING_TRANSFORMER;
     }
 
+    @Override
+    public boolean accept(NetworkElementVisitor networkElementVisitor) {
+        return networkElementVisitor.visitTwoWindingsTransformerCriterion(this);
+    }
+
     public SingleCountryCriterion getSingleCountryCriterion() {
         return singleCountryCriterion;
     }
 
-    public TwoWindingTransformerCriterion setSingleCountryCriterion(SingleCountryCriterion singleCountryCriterion) {
+    public TwoWindingsTransformerCriterion setSingleCountryCriterion(SingleCountryCriterion singleCountryCriterion) {
         this.singleCountryCriterion = singleCountryCriterion;
         return this;
     }
@@ -32,7 +37,7 @@ public class TwoWindingTransformerCriterion extends AbstractNetworkElementCriter
         return twoNominalVoltageCriterion;
     }
 
-    public TwoWindingTransformerCriterion setTwoNominalVoltageCriterion(TwoNominalVoltageCriterion twoNominalVoltageCriterion) {
+    public TwoWindingsTransformerCriterion setTwoNominalVoltageCriterion(TwoNominalVoltageCriterion twoNominalVoltageCriterion) {
         this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
         return this;
     }
