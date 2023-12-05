@@ -8,14 +8,12 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CreateLineOnLineTest extends AbstractSerDeTest {
+class CreateLineOnLineTest extends AbstractModificationTest {
 
     @Test
     void createLineOnLineNbTest() throws IOException {
@@ -37,8 +35,7 @@ class CreateLineOnLineTest extends AbstractSerDeTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/fictitious-line-split-l.xml");
+        writeXmlTest(network, "/fictitious-line-split-l.xml");
     }
 
     @Test
@@ -48,8 +45,7 @@ class CreateLineOnLineTest extends AbstractSerDeTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-line-split-nb-l.xml");
+        writeXmlTest(network, "/eurostag-line-split-nb-l.xml");
     }
 
     @Test
@@ -59,8 +55,7 @@ class CreateLineOnLineTest extends AbstractSerDeTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-line-split-bb-l.xml");
+        writeXmlTest(network, "/eurostag-line-split-bb-l.xml");
     }
 
     @Test
@@ -117,8 +112,7 @@ class CreateLineOnLineTest extends AbstractSerDeTest {
                 .withLine2Name("FICT2LName")
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/fictitious-line-split-l-complete.xml");
+        writeXmlTest(network, "/fictitious-line-split-l-complete.xml");
     }
 
     @Test
@@ -132,8 +126,7 @@ class CreateLineOnLineTest extends AbstractSerDeTest {
                 .withLineAdder(adder)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/fictitious-line-split-l.xml");
+        writeXmlTest(network, "/fictitious-line-split-l.xml");
 
     }
 

@@ -6,10 +6,8 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -17,7 +15,7 @@ import java.io.IOException;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CgmesLineBoundaryNodeSerDeTest extends AbstractSerDeTest {
+class CgmesLineBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
 
     @Test
     void test() throws IOException {
@@ -26,6 +24,6 @@ class CgmesLineBoundaryNodeSerDeTest extends AbstractSerDeTest {
                 .setHvdc(true)
                 .setLineEnergyIdentificationCodeEic("EIC_CODE")
                 .add();
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead, "/eurostag_cgmes_line_boundary_node.xml");
+        allFormatsRoundTripTest(network, "/eurostag_cgmes_line_boundary_node.xml");
     }
 }

@@ -28,7 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareXml;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -50,14 +50,14 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void exportTest() throws IOException {
-        exporterTest(MultipleExtensionsTestNetworkFactory.create(), CURRENT_IIDM_XML_VERSION, "multiple-extensions.xml", new Properties());
+        exporterTest(MultipleExtensionsTestNetworkFactory.create(), CURRENT_IIDM_VERSION, "multiple-extensions.xml", new Properties());
     }
 
     @Test
     void paramsTest() {
         var xmlExporter = new XMLExporter();
         assertEquals(10, xmlExporter.getParameters().size());
-        assertEquals("IIDM XML v" + CURRENT_IIDM_XML_VERSION.toString(".") + " exporter", xmlExporter.getComment());
+        assertEquals("IIDM XML v" + CURRENT_IIDM_VERSION.toString(".") + " exporter", xmlExporter.getComment());
     }
 
     @Test
