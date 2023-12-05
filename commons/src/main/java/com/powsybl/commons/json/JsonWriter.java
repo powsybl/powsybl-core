@@ -204,6 +204,20 @@ public class JsonWriter implements TreeDataWriter {
     }
 
     @Override
+    public void writeStringArrayAttribute(String name, Collection<String> values) {
+        try {
+            jsonGenerator.writeFieldName(name);
+            jsonGenerator.writeStartArray();
+            for (String value : values) {
+                jsonGenerator.writeString(value);
+            }
+            jsonGenerator.writeEndArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
     public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
         if (value != null) {
             writeStringAttribute(name, value.name());

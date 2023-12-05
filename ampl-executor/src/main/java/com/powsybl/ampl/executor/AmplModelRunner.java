@@ -22,11 +22,15 @@ public final class AmplModelRunner {
 
     public static AmplResults run(Network network, String variantId, AmplModel model, ComputationManager manager,
                                   AmplParameters parameters) {
-        ExecutionEnvironment env = new ExecutionEnvironment(Collections.emptyMap(), "ampl_", parameters.isDebug());
-        AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, AmplConfig.load(),
-                parameters);
-        CompletableFuture<AmplResults> result = manager.execute(env, handler);
+        CompletableFuture<AmplResults> result = runAsync(network, variantId, model, manager, parameters);
         return result.join();
     }
 
+    public static CompletableFuture<AmplResults> runAsync(Network network, String variantId, AmplModel model, ComputationManager manager,
+                                                          AmplParameters parameters) {
+        ExecutionEnvironment env = new ExecutionEnvironment(Collections.emptyMap(), "ampl_", parameters.isDebug());
+        AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, AmplConfig.load(),
+                parameters);
+        return manager.execute(env, handler);
+    }
 }

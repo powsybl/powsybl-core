@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferenceTerminalsAdder;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -70,9 +69,6 @@ class ReferenceTerminalsXmlTest extends AbstractIidmSerDeTest {
                 .withTerminals(terminals)
                 .add();
 
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "referenceTerminalsRef.xiidm");
+        allFormatsRoundTripTest(network, "referenceTerminalsRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
     }
 }

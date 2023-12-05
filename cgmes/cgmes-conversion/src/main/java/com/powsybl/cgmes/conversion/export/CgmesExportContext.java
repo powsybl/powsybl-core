@@ -609,10 +609,10 @@ public class CgmesExportContext {
     private void addIidmMappingsEquivalentInjection(Network network) {
         for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             String alias;
-            alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             if (alias == null) {
                 String equivalentInjectionId = CgmesExportUtil.getUniqueId();
-                danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", equivalentInjectionId);
+                danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, equivalentInjectionId);
             }
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
             if (alias == null) {
