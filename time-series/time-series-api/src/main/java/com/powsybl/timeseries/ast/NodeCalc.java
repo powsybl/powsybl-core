@@ -82,13 +82,14 @@ public interface NodeCalc {
         try {
             NodeCalc nodeCalc = null;
             JsonToken token;
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.START_OBJECT) {
-                    // skip
-                } else if (token == JsonToken.END_OBJECT) {
-                    break;
-                } else {
-                    nodeCalc = parseJson(parser, token);
+            boolean continueLoop = true;
+            while (continueLoop && (token = parser.nextToken()) != null) {
+                switch (token) {
+                    case START_OBJECT -> {
+                        // Do nothing
+                    }
+                    case END_OBJECT -> continueLoop = false;
+                    default -> nodeCalc = parseJson(parser, token);
                 }
             }
             return nodeCalc;

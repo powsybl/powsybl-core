@@ -116,6 +116,4 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     public Pair<NodeCalc, NodeCalc> iterate(BinaryMaxCalc nodeCalc, Void arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
-
-
 }

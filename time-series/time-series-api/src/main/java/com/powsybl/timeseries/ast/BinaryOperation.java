@@ -196,17 +196,18 @@ public class BinaryOperation implements NodeCalc {
         ParsingContext context = new ParsingContext();
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
-            if (token == JsonToken.START_OBJECT) {
-                // skip
-            } else if (token == JsonToken.END_OBJECT) {
-                if (context.left == null || context.right == null || context.operator == null) {
-                    throw new TimeSeriesException("Invalid binary operation node calc JSON");
+            switch (token) {
+                case START_OBJECT -> {
+                    // Do nothing
                 }
-                return new BinaryOperation(context.left, context.right, context.operator);
-            } else if (token == JsonToken.FIELD_NAME) {
-                parseFieldName(parser, token, context);
-            } else {
-                throw NodeCalc.createUnexpectedToken(token);
+                case END_OBJECT -> {
+                    if (context.left == null || context.right == null || context.operator == null) {
+                        throw new TimeSeriesException("Invalid binary operation node calc JSON");
+                    }
+                    return new BinaryOperation(context.left, context.right, context.operator);
+                }
+                case FIELD_NAME -> parseFieldName(parser, token, context);
+                default -> throw NodeCalc.createUnexpectedToken(token);
             }
         }
         throw NodeCalc.createUnexpectedToken(token);

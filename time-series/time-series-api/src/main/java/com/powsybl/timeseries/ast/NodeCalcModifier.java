@@ -34,13 +34,11 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
 
     @Override
     public NodeCalc visit(BinaryOperation nodeCalc, A arg, NodeCalc left, NodeCalc right) {
-        NodeCalc newLeft = left;
-        if (newLeft != null) {
-            nodeCalc.setLeft(newLeft);
+        if (left != null) {
+            nodeCalc.setLeft(left);
         }
-        NodeCalc newRight = right;
-        if (newRight != null) {
-            nodeCalc.setRight(newRight);
+        if (right != null) {
+            nodeCalc.setRight(right);
         }
         return null;
     }
@@ -52,9 +50,8 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
 
     @Override
     public NodeCalc visit(UnaryOperation nodeCalc, A arg, NodeCalc child) {
-        NodeCalc newChild = child;
-        if (newChild != null) {
-            nodeCalc.setChild(newChild);
+        if (child != null) {
+            nodeCalc.setChild(child);
         }
         return null;
     }
@@ -66,9 +63,8 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
 
     @Override
     public NodeCalc visit(MinNodeCalc nodeCalc, A arg, NodeCalc child) {
-        NodeCalc newChild = child;
-        if (newChild != null) {
-            nodeCalc.setChild(newChild);
+        if (child != null) {
+            nodeCalc.setChild(child);
         }
         return null;
     }
@@ -80,9 +76,8 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
 
     @Override
     public NodeCalc visit(MaxNodeCalc nodeCalc, A arg, NodeCalc child) {
-        NodeCalc newChild = child;
-        if (newChild != null) {
-            nodeCalc.setChild(newChild);
+        if (child != null) {
+            nodeCalc.setChild(child);
         }
         return null;
     }
@@ -94,9 +89,8 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
 
     @Override
     public NodeCalc visit(TimeNodeCalc nodeCalc, A arg, NodeCalc child) {
-        NodeCalc newChild = child;
-        if (newChild != null) {
-            nodeCalc.setChild(newChild);
+        if (child != null) {
+            nodeCalc.setChild(child);
         }
         return null;
     }
@@ -118,13 +112,11 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
 
     @Override
     public NodeCalc visit(BinaryMinCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
-        NodeCalc newLeft = left;
-        if (newLeft != null) {
-            nodeCalc.setLeft(newLeft);
+        if (left != null) {
+            nodeCalc.setLeft(left);
         }
-        NodeCalc newRight = right;
-        if (newRight != null) {
-            nodeCalc.setRight(newRight);
+        if (right != null) {
+            nodeCalc.setRight(right);
         }
         return null;
     }
@@ -136,13 +128,11 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
 
     @Override
     public NodeCalc visit(BinaryMaxCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
-        NodeCalc newLeft = left;
-        if (newLeft != null) {
-            nodeCalc.setLeft(newLeft);
+        if (left != null) {
+            nodeCalc.setLeft(left);
         }
-        NodeCalc newRight = right;
-        if (newRight != null) {
-            nodeCalc.setRight(newRight);
+        if (right != null) {
+            nodeCalc.setRight(right);
         }
         return null;
     }

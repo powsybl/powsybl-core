@@ -53,8 +53,8 @@ public class TimeSeriesNameNodeCalc implements NodeCalc {
     }
 
     static NodeCalc parseJson(JsonParser parser) throws IOException {
-        JsonToken token;
-        while ((token = parser.nextToken()) != null) {
+        JsonToken token = parser.nextToken();
+        if (token != null) {
             if (token == JsonToken.VALUE_STRING) {
                 return new TimeSeriesNameNodeCalc(parser.getValueAsString());
             } else {
