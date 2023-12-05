@@ -26,6 +26,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
     private static final String TAG = "TAG: ";
+    private static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
     FaultParametersDeserializer() {
         super(FaultParameters.class);
@@ -54,6 +55,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                 case "version" -> {
                     parser.nextToken();
                     version = parser.getValueAsString();
+                    JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE);
                 }
                 case "id" -> {
                     parser.nextToken();

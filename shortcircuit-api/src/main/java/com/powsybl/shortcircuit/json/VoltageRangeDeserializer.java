@@ -11,14 +11,19 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.VoltageRange;
 
 import java.io.IOException;
+
+import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
+
+    private static final String CONTEXT_NAME = "VoltageRange";
 
     public VoltageRangeDeserializer() {
         super(VoltageRange.class);
@@ -29,6 +34,7 @@ public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
         Double maximumVoltage = Double.NaN;
         Double coefficient = Double.NaN;
         Double voltage = Double.NaN;
+        String version = JsonUtil.getSourceVersion(context, SOURCE_VERSION_ATTRIBUTE);
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -45,6 +51,7 @@ public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
                     coefficient = parser.readValueAs(Double.class);
                 }
                 case "voltage" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.3");
                     parser.nextToken();
                     voltage = parser.readValueAs(Double.class);
                 }

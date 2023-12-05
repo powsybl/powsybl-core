@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -292,6 +293,14 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         assertEquals(Range.of(0., 225.), voltageRanges.get(1).getRange());
         assertEquals(1.09, voltageRanges.get(2).getRangeCoefficient());
         assertEquals(Range.of(230., 375.), voltageRanges.get(2).getRange());
+    }
+
+    @Test
+    void testInvalidVersion12VoltageNotSupportedInVoltageRange() {
+        InputStream is = getClass().getResourceAsStream("/ShortCircuitParametersVersion12Invalid.json");
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonShortCircuitParameters.read(is));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3 \n" +
+                " (through reference chain: java.util.ArrayList[0])", e.getMessage());
     }
 
     @Test

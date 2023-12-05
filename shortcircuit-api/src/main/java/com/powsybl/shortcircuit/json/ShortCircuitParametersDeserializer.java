@@ -27,6 +27,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
 
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
     private static final String TAG = "Tag: ";
+    private static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
     public ShortCircuitParametersDeserializer() {
         super(ShortCircuitParameters.class);
@@ -46,6 +47,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 case "version" -> {
                     parser.nextToken();
                     version = parser.getValueAsString();
+                    JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE);
                 }
                 case "withLimitViolations" -> {
                     parser.nextToken();
