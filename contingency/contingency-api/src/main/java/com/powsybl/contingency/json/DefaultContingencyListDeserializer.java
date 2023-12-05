@@ -36,7 +36,11 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
             switch (parser.getCurrentName()) {
                 case "version" -> parser.nextToken();
                 case "name" -> name = parser.nextTextValue();
-                case "type" -> parser.nextToken();
+                case "type" -> {
+                    if (!parser.nextTextValue().equals(DefaultContingencyList.TYPE)) {
+                        throw new IllegalStateException("type should be: " + DefaultContingencyList.TYPE);
+                    }
+                }
                 case "contingencies" -> {
                     parser.nextToken();
                     contingencies = JsonUtil.readList(ctx, parser, Contingency.class);

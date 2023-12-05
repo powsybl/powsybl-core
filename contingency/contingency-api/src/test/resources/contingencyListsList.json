@@ -141,8 +141,8 @@
     } ]
   }, {
     "type" : "identifier",
-    "name" : "identifierlist",
     "version" : "1.2",
+    "name" : "identifierlist",
     "identifiers" : [ {
       "type" : "VOLTAGE_LEVELS_AND_ORDER",
       "contingencyId" : "contingency1",

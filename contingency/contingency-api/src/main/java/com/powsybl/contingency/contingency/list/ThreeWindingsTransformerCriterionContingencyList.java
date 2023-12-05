@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class ThreeWindingsTransformerCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
 
+    public static final String TYPE = "threeWindingsTransformerCriterion";
     private final SingleCountryCriterion singleCountryCriterion;
     private final ThreeNominalVoltageCriterion threeNominalVoltageCriterion;
 
@@ -33,7 +34,7 @@ public class ThreeWindingsTransformerCriterionContingencyList extends AbstractEq
 
     @Override
     public String getType() {
-        return "threeWindingsTransformerCriterion";
+        return TYPE;
     }
 
     @Override

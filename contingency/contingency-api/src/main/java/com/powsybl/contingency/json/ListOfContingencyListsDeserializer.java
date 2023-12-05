@@ -35,7 +35,11 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
             switch (parser.getCurrentName()) {
                 case "version" -> deserializationContext.setAttribute("version", parser.nextTextValue());
                 case "name" -> name = parser.nextTextValue();
-                case "type" -> parser.nextToken();
+                case "type" -> {
+                    if (!parser.nextTextValue().equals(ListOfContingencyLists.TYPE)) {
+                        throw new IllegalStateException("type should be: " + ListOfContingencyLists.TYPE);
+                    }
+                }
                 case "contingencyLists" -> {
                     parser.nextToken();
                     contingencyLists = JsonUtil.readList(deserializationContext, parser, ContingencyList.class);

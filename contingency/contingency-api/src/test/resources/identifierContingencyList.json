@@ -1,7 +1,7 @@
 {
   "type" : "identifier",
-  "name" : "list1",
   "version" : "1.2",
+  "name" : "list1",
   "identifiers" : [ {
     "type" : "ID_BASED",
     "contingencyId" : "contingencyId1",

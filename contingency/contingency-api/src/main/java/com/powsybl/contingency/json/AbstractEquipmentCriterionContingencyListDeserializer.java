@@ -38,7 +38,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
     }
 
     protected boolean deserializeCommonAttributes(JsonParser parser, DeserializationContext ctx,
-                                                  ParsingContext parsingCtx, String name) throws IOException {
+                                                  ParsingContext parsingCtx, String name, String expectedType) throws IOException {
         switch (name) {
             case "name" -> {
                 parsingCtx.name = parser.nextTextValue();
@@ -64,8 +64,14 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
                 parsingCtx.regexCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
             }
-            case "version", "type" -> {
+            case "version" -> {
                 parser.nextToken();
+                return true;
+            }
+            case "type" -> {
+                if (!parser.nextTextValue().equals(expectedType)) {
+                    throw new IllegalStateException("type should be: " + expectedType);
+                }
                 return true;
             }
             default -> {

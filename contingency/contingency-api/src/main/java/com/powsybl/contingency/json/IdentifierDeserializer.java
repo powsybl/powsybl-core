@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.contingency.json.IdentifierContingencyListDeserializer.IDENTIFIER_LIST_VERSION;
+
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
@@ -37,7 +39,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         String voltageLevelId1 = null;
         String voltageLevelId2 = null;
         String contingencyId = null;
-        String version = (String) deserializationContext.getAttribute("identifierListVersion");
+        String version = JsonUtil.getSourceVersion(deserializationContext, IDENTIFIER_LIST_VERSION);
         List<NetworkElementIdentifier> networkElementIdentifierList = Collections.emptyList();
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
