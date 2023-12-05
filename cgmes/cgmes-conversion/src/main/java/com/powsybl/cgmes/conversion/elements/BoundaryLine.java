@@ -16,10 +16,11 @@ import com.powsybl.iidm.network.TwoSides;
  */
 public class BoundaryLine {
 
-    BoundaryLine(String id, String name, String modelIidmVoltageLevelId, String modelBus,
+    BoundaryLine(String eqInstance, String id, String name, String modelIidmVoltageLevelId, String modelBus,
         boolean modelTconnected, int modelNode, String modelTerminalId, TwoSides boundarySide,
         String boundaryTerminalId, String boundaryConnectivityNodeId, String boundaryTopologicalNodeId,
         PowerFlow modelPowerFlow, String equivalentInjectionId, String equivalentInjectionCgmesTerminalId) {
+        this.eqInstance = eqInstance;
         this.id = id;
         this.name = name;
         this.modelIidmVoltageLevelId = modelIidmVoltageLevelId;
@@ -50,6 +51,10 @@ public class BoundaryLine {
         this.b1 = b1;
         this.g2 = g2;
         this.b2 = b2;
+    }
+
+    public String getEqInstance() {
+        return eqInstance;
     }
 
     public String getId() {
@@ -132,6 +137,7 @@ public class BoundaryLine {
         return equivalentInjectionCgmesTerminalId;
     }
 
+    private final String eqInstance;
     private final String id;
     private final String name;
     private final String modelIidmVoltageLevelId;

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -20,9 +20,7 @@ class EuropeanLvTestFeederFactoryXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripXmlTest(EuropeanLvTestFeederFactory.create(),
-            (n, xmlFile) -> NetworkSerDe.writeAndValidate(n, new ExportOptions().setSorted(true), xmlFile),
-            NetworkSerDe::read,
-            getVersionedNetworkPath("europeanLvTestFeederRef.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(EuropeanLvTestFeederFactory.create(), "europeanLvTestFeederRef.xml", CURRENT_IIDM_VERSION,
+                new ExportOptions().setSorted(true));
     }
 }

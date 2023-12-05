@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Network;
@@ -80,7 +81,7 @@ public class TerminalMapping {
 
     public Boundary findBoundary(String cgmesTerminalId, CgmesModel cgmesModel) {
         CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
-        if (cgmesTerminal != null && cgmesTerminal.conductingEquipmentType().equals("EquivalentInjection")) {
+        if (cgmesTerminal != null && cgmesTerminal.conductingEquipmentType().equals(CgmesNames.EQUIVALENT_INJECTION)) {
             String acLineSegmentCgmesTerminalId = findAssociatedAcLineSegmentCgmesTerminalId(cgmesModel, cgmesTerminal);
             if (acLineSegmentCgmesTerminalId != null) {
                 return findBoundary(acLineSegmentCgmesTerminalId);

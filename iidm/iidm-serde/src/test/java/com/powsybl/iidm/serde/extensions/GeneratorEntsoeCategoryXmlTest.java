@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -62,10 +61,7 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
         assertNotNull(generator);
         GeneratorEntsoeCategory entsoeCategory = generator.newExtension(GeneratorEntsoeCategoryAdder.class).withCode(4).add();
 
-        Network network2 = roundTripXmlTest(network,
-                                            NetworkSerDe::writeAndValidate,
-                                            NetworkSerDe::read,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "/generatorEntsoeCategoryRef.xml");
+        Network network2 = allFormatsRoundTripTest(network, "/generatorEntsoeCategoryRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);

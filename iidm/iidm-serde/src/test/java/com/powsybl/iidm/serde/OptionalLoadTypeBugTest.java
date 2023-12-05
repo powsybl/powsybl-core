@@ -8,7 +8,7 @@ package com.powsybl.iidm.serde;
 
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -19,6 +19,6 @@ class OptionalLoadTypeBugTest extends AbstractIidmSerDeTest {
     @Test
     void shouldNotThrowNullPointerExceptionTest() {
         assertNotNull(NetworkSerDe.read(getVersionedNetworkAsStream("optionalLoadTypeBug.xml", IidmVersion.V_1_0)));
-        assertNotNull(NetworkSerDe.read(getVersionedNetworkAsStream("optionalLoadTypeBug.xml", CURRENT_IIDM_XML_VERSION)));
+        assertNotNull(NetworkSerDe.read(getVersionedNetworkAsStream("optionalLoadTypeBug.xml", CURRENT_IIDM_VERSION)));
     }
 }

@@ -126,11 +126,12 @@ public final class SteadyStateHypothesisExport {
     private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // One equivalent injection for every dangling line
         List<String> exported = new ArrayList<>();
+
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             if (!exported.contains(ei) && ei != null) {
                 // Ensure equivalent injection identifier is valid
-                String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+                String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
                 // regulationStatus and regulationTarget are optional,
                 // but test cases contain the attributes with disabled and 0
                 boolean regulationStatus = false;
@@ -540,7 +541,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeEquivalentInjection(String cgmesId, double p, double q, boolean regulationStatus, double regulationTarget, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout("EquivalentInjection", cgmesId, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout(CgmesNames.EQUIVALENT_INJECTION, cgmesId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
