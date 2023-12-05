@@ -19,9 +19,9 @@ public interface MatrixFactory {
      *
      * @param rowCount row count
      * @param columnCount column count
-     * @param estimatedNonZeroValueCount estimation of non zero values
+     * @param estimatedValueCount estimated number of values
      *
      * @return a matrix with {@code rowCount} rows and {@code columnCount} columns
      */
-    Matrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount);
+    Matrix create(int rowCount, int columnCount, int estimatedValueCount);
 }

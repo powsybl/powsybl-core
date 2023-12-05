@@ -16,7 +16,7 @@ import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.util.*;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -31,7 +31,7 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private final Map<String, String> extensionVersions;
 
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader) {
-        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION, Collections.emptyMap());
+        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_VERSION, Collections.emptyMap());
     }
 
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader, ImportOptions options, IidmVersion version,

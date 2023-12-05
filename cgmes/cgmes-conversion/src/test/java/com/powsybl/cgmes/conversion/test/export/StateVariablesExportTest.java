@@ -582,10 +582,13 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         // comparison without extensions, only Networks
         ExportOptions exportOptions = new ExportOptions().setSorted(true);
         exportOptions.setExtensions(Collections.emptySet());
-        NetworkSerDe.writeAndValidate(expected, exportOptions, tmpDir.resolve("expected.xml"));
-        NetworkSerDe.writeAndValidate(actual, exportOptions, tmpDir.resolve("actual.xml"));
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expected, exportOptions, expectedPath);
+        NetworkSerDe.write(actual, exportOptions, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        ExportXmlCompare.compareNetworks(expectedPath, actualPath);
     }
 }
