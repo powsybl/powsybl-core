@@ -16,9 +16,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.univocity.parsers.csv.*;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -37,29 +34,6 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     protected AbstractCgmesAliasNamingStrategy(Map<String, String> idByUuid, UUID uuidNamespace) {
         this.idByUuid.putAll(Objects.requireNonNull(idByUuid));
         this.uuidNamespace = uuidNamespace;
-    }
-
-    public AbstractCgmesAliasNamingStrategy readFrom(InputStream is) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-            CsvParserSettings settings = new CsvParserSettings();
-            setFormat(settings.getFormat());
-            CsvParser csvParser = new CsvParser(settings);
-            for (String[] nextLine : csvParser.iterate(reader)) {
-                if (nextLine.length != 2) {
-                    throw new PowsyblException("Invalid line '" + Arrays.toString(nextLine) + "'");
-                }
-                idByUuid.put(nextLine[0], nextLine[1]);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return this;
-    }
-
-    private static void setFormat(CsvFormat format) {
-        format.setLineSeparator(System.lineSeparator());
-        format.setDelimiter(';');
-        format.setQuoteEscape('"');
     }
 
     @Override
@@ -151,24 +125,6 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         }
     }
 
-    @Override
-    public void writeIdMapping(Path path) {
-        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-            writeIdMapping(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void writeIdMapping(String mappingFileName, DataSource ds) {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFileName, false)))) {
-            writeIdMapping(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     private String getCgmesId(Identifiable<?> identifiable, String id, String aliasName) {
         if (idByUuid.containsValue(id)) {
             return idByUuid.inverse().get(id);
@@ -187,19 +143,27 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         return uuid;
     }
 
-    private void writeIdMapping(BufferedWriter writer) {
-        CsvWriterSettings settings = new CsvWriterSettings();
-        setFormat(settings.getFormat());
-        CsvWriter csvWriter = new CsvWriter(writer, settings);
-        try {
-            String[] nextLine = new String[2];
-            for (Map.Entry<String, String> e : idByUuid.entrySet()) {
-                nextLine[0] = e.getKey();
-                nextLine[1] = e.getValue();
-                csvWriter.writeRow(nextLine);
+    @Override
+    public void debugIdMapping(String baseName, DataSource ds) {
+        String mappingFilename = baseName + "_debug_id_mapping.csv";
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFilename, false)))) {
+            CsvWriterSettings settings = new CsvWriterSettings();
+            settings.getFormat().setLineSeparator(System.lineSeparator());
+            settings.getFormat().setDelimiter(';');
+            settings.getFormat().setQuoteEscape('"');
+            CsvWriter csvWriter = new CsvWriter(writer, settings);
+            try {
+                String[] nextLine = new String[2];
+                for (Map.Entry<String, String> e : idByUuid.entrySet()) {
+                    nextLine[0] = e.getKey();
+                    nextLine[1] = e.getValue();
+                    csvWriter.writeRow(nextLine);
+                }
+            } finally {
+                csvWriter.close();
             }
-        } finally {
-            csvWriter.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }

@@ -11,8 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
 
-import java.nio.file.Path;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -46,9 +44,7 @@ public interface NamingStrategy {
 
     void readIdMapping(Identifiable<?> identifiable, String type);
 
-    void writeIdMapping(Path path);
-
-    void writeIdMapping(String mappingFileName, DataSource ds);
+    void debugIdMapping(String baseName, DataSource ds);
 
     final class Identity implements NamingStrategy {
 
@@ -83,12 +79,7 @@ public interface NamingStrategy {
         }
 
         @Override
-        public void writeIdMapping(Path path) {
-            // do nothing
-        }
-
-        @Override
-        public void writeIdMapping(String mappingFileName, DataSource ds) {
+        public void debugIdMapping(String baseName, DataSource ds) {
             // do nothing
         }
     }

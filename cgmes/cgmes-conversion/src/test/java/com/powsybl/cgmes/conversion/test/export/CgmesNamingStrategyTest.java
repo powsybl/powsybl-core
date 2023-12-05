@@ -20,8 +20,6 @@ import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.XMLImporter;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 
@@ -40,9 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-class CgmesMappingTest extends AbstractSerDeTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesMappingTest.class);
+class CgmesNamingStrategyTest extends AbstractSerDeTest {
 
     @Test
     void testExplicitMappingConstructors() {
@@ -54,41 +50,49 @@ class CgmesMappingTest extends AbstractSerDeTest {
 
     @Test
     void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
-        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "nordic32", "G9_______SM");
+        Network network = Network.read(new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm")));
+        network.setName("nordic32");
+        // Force writing CGMES topological island by assigning a slack bus
+        SlackTerminal.attach(network.getGenerator("G9_______SM").getTerminal().getBusBreakerView().getBus());
+        testExport(network, NamingStrategyFactory.CGMES);
     }
 
     @Test
     void testExportUsingCgmesNamingStrategyIEEE14() throws IOException {
-        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "ieee14", "GEN____8_SM");
+        Network network = Network.read(new ResourceDataSource("ieee14", new ResourceSet("/cim14", "ieee14.xiidm")));
+        network.setName("ieee14");
+        SlackTerminal.attach(network.getGenerator("GEN____8_SM").getTerminal().getBusBreakerView().getBus());
+        testExport(network, NamingStrategyFactory.CGMES);
     }
 
     @Test
     void testExportUsingCgmesNamingStrategyCgmesMicroGrid() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource();
-        Network network = Importers.importData("CGMES", ds, null);
-        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, network, "MicroGrid", null, Collections.emptySet(), ds);
+        Network network = Network.read(ds);
+        network.setName("MicroGrid-NS-CGMES");
+        testExport(network, ds, NamingStrategyFactory.CGMES);
     }
 
     @Test
     void testExportUsingCgmesNamingStrategyMicroGrid() throws IOException {
         // We select a case that contains invalid IDs
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledBadIds().dataSource();
-        Network network = Importers.importData("CGMES", ds, null);
-        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS, network, "MicroGrid", null, Collections.emptySet(), ds);
+        Network network = Network.read(ds);
+        network.setName("MicroGrid-NS-CGMES_FIX_ALL_INVALID_IDS");
+        testExport(network, ds, NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS);
     }
 
-    private void testExportUsingCgmesNamingStrategy(String namingStrategy, String baseName, String generatorForSlack) throws IOException {
-        ReadOnlyDataSource inputIidm = new ResourceDataSource(baseName, new ResourceSet("/cim14", baseName + ".xiidm"));
-        Network network = new XMLImporter().importData(inputIidm, NetworkFactory.findDefault(), null);
-        // Force writing CGMES topological island by assigning a slack bus
-        SlackTerminal.attach(network.getGenerator(generatorForSlack).getTerminal().getBusBreakerView().getBus());
-        testExportUsingCgmesNamingStrategy(namingStrategy, network, baseName, null, Collections.emptySet(), null);
+    void testExport(Network network, String namingStrategy) throws IOException {
+        testExport(network, null, namingStrategy);
     }
 
-    void testExportUsingCgmesNamingStrategy(String namingStrategy, Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds, ReadOnlyDataSource originalDataSource) throws IOException {
+    void testExport(Network network, ReadOnlyDataSource originalDataSource, String namingStrategy) throws IOException {
+        String baseName = network.getNameOrId();
+
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, namingStrategy);
         exportParams.put(CgmesExport.EXPORT_SV_INJECTIONS_FOR_SLACKS, "false");
+
         String outputFolder = "exportedCgmes" + baseName;
         DataSource exportedCgmes = tmpDataSource(outputFolder, baseName);
         network.write("CGMES", exportParams, exportedCgmes);
@@ -96,28 +100,11 @@ class CgmesMappingTest extends AbstractSerDeTest {
             copyBoundary(outputFolder, baseName, originalDataSource);
         }
 
-        // Load the exported CGMES model without the ID mapping,
-        // to ensure that all objects have valid CGMES identifiers
-        Network network1 = importExportedCgmesWithoutMapping(exportedCgmes, baseName, reimportParams);
+        // Load the exported CGMES model and check that all objects have valid CGMES identifiers
+        Network network1 = Network.read(exportedCgmes);
         checkAllIdentifiersAreValidCimCgmesIdentifiers(network1);
-
-        // Compare original network with re-imported using ID mapping
-        // We do not compare XIIDM files, as the structure may have significant changes:
-        // CGMES exported always node/breaker, if original was bus/branch a lot of different elements
-        // Even if original was node/breaker, we may have introduced fictitious switches during import,
-        // resulting in different number of nodes and connections
-
-        // By default, the identity naming strategy is configured, we have to set a specific one if we have a mapping file
-        Properties reimportParams1 = new Properties(reimportParams);
-        reimportParams1.put(CgmesImport.NAMING_STRATEGY, namingStrategy);
-
-        Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams1);
-        Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual, tmpDir.resolve("exportedCgmes" + baseName));
-        checkDiffs(diffs, knownErrorsSubstationsIds);
-
-        // In the Network created from CGMES + mapping all Identifiables that do not have a valid CIM mRID
-        // must have a valid UUID alias
-        for (Identifiable<?> i : networkActual.getIdentifiables()) {
+        // Also, all Identifiables that do not have a valid CIM mRID must have a valid UUID alias
+        for (Identifiable<?> i : network1.getIdentifiables()) {
             if (!i.isFictitious() && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
                 Optional<String> uuid = i.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
                 assertTrue(uuid.isPresent());
@@ -126,124 +113,24 @@ class CgmesMappingTest extends AbstractSerDeTest {
         }
 
         // Now that we have valid identifiers stored as aliases, we should be able to re-export to CGMES
-        // without the mapping generated in the previous step,
-        // but keeping the same naming strategy to use aliases to fix bad mrids
-        Properties reExportParams = exportParams;
+        // with the same naming strategy to use aliases to fix bad mrids
         String reOutputFolder = "reExportedCgmes" + baseName;
         DataSource reExportedCgmes = tmpDataSource(reOutputFolder, baseName);
-        networkActual.write("CGMES", reExportParams, reExportedCgmes);
+        network1.write("CGMES", exportParams, reExportedCgmes);
         if (originalDataSource != null) {
             copyBoundary(reOutputFolder, baseName, originalDataSource);
         }
-        Network networkActualReimportedWithoutMapping = Importers.importData("CGMES", reExportedCgmes, reimportParams1);
+        Network network1Reimported = Network.read(reExportedCgmes);
         // Convert to strings with newlines for easier visual comparison in case of differences
         assertEquals(
                 Arrays.toString(network1.getIdentifiables().stream()
                         .filter(i -> !(i instanceof Network) && !i.isFictitious())
                         .map(i -> i.getType() + "::" + i.getId())
                         .sorted().toArray()).replace(",", System.lineSeparator()),
-                Arrays.toString(networkActualReimportedWithoutMapping.getIdentifiables().stream()
+                Arrays.toString(network1Reimported.getIdentifiables().stream()
                         .filter(i -> !(i instanceof Network) && !i.isFictitious())
                         .map(i -> i.getType() + "::" + i.getId())
                         .sorted().toArray()).replace(",", System.lineSeparator()));
-    }
-
-    private void checkDiffs(Collection<Diff> diffs, Set<String> knownErrorsSubstationsIds) {
-        if (diffs.size() > 0) {
-            LOG.error("differences found:");
-            diffs.forEach(d -> LOG.error(d.toString()));
-        }
-        Collection<Diff> notExpected = diffs.stream().filter(d -> !knownErrorsSubstationsIds.contains(d.substationId)).collect(Collectors.toList());
-        if (notExpected.size() > 0) {
-            notExpected.forEach(d -> LOG.error(d.toString()));
-            fail();
-        }
-    }
-
-    static class Diff {
-        String substationId;
-        SortedSet<String> busesExpectedBusView;
-        SortedSet<String> busesActualBusView;
-        SortedSet<String> busesExpectedBusBreakerView;
-        SortedSet<String> busesActualBusBreakerView;
-
-        @Override
-        public String toString() {
-            return "RelevantDiff in substation " + substationId + System.lineSeparator() +
-                    "  BusView expected" + System.lineSeparator() +
-                    "    " + busesExpectedBusView.stream().collect(Collectors.joining(System.lineSeparator() + "    ")) + System.lineSeparator() +
-                    "  BusView actual" + System.lineSeparator() +
-                    "    " + busesActualBusView.stream().collect(Collectors.joining(System.lineSeparator() + "    ")) + System.lineSeparator() +
-                    "  BusBreakerView expected" + System.lineSeparator() +
-                    "    " + busesExpectedBusBreakerView.stream().collect(Collectors.joining(System.lineSeparator() + "    ")) + System.lineSeparator() +
-                    "  BusBreakerView actual" + System.lineSeparator() +
-                    "    " + busesActualBusBreakerView.stream().collect(Collectors.joining(System.lineSeparator() + "    ")) + System.lineSeparator();
-        }
-    }
-
-    private Collection<Diff> compareNetworksUsingConnectedEquipment(Network expected, Network actual, Path tmp) {
-        Collection<Diff> diffs = new ArrayList<>();
-        for (Substation se : expected.getSubstations()) {
-            Substation sa = actual.getSubstation(se.getId());
-            assertEquals(se.getNameOrId(), sa.getNameOrId());
-            for (VoltageLevel vle : se.getVoltageLevels()) {
-                VoltageLevel vla = actual.getVoltageLevel(vle.getId());
-                assertEquals(vle.getNameOrId(), vla.getNameOrId());
-                SortedSet<String> busesExpectedBusView = buildBusIdsBasedOnConnectedEquipment(vle.getBusView().getBuses());
-                SortedSet<String> busesActualBusView = buildBusIdsBasedOnConnectedEquipment(vla.getBusView().getBuses());
-                if (!busesExpectedBusView.equals(busesActualBusView)) {
-
-                    // Because we may start from a bus/branch network and compare to a node/breaker reimported network
-                    // We may have some mismatches in the calculated buses.
-                    // This happens in buses where only one line ends in the original network,
-                    // they are re-imported with no bus at bus view level
-
-                    // For these situations, we look at the bus/breaker level
-                    // At this level, all the buses in the original network must be present in the reimported network
-                    // Maybe there could be more bus/breaker view buses in the re-imported network,
-                    // representing the end points of disconnected equipment,
-                    // this is way we do not check the two sets of buses with "equals"
-
-                    SortedSet<String> busesExpectedBusBreakerView = buildBusIdsBasedOnConnectedEquipment(vle.getBusBreakerView().getBuses());
-                    SortedSet<String> busesActualBusBreakerView = buildBusIdsBasedOnConnectedEquipment(vla.getBusBreakerView().getBuses());
-
-                    //assertEquals(busesExpectedBusBreakerView, busesActualBusBreakerView);
-                    // At least all the expected buses must be present in actual network,
-                    // and maybe the actual contains additional buses
-                    boolean isRelevantDiff = busesExpectedBusBreakerView.stream()
-                            .anyMatch(b -> !busesActualBusBreakerView.contains(b));
-                    if (isRelevantDiff) {
-                        try {
-                            vle.exportTopology(tmp.resolve(se.getNameOrId() + "-expected.gv"));
-                            vla.exportTopology(tmp.resolve(se.getNameOrId() + "-actual.gv"));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        Diff diff = new Diff();
-                        diff.substationId = se.getId();
-                        diff.busesExpectedBusView = busesExpectedBusView;
-                        diff.busesActualBusView = busesActualBusView;
-                        diff.busesExpectedBusBreakerView = busesExpectedBusBreakerView;
-                        diff.busesActualBusBreakerView = busesActualBusBreakerView;
-                        diffs.add(diff);
-                    }
-                }
-            }
-        }
-        return diffs;
-    }
-
-    private Network importExportedCgmesWithoutMapping(ReadOnlyDataSource dataSource, String baseName, Properties reimportParams) throws IOException {
-        // Build a zip file that does not contain the CSV file for the id mappings, only CGMES exported files
-        Path repackaged = tmpDir.resolve("exportedCgmes" + baseName).resolve("repackaged.zip");
-        Repackager r = new Repackager(dataSource)
-                .with(dataSource.getBaseName() + "_EQ_BD.xml", Repackager::eqBd)
-                .with(dataSource.getBaseName() + "_EQ.xml", Repackager::eq)
-                .with(dataSource.getBaseName() + "_SSH.xml", Repackager::ssh)
-                .with(dataSource.getBaseName() + "_TP.xml", Repackager::tp)
-                .with(dataSource.getBaseName() + "_SV.xml", Repackager::sv);
-        r.zip(repackaged);
-        return Importers.importData("CGMES", new ZipFileDataSource(repackaged), reimportParams);
     }
 
     private void checkAllIdentifiersAreValidCimCgmesIdentifiers(Network network) {
@@ -274,29 +161,6 @@ class CgmesMappingTest extends AbstractSerDeTest {
         assertEquals(0,
                 badIds.get().count(),
                 String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))));
-    }
-
-    private static SortedSet<String> buildBusIdsBasedOnConnectedEquipment(Iterable<Bus> buses) {
-        SortedSet<String> busIds = new TreeSet<>();
-        for (Bus be : buses) {
-            // Build an id for the bus based on the concat of ids of connected equipment
-            SortedSet<String> eqIds = new TreeSet<>();
-            be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(getId(t.getConnectable())));
-            // Ignore empty buses
-            if (!eqIds.isEmpty()) {
-                String busId = String.join(",", eqIds);
-                busIds.add(busId);
-            }
-        }
-        return busIds;
-    }
-
-    private static String getId(Connectable<?> c) {
-        if (c instanceof DanglingLine) {
-            DanglingLine dl = (DanglingLine) c;
-            return dl.getTieLine().map(TieLine::getId).orElseGet(dl::getId);
-        }
-        return c.getId();
     }
 
     @Test
@@ -344,7 +208,6 @@ class CgmesMappingTest extends AbstractSerDeTest {
         for (Path file : files) {
             ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
         }
-
     }
 
     private void exportNetwork(Network network, DataSource exportDataSource, String baseName) {

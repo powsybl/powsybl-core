@@ -7,13 +7,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -28,61 +22,6 @@ public final class NamingStrategyFactory {
     public static final String CGMES_FIX_ALL_INVALID_IDS = "cgmes-fix-all-invalid-ids";
 
     public static final List<String> LIST = List.of(IDENTITY, CGMES, CGMES_FIX_ALL_INVALID_IDS);
-
-    public static NamingStrategy create(String impl, ReadOnlyDataSource ds, String mappingFileName, Path defaultPath, UUID uuidNamespace) {
-        Objects.requireNonNull(ds);
-        Objects.requireNonNull(mappingFileName);
-        try {
-            if (ds.exists(mappingFileName)) {
-                return readFromDataSource(impl, ds, mappingFileName, uuidNamespace);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        if (defaultPath != null) {
-            return create(impl, defaultPath, uuidNamespace);
-        }
-        return new NamingStrategy.Identity();
-    }
-
-    public static NamingStrategy create(String impl, ReadOnlyDataSource ds, String mappingFileName, UUID uuidNamespace) {
-        Objects.requireNonNull(ds);
-        Objects.requireNonNull(mappingFileName);
-        try {
-            if (ds.exists(mappingFileName)) {
-                return readFromDataSource(impl, ds, mappingFileName, uuidNamespace);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return new NamingStrategy.Identity();
-    }
-
-    public static NamingStrategy create(String impl, Path path, UUID uuidNamespace) {
-        Objects.requireNonNull(path);
-        try (InputStream is = Files.newInputStream(path)) {
-            return createWithMapping(impl, uuidNamespace).readFrom(is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private static NamingStrategy readFromDataSource(String impl, ReadOnlyDataSource ds, String mappingFileName, UUID uuidNamespace) throws IOException {
-        try (InputStream is = ds.newInputStream(mappingFileName)) {
-            return createWithMapping(impl, uuidNamespace).readFrom(is);
-        }
-    }
-
-    public static AbstractCgmesAliasNamingStrategy createWithMapping(String impl, UUID uuidNamespace) {
-        Objects.requireNonNull(impl);
-        return switch (impl) {
-            case IDENTITY ->
-                    throw new PowsyblException("Identity naming strategy not expected when using an ID mapping file");
-            case CGMES -> new SimpleCgmesAliasNamingStrategy(uuidNamespace);
-            case CGMES_FIX_ALL_INVALID_IDS -> new FixedCgmesAliasNamingStrategy(uuidNamespace);
-            default -> throw new PowsyblException("Unknown naming strategy: " + impl);
-        };
-    }
 
     public static NamingStrategy create(String impl, UUID uuidNamespace) {
         Objects.requireNonNull(impl);
