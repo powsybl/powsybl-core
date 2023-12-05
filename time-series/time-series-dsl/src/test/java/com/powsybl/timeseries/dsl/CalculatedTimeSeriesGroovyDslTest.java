@@ -29,14 +29,14 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class CalculatedTimeSeriesGroovyDslTest {
 
-    private void evaluate1(String expr, double expectedValue) {
+    private void evaluate1(String expr, double[] expectedValue) {
         // create time series space mock
         TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
 
         String[] timeSeriesNames = {"foo", "bar", "baz"};
         double[] fooValues = new double[] {3d, 3d};
         double[] barValues = new double[] {2d, 2d};
-        double[] bazValues = new double[] {-1d, -1d};
+        double[] bazValues = new double[] {-1d, 4d};
 
         ReadOnlyTimeSeriesStore store = new ReadOnlyTimeSeriesStoreCache(
                 TimeSeries.createDouble(timeSeriesNames[0], index, fooValues),
@@ -55,29 +55,34 @@ class CalculatedTimeSeriesGroovyDslTest {
         NodeCalc resolvedNode = NodeCalcResolver.resolve(node, ImmutableMap.of(timeSeriesNames[0], 0,
                 timeSeriesNames[1], 1,
                 timeSeriesNames[2], 2));
-        int point = 0;
-        double calculatedValue = NodeCalcEvaluator.eval(resolvedNode, new DoubleMultiPoint() {
-            @Override
-            public int getIndex() {
-                return point;
-            }
 
-            @Override
-            public long getTime() {
-                return index.getTimeAt(point);
-            }
+        // Compute the value for each point corresponding to the expected value
+        double[] calculatedValue = new double[expectedValue.length];
+        for (int point = 0; point < expectedValue.length; point++) {
+            int finalPoint = point;
+            calculatedValue[point] = NodeCalcEvaluator.eval(resolvedNode, new DoubleMultiPoint() {
+                @Override
+                public int getIndex() {
+                    return finalPoint;
+                }
 
-            @Override
-            public double getValue(int timeSeriesNum) {
-                return switch (timeSeriesNum) {
-                    case 0 -> fooValues[point];
-                    case 1 -> barValues[point];
-                    case 2 -> bazValues[point];
-                    default -> throw new IllegalStateException();
-                };
-            }
-        });
-        assertEquals(expectedValue, calculatedValue, 0d);
+                @Override
+                public long getTime() {
+                    return index.getTimeAt(finalPoint);
+                }
+
+                @Override
+                public double getValue(int timeSeriesNum) {
+                    return switch (timeSeriesNum) {
+                        case 0 -> fooValues[finalPoint];
+                        case 1 -> barValues[finalPoint];
+                        case 2 -> bazValues[finalPoint];
+                        default -> throw new IllegalStateException();
+                    };
+                }
+            });
+        }
+        assertArrayEquals(expectedValue, calculatedValue, 0d);
     }
 
     //We want to test the expression directly as standalone tree, and in addition we want to test
@@ -94,7 +99,7 @@ class CalculatedTimeSeriesGroovyDslTest {
     //      ...
     //      +
     //  expr 0        <- left most elements
-    private void evaluate(String expr, double expectedValue) {
+    private void evaluate(String expr, double[] expectedValue) {
         evaluate1(expr, expectedValue);
         StringBuilder sb = new StringBuilder();
         sb.append("(");
@@ -106,6 +111,10 @@ class CalculatedTimeSeriesGroovyDslTest {
             sb.append("+0");
             evaluate1(sb.toString(), expectedValue);
         }
+    }
+
+    private void evaluate(String expr, double expectedValue) {
+        evaluate(expr, new double[]{expectedValue});
     }
 
     @Test
@@ -211,7 +220,8 @@ class CalculatedTimeSeriesGroovyDslTest {
         evaluate("timeSeries['foo'].min(5)", 3);
         evaluate("timeSeries['foo'].max(1)", 3);
         evaluate("timeSeries['foo'].max(5)", 5);
-        evaluate("timeSeries['foo'].min(timeSeries['bar'])", 2f);
+        evaluate("min(timeSeries['foo'], timeSeries['bar'])", 2f);
+        evaluate("min(timeSeries['foo'], timeSeries['baz'])", new double[]{-1f, 3f});
     }
 
     @Test

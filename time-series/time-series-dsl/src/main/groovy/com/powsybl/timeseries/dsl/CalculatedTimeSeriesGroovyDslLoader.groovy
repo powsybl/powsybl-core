@@ -107,6 +107,9 @@ class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoad
         binding.time = { String str ->
             ZonedDateTime.parse(str).toInstant().toEpochMilli().toDouble()
         }
+        binding.min = { NodeCalc leftNode, NodeCalc rightNode ->
+            new BinaryMinCalc(leftNode, rightNode)
+        }
     }
 
     static CompilerConfiguration createCompilerConfig() {

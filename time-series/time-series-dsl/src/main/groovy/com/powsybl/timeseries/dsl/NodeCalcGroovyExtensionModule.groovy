@@ -297,9 +297,4 @@ class NodeCalcGroovyExtensionModule {
     static NodeCalc max(NodeCalc self, BigDecimal value) {
         new MaxNodeCalc(self, value.doubleValue())
     }
-
-    // Binary min
-    static NodeCalc min(NodeCalc self, NodeCalc value) {
-        new BinaryMinCalc(self, value)
-    }
 }
