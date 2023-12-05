@@ -16,7 +16,7 @@ import com.powsybl.shortcircuit.VoltageRange;
 
 import java.io.IOException;
 
-import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
+import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.SOURCE_VERSION_ATTRIBUTE;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}

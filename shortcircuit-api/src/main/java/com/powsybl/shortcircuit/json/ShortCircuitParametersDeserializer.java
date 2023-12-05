@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.shortcircuit.json.JsonShortCircuitParameters.getExtensionSerializers;
+import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.*;
 
 /**
  * @author Boubakeur Brahimi
@@ -27,7 +28,6 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
 
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
     private static final String TAG = "Tag: ";
-    private static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
     public ShortCircuitParametersDeserializer() {
         super(ShortCircuitParameters.class);
@@ -48,6 +48,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     version = parser.getValueAsString();
                     JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE);
+                    deserializationContext.setAttribute(SOURCE_PARAMETER_TYPE_ATTRIBUTE, ParametersType.SHORT_CIRCUIT);
                 }
                 case "withLimitViolations" -> {
                     parser.nextToken();
