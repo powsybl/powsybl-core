@@ -35,6 +35,8 @@ public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
         Double coefficient = Double.NaN;
         Double voltage = Double.NaN;
         String version = JsonUtil.getSourceVersion(context, SOURCE_VERSION_ATTRIBUTE);
+        // If needed, the type of the enclosing Parameters (Fault, Short-circuit, ...) can be retrieved
+        // from the context with `context.getAttribute(ParametersDeserializationConstants.SOURCE_PARAMETER_TYPE_ATTRIBUTE)`
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
