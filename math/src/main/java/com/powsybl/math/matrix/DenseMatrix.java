@@ -342,7 +342,7 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     @Override
-    public int getNonZeroValueCount() {
+    public int getValueCount() {
         return getRowCount() * getColumnCount();
     }
 

@@ -126,9 +126,9 @@ public class SparseMatrix extends AbstractMatrix {
      *
      * @param rowCount row count
      * @param columnCount column count
-     * @param estimatedNonZeroValueCount estimated number of non zero values (used for internal pre-allocation)
+     * @param estimatedValueCount estimated number of values (used for internal pre-allocation)
      */
-    SparseMatrix(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
+    SparseMatrix(int rowCount, int columnCount, int estimatedValueCount) {
         if (rowCount < 0) {
             throw new MatrixException("row count has to be positive");
         }
@@ -141,8 +141,8 @@ public class SparseMatrix extends AbstractMatrix {
         columnValueCount = new int[columnCount];
         Arrays.fill(columnStart, -1);
         this.columnStart[columnCount] = 0;
-        rowIndices = new TIntArrayListHack(estimatedNonZeroValueCount);
-        values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
+        rowIndices = new TIntArrayListHack(estimatedValueCount);
+        values = new TDoubleArrayListHack(estimatedValueCount);
     }
 
     public double getRgrowthThreshold() {
@@ -410,7 +410,7 @@ public class SparseMatrix extends AbstractMatrix {
     }
 
     @Override
-    public int getNonZeroValueCount() {
+    public int getValueCount() {
         return values.size();
     }
 

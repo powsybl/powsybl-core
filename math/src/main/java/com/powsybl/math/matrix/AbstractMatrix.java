@@ -18,11 +18,11 @@ import java.util.Objects;
 public abstract class AbstractMatrix extends AbstractMathNative implements Matrix {
 
     /**
-     * Get an estimation of non zero value count.
+     * Get value count.
      *
-     * @return an estimation of non zero value count
+     * @return the value count
      */
-    public abstract int getNonZeroValueCount();
+    public abstract int getValueCount();
 
     /**
      * Check that row {@code i} and column {@code j} are in matrix bounds.
@@ -45,7 +45,7 @@ public abstract class AbstractMatrix extends AbstractMathNative implements Matri
     @Override
     public Matrix copy(MatrixFactory factory) {
         Objects.requireNonNull(factory);
-        Matrix matrix = factory.create(getRowCount(), getColumnCount(), getNonZeroValueCount());
+        Matrix matrix = factory.create(getRowCount(), getColumnCount(), getValueCount());
         iterateNonZeroValue(matrix::set);
         return matrix;
     }
