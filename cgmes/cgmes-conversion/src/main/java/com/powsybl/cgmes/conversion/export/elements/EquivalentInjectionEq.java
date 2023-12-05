@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -27,7 +28,7 @@ public final class EquivalentInjectionEq {
     public static void write(String id, String name, boolean regulationCapability, double minP, double maxP, double minQ, double maxQ,
                              String reactiveCapabilityCurveId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
                              CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("EquivalentInjection", id, name, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartIdName(CgmesNames.EQUIVALENT_INJECTION, id, name, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_REGULATIONCAPABILITY);
         writer.writeCharacters(CgmesExportUtil.format(regulationCapability));
         writer.writeEndElement();

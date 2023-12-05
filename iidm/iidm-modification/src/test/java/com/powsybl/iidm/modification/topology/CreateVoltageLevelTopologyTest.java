@@ -8,7 +8,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
@@ -17,7 +16,6 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -29,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CreateVoltageLevelTopologyTest extends AbstractSerDeTest {
+class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
 
     @Test
     void test() throws IOException {
@@ -41,8 +39,7 @@ class CreateVoltageLevelTopologyTest extends AbstractSerDeTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/create-vl-topo-test.xiidm");
+        writeXmlTest(network, "/create-vl-topo-test.xiidm");
     }
 
     @Test
@@ -57,8 +54,7 @@ class CreateVoltageLevelTopologyTest extends AbstractSerDeTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/create-vl-topo-test-complete.xiidm");
+        writeXmlTest(network, "/create-vl-topo-test-complete.xiidm");
     }
 
     @Test
@@ -193,8 +189,7 @@ class CreateVoltageLevelTopologyTest extends AbstractSerDeTest {
                 .withSectionCount(4)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-new-voltage-level.xml");
+        writeXmlTest(network, "/eurostag-new-voltage-level.xml");
     }
 
     @Test

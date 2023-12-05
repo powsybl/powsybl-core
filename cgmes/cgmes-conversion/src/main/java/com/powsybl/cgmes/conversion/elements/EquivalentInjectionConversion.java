@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
@@ -22,10 +23,9 @@ import org.slf4j.LoggerFactory;
 public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
 
     private static final String REGULATION_TARGET = "regulationTarget";
-    private static final String EQUIVALENT_INJECTION = "EquivalentInjection";
 
     public EquivalentInjectionConversion(PropertyBag ei, Context context) {
-        super(EQUIVALENT_INJECTION, ei, context);
+        super(CgmesNames.EQUIVALENT_INJECTION, ei, context);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + EQUIVALENT_INJECTION, this.id);
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, this.id);
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
             dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
@@ -119,7 +119,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static void addSpecificProperties(Generator generator) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, EQUIVALENT_INJECTION);
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
     }
 
     static class Regulation {

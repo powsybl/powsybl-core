@@ -9,10 +9,8 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-class RevertCreateLineOnLineTest extends AbstractSerDeTest {
+class RevertCreateLineOnLineTest extends AbstractModificationTest {
 
     @Test
     void revertCreateLineOnLineNbTest() throws IOException {
@@ -129,8 +127,7 @@ class RevertCreateLineOnLineTest extends AbstractSerDeTest {
                 .withMergedLineId("CJ_NEW")
                 .build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/fictitious-revert-create-line-on-line-l.xml");
+        writeXmlTest(network, "/fictitious-revert-create-line-on-line-l.xml");
         testReporter(reporter, "/reporter/revert-create-line-on-line-nb-report.txt");
     }
 
@@ -150,8 +147,7 @@ class RevertCreateLineOnLineTest extends AbstractSerDeTest {
                 .withMergedLineId("NHV1_NHV2_1")
                 .build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-revert-create-line-on-line-nb-l.xml");
+        writeXmlTest(network, "/eurostag-revert-create-line-on-line-nb-l.xml");
         testReporter(reporter, "/reporter/revert-create-line-on-line-nb-bb-report.txt");
     }
 
@@ -171,8 +167,7 @@ class RevertCreateLineOnLineTest extends AbstractSerDeTest {
                 .withMergedLineId("NHV1_NHV2_1")
                 .build();
         modification.apply(network, true, reporter);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-revert-create-line-on-line-bb-l.xml");
+        writeXmlTest(network, "/eurostag-revert-create-line-on-line-bb-l.xml");
         testReporter(reporter, "/reporter/revert-create-line-on-line-bb-report.txt");
     }
 
