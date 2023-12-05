@@ -299,8 +299,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
     void testInvalidVersion12VoltageNotSupportedInVoltageRange() {
         InputStream is = getClass().getResourceAsStream("/ShortCircuitParametersVersion12Invalid.json");
         UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonShortCircuitParameters.read(is));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3 \n" +
-                " (through reference chain: java.util.ArrayList[0])", e.getMessage());
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3 (through reference chain: java.util.ArrayList[0])", e.getMessage());
     }
 
     @Test
