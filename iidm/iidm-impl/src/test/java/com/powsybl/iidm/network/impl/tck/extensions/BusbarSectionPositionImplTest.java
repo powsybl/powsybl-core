@@ -53,6 +53,8 @@ class BusbarSectionPositionImplTest {
 
         // RIght busbar index
         busbarSectionPosition.setBusbarIndex(10);
+        busbarSectionPosition.setSectionIndex(5);
         assertEquals(10, busbarSectionPosition.getBusbarIndex());
+        assertEquals(5, busbarSectionPosition.getSectionIndex());
     }
 }
