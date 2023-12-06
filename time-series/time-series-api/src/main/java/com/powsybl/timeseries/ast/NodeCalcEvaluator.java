@@ -123,26 +123,18 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
-    public Double visit(BinaryMinCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+    public Double visit(AbstractBinaryMinMax nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
         double leftValue = left;
         double rightValue = right;
-        return Math.min(leftValue, rightValue);
+        if (nodeCalc instanceof BinaryMinCalc) {
+            return Math.min(leftValue, rightValue);
+        } else {
+            return Math.max(leftValue, rightValue);
+        }
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryMinCalc nodeCalc, DoubleMultiPoint multiPoint) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
-    }
-
-    @Override
-    public Double visit(BinaryMaxCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
-        double leftValue = left;
-        double rightValue = right;
-        return Math.max(leftValue, rightValue);
-    }
-
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryMaxCalc nodeCalc, DoubleMultiPoint multiPoint) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryMinMax nodeCalc, DoubleMultiPoint multiPoint) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

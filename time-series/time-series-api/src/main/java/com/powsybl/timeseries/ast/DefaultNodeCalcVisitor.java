@@ -93,22 +93,12 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
-    public R visit(BinaryMinCalc nodeCalc, A arg, R left, R right) {
+    public R visit(AbstractBinaryMinMax nodeCalc, A arg, R left, R right) {
         return null;
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryMinCalc nodeCalc, A arg) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
-    }
-
-    @Override
-    public R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right) {
-        return null;
-    }
-
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryMaxCalc nodeCalc, A arg) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryMinMax nodeCalc, A arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

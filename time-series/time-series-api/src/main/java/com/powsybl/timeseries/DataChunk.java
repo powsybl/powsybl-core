@@ -209,16 +209,12 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
                 context.doubleValues = null;
                 context.stringValues = null;
             }
-            case "uncompressedLength" -> {
-                context.uncompressedLength = parser.nextIntValue(-1);
-            }
+            case "uncompressedLength" -> context.uncompressedLength = parser.nextIntValue(-1);
             case "stepLengths" -> {
                 context.stepLengths = new TIntArrayList();
                 context.valuesOrLengthArray = true;
             }
-            case "values", "stepValues" -> {
-                context.valuesOrLengthArray = true;
-            }
+            case "values", "stepValues" -> context.valuesOrLengthArray = true;
             default -> {
                 // Do nothing
             }

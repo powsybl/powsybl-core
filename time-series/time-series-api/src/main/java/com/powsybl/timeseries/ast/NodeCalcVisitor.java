@@ -53,11 +53,7 @@ public interface NodeCalcVisitor<R, A> {
 
     R visit(TimeSeriesNumNodeCalc nodeCalc, A arg);
 
-    R visit(BinaryMinCalc nodeCalc, A arg, R left, R right);
+    R visit(AbstractBinaryMinMax nodeCalc, A arg, R left, R right);
 
-    Pair<NodeCalc, NodeCalc> iterate(BinaryMinCalc nodeCalc, A arg);
-
-    R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right);
-
-    Pair<NodeCalc, NodeCalc> iterate(BinaryMaxCalc nodeCalc, A arg);
+    Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryMinMax nodeCalc, A arg);
 }
