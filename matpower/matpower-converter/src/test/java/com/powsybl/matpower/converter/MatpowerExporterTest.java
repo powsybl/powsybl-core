@@ -219,4 +219,28 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         var network = DanglingLineNetworkFactory.createWithGeneration();
         exportToMatAndCompareTo(network, "/dangling-line-generation.json");
     }
+
+    @Test
+    void testLineConnectedToSameBus() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        network.newLine()
+                .setId("NL")
+                .setBus1("NGEN")
+                .setVoltageLevel1("VLGEN")
+                .setBus2("NGEN")
+                .setVoltageLevel2("VLGEN")
+                .setR(0.1)
+                .setX(0.1)
+                .add();
+        exportToMatAndCompareTo(network, "/line-connected-same-bus.json");
+    }
+
+    @Test
+    void testSmallImpedanceLine() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        network.getLine("NHV1_NHV2_1")
+                .setR(0.00000001)
+                .setX(0.00000003);
+        exportToMatAndCompareTo(network, "/small-impedance-line.json");
+    }
 }
