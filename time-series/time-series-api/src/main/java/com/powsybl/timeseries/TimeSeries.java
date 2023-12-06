@@ -260,7 +260,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         void parseTokenTime(String[] tokens) {
-            switch (timeSeriesCsvConfig.timeFormat()) {
+            TimeFormat timeFormat = timeSeriesCsvConfig.timeFormat();
+            switch (timeFormat) {
                 case DATE_TIME -> times.add(ZonedDateTime.parse(tokens[0]).toInstant().toEpochMilli());
                 case FRACTIONS_OF_SECOND -> {
                     Double time = Double.parseDouble(tokens[0]) * 1000;
@@ -270,7 +271,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     Double millis = Double.parseDouble(tokens[0]);
                     times.add(millis.longValue());
                 }
-                default -> throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
             }
         }
 

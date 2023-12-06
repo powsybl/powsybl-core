@@ -136,6 +136,6 @@ public abstract class AbstractBinaryMinMax implements NodeCalc {
                 default -> throw NodeCalc.createUnexpectedToken(token);
             }
         }
-        throw NodeCalc.createUnexpectedToken(token);
+        throw NodeCalc.createUnexpectedToken(null);
     }
 }
