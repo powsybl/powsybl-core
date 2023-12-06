@@ -155,10 +155,8 @@ public class TerminalMapping {
     }
 
     public Terminal findFromTopologicalNodeForLoadingLimits(String topologicalNode) {
-        if (topologicalNodesMapping.containsKey(topologicalNode)) {
-            if (topologicalNodesMapping.get(topologicalNode).size() == 1) {
-                return terminals.get(topologicalNodesMapping.get(topologicalNode).get(0));
-            }
+        if (topologicalNodesMapping.containsKey(topologicalNode) && topologicalNodesMapping.get(topologicalNode).size() == 1) {
+            return terminals.get(topologicalNodesMapping.get(topologicalNode).get(0));
         }
         return null;
     }
