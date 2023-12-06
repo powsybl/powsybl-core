@@ -10,41 +10,10 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface RatioTapChangerAdder {
+public interface RatioTapChangerAdder extends TapChangerAdder<RatioTapChangerAdder, RatioTapChangerStepAdder, RatioTapChanger>{
 
-    public interface StepAdder {
-
-        StepAdder setRho(double rho);
-
-        StepAdder setR(double r);
-
-        StepAdder setX(double x);
-
-        StepAdder setG(double g);
-
-        StepAdder setB(double b);
-
-        RatioTapChangerAdder endStep();
-    }
-
-    RatioTapChangerAdder setLowTapPosition(int lowTapPosition);
-
-    RatioTapChangerAdder setTapPosition(int tapPosition);
 
     RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 
-    RatioTapChangerAdder setRegulating(boolean regulating);
-
     RatioTapChangerAdder setTargetV(double targetV);
-
-    RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
-
-    default RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
-        throw new UnsupportedOperationException();
-    }
-
-    StepAdder beginStep();
-
-    RatioTapChanger add();
-
 }
