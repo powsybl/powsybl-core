@@ -23,7 +23,8 @@ class ReferencePriorityImpl implements ReferencePriority {
     ReferencePriorityImpl(Terminal terminal, int priority) {
         this.terminal = Objects.requireNonNull(terminal, "Terminal needs to be set for ReferencePriority extension");
         if (priority < 0) {
-            throw new PowsyblException("Priority should be zero or positive for ReferencePriority extension");
+            throw new PowsyblException(String.format("Priority (%s) of terminal should be zero or positive for ReferencePriority extension",
+                priority));
         }
         this.priority = priority;
     }

@@ -40,51 +40,44 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
                                            StaticVarCompensator staticVarCompensator) {
         if (Double.isNaN(lowVoltageSetpoint)) {
             throw new IllegalArgumentException(
-                String.format("lowVoltageSetpoint (%s) is invalid for element %s of %s",
+                String.format("lowVoltageSetpoint (%s) is invalid for StaticVarCompensator %s",
                     lowVoltageSetpoint,
-                    staticVarCompensator.getId(),
-                    staticVarCompensator.getClass()));
+                    staticVarCompensator.getId()));
         }
         if (Double.isNaN(highVoltageSetpoint)) {
             throw new IllegalArgumentException(
-                String.format("highVoltageSetpoint (%s) is invalid for element %s of %s",
+                String.format("highVoltageSetpoint (%s) is invalid for StaticVarCompensator %s",
                     highVoltageSetpoint,
-                    staticVarCompensator.getId(),
-                    staticVarCompensator.getClass()));
+                    staticVarCompensator.getId()));
         }
         if (Double.isNaN(lowVoltageThreshold)) {
             throw new IllegalArgumentException(
-                String.format("lowVoltageThreshold (%s) is invalid for element %s of %s",
+                String.format("lowVoltageThreshold (%s) is invalid for StaticVarCompensator %s",
                     lowVoltageThreshold,
-                    staticVarCompensator.getId(),
-                    staticVarCompensator.getClass()));
+                    staticVarCompensator.getId()));
         }
         if (Double.isNaN(highVoltageThreshold)) {
             throw new IllegalArgumentException(
-                String.format("highVoltageThreshold (%s) is invalid for element %s of %s",
+                String.format("highVoltageThreshold (%s) is invalid for StaticVarCompensator %s",
                     highVoltageThreshold,
-                    staticVarCompensator.getId(),
-                    staticVarCompensator.getClass()));
+                    staticVarCompensator.getId()));
         }
         if (lowVoltageThreshold >= highVoltageThreshold) {
             throw new IllegalArgumentException(
-                String.format("Inconsistent low (%s) and high (%s) voltage thresholds for element %s of %s",
+                String.format("Inconsistent low (%s) and high (%s) voltage thresholds for StaticVarCompensator %s",
                     lowVoltageThreshold,
                     highVoltageThreshold,
-                    staticVarCompensator.getId(),
-                    staticVarCompensator.getClass()));
+                    staticVarCompensator.getId()));
         }
         if (lowVoltageSetpoint < lowVoltageThreshold) {
-            LOGGER.warn("Invalid low voltage setpoint {} < threshold {} for element {} of {}",
+            LOGGER.warn("Invalid low voltage setpoint {} < threshold {} for StaticVarCompensator {}",
                 lowVoltageSetpoint, lowVoltageThreshold,
-                staticVarCompensator.getId(),
-                staticVarCompensator.getClass());
+                staticVarCompensator.getId());
         }
         if (highVoltageSetpoint > highVoltageThreshold) {
-            LOGGER.warn("Invalid high voltage setpoint {} > threshold {} for element {} of {}",
+            LOGGER.warn("Invalid high voltage setpoint {} > threshold {} for StaticVarCompensator {}",
                 highVoltageSetpoint, highVoltageThreshold,
-                staticVarCompensator.getId(),
-                staticVarCompensator.getClass());
+                staticVarCompensator.getId());
         }
     }
 
