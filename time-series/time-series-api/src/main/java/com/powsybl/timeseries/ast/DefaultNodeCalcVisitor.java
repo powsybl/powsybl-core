@@ -33,16 +33,6 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
-    public R visit(BinaryOperation nodeCalc, A arg, R left, R right) {
-        return null;
-    }
-
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
-    }
-
-    @Override
     public R visit(UnaryOperation nodeCalc, A arg, R child) {
         return null;
     }
@@ -93,12 +83,12 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
-    public R visit(AbstractBinaryMinMax nodeCalc, A arg, R left, R right) {
+    public R visit(AbstractBinaryNodeCal nodeCalc, A arg, R left, R right) {
         return null;
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryMinMax nodeCalc, A arg) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, A arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

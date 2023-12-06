@@ -33,16 +33,6 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public NodeCalc visit(BinaryOperation nodeCalc, A arg, NodeCalc left, NodeCalc right) {
-        return new BinaryOperation(left, right, nodeCalc.getOperator());
-    }
-
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
-    }
-
-    @Override
     public NodeCalc visit(UnaryOperation nodeCalc, A arg, NodeCalc child) {
         return new UnaryOperation(child, nodeCalc.getOperator());
     }
@@ -93,8 +83,10 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public NodeCalc visit(AbstractBinaryMinMax nodeCalc, A arg, NodeCalc left, NodeCalc right) {
-        if (nodeCalc instanceof BinaryMinCalc) {
+    public NodeCalc visit(AbstractBinaryNodeCal nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        if (nodeCalc instanceof BinaryOperation binaryOperation) {
+            return new BinaryOperation(left, right, binaryOperation.getOperator());
+        } else if (nodeCalc instanceof BinaryMinCalc) {
             return new BinaryMinCalc(left, right);
         } else {
             return new BinaryMaxCalc(left, right);
@@ -102,7 +94,7 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryMinMax nodeCalc, A arg) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, A arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

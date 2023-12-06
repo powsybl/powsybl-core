@@ -33,10 +33,6 @@ public interface NodeCalcVisitor<R, A> {
 
     NodeCalc iterate(TimeNodeCalc nodeCalc, A arg);
 
-    R visit(BinaryOperation nodeCalc, A arg, R left, R right);
-
-    Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg);
-
     R visit(UnaryOperation nodeCalc, A arg, R child);
 
     NodeCalc iterate(UnaryOperation nodeCalc, A arg);
@@ -53,7 +49,7 @@ public interface NodeCalcVisitor<R, A> {
 
     R visit(TimeSeriesNumNodeCalc nodeCalc, A arg);
 
-    R visit(AbstractBinaryMinMax nodeCalc, A arg, R left, R right);
+    R visit(AbstractBinaryNodeCal nodeCalc, A arg, R left, R right);
 
-    Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryMinMax nodeCalc, A arg);
+    Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, A arg);
 }

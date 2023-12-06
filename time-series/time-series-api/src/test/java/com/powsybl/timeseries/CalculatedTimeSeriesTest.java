@@ -298,4 +298,122 @@ class CalculatedTimeSeriesTest {
         e0 = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseJson(jsonValueNull));
         assertEquals("Unexpected JSON token: VALUE_NULL", e0.getMessage());
     }
+
+    @Test
+    void jsonErrorMinMaxTests() {
+
+        // Initialisation
+        TimeSeriesException e0;
+
+        // Both parameters (left, right) are missing
+        final String jsonNoParam = String.join(System.lineSeparator(),
+            "[ {",
+            "  \"metadata\" : {",
+            "    \"name\" : \"ts\",",
+            "    \"dataType\" : \"DOUBLE\",",
+            "    \"tags\" : [ ],",
+            "    \"regularIndex\" : {",
+            "      \"startTime\" : 1420070400000,",
+            "      \"endTime\" : 1437350400000,",
+            "      \"spacing\" : 17280000000",
+            "    }",
+            "  },",
+            "  \"chunks\" : [ {",
+            "    \"offset\" : 0,",
+            "    \"values\" : [ 1.0, 2.0 ]",
+            "  } ]",
+            "}, {",
+            "  \"name\" : \"ts_calc_min\",",
+            "  \"expr\" : {",
+            "    \"min\" : {",
+            "    }",
+            "  }",
+            "} ]");
+        e0 = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseJson(jsonNoParam));
+        assertEquals("Invalid min/max node calc JSON", e0.getMessage());
+
+        // One parameter is missing
+        final String jsonOneParam = String.join(System.lineSeparator(),
+            "[ {",
+            "  \"metadata\" : {",
+            "    \"name\" : \"ts\",",
+            "    \"dataType\" : \"DOUBLE\",",
+            "    \"tags\" : [ ],",
+            "    \"regularIndex\" : {",
+            "      \"startTime\" : 1420070400000,",
+            "      \"endTime\" : 1437350400000,",
+            "      \"spacing\" : 17280000000",
+            "    }",
+            "  },",
+            "  \"chunks\" : [ {",
+            "    \"offset\" : 0,",
+            "    \"values\" : [ 1.0, 2.0 ]",
+            "  } ]",
+            "}, {",
+            "  \"name\" : \"ts_calc_min\",",
+            "  \"expr\" : {",
+            "    \"min\" : {",
+            "      \"timeSeriesName\" : \"foo\"",
+            "    }",
+            "  }",
+            "} ]");
+        e0 = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseJson(jsonOneParam));
+        assertEquals("Invalid min/max node calc JSON", e0.getMessage());
+
+        // One parameter is missing
+        final String jsonThreeParam = String.join(System.lineSeparator(),
+            "[ {",
+            "  \"metadata\" : {",
+            "    \"name\" : \"ts\",",
+            "    \"dataType\" : \"DOUBLE\",",
+            "    \"tags\" : [ ],",
+            "    \"regularIndex\" : {",
+            "      \"startTime\" : 1420070400000,",
+            "      \"endTime\" : 1437350400000,",
+            "      \"spacing\" : 17280000000",
+            "    }",
+            "  },",
+            "  \"chunks\" : [ {",
+            "    \"offset\" : 0,",
+            "    \"values\" : [ 1.0, 2.0 ]",
+            "  } ]",
+            "}, {",
+            "  \"name\" : \"ts_calc_min\",",
+            "  \"expr\" : {",
+            "    \"min\" : {",
+            "      \"timeSeriesName\" : \"ts\",",
+            "      \"integer\" : 1,",
+            "      \"timeSeriesName\" : \"bar\"",
+            "    }",
+            "  }",
+            "} ]");
+        e0 = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseJson(jsonThreeParam));
+        assertEquals("Only 1 operand expected for a min/max", e0.getMessage());
+
+        // One parameter is missing
+        final String jsonValueNull = String.join(System.lineSeparator(),
+            "[ {",
+            "  \"metadata\" : {",
+            "    \"name\" : \"ts\",",
+            "    \"dataType\" : \"DOUBLE\",",
+            "    \"tags\" : [ ],",
+            "    \"regularIndex\" : {",
+            "      \"startTime\" : 1420070400000,",
+            "      \"endTime\" : 1437350400000,",
+            "      \"spacing\" : 17280000000",
+            "    }",
+            "  },",
+            "  \"chunks\" : [ {",
+            "    \"offset\" : 0,",
+            "    \"values\" : [ 1.0, 2.0 ]",
+            "  } ]",
+            "}, {",
+            "  \"name\" : \"ts_calc_min\",",
+            "  \"expr\" : {",
+            "    \"min\" : null",
+            "  }",
+            "} ]");
+        e0 = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseJson(jsonValueNull));
+        assertEquals("Unexpected JSON token: VALUE_NULL", e0.getMessage());
+    }
 }

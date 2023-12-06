@@ -7,7 +7,6 @@
 package com.powsybl.timeseries.ast;
 
 import com.powsybl.timeseries.DoubleMultiPoint;
-
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -37,29 +36,6 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     @Override
     public Double visit(BigDecimalNodeCalc nodeCalc, DoubleMultiPoint arg) {
         return nodeCalc.toDouble();
-    }
-
-    @Override
-    public Double visit(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
-        double leftValue = left;
-        double rightValue = right;
-        return switch (nodeCalc.getOperator()) {
-            case PLUS -> leftValue + rightValue;
-            case MINUS -> leftValue - rightValue;
-            case MULTIPLY -> leftValue * rightValue;
-            case DIVIDE -> leftValue / rightValue;
-            case LESS_THAN -> leftValue < rightValue ? 1d : 0d;
-            case LESS_THAN_OR_EQUALS_TO -> leftValue <= rightValue ? 1d : 0d;
-            case GREATER_THAN -> leftValue > rightValue ? 1d : 0d;
-            case GREATER_THAN_OR_EQUALS_TO -> leftValue >= rightValue ? 1d : 0d;
-            case EQUALS -> leftValue == rightValue ? 1d : 0d;
-            case NOT_EQUALS -> leftValue != rightValue ? 1d : 0d;
-        };
-    }
-
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 
     @Override
@@ -123,10 +99,23 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
-    public Double visit(AbstractBinaryMinMax nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+    public Double visit(AbstractBinaryNodeCal nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
         double leftValue = left;
         double rightValue = right;
-        if (nodeCalc instanceof BinaryMinCalc) {
+        if (nodeCalc instanceof BinaryOperation binaryOperation) {
+            return switch (binaryOperation.getOperator()) {
+                case PLUS -> leftValue + rightValue;
+                case MINUS -> leftValue - rightValue;
+                case MULTIPLY -> leftValue * rightValue;
+                case DIVIDE -> leftValue / rightValue;
+                case LESS_THAN -> leftValue < rightValue ? 1d : 0d;
+                case LESS_THAN_OR_EQUALS_TO -> leftValue <= rightValue ? 1d : 0d;
+                case GREATER_THAN -> leftValue > rightValue ? 1d : 0d;
+                case GREATER_THAN_OR_EQUALS_TO -> leftValue >= rightValue ? 1d : 0d;
+                case EQUALS -> leftValue == rightValue ? 1d : 0d;
+                case NOT_EQUALS -> leftValue != rightValue ? 1d : 0d;
+            };
+        } else if (nodeCalc instanceof BinaryMinCalc) {
             return Math.min(leftValue, rightValue);
         } else {
             return Math.max(leftValue, rightValue);
@@ -134,7 +123,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryMinMax nodeCalc, DoubleMultiPoint multiPoint) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, DoubleMultiPoint multiPoint) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }
