@@ -10,6 +10,6 @@ package com.powsybl.iidm.network;
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface PhaseTapChangerStepAdder extends TapChangerStepAdder<PhaseTapChangerStepAdder, PhaseTapChangerAdder>{
+public interface PhaseTapChangerStepAdder extends TapChangerStepAdder<PhaseTapChangerStepAdder, PhaseTapChangerAdder> {
     PhaseTapChangerStepAdder setAlpha(double alpha);
 }

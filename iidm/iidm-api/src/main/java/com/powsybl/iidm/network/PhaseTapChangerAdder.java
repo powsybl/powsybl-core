@@ -7,10 +7,9 @@
 package com.powsybl.iidm.network;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface PhaseTapChangerAdder extends TapChangerAdder<PhaseTapChangerAdder, PhaseTapChangerStepAdder, PhaseTapChanger>{
+public interface PhaseTapChangerAdder extends TapChangerAdder<PhaseTapChangerAdder, PhaseTapChangerStepAdder, PhaseTapChanger> {
 
     PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode);
 
