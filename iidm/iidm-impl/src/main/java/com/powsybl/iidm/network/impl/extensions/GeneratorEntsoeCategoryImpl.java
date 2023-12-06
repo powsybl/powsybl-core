@@ -19,7 +19,7 @@ public class GeneratorEntsoeCategoryImpl extends AbstractExtension<Generator> im
 
     private static int checkCode(int code, Generator generator) {
         if (code < 1) {
-            throw new IllegalArgumentException(String.format("Bad generator ENTSO-E code %s for generator %s ",
+            throw new IllegalArgumentException(String.format("Bad generator ENTSO-E code %s for generator %s",
                 code,
                 generator.getId()));
         }

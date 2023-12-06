@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -90,8 +89,10 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     private static double checkPower(double power, String errorMessage, Load load) {
         if (Double.isNaN(power)) {
-            throw new IllegalArgumentException(String.format(errorMessage + " (%s) for load %s",
-                power, load.getId()));
+            throw new IllegalArgumentException(String.format("%s (%s) for load %s",
+                errorMessage,
+                power,
+                load.getId()));
         }
         return power;
     }

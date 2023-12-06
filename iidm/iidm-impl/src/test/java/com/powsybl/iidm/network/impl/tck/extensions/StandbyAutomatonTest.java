@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
 
     @Test
-    public void checkVoltageConfigTest() {
+    void checkVoltageConfigTest() {
         Network network = SvcTestCaseFactory.create();
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertNotNull(svc);
