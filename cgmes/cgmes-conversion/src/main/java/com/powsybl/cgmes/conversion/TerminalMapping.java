@@ -60,11 +60,15 @@ public class TerminalMapping {
         return cgmesTerminalsMapping.get(cgmesTerminalId);
     }
 
-    public Terminal find(String cgmesTerminalId) {
+    public Terminal find(String cgmesTerminalId, boolean loadingLimits) {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
         }
-        return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
+        if (loadingLimits) {
+            return findFromTopologicalNodeForLoadingLimits(cgmesTerminalsMapping.get(cgmesTerminalId));
+        } else {
+            return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
+        }
     }
 
     /**
@@ -148,6 +152,15 @@ public class TerminalMapping {
         // returns a disconnected terminal associated with the given topological node
         // if no terminal found, returns null
         return disconnectedTerminal;
+    }
+
+    public Terminal findFromTopologicalNodeForLoadingLimits(String topologicalNode) {
+        if (topologicalNodesMapping.containsKey(topologicalNode)) {
+            if (topologicalNodesMapping.get(topologicalNode).size() == 1) {
+                return terminals.get(topologicalNodesMapping.get(topologicalNode).get(0));
+            }
+        }
+        return null;
     }
 
     public String findCgmesTerminalFromTopologicalNode(String topologicalNode) {
