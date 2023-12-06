@@ -206,7 +206,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                     });
                 }
                 case STEP_ROOT_ELEMENT_NAME -> {
-                    PhaseTapChangerAdder.StepAdder stepAdder = adder.beginStep();
+                    PhaseTapChangerStepAdder stepAdder = adder.beginStep();
                     readSteps(context, (r, x, g, b, rho) -> stepAdder.setR(r)
                             .setX(x)
                             .setG(g)
