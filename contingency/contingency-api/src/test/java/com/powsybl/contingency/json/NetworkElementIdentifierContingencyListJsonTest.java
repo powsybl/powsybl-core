@@ -39,9 +39,10 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
         List<NetworkElementIdentifier> networkElementIdentifiers = new ArrayList<>();
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier", "contingencyId1"));
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier2"));
-        networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("vl1", "vl2", '1', "contingencyId2"));
-        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections.singletonList(new IdBasedNetworkElementIdentifier("identifier")),
-                "contingencyId3"));
+        networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("vl1",
+                "vl2", '1', "contingencyId2"));
+        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections.singletonList(new
+                IdBasedNetworkElementIdentifier("identifier")), "contingencyId3"));
         return new IdentifierContingencyList("list1", networkElementIdentifiers);
     }
 

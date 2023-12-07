@@ -1,5 +1,5 @@
 [ {
-  "version" : "1.2",
+  "version" : "1.3",
   "id" : "f00",
   "withFeederResult" : true,
   "studyType" : "STEADY_STATE",
@@ -11,7 +11,7 @@
   "withNeutralPosition" : true,
   "initialVoltageProfileMode" : "NOMINAL"
 }, {
-  "version" : "1.2",
+  "version" : "1.3",
   "id" : "f01",
   "withVoltageResult" : true,
   "withFortescueResult" : true,
@@ -23,23 +23,24 @@
     "maximumNominalVoltage" : 230.0,
     "voltageRangeCoefficient" : 1.0
   }, {
-    "minimumNominalVoltage" : 235.0,
-    "maximumNominalVoltage" : 400.0,
-    "voltageRangeCoefficient" : 1.05
+    "minimumNominalVoltage" : 231.0,
+    "maximumNominalVoltage" : 250.0,
+    "voltageRangeCoefficient" : 1.05,
+    "voltage" : 240.0
   } ]
 }, {
-  "version" : "1.2",
+  "version" : "1.3",
   "id" : "f10",
   "withLimitViolations" : true,
   "withShuntCompensators" : true,
   "initialVoltageProfileMode" : "NOMINAL"
 }, {
-  "version" : "1.2",
+  "version" : "1.3",
   "id" : "f11",
   "withLimitViolations" : true,
   "withVoltageResult" : true
 }, {
-  "version" : "1.2",
+  "version" : "1.3",
   "id" : "f12",
   "withLimitViolations" : true,
   "studyType" : "SUB_TRANSIENT",

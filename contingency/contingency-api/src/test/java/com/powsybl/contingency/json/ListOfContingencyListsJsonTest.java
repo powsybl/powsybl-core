@@ -13,6 +13,10 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.contingency.list.*;
 import com.powsybl.contingency.contingency.list.criterion.*;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
+import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
 import org.junit.jupiter.api.Test;
@@ -66,6 +70,13 @@ class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
         contingencyLists.add(new ListOfContingencyLists("listslist2",
                 Collections.singletonList(new DefaultContingencyList(new Contingency("contingency2",
                         new HvdcLineContingency("HVDC1"))))));
+        List<NetworkElementIdentifier> networkElementIdentifiers = new ArrayList<>();
+        networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("VL1",
+                "VL2", '1', "contingency1"));
+        networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier", "contingency2"));
+        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections
+                .singletonList(new IdBasedNetworkElementIdentifier("identifier2")), "contingency3"));
+        contingencyLists.add(new IdentifierContingencyList("identifierlist", networkElementIdentifiers));
         return new ListOfContingencyLists("listslist1", contingencyLists);
     }
 
