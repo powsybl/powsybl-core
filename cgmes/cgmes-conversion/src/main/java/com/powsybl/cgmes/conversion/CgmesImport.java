@@ -149,7 +149,7 @@ public class CgmesImport implements Importer {
         if (Parameter.readBoolean(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER, defaultValueConfig)) {
             SubnetworkDefinedBy separatingBy = SubnetworkDefinedBy.valueOf(Parameter.readString(getFormat(),
                             p, IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER, defaultValueConfig));
-            Set<ReadOnlyDataSource> dss = new AssembledChecker(ds).separate(separatingBy);
+            Set<ReadOnlyDataSource> dss = new MultipleGridModelChecker(ds).separate(separatingBy);
             if (dss.size() > 1) {
                 return Network.merge(dss.stream()
                         .map(ds1 -> importData1(ds1, networkFactory, p, reporter))
@@ -211,11 +211,11 @@ public class CgmesImport implements Importer {
         }
     }
 
-    static class AssembledChecker {
+    static class MultipleGridModelChecker {
         private final ReadOnlyDataSource dataSource;
         private XMLInputFactory xmlInputFactory;
 
-        AssembledChecker(ReadOnlyDataSource dataSource) {
+        MultipleGridModelChecker(ReadOnlyDataSource dataSource) {
             this.dataSource = dataSource;
         }
 
@@ -255,7 +255,7 @@ public class CgmesImport implements Importer {
                     // We read the modeling authorities present in the rest of instance files
                     // and mark the instance name as linked to an IGM or as shared
                     .filter(not(CgmesSubset.EQUIPMENT::isValidName))
-                    .filter(not(AssembledChecker::isBoundary))
+                    .filter(not(MultipleGridModelChecker::isBoundary))
                     .forEach(name -> {
                         Optional<String> ma = readModelingAuthority(name);
                         if (ma.isPresent() && igmNames.containsKey(ma.get())) {
@@ -274,7 +274,7 @@ public class CgmesImport implements Importer {
                 }
                 LOGGER.info("Boundaries:");
                 try {
-                    dataSource.listNames(".*").stream().filter(name -> isBoundary(name)).forEach(name -> LOGGER.info("  {}", name));
+                    dataSource.listNames(".*").stream().filter(MultipleGridModelChecker::isBoundary).forEach(name -> LOGGER.info("  {}", name));
                 } catch (IOException e) {
                     throw new PowsyblException(e);
                 }
