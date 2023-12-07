@@ -11,6 +11,12 @@
   "withShuntCompensators" : true,
   "withVSCConverterStations" : true,
   "withNeutralPosition" : false,
-  "initialVoltageProfileMode" : "NOMINAL",
-  "detailedReport" : false
+  "initialVoltageProfileMode" : "CONFIGURED",
+  "detailedReport" : false,
+  "voltageRanges" : [ {
+    "minimumNominalVoltage" : 380.0,
+    "maximumNominalVoltage" : 410.0,
+    "voltageRangeCoefficient" : 1.05,
+    "voltage" : 380.0
+  } ]
 }

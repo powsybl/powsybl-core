@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class LineCriterionContingencyList extends AbstractLineCriterionContingencyList {
 
+    public static final String TYPE = "lineCriterion";
+
     public LineCriterionContingencyList(String name,
                                         TwoCountriesCriterion twoCountriesCriterion,
                                         TwoNominalVoltageCriterion twoNominalVoltageCriterion,
@@ -25,6 +27,6 @@ public class LineCriterionContingencyList extends AbstractLineCriterionContingen
 
     @Override
     public String getType() {
-        return "lineCriterion";
+        return TYPE;
     }
 }
