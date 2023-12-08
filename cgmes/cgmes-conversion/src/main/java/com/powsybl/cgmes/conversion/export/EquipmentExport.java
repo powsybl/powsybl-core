@@ -24,6 +24,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.*;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
 
 /**
@@ -262,9 +263,9 @@ public final class EquipmentExport {
     // one load area and one sub load area is created in any case
     private static String writeLoadGroups(String networkId, Collection<LoadGroup> foundLoadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Write one load area and one sub load area for the whole network
-        String loadAreaId = CgmesExportUtil.getUniqueId("LoadArea", context.getUuidNamespace()); // TODO: what to put here?
+        String loadAreaId = CgmesExportUtil.getUniqueId(PREFIX + LOAD_AREA_SUFFIX, context.getUuidNamespace()); // TODO: what to put here?
         LoadAreaEq.write(loadAreaId, networkId, cimNamespace, writer, context);
-        String subLoadAreaId = CgmesExportUtil.getUniqueId("SubLoadArea", context.getUuidNamespace()); //TODO:what to put here?
+        String subLoadAreaId = CgmesExportUtil.getUniqueId(PREFIX + SUB_LOAD_AREA_SUFFIX, context.getUuidNamespace()); //TODO:what to put here?
         LoadAreaEq.writeSubArea(subLoadAreaId, loadAreaId, networkId, cimNamespace, writer, context);
         for (LoadGroup loadGroup : foundLoadGroups) {
             CgmesExportUtil.writeStartIdName(loadGroup.className, loadGroup.id, loadGroup.name, cimNamespace, writer, context);
@@ -324,7 +325,7 @@ public final class EquipmentExport {
                                                                double pConstantCurrent, double qConstantCurrent,
                                                                double pConstantImpedance, double qConstantImpedance,
                                                                String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String loadResponseId = CgmesExportUtil.getUniqueId(load.getId() + "LRC", context.getUuidNamespace()); //TODO:what to put here
+        String loadResponseId = CgmesExportUtil.getUniqueId(PREFIX + load.getId() + LOAD_RESPONSE_CHARACTERISTICS_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
         String loadResponseName = "LRC_" + load.getNameOrId();
 
         LoadResponseCharacteristicEq.write(loadResponseId, loadResponseName,
@@ -478,7 +479,7 @@ public final class EquipmentExport {
                     double b = 0.0;
                     double g = 0.0;
                     for (int section = 1; section <= s.getMaximumSectionCount(); section++) {
-                        ShuntCompensatorEq.writePoint(CgmesExportUtil.getUniqueId(s.getId() + "ShuntCompensator" + section, context.getUuidNamespace()), context.getNamingStrategy().getCgmesId(s), section, s.getB(section) - b, s.getG(section) - g, cimNamespace, writer, context); //TODO:what to put here
+                        ShuntCompensatorEq.writePoint(CgmesExportUtil.getUniqueId(PREFIX + s.getId() + SHUNT_COMPENSATOR_SUFFIX + section, context.getUuidNamespace()), context.getNamingStrategy().getCgmesId(s), section, s.getB(section) - b, s.getG(section) - g, cimNamespace, writer, context); //TODO:what to put here
                         b = s.getB(section);
                         g = s.getG(section);
                     }
@@ -748,7 +749,7 @@ public final class EquipmentExport {
                     regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
             }
-            String phaseTapChangerTableId = CgmesExportUtil.getUniqueId(twtName + "PhaseTapChangerTable", context.getUuidNamespace()); //TODO : what to put here?
+            String phaseTapChangerTableId = CgmesExportUtil.getUniqueId(PREFIX + twtName + PHASE_TAP_CHANGER_TABLE_SUFFIX, context.getUuidNamespace()); //TODO : what to put here?
             // If we write the EQ, we will always write the Tap Changer as tabular
             // We reset the phase tap changer type stored in the extensions
             String typeTabular = CgmesNames.PHASE_TAP_CHANGER_TABULAR;
@@ -757,7 +758,7 @@ public final class EquipmentExport {
             TapChangerEq.writePhase(typeTabular, cgmesTapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, ltcFlag, phaseTapChangerTableId, cgmesRegulatingControlId, cimNamespace, writer, context);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
-                TapChangerEq.writePhaseTablePoint(CgmesExportUtil.getUniqueId(twtName + "PhaseTapChangerStep" + step.getKey(), context.getUuidNamespace()), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(), step.getKey(), cimNamespace, writer, context); //TODO:what to put here?
+                TapChangerEq.writePhaseTablePoint(CgmesExportUtil.getUniqueId(PREFIX + twtName + PHASE_TAP_CHANGER_STEP_SUFFIX + step.getKey(), context.getUuidNamespace()), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(), step.getKey(), cimNamespace, writer, context); //TODO:what to put here?
             }
         }
     }
@@ -815,7 +816,7 @@ public final class EquipmentExport {
             } else {
                 stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0 / rtc.getStep(rtc.getHighTapPosition()).getRho()) / (rtc.getLowTapPosition() - rtc.getHighTapPosition());
             }
-            String ratioTapChangerTableId = CgmesExportUtil.getUniqueId(twtName + "ratioTapChangerTable", context.getUuidNamespace()); //TODO:what to put here?
+            String ratioTapChangerTableId = CgmesExportUtil.getUniqueId(PREFIX + twtName + RATIO_TAP_CHANGER_TABLE_SUFFIX, context.getUuidNamespace()); //TODO:what to put here?
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             String controlMode = rtc.isRegulating() ? "volt" : "reactive";
@@ -833,7 +834,7 @@ public final class EquipmentExport {
                     ratioTapChangerTableId, cgmesRegulatingControlId, controlMode, cimNamespace, writer, context);
             TapChangerEq.writeRatioTable(ratioTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
-                TapChangerEq.writeRatioTablePoint(CgmesExportUtil.getUniqueId(twtName + "RatioTapChangerTable" + step.getKey(), context.getUuidNamespace()), ratioTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), step.getKey(), cimNamespace, writer, context); //TODO:what to put here?
+                TapChangerEq.writeRatioTablePoint(CgmesExportUtil.getUniqueId(PREFIX + twtName + RATIO_TAP_CHANGER_STEP_SUFFIX + step.getKey(), context.getUuidNamespace()), ratioTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), step.getKey(), cimNamespace, writer, context); //TODO:what to put here?
             }
 
         }
@@ -958,18 +959,18 @@ public final class EquipmentExport {
         // New Substation
         // We avoid using the name of the identifiable for the names of fictitious region and subregion
         // Because regions and subregions with the same name are merged
-        String geographicalRegionId = CgmesExportUtil.getUniqueId(prefix + "GeographicalRegion", context.getUuidNamespace()); //TODO:what to put here
+        String geographicalRegionId = CgmesExportUtil.getUniqueId(prefix + GEOGRAPHICAL_REGION_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
         GeographicalRegionEq.write(geographicalRegionId, prefix + "_GR", cimNamespace, writer, context);
-        String subGeographicalRegionId = CgmesExportUtil.getUniqueId(prefix + "SubGeographicalRegion", context.getUuidNamespace()); //TODO:what to put here
+        String subGeographicalRegionId = CgmesExportUtil.getUniqueId(prefix + SUB_GEOGRAPHICAL_REGION_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
         SubGeographicalRegionEq.write(subGeographicalRegionId, prefix + "_SGR", geographicalRegionId, cimNamespace, writer, context);
-        String substationId = CgmesExportUtil.getUniqueId(prefix + "Substation", context.getUuidNamespace()); //TODO:what to put here
+        String substationId = CgmesExportUtil.getUniqueId(prefix + "FICTITIOUS" + SUBSTATION_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
         SubstationEq.write(substationId, prefix + "_SUBSTATION", subGeographicalRegionId, cimNamespace, writer, context);
         return substationId;
     }
 
     private static String writeFictitiousVoltageLevelFor(Identifiable<?> identifiable, String substationId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // New VoltageLevel
-        String voltageLevelId = CgmesExportUtil.getUniqueId(identifiable.getId() + "FictitiousVoltageLevel", context.getUuidNamespace()); //TODO:what to put here
+        String voltageLevelId = CgmesExportUtil.getUniqueId(PREFIX + identifiable.getId() + VOLTAGE_LEVEL_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
         VoltageLevelEq.write(voltageLevelId, identifiable.getNameOrId() + "_VL", Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, writer, context);
         return voltageLevelId;
     }
@@ -1045,17 +1046,17 @@ public final class EquipmentExport {
 
     private static void writeLoadingLimits(LoadingLimits limits, String terminalId, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (!Double.isNaN(limits.getPermanentLimit())) {
-            String operationalLimitTypeId = CgmesExportUtil.getUniqueId(terminalId + limits.getLimitType() + "OperationalLimitType", context.getUuidNamespace()); //TODO:what to put here
+            String operationalLimitTypeId = CgmesExportUtil.getUniqueId(PREFIX + PATL_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
             OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-            String operationalLimitSetId = CgmesExportUtil.getUniqueId(terminalId + limits.getLimitType() + "PATL", context.getUuidNamespace()); //TODO:what to put here
+            String operationalLimitSetId = CgmesExportUtil.getUniqueId(PREFIX + terminalId + PATL_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
             OperationalLimitSetEq.write(operationalLimitSetId, "operational limit patl", terminalId, cimNamespace, writer, context);
             LoadingLimitEq.write(CgmesExportUtil.getUniqueId("", context.getUuidNamespace()), limits.getClass(), loadingLimitClassName(limits.getClass()) + " PATL", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context); //TODO:what to put here
         }
         if (!limits.getTemporaryLimits().isEmpty()) {
             for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
-                String operationalLimitTypeId = CgmesExportUtil.getUniqueId(terminalId + limits.getLimitType() + temporaryLimit.getName() + "TATL_type", context.getUuidNamespace()); //TODO:what to put here
+                String operationalLimitTypeId = CgmesExportUtil.getUniqueId(PREFIX + temporaryLimit.getName(), context.getUuidNamespace()); //TODO:what to put here
                 OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, "TATL " + temporaryLimit.getAcceptableDuration(), temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-                String operationalLimitSetId = CgmesExportUtil.getUniqueId(terminalId + limits.getLimitType() + temporaryLimit.getName() + "TATL", context.getUuidNamespace()); //TODO:what to put here
+                String operationalLimitSetId = CgmesExportUtil.getUniqueId(PREFIX + terminalId + TATL_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
                 OperationalLimitSetEq.write(operationalLimitSetId, "operational limit tatl", terminalId, cimNamespace, writer, context);
                 LoadingLimitEq.write(CgmesExportUtil.getUniqueId("", context.getUuidNamespace()), limits.getClass(), temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context); //TODO:what to put here
             }
