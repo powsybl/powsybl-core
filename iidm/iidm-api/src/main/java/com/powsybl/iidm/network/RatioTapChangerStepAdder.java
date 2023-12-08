@@ -8,7 +8,10 @@
 package com.powsybl.iidm.network;
 
 /**
+ * Interface to build a single step.
+ * @param <S> for SELF (itself)
+ * @param <T> the return type when building the step by calling {@link TapChangerStepAdder#endStep()}
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface RatioTapChangerStepAdder extends TapChangerStepAdder<RatioTapChangerStepAdder, RatioTapChangerAdder> {
+public interface RatioTapChangerStepAdder<S extends RatioTapChangerStepAdder<S, T>, T> extends TapChangerStepAdder<S, T> {
 }

@@ -10,16 +10,5 @@ package com.powsybl.iidm.network;
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface TapChangerStepAdder<S extends TapChangerStepAdder<S, T>, T> {
-    S setRho(double rho);
-
-    S setR(double r);
-
-    S setX(double x);
-
-    S setG(double g);
-
-    S setB(double b);
-
-    T endStep();
+public interface RatioTapChangerStepsReplacer extends TapChangerStepsReplacer<RatioTapChangerStepsReplacer, RatioTapChangerStepsReplacerStepAdder> {
 }

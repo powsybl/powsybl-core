@@ -148,7 +148,7 @@ class TapPositionModificationTest {
             TapType.RATIO, threeWindingTransformer.getId());
     }
 
-    private void testTapTransformer(TapChanger<?, ?> tapChanger, final IdentifiableType transformerElement,
+    private void testTapTransformer(TapChanger<?, ?, ?> tapChanger, final IdentifiableType transformerElement,
                                     final TapType tapType, final String transformerId) {
         Supplier<Integer> tapPositionSupplier = tapChanger::getTapPosition;
         assertTrue(tapChanger.getLowTapPosition() < tapChanger.getHighTapPosition());

@@ -544,11 +544,11 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                                          Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
+                                                                          Set<TapChanger<?, ?, ?>> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
         return checkOnlyOneTapChangerRegulatingEnabled(validable, tapChangersNotIncludingTheModified, regulating, throwException, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified,
+    public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger<?, ?, ?>> tapChangersNotIncludingTheModified,
                                                                           boolean regulating, boolean throwException, Reporter reporter) {
         if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);

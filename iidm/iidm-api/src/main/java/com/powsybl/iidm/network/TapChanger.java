@@ -6,16 +6,13 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep<S>> {
+public interface TapChanger<C extends TapChanger<C, S, R>, S extends TapChangerStep<S>, R extends TapChangerStepsReplacer<?, ?>> {
 
     /**
      * Get the lowest tap position corresponding to the first step of the tap changer.
@@ -83,6 +80,11 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * @return the step
      */
     S getStep(int tapPosition);
+
+    /**
+     * Return a replacer that allow to replace the whole step list.
+     */
+    R stepsReplacer();
 
     /**
      * Get the current step.

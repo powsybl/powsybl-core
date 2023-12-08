@@ -582,7 +582,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmTapChanger(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName, int endNumber) {
+    private static void addIidmTapChanger(Identifiable<?> eq, TapChanger<?, ?, ?> tc, String typeChangerTypeName, int endNumber) {
         if (tc != null) {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + endNumber;
             if (eq.getAliasFromType(aliasType).isEmpty()) {
@@ -592,7 +592,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmTapChanger2wt(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName) {
+    private static void addIidmTapChanger2wt(Identifiable<?> eq, TapChanger<?, ?, ?> tc, String typeChangerTypeName) {
         if (tc != null) {
             String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 1;
             String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 2;

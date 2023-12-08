@@ -193,8 +193,8 @@ class TwoWindingsTransformerImpl extends AbstractConnectableBranch<TwoWindingsTr
     }
 
     @Override
-    public Set<TapChanger<?, ?>> getAllTapChangers() {
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
+    public Set<TapChanger<?, ?, ?>> getAllTapChangers() {
+        Set<TapChanger<?, ?, ?>> tapChangers = new HashSet<>();
         if (ratioTapChanger != null) {
             tapChangers.add(ratioTapChanger);
         }

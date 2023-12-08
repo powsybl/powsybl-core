@@ -40,6 +40,67 @@ class TapChangerAttributeTest {
             ((AbstractTapChanger) twt3.getLeg3().getRatioTapChanger()).getTapChangerAttribute());
     }
 
+    @Test
+    void testTapChangerStepsReplacement() {
+        Network network = NoEquipmentNetworkFactory.create();
+        Substation substation = network.getSubstation("sub");
+
+        // Create a TWT
+        TwoWindingsTransformer twt2 = createTwoWindingsTransformer(substation);
+        createPhaseTapChanger(twt2);
+        createRatioTapChanger(twt2);
+
+        // Test ratio tap changer steps replacement
+        assertEquals(3, twt2.getRatioTapChanger().getStepCount());
+        twt2.getRatioTapChanger().stepsReplacer()
+            .beginStep()
+            .setR(1.0)
+            .setX(2.0)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(3.0)
+            .endStep()
+            .beginStep()
+            .setR(4.0)
+            .setX(5.0)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(6.0)
+            .endStep()
+            .replaceSteps();
+        assertEquals(2, twt2.getRatioTapChanger().getStepCount());
+        assertEquals(1.0, twt2.getRatioTapChanger().getStep(0).getR());
+        assertEquals(2.0, twt2.getRatioTapChanger().getStep(0).getX());
+        assertEquals(0.0, twt2.getRatioTapChanger().getStep(0).getG());
+        assertEquals(0.0, twt2.getRatioTapChanger().getStep(0).getB());
+        assertEquals(3.0, twt2.getRatioTapChanger().getStep(0).getRho());
+        assertEquals(4.0, twt2.getRatioTapChanger().getStep(1).getR());
+        assertEquals(5.0, twt2.getRatioTapChanger().getStep(1).getX());
+        assertEquals(0.0, twt2.getRatioTapChanger().getStep(1).getG());
+        assertEquals(0.0, twt2.getRatioTapChanger().getStep(1).getB());
+        assertEquals(6.0, twt2.getRatioTapChanger().getStep(1).getRho());
+
+        // Test phase tap changer steps replacement
+        assertEquals(2, twt2.getPhaseTapChanger().getStepCount());
+        twt2.getPhaseTapChanger().stepsReplacer()
+            .beginStep()
+            .setR(6.0)
+            .setX(5.0)
+            .setG(4.0)
+            .setB(3.0)
+            .setAlpha(2.0)
+            .setRho(1.0)
+            .endStep()
+            .replaceSteps();
+        assertEquals(1, twt2.getPhaseTapChanger().getStepCount());
+        assertEquals(6.0, twt2.getPhaseTapChanger().getStep(0).getR());
+        assertEquals(5.0, twt2.getPhaseTapChanger().getStep(0).getX());
+        assertEquals(4.0, twt2.getPhaseTapChanger().getStep(0).getG());
+        assertEquals(3.0, twt2.getPhaseTapChanger().getStep(0).getB());
+        assertEquals(2.0, twt2.getPhaseTapChanger().getStep(0).getAlpha());
+        assertEquals(1.0, twt2.getPhaseTapChanger().getStep(0).getRho());
+    }
+
     private ThreeWindingsTransformer createThreeWindingsTransformer(Substation substation) {
         return substation.newThreeWindingsTransformer()
             .setId("twt3")

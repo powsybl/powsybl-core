@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface RatioTapChangerAdder extends TapChangerAdder<RatioTapChangerAdder, RatioTapChangerStepAdder, RatioTapChanger> {
+public interface RatioTapChangerAdder extends TapChangerAdder<RatioTapChangerAdder, RatioTapChangerAdderStepAdder, RatioTapChanger> {
 
     RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 

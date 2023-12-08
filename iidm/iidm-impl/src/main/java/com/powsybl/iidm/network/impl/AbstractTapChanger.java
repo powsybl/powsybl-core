@@ -26,7 +26,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final Integer relativeNeutralPosition;
 
-    protected final List<S> steps;
+    protected List<S> steps;
 
     private final String type;
 
@@ -144,6 +144,15 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
                     + "]");
         }
         return steps.get(tapPosition - lowTapPosition);
+    }
+
+    protected C setSteps(List<S> steps) {
+        if (steps == null || steps.isEmpty()) {
+            throw new ValidationException(parent, "a tap changer shall have at least one step");
+        }
+        steps.forEach(step -> step.validate(parent));
+        this.steps = steps;
+        return (C) this;
     }
 
     public S getCurrentStep() {

@@ -64,7 +64,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         return targetDeadband[0];
     }
 
-    private static void writeTapChanger(TapChanger<?, ?> tc, NetworkSerializerContext context) {
+    private static void writeTapChanger(TapChanger<?, ?, ?> tc, NetworkSerializerContext context) {
         context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition());
         if (tc.findTapPosition().isPresent()) {
             context.getWriter().writeIntAttribute(ATTR_TAP_POSITION, tc.getTapPosition());
