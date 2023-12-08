@@ -12,7 +12,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface TapChanger<C extends TapChanger<C, S, R>, S extends TapChangerStep<S>, R extends TapChangerStepsReplacer<?, ?>> {
+public interface TapChanger<C extends TapChanger<C, S, R>, S extends TapChangerStep<S>, R extends TapChangerStepsReplacer<R, ?>> {
 
     /**
      * Get the lowest tap position corresponding to the first step of the tap changer.

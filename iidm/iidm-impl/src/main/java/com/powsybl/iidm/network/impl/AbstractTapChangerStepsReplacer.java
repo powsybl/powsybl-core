@@ -19,7 +19,7 @@ abstract class AbstractTapChangerStepsReplacer<S extends AbstractTapChangerSteps
 
     protected List<C> steps = new ArrayList<>();
 
-    public AbstractTapChangerStepsReplacer(AbstractTapChanger<?, ?, C> stepHolder) {
+    protected AbstractTapChangerStepsReplacer(AbstractTapChanger<?, ?, C> stepHolder) {
         this.stepHolder = stepHolder;
     }
 
