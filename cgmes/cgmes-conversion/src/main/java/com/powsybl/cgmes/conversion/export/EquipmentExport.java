@@ -1046,7 +1046,7 @@ public final class EquipmentExport {
 
     private static void writeLoadingLimits(LoadingLimits limits, String terminalId, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (!Double.isNaN(limits.getPermanentLimit())) {
-            String operationalLimitTypeId = CgmesExportUtil.getUniqueId(PREFIX + PATL_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
+            String operationalLimitTypeId = CgmesExportUtil.getUniqueId(PREFIX + "PATL9999" + OPERATIONAL_LIMIT_TYPE_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
             OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             String operationalLimitSetId = CgmesExportUtil.getUniqueId(PREFIX + terminalId + PATL_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
             OperationalLimitSetEq.write(operationalLimitSetId, "operational limit patl", terminalId, cimNamespace, writer, context);

@@ -63,11 +63,14 @@ public final class CgmesNamingStrategyNames {
 
     public static final String VOLTAGE_LEVEL_SUFFIX = "_VL";
 
+    public static final String OPERATIONAL_LIMIT_TYPE_SUFFIX = "_OLT";
+
     public static final String PATL_SUFFIX = "_PATL";
 
     public static final String TATL_SUFFIX = "_TATL";
 
     public static final String PREFIX = "_";
 
-
+    private CgmesNamingStrategyNames() {
+    }
 }
