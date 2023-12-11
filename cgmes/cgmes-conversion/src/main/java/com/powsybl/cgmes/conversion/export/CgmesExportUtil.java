@@ -377,7 +377,7 @@ public final class CgmesExportUtil {
             Optional<String> optionalTapChangerId2 = twt.getAliasFromType(aliasType2);
             if (optionalTapChangerId2.isEmpty()) {
                 // We create a new id always at end 1
-                String suffix = cgmesTapChangerTag == RATIO_TAP_CHANGER ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
+                String suffix = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
                 String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + suffix, context.getUuidNamespace()); // TODO: what to put here
                 twt.addAlias(newTapChangerId, aliasType1);
                 return newTapChangerId;
@@ -391,7 +391,7 @@ public final class CgmesExportUtil {
         String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + endNumber;
         Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
         if (optionalTapChangerId.isEmpty()) {
-            String suffix = cgmesTapChangerTag == RATIO_TAP_CHANGER ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
+            String suffix = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
             String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + suffix, context.getUuidNamespace()); // TODO: what to put here?
             twt.addAlias(newTapChangerId, aliasType);
             return newTapChangerId;

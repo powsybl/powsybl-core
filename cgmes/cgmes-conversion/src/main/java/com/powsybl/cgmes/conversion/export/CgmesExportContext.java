@@ -602,7 +602,7 @@ public class CgmesExportContext {
         if (tc != null) {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + endNumber;
             if (eq.getAliasFromType(aliasType).isEmpty()) {
-                String suffix = typeChangerTypeName == CgmesNames.PHASE_TAP_CHANGER ? PHASE_TAP_CHANGER_SUFFIX + endNumber : RATIO_TAP_CHANGER_SUFFIX + endNumber;
+                String suffix = Objects.equals(typeChangerTypeName, CgmesNames.PHASE_TAP_CHANGER) ? PHASE_TAP_CHANGER_SUFFIX + endNumber : RATIO_TAP_CHANGER_SUFFIX + endNumber;
                 String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + eq.getId() + suffix, uuidNamespace); //TODO: what to put here?
                 eq.addAlias(newTapChangerId, aliasType);
             }
@@ -617,7 +617,7 @@ public class CgmesExportContext {
             // If no previous identifiers were found
             // Neither at end 1 nor at end 2
             if (eq.getAliasFromType(aliasType1).isEmpty() && eq.getAliasFromType(aliasType2).isEmpty()) {
-                String suffix = typeChangerTypeName == CgmesNames.PHASE_TAP_CHANGER ? PHASE_TAP_CHANGER_SUFFIX + 1 : RATIO_TAP_CHANGER_SUFFIX + 1;
+                String suffix = Objects.equals(typeChangerTypeName, CgmesNames.PHASE_TAP_CHANGER) ? PHASE_TAP_CHANGER_SUFFIX + 1 : RATIO_TAP_CHANGER_SUFFIX + 1;
                 String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + eq.getId() + suffix, uuidNamespace); //TODO: what to put here?
                 eq.addAlias(newTapChangerId, aliasType1);
             }
