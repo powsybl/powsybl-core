@@ -198,7 +198,7 @@ public abstract class AbstractReferencePrioritiesTest {
                 .setTerminal(lineS3S4.getTerminal1())
                 .setPriority(-2)
                 .add());
-        assertEquals("Priority (-2) of terminal should be zero or positive for ReferencePriority extension", thrown.getMessage());
+        assertEquals("Priority (-2) of terminal (equipment LINE_S3S4) should be zero or positive for ReferencePriority extension", thrown.getMessage());
     }
 
     @Test
