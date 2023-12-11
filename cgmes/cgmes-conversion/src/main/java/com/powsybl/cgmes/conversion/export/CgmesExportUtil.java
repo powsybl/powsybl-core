@@ -33,6 +33,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.*;
+import static com.powsybl.cgmes.model.CgmesNames.RATIO_TAP_CHANGER;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -347,18 +349,18 @@ public final class CgmesExportUtil {
 
     // tap changer is exported as it is modelled in IIDM, always at end 1
     static void addUpdateCgmesTapChangerExtension(TwoWindingsTransformer twt, CgmesExportContext context) {
-        twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, context), regulatingControlIsDefined(rtc), context));
+        twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, RATIO_TAP_CHANGER, context), regulatingControlIsDefined(rtc), context));
         twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, context), regulatingControlIsDefined(ptc), context));
     }
 
     static void addUpdateCgmesTapChangerExtension(ThreeWindingsTransformer twt, CgmesExportContext context) {
-        twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 1, context), regulatingControlIsDefined(rtc), context));
+        twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, RATIO_TAP_CHANGER, 1, context), regulatingControlIsDefined(rtc), context));
         twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 1, context), regulatingControlIsDefined(ptc), context));
 
-        twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 2, context), regulatingControlIsDefined(rtc), context));
+        twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, RATIO_TAP_CHANGER, 2, context), regulatingControlIsDefined(rtc), context));
         twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 2, context), regulatingControlIsDefined(ptc), context));
 
-        twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 3, context), regulatingControlIsDefined(rtc), context));
+        twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, RATIO_TAP_CHANGER, 3, context), regulatingControlIsDefined(rtc), context));
         twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 3, context), regulatingControlIsDefined(ptc), context));
     }
 
@@ -375,7 +377,8 @@ public final class CgmesExportUtil {
             Optional<String> optionalTapChangerId2 = twt.getAliasFromType(aliasType2);
             if (optionalTapChangerId2.isEmpty()) {
                 // We create a new id always at end 1
-                String newTapChangerId = CgmesExportUtil.getUniqueId(twt.getId() + "tapChanger", context.getUuidNamespace()); // TODO: what to put here
+                String suffix = cgmesTapChangerTag == RATIO_TAP_CHANGER ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
+                String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + suffix, context.getUuidNamespace()); // TODO: what to put here
                 twt.addAlias(newTapChangerId, aliasType1);
                 return newTapChangerId;
             } else {
@@ -388,7 +391,8 @@ public final class CgmesExportUtil {
         String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + endNumber;
         Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
         if (optionalTapChangerId.isEmpty()) {
-            String newTapChangerId = CgmesExportUtil.getUniqueId(twt.getId() + "tapChanger", context.getUuidNamespace()); // TODO: what to put here?
+            String suffix = cgmesTapChangerTag == RATIO_TAP_CHANGER ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
+            String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + suffix, context.getUuidNamespace()); // TODO: what to put here?
             twt.addAlias(newTapChangerId, aliasType);
             return newTapChangerId;
         } else {
@@ -420,13 +424,14 @@ public final class CgmesExportUtil {
         }
         CgmesTapChanger cgmesTapChanger = cgmesTapChangers.getTapChanger(tapChangerId);
         if (cgmesTapChanger == null) {
+
             cgmesTapChanger = cgmesTapChangers.newTapChanger()
                     .setId(tapChangerId)
-                    .setControlId(CgmesExportUtil.getUniqueId(twt.getId() + "TapChangerControl", context.getUuidNamespace())) // TODO: what to put here?
+                    .setControlId(CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + TAP_CHANGER_CONTROL, context.getUuidNamespace())) // TODO: what to put here?
                     .add();
         }
         if (cgmesTapChanger.getControlId() == null) {
-            cgmesTapChanger.setControlId(CgmesExportUtil.getUniqueId(twt.getId() + "TapChangerControl", context.getUuidNamespace())); // TODO: what to put here?
+            cgmesTapChanger.setControlId(CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + TAP_CHANGER_CONTROL, context.getUuidNamespace())); // TODO: what to put here?
         }
     }
 

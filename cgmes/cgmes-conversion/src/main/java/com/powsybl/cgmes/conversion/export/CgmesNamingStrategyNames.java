@@ -39,6 +39,8 @@ public final class CgmesNamingStrategyNames {
 
     public static final String RATIO_TAP_CHANGER_SUFFIX = "_RTC";
 
+    public static final String TAP_CHANGER_CONTROL = "_TCC";
+
     public static final String EQUIVALENT_INJECTION_SUFFIX = "_EI";
 
     public static final String CONTROL_AREA_SUFFIX = "_CA";
