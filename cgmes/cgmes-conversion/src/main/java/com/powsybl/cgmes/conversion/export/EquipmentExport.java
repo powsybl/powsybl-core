@@ -126,7 +126,7 @@ public final class EquipmentExport {
     private static void writeSwitchConnectivity(String nodeKey, VoltageLevel vl, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         mapNodeKey2NodeId.computeIfAbsent(nodeKey, k -> {
             try {
-                String node = CgmesExportUtil.getUniqueId(nodeKey, context.getUuidNamespace()); //TODO: what to put here
+                String node = CgmesExportUtil.getUniqueId(PREFIX + vl.getId() + nodeKey + CONNECTIVITY_NODE_SUFFIX, context.getUuidNamespace()); //TODO: what to put here
                 ConnectivityNodeEq.write(node, nodeKey, context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer, context);
                 return node;
             } catch (XMLStreamException e) {
@@ -149,7 +149,7 @@ public final class EquipmentExport {
             String connectivityNodeId = connectivityNodeId(mapNodeKey2NodeId, bus.getTerminal());
             if (connectivityNodeId == null) {
                 VoltageLevel vl = bus.getTerminal().getVoltageLevel();
-                String node = CgmesExportUtil.getUniqueId(bus.getId() + "node", context.getUuidNamespace()); //TODO:what to put here
+                String node = CgmesExportUtil.getUniqueId(PREFIX + bus.getId() + CONNECTIVITY_NODE_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
                 ConnectivityNodeEq.write(node, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer, context);
                 String key = buildNodeKey(vl, bus.getTerminal().getNodeBreakerView().getNode());
                 mapNodeKey2NodeId.put(key, node);
@@ -160,7 +160,7 @@ public final class EquipmentExport {
     private static void writeNodes(VoltageLevel vl, VoltageLevelAdjacency vlAdjacencies, Map <String, String> mapNodeKey2NodeId, String cimNamespace,
                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (List<Integer> nodes : vlAdjacencies.getNodes()) {
-            String cgmesNodeId = CgmesExportUtil.getUniqueId("", context.getUuidNamespace()); //TODO:what to put here
+            String cgmesNodeId = CgmesExportUtil.getUniqueId(PREFIX + vl.getId() + nodes.get(0) + CONNECTIVITY_NODE_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
             ConnectivityNodeEq.write(cgmesNodeId, CgmesExportUtil.format(nodes.get(0)), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer, context);
             for (Integer nodeNumber : nodes) {
                 mapNodeKey2NodeId.put(buildNodeKey(vl, nodeNumber), cgmesNodeId);

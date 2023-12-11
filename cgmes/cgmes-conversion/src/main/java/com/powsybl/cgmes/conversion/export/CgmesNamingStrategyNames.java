@@ -71,6 +71,8 @@ public final class CgmesNamingStrategyNames {
 
     public static final String TATL_SUFFIX = "_TATL";
 
+    public static final String CONNECTIVITY_NODE_SUFFIX = "_CN";
+
     public static final String PREFIX = "_";
 
     private CgmesNamingStrategyNames() {
