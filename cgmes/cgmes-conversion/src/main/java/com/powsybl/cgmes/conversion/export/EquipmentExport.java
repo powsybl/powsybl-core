@@ -33,7 +33,6 @@ import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadin
 public final class EquipmentExport {
 
     private static final String AC_DC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
-    private static final String CONNECTIVITY_NODE_SUFFIX = "CN";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
@@ -397,9 +396,9 @@ public final class EquipmentExport {
                     break;
                 }
 
-                reactiveLimitsId = CgmesExportUtil.getUniqueId(generatingUnit + kind, context.getUuidNamespace()); //TODO:what to put here?
+                reactiveLimitsId = CgmesExportUtil.getUniqueId(PREFIX + i.getId() + REACTIVE_CAPABILITY_CURVE_SUFFIX, context.getUuidNamespace()); //TODO:what to put here?
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    CurveDataEq.write(CgmesExportUtil.getUniqueId(generatingUnit + kind + point.getP(), context.getUuidNamespace()), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context); //TODO:what to put here
+                    CurveDataEq.write(CgmesExportUtil.getUniqueId(PREFIX + generatingUnit + point.getP() + REACTIVE_CAPABIILITY_CURVE_POINT_SUFFIX, context.getUuidNamespace()), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context); //TODO:what to put here
                 }
                 String reactiveCapabilityCurveName = "RCC_" + i.getNameOrId();
                 ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, i, cimNamespace, writer, context);
@@ -924,7 +923,7 @@ public final class EquipmentExport {
                 // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
                 LOG.info("Dangling line {}{} is not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created",
                         danglingLine.getId(), danglingLine.getPairingKey() != null ? " linked to X-node " + danglingLine.getPairingKey() : "");
-                connectivityNodeId = CgmesExportUtil.getUniqueId(danglingLine.getId() + baseVoltageId + "ConnectivityNode", context.getUuidNamespace()); //TODO:what to put here
+                connectivityNodeId = CgmesExportUtil.getUniqueId(PREFIX + danglingLine.getId() + CONNECTIVITY_NODE_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
                 String connectivityNodeContainerId = createFictitiousContainerFor(danglingLine, baseVoltageId, cimNamespace, writer, context);
                 ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
                 danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
@@ -1073,12 +1072,12 @@ public final class EquipmentExport {
             String substation1Id = namingStrategy.getCgmesId(line.getConverterStation1().getTerminal().getVoltageLevel().getNullableSubstation());
             String substation2Id = namingStrategy.getCgmesId(line.getConverterStation2().getTerminal().getVoltageLevel().getNullableSubstation());
 
-            String dcConverterUnit1 = CgmesExportUtil.getUniqueId(line.getId() + "DCConverterUnit_1", context.getUuidNamespace()); //TODO:what to put here
+            String dcConverterUnit1 = CgmesExportUtil.getUniqueId(PREFIX + line.getId() + DC_CONVERTER_UNIT_SUFFIX + 1, context.getUuidNamespace()); //TODO:what to put here
             writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", substation1Id, cimNamespace, writer, context);
             String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode1").orElseThrow(PowsyblException::new);
             writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1, cimNamespace, writer, context);
 
-            String dcConverterUnit2 = CgmesExportUtil.getUniqueId(line.getId() + "DCConverterUnit_2", context.getUuidNamespace()); //TODO:what to put here
+            String dcConverterUnit2 = CgmesExportUtil.getUniqueId(PREFIX + line.getId() + DC_CONVERTER_UNIT_SUFFIX + 2, context.getUuidNamespace()); //TODO:what to put here
             writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", substation2Id, cimNamespace, writer, context);
             String dcNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode2").orElseThrow(PowsyblException::new);
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer, context);
@@ -1090,13 +1089,13 @@ public final class EquipmentExport {
             writeDCTerminal(dcTerminal2, lineId, dcNode2, 2, cimNamespace, writer, context);
 
             HvdcConverterStation<?> converter = line.getConverterStation1();
-            writeTerminal(converter.getTerminal(), mapTerminal2Id, CgmesExportUtil.getUniqueId(line.getId() + converter.getId() + "ConverterStation_1", context.getUuidNamespace()), converter1Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal()), 1, cimNamespace, writer, context); //TODO:what to put here
+            writeTerminal(converter.getTerminal(), mapTerminal2Id, CgmesExportUtil.getUniqueId(PREFIX + line.getId() + converter.getId() + CONVERTER_STATION_SUFFIX + 1, context.getUuidNamespace()), converter1Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal()), 1, cimNamespace, writer, context); //TODO:what to put here
             String capabilityCurveId1 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + AC_DC_CONVERTER_DC_TERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal1, converter1Id, dcNode1, 2, cimNamespace, writer, context);
 
             converter = line.getConverterStation2();
-            writeTerminal(converter.getTerminal(), mapTerminal2Id, CgmesExportUtil.getUniqueId(line.getId() + converter.getId() + "ConverterStation_2", context.getUuidNamespace()), converter2Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal()), 1, cimNamespace, writer, context); //TODO:what to put here
+            writeTerminal(converter.getTerminal(), mapTerminal2Id, CgmesExportUtil.getUniqueId(PREFIX + line.getId() + converter.getId() + CONVERTER_STATION_SUFFIX + 2, context.getUuidNamespace()), converter2Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal()), 1, cimNamespace, writer, context); //TODO:what to put here
             String capabilityCurveId2 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + AC_DC_CONVERTER_DC_TERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal2, converter2Id, dcNode2, 2, cimNamespace, writer, context);
@@ -1115,12 +1114,12 @@ public final class EquipmentExport {
         if (vscConverter.getReactiveLimits() == null) {
             return null;
         }
-        String reactiveLimitsId = CgmesExportUtil.getUniqueId(vscConverter.getId() + "ReactiveLimits", context.getUuidNamespace()); //TODO:what to put here
+        String reactiveLimitsId = CgmesExportUtil.getUniqueId(PREFIX + vscConverter.getId() + REACTIVE_CAPABILITY_CURVE_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
         switch (vscConverter.getReactiveLimits().getKind()) {
             case CURVE:
                 ReactiveCapabilityCurve curve = vscConverter.getReactiveLimits(ReactiveCapabilityCurve.class);
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    CurveDataEq.write(CgmesExportUtil.getUniqueId(vscConverter.getId() + "CurvePoint" + point.getP(), context.getUuidNamespace()), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context); //TODO:what to put here
+                    CurveDataEq.write(CgmesExportUtil.getUniqueId(PREFIX + vscConverter.getId() + point.getP() + REACTIVE_CAPABIILITY_CURVE_POINT_SUFFIX, context.getUuidNamespace()), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context); //TODO:what to put here
                 }
                 String reactiveCapabilityCurveName = "RCC_" + vscConverter.getNameOrId();
                 ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, vscConverter, cimNamespace, writer, context);
@@ -1183,7 +1182,7 @@ public final class EquipmentExport {
             Connectable<?> c = terminal.getConnectable();
             if (c instanceof DanglingLine dl) {
                 if (network.isBoundaryElement(dl)) {
-                    TieFlowEq.write(CgmesExportUtil.getUniqueId(c.getId() + "TieFlow", context.getUuidNamespace()), controlAreaCgmesId, //TODO: what to put here
+                    TieFlowEq.write(CgmesExportUtil.getUniqueId(PREFIX + c.getId() + TIE_FLOW_SUFFIX, context.getUuidNamespace()), controlAreaCgmesId, //TODO: what to put here
                             context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY),
                             cimNamespace, writer, context);
                 } else {
@@ -1196,7 +1195,7 @@ public final class EquipmentExport {
         for (Boundary boundary : cgmesControlArea.getBoundaries()) {
             String terminalId = getTieFlowBoundaryTerminal(boundary, context, network);
             if (terminalId != null) {
-                TieFlowEq.write(CgmesExportUtil.getUniqueId(terminalId + "TieFlow", context.getUuidNamespace()), controlAreaCgmesId, terminalId, cimNamespace, writer, context); //TODO:what to put here
+                TieFlowEq.write(CgmesExportUtil.getUniqueId(PREFIX + terminalId + TIE_FLOW_SUFFIX, context.getUuidNamespace()), controlAreaCgmesId, terminalId, cimNamespace, writer, context); //TODO:what to put here
             }
         }
     }

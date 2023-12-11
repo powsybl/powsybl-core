@@ -25,8 +25,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.TOPOLOGICAL_ISLAND_SUFFIX;
-import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.PREFIX;
+import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -323,7 +322,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltage(String topologicalNode, double v, double angle, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartId("SvVoltage", CgmesExportUtil.getUniqueId("", context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO: what to put here
+        CgmesExportUtil.writeStartId("SvVoltage", CgmesExportUtil.getUniqueId(PREFIX + topologicalNode + SV_VOLTAGE_SUFFIX, context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO: what to put here
         writer.writeStartElement(cimNamespace, SV_VOLTAGE_ANGLE);
         writer.writeCharacters(CgmesExportUtil.format(angle));
         writer.writeEndElement();
@@ -351,7 +350,7 @@ public final class StateVariablesExport {
                         double sumQ = BusTools.sum(busViewBus, Terminal::getQ);
                         if (Math.abs(sumP) > context.getMaxPMismatchConverged() || Math.abs(sumQ) > context.getMaxQMismatchConverged()) {
                             String topologicalNodeId = context.getNamingStrategy().getCgmesId(bus);
-                            String svInjectionId = CgmesExportUtil.getUniqueId("", context.getUuidNamespace());
+                            String svInjectionId = CgmesExportUtil.getUniqueId(PREFIX + topologicalNodeId + SV_INJECTION_SUFFIX, context.getUuidNamespace());
                             writeSvInjection(svInjectionId, -sumP, -sumQ, topologicalNodeId, cimNamespace, writer, context);
                         }
                     }
@@ -495,7 +494,7 @@ public final class StateVariablesExport {
 
     private static void writePowerFlow(String cgmesTerminalId, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeStartId("SvPowerFlow", CgmesExportUtil.getUniqueId("", context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO : what to put here
+            CgmesExportUtil.writeStartId("SvPowerFlow", CgmesExportUtil.getUniqueId(PREFIX + cgmesTerminalId + SV_POWER_FLOW_SUFFIX, context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO : what to put here
             writer.writeStartElement(cimNamespace, "SvPowerFlow.p");
             writer.writeCharacters(CgmesExportUtil.format(p));
             writer.writeEndElement();
@@ -636,7 +635,7 @@ public final class StateVariablesExport {
 
     private static void writeStatus(String inService, String conductingEquipmentId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeStartId("SvStatus", CgmesExportUtil.getUniqueId(conductingEquipmentId + "SvStatus", context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO: what to put here
+            CgmesExportUtil.writeStartId("SvStatus", CgmesExportUtil.getUniqueId(PREFIX + conductingEquipmentId + SV_STATUS_SUFFIX, context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO: what to put here
             writer.writeStartElement(cimNamespace, "SvStatus.inService");
             writer.writeCharacters(inService);
             writer.writeEndElement();

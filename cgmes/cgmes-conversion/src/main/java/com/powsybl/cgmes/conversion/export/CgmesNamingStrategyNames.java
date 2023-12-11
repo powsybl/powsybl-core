@@ -73,6 +73,28 @@ public final class CgmesNamingStrategyNames {
 
     public static final String CONNECTIVITY_NODE_SUFFIX = "_CN";
 
+    public static final String REACTIVE_CAPABILITY_CURVE_SUFFIX = "_SM_RCC";
+
+    public static final String REACTIVE_CAPABIILITY_CURVE_POINT_SUFFIX = "_RCC_CP";
+
+    public static final String DC_CONVERTER_UNIT_SUFFIX = "_DCCU";
+
+    public static final String CONVERTER_STATION_SUFFIX = "_CS";
+
+    public static final String TIE_FLOW_SUFFIX = "_TF";
+
+    public static final String TOPOLOGICAL_NODE_SUFFIX = "_TN";
+
+    public static final String LOAD_GROUP_SUFFIX = "_LG";
+
+    public static final String SV_STATUS_SUFFIX = "_SVS";
+
+    public static final String SV_VOLTAGE_SUFFIX = "_SVV";
+
+    public static final String SV_INJECTION_SUFFIX = "_SVI";
+
+    public static final String SV_POWER_FLOW_SUFFIX = "_SVPF";
+
     public static final String PREFIX = "_";
 
     private CgmesNamingStrategyNames() {
