@@ -1050,15 +1050,16 @@ public final class EquipmentExport {
             OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             String operationalLimitSetId = CgmesExportUtil.getUniqueId(PREFIX + terminalId + PATL_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
             OperationalLimitSetEq.write(operationalLimitSetId, "operational limit patl", terminalId, cimNamespace, writer, context);
-            LoadingLimitEq.write(CgmesExportUtil.getUniqueId("", context.getUuidNamespace()), limits.getClass(), loadingLimitClassName(limits.getClass()) + " PATL", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context); //TODO:what to put here
+            LoadingLimitEq.write(CgmesExportUtil.getUniqueId(PREFIX + terminalId + loadingLimitClassName(limits.getClass()) + PATL_SUFFIX, context.getUuidNamespace()), limits.getClass(), loadingLimitClassName(limits.getClass()) + " PATL", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context); //TODO:what to put here
         }
         if (!limits.getTemporaryLimits().isEmpty()) {
             for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
-                String operationalLimitTypeId = CgmesExportUtil.getUniqueId(PREFIX + temporaryLimit.getName(), context.getUuidNamespace()); //TODO:what to put here
-                OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, "TATL " + temporaryLimit.getAcceptableDuration(), temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-                String operationalLimitSetId = CgmesExportUtil.getUniqueId(PREFIX + terminalId + TATL_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
+                int acceptableDuration = temporaryLimit.getAcceptableDuration();
+                String operationalLimitTypeId = CgmesExportUtil.getUniqueId(PREFIX + "TATL" + acceptableDuration + OPERATIONAL_LIMIT_TYPE_SUFFIX, context.getUuidNamespace()); //TODO:what to put here
+                OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, "TATL " + acceptableDuration, temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+                String operationalLimitSetId = CgmesExportUtil.getUniqueId(PREFIX + terminalId + TATL_SUFFIX + acceptableDuration, context.getUuidNamespace()); //TODO:what to put here
                 OperationalLimitSetEq.write(operationalLimitSetId, "operational limit tatl", terminalId, cimNamespace, writer, context);
-                LoadingLimitEq.write(CgmesExportUtil.getUniqueId("", context.getUuidNamespace()), limits.getClass(), temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context); //TODO:what to put here
+                LoadingLimitEq.write(CgmesExportUtil.getUniqueId(PREFIX + terminalId + loadingLimitClassName(limits.getClass()) + TATL_SUFFIX + acceptableDuration, context.getUuidNamespace()), limits.getClass(), temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context); //TODO:what to put here
             }
         }
     }
