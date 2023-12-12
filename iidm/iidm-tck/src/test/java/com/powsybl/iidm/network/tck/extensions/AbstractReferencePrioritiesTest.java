@@ -209,7 +209,7 @@ public abstract class AbstractReferencePrioritiesTest {
                 .setTerminal(gh1.getTerminal())
                 .setPriority(5)
                 .add());
-        assertEquals("The provided terminal does not belong to this connectable", thrown.getMessage());
+        assertEquals("The provided terminal does not belong to the connectable LINE_S3S4", thrown.getMessage());
     }
 
 }
