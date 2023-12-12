@@ -7,16 +7,15 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TopologyPoint;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static com.powsybl.iidm.network.TopologyKind.BUS_BREAKER;
+import static com.powsybl.iidm.network.TopologyKind.NODE_BREAKER;
 
 /**
  *
@@ -137,7 +136,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // check bus topology
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+        if (voltageLevel.getTopologyKind() != NODE_BREAKER) {
             String msg = String.format(
                     "Trying to move connectable %s to node %d of voltage level %s, which is a bus breaker voltage level",
                     getId(), node, voltageLevel.getId());
@@ -189,5 +188,69 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         terminals.set(iSide, terminalExt);
 
         notifyUpdate("terminal" + (iSide + 1), oldTopologyPoint, terminalExt.getTopologyPoint());
+    }
+
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        // Initialisation of a list to open in case some terminals are in node-breaker view
+        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+
+        // We try to disconnect each terminal
+        for (TerminalExt terminal : getTerminals()) {
+            // Check if the terminal is already connected
+            if (terminal.isConnected()) {
+                // TODO : add a warning or return false
+                continue;
+            }
+
+            // If it's a node-breaker terminal, the switches to connect are added to a set
+            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel
+                && !nodeBreakerVoltageLevel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection)) {
+                return false;
+            }
+            // If it's a bus-breaker terminal, there is nothing to do
+        }
+
+        // Connect all bus-breaker terminals
+        for (TerminalExt terminal : getTerminals()){
+            if (terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER
+                && !terminal.connect(isTypeSwitchToOperate)) {
+                return false;
+            }
+        }
+        // Disconnect all switches on node-breaker terminals
+        switchForDisconnection.forEach(sw -> sw.setOpen(false));
+        return true;
+    }
+
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        // Initialisation of a list to open in case some terminals are in node-breaker view
+        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+
+        // We try to disconnect each terminal
+        for (TerminalExt terminal : getTerminals()) {
+            // Check if the terminal is already disconnected
+            if (!terminal.isConnected()) {
+                // TODO : add a warning or return false
+                continue;
+            }
+
+            // If it's a node-breaker terminal, the switches to disconnect are added to a set
+            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel
+                && !nodeBreakerVoltageLevel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection)) {
+                return false;
+            }
+            // If it's a bus-breaker terminal, there is nothing to do
+        }
+
+        // Disconnect all bus-breaker terminals
+        for (TerminalExt terminal : getTerminals()){
+            if (terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER
+                && !terminal.disconnect(isSwitchOpenable)) {
+                return false;
+            }
+        }
+        // Disconnect all switches on node-breaker terminals
+        switchForDisconnection.forEach(sw -> sw.setOpen(true));
+        return true;
     }
 }
