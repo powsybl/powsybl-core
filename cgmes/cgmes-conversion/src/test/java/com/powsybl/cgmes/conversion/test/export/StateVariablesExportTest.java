@@ -314,11 +314,13 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .setAlpha(20)
                 .endStep()
                 .add();
-        // We have added a PTC, so we add an alias for it
+        // We have added a PTC, we add a known alias for it
+        // This is not mandatory, but it simplifies comparing the data in the network and the exported SV file
+        // If we do not add it in advance, a proper CGMES ID for the new PTC will be generated during export
         String t2ptcId = CgmesExportUtil.getUniqueId("ptc2w", DEFAULT_UUID_NAMESPACE);
         t2wt.addAlias(t2ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
 
-        // Change the RTC tap position and add a PTC
+        // Also, change the RTC tap position and add a PTC to a three-winding transformer
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
         t3wt.getLeg1().getRatioTapChanger()
                 .setTapPosition(16);
