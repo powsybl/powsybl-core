@@ -8,6 +8,7 @@
 package com.powsybl.security.detectors.criterion.duration;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import org.apache.commons.lang3.IntegerRange;
 
 /**
  * Describes interval temporary duration criterion
