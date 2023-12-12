@@ -228,7 +228,7 @@ public final class StateVariablesExport {
         }
 
         boolean isValidVoltage(double v) {
-            return v >= 0.01;
+            return v >= 0.1;
         }
 
         boolean isValidAngle(double a) {
