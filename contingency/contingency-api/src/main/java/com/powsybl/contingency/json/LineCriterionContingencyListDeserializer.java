@@ -28,7 +28,8 @@ public class LineCriterionContingencyListDeserializer extends AbstractEquipmentC
     public LineCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
         parser.nextToken();
-        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext, parsingContext, name));
+        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext,
+                parsingContext, name, LineCriterionContingencyList.TYPE));
 
         return new LineCriterionContingencyList(parsingContext.name,
                 (TwoCountriesCriterion) parsingContext.countryCriterion,

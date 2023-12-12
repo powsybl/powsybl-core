@@ -27,7 +27,7 @@ public class ContingencyContext {
 
     private static final ContingencyContext NONE = new ContingencyContext(null, ContingencyContextType.NONE);
 
-    private static final ContingencyContext ALL_CONTINGENCIES = new ContingencyContext(null, ContingencyContextType.ALL_CONTINGENCIES);
+    private static final ContingencyContext ONLY_CONTINGENCIES = new ContingencyContext(null, ContingencyContextType.ONLY_CONTINGENCIES);
 
     private final String contingencyId;
 
@@ -89,8 +89,8 @@ public class ContingencyContext {
                 return NONE;
             case SPECIFIC:
                 return specificContingency(contingencyId);
-            case ALL_CONTINGENCIES:
-                return ALL_CONTINGENCIES;
+            case ONLY_CONTINGENCIES:
+                return ONLY_CONTINGENCIES;
             default:
                 throw new IllegalStateException("Unknown contingency context type: " + contingencyContextType);
         }

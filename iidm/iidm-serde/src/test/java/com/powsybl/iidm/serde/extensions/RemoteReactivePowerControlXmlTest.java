@@ -14,7 +14,6 @@ import com.powsybl.iidm.serde.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
@@ -77,10 +76,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         RemoteReactivePowerControl rrpc = network.getGenerator("G").getExtension(RemoteReactivePowerControl.class);
         assertNotNull(rrpc);
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "remoteReactivePowerControlRef.xml");
+        Network network2 = allFormatsRoundTripTest(network, "remoteReactivePowerControlRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Generator gen2 = network2.getGenerator("G");
         Line line = network.getLine("L12");
@@ -94,7 +90,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         assertEquals(line.getSide(rrpc.getRegulatingTerminal()), line2.getSide(rrpc2.getRegulatingTerminal()));
 
         // backward compatibility checks from version 1.5
-        roundTripVersionedXmlFromMinToCurrentVersionTest("remoteReactivePowerControlRef.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("remoteReactivePowerControlRef.xml", IidmVersion.V_1_5);
 
         // check it fails for all versions < 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -109,13 +105,8 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         });
 
         // check it doesn't fail for all versions < 1.5 if IidmVersionIncompatibilityBehavior is to log error
-        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
-            try {
-                writeXmlTest(network, (n, path) -> write(n, path, version), getVersionedNetworkPath("remoteReactivePowerControlNotSupported.xml", version));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
+        testWriteXmlAllPreviousVersions(network, options, "remoteReactivePowerControlNotSupported.xml", IidmVersion.V_1_5);
     }
 
     private static void write(Network network, Path path, IidmVersion version) {

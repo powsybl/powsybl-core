@@ -10,10 +10,8 @@ import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlunit.builder.DiffBuilder;
-import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 
-import javax.xml.transform.Source;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -32,9 +30,7 @@ public final class ComparisonUtils {
     }
 
     public static void compareXml(InputStream expected, InputStream actual) {
-        Source control = Input.fromStream(expected).build();
-        Source test = Input.fromStream(actual).build();
-        Diff myDiff = DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();
+        Diff myDiff = DiffBuilder.compare(expected).withTest(actual).ignoreWhitespace().ignoreComments().build();
         boolean hasDiff = myDiff.hasDifferences();
         if (hasDiff) {
             LOGGER.error("{}", myDiff);

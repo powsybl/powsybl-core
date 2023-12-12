@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class InjectionCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
 
+    public static final String TYPE = "injectionCriterion";
     private final SingleCountryCriterion singleCountryCriterion;
     private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
@@ -38,7 +39,7 @@ public class InjectionCriterionContingencyList extends AbstractEquipmentCriterio
 
     @Override
     public String getType() {
-        return "injectionCriterion";
+        return TYPE;
     }
 
     @Override

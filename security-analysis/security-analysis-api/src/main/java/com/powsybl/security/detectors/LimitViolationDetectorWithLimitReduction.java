@@ -99,7 +99,7 @@ public class LimitViolationDetectorWithLimitReduction {
 
     private boolean isContingencyContextApplicable(List<ContingencyContext> contingencyContextList, String contingencyId) {
         for (ContingencyContext contingencyContext : contingencyContextList) {
-            if (contingencyContext.getContextType() == ContingencyContextType.ALL_CONTINGENCIES ||
+            if (contingencyContext.getContextType() == ContingencyContextType.ONLY_CONTINGENCIES ||
                     contingencyContext.getContextType() == ContingencyContextType.ALL) {
                 return true;
             }

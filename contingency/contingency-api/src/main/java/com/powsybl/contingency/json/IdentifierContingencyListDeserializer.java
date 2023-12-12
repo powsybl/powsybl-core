@@ -24,6 +24,7 @@ import java.util.List;
 public class IdentifierContingencyListDeserializer extends StdDeserializer<IdentifierContingencyList> {
 
     private static final String CONTEXT_NAME = "identifierContingencyList";
+    public static final String IDENTIFIER_LIST_VERSION = "identifierListVersion";
 
     public IdentifierContingencyListDeserializer() {
         super(IdentifierContingencyList.class);
@@ -34,34 +35,29 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
         String name = null;
         String version = null;
         List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
-
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version":
+            String test = parser.getCurrentName();
+            switch (test) {
+                case "version" -> {
                     version = parser.nextTextValue();
-                    deserializationContext.setAttribute("version", version);
-                    break;
-
-                case "identifiableType":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType", version, "1.0");
+                    JsonUtil.setSourceVersion(deserializationContext, version, IDENTIFIER_LIST_VERSION);
+                }
+                case "identifiableType" -> {
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType",
+                            version, "1.0");
                     parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
-                    parser.nextToken();
-                    break;
-
-                case "identifiers":
+                }
+                case "name" -> name = parser.nextTextValue();
+                case "type" -> {
+                    if (!parser.nextTextValue().equals(IdentifierContingencyList.TYPE)) {
+                        throw new IllegalStateException("type should be: " + IdentifierContingencyList.TYPE);
+                    }
+                }
+                case "identifiers" -> {
                     parser.nextToken();
                     networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new IdentifierContingencyList(name, networkElementIdentifiers);

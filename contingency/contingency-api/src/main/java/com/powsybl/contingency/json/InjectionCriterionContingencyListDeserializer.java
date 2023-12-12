@@ -31,7 +31,8 @@ public class InjectionCriterionContingencyListDeserializer extends AbstractEquip
         AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
         parser.nextToken();
         JsonUtil.parsePolymorphicObject(parser, name -> {
-            boolean found = deserializeCommonAttributes(parser, deserializationContext, parsingContext, name);
+            boolean found = deserializeCommonAttributes(parser, deserializationContext, parsingContext,
+                    name, InjectionCriterionContingencyList.TYPE);
             if (found) {
                 return true;
             }
