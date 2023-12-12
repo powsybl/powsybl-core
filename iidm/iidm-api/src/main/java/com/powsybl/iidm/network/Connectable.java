@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.reporter.Reporter;
+
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -23,7 +25,19 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      */
     void remove();
 
+    boolean connect();
+
     boolean connect(Predicate<Switch> isTypeSwitchToOperate);
 
+    boolean connect(Reporter reporter);
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, Reporter reporter);
+
+    boolean disconnect();
+
     boolean disconnect(Predicate<Switch> isSwitchOpenable);
+
+    boolean disconnect(Reporter reporter);
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, Reporter reporter);
 }
