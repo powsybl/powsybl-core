@@ -13,6 +13,4 @@ import com.powsybl.iidm.network.tck.AbstractConnectableTest;
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 class ConnectableTest extends AbstractConnectableTest {
-
-
 }
