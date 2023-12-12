@@ -634,7 +634,7 @@ public class CgmesExportContext {
             }
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
             if (alias == null) {
-                String equivalentInjectionTerminalId = CgmesExportUtil.getUniqueId(PREFIX + danglingLine.getId() + TERMINAL_SUFFIX, uuidNamespace); //TODO: what to put here?
+                String equivalentInjectionTerminalId = CgmesExportUtil.getUniqueId(PREFIX + danglingLine.getId() + EQUIVALENT_INJECTION_SUFFIX + TERMINAL_SUFFIX, uuidNamespace);
                 danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", equivalentInjectionTerminalId);
             }
         }
