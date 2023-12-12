@@ -99,7 +99,7 @@ public final class CgmesExportUtil {
     }
 
     // FIXME(Luma) For easy testing while we work on moving to name-based UUIDs
-    private static final boolean XXX_USE_NAME_BASED_UUIDS = false;
+    private static final boolean XXX_USE_NAME_BASED_UUIDS = true;
 
     public static String getUniqueId(String name, UUID namespace) {
         if (XXX_USE_NAME_BASED_UUIDS) {
