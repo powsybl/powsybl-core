@@ -671,7 +671,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void tapChangerControlDefineRatioTapChangerAndPhaseTapChangerTest() throws IOException {
         ReadOnlyDataSource ds = Cgmes3Catalog.miniGrid().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+        Network network = Network.read(ds);
 
         TwoWindingsTransformer twtNetwork = network.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
         twtNetwork.newRatioTapChanger()
@@ -701,7 +701,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChanger";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        network.write("CGMES", null, new FileDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
