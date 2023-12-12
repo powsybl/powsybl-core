@@ -6,11 +6,16 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
  *
@@ -151,6 +156,15 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             throw new ValidationException(parent, "a tap changer shall have at least one step");
         }
         steps.forEach(step -> step.validate(parent));
+
+        // We check if the tap position is still correct
+        int newHighTapPosition = lowTapPosition + steps.size() - 1;
+        if (getTapPosition() > newHighTapPosition) {
+            throw new ValidationException(parent, "incorrect tap position "
+                + getTapPosition() + " [" + lowTapPosition + ", "
+                + newHighTapPosition + "]");
+        }
+
         this.steps = steps;
         return (C) this;
     }
