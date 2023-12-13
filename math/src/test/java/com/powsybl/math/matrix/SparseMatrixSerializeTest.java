@@ -18,18 +18,16 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Christian Biasuzzi {@literal <christian.biasuzzi at soft.it>}
  */
-class SparseMatrixSerializeTest extends AbstractMatrixTest {
+class SparseMatrixSerializeTest {
 
     private final MatrixFactory matrixFactory = new SparseMatrixFactory();
 
-    private final MatrixFactory otherMatrixFactory = new DenseMatrixFactory();
-
-    private static SparseMatrix generateRandomSparseMatrix(int numRows, int numCols, double density) {
+    private SparseMatrix generateRandomSparseMatrix(int numRows, int numCols, double density) {
         Random random = new Random();
-        SparseMatrix matrix = new SparseMatrix(numRows, numCols, 0);
+        SparseMatrix matrix = (SparseMatrix) matrixFactory.create(numRows, numCols, 0);
         for (int col = 0; col < numCols; col++) {
             for (int row = 0; row < numRows; row++) {
-                //Generate a random value and add it to the matrix with probability based on density
+                //Add a random value to the matrix with probability based on density
                 if (random.nextDouble() < density) {
                     matrix.set(row, col, random.nextDouble());
                 }
@@ -38,32 +36,13 @@ class SparseMatrixSerializeTest extends AbstractMatrixTest {
         return matrix;
     }
 
-    @Override
-    protected MatrixFactory getMatrixFactory() {
-        return matrixFactory;
-    }
-
-    @Override
-    protected MatrixFactory getOtherMatrixFactory() {
-        return otherMatrixFactory;
-    }
-
     private SparseMatrix createSparseMatrix() {
-        Matrix matrix = getMatrixFactory().create(2, 5, 4);
+        SparseMatrix matrix = (SparseMatrix) matrixFactory.create(2, 5, 4);
         matrix.set(0, 0, 1d);
         matrix.set(1, 0, 2d);
         matrix.set(0, 2, 3d);
         matrix.set(1, 4, 4d);
-        return (SparseMatrix) matrix;
-    }
-
-    public static void compareSparseMatrices(SparseMatrix m1, SparseMatrix m2) {
-        assertArrayEquals(m1.getColumnValueCount(), m2.getColumnValueCount());
-        assertArrayEquals(m1.getColumnStart(), m2.getColumnStart());
-        assertArrayEquals(m1.getValues(), m2.getValues());
-        assertArrayEquals(m1.getRowIndices(), m2.getRowIndices());
-        assertEquals(m1.getColumnCount(), m2.getColumnCount());
-        assertEquals(m1.getRowCount(), m2.getRowCount());
+        return matrix;
     }
 
     @Test
@@ -78,17 +57,17 @@ class SparseMatrixSerializeTest extends AbstractMatrixTest {
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(matrixObj);
              ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
             SparseMatrix matrix1 = (SparseMatrix) objectInputStream.readObject();
-            compareSparseMatrices(matrix, matrix1);
+            assertEquals(matrix, matrix1);
         }
     }
 
     @Test
-    void testSerializeToFile() throws IOException, ClassNotFoundException {
+    void testSerializeToFile() throws IOException {
         SparseMatrix matrix = createSparseMatrix();
         File file = Paths.get("sparse-matrix-test.obj").toFile();
         SparseMatrixUtils.saveSparseMatrixToFile(matrix, file);
         SparseMatrix m1 = SparseMatrixUtils.loadSparseMatrixFromFile(file);
-        compareSparseMatrices(matrix, m1);
+        assertEquals(matrix, m1);
         assertTrue(file.delete());
     }
 
@@ -98,7 +77,7 @@ class SparseMatrixSerializeTest extends AbstractMatrixTest {
         File file = Paths.get("sparse-matrix-test.mat").toFile();
         SparseMatrixUtils.saveSparseMatrixToMatlabFile(m, file);
         SparseMatrix m1 = SparseMatrixUtils.loadSparseMatrixFromMatlabFile(file);
-        compareSparseMatrices(m, m1);
+        assertEquals(m, m1);
         assertTrue(file.delete());
     }
 
@@ -110,7 +89,7 @@ class SparseMatrixSerializeTest extends AbstractMatrixTest {
         SparseMatrixUtils.saveSparseMatrixToMatlabFile(m, file, matlabVariableName);
         assertThrows(IllegalArgumentException.class, () -> SparseMatrixUtils.loadSparseMatrixFromMatlabFile(file, "DOES_NOT_EXIST"));
         SparseMatrix m1 = SparseMatrixUtils.loadSparseMatrixFromMatlabFile(file, matlabVariableName);
-        compareSparseMatrices(m, m1);
+        assertEquals(m, m1);
         assertTrue(file.delete());
     }
 
@@ -121,8 +100,7 @@ class SparseMatrixSerializeTest extends AbstractMatrixTest {
         File file = Paths.get("sparse-large-matrix-test.mat").toFile();
         SparseMatrixUtils.saveSparseMatrixToMatlabFile(m, file);
         SparseMatrix m1 = SparseMatrixUtils.loadSparseMatrixFromMatlabFile(file);
-        compareSparseMatrices(m, m1);
+        assertEquals(m, m1);
         assertTrue(file.delete());
     }
 }
-
