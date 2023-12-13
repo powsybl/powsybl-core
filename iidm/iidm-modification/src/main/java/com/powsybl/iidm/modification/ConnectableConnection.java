@@ -42,6 +42,7 @@ public class ConnectableConnection extends AbstractNetworkModification {
             isTypeSwitchToOperate = isTypeSwitchToOperate.and(SwitchPredicates.IS_BREAKER);
         }
     }
+
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         // Get the connectable
