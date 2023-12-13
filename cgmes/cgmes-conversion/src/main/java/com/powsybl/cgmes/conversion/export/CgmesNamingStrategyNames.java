@@ -39,8 +39,6 @@ public final class CgmesNamingStrategyNames {
 
     public static final String RATIO_TAP_CHANGER_SUFFIX = "_RTC";
 
-    public static final String TAP_CHANGER_CONTROL = "_TCC";
-
     public static final String EQUIVALENT_INJECTION_SUFFIX = "_EI";
 
     public static final String CONTROL_AREA_SUFFIX = "_CA";
@@ -86,14 +84,6 @@ public final class CgmesNamingStrategyNames {
     public static final String TOPOLOGICAL_NODE_SUFFIX = "_TN";
 
     public static final String LOAD_GROUP_SUFFIX = "_LG";
-
-    public static final String SV_STATUS_SUFFIX = "_SVS";
-
-    public static final String SV_VOLTAGE_SUFFIX = "_SVV";
-
-    public static final String SV_INJECTION_SUFFIX = "_SVI";
-
-    public static final String SV_POWER_FLOW_SUFFIX = "_SVPF";
 
     public static final String PREFIX = "_";
 

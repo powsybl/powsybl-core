@@ -78,7 +78,7 @@ public final class StateVariablesExport {
                 LOG.info(log.get());
                 continue;
             }
-            String islandId = CgmesExportUtil.getUniqueId(PREFIX + TOPOLOGICAL_ISLAND_SUFFIX, context.getUuidNamespace()); // TODO: what to put here
+            String islandId = CgmesExportUtil.getUniqueId(PREFIX + island.key + TOPOLOGICAL_ISLAND_SUFFIX, context.getUuidNamespace());
             CgmesExportUtil.writeStartIdName(CgmesNames.TOPOLOGICAL_ISLAND, islandId, islandId, cimNamespace, writer, context);
             CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.key), cimNamespace, writer, context);
             if (context.isExportLoadFlowStatus()) {
@@ -322,7 +322,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltage(String topologicalNode, double v, double angle, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartId("SvVoltage", CgmesExportUtil.getUniqueId(PREFIX + topologicalNode + SV_VOLTAGE_SUFFIX, context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO: what to put here
+        CgmesExportUtil.writeStartId("SvVoltage", CgmesExportUtil.getUniqueRandomId(), false, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, SV_VOLTAGE_ANGLE);
         writer.writeCharacters(CgmesExportUtil.format(angle));
         writer.writeEndElement();
@@ -350,7 +350,7 @@ public final class StateVariablesExport {
                         double sumQ = BusTools.sum(busViewBus, Terminal::getQ);
                         if (Math.abs(sumP) > context.getMaxPMismatchConverged() || Math.abs(sumQ) > context.getMaxQMismatchConverged()) {
                             String topologicalNodeId = context.getNamingStrategy().getCgmesId(bus);
-                            String svInjectionId = CgmesExportUtil.getUniqueId(PREFIX + topologicalNodeId + SV_INJECTION_SUFFIX, context.getUuidNamespace());
+                            String svInjectionId = CgmesExportUtil.getUniqueRandomId();
                             writeSvInjection(svInjectionId, -sumP, -sumQ, topologicalNodeId, cimNamespace, writer, context);
                         }
                     }
@@ -382,8 +382,8 @@ public final class StateVariablesExport {
                 writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
             }
             writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, dl.getTerminal().getP(), dl.getTerminal().getQ(), cimNamespace, writer, context);
-            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
-            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
+            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
+            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
         });
 
         network.getTwoWindingsTransformerStream().forEach(b -> writeConnectableBranchPowerFlow(cimNamespace, writer, context, b));
@@ -398,19 +398,19 @@ public final class StateVariablesExport {
             }
             // Compute also equivalent injection values for boundary lines that have been left inside the CGM,
             // hey have been organised in tie lines
-            String eit1 = b.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            String eit1 = b.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL);
             if (eit1 == null) {
                 LOG.warn("Missing equivalent injection terminal for dangling line {}. For proper export models must be combined in a Network with subnetworks instead of assembled", b.getDanglingLine1().getId());
             } else {
-                equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -b.getDanglingLine1().getBoundary().getP() : v - b.getDanglingLine1().getBoundary().getP());
-                equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -b.getDanglingLine1().getBoundary().getQ() : v - b.getDanglingLine1().getBoundary().getQ());
+                equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -b.getDanglingLine1().getBoundary().getP() : v - b.getDanglingLine1().getBoundary().getP());
+                equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -b.getDanglingLine1().getBoundary().getQ() : v - b.getDanglingLine1().getBoundary().getQ());
             }
-            String eit2 = b.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            String eit2 = b.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL);
             if (eit2 == null) {
                 LOG.warn("Missing equivalent injection terminal for dangling line {}. For proper export models must be combined in a Network with subnetworks instead of assembled", b.getDanglingLine2().getId());
             } else {
-                equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -b.getDanglingLine2().getBoundary().getP() : v - b.getDanglingLine2().getBoundary().getP());
-                equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -b.getDanglingLine2().getBoundary().getQ() : v - b.getDanglingLine2().getBoundary().getQ());
+                equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -b.getDanglingLine2().getBoundary().getP() : v - b.getDanglingLine2().getBoundary().getP());
+                equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -b.getDanglingLine2().getBoundary().getQ() : v - b.getDanglingLine2().getBoundary().getQ());
             }
         });
         equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
@@ -469,7 +469,13 @@ public final class StateVariablesExport {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
             // SvInjection will be assigned to the first of the TNs mapped to the bus
-            writeSvInjection(load, bus.getId(), cimNamespace, writer, context);
+            String topologicalNode = bus.getId();
+
+            // In this special case we use the original CGMES id,
+            // to be able to keep track of it in the exported SV file
+            String svInjectionId = context.getNamingStrategy().getCgmesId(load);
+
+            writeSvInjection(svInjectionId, load.getP0(), load.getQ0(), topologicalNode, cimNamespace, writer, context);
         }
     }
 
@@ -494,7 +500,7 @@ public final class StateVariablesExport {
 
     private static void writePowerFlow(String cgmesTerminalId, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeStartId("SvPowerFlow", CgmesExportUtil.getUniqueId(PREFIX + cgmesTerminalId + SV_POWER_FLOW_SUFFIX, context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO : what to put here
+            CgmesExportUtil.writeStartId("SvPowerFlow", CgmesExportUtil.getUniqueRandomId(), false, cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "SvPowerFlow.p");
             writer.writeCharacters(CgmesExportUtil.format(p));
             writer.writeEndElement();
@@ -506,11 +512,6 @@ public final class StateVariablesExport {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
-    }
-
-    private static void writeSvInjection(Load svInjection, String topologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        String svInjectionId = context.getNamingStrategy().getCgmesId(svInjection);
-        writeSvInjection(svInjectionId, svInjection.getP0(), svInjection.getQ0(), topologicalNode, cimNamespace, writer, context);
     }
 
     private static void writeSvInjection(String svInjectionId, double p, double q, String topologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
@@ -534,7 +535,7 @@ public final class StateVariablesExport {
             if ("true".equals(s.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
                 continue;
             }
-            CgmesExportUtil.writeStartId("SvShuntCompensatorSections", CgmesExportUtil.getUniqueId("", context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO: what to put here
+            CgmesExportUtil.writeStartId("SvShuntCompensatorSections", CgmesExportUtil.getUniqueRandomId(), false, cimNamespace, writer, context);
             CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator", context.getNamingStrategy().getCgmesId(s), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
@@ -596,7 +597,6 @@ public final class StateVariablesExport {
     }
 
     private static void writeSvTapStep(String tapChangerId, int tapPosition, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        // FIXME(Luma) consider using random UUIDs for all Sv... objects
         CgmesExportUtil.writeStartId("SvTapStep", CgmesExportUtil.getUniqueRandomId(), false, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "SvTapStep.position");
         writer.writeCharacters(CgmesExportUtil.format(tapPosition));
@@ -636,7 +636,7 @@ public final class StateVariablesExport {
 
     private static void writeStatus(String inService, String conductingEquipmentId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeStartId("SvStatus", CgmesExportUtil.getUniqueId(PREFIX + conductingEquipmentId + SV_STATUS_SUFFIX, context.getUuidNamespace()), false, cimNamespace, writer, context); //TODO: what to put here
+            CgmesExportUtil.writeStartId("SvStatus", CgmesExportUtil.getUniqueRandomId(), false, cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "SvStatus.inService");
             writer.writeCharacters(inService);
             writer.writeEndElement();
