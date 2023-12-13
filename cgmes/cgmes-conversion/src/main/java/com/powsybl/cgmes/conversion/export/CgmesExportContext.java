@@ -510,10 +510,31 @@ public class CgmesExportContext {
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && (generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && canGeneratorControl(generator)) {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
+        }
+    }
+
+    private static boolean canGeneratorControl(Generator generator) {
+        // TODO: Check for reactive control
+        if (generator.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE) {
+            boolean isTargetNan = Double.isNaN(generator.getTargetV());
+            boolean hasReactiveCapability = false;
+            ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) generator.getReactiveLimits();
+            if (rcc != null) {
+                Collection<ReactiveCapabilityCurve.Point> points = rcc.getPoints();
+                for (ReactiveCapabilityCurve.Point point : points) {
+                    if (point.getMaxQ() != point.getMinQ()) {
+                        hasReactiveCapability = true;
+                        break;
+                    }
+                }
+            }
+            return !isTargetNan && hasReactiveCapability;
+        } else {
+            return generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable());
         }
     }
 
