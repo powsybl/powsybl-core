@@ -9,10 +9,10 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -26,11 +26,7 @@ class NodeBreakerPropertiesOnBusTest extends AbstractIidmSerDeTest {
 
         // can export and reload a network in current and older XIIDM versions
         for (IidmVersion version : IidmVersion.values()) {
-            roundTripXmlTest(network,
-                (n, p) -> NetworkSerDe.writeAndValidate(n,
-                        new ExportOptions().setVersion(version.toString(".")), p),
-                NetworkSerDe::read,
-                getVersionedNetworkPath("nodebreaker-busproperties.xml", version));
+            allFormatsRoundTripTest(network, "nodebreaker-busproperties.xml", version);
         }
     }
 }

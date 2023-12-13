@@ -82,7 +82,7 @@ class ExportOptionsTest {
         assertEquals(TopologyLevel.NODE_BREAKER, options.getTopologyLevel());
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(Boolean.FALSE, options.isSorted());
-        assertEquals(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION, options.getVersion());
+        assertEquals(IidmSerDeConstants.CURRENT_IIDM_VERSION, options.getVersion());
         assertEquals(THROW_EXCEPTION, options.getIidmVersionIncompatibilityBehavior());
         assertEquals(StandardCharsets.UTF_8, options.getCharset());
     }

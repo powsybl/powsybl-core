@@ -17,6 +17,6 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripAllVersionedXmlTest("eurostag-tutorial-example1-properties.xml");
+        allFormatsRoundTripAllVersionedXmlTest("eurostag-tutorial-example1-properties.xml");
     }
 }

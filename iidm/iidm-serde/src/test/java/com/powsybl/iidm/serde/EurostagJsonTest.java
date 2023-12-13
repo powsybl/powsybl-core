@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -30,7 +30,7 @@ class EurostagJsonTest extends AbstractIidmSerDeTest {
         roundTripTest(EurostagTutorialExample1Factory.createWithLFResults(),
                 (n, jsonFile) -> NetworkSerDe.write(n, exportOptions, jsonFile),
                 jsonFile -> NetworkSerDe.read(jsonFile, importOptions),
-                getVersionedNetworkPath("eurostag-tutorial1-lf.json", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("eurostag-tutorial1-lf.json", CURRENT_IIDM_VERSION));
 
         //backward compatibility
         roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf.json", IidmVersion.V_1_11);
@@ -46,7 +46,7 @@ class EurostagJsonTest extends AbstractIidmSerDeTest {
         roundTripTest(network,
                 (n, jsonFile) -> NetworkSerDe.write(n, exportOptions, jsonFile),
                 jsonFile -> NetworkSerDe.read(jsonFile, importOptions),
-                getVersionedNetworkPath("eurostag-tutorial1-lf-extensions.json", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("eurostag-tutorial1-lf-extensions.json", CURRENT_IIDM_VERSION));
 
         //backward compatibility
         roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf-extensions.json", IidmVersion.V_1_11);
