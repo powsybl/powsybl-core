@@ -97,8 +97,9 @@ public final class SparseMatrixUtils {
     // and using a File, instead of a String path for the matlab file.
 
     private static void saveMatlab(org.ejml.data.Matrix m, File file, String entryName) throws IOException {
-        MatFile mat = Mat5.newMatFile().addArray(entryName, Mat5Ejml.asArray(m));
-        Mat5.writeToFile(mat, file);
+        try (MatFile mat = Mat5.newMatFile().addArray(entryName, Mat5Ejml.asArray(m))) {
+            Mat5.writeToFile(mat, file);
+        }
     }
 
     private static <T extends org.ejml.data.Matrix> T loadMatlab(File file, T output, String entryName) throws IOException {
