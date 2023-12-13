@@ -160,7 +160,7 @@ public final class SteadyStateHypothesisExport {
                 String ptcId = cgmesTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, context);
                 writeTapChanger(twt, ptcId, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
             }
-            if (twt.hasRatioTapChanger()) {
+            if (twt.hasRatioTapChanger() && twt.getRatioTapChanger().getHighTapPosition() != twt.getRatioTapChanger().getLowTapPosition()) {
                 String rtcId = cgmesTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, context);
                 writeTapChanger(twt, rtcId, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
             }

@@ -811,7 +811,7 @@ public final class EquipmentExport {
             int neutralStep = getRatioTapChangerNeutralStep(rtc);
             double stepVoltageIncrement;
             if (rtc.getHighTapPosition() == rtc.getLowTapPosition()) {
-                stepVoltageIncrement = 100;
+                return;
             } else {
                 stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0 / rtc.getStep(rtc.getHighTapPosition()).getRho()) / (rtc.getLowTapPosition() - rtc.getHighTapPosition());
             }

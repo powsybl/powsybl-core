@@ -604,7 +604,7 @@ public class CgmesExportContext {
     }
 
     private static void addIidmTapChanger(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName, int endNumber) {
-        if (tc != null) {
+        if (tc != null && tc.getLowTapPosition() != tc.getHighTapPosition()) {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + endNumber;
             if (eq.getAliasFromType(aliasType).isEmpty()) {
                 String newTapChangerId = CgmesExportUtil.getUniqueId();
@@ -614,7 +614,7 @@ public class CgmesExportContext {
     }
 
     private static void addIidmTapChanger2wt(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName) {
-        if (tc != null) {
+        if (tc != null && tc.getHighTapPosition() != tc.getLowTapPosition()) {
             String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 1;
             String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 2;
             // Only create a new identifier, always at end 1,
