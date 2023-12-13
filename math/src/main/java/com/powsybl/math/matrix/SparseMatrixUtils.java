@@ -7,13 +7,13 @@
  */
 package com.powsybl.math.matrix;
 
+import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import org.ejml.data.DMatrixSparseCSC;
 import us.hebi.matlab.mat.ejml.Mat5Ejml;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.types.MatFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Objects;
 
 /**
@@ -24,6 +24,25 @@ public final class SparseMatrixUtils {
     private static final String ENTRY_NAME = "ejmlMatrix";
 
     private SparseMatrixUtils() {
+    }
+
+    public static void saveSparseMatrixToFile(SparseMatrix m, File file) throws IOException {
+        Objects.requireNonNull(m);
+        Objects.requireNonNull(file);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(file);
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+            objectOutputStream.writeObject(m);
+        }
+    }
+
+    public static SparseMatrix loadSparseMatrixFromFile(File file) throws IOException {
+        Objects.requireNonNull(file);
+        try (FileInputStream fileInputStream = new FileInputStream(file);
+             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+            return (SparseMatrix) objectInputStream.readObject();
+        } catch (ClassNotFoundException e) {
+            throw new UncheckedClassNotFoundException(e);
+        }
     }
 
     private static DMatrixSparseCSC toEjmlSparseMatrix(SparseMatrix m) {
@@ -37,7 +56,6 @@ public final class SparseMatrixUtils {
         Objects.requireNonNull(matrix);
         int numRows = matrix.getNumRows();
         int numCols = matrix.getNumCols();
-
         SparseMatrix m = new SparseMatrixFactory().create(numRows, numCols, matrix.getNonZeroLength());
         for (int col = 0; col < numCols; col++) {
             int idx0 = matrix.col_idx[col];

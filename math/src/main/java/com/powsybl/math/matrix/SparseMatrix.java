@@ -10,6 +10,7 @@ import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +22,9 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class SparseMatrix extends AbstractMatrix {
+public class SparseMatrix extends AbstractMatrix implements Serializable {
+
+    private static final long serialVersionUID = -7810324161942335828L;
 
     /**
      * Sparse Element implementation.

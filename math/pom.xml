@@ -22,6 +22,10 @@
     <name>Math</name>
     <description>A set of mathematical utilities</description>
 
+    <properties>
+        <ejml.version>0.43.1</ejml.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -60,7 +64,7 @@
         <dependency>
             <groupId>org.ejml</groupId>
             <artifactId>ejml-core</artifactId>
-            <version>0.43.1</version>
+            <version>${ejml.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scijava</groupId>
