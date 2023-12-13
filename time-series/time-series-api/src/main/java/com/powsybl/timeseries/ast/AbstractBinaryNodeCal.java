@@ -25,6 +25,8 @@ public abstract class AbstractBinaryNodeCal implements NodeCalc {
         this.right = Objects.requireNonNull(right);
     }
 
+    protected abstract <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, R leftValue, R rightValue);
+
     @Override
     public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
         if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
@@ -39,7 +41,7 @@ public abstract class AbstractBinaryNodeCal implements NodeCalc {
             if (rightNode != null) {
                 rightValue = rightNode.accept(visitor, arg, depth + 1);
             }
-            return visitor.visit(this, arg, leftValue, rightValue);
+            return accept(visitor, arg, leftValue, rightValue);
         } else {
             return NodeCalcVisitors.visit(this, arg, visitor);
         }
@@ -56,6 +58,8 @@ public abstract class AbstractBinaryNodeCal implements NodeCalc {
         nodesStack.push(rightNode);
     }
 
+    protected abstract <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, R leftResult, R rightResult);
+
     @SuppressWarnings("unchecked")
     @Override
     public <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> resultsStack) {
@@ -63,7 +67,7 @@ public abstract class AbstractBinaryNodeCal implements NodeCalc {
         rightResult = rightResult == NodeCalcVisitors.NULL ? null : rightResult;
         Object leftResult = resultsStack.pop();
         leftResult = leftResult == NodeCalcVisitors.NULL ? null : leftResult;
-        return visitor.visit(this, arg, (R) leftResult, (R) rightResult);
+        return acceptHandle(visitor, arg, (R) leftResult, (R) rightResult);
     }
 
     @Override

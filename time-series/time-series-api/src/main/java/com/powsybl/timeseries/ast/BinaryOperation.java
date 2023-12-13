@@ -92,6 +92,16 @@ public class BinaryOperation extends AbstractBinaryNodeCal {
         this.operator = Objects.requireNonNull(operator);
     }
 
+    @Override
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, R leftValue, R rightValue) {
+        return visitor.visit(this, arg, leftValue, rightValue);
+    }
+
+    @Override
+    public <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, R leftResult, R rightResult) {
+        return visitor.visit(this, arg, leftResult, rightResult);
+    }
+
     public Operator getOperator() {
         return operator;
     }
