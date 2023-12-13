@@ -33,6 +33,11 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(BinaryOperation nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return visitBinaryNodeCalc(nodeCalc, left, right);
+    }
+
+    @Override
     public NodeCalc visit(UnaryOperation nodeCalc, A arg, NodeCalc child) {
         if (child != null) {
             nodeCalc.setChild(child);
@@ -95,7 +100,16 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public NodeCalc visit(AbstractBinaryNodeCal nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+    public NodeCalc visit(BinaryMinCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return visitBinaryNodeCalc(nodeCalc, left, right);
+    }
+
+    @Override
+    public NodeCalc visit(BinaryMaxCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return visitBinaryNodeCalc(nodeCalc, left, right);
+    }
+
+    private NodeCalc visitBinaryNodeCalc(AbstractBinaryNodeCal nodeCalc, NodeCalc left, NodeCalc right) {
         if (left != null) {
             nodeCalc.setLeft(left);
         }
