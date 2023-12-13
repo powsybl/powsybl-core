@@ -38,6 +38,11 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     }
 
     @Override
+    public String visit(BinaryOperation nodeCalc, Void arg, String left, String right) {
+        return "(" + left + " " + nodeCalc.getOperator() + " " + right + ")";
+    }
+
+    @Override
     public String visit(UnaryOperation nodeCalc, Void arg, String child) {
         return "(" + child + ")." + nodeCalc.getOperator() + "()";
     }
@@ -68,14 +73,13 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     }
 
     @Override
-    public String visit(AbstractBinaryNodeCal nodeCalc, Void arg, String left, String right) {
-        if (nodeCalc instanceof BinaryOperation binaryOperation) {
-            return "(" + left + " " + binaryOperation.getOperator() + " " + right + ")";
-        } else if (nodeCalc instanceof BinaryMinCalc) {
-            return "min(" + left + ", " + right + ")";
-        } else {
-            return "max(" + left + ", " + right + ")";
-        }
+    public String visit(BinaryMinCalc nodeCalc, Void arg, String left, String right) {
+        return "min(" + left + ", " + right + ")";
+    }
+
+    @Override
+    public String visit(BinaryMaxCalc nodeCalc, Void arg, String left, String right) {
+        return "max(" + left + ", " + right + ")";
     }
 
     @Override

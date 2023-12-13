@@ -39,6 +39,24 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
+    public Double visit(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+        double leftValue = left;
+        double rightValue = right;
+        return switch (nodeCalc.getOperator()) {
+            case PLUS -> leftValue + rightValue;
+            case MINUS -> leftValue - rightValue;
+            case MULTIPLY -> leftValue * rightValue;
+            case DIVIDE -> leftValue / rightValue;
+            case LESS_THAN -> leftValue < rightValue ? 1d : 0d;
+            case LESS_THAN_OR_EQUALS_TO -> leftValue <= rightValue ? 1d : 0d;
+            case GREATER_THAN -> leftValue > rightValue ? 1d : 0d;
+            case GREATER_THAN_OR_EQUALS_TO -> leftValue >= rightValue ? 1d : 0d;
+            case EQUALS -> leftValue == rightValue ? 1d : 0d;
+            case NOT_EQUALS -> leftValue != rightValue ? 1d : 0d;
+        };
+    }
+
+    @Override
     public Double visit(UnaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double child) {
         double childValue = child;
         return switch (nodeCalc.getOperator()) {
@@ -99,27 +117,17 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
-    public Double visit(AbstractBinaryNodeCal nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+    public Double visit(BinaryMinCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
         double leftValue = left;
         double rightValue = right;
-        if (nodeCalc instanceof BinaryOperation binaryOperation) {
-            return switch (binaryOperation.getOperator()) {
-                case PLUS -> leftValue + rightValue;
-                case MINUS -> leftValue - rightValue;
-                case MULTIPLY -> leftValue * rightValue;
-                case DIVIDE -> leftValue / rightValue;
-                case LESS_THAN -> leftValue < rightValue ? 1d : 0d;
-                case LESS_THAN_OR_EQUALS_TO -> leftValue <= rightValue ? 1d : 0d;
-                case GREATER_THAN -> leftValue > rightValue ? 1d : 0d;
-                case GREATER_THAN_OR_EQUALS_TO -> leftValue >= rightValue ? 1d : 0d;
-                case EQUALS -> leftValue == rightValue ? 1d : 0d;
-                case NOT_EQUALS -> leftValue != rightValue ? 1d : 0d;
-            };
-        } else if (nodeCalc instanceof BinaryMinCalc) {
-            return Math.min(leftValue, rightValue);
-        } else {
-            return Math.max(leftValue, rightValue);
-        }
+        return Math.min(leftValue, rightValue);
+    }
+
+    @Override
+    public Double visit(BinaryMaxCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+        double leftValue = left;
+        double rightValue = right;
+        return Math.max(leftValue, rightValue);
     }
 
     @Override
