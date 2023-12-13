@@ -818,7 +818,8 @@ public final class EquipmentExport {
             String ratioTapChangerTableId = CgmesExportUtil.getUniqueId();
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
-            String controlMode = rtc.isRegulating() ? "volt" : "reactive";
+            String controlMode = "volt";
+            // TODO: Implement controlMode=reactive when trafo is controlling reactive power
             if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(rtc)) {
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
