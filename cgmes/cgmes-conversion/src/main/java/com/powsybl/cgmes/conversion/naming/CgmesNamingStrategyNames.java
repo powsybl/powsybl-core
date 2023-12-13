@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.conversion.export;
+package com.powsybl.cgmes.conversion.naming;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
@@ -85,7 +85,8 @@ public final class CgmesNamingStrategyNames {
 
     public static final String LOAD_GROUP_SUFFIX = "_LG";
 
-    public static final String PREFIX = "_";
+    // Avoid using this constant ouside this package
+    static final String PREFIX = "_";
 
     private CgmesNamingStrategyNames() {
     }

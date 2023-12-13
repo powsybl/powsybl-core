@@ -11,7 +11,6 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
@@ -43,7 +42,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.export.CgmesExportContext.DEFAULT_UUID_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -316,8 +314,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .add();
         // We have added a PTC, we add a known alias for it
         // This is not mandatory, but it simplifies comparing the data in the network and the exported SV file
-        // If we do not add it in advance, a proper CGMES ID for the new PTC will be generated during export
-        String t2ptcId = CgmesExportUtil.getUniqueId("ptc2w", DEFAULT_UUID_NAMESPACE);
+        // If we do not add it in advance, a proper CGMES ID for the new PTC would have been generated during export
+        String t2ptcId = "ptc2w";
         t2wt.addAlias(t2ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
 
         // Also, change the RTC tap position and add a PTC to a three-winding transformer
@@ -344,7 +342,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .setAlpha(20)
                 .endStep()
                 .add();
-        String t3ptcId = CgmesExportUtil.getUniqueId("ptc3w", DEFAULT_UUID_NAMESPACE);
+        String t3ptcId = "ptc3w";
         t3wt.addAlias(t3ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
 
         String expected = buildNetworkSvTapStepsString(network);

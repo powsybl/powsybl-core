@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import com.fasterxml.uuid.Generators;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
@@ -33,7 +32,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.*;
 import static com.powsybl.cgmes.model.CgmesNames.PHASE_TAP_CHANGER;
 import static com.powsybl.cgmes.model.CgmesNames.RATIO_TAP_CHANGER;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
@@ -98,23 +97,6 @@ public final class CgmesExportUtil {
                 || ENTSOE_BD_EXCEPTIONS_PATTERN2.matcher(id).matches();
     }
 
-    // FIXME(Luma) For easy testing while we work on moving to name-based UUIDs
-    private static final boolean XXX_USE_NAME_BASED_UUIDS = true;
-
-    public static String getUniqueId(String name, UUID namespace) {
-        if (XXX_USE_NAME_BASED_UUIDS) {
-            // Generate UUID based on namespace for stability
-            // If no namespace is given we still provide a UUID from the given name
-            if (namespace == null) {
-                return Generators.nameBasedGenerator().generate(name).toString();
-            } else {
-                return Generators.nameBasedGenerator(namespace).generate(name).toString();
-            }
-        } else {
-            return getUniqueRandomId();
-        }
-    }
-
     public static String getUniqueRandomId() {
         return UUID.randomUUID().toString();
     }
@@ -133,7 +115,7 @@ public final class CgmesExportUtil {
 
     public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId("FullModel", context.getUuidNamespace()); // TODO: what to put here?
+        String modelId = "urn:uuid:" + context.getNamingStrategy().getUniqueId("FullModel"); // TODO: what to put here?
         modelDescription.setIds(modelId);
         context.updateDependencies();
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
@@ -383,7 +365,7 @@ public final class CgmesExportUtil {
             if (optionalTapChangerId2.isEmpty()) {
                 // We create a new id always at end 1
                 String suffix = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
-                String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + suffix, context.getUuidNamespace()); // TODO: what to put here
+                String newTapChangerId = context.getNamingStrategy().getUniqueId(twt.getId() + suffix); // TODO: what to put here
                 twt.addAlias(newTapChangerId, aliasType1);
                 return newTapChangerId;
             } else {
@@ -397,7 +379,7 @@ public final class CgmesExportUtil {
         Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
         if (optionalTapChangerId.isEmpty()) {
             String suffix = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
-            String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + suffix, context.getUuidNamespace()); // TODO: what to put here?
+            String newTapChangerId = context.getNamingStrategy().getUniqueId(twt.getId() + suffix); // TODO: what to put here?
             twt.addAlias(newTapChangerId, aliasType);
             return newTapChangerId;
         } else {
@@ -434,11 +416,11 @@ public final class CgmesExportUtil {
         if (cgmesTapChanger == null) {
             cgmesTapChanger = cgmesTapChangers.newTapChanger()
                     .setId(tapChangerId)
-                    .setControlId(CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + suffix, context.getUuidNamespace())) // TODO: what to put here?
+                    .setControlId(context.getNamingStrategy().getUniqueId(twt.getId() + suffix)) // TODO: what to put here?
                     .add();
         }
         if (cgmesTapChanger.getControlId() == null) {
-            cgmesTapChanger.setControlId(CgmesExportUtil.getUniqueId(PREFIX + twt.getId() + suffix, context.getUuidNamespace())); // TODO: what to put here?
+            cgmesTapChanger.setControlId(context.getNamingStrategy().getUniqueId(twt.getId() + suffix)); // TODO: what to put here?
         }
     }
 

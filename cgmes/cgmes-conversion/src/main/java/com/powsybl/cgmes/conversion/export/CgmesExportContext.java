@@ -10,8 +10,8 @@ import com.fasterxml.uuid.Generators;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.NamingStrategy;
-import com.powsybl.cgmes.conversion.NamingStrategyFactory;
+import com.powsybl.cgmes.conversion.naming.NamingStrategy;
+import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -25,7 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -87,7 +87,6 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
-    private final UUID uuidNamespace;
 
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
@@ -236,30 +235,27 @@ public class CgmesExportContext {
 
     public CgmesExportContext() {
         referenceDataProvider = null;
-        uuidNamespace = DEFAULT_UUID_NAMESPACE;
     }
 
     public CgmesExportContext(Network network) {
-        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, DEFAULT_UUID_NAMESPACE), DEFAULT_UUID_NAMESPACE);
+        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, DEFAULT_UUID_NAMESPACE));
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider) {
-        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, DEFAULT_UUID_NAMESPACE), DEFAULT_UUID_NAMESPACE);
+        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, DEFAULT_UUID_NAMESPACE));
     }
 
     public CgmesExportContext(Network network, UUID uuidNamespace) {
-        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, uuidNamespace), uuidNamespace);
+        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, uuidNamespace));
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, UUID uuidNamespace) {
-        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, uuidNamespace), uuidNamespace);
+        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY, uuidNamespace));
     }
 
-    public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy,
-                              UUID uuidNamespace) {
+    public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy) {
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
-        this.uuidNamespace = uuidNamespace;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
             setCimVersion(cimCharacteristics.getCimVersion());
@@ -342,7 +338,7 @@ public class CgmesExportContext {
                 geoTag = regionName;
             }
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID)) {
-                String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> CgmesExportUtil.getUniqueId(PREFIX + k + SUB_GEOGRAPHICAL_REGION_SUFFIX, this.uuidNamespace)); // TODO DOES IT WORK
+                String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getUniqueId(k + SUB_GEOGRAPHICAL_REGION_SUFFIX)); // TODO DOES IT WORK
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID, id);
             } else {
                 subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID));
@@ -361,7 +357,7 @@ public class CgmesExportContext {
             // If no information is available from reference data,
             // Just create a new geographical region using country name as name
             String regionName = substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
-            String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> CgmesExportUtil.getUniqueId(PREFIX + k + GEOGRAPHICAL_REGION_SUFFIX, this.uuidNamespace)); //TODO: is it correct
+            String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> namingStrategy.getUniqueId(k + GEOGRAPHICAL_REGION_SUFFIX)); //TODO: is it correct
             region = Pair.of(regionId, regionName);
         }
         return region;
@@ -384,7 +380,7 @@ public class CgmesExportContext {
                     }
                 }
                 if (baseVoltageId == null) {
-                    baseVoltageId = CgmesExportUtil.getUniqueId(PREFIX + nominalV + BASE_VOLTAGE_SUFFIX, uuidNamespace); //TODO: what to put here?
+                    baseVoltageId = namingStrategy.getUniqueId(nominalV + BASE_VOLTAGE_SUFFIX); //TODO: what to put here?
                     source = Source.IGM;
                 }
                 mapping.addBaseVoltage(nominalV, baseVoltageId, source);
@@ -444,12 +440,12 @@ public class CgmesExportContext {
         for (Switch sw : network.getSwitches()) {
             String terminal1Id = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1").orElse(null);
             if (terminal1Id == null) {
-                terminal1Id = CgmesExportUtil.getUniqueId(PREFIX + sw.getId() + TERMINAL_SUFFIX + "1", uuidNamespace); //TODO: what to put here?
+                terminal1Id = namingStrategy.getUniqueId(sw.getId() + TERMINAL_SUFFIX + "1"); //TODO: what to put here?
                 sw.addAlias(terminal1Id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1");
             }
             String terminal2Id = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "2").orElse(null);
             if (terminal2Id == null) {
-                terminal2Id = CgmesExportUtil.getUniqueId(PREFIX + sw.getId() + TERMINAL_SUFFIX + "2", uuidNamespace); //TODO: what to put here?
+                terminal2Id = namingStrategy.getUniqueId(sw.getId() + TERMINAL_SUFFIX + "2"); //TODO: what to put here?
                 sw.addAlias(terminal2Id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "2");
             }
         }
@@ -459,32 +455,32 @@ public class CgmesExportContext {
         for (HvdcLine line : network.getHvdcLines()) {
             String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "1").orElse(null);
             if (dcNode1 == null) {
-                dcNode1 = CgmesExportUtil.getUniqueId(PREFIX + line.getId() + DCNODE_SUFFIX + "1", uuidNamespace); //TODO: what to put here
+                dcNode1 = namingStrategy.getUniqueId(line.getId() + DCNODE_SUFFIX + "1"); //TODO: what to put here
                 line.addAlias(dcNode1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "1");
             }
             String dcNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "2").orElse(null);
             if (dcNode2 == null) {
-                dcNode2 = CgmesExportUtil.getUniqueId(PREFIX + line.getId() + DCNODE_SUFFIX + "2", uuidNamespace); //TODO: what to put here?
+                dcNode2 = namingStrategy.getUniqueId(line.getId() + DCNODE_SUFFIX + "2"); //TODO: what to put here?
                 line.addAlias(dcNode2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "2");
             }
             String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "1").orElse(null);
             if (dcTerminal1 == null) {
-                dcTerminal1 = CgmesExportUtil.getUniqueId(PREFIX + line.getId() + TERMINAL_SUFFIX + "1", uuidNamespace); //TODO : what to put here?
+                dcTerminal1 = namingStrategy.getUniqueId(line.getId() + TERMINAL_SUFFIX + "1"); //TODO : what to put here?
                 line.addAlias(dcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "1");
             }
             String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "2").orElse(null);
             if (dcTerminal2 == null) {
-                dcTerminal2 = CgmesExportUtil.getUniqueId(PREFIX + line.getId() + TERMINAL_SUFFIX + "2", uuidNamespace); //TODO: what to put here?
+                dcTerminal2 = namingStrategy.getUniqueId(line.getId() + TERMINAL_SUFFIX + "2"); //TODO: what to put here?
                 line.addAlias(dcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "2");
             }
             String acdcConverterDcTerminal1 = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElse(null);
             if (acdcConverterDcTerminal1 == null) {
-                acdcConverterDcTerminal1 = CgmesExportUtil.getUniqueId(PREFIX + line.getId() + ACDC_CONVERTER_DC_TERMINAL_SUFFIX + "1", uuidNamespace); //TODO: what to put here?
+                acdcConverterDcTerminal1 = namingStrategy.getUniqueId(line.getId() + ACDC_CONVERTER_DC_TERMINAL_SUFFIX + "1"); //TODO: what to put here?
                 line.getConverterStation1().addAlias(acdcConverterDcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL);
             }
             String acdcConverterDcTerminal2 = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElse(null);
             if (acdcConverterDcTerminal2 == null) {
-                acdcConverterDcTerminal2 = CgmesExportUtil.getUniqueId(PREFIX + line.getId() + ACDC_CONVERTER_DC_TERMINAL_SUFFIX + "2", uuidNamespace); //TODO: what to put here?
+                acdcConverterDcTerminal2 = namingStrategy.getUniqueId(line.getId() + ACDC_CONVERTER_DC_TERMINAL_SUFFIX + "2"); //TODO: what to put here?
                 line.getConverterStation2().addAlias(acdcConverterDcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL);
             }
         }
@@ -500,20 +496,20 @@ public class CgmesExportContext {
                 if (terminalId != null) {
                     c.removeAlias(terminalId);
                 } else {
-                    terminalId = CgmesExportUtil.getUniqueId(PREFIX + c.getId() + TERMINAL_SUFFIX, uuidNamespace); //TODO: what to put here?
+                    terminalId = namingStrategy.getUniqueId(c.getId() + TERMINAL_SUFFIX); //TODO: what to put here?
                 }
                 c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
             }
             String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
             if (boundaryId == null) {
-                boundaryId = CgmesExportUtil.getUniqueId(PREFIX + c.getId() + BOUNDARY_TERMINAL_SUFFIX, uuidNamespace); //TODO: what to put here?
+                boundaryId = namingStrategy.getUniqueId(c.getId() + BOUNDARY_TERMINAL_SUFFIX); //TODO: what to put here?
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
         } else {
             int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network));
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
-                c.addAlias(CgmesExportUtil.getUniqueId(PREFIX + c.getId() + CgmesNames.TERMINAL + sequenceNumber, uuidNamespace), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber); //TODO: what to put here?
+                c.addAlias(namingStrategy.getUniqueId(c.getId() + CgmesNames.TERMINAL + sequenceNumber), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber); //TODO: what to put here?
             }
         }
     }
@@ -522,12 +518,12 @@ public class CgmesExportContext {
         for (Generator generator : network.getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
             if (generatingUnit == null) {
-                generatingUnit = CgmesExportUtil.getUniqueId(PREFIX + generator.getId() + GENERATING_UNIT_SUFFIX, uuidNamespace); //TODO: what to put here?
+                generatingUnit = namingStrategy.getUniqueId(generator.getId() + GENERATING_UNIT_SUFFIX); //TODO: what to put here?
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
             if (regulatingControlId == null && (generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable()))) {
-                regulatingControlId = CgmesExportUtil.getUniqueId(PREFIX + generator.getId() + REGULATING_CONTROL_SUFFIX, uuidNamespace); //TODO: what to put here?
+                regulatingControlId = namingStrategy.getUniqueId(generator.getId() + REGULATING_CONTROL_SUFFIX); //TODO: what to put here?
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
         }
@@ -537,7 +533,7 @@ public class CgmesExportContext {
         for (Battery battery : network.getBatteries()) {
             String generatingUnit = battery.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
             if (generatingUnit == null) {
-                generatingUnit = CgmesExportUtil.getUniqueId(PREFIX + battery.getId() + GENERATING_UNIT_SUFFIX, uuidNamespace); //TODO: what to put here?
+                generatingUnit = namingStrategy.getUniqueId(battery.getId() + GENERATING_UNIT_SUFFIX); //TODO: what to put here?
                 battery.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
             }
             // TODO regulation
@@ -551,7 +547,7 @@ public class CgmesExportContext {
             }
             String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
             if (regulatingControlId == null && (shuntCompensator.isVoltageRegulatorOn() || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
-                regulatingControlId = CgmesExportUtil.getUniqueId(PREFIX + shuntCompensator.getId() + REGULATING_CONTROL_SUFFIX, uuidNamespace); //TODO: what to put here?
+                regulatingControlId = namingStrategy.getUniqueId(shuntCompensator.getId() + REGULATING_CONTROL_SUFFIX); //TODO: what to put here?
                 shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
         }
@@ -561,7 +557,7 @@ public class CgmesExportContext {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
             if (regulatingControlId == null && (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()) || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
-                regulatingControlId = CgmesExportUtil.getUniqueId(PREFIX + svc + REGULATING_CONTROL_SUFFIX, uuidNamespace); //TODO: what to put here?
+                regulatingControlId = namingStrategy.getUniqueId(svc.getId() + REGULATING_CONTROL_SUFFIX); //TODO: what to put here?
                 svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
         }
@@ -593,7 +589,7 @@ public class CgmesExportContext {
     private void addIidmTransformerEnd(Identifiable<?> eq, int end) {
         String endId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end).orElse(null);
         if (endId == null) {
-            endId = CgmesExportUtil.getUniqueId(PREFIX + eq.getId() + TRANSFORMER_END_SUFFIX + end, uuidNamespace);
+            endId = namingStrategy.getUniqueId(eq.getId() + TRANSFORMER_END_SUFFIX + end);
             eq.addAlias(endId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end);
         }
     }
@@ -603,7 +599,7 @@ public class CgmesExportContext {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + endNumber;
             if (eq.getAliasFromType(aliasType).isEmpty()) {
                 String suffix = Objects.equals(typeChangerTypeName, CgmesNames.PHASE_TAP_CHANGER) ? PHASE_TAP_CHANGER_SUFFIX + endNumber : RATIO_TAP_CHANGER_SUFFIX + endNumber;
-                String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + eq.getId() + suffix, uuidNamespace); //TODO: what to put here?
+                String newTapChangerId = namingStrategy.getUniqueId(eq.getId() + suffix); //TODO: what to put here?
                 eq.addAlias(newTapChangerId, aliasType);
             }
         }
@@ -618,7 +614,7 @@ public class CgmesExportContext {
             // Neither at end 1 nor at end 2
             if (eq.getAliasFromType(aliasType1).isEmpty() && eq.getAliasFromType(aliasType2).isEmpty()) {
                 String suffix = Objects.equals(typeChangerTypeName, CgmesNames.PHASE_TAP_CHANGER) ? PHASE_TAP_CHANGER_SUFFIX + 1 : RATIO_TAP_CHANGER_SUFFIX + 1;
-                String newTapChangerId = CgmesExportUtil.getUniqueId(PREFIX + eq.getId() + suffix, uuidNamespace); //TODO: what to put here?
+                String newTapChangerId = namingStrategy.getUniqueId(eq.getId() + suffix); //TODO: what to put here?
                 eq.addAlias(newTapChangerId, aliasType1);
             }
         }
@@ -629,12 +625,12 @@ public class CgmesExportContext {
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             if (alias == null) {
-                String equivalentInjectionId = CgmesExportUtil.getUniqueId(PREFIX + danglingLine.getId() + EQUIVALENT_INJECTION_SUFFIX, uuidNamespace); //TODO: what to put here?
+                String equivalentInjectionId = namingStrategy.getUniqueId(danglingLine.getId() + EQUIVALENT_INJECTION_SUFFIX); //TODO: what to put here?
                 danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, equivalentInjectionId);
             }
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
             if (alias == null) {
-                String equivalentInjectionTerminalId = CgmesExportUtil.getUniqueId(PREFIX + danglingLine.getId() + EQUIVALENT_INJECTION_SUFFIX + TERMINAL_SUFFIX, uuidNamespace);
+                String equivalentInjectionTerminalId = namingStrategy.getUniqueId(danglingLine.getId() + EQUIVALENT_INJECTION_SUFFIX + TERMINAL_SUFFIX);
                 danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", equivalentInjectionTerminalId);
             }
         }
@@ -645,7 +641,7 @@ public class CgmesExportContext {
         if (cgmesControlAreas == null) {
             network.newExtension(CgmesControlAreasAdder.class).add();
             cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-            String cgmesControlAreaId = CgmesExportUtil.getUniqueId(PREFIX + CONTROL_AREA_SUFFIX, uuidNamespace); //TODO: what to put here? Check unicity?
+            String cgmesControlAreaId = namingStrategy.getUniqueId(CONTROL_AREA_SUFFIX); //TODO: what to put here? Check unicity?
             cgmesControlAreas.newCgmesControlArea()
                     .setId(cgmesControlAreaId)
                     .setName("Network")
@@ -768,10 +764,6 @@ public class CgmesExportContext {
     public CgmesExportContext setExportSvInjectionsForSlacks(boolean exportSvInjectionsForSlacks) {
         this.isExportSvInjectionsForSlacks = exportSvInjectionsForSlacks;
         return this;
-    }
-
-    public UUID getUuidNamespace() {
-        return uuidNamespace;
     }
 
     public String encode(String id) {

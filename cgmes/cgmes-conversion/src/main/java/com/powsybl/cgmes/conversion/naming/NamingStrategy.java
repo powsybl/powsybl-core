@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.cgmes.conversion;
+package com.powsybl.cgmes.conversion.naming;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
@@ -46,6 +46,12 @@ public interface NamingStrategy {
 
     void debugIdMapping(String baseName, DataSource ds);
 
+    // FIXME(Luma) This will end up being a way to obtain a unique id for a given identifiable and a list of (enumerated) subojects
+    //  Different naming strategies may choose to:
+    //  - return random uuids (not stable, previously were persisted in an external file) or
+    //  - stable name-based uids combining identifiable id with prefixes and/or suffixes based on the list of enumerated subobjects
+    String getUniqueId(String name);
+
     final class Identity implements NamingStrategy {
 
         @Override
@@ -81,6 +87,11 @@ public interface NamingStrategy {
         @Override
         public void debugIdMapping(String baseName, DataSource ds) {
             // do nothing
+        }
+
+        @Override
+        public String getUniqueId(String name) {
+            return name;
         }
     }
 }

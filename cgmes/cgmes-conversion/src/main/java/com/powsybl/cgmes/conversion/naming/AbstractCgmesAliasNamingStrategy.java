@@ -4,10 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.cgmes.conversion;
+package com.powsybl.cgmes.conversion.naming;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
@@ -17,6 +19,8 @@ import com.univocity.parsers.csv.*;
 
 import java.io.*;
 import java.util.*;
+
+import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.PREFIX;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -103,7 +107,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         if (CgmesExportUtil.isValidCimMasterRID(identifier)) {
             uuid = identifier;
         } else {
-            uuid = CgmesExportUtil.getUniqueId(identifier, uuidNamespace);
+            uuid = getUniqueId(identifier);
             // Only store the IDs that have been created during the export
             idByUuid.put(uuid, identifier);
         }
@@ -136,7 +140,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
             uuid = id;
         } else {
-            uuid = CgmesExportUtil.getUniqueId(id, uuidNamespace);
+            uuid = getUniqueId(id);
             // Only store the IDs that have been created during the export
             idByUuid.put(uuid, id);
         }
@@ -164,6 +168,27 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    // FIXME(Luma) For easy testing while we work on moving to name-based UUIDs
+    private static final boolean XXX_USE_NAME_BASED_UUIDS = true;
+
+    @Override
+    public String getUniqueId(String name) {
+        if (XXX_USE_NAME_BASED_UUIDS) {
+            // FIXME(Luma) adding or not a prefix should be specified by a specific strategy
+            String name1 = PREFIX + name;
+
+            // Generate UUID based on namespace for stability
+            // If no namespace is given we still provide a UUID from the given name
+            if (uuidNamespace == null) {
+                return Generators.nameBasedGenerator().generate(name1).toString();
+            } else {
+                return Generators.nameBasedGenerator(uuidNamespace).generate(name1).toString();
+            }
+        } else {
+            return CgmesExportUtil.getUniqueRandomId();
         }
     }
 }

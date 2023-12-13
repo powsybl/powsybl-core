@@ -19,8 +19,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
-import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.PREFIX;
-import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.TOPOLOGICAL_NODE_SUFFIX;
+import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.TOPOLOGICAL_NODE_SUFFIX;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -257,7 +256,7 @@ public final class TopologyExport {
                             dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }
-                String fictTopologicalNodeId = CgmesExportUtil.getUniqueId(PREFIX + dl.getId() + TOPOLOGICAL_NODE_SUFFIX, context.getUuidNamespace()); //TODO: what to put here?
+                String fictTopologicalNodeId = context.getNamingStrategy().getUniqueId(dl.getId() + TOPOLOGICAL_NODE_SUFFIX); //TODO: what to put here?
                 dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
                 writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
             }

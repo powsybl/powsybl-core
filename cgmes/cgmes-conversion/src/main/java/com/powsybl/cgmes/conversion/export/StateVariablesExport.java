@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.export.CgmesNamingStrategyNames.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -78,7 +78,7 @@ public final class StateVariablesExport {
                 LOG.info(log.get());
                 continue;
             }
-            String islandId = CgmesExportUtil.getUniqueId(PREFIX + island.key + TOPOLOGICAL_ISLAND_SUFFIX, context.getUuidNamespace());
+            String islandId = context.getNamingStrategy().getUniqueId(island.key + TOPOLOGICAL_ISLAND_SUFFIX);
             CgmesExportUtil.writeStartIdName(CgmesNames.TOPOLOGICAL_ISLAND, islandId, islandId, cimNamespace, writer, context);
             CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.key), cimNamespace, writer, context);
             if (context.isExportLoadFlowStatus()) {
