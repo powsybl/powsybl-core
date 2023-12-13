@@ -525,11 +525,39 @@ public class CgmesExportContext {
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && (generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && canGeneratorControl(generator)) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(generator), Part.REGULATING_CONTROL);
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
         }
+    }
+
+    private static boolean canGeneratorControl(Generator generator) {
+        if (generator.getReactiveLimits() == null) {
+            return false;
+        }
+
+        ReactiveLimits reactiveLimits = generator.getReactiveLimits();
+        if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
+            return hasReactiveCapability((ReactiveCapabilityCurve) reactiveLimits);
+        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+            return hasReactiveCapability((MinMaxReactiveLimits) reactiveLimits);
+        }
+
+        return false;
+    }
+
+    private static boolean hasReactiveCapability(ReactiveCapabilityCurve rcc) {
+        for (ReactiveCapabilityCurve.Point point : rcc.getPoints()) {
+            if (point.getMaxQ() != point.getMinQ()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasReactiveCapability(MinMaxReactiveLimits mmrl) {
+        return mmrl.getMaxQ() != mmrl.getMinQ();
     }
 
     private void addIidmMappingsBatteries(Network network) {
