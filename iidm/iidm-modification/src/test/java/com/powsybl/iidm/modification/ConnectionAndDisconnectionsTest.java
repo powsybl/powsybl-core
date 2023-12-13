@@ -20,7 +20,7 @@ import java.util.Properties;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class DisconnectionsTest extends AbstractModificationTest {
+class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
     public Network createNetwork() {
         // Initialisation
@@ -202,8 +202,8 @@ class DisconnectionsTest extends AbstractModificationTest {
             .setId("B_L2")
             .setNode1(5)
             .setNode2(8)
-            .setOpen(true)
             .setFictitious(true)
+            .setOpen(true)
             .add();
         vl1.getNodeBreakerView().newBreaker()
             .setId("B_TWT")
@@ -313,7 +313,7 @@ class DisconnectionsTest extends AbstractModificationTest {
         // Network modification
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
-            .withFictitiousSwitchesOpenable(true)
+            .withFictitiousSwitchesOperable(true)
             .build();
         modification.apply(network);
         writeXmlTest(network, "/network-disconnection-with-fictitious.xiidm");
@@ -330,7 +330,7 @@ class DisconnectionsTest extends AbstractModificationTest {
         // Network modification
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
-            .withFictitiousSwitchesOpenable(false)
+            .withFictitiousSwitchesOperable(false)
             .build();
         modification.apply(network);
         network.write("XIIDM", new Properties(), Paths.get("network-planned-disconnection-not-disconnected.xiidm"));
@@ -345,7 +345,7 @@ class DisconnectionsTest extends AbstractModificationTest {
         // Network modification
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
-            .withFictitiousSwitchesOpenable(true)
+            .withFictitiousSwitchesOperable(true)
             .build();
         modification.apply(network);
         writeXmlTest(network, "/network-disconnection-with-fictitious.xiidm");
@@ -359,7 +359,38 @@ class DisconnectionsTest extends AbstractModificationTest {
         // Network modification
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
-            .withFictitiousSwitchesOpenable(false)
+            .withFictitiousSwitchesOperable(false)
+            .build();
+        modification.apply(network);
+        writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
+    }
+
+    @Test
+    void testConnection() throws IOException {
+        // Network creation
+        Network network = createNetwork();
+
+        // Network modification
+        ConnectableConnection modification = new ConnectableConnectionBuilder()
+            .withConnectableId("L2")
+            .withFictitiousSwitchesOperable(true)
+            .withOnlyBreakersOperable(false)
+            .build();
+        modification.apply(network);
+//        network.write("XIIDM", new Properties(), Paths.get("network-connectable-connection.xiidm"));
+        writeXmlTest(network, "/network-connectable-connection.xiidm");
+    }
+
+    @Test
+    void testConnectionNoConnection() throws IOException {
+        // Network creation
+        Network network = createNetwork();
+
+        // Network modification
+        ConnectableConnection modification = new ConnectableConnectionBuilder()
+            .withConnectableId("L2")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
             .build();
         modification.apply(network);
         writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");

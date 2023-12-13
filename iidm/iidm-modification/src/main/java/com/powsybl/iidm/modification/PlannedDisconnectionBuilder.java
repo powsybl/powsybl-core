@@ -19,7 +19,7 @@ public class PlannedDisconnectionBuilder {
         return this;
     }
 
-    public PlannedDisconnectionBuilder withFictitiousSwitchesOpenable(boolean openFictitiousSwitches) {
+    public PlannedDisconnectionBuilder withFictitiousSwitchesOperable(boolean openFictitiousSwitches) {
         this.openFictitiousSwitches = openFictitiousSwitches;
         return this;
     }
