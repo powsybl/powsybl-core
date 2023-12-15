@@ -304,20 +304,21 @@ public class CgmesExportContext {
     private void addIidmMappingsSubstations(Network network) {
         for (Substation substation : network.getSubstations()) {
             String regionName;
+            String regionId;
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID)) {
                 Pair<String, String> region = getCreateRegion(substation);
-                String regionId = region.getLeft();
+                regionId = region.getLeft();
                 regionName = region.getRight();
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID, regionId);
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME, regionName);
             } else {
                 // Only add with this name if the id is not already mapped
                 // We can not have the same id mapped to two different names
-                String regionId = namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID);
+                regionId = namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID);
                 regionName = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME);
-                if (!regionsIdsByRegionName.containsValue(regionId)) {
-                    regionsIdsByRegionName.computeIfAbsent(regionName, k -> regionId);
-                }
+            }
+            if (!regionsIdsByRegionName.containsValue(regionId)) {
+                regionsIdsByRegionName.computeIfAbsent(regionName, k -> regionId);
             }
             String geoTag;
             if (substation.getGeographicalTags().size() == 1) {
