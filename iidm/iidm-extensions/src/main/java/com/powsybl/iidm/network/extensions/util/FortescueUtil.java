@@ -69,17 +69,17 @@ public final class FortescueUtil {
         Complex unit = new Complex(t, 0);
 
         ComplexMatrix complexMatrix = new ComplexMatrix(3, 3);
-        complexMatrix.set(1, 1, unit);
-        complexMatrix.set(1, 2, unit);
-        complexMatrix.set(1, 3, unit);
+        complexMatrix.set(0, 0, unit);
+        complexMatrix.set(0, 1, unit);
+        complexMatrix.set(0, 2, unit);
 
-        complexMatrix.set(2, 1, unit);
+        complexMatrix.set(1, 0, unit);
+        complexMatrix.set(1, 1, c2);
+        complexMatrix.set(1, 2, c1);
+
+        complexMatrix.set(2, 0, unit);
+        complexMatrix.set(2, 1, c1);
         complexMatrix.set(2, 2, c2);
-        complexMatrix.set(2, 3, c1);
-
-        complexMatrix.set(3, 1, unit);
-        complexMatrix.set(3, 2, c1);
-        complexMatrix.set(3, 3, c2);
 
         return complexMatrix;
     }

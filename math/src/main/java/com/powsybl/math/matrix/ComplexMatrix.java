@@ -22,10 +22,9 @@ public class ComplexMatrix {
         imagPartMatrix = new DenseMatrix(rowCount, columnCount);
     }
 
-    // we suppose that the input indices start at 1
     public void set(int i, int j, Complex complex) {
-        realPartMatrix.set(i - 1, j - 1, complex.getReal());
-        imagPartMatrix.set(i - 1, j - 1, complex.getImaginary());
+        realPartMatrix.set(i, j, complex.getReal());
+        imagPartMatrix.set(i, j, complex.getImaginary());
     }
 
     public int getRowCount() {
@@ -37,7 +36,7 @@ public class ComplexMatrix {
     }
 
     public Complex getTerm(int i, int j) {
-        return new Complex(realPartMatrix.get(i - 1, j - 1), imagPartMatrix.get(i - 1, j - 1));
+        return new Complex(realPartMatrix.get(i, j), imagPartMatrix.get(i, j));
     }
 
     public static ComplexMatrix createIdentity(int nbRow) {
@@ -98,11 +97,11 @@ public class ComplexMatrix {
         }
 
         ComplexMatrix complexMatrix = new ComplexMatrix(rowCount / 2, columnCount / 2);
-        for (int i = 1; i <= rowCount / 2; i++) {
-            for (int j = 1; j <= columnCount / 2; j++) {
+        for (int i = 0; i < rowCount / 2; i++) {
+            for (int j = 0; j < columnCount / 2; j++) {
 
-                int rowIndexInCartesian = 2 * (i - 1);
-                int colIndexInCartesian = 2 * (j - 1);
+                int rowIndexInCartesian = 2 * i;
+                int colIndexInCartesian = 2 * j;
 
                 // Before building the complex matrix term, check that the 4x4 cartesian bloc can be transformed into a Complex term
                 double t11 = realMatrix.get(rowIndexInCartesian, colIndexInCartesian);
@@ -125,5 +124,4 @@ public class ComplexMatrix {
 
         return complexMatrix;
     }
-
 }
