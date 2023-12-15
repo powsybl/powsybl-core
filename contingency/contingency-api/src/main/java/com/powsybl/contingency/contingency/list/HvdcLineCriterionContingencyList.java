@@ -19,6 +19,8 @@ import java.util.List;
  */
 public class HvdcLineCriterionContingencyList extends AbstractLineCriterionContingencyList {
 
+    public static final String TYPE = "hvdcCriterion";
+
     public HvdcLineCriterionContingencyList(String name, TwoCountriesCriterion twoCountriesCriterion,
                                             TwoNominalVoltageCriterion twoNominalVoltageCriterion,
                                             List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
@@ -27,6 +29,6 @@ public class HvdcLineCriterionContingencyList extends AbstractLineCriterionConti
 
     @Override
     public String getType() {
-        return "hvdcCriterion";
+        return TYPE;
     }
 }

@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -34,9 +33,6 @@ class ThreeWindingsTransformerToBeEstimatedXmlTest extends AbstractIidmSerDeTest
                 .withRatioTapChanger3Status(true)
                 .add();
 
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "threeWindingsTransformerToBeEstimated.xiidm");
+        allFormatsRoundTripTest(network, "threeWindingsTransformerToBeEstimated.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
     }
 }

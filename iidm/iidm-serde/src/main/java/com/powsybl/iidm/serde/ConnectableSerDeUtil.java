@@ -236,8 +236,7 @@ public final class ConnectableSerDeUtil {
 
     private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version,
                                            boolean valid, ExportOptions exportOptions, String type) {
-        if (!Double.isNaN(limits.getPermanentLimit())
-                || !limits.getTemporaryLimits().isEmpty()) {
+        if (limits != null && (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty())) {
             writer.writeStartNode(nsUri, type + indexToString(index));
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
             writer.writeStartNodes();
