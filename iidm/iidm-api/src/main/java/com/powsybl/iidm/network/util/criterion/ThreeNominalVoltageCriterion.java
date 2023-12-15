@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,11 +66,26 @@ public class ThreeNominalVoltageCriterion implements Criterion {
     }
 
     private boolean filterThreeWindingsTransformer(Terminal terminal1, Terminal terminal2, Terminal terminal3) {
+        VoltageLevel voltageLevel1 = terminal1.getVoltageLevel();
+        VoltageLevel voltageLevel2 = terminal2.getVoltageLevel();
+        VoltageLevel voltageLevel3 = terminal3.getVoltageLevel();
+        return filterWithVoltageLevels(voltageLevel1, voltageLevel2, voltageLevel3);
+    }
+
+    @Override
+    public boolean filter(NetworkElementInterface networkElement) {
+        VoltageLevel voltageLevel1 = networkElement.getVoltageLevel1();
+        VoltageLevel voltageLevel2 = networkElement.getVoltageLevel2();
+        VoltageLevel voltageLevel3 = networkElement.getVoltageLevel3();
+        return filterWithVoltageLevels(voltageLevel1, voltageLevel2, voltageLevel3);
+    }
+
+    private boolean filterWithVoltageLevels(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, VoltageLevel voltageLevel3) {
         AtomicBoolean filter = new AtomicBoolean(true);
         voltageIntervals.forEach(voltageInterval -> {
-            if (!voltageInterval.checkIsBetweenBound(terminal1.getVoltageLevel().getNominalV()) &&
-                    !voltageInterval.checkIsBetweenBound(terminal2.getVoltageLevel().getNominalV()) &&
-                    !voltageInterval.checkIsBetweenBound(terminal3.getVoltageLevel().getNominalV())) {
+            if (!voltageInterval.checkIsBetweenBound(voltageLevel1.getNominalV()) &&
+                    !voltageInterval.checkIsBetweenBound(voltageLevel2.getNominalV()) &&
+                    !voltageInterval.checkIsBetweenBound(voltageLevel3.getNominalV())) {
                 filter.set(false);
             }
         });

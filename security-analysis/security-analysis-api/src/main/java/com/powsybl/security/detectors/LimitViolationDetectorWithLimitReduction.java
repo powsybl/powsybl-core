@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.security.detectors.criterion.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion;
 import com.powsybl.security.detectors.criterion.network.AbstractNetworkElementCriterion;
+import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
 import com.powsybl.security.detectors.criterion.network.NetworkElementVisitor;
 
 import java.util.*;
@@ -25,56 +26,24 @@ import java.util.*;
 
 public class LimitViolationDetectorWithLimitReduction {
 
-    Network network;
     LimitReductionDefinitionList limitReductionDefinitionList;
 
-    public LimitViolationDetectorWithLimitReduction(Network network, LimitReductionDefinitionList limitReductionDefinitionList) {
-        this.network = network;
+    public LimitViolationDetectorWithLimitReduction(LimitReductionDefinitionList limitReductionDefinitionList) {
         this.limitReductionDefinitionList = limitReductionDefinitionList;
     }
 
-    public HashMap<LimitType, HashMap<LoadingLimitType, Double>> getLimitsWithAppliedReduction(String contingencyId, Identifiable identifiable, ThreeSides side, LimitType limitType) {
+    public HashMap<LimitType, HashMap<LoadingLimitType, Double>> getLimitsWithAppliedReduction(String contingencyId, NetworkElementInterface networkElement, ThreeSides side, LimitType limitType) {
 
         for (LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition : limitReductionDefinitionList.getLimitReductionDefinitions()) {
             if (limitReductionDefinition.getLimitType() == limitType &&
                     isContingencyContextApplicable(limitReductionDefinition.getContingencyContexts(), contingencyId) &&
-                    isEquipmentAffectedByLimitReduction(identifiable.getId(), limitReductionDefinition.getNetworkElementCriteria())) {
-                if (identifiable instanceof Line line) {
-                    switch (limitType) {
-                        case CURRENT:
-                            Optional<CurrentLimits> currentLimits = line.getCurrentLimits(side.toTwoSides());
-                            if (currentLimits.isPresent()) {
-                                manageLimits(currentLimits.get(), limitReductionDefinition);
-                            }
-                            //TODO add limits to return HashMap
-                            break;
-                        case ACTIVE_POWER:
-                            Optional<ActivePowerLimits> activePowerLimits = line.getActivePowerLimits(side.toTwoSides());
-                            if (activePowerLimits.isPresent()) {
-                                manageLimits(activePowerLimits.get(), limitReductionDefinition);
-                            }
-                            //TODO add limits to return HashMap
-                            break;
-                        case APPARENT_POWER:
-                            Optional<ApparentPowerLimits> apparentPowerLimits = line.getApparentPowerLimits(side.toTwoSides());
-                            apparentPowerLimits.ifPresent(powerLimits -> manageLimits(powerLimits, limitReductionDefinition));
-                            //TODO add limits to return HashMap
-                            break;
-                    }
-                } else if (identifiable instanceof HvdcLine hvdcLine) {
-                    //TODO are there limits on HvdcLine ?
-                } else if (identifiable instanceof TieLine tieLine) {
-                    //TODO + are there ApparentPowerLimits and ActivePowerLimits ?
-                    //NB : CurrentLimits available through the dangling lines
-                } else if (identifiable instanceof TwoWindingsTransformer) {
-                    //TODO
-                } else if (identifiable instanceof ThreeWindingsTransformer) {
-                    //TODO
-                }
+                    isEquipmentAffectedByLimitReduction(networkElement, limitReductionDefinition.getNetworkElementCriteria())) {
+                Optional<? extends LoadingLimits> optionalLoadingLimits = networkElement.getLoadingLimits(limitType, side);
+                optionalLoadingLimits.ifPresent(loadingLimits -> manageLimits(loadingLimits, limitReductionDefinition));
+                //TODO add limits to return HashMap
             }
         }
-
-        return null;
+        return new HashMap<>();
     }
 
     private void manageLimits(LoadingLimits loadingLimits, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
@@ -111,12 +80,11 @@ public class LimitViolationDetectorWithLimitReduction {
         return false;
     }
 
-    private boolean isEquipmentAffectedByLimitReduction(String networkElementId, List<AbstractNetworkElementCriterion> networkElementCriteria) {
-        Identifiable identifiable = network.getIdentifiable(networkElementId);
+    private boolean isEquipmentAffectedByLimitReduction(NetworkElementInterface networkElement, List<AbstractNetworkElementCriterion> networkElementCriteria) {
 
-        NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(identifiable);
+        NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
 
-        return networkElementCriteria.stream().map(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor)).anyMatch(isEquipmentAffected -> isEquipmentAffected);
+        return networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));
     }
 
     private boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
@@ -126,7 +94,7 @@ public class LimitViolationDetectorWithLimitReduction {
     private boolean isTemporaryLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition, LoadingLimits.TemporaryLimit temporaryLimit) {
         return limitReductionDefinition.getDurationCriteria().stream()
                 .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))
-                .map(limitDurationCriterion -> (AbstractTemporaryDurationCriterion) limitDurationCriterion)
+                .map(AbstractTemporaryDurationCriterion.class::cast)
                 .anyMatch(temporaryLimitDurationCriterion -> temporaryLimitDurationCriterion.isTemporaryLimitWithinCriterionBounds(temporaryLimit));
     }
 }

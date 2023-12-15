@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,10 +60,21 @@ public class TwoNominalVoltageCriterion implements Criterion {
     }
 
     private boolean filter(Terminal terminal1, Terminal terminal2) {
+        VoltageLevel voltageLevel1 = terminal1.getVoltageLevel();
+        VoltageLevel voltageLevel2 = terminal2.getVoltageLevel();
+        return filterWithVoltageLevels(voltageLevel1, voltageLevel2);
+    }
+
+    @Override
+    public boolean filter(NetworkElementInterface networkElement) {
+        return filterWithVoltageLevels(networkElement.getVoltageLevel1(), networkElement.getVoltageLevel2());
+    }
+
+    private boolean filterWithVoltageLevels(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2) {
         AtomicBoolean filter = new AtomicBoolean(true);
         voltageIntervals.forEach(voltageInterval -> {
-            if (!voltageInterval.checkIsBetweenBound(terminal1.getVoltageLevel().getNominalV()) &&
-                    !voltageInterval.checkIsBetweenBound(terminal2.getVoltageLevel().getNominalV())) {
+            if (!voltageInterval.checkIsBetweenBound(voltageLevel1.getNominalV()) &&
+                    !voltageInterval.checkIsBetweenBound(voltageLevel2.getNominalV())) {
                 filter.set(false);
             }
         });

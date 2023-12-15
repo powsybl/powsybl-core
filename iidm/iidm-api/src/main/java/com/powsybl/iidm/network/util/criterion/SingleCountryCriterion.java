@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
 
 import java.util.List;
 import java.util.Objects;
@@ -51,6 +52,11 @@ public class SingleCountryCriterion implements Criterion {
         }
     }
 
+    @Override
+    public boolean filter(NetworkElementInterface networkElement) {
+        return filterInjectionWithCountry(networkElement.getCountry());
+    }
+
     public List<Country> getCountries() {
         return countries;
     }
@@ -72,6 +78,10 @@ public class SingleCountryCriterion implements Criterion {
             return false;
         }
         Country injectionCountry = substation.getCountry().orElse(null);
+        return filterInjectionWithCountry(injectionCountry);
+    }
+
+    private boolean filterInjectionWithCountry(Country injectionCountry) {
         if (injectionCountry == null && !countries.isEmpty()) {
             return false;
         }

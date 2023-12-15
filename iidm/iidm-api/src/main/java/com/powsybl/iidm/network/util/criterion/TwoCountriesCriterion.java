@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
 
 import java.util.Collections;
 import java.util.List;
@@ -50,14 +51,14 @@ public class TwoCountriesCriterion implements Criterion {
         }
     }
 
-    private boolean filterBranch(Terminal terminal1, Terminal terminal2) {
-        Substation substation1 = terminal1.getVoltageLevel().getSubstation().orElse(null);
-        Substation substation2 = terminal2.getVoltageLevel().getSubstation().orElse(null);
-        if (substation1 == null || substation2 == null) {
-            return false;
-        }
-        Country countrySide1 = substation1.getCountry().orElse(null);
-        Country countrySide2 = substation2.getCountry().orElse(null);
+    @Override
+    public boolean filter(NetworkElementInterface networkElement) {
+        Country countrySide1 = networkElement.getCountry1();
+        Country countrySide2 = networkElement.getCountry2();
+        return filterWithCountries(countrySide1, countrySide2);
+    }
+
+    private boolean filterWithCountries(Country countrySide1, Country countrySide2) {
         if (countrySide1 == null && !countries1.isEmpty() || countrySide2 == null && !countries2.isEmpty()) {
             return false;
         }
@@ -66,6 +67,17 @@ public class TwoCountriesCriterion implements Criterion {
                 || countries2.isEmpty() && (countries1.contains(countrySide2) || countries1.contains(countrySide1))
                 || countries1.contains(countrySide1) && countries2.contains(countrySide2)
                 || countries1.contains(countrySide2) && countries2.contains(countrySide1);
+    }
+
+    private boolean filterBranch(Terminal terminal1, Terminal terminal2) {
+        Substation substation1 = terminal1.getVoltageLevel().getSubstation().orElse(null);
+        Substation substation2 = terminal2.getVoltageLevel().getSubstation().orElse(null);
+        if (substation1 == null || substation2 == null) {
+            return false;
+        }
+        Country countrySide1 = substation1.getCountry().orElse(null);
+        Country countrySide2 = substation2.getCountry().orElse(null);
+        return filterWithCountries(countrySide1, countrySide2);
     }
 
     public List<Country> getCountries1() {
