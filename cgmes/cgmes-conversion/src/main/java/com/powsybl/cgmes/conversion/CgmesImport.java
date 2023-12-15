@@ -283,7 +283,14 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+                                defaultValueConfig))
+                .setLowestTatlPercentageCoefficient(
+                        Parameter.readDouble(
+                                getFormat(),
+                                p,
+                                LOWEST_TATL_PERCENTAGE_COEFFICIENT_PARAMETER,
                                 defaultValueConfig));
+
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
@@ -357,6 +364,7 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
     public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
+    public static final String LOWEST_TATL_PERCENTAGE_COEFFICIENT = "iidm.import.cgmes.lowest-tatl-percentage-coefficient";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -472,6 +480,12 @@ public class CgmesImport implements Importer {
             "Force disconnection of dangling line network side if boundary side is disconnected",
             Boolean.TRUE);
 
+    public static final Parameter LOWEST_TATL_PERCENTAGE_COEFFICIENT_PARAMETER = new Parameter(
+            LOWEST_TATL_PERCENTAGE_COEFFICIENT,
+            ParameterType.DOUBLE,
+            "Percentage applied to lowest TATL limit to use as PATL when PATL is missing",
+            Double.valueOf(100));
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
@@ -491,7 +505,8 @@ public class CgmesImport implements Importer {
             DECODE_ESCAPED_IDENTIFIERS_PARAMETER,
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
-            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER);
+            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+            LOWEST_TATL_PERCENTAGE_COEFFICIENT_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;
