@@ -14,25 +14,25 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class ComplexMatrix {
 
-    private DenseMatrix realPartMatrix;
-    private DenseMatrix imagPartMatrix;
+    private final DenseMatrix realPartMatrix;
+    private final DenseMatrix imagPartMatrix;
 
-    public ComplexMatrix(int nbRow, int nbCol) {
-        this.realPartMatrix = new DenseMatrix(nbRow, nbCol);
-        this.imagPartMatrix = new DenseMatrix(nbRow, nbCol);
+    public ComplexMatrix(int rowCount, int columnCount) {
+        realPartMatrix = new DenseMatrix(rowCount, columnCount);
+        imagPartMatrix = new DenseMatrix(rowCount, columnCount);
     }
 
     // we suppose that the input indices start at 1
     public void set(int i, int j, Complex complex) {
-        this.realPartMatrix.set(i - 1, j - 1, complex.getReal());
-        this.imagPartMatrix.set(i - 1, j - 1, complex.getImaginary());
+        realPartMatrix.set(i - 1, j - 1, complex.getReal());
+        imagPartMatrix.set(i - 1, j - 1, complex.getImaginary());
     }
 
-    public int getNbRow() {
+    public int getRowCount() {
         return realPartMatrix.getRowCount();
     }
 
-    public int getNbCol() {
+    public int getColumnCount() {
         return realPartMatrix.getColumnCount();
     }
 
@@ -40,7 +40,7 @@ public class ComplexMatrix {
         return new Complex(realPartMatrix.get(i - 1, j - 1), imagPartMatrix.get(i - 1, j - 1));
     }
 
-    public static ComplexMatrix complexMatrixIdentity(int nbRow) {
+    public static ComplexMatrix createIdentity(int nbRow) {
         ComplexMatrix complexMatrix = new ComplexMatrix(nbRow, nbRow);
         for (int i = 0; i < nbRow; i++) {
             complexMatrix.realPartMatrix.set(i, i, 1.);
@@ -48,37 +48,37 @@ public class ComplexMatrix {
         return complexMatrix;
     }
 
-    public static ComplexMatrix getTransposed(ComplexMatrix cm) {
-        ComplexMatrix complexMatrixTransposed = new ComplexMatrix(cm.getNbCol(), cm.getNbRow());
-        for (int i = 0; i < cm.getNbCol(); i++) {
-            for (int j = 0; j < cm.getNbRow(); j++) {
-                complexMatrixTransposed.realPartMatrix.set(i, j, cm.realPartMatrix.get(j, i));
-                complexMatrixTransposed.imagPartMatrix.set(i, j, cm.imagPartMatrix.get(j, i));
+    public ComplexMatrix transpose() {
+        ComplexMatrix transposed = new ComplexMatrix(getColumnCount(), getRowCount());
+        for (int i = 0; i < getColumnCount(); i++) {
+            for (int j = 0; j < getRowCount(); j++) {
+                transposed.realPartMatrix.set(i, j, realPartMatrix.get(j, i));
+                transposed.imagPartMatrix.set(i, j, imagPartMatrix.get(j, i));
             }
         }
-        return complexMatrixTransposed;
+        return transposed;
     }
 
-    public static ComplexMatrix getMatrixScaled(ComplexMatrix cm, Complex factor) {
-        ComplexMatrix complexMatrixScaled = new ComplexMatrix(cm.getNbRow(), cm.getNbCol());
-        for (int i = 0; i < cm.getNbRow(); i++) {
-            for (int j = 0; j < cm.getNbCol(); j++) {
-                complexMatrixScaled.realPartMatrix.set(i, j, cm.realPartMatrix.get(i, j) * factor.getReal() - cm.imagPartMatrix.get(i, j) * factor.getImaginary());
-                complexMatrixScaled.imagPartMatrix.set(i, j, cm.imagPartMatrix.get(i, j) * factor.getReal() + cm.realPartMatrix.get(i, j) * factor.getImaginary());
+    public ComplexMatrix scale(Complex factor) {
+        ComplexMatrix scaled = new ComplexMatrix(getRowCount(), getColumnCount());
+        for (int i = 0; i < getRowCount(); i++) {
+            for (int j = 0; j < getColumnCount(); j++) {
+                scaled.realPartMatrix.set(i, j, realPartMatrix.get(i, j) * factor.getReal() - imagPartMatrix.get(i, j) * factor.getImaginary());
+                scaled.imagPartMatrix.set(i, j, imagPartMatrix.get(i, j) * factor.getReal() + realPartMatrix.get(i, j) * factor.getImaginary());
             }
         }
-        return complexMatrixScaled;
+        return scaled;
     }
 
-    public static ComplexMatrix getMatrixScaled(ComplexMatrix cm, double factor) {
-        return getMatrixScaled(cm, new Complex(factor, 0.));
+    public ComplexMatrix scale(double factor) {
+        return scale(new Complex(factor, 0.));
     }
 
     // utils to switch between complex and real cartesian representation of a complex matrix
-    public DenseMatrix getRealCartesianMatrix() {
-        DenseMatrix realMatrix = new DenseMatrix(getNbRow() * 2, getNbCol() * 2);
-        for (int i = 0; i < getNbRow(); i++) {
-            for (int j = 0; j < getNbCol(); j++) {
+    public DenseMatrix toRealCartesianMatrix() {
+        DenseMatrix realMatrix = new DenseMatrix(getRowCount() * 2, getColumnCount() * 2);
+        for (int i = 0; i < getRowCount(); i++) {
+            for (int j = 0; j < getColumnCount(); j++) {
                 Complex complexTerm = new Complex(realPartMatrix.get(i, j), imagPartMatrix.get(i, j));
                 realMatrix.add(2 * i, 2 * j, complexTerm.getReal());
                 realMatrix.add(2 * i + 1, 2 * j + 1, complexTerm.getReal());
@@ -90,17 +90,16 @@ public class ComplexMatrix {
         return realMatrix;
     }
 
-    public static ComplexMatrix getComplexMatrixFromRealCartesian(DenseMatrix realMatrix) {
-
-        int nbCol = realMatrix.getColumnCount();
-        int nbRow = realMatrix.getRowCount();
-        if (nbCol % 2 != 0 || nbRow % 2 != 0) { // dimensions have to be even
+    public static ComplexMatrix fromRealCartesian(DenseMatrix realMatrix) {
+        int columnCount = realMatrix.getColumnCount();
+        int rowCount = realMatrix.getRowCount();
+        if (columnCount % 2 != 0 || rowCount % 2 != 0) { // dimensions have to be even
             throw new MatrixException("Incompatible matrices dimensions to build a complex matrix from a real cartesian");
         }
 
-        ComplexMatrix complexMatrix = new ComplexMatrix(nbRow / 2, nbCol / 2);
-        for (int i = 1; i <= nbRow / 2; i++) {
-            for (int j = 1; j <= nbCol / 2; j++) {
+        ComplexMatrix complexMatrix = new ComplexMatrix(rowCount / 2, columnCount / 2);
+        for (int i = 1; i <= rowCount / 2; i++) {
+            for (int j = 1; j <= columnCount / 2; j++) {
 
                 int rowIndexInCartesian = 2 * (i - 1);
                 int colIndexInCartesian = 2 * (j - 1);
@@ -120,9 +119,7 @@ public class ComplexMatrix {
                     throw new MatrixException("Incompatible bloc matrices terms to build a complex matrix from a real cartesian");
                 }
 
-                Complex complexTerm = new Complex(t11, t21);
-
-                complexMatrix.set(i, j, complexTerm);
+                complexMatrix.set(i, j, new Complex(t11, t21));
             }
         }
 

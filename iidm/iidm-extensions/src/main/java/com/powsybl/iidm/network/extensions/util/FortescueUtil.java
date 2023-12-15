@@ -39,7 +39,7 @@ public final class FortescueUtil {
         // [GA]   [ 1  1  1 ]   [G0]
         // [GB] = [ 1  a²  a] * [G1]
         // [GC]   [ 1  a  a²]   [G2]
-        return createComplexMatrix(false).getRealCartesianMatrix();
+        return createComplexMatrix(false).toRealCartesianMatrix();
     }
 
     public static DenseMatrix getFortescueInverseMatrix() {
@@ -47,7 +47,7 @@ public final class FortescueUtil {
         // [G0]       [ 1  1  1 ]   [GA]
         // [G1] = 1/3 [ 1  a  a²] * [GB]
         // [G2]       [ 1  a² a ]   [GC]
-        return createComplexMatrix(true).getRealCartesianMatrix();
+        return createComplexMatrix(true).toRealCartesianMatrix();
     }
 
     public static ComplexMatrix createComplexMatrix(boolean isInverse) {

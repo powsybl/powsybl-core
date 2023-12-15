@@ -26,30 +26,30 @@ public class ComplexMatrixTest {
         cm.set(2, 2, new Complex(7., 8.));
 
         // create the real equivalent matrix of complex matrix
-        DenseMatrix rm = cm.getRealCartesianMatrix();
+        DenseMatrix rm = cm.toRealCartesianMatrix();
 
         assertEquals(cm.getTerm(1, 1).getReal(), rm.get(0, 0));
         assertEquals(cm.getTerm(2, 2).getImaginary(), -rm.get(2, 3));
 
-        ComplexMatrix cmFromReal = ComplexMatrix.getComplexMatrixFromRealCartesian(rm);
+        ComplexMatrix cmFromReal = ComplexMatrix.fromRealCartesian(rm);
 
-        for (int i = 1; i < cm.getNbRow(); i++) {
-            for (int j = 1; j < cm.getNbCol(); j++) {
+        for (int i = 1; i < cm.getRowCount(); i++) {
+            for (int j = 1; j < cm.getColumnCount(); j++) {
                 assertEquals(cm.getTerm(i, j), cmFromReal.getTerm(i, j));
             }
         }
 
-        ComplexMatrix tm = ComplexMatrix.getTransposed(cm);
+        ComplexMatrix tm = cm.transpose();
         assertEquals(cm.getTerm(1, 2), tm.getTerm(2, 1));
 
-        ComplexMatrix im = ComplexMatrix.complexMatrixIdentity(2);
+        ComplexMatrix im = ComplexMatrix.createIdentity(2);
         assertEquals(im.getTerm(1, 2), new Complex(0, 0));
         assertEquals(im.getTerm(2, 2), new Complex(1, 0));
 
-        ComplexMatrix sm = ComplexMatrix.getMatrixScaled(cm, new Complex(2., 1.));
+        ComplexMatrix sm = cm.scale(new Complex(2., 1.)); //ComplexMatrix.getMatrixScaled(cm, new Complex(2., 1.));
         assertEquals(sm.getTerm(1, 1), new Complex(0., 5.));
 
-        sm = ComplexMatrix.getMatrixScaled(cm, 3.);
+        sm = cm.scale(3.);
         assertEquals(sm.getTerm(1, 1), new Complex(3., 6.));
 
     }
