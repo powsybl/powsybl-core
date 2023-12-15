@@ -169,20 +169,23 @@ public final class ConnectableSerDeUtil {
                 .setQ(q);
     }
 
-    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
+    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion) {
+        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader, iidmVersion);
     }
 
-    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
+    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion) {
+        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader, iidmVersion);
     }
 
-    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader);
+    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion) {
+        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader, iidmVersion);
     }
 
-    private static <A extends LoadingLimitsAdder> void readLoadingLimits(String type, A adder, TreeDataReader reader) {
+    private static <A extends LoadingLimitsAdder> void readLoadingLimits(String type, A adder, TreeDataReader reader, IidmVersion iidmVersion) {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
+        if (iidmVersion.compareTo(IidmVersion.V_1_12) >= 0) {
+            // TODO add check on permanent limit
+        }
         adder.setPermanentLimit(permanentLimit);
         reader.readChildNodes(elementName -> {
             if (TEMPORARY_LIMITS_ROOT_ELEMENT_NAME.equals(elementName)) {
