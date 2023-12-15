@@ -227,6 +227,35 @@ class CalculatedTimeSeriesGroovyDslTest {
     }
 
     @Test
+    void newTest() {
+
+        // create time series space mock
+        TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
+
+        String[] timeSeriesNames = {"foo", "bar", "baz"};
+        double[] fooValues = new double[] {3d, 3d};
+        double[] barValues = new double[] {2d, 2d};
+        double[] bazValues = new double[] {-1d, -1d};
+
+        ReadOnlyTimeSeriesStore store = new ReadOnlyTimeSeriesStoreCache(
+            TimeSeries.createDouble(timeSeriesNames[0], index, fooValues),
+            TimeSeries.createDouble(timeSeriesNames[1], index, barValues),
+            TimeSeries.createDouble(timeSeriesNames[2], index, bazValues)
+        );
+
+
+        String script = """
+            timeSeries['TCA'] = timeSeries['foo'] + timeSeries['bar'] + timeSeries['baz']
+            timeSeries['TCB'] = timeSeries['TCA'] + 2 * timeSeries['TCA']""";
+
+        Map<String, NodeCalc> nodes = CalculatedTimeSeriesDslLoader.find().load(script, store);
+
+        // assertions
+        NodeCalc node = nodes.get("TCB");
+
+    }
+
+    @Test
     void builderTest() {
         DoubleTimeSeries a = TimeSeries.createDouble("a", IrregularTimeSeriesIndex.create(Instant.now()), 5d);
         DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a)
