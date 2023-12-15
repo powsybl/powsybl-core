@@ -8,16 +8,17 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
+import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
+import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.util.LinkData;
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +31,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.model.CgmesNames.PHASE_TAP_CHANGER;
 import static com.powsybl.cgmes.model.CgmesNames.RATIO_TAP_CHANGER;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
@@ -113,11 +113,16 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
-        writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        String modelId = "urn:uuid:" + context.getNamingStrategy().getUniqueId("FullModel"); // TODO: what to put here?
+    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
+        // The ref to build a unique model id must contain:
+        // the network, the subset (EQ, SSH, SV, ...), and the FULL_MODEL part
+        // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
+        CgmesObjectReference[] modelRef = {ref(network), ref(subset), Part.FULL_MODEL};
+        String modelId = "urn:uuid:" + context.getNamingStrategy().getUniqueId(modelRef);
         modelDescription.setIds(modelId);
         context.updateDependencies();
+
+        writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
@@ -144,6 +149,12 @@ public final class CgmesExportUtil {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
+        if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind().equals(CgmesTopologyKind.NODE_BREAKER) && context.getCimVersion() < 100) {
+            // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
+            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
+            writer.writeCharacters(context.getCim().getProfileUri("EQ_OP"));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
         writer.writeCharacters(modelDescription.getModelingAuthoritySet());
         writer.writeEndElement();
@@ -190,15 +201,6 @@ public final class CgmesExportUtil {
     public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, className);
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
-    }
-
-    public static Complex complexVoltage(double r, double x, double g, double b,
-                                         double v, double angle, double p, double q) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
-                new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
-        Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
-        Complex s1 = new Complex(p, q);
-        return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
     }
 
     static String loadClassName(Load load) {
@@ -255,16 +257,15 @@ public final class CgmesExportUtil {
     }
 
     public static String switchClassname(SwitchKind kind) {
-        switch (kind) {
-            case BREAKER:
-                return "Breaker";
-            case DISCONNECTOR:
-                return "Disconnector";
-            case LOAD_BREAK_SWITCH:
-                return "LoadBreakSwitch";
-        }
-        LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
-        return "Switch";
+        return switch (kind) {
+            case BREAKER -> "Breaker";
+            case DISCONNECTOR -> "Disconnector";
+            case LOAD_BREAK_SWITCH -> "LoadBreakSwitch";
+            default -> {
+                LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
+                yield "Switch";
+            }
+        };
     }
 
     public static int getTerminalSequenceNumber(Terminal t, List<DanglingLine> boundaryDanglingLines) {
@@ -292,15 +293,10 @@ public final class CgmesExportUtil {
 
     public static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
         if (converterStation.getHvdcLine().getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
-            if (converterStation.getHvdcLine().getConverterStation1().equals(converterStation)) {
-                return true;
-            }
+            return converterStation.getHvdcLine().getConverterStation1().equals(converterStation);
         } else {
-            if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
-                return true;
-            }
+            return converterStation.getHvdcLine().getConverterStation2().equals(converterStation);
         }
-        return false;
     }
 
     public static String converterClassName(HvdcConverterStation<?> converterStation) {
@@ -364,8 +360,8 @@ public final class CgmesExportUtil {
             Optional<String> optionalTapChangerId2 = twt.getAliasFromType(aliasType2);
             if (optionalTapChangerId2.isEmpty()) {
                 // We create a new id always at end 1
-                String suffix = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
-                String newTapChangerId = context.getNamingStrategy().getUniqueId(twt.getId() + suffix); // TODO: what to put here
+                Part ratioPhasePart = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
+                String newTapChangerId = context.getNamingStrategy().getUniqueId(ref(twt), ratioPhasePart);
                 twt.addAlias(newTapChangerId, aliasType1);
                 return newTapChangerId;
             } else {
@@ -378,8 +374,8 @@ public final class CgmesExportUtil {
         String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + endNumber;
         Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
         if (optionalTapChangerId.isEmpty()) {
-            String suffix = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
-            String newTapChangerId = context.getNamingStrategy().getUniqueId(twt.getId() + suffix); // TODO: what to put here?
+            Part ratioPhasePart = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
+            String newTapChangerId = context.getNamingStrategy().getUniqueId(ref(twt), ratioPhasePart);
             twt.addAlias(newTapChangerId, aliasType);
             return newTapChangerId;
         } else {
@@ -411,16 +407,15 @@ public final class CgmesExportUtil {
         }
         CgmesTapChanger cgmesTapChanger = cgmesTapChangers.getTapChanger(tapChangerId);
 
-        String suffix = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? RATIO_TAP_CHANGER_SUFFIX : PHASE_TAP_CHANGER_SUFFIX;
-        suffix += REGULATING_CONTROL_SUFFIX;
+        Part refTapChanger = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
         if (cgmesTapChanger == null) {
             cgmesTapChanger = cgmesTapChangers.newTapChanger()
                     .setId(tapChangerId)
-                    .setControlId(context.getNamingStrategy().getUniqueId(twt.getId() + suffix)) // TODO: what to put here?
+                    .setControlId(context.getNamingStrategy().getUniqueId(ref(twt), refTapChanger, Part.REGULATING_CONTROL))
                     .add();
         }
         if (cgmesTapChanger.getControlId() == null) {
-            cgmesTapChanger.setControlId(context.getNamingStrategy().getUniqueId(twt.getId() + suffix)); // TODO: what to put here?
+            cgmesTapChanger.setControlId(context.getNamingStrategy().getUniqueId(ref(twt), refTapChanger, Part.REGULATING_CONTROL));
         }
     }
 
@@ -444,7 +439,7 @@ public final class CgmesExportUtil {
         return network.getBoundaryElements().stream()
                 .filter(DanglingLine.class::isInstance)
                 .map(DanglingLine.class::cast)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {

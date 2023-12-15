@@ -10,6 +10,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
@@ -25,7 +26,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TOPOLOGICAL_ISLAND;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -48,7 +50,7 @@ public final class StateVariablesExport {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(writer, context.getSvModelDescription(), context);
+                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STATE_VARIABLES, writer, context.getSvModelDescription(), context);
                 writeTopologicalIslands(network, context, writer);
                 // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
             }
@@ -78,7 +80,7 @@ public final class StateVariablesExport {
                 LOG.info(log.get());
                 continue;
             }
-            String islandId = context.getNamingStrategy().getUniqueId(island.key + TOPOLOGICAL_ISLAND_SUFFIX);
+            String islandId = context.getNamingStrategy().getUniqueId(ref(island.key), TOPOLOGICAL_ISLAND);
             CgmesExportUtil.writeStartIdName(CgmesNames.TOPOLOGICAL_ISLAND, islandId, islandId, cimNamespace, writer, context);
             CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.key), cimNamespace, writer, context);
             if (context.isExportLoadFlowStatus()) {
@@ -375,8 +377,7 @@ public final class StateVariablesExport {
 
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
-        CgmesExportUtil.getBoundaryDanglingLines(network).stream().forEach(dl -> {
-            // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
+        CgmesExportUtil.getBoundaryDanglingLines(network).forEach(dl -> {
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
                 writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
@@ -436,7 +437,7 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeConnectableBranchPowerFlow(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Branch b) {
+    private static void writeConnectableBranchPowerFlow(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Branch<?> b) {
         writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getTerminal1(), cimNamespace, writer, context);
         writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2(), cimNamespace, writer, context);
     }

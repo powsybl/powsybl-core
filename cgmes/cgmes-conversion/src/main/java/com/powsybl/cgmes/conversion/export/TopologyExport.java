@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
@@ -19,7 +20,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
-import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.TOPOLOGICAL_NODE_SUFFIX;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TOPOLOGICAL_NODE;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -40,7 +42,7 @@ public final class TopologyExport {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(writer, context.getTpModelDescription(), context);
+                CgmesExportUtil.writeModelDescription(network, CgmesSubset.TOPOLOGY, writer, context.getTpModelDescription(), context);
             }
 
             writeTopologicalNodes(network, cimNamespace, writer, context);
@@ -256,7 +258,7 @@ public final class TopologyExport {
                             dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }
-                String fictTopologicalNodeId = context.getNamingStrategy().getUniqueId(dl.getId() + TOPOLOGICAL_NODE_SUFFIX); //TODO: what to put here?
+                String fictTopologicalNodeId = context.getNamingStrategy().getUniqueId(ref(dl), TOPOLOGICAL_NODE);
                 dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
                 writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
             }

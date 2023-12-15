@@ -12,7 +12,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.LOAD_GROUP_SUFFIX;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.LOAD_GROUP;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -37,7 +38,7 @@ class LoadGroups {
     }
 
     LoadGroup createGroupFor(String loadClassName, CgmesExportContext context) {
-        String id = context.getNamingStrategy().getUniqueId(loadClassName + LOAD_GROUP_SUFFIX); //TODO what to put here
+        String id = context.getNamingStrategy().getUniqueId(ref(loadClassName), LOAD_GROUP);
         String className = GROUP_CLASS_NAMES.get(loadClassName);
         String groupName = GROUP_NAMES.get(loadClassName);
         return new LoadGroup(className, id, groupName);

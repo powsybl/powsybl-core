@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.naming;
 
 import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -20,24 +21,25 @@ import com.univocity.parsers.csv.*;
 import java.io.*;
 import java.util.*;
 
-import static com.powsybl.cgmes.conversion.naming.CgmesNamingStrategyNames.PREFIX;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy {
 
     private final BiMap<String, String> idByUuid = HashBiMap.create();
-    // The namespace for generating stable name-based UUIDs is also a UUID
-    private final UUID uuidNamespace;
+    private final NameBasedGenerator nameBasedGenerator;
 
     protected AbstractCgmesAliasNamingStrategy(UUID uuidNamespace) {
-        this.uuidNamespace = uuidNamespace;
+        this(Collections.emptyMap(), uuidNamespace);
     }
 
     protected AbstractCgmesAliasNamingStrategy(Map<String, String> idByUuid, UUID uuidNamespace) {
         this.idByUuid.putAll(Objects.requireNonNull(idByUuid));
-        this.uuidNamespace = uuidNamespace;
+        // The namespace for generating stable name-based UUIDs is also a UUID
+        this.nameBasedGenerator = uuidNamespace == null ? Generators.nameBasedGenerator() : Generators.nameBasedGenerator(uuidNamespace);
     }
 
     @Override
@@ -92,8 +94,9 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         // May be empty
         if (id == null) {
             return null;
+        } else {
+            return getCgmesId(identifiable, id, "_" + propertyName + "_" + "UUID");
         }
-        return getCgmesId(identifiable, id, "_" + propertyName + "_" + "UUID");
     }
 
     @Override
@@ -107,7 +110,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         if (CgmesExportUtil.isValidCimMasterRID(identifier)) {
             uuid = identifier;
         } else {
-            uuid = getUniqueId(identifier);
+            uuid = getUniqueId(ref(identifier));
             // Only store the IDs that have been created during the export
             idByUuid.put(uuid, identifier);
         }
@@ -140,7 +143,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
             uuid = id;
         } else {
-            uuid = getUniqueId(id);
+            uuid = getUniqueId(ref(id));
             // Only store the IDs that have been created during the export
             idByUuid.put(uuid, id);
         }
@@ -173,22 +176,17 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
 
     // FIXME(Luma) For easy testing while we work on moving to name-based UUIDs
     private static final boolean XXX_USE_NAME_BASED_UUIDS = true;
+    // FIXME(Luma) adding or not a prefix should be specified by a specific strategy or a configuration parameter
+    private static final String XXX_PREFIX = "_";
 
     @Override
-    public String getUniqueId(String name) {
+    public String getUniqueId(CgmesObjectReference... refs) {
         if (XXX_USE_NAME_BASED_UUIDS) {
-            // FIXME(Luma) adding or not a prefix should be specified by a specific strategy
-            String name1 = PREFIX + name;
-
-            // Generate UUID based on namespace for stability
-            // If no namespace is given we still provide a UUID from the given name
-            if (uuidNamespace == null) {
-                return Generators.nameBasedGenerator().generate(name1).toString();
-            } else {
-                return Generators.nameBasedGenerator(uuidNamespace).generate(name1).toString();
-            }
+            String seed = XXX_PREFIX + CgmesObjectReference.combine(refs);
+            return nameBasedGenerator.generate(seed).toString();
         } else {
             return CgmesExportUtil.getUniqueRandomId();
         }
     }
+
 }

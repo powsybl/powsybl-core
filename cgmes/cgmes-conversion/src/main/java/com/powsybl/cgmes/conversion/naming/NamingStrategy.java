@@ -50,7 +50,8 @@ public interface NamingStrategy {
     //  Different naming strategies may choose to:
     //  - return random uuids (not stable, previously were persisted in an external file) or
     //  - stable name-based uids combining identifiable id with prefixes and/or suffixes based on the list of enumerated subobjects
-    String getUniqueId(String name);
+
+    String getUniqueId(CgmesObjectReference... refs);
 
     final class Identity implements NamingStrategy {
 
@@ -90,8 +91,8 @@ public interface NamingStrategy {
         }
 
         @Override
-        public String getUniqueId(String name) {
-            return name;
+        public String getUniqueId(CgmesObjectReference... refs) {
+            return CgmesObjectReference.combine(refs);
         }
     }
 }

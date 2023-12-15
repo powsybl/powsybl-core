@@ -39,10 +39,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
 
@@ -455,7 +452,7 @@ class CgmesExportTest {
             // Check that the exported CGMES model contains a fictitious substation
             CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
             assertTrue(cgmes.isNodeBreaker());
-            assertTrue(cgmes.substations().stream().anyMatch(sub -> sub.getLocal("name").contains("FICTITIOUS")));
+            assertTrue(cgmes.substations().stream().anyMatch(sub -> sub.getLocal("name").startsWith("fictS_")));
 
             // Verify that we re-import the exported CGMES data without problems
             Network networkReimported = Network.read(exportedCgmes, null);
@@ -526,9 +523,9 @@ class CgmesExportTest {
         // Voltage level and substation must be different at both ends of line
         assertNotEquals(expected.getTerminal().getVoltageLevel().getId(), actual.getTerminal2().getVoltageLevel().getId());
         assertNotEquals(expected.getTerminal().getVoltageLevel().getSubstation().orElseThrow().getId(), actual.getTerminal2().getVoltageLevel().getSubstation().orElseThrow().getId());
-        // Names should end with known suffixes
+        // Names should end/start with known suffixes/prefixes
         assertTrue(actual.getTerminal2().getVoltageLevel().getNameOrId().endsWith("_VL"));
-        assertTrue(actual.getTerminal2().getVoltageLevel().getSubstation().orElseThrow().getNameOrId().endsWith("_SUBSTATION"));
+        assertTrue(actual.getTerminal2().getVoltageLevel().getSubstation().orElseThrow().getNameOrId().startsWith("fictS_"));
     }
 
     private static void checkDanglingLineEquivalentInjection(DanglingLine expected, Line actual) {
@@ -537,7 +534,7 @@ class CgmesExportTest {
                 .findFirst()
                 .map(Terminal::getConnectable)
                 .orElseThrow();
-        assertTrue(eqAtEnd2 instanceof Generator);
+        assertInstanceOf(Generator.class, eqAtEnd2);
         Generator actualEquivalentInjection = (Generator) eqAtEnd2;
         assertEquals(expected.getP0(), -actualEquivalentInjection.getTargetP(), EPSILON);
         assertEquals(expected.getQ0(), -actualEquivalentInjection.getTargetQ(), EPSILON);
