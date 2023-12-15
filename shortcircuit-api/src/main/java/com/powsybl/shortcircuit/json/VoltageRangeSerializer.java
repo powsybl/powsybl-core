@@ -26,13 +26,14 @@ public class VoltageRangeSerializer extends StdSerializer<VoltageRange> {
     }
 
     @Override
-    public void serialize(VoltageRange coefficient, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
-        Objects.requireNonNull(coefficient);
+    public void serialize(VoltageRange voltageRange, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+        Objects.requireNonNull(voltageRange);
 
         jsonGenerator.writeStartObject();
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "minimumNominalVoltage", coefficient.getMinimumNominalVoltage());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "maximumNominalVoltage", coefficient.getMaximumNominalVoltage());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "voltageRangeCoefficient", coefficient.getRangeCoefficient());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "minimumNominalVoltage", voltageRange.getMinimumNominalVoltage());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "maximumNominalVoltage", voltageRange.getMaximumNominalVoltage());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "voltageRangeCoefficient", voltageRange.getRangeCoefficient());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "voltage", voltageRange.getVoltage());
         jsonGenerator.writeEndObject();
 
     }

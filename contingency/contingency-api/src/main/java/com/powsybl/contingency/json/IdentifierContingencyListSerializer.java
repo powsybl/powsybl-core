@@ -25,8 +25,8 @@ public class IdentifierContingencyListSerializer extends StdSerializer<Identifie
     @Override
     public void serialize(IdentifierContingencyList identifierContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", IdentifierContingencyList.getVersion());
         jsonGenerator.writeStringField("type", identifierContingencyList.getType());
+        jsonGenerator.writeStringField("version", IdentifierContingencyList.getVersion());
         jsonGenerator.writeStringField("name", identifierContingencyList.getName());
         serializerProvider.defaultSerializeField("identifiers",
                 identifierContingencyList.getIdentifiants(),

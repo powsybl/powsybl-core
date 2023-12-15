@@ -432,8 +432,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private void loadExtensions(PlatformConfig platformConfig) {
         for (LoadFlowProvider provider : new ServiceLoaderCache<>(LoadFlowProvider.class).getServices()) {
-            provider.loadSpecificParameters(platformConfig).ifPresent(loadFlowParametersExtension ->
-                    addExtension((Class) loadFlowParametersExtension.getClass(), loadFlowParametersExtension));
+            provider.loadSpecificParameters(platformConfig).ifPresent(extension ->
+                    addExtension((Class) extension.getClass(), extension));
         }
     }
 }

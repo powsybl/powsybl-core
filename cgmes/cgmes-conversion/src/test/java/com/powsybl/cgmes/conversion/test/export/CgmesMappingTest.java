@@ -87,6 +87,7 @@ class CgmesMappingTest extends AbstractSerDeTest {
     void testExportUsingCgmesNamingStrategy(String namingStrategy, Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds, ReadOnlyDataSource originalDataSource) throws IOException {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, namingStrategy);
+        exportParams.put(CgmesExport.EXPORT_SV_INJECTIONS_FOR_SLACKS, "false");
         String outputFolder = "exportedCgmes" + baseName;
         DataSource exportedCgmes = tmpDataSource(outputFolder, baseName);
         network.write("CGMES", exportParams, exportedCgmes);
@@ -153,7 +154,6 @@ class CgmesMappingTest extends AbstractSerDeTest {
         }
         Collection<Diff> notExpected = diffs.stream().filter(d -> !knownErrorsSubstationsIds.contains(d.substationId)).collect(Collectors.toList());
         if (notExpected.size() > 0) {
-            System.out.println("differences found and not previously known:");
             notExpected.forEach(d -> LOG.error(d.toString()));
             fail();
         }

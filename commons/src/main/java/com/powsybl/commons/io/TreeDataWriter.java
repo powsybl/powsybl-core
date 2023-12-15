@@ -40,6 +40,8 @@ public interface TreeDataWriter extends AutoCloseable {
 
     void writeIntArrayAttribute(String name, Collection<Integer> values);
 
+    void writeStringArrayAttribute(String name, Collection<String> values);
+
     <E extends Enum<E>> void writeEnumAttribute(String name, E value);
 
     void writeBooleanAttribute(String name, boolean value);

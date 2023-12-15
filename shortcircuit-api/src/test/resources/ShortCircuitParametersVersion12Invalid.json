@@ -1,0 +1,29 @@
+{
+  "version" : "1.2",
+  "withLimitViolations" : false,
+  "withVoltageResult" : false,
+  "withFeederResult" : true,
+  "studyType" : "SUB_TRANSIENT",
+  "subTransientCoefficient" : 0.7,
+  "minVoltageDropProportionalThreshold" : 0.0,
+  "withFortescueResult" : true,
+  "withLoads" : false,
+  "withShuntCompensators" : false,
+  "withVSCConverterStations" : false,
+  "withNeutralPosition" : true,
+  "initialVoltageProfileMode" : "CONFIGURED",
+  "voltageRanges" : [ {
+    "minimumNominalVoltage" : 380.0,
+    "maximumNominalVoltage" : 410.0,
+    "voltageRangeCoefficient" : 1.05,
+    "voltage" : 400.0
+  }, {
+    "minimumNominalVoltage" : 0.0,
+    "maximumNominalVoltage" : 225.0,
+    "voltageRangeCoefficient" : 1.1
+  }, {
+    "minimumNominalVoltage" : 230.0,
+    "maximumNominalVoltage" : 375.0,
+    "voltageRangeCoefficient" : 1.09
+  } ]
+}

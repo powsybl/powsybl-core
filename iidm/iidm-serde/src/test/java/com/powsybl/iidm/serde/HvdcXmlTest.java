@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -20,23 +20,17 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripLccTest() throws IOException {
-        roundTripXmlTest(HvdcTestNetwork.createLcc(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("LccRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(HvdcTestNetwork.createLcc(), "LccRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("LccRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("LccRoundTripRef.xml");
     }
 
     @Test
     void roundTripVscTest() throws IOException {
-        roundTripXmlTest(HvdcTestNetwork.createVsc(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("VscRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(HvdcTestNetwork.createVsc(), "VscRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("VscRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("VscRoundTripRef.xml");
     }
 }

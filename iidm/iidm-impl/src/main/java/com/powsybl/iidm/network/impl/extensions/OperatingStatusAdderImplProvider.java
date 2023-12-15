@@ -8,15 +8,15 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.BranchStatus;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
 
 /**
  * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
-public class BranchStatusAdderImplProvider<C extends Connectable<C>> implements
-        ExtensionAdderProvider<C, BranchStatus<C>, BranchStatusAdderImpl<C>> {
+public class OperatingStatusAdderImplProvider<I extends Identifiable<I>> implements
+        ExtensionAdderProvider<I, OperatingStatus<I>, OperatingStatusAdderImpl<I>> {
 
     @Override
     public String getImplementationName() {
@@ -24,13 +24,12 @@ public class BranchStatusAdderImplProvider<C extends Connectable<C>> implements
     }
 
     @Override
-    public Class<BranchStatusAdderImpl> getAdderClass() {
-        return BranchStatusAdderImpl.class;
+    public Class<OperatingStatusAdderImpl> getAdderClass() {
+        return OperatingStatusAdderImpl.class;
     }
 
     @Override
-    public BranchStatusAdderImpl<C> newAdder(C connectable) {
-        return new BranchStatusAdderImpl<>(connectable);
+    public OperatingStatusAdderImpl<I> newAdder(I identifiable) {
+        return new OperatingStatusAdderImpl<>(identifiable);
     }
-
 }

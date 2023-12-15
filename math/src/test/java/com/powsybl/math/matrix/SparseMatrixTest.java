@@ -6,7 +6,6 @@
  */
 package com.powsybl.math.matrix;
 
-import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -53,7 +52,7 @@ class SparseMatrixTest extends AbstractMatrixTest {
         a.set(0, 0, 1d);
         a.set(1, 0, 1d);
         a.set(0, 1, 1d);
-        assertThrows(PowsyblException.class, () -> a.set(1, 0, 1d));
+        assertThrows(MatrixException.class, () -> a.set(1, 0, 1d));
     }
 
     @Test
@@ -62,7 +61,7 @@ class SparseMatrixTest extends AbstractMatrixTest {
         a.add(0, 0, 1d);
         a.add(1, 0, 1d);
         a.add(0, 1, 1d);
-        assertThrows(PowsyblException.class, () -> a.add(1, 0, 1d));
+        assertThrows(MatrixException.class, () -> a.add(1, 0, 1d));
     }
 
     @Test
