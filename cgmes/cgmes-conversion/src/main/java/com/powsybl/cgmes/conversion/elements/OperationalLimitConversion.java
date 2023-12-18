@@ -37,10 +37,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
         Terminal terminal = null;
-        if (terminalId != null) {
-            terminal = context.terminalMapping().find(terminalId);
-        }
         if (limitSubclass == null || limitSubclass.equals(ACTIVE_POWER_LIMIT) || limitSubclass.equals(APPARENT_POWER_LIMIT) || limitSubclass.equals(CURRENT_LIMIT)) {
+            if (terminalId != null) {
+                terminal = context.terminalMapping().find(terminalId, true);
+            }
             if (terminal != null) {
                 createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, terminal.getConnectable());
             } else if (equipmentId != null) {
@@ -49,6 +49,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 createLimitsAdder(-1, limitSubclass, identifiable);
             }
         } else if (limitSubclass.equals("VoltageLimit")) {
+            if (terminalId != null) {
+                terminal = context.terminalMapping().find(terminalId, false);
+            }
             if (terminal != null) {
                 vl = terminal.getVoltageLevel();
             } else if (equipmentId != null) {
