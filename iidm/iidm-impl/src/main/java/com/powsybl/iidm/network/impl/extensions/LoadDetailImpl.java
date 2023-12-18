@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -34,10 +33,10 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
         this.variableActivePower = new TDoubleArrayList(variantArraySize);
         this.variableReactivePower = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.fixedActivePower.add(checkPower(fixedActivePower, "Invalid fixedActivePower"));
-            this.fixedReactivePower.add(checkPower(fixedReactivePower, "Invalid fixedReactivePower"));
-            this.variableActivePower.add(checkPower(variableActivePower, "Invalid variableActivePower"));
-            this.variableReactivePower.add(checkPower(variableReactivePower, "Invalid variableReactivePower"));
+            this.fixedActivePower.add(checkPower(fixedActivePower, "Invalid fixedActivePower", load));
+            this.fixedReactivePower.add(checkPower(fixedReactivePower, "Invalid fixedReactivePower", load));
+            this.variableActivePower.add(checkPower(variableActivePower, "Invalid variableActivePower", load));
+            this.variableReactivePower.add(checkPower(variableReactivePower, "Invalid variableReactivePower", load));
         }
     }
 
@@ -47,7 +46,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public LoadDetail setFixedActivePower(double fixedActivePower) {
-        checkPower(fixedActivePower, "Invalid fixedActivePower");
+        checkPower(fixedActivePower, "Invalid fixedActivePower", this.getExtendable());
         this.fixedActivePower.set(getVariantIndex(), fixedActivePower);
         return this;
     }
@@ -59,7 +58,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public LoadDetail setFixedReactivePower(double fixedReactivePower) {
-        checkPower(fixedReactivePower, "Invalid fixedReactivePower");
+        checkPower(fixedReactivePower, "Invalid fixedReactivePower", this.getExtendable());
         this.fixedReactivePower.set(getVariantIndex(), fixedReactivePower);
         return this;
     }
@@ -71,7 +70,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public LoadDetail setVariableActivePower(double variableActivePower) {
-        checkPower(variableActivePower, "Invalid variableActivePower");
+        checkPower(variableActivePower, "Invalid variableActivePower", this.getExtendable());
         this.variableActivePower.set(getVariantIndex(), variableActivePower);
         return this;
     }
@@ -83,14 +82,17 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public LoadDetail setVariableReactivePower(double variableReactivePower) {
-        checkPower(variableReactivePower, "Invalid variableReactivePower");
+        checkPower(variableReactivePower, "Invalid variableReactivePower", this.getExtendable());
         this.variableReactivePower.set(getVariantIndex(), variableReactivePower);
         return this;
     }
 
-    private static double checkPower(double power, String errorMessage) {
+    private static double checkPower(double power, String errorMessage, Load load) {
         if (Double.isNaN(power)) {
-            throw new IllegalArgumentException(errorMessage);
+            throw new IllegalArgumentException(String.format("%s (%s) for load %s",
+                errorMessage,
+                power,
+                load.getId()));
         }
         return power;
     }

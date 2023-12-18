@@ -7,7 +7,6 @@
 package com.powsybl.timeseries.ast;
 
 import com.powsybl.timeseries.DoubleMultiPoint;
-
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -43,35 +42,28 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     public Double visit(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
         double leftValue = left;
         double rightValue = right;
-        switch (nodeCalc.getOperator()) {
-            case PLUS: return leftValue + rightValue;
-            case MINUS: return leftValue - rightValue;
-            case MULTIPLY: return leftValue * rightValue;
-            case DIVIDE: return leftValue / rightValue;
-            case LESS_THAN: return leftValue < rightValue ? 1d : 0d;
-            case LESS_THAN_OR_EQUALS_TO: return leftValue <= rightValue ? 1d : 0d;
-            case GREATER_THAN: return leftValue > rightValue ? 1d : 0d;
-            case GREATER_THAN_OR_EQUALS_TO: return leftValue >= rightValue ? 1d : 0d;
-            case EQUALS: return leftValue == rightValue ? 1d : 0d;
-            case NOT_EQUALS: return leftValue != rightValue ? 1d : 0d;
-            default: throw new IllegalStateException("Unexpected operator value: " + nodeCalc.getOperator());
-        }
-    }
-
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+        return switch (nodeCalc.getOperator()) {
+            case PLUS -> leftValue + rightValue;
+            case MINUS -> leftValue - rightValue;
+            case MULTIPLY -> leftValue * rightValue;
+            case DIVIDE -> leftValue / rightValue;
+            case LESS_THAN -> leftValue < rightValue ? 1d : 0d;
+            case LESS_THAN_OR_EQUALS_TO -> leftValue <= rightValue ? 1d : 0d;
+            case GREATER_THAN -> leftValue > rightValue ? 1d : 0d;
+            case GREATER_THAN_OR_EQUALS_TO -> leftValue >= rightValue ? 1d : 0d;
+            case EQUALS -> leftValue == rightValue ? 1d : 0d;
+            case NOT_EQUALS -> leftValue != rightValue ? 1d : 0d;
+        };
     }
 
     @Override
     public Double visit(UnaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double child) {
         double childValue = child;
-        switch (nodeCalc.getOperator()) {
-            case ABS: return Math.abs(childValue);
-            case NEGATIVE: return -childValue;
-            case POSITIVE: return childValue;
-            default: throw new IllegalStateException("Unexpected operator value: " + nodeCalc.getOperator());
-        }
+        return switch (nodeCalc.getOperator()) {
+            case ABS -> Math.abs(childValue);
+            case NEGATIVE -> -childValue;
+            case POSITIVE -> childValue;
+        };
     }
 
     @Override
@@ -122,5 +114,24 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     @Override
     public Double visit(TimeSeriesNameNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         throw new IllegalStateException("NodeCalc should have been resolved before");
+    }
+
+    @Override
+    public Double visit(BinaryMinCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+        double leftValue = left;
+        double rightValue = right;
+        return Math.min(leftValue, rightValue);
+    }
+
+    @Override
+    public Double visit(BinaryMaxCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+        double leftValue = left;
+        double rightValue = right;
+        return Math.max(leftValue, rightValue);
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, DoubleMultiPoint multiPoint) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }
