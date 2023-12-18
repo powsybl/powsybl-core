@@ -577,14 +577,16 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidTargetVAccess() {
         createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
-        IllegalAccessError e = assertThrows(IllegalAccessError.class, () -> twt.getRatioTapChanger().getTargetV());
+        RatioTapChanger rtc = twt.getRatioTapChanger();
+        IllegalAccessError e = assertThrows(IllegalAccessError.class, rtc::getTargetV);
         assertTrue(e.getMessage().contains("Regulation mode must be in voltage to access to target V"));
     }
 
     @Test
     public void invalidTargetVSetting() {
         createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
-        IllegalAccessError e = assertThrows(IllegalAccessError.class, () -> twt.getRatioTapChanger().setTargetV(130));
+        RatioTapChanger rtc = twt.getRatioTapChanger();
+        IllegalAccessError e = assertThrows(IllegalAccessError.class, () -> rtc.setTargetV(130));
         assertTrue(e.getMessage().contains("Regulation mode must be in voltage to set target V"));
     }
 
