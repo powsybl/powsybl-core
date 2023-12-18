@@ -540,19 +540,27 @@ public abstract class AbstractTapChangerTest {
         ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal));
         assertTrue(e.getMessage().contains("a regulation value has to be set for a regulating ratio tap changer"));
 
-        ValidationException e2 = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
-                RatioTapChanger.RegulationMode.REACTIVE_POWER, Double.NaN, 1.0, terminal));
+        ValidationException e2 = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, Double.NaN, 1.0, terminal));
         assertTrue(e2.getMessage().contains("a regulation value has to be set for a regulating ratio tap changer"));
     }
 
     @Test
-    public void undefinedTargetVOnlyWarning() {
+    public void undefinedRegulationValueOnlyWarning() {
         createRatioTapChangerWith3Steps(0, 1, false, true, Double.NaN, 1.0, terminal);
         RatioTapChanger rtc = twt.getRatioTapChanger();
         assertNotNull(rtc);
         assertFalse(rtc.hasLoadTapChangingCapabilities());
         assertTrue(rtc.isRegulating());
-        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, rtc.getRegulationMode());
+        assertTrue(Double.isNaN(rtc.getRegulationValue()));
+
+        createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, Double.NaN, 1.0, terminal);
+        rtc = twt.getRatioTapChanger();
+        assertNotNull(rtc);
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(rtc.isRegulating());
+        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER, rtc.getRegulationMode());
+        assertTrue(Double.isNaN(rtc.getRegulationValue()));
     }
 
     @Test
@@ -564,6 +572,20 @@ public abstract class AbstractTapChangerTest {
     public void negativeTargetV() {
         ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("bad target voltage"));
+    }
+
+    @Test
+    public void invalidTargetVAccess() {
+        createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
+        IllegalAccessError e = assertThrows(IllegalAccessError.class, () -> twt.getRatioTapChanger().getTargetV());
+        assertTrue(e.getMessage().contains("Regulation mode must be in voltage to access to target V"));
+    }
+
+    @Test
+    public void invalidTargetVSetting() {
+        createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
+        IllegalAccessError e = assertThrows(IllegalAccessError.class, () -> twt.getRatioTapChanger().setTargetV(130));
+        assertTrue(e.getMessage().contains("Regulation mode must be in voltage to set target V"));
     }
 
     @Test

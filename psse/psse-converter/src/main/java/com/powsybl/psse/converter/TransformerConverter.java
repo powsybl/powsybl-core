@@ -782,8 +782,6 @@ class TransformerConverter extends AbstractConverter {
         return regulating;
     }
 
-    // TODO : add reactive power control
-
     private static boolean defineActivePowerControl(Network network, String id, PsseTransformerWinding winding, PhaseTapChanger ptc, boolean regulatingForcedToOff) {
         if (Math.abs(winding.getCod()) != 3) {
             return false;
