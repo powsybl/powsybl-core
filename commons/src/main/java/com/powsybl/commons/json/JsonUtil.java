@@ -6,11 +6,11 @@
  */
 package com.powsybl.commons.json;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -33,6 +33,35 @@ import java.util.function.Function;
  */
 public final class JsonUtil {
 
+    private static final String UNEXPECTED_TOKEN = "Unexpected token ";
+
+    enum ContextType {
+        OBJECT,
+        ARRAY
+    }
+
+    static final class Context {
+        private final ContextType type;
+        private String fieldName;
+
+        Context(ContextType type, String fieldName) {
+            this.type = Objects.requireNonNull(type);
+            this.fieldName = fieldName;
+        }
+
+        ContextType getType() {
+            return type;
+        }
+
+        String getFieldName() {
+            return fieldName;
+        }
+
+        public void setFieldName(String fieldName) {
+            this.fieldName = fieldName;
+        }
+    }
+
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class));
 
@@ -40,10 +69,11 @@ public final class JsonUtil {
     }
 
     public static ObjectMapper createObjectMapper() {
-        return new ObjectMapper()
+        return JsonMapper.builder()
                 .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
-                .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+                .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+            .build();
     }
 
     public static void writeJson(Path jsonFile, Object object, ObjectMapper objectMapper) {
@@ -90,9 +120,10 @@ public final class JsonUtil {
     }
 
     public static JsonFactory createJsonFactory() {
-        return new JsonFactory()
-                .disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
-                .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+        return new JsonFactoryBuilder()
+            .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+            .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+            .build();
     }
 
     public static void writeJson(Writer writer, Consumer<JsonGenerator> consumer) {
@@ -485,7 +516,7 @@ public final class JsonUtil {
                 } else if (token == JsonToken.END_OBJECT) {
                     break;
                 } else {
-                    throw new PowsyblException("Unexpected token " + token);
+                    throw new PowsyblException(UNEXPECTED_TOKEN + token);
                 }
                 token = parser.nextToken();
             }
@@ -503,13 +534,12 @@ public final class JsonUtil {
             if (token != JsonToken.START_ARRAY) {
                 throw new PowsyblException("Start array token was expected");
             }
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.START_OBJECT) {
-                    objectAdder.accept(objectParser.apply(parser));
-                } else if (token == JsonToken.END_ARRAY) {
-                    break;
-                } else {
-                    throw new PowsyblException("Unexpected token " + token);
+            boolean continueLoop = true;
+            while (continueLoop && (token = parser.nextToken()) != null) {
+                switch (token) {
+                    case START_OBJECT -> objectAdder.accept(objectParser.apply(parser));
+                    case END_ARRAY -> continueLoop = false;
+                    default -> throw new PowsyblException(UNEXPECTED_TOKEN + token);
                 }
             }
         } catch (IOException e) {
@@ -537,7 +567,7 @@ public final class JsonUtil {
                 } else if (token == JsonToken.END_ARRAY) {
                     break;
                 } else {
-                    throw new PowsyblException("Unexpected token " + token);
+                    throw new PowsyblException(UNEXPECTED_TOKEN + token);
                 }
             }
         } catch (IOException e) {

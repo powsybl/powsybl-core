@@ -10,6 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,27 +25,57 @@ public abstract class AbstractNetworkModification implements NetworkModification
 
     @Override
     public void apply(Network network) {
-        apply(network, false, LocalComputationManager.getDefault(), Reporter.NO_OP);
+        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), Reporter.NO_OP);
     }
 
     @Override
     public void apply(Network network, ComputationManager computationManager) {
-        apply(network, false, computationManager, Reporter.NO_OP);
+        apply(network, new DefaultNamingStrategy(), false, computationManager, Reporter.NO_OP);
     }
 
     @Override
     public void apply(Network network, ComputationManager computationManager, Reporter reporter) {
-        apply(network, false, computationManager, reporter);
+        apply(network, new DefaultNamingStrategy(), false, computationManager, reporter);
     }
 
     @Override
     public void apply(Network network, Reporter reporter) {
-        apply(network, false, LocalComputationManager.getDefault(), reporter);
+        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reporter);
     }
 
     @Override
     public void apply(Network network, boolean throwException, Reporter reporter) {
-        apply(network, throwException, LocalComputationManager.getDefault(), reporter);
+        apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), reporter);
+    }
+
+    @Override
+    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+        apply(network, new DefaultNamingStrategy(), throwException, computationManager, reporter);
+    }
+
+    @Override
+    public void apply(Network network, NamingStrategy namingStrategy) {
+        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), Reporter.NO_OP);
+    }
+
+    @Override
+    public void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager) {
+        apply(network, namingStrategy, false, computationManager, Reporter.NO_OP);
+    }
+
+    @Override
+    public void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, Reporter reporter) {
+        apply(network, namingStrategy, false, computationManager, reporter);
+    }
+
+    @Override
+    public void apply(Network network, NamingStrategy namingStrategy, Reporter reporter) {
+        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), reporter);
+    }
+
+    @Override
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, Reporter reporter) {
+        apply(network, namingStrategy, throwException, LocalComputationManager.getDefault(), reporter);
     }
 
     /**

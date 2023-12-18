@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -19,17 +18,15 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.network.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
 import org.apache.commons.lang3.Range;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testReporter;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-class CreateFeederBayTest extends AbstractConverterTest {
+class CreateFeederBayTest extends AbstractModificationTest {
 
     @Test
     void baseNodeBreakerLoadTest() throws IOException {
@@ -55,13 +52,13 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/network-node-breaker-with-new-load-bbs4.xml");
+        writeXmlTest(network, "/network-node-breaker-with-new-load-bbs4.xml");
+
     }
 
     @Test
     void baseBusBreakerLoadTest() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         LoadAdder loadAdder = network.getVoltageLevel("VLGEN").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
@@ -75,8 +72,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-create-load-feeder-bay.xml");
+        writeXmlTest(network, "/eurostag-create-load-feeder-bay.xml");
     }
 
     @Test
@@ -200,8 +196,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/network-node-breaker-with-new-generator-bbs1.xml");
+        writeXmlTest(network, "/network-node-breaker-with-new-generator-bbs1.xml");
     }
 
     @Test
@@ -319,8 +314,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         addVscConverterStationModification.apply(network);
-        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/network-node-breaker-with-new-equipments-bbs1.xml");
+        writeXmlTest(network, "/network-node-breaker-with-new-equipments-bbs1.xml");
     }
 
     @Test

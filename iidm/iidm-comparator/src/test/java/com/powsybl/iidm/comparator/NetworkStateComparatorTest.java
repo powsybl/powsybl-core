@@ -10,7 +10,7 @@ package com.powsybl.iidm.comparator;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -178,18 +178,18 @@ class NetworkStateComparatorTest {
                 .endStep()
                 .add();
         // values set below are only for test and do not reflect any physical reality
-        twt.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(1).setQ(2);
-        twt.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(3).setQ(4);
-        twt.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(5).setQ(6);
+        twt.getTerminal(ThreeSides.ONE).setP(1).setQ(2);
+        twt.getTerminal(ThreeSides.TWO).setP(3).setQ(4);
+        twt.getTerminal(ThreeSides.THREE).setP(5).setQ(6);
         twt.getLeg1().getPhaseTapChanger().setTapPosition(1);
         twt.getLeg2().getRatioTapChanger().setTapPosition(0);
         twt.getLeg3().getRatioTapChanger().setTapPosition(0);
 
         threeWindingsTransformersNetwork.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "other");
         threeWindingsTransformersNetwork.getVariantManager().setWorkingVariant("other");
-        twt.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(10).setQ(20);
-        twt.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(30).setQ(40);
-        twt.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(50).setQ(50);
+        twt.getTerminal(ThreeSides.ONE).setP(10).setQ(20);
+        twt.getTerminal(ThreeSides.TWO).setP(30).setQ(40);
+        twt.getTerminal(ThreeSides.THREE).setP(50).setQ(50);
         twt.getLeg1().getPhaseTapChanger().setTapPosition(0);
         twt.getLeg2().getRatioTapChanger().setTapPosition(1);
         twt.getLeg3().getRatioTapChanger().setTapPosition(2);

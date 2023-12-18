@@ -18,8 +18,6 @@ import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.util.LinkData;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +25,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -47,6 +48,7 @@ public final class CgmesExportUtil {
     private static final DecimalFormatSymbols DOUBLE_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
     private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############", DOUBLE_FORMAT_SYMBOLS);
     private static final DecimalFormat SCIENTIFIC_FORMAT = new DecimalFormat("0.######E0", DOUBLE_FORMAT_SYMBOLS);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyy-MM-dd'T'HH:mm:ssXXX").withZone(ZoneOffset.UTC);
 
     private static final Pattern CIM_MRID_PATTERN = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
     private static final Pattern URN_UUID_PATTERN = Pattern.compile("(?i)urn:uuid:[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
@@ -115,10 +117,10 @@ public final class CgmesExportUtil {
         context.updateDependencies();
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));
+        writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
-        writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(DateTime.now()));
+        writer.writeCharacters(DATE_TIME_FORMATTER.format(ZonedDateTime.now()));
         writer.writeEndElement();
         if (modelDescription.getDescription() != null) {
             writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
@@ -275,26 +277,10 @@ public final class CgmesExportUtil {
             }
             return 1;
         } else {
-            if (c instanceof Branch) {
-                switch (((Branch<?>) c).getSide(t)) {
-                    case ONE:
-                        return 1;
-                    case TWO:
-                        return 2;
-                    default:
-                        throw new IllegalStateException("Incorrect branch side " + ((Branch<?>) c).getSide(t));
-                }
+            if (c instanceof Branch<?> branch) {
+                return branch.getSide(t).getNum();
             } else if (c instanceof ThreeWindingsTransformer twt) {
-                switch (twt.getSide(t)) {
-                    case ONE:
-                        return 1;
-                    case TWO:
-                        return 2;
-                    case THREE:
-                        return 3;
-                    default:
-                        throw new IllegalStateException("Incorrect three-windings transformer side " + twt.getSide(t));
-                }
+                return twt.getSide(t).getNum();
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
             }

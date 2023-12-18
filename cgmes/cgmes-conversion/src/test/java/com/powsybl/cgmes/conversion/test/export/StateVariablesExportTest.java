@@ -6,9 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.Cgmes3Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.*;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -20,12 +19,12 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.xml.ExportOptions;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
@@ -48,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class StateVariablesExportTest extends AbstractConverterTest {
+class StateVariablesExportTest extends AbstractSerDeTest {
 
     @Test
     void microGridBE() throws IOException, XMLStreamException {
@@ -343,6 +342,61 @@ class StateVariablesExportTest extends AbstractConverterTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    void testTopologicalIslandSolvedNodeBreaker() {
+        Network network = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource());
+
+        Path outputPath = fileSystem.getPath("tmp-grid");
+        Path outputSv = fileSystem.getPath("tmp-grid_SV.xml");
+        Properties parameters = new Properties();
+        parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
+        network.write("CGMES", parameters, outputPath);
+
+        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+    }
+
+    @Test
+    void testTopologicalIslandSolvedBusBranch() {
+        Network network = Network.read(CgmesConformity1Catalog.miniBusBranch().dataSource());
+        new LoadFlowResultsCompletion().run(network, null);
+
+        Path outputPath = fileSystem.getPath("tmp-grid");
+        Path outputSv = fileSystem.getPath("tmp-grid_SV.xml");
+        Properties parameters = new Properties();
+        parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
+
+        network.write("CGMES", parameters, outputPath);
+        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+
+        parameters.setProperty(CgmesExport.MAX_P_MISMATCH_CONVERGED, "0.000001");
+        network.write("CGMES", parameters, outputPath);
+        assertEquals("diverged", readFirstTopologicalIslandDescription(outputSv));
+    }
+
+    private static String readFirstTopologicalIslandDescription(Path sv) {
+        String description = "";
+        boolean insideTopologicalIsland = false;
+        try (InputStream is = Files.newInputStream(sv)) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            while (reader.hasNext()) {
+                int token = reader.next();
+                if (token == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
+                        insideTopologicalIsland = true;
+                    } else if (insideTopologicalIsland && reader.getLocalName().equals(CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION)) {
+                        description = reader.getElementText();
+                    }
+                } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
+                    break;
+                }
+            }
+            reader.close();
+        } catch (IOException | XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        return description;
+    }
+
     private static String buildNetworkSvTapStepsString(Network network) {
         SvTapSteps svTapSteps = new SvTapSteps();
         network.getTwoWindingsTransformers().forEach(twt -> {
@@ -477,14 +531,15 @@ class StateVariablesExportTest extends AbstractConverterTest {
         new CgmesExportContext().addIidmMappings(expected0);
 
         // Export to XIIDM and re-import to test serialization of CGMES-IIDM extension
-        NetworkXml.write(expected0, tmpDir.resolve("temp.xiidm"));
-        Network expected = NetworkXml.read(tmpDir.resolve("temp.xiidm"));
+        NetworkSerDe.write(expected0, tmpDir.resolve("temp.xiidm"));
+        Network expected = NetworkSerDe.read(tmpDir.resolve("temp.xiidm"));
 
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
         context.getSvModelDescription().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
+        context.setExportSvInjectionsForSlacks(false);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSv))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
@@ -527,10 +582,13 @@ class StateVariablesExportTest extends AbstractConverterTest {
         // comparison without extensions, only Networks
         ExportOptions exportOptions = new ExportOptions().setSorted(true);
         exportOptions.setExtensions(Collections.emptySet());
-        NetworkXml.writeAndValidate(expected, exportOptions, tmpDir.resolve("expected.xml"));
-        NetworkXml.writeAndValidate(actual, exportOptions, tmpDir.resolve("actual.xml"));
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expected, exportOptions, expectedPath);
+        NetworkSerDe.write(actual, exportOptions, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        ExportXmlCompare.compareNetworks(expectedPath, actualPath);
     }
 }

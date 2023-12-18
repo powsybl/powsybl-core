@@ -8,7 +8,7 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.shortcircuit.FortescueValue;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class JsonFortescueValueTest extends AbstractConverterTest {
+class JsonFortescueValueTest extends AbstractSerDeTest {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());

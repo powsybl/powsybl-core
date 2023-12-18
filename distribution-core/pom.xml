@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>6.1.0-SNAPSHOT</version>
+        <version>6.2.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -295,7 +295,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-xml-converter</artifactId>
+            <artifactId>powsybl-iidm-serde</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -506,10 +506,10 @@
                     <javaXmx>8G</javaXmx>
                     <copyToEtc>
                         <files>
-                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm_V1_3.xsd</file>
-                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm_V1_2.xsd</file>
-                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm_V1_1.xsd</file>
-                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm_V1_0.xsd</file>
+                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_3.xsd</file>
+                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_2.xsd</file>
+                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_1.xsd</file>
+                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_0.xsd</file>
                         </files>
                     </copyToEtc>
                 </configuration>

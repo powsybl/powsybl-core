@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     private final Map<String, VoltageAngleLimit> voltageAngleLimitsIndex = new LinkedHashMap<>();
 
     private final VariantManagerImpl variantManager;
+
+    private AbstractReporterContext reporterContext;
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
@@ -121,6 +124,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     NetworkImpl(String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         ref.setRef(new RefObj<>(this));
+        this.reporterContext = new SimpleReporterContext();
         variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
@@ -206,6 +210,16 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public VariantManagerImpl getVariantManager() {
         return variantManager;
+    }
+
+    @Override
+    public void allowReporterContextMultiThreadAccess(boolean allow) {
+        this.reporterContext = Networks.allowReporterContextMultiThreadAccess(this.reporterContext, allow);
+    }
+
+    @Override
+    public ReporterContext getReporterContext() {
+        return this.reporterContext;
     }
 
     @Override

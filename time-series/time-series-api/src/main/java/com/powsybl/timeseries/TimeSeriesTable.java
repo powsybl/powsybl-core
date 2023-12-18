@@ -650,18 +650,13 @@ public class TimeSeriesTable {
     private void writeTime(Writer writer, TimeSeriesCsvConfig timeSeriesCsvConfig, int point, int cachedPoint) throws IOException {
         long time = tableIndex.getTimeAt(point + cachedPoint);
         switch (timeSeriesCsvConfig.timeFormat()) {
-            case DATE_TIME:
-                ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
-                writer.write(dateTime.format(timeSeriesCsvConfig.dateTimeFormatter()));
-                break;
-            case FRACTIONS_OF_SECOND:
-                writer.write(Double.toString(time / 1000.0));
-                break;
-            case MILLIS:
-                writer.write(Long.toString(time));
-                break;
-            default:
-                throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
+            case DATE_TIME -> {
+                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+                writer.write(zonedDateTime.format(timeSeriesCsvConfig.dateTimeFormatter()));
+            }
+            case FRACTIONS_OF_SECOND -> writer.write(Double.toString(time / 1000.0));
+            case MILLIS -> writer.write(Long.toString(time));
+            default -> throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
         }
     }
 

@@ -6,12 +6,12 @@
  */
 package com.powsybl.math.matrix;
 
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.math.MathException;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class MatrixException extends PowsyblException {
+public class MatrixException extends MathException {
 
     public MatrixException(String msg) {
         super(msg);

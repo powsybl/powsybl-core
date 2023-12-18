@@ -8,20 +8,20 @@ package com.powsybl.commons.xml;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.*;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -30,24 +30,66 @@ class XmlUtilTest {
 
     private static final String XML = String.join(System.lineSeparator(),
             "<a>",
-            "    <b>",
+            "    <b attrBool=\"true\" attrInt=\"34\" attrDbl=\"2e-65\" attrFlt=\"0.054864\">",
             "        <c/>",
             "    </b>",
             "    <d/>",
             "</a>");
 
     @Test
-    void readUntilEndElementWithDepthTest() throws XMLStreamException {
-        Map<String, Integer> depths = new HashMap<>();
+    void readAttributes() throws XMLStreamException {
+        AtomicReference<Boolean> attrBoolBoxed = new AtomicReference<>(false);
+        AtomicBoolean attrBool = new AtomicBoolean(false);
+        AtomicReference<Integer> attrInteger = new AtomicReference<>(-1);
+        AtomicInteger attrInt = new AtomicInteger(-1);
+        AtomicReference<Double> attrDbl = new AtomicReference<>(0d);
+        AtomicReference<Float> attrFloat = new AtomicReference<>(0f);
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            xmlReader.next();
             try {
-                XmlUtil.readUntilEndElementWithDepth("a", xmlReader, elementDepth -> depths.put(xmlReader.getLocalName(), elementDepth));
+                XmlUtil.readSubElements(xmlReader, elementName -> {
+                    if ("b".equals(elementName)) {
+                        attrBoolBoxed.set(XmlUtil.readBooleanAttribute(xmlReader, "attrBool"));
+                        attrBool.set(XmlUtil.readBooleanAttribute(xmlReader, "attrBool", false));
+                        attrInteger.set(XmlUtil.readIntegerAttribute(xmlReader, "attrInt"));
+                        attrInt.set(XmlUtil.readIntAttribute(xmlReader, "attrInt", -1));
+                        attrDbl.set(XmlUtil.readDoubleAttribute(xmlReader, "attrDbl", 0));
+                        attrFloat.set(XmlUtil.readFloatAttribute(xmlReader, "attrFlt", 0));
+                    }
+                });
             } finally {
                 xmlReader.close();
             }
         }
-        assertEquals(ImmutableMap.of("a", 0, "b", 1, "c", 2, "d", 1), depths);
+
+        assertTrue(attrBoolBoxed::get);
+        assertTrue(attrBool.get());
+        assertEquals(34, attrInteger.get());
+        assertEquals(34, attrInt.get());
+        assertEquals(2e-65, attrDbl.get(), 1e-80);
+        assertEquals(0.054864f, attrFloat.get(), 1e-15);
+    }
+
+    @Test
+    void readUntilEndElementWithDepthTest() throws XMLStreamException {
+        Map<String, Integer> depths = new HashMap<>();
+        try (StringReader reader = new StringReader(XML)) {
+            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            xmlReader.next();
+            try {
+                XmlUtil.readSubElements(xmlReader, elementName -> {
+                    depths.put(elementName, 0);
+                    XmlUtil.readSubElements(xmlReader, elementName1 -> {
+                        depths.put(elementName1, 1);
+                        XmlUtil.skipSubElements(xmlReader);
+                    });
+                });
+            } finally {
+                xmlReader.close();
+            }
+        }
+        assertEquals(ImmutableMap.of("b", 0, "c", 1, "d", 0), depths);
     }
 
     @Test
@@ -56,23 +98,22 @@ class XmlUtilTest {
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilEndElementWithDepth("a", xmlReader, elementDepth -> {
-                    depths.put(xmlReader.getLocalName(), elementDepth);
+                xmlReader.next();
+                XmlUtil.readSubElements(xmlReader, elementName -> {
+                    depths.put(elementName, 0);
                     // consume b and c
-                    if (xmlReader.getLocalName().equals("b")) {
-                        try {
-                            XmlUtil.readUntilEndElement("b", xmlReader, () -> {
-                            });
-                        } catch (XMLStreamException e) {
-                            throw new UncheckedXmlStreamException(e);
-                        }
+                    if (elementName.equals("b")) {
+                        XmlUtil.readSubElements(xmlReader, elementName1 -> {
+                            depths.put(elementName1, 1);
+                            XmlUtil.skipSubElements(xmlReader);
+                        });
                     }
                 });
             } finally {
                 xmlReader.close();
             }
         }
-        assertEquals(ImmutableMap.of("a", 0, "b", 1, "d", 1), depths);
+        assertEquals(ImmutableMap.of("b", 0, "c", 1, "d", 0), depths);
     }
 
     @Test
@@ -95,7 +136,7 @@ class XmlUtilTest {
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilStartElement(path, xmlReader, () -> assertEquals(expected, xmlReader.getLocalName()));
+                XmlUtil.readUntilStartElement(path, xmlReader, elementName -> assertEquals(expected, xmlReader.getLocalName()));
             } finally {
                 xmlReader.close();
             }
@@ -116,7 +157,14 @@ class XmlUtilTest {
         try (StringReader reader = new StringReader(xml)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                assertEquals("hello", XmlUtil.readText("a", xmlReader));
+                String text = null;
+                while (xmlReader.hasNext()) {
+                    int next = xmlReader.next();
+                    if (next == XMLStreamConstants.START_ELEMENT && xmlReader.getLocalName().equals("a")) {
+                        text = XmlUtil.readText(xmlReader);
+                    }
+                }
+                assertEquals("hello", text);
             } finally {
                 xmlReader.close();
             }

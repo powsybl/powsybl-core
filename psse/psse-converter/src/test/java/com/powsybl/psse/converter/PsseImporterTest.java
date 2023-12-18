@@ -9,18 +9,18 @@ package com.powsybl.psse.converter;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -29,14 +29,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author JB Heyberger {@literal <jean-baptiste.heyberger at rte-france.com>}
  */
-class PsseImporterTest extends AbstractConverterTest {
+class PsseImporterTest extends AbstractSerDeTest {
 
     @Test
     void baseTest() {
@@ -49,10 +49,10 @@ class PsseImporterTest extends AbstractConverterTest {
 
     private void testNetwork(Network network) throws IOException {
         Path file = fileSystem.getPath("/work/" + network.getId() + ".xiidm");
-        network.setCaseDate(DateTime.parse("2016-01-01T10:00:00.000+02:00"));
-        NetworkXml.write(network, file);
+        network.setCaseDate(ZonedDateTime.parse("2016-01-01T10:00:00.000+02:00"));
+        NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
+            compareXml(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }
     }
 

@@ -75,9 +75,9 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
      */
     private static final class BranchAndSide implements Comparable<BranchAndSide> {
         private final Branch branch;
-        private final Branch.Side side;
+        private final TwoSides side;
 
-        private BranchAndSide(Branch branch, Branch.Side side) {
+        private BranchAndSide(Branch branch, TwoSides side) {
             this.branch = Objects.requireNonNull(branch);
             this.side = Objects.requireNonNull(side);
         }
@@ -86,19 +86,19 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
             return branch;
         }
 
-        private Branch.Side getSide() {
+        private TwoSides getSide() {
             return side;
         }
 
         /**
          * TODO: to move to IIDM
          */
-        private static double getPermanentLimit(Branch<?> branch, Branch.Side side) {
+        private static double getPermanentLimit(Branch<?> branch, TwoSides side) {
             Objects.requireNonNull(branch);
             Objects.requireNonNull(side);
             double permanentLimit1 = branch.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
             double permanentLimit2 = branch.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
-            return side == Branch.Side.ONE ? permanentLimit1 : permanentLimit2;
+            return side == TwoSides.ONE ? permanentLimit1 : permanentLimit2;
         }
 
         private static int compare(double value1, double value2) {
@@ -173,8 +173,8 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
         return branchIds.stream()
                 .map(this::getBranch)
                 .map(branch -> {
-                    BranchAndSide branchAndSide1 = new BranchAndSide(branch, Branch.Side.ONE);
-                    BranchAndSide branchAndSide2 = new BranchAndSide(branch, Branch.Side.TWO);
+                    BranchAndSide branchAndSide1 = new BranchAndSide(branch, TwoSides.ONE);
+                    BranchAndSide branchAndSide2 = new BranchAndSide(branch, TwoSides.TWO);
                     int c = branchAndSide1.compareTo(branchAndSide2);
                     return c >= 0 ? branchAndSide1 : branchAndSide2;
                 })

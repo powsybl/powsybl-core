@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" xmlns:mock="http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_7" xmlns:extNetworkSource="http://www.itesla_project.eu/schema/iidm/ext/networksource/1_0" id="Merged" caseDate="2013-01-15T18:40:00.000+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="s1" country="FR">
+        <iidm:voltageLevel id="vl1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="b1"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="b1" connectableBus="b1">
+                <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="s2" country="FR">
+        <iidm:voltageLevel id="vl2" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="b2"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="b2" connectableBus="b2"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:tieLine id="dl1 + dl2" name="dl1_name + dl2_name" name_1="dl1_name" name_2="dl2_name" ucteXnodeCode="code" bus1="b1" connectableBus1="b1" voltageLevelId1="vl1" bus2="b2" connectableBus2="b2" voltageLevelId2="vl2" id_1="dl1" r_1="1.0" x_1="2.0" g1_1="2.0" b1_1="2.5" g2_1="2.0" b2_1="2.5" id_2="dl2" r_2="1.0" x_2="2.0" g1_2="2.0" b1_2="2.5" g2_2="2.0" b2_2="2.5"/>
+    <iidm:extension id="Merged">
+        <extNetworkSource:networkSource sourceData="Source_0"/>
+    </iidm:extension>
+    <iidm:extension id="LOAD">
+        <mock:terminalMock>
+            <mock:terminal id="LOAD"/>
+        </mock:terminalMock>
+    </iidm:extension>
+</iidm:network>

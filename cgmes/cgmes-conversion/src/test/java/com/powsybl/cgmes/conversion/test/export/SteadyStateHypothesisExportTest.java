@@ -18,14 +18,14 @@ import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluator;
@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-class SteadyStateHypothesisExportTest extends AbstractConverterTest {
+class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
     @Test
     void microGridBE() throws IOException, XMLStreamException {
@@ -158,11 +158,14 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         actual.removeExtension(CgmesControlAreas.class);
 
         // Export original and with new SSH
-        NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expected, expectedPath);
+        NetworkSerDe.write(actual, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffsIidm);
+        ExportXmlCompare.compareNetworks(expectedPath, actualPath, knownDiffsIidm);
     }
 
     @Test
@@ -246,7 +249,6 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
         CgmesControlAreas controlAreas = be.getExtension(CgmesControlAreas.class);
         assertNotNull(controlAreas);
-        System.out.println("cgmes control areas = " + controlAreas);
         assertFalse(controlAreas.getCgmesControlAreas().isEmpty());
         CgmesControlArea controlArea = controlAreas.getCgmesControlAreas().iterator().next();
         assertEquals(236.9798, controlArea.getNetInterchange(), 1e-10);

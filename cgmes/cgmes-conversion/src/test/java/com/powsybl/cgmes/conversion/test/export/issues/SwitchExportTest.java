@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.test.export.issues;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-class SwitchExportTest extends AbstractConverterTest {
+class SwitchExportTest extends AbstractSerDeTest {
 
     @Test
     void testSwitchTypePreservedBusBranch() {

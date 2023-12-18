@@ -22,12 +22,12 @@ import java.util.function.Consumer;
 public abstract class AbstractLimitViolationDetector extends AbstractContingencyBlindDetector {
 
     @Override
-    public void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
         checkCurrent(null, branch, side, currentValue, consumer);
     }
 
     @Override
-    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
         checkCurrent(null, transformer, side, currentValue, consumer);
     }
 
@@ -46,7 +46,7 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
      * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
-    public void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(Contingency contingency, Branch branch, TwoSides side, Consumer<LimitViolation> consumer) {
         checkCurrent(contingency, branch, side, branch.getTerminal(side).getI(), consumer);
     }
 
@@ -55,7 +55,7 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
      * <p>This implementation takes the current value to be checked from the Network.</p>
      */
     @Override
-    public void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, ThreeSides side, Consumer<LimitViolation> consumer) {
         checkCurrent(contingency, transformer, side, transformer.getTerminal(side).getI(), consumer);
     }
 
@@ -87,15 +87,15 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
 
     @Override
     public void checkCurrent(Contingency contingency, Branch branch, Consumer<LimitViolation> consumer) {
-        checkCurrent(contingency, branch, Branch.Side.ONE, consumer);
-        checkCurrent(contingency, branch, Branch.Side.TWO, consumer);
+        checkCurrent(contingency, branch, TwoSides.ONE, consumer);
+        checkCurrent(contingency, branch, TwoSides.TWO, consumer);
     }
 
     @Override
     public void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, Consumer<LimitViolation> consumer) {
-        checkCurrent(contingency, transformer, ThreeWindingsTransformer.Side.ONE, consumer);
-        checkCurrent(contingency, transformer, ThreeWindingsTransformer.Side.TWO, consumer);
-        checkCurrent(contingency, transformer, ThreeWindingsTransformer.Side.THREE, consumer);
+        checkCurrent(contingency, transformer, ThreeSides.ONE, consumer);
+        checkCurrent(contingency, transformer, ThreeSides.TWO, consumer);
+        checkCurrent(contingency, transformer, ThreeSides.THREE, consumer);
     }
 
     @Override

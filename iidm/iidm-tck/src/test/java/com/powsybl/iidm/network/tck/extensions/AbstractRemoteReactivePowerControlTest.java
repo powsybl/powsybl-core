@@ -114,9 +114,9 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Network network = createNetwork();
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
-        RemoteReactivePowerControl control = g.newExtension(RemoteReactivePowerControlAdder.class).withTargetQ(200.0).withRegulatingTerminal(l.getTerminal(Branch.Side.ONE)).withEnabled(true).add();
+        RemoteReactivePowerControl control = g.newExtension(RemoteReactivePowerControlAdder.class).withTargetQ(200.0).withRegulatingTerminal(l.getTerminal(TwoSides.ONE)).withEnabled(true).add();
         assertEquals(200.0, control.getTargetQ(), 0.0);
-        assertEquals(l.getTerminal(Branch.Side.ONE), control.getRegulatingTerminal());
+        assertEquals(l.getTerminal(TwoSides.ONE), control.getRegulatingTerminal());
         assertTrue(control.isEnabled());
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Line l = network.getLine("l34");
         RemoteReactivePowerControl control = g.newExtension(RemoteReactivePowerControlAdder.class)
                 .withTargetQ(200.0)
-                .withRegulatingTerminal(l.getTerminal(Branch.Side.ONE))
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
                 .withEnabled(true)
                 .add();
 

@@ -8,7 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
@@ -16,11 +16,10 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
+class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
 
     @Test
     void test() throws IOException {
@@ -40,8 +39,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/create-vl-topo-test.xiidm");
+        writeXmlTest(network, "/create-vl-topo-test.xiidm");
     }
 
     @Test
@@ -56,8 +54,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/create-vl-topo-test-complete.xiidm");
+        writeXmlTest(network, "/create-vl-topo-test-complete.xiidm");
     }
 
     @Test
@@ -180,7 +177,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
 
     @Test
     void testWithBusBreakerVoltageLevel() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.newVoltageLevel()
                 .setId("VLTEST")
                 .setNominalV(400.0)
@@ -192,8 +189,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSectionCount(4)
                 .build();
         modification.apply(network);
-        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-new-voltage-level.xml");
+        writeXmlTest(network, "/eurostag-new-voltage-level.xml");
     }
 
     @Test
@@ -220,7 +216,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
-        modification.apply(network, reporter);
+        modification.apply(network, LocalComputationManager.getDefault(), reporter);
         testReporter(reporter, "/reporter/create-voltage-level-topology-report.txt");
     }
 

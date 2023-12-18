@@ -7,10 +7,11 @@
 package com.powsybl.commons.config;
 
 import com.powsybl.commons.PowsyblException;
-import org.joda.time.DateTime;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -185,17 +186,17 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
     }
 
     @Override
-    public Optional<DateTime> getOptionalDateTimeProperty(String name) {
+    public Optional<ZonedDateTime> getOptionalDateTimeProperty(String name) {
         Objects.requireNonNull(name);
         Object value = getValue(name);
         if (value == null) {
             return Optional.empty();
         }
-        if (value instanceof Date) {
-            return Optional.of(new DateTime(value));
+        if (value instanceof Date date) {
+            return Optional.of(ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC));
         } else if (value instanceof String val) {
             try {
-                return Optional.of(DateTime.parse(val));
+                return Optional.of(ZonedDateTime.parse(val));
             } catch (IllegalArgumentException e) {
                 throw createPropertyIsNotException(name, "an ISO date time", e);
             }
