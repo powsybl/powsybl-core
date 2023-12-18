@@ -411,7 +411,7 @@ public final class SteadyStateHypothesisExport {
                         true,
                         ratioTapChanger.isRegulating(),
                         ratioTapChanger.getTargetDeadband(),
-                        ratioTapChanger.getRegulationValue(),
+                        ratioTapChanger.getTargetV(),
                         // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
                         "k");
             } else if (tc instanceof PhaseTapChanger phaseTapChanger

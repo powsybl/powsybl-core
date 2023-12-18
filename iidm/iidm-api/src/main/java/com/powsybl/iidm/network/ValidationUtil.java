@@ -495,9 +495,6 @@ public final class ValidationUtil {
                                                                  double regulationValue, Network network, boolean throwException,
                                                                  Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
-        if (regulationMode == null) {
-            validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "ratio regulation mode is not set", throwException, reporter));
-        }
         if (regulating && regulationMode != null) {
             if (Double.isNaN(regulationValue)) {
                 validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation value has to be set for a regulating ratio tap changer", throwException, reporter));

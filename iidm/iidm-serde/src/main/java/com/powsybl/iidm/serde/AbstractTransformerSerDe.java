@@ -79,7 +79,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         }
         writeTapChanger(rtc, context);
         context.getWriter().writeBooleanAttribute("loadTapChangingCapabilities", rtc.hasLoadTapChangingCapabilities());
-        context.getWriter().writeDoubleAttribute("targetV", rtc.getTargetV());
+        context.getWriter().writeDoubleAttribute("targetV", rtc.getRegulationValue());
         if (rtc.getRegulationTerminal() != null) {
             TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }

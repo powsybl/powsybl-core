@@ -20,45 +20,53 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
 
     /**
      * Get the regulation mode.
-     * @return the regulation mode
+     * Supported modes are {@link RegulationMode#VOLTAGE} and {@link RegulationMode#REACTIVE_POWER}.
+     * @return the regulation mode.
      */
     RegulationMode getRegulationMode();
 
     /**
-     * Set the regulation mode
-     * @param regulationMode the regulation mode
+     * Set the regulation mode.
+     * Supported modes are {@link RegulationMode#VOLTAGE} and {@link RegulationMode#REACTIVE_POWER}.
+     * @param regulationMode the regulation mode.
      * @return itself for method chaining
      */
     RatioTapChanger setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
 
     /**
-     * Get the regulation value.
-     * <p>
-     * Depends on the working variant.
+     * Get the regulation value, depending on the regulation mode {@link RegulationMode}.
+     * If {@link RegulationMode#VOLTAGE}, get the target in kV.
+     * Else if {@link RegulationMode#REACTIVE_POWER}, get the target in MVar.
+     * <p>Depends on the working variant.</p>
      * @see VariantManager
+     * @return the regulation value.
      */
     double getRegulationValue();
 
     /**
      * Set the regulation value.
-     * <p>
-     * Depends on the working variant.
+     * <p>Depends on the working variant.</p>
      * @see VariantManager
+     * @param regulationValue the regulation value.
+     * @return itself for method chaining.
      */
     RatioTapChanger setRegulationValue(double regulationValue);
 
 
     /**
-     * Get the target voltage in kV. Depends on the working variant.
+     * Get the target voltage in kV.
+     * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
+     * <p>Depends on the working variant.</p>
      * @see VariantManager
      * @deprecated Use {@link RatioTapChanger#getRegulationValue()} instead.
      */
     @Deprecated(since = "6.1.0")
     double getTargetV();
-
-
+    
     /**
-     * Set the target voltage in kV. Depends on the working variant.
+     * Set the target voltage in kV.
+     * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
+     * <p>Depends on the working variant.</p>
      * @see VariantManager
      * @deprecated Use {@link RatioTapChanger#setRegulationValue(double)} ()} instead.
      */
