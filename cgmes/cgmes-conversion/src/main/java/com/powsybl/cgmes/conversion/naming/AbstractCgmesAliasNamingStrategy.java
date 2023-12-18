@@ -33,11 +33,6 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     private final NameBasedGenerator nameBasedGenerator;
 
     protected AbstractCgmesAliasNamingStrategy(UUID uuidNamespace) {
-        this(Collections.emptyMap(), uuidNamespace);
-    }
-
-    protected AbstractCgmesAliasNamingStrategy(Map<String, String> idByUuid, UUID uuidNamespace) {
-        this.idByUuid.putAll(Objects.requireNonNull(idByUuid));
         // The namespace for generating stable name-based UUIDs is also a UUID
         this.nameBasedGenerator = uuidNamespace == null ? Generators.nameBasedGenerator() : Generators.nameBasedGenerator(uuidNamespace);
     }
@@ -50,6 +45,11 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     @Override
     public String getIidmId(String type, String id) {
         return idByUuid.getOrDefault(id, id);
+    }
+
+    @Override
+    public String getIidmName(String type, String name) {
+        return name;
     }
 
     @Override
@@ -117,21 +117,6 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         return uuid;
     }
 
-    @Override
-    public String getName(String type, String name) {
-        return name;
-    }
-
-    @Override
-    public void readIdMapping(Identifiable<?> identifiable, String type) {
-        if (idByUuid.containsValue(identifiable.getId())) {
-            String uuid = idByUuid.inverse().get(identifiable.getId());
-            // alias UUID is only created on request, for selected IIDM objects.
-            // There is no problem if the mapping contains more objects than the ones that are stored in UUID aliases
-            identifiable.addAlias(uuid, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
-        }
-    }
-
     private String getCgmesId(Identifiable<?> identifiable, String id, String aliasName) {
         if (idByUuid.containsValue(id)) {
             return idByUuid.inverse().get(id);
@@ -151,7 +136,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     }
 
     @Override
-    public void debugIdMapping(String baseName, DataSource ds) {
+    public void xxxDebugIdMapping(String baseName, DataSource ds) {
         String mappingFilename = baseName + "_debug_id_mapping.csv";
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFilename, false)))) {
             CsvWriterSettings settings = new CsvWriterSettings();

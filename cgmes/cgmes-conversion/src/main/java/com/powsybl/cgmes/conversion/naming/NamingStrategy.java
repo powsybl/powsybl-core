@@ -22,6 +22,8 @@ public interface NamingStrategy {
 
     String getIidmId(String type, String id);
 
+    String getIidmName(String type, String name);
+
     String getCgmesId(Identifiable<?> identifiable);
 
     default String getCgmesId(Identifiable<?> identifiable, String subObject) {
@@ -40,11 +42,7 @@ public interface NamingStrategy {
         return identifier;
     }
 
-    String getName(String type, String name);
-
-    void readIdMapping(Identifiable<?> identifiable, String type);
-
-    void debugIdMapping(String baseName, DataSource ds);
+    void xxxDebugIdMapping(String baseName, DataSource ds);
 
     // FIXME(Luma) This will end up being a way to obtain a unique id for a given identifiable and a list of (enumerated) subojects
     //  Different naming strategies may choose to:
@@ -76,17 +74,12 @@ public interface NamingStrategy {
         }
 
         @Override
-        public String getName(String type, String name) {
+        public String getIidmName(String type, String name) {
             return name;
         }
 
         @Override
-        public void readIdMapping(Identifiable<?> identifiable, String type) {
-            // do nothing
-        }
-
-        @Override
-        public void debugIdMapping(String baseName, DataSource ds) {
+        public void xxxDebugIdMapping(String baseName, DataSource ds) {
             // do nothing
         }
 

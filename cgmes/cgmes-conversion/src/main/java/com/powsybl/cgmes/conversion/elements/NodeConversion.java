@@ -74,14 +74,12 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             adder.setGeographicalTags(boundaryCountryCode().toString());
         }
         Substation substation = adder.add();
-        context.namingStrategy().readIdMapping(substation, "Substation");
         VoltageLevel vl = substation.newVoltageLevel()
             .setId(context.namingStrategy().getIidmId("VoltageLevel", vlId))
             .setName(vlName)
             .setNominalV(nominalVoltage)
             .setTopologyKind(context.nodeBreaker() ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER)
             .add();
-        context.namingStrategy().readIdMapping(vl, "VoltageLevel");
         return vl;
     }
 
@@ -186,7 +184,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (context.config().createBusbarSectionForEveryConnectivityNode()) {
             BusbarSection bus = nbv.newBusbarSection()
                 .setId(context.namingStrategy().getIidmId("Bus", id))
-                .setName(context.namingStrategy().getName("Bus", name))
+                .setName(context.namingStrategy().getIidmName("Bus", name))
                 .setNode(iidmNode)
                 .add();
             LOG.debug("    BusbarSection added at node {} : {} {} : {}", iidmNode, id, name, bus);
@@ -196,12 +194,11 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     private void newBus(VoltageLevel voltageLevel) {
         Bus bus = voltageLevel.getBusBreakerView().newBus()
             .setId(context.namingStrategy().getIidmId("Bus", id))
-            .setName(context.namingStrategy().getName("Bus", name))
+            .setName(context.namingStrategy().getIidmName("Bus", name))
             .add();
         if (checkValidVoltageAngle(bus)) {
             setVoltageAngle(bus);
         }
-        context.namingStrategy().readIdMapping(bus, "Bus");
     }
 
     private boolean checkValidVoltageAngle(Bus bus) {

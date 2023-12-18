@@ -70,6 +70,5 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName", regionName);
-        context.namingStrategy().readIdMapping(s, "Substation");
     }
 }

@@ -10,10 +10,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.conversion.naming.AbstractCgmesAliasNamingStrategy;
-import com.powsybl.cgmes.conversion.naming.FixedCgmesAliasNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
-import com.powsybl.cgmes.conversion.naming.SimpleCgmesAliasNamingStrategy;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.*;
@@ -36,21 +33,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.export.CgmesExportContext.DEFAULT_UUID_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 class CgmesNamingStrategyTest extends AbstractSerDeTest {
-
-    @Test
-    void testExplicitMappingConstructors() {
-        AbstractCgmesAliasNamingStrategy nss = new SimpleCgmesAliasNamingStrategy(Map.of("uuid1", "1"), DEFAULT_UUID_NAMESPACE);
-        assertEquals("uuid1", nss.getCgmesId("1"));
-        AbstractCgmesAliasNamingStrategy nsf = new FixedCgmesAliasNamingStrategy(Map.of("uuid1", "1"), DEFAULT_UUID_NAMESPACE);
-        assertEquals("uuid1", nsf.getCgmesId("1"));
-    }
 
     @Test
     void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
