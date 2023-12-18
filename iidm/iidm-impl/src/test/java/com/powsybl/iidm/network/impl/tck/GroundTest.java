@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -173,6 +174,9 @@ class GroundTest {
         // Create ground in bus-breaker view
         Ground groundBB = createGroundBusBreaker(vl2, "GroundBB", "BUS2", true);
 
+        // List of grounds
+        List<Ground> groundList = List.of(groundNB, groundBB);
+
         // Test getters
         assertEquals(IdentifiableType.GROUND, groundNB.getType());
         assertEquals(IdentifiableType.GROUND, groundBB.getType());
@@ -182,6 +186,10 @@ class GroundTest {
         assertEquals("GroundBB", groundBB.getId());
         assertEquals(network, groundNB.getNetwork());
         assertEquals(network, groundBB.getNetwork());
+        assertEquals(network, groundNB.getParentNetwork());
+        assertEquals(network, groundBB.getParentNetwork());
+        assertEquals(2, network.getIdentifiableStream(IdentifiableType.GROUND).count());
+        network.getIdentifiableStream(IdentifiableType.GROUND).forEach(ground -> assertTrue(groundList.contains((Ground) ground)));
     }
 
     @Test
@@ -207,6 +215,25 @@ class GroundTest {
         exception = assertThrows(PowsyblException.class, () -> createGroundBusBreaker(vl2, "Ground1", "BUS1", false));
         assertTrue(Pattern.compile("The network test already contains an object '(\\w+)' with the id 'Ground1'").matcher(exception.getMessage()).find());
         // Nota : the class name is undefined here since it will depend on the implementation of the Ground interface
+    }
+
+    @Test
+    void testFictitiousGround() {
+        // Get the voltage level
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+
+        // Create first grounds
+        vl1.getNodeBreakerView().newDisconnector()
+            .setId("D_1_6")
+            .setKind(SwitchKind.DISCONNECTOR)
+            .setOpen(false)
+            .setNode1(1)
+            .setNode2(6)
+            .add();
+        Ground ground = createGroundNodeBreaker(vl1, "Ground", 7, false);
+        // Create a second with the same ID
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> ground.setFictitious(true));
+        assertTrue(Pattern.compile("The ground cannot be fictitious.").matcher(exception.getMessage()).find());
     }
 
     private Ground createGroundNodeBreaker(VoltageLevel voltageLevel, String id, int node, boolean ensureIdUnicity) {
