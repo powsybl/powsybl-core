@@ -199,7 +199,7 @@ class GroundTest {
             .setNode2(6)
             .add();
         createGroundNodeBreaker(vl1, "Ground", 6, false);
-        createGroundBusBreaker(vl2, "GroundBB", "BUS1", false);
+        createGroundBusBreaker(vl2, "Ground1", "BUS1", false);
 
         // Create a second with the same ID
         PowsyblException exception = assertThrows(PowsyblException.class, () -> createGroundNodeBreaker(vl1, "Ground", 7, false));
