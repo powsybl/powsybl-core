@@ -209,8 +209,6 @@ class GroundTest {
         // Nota : the class name is undefined here since it will depend on the implementation of the Ground interface
     }
 
-
-
     private Ground createGroundNodeBreaker(VoltageLevel voltageLevel, String id, int node, boolean ensureIdUnicity) {
         return voltageLevel.getNodeBreakerView().newGround()
             .setId(id)
@@ -218,6 +216,7 @@ class GroundTest {
             .setEnsureIdUnicity(ensureIdUnicity)
             .add();
     }
+
     private Ground createGroundBusBreaker(VoltageLevel voltageLevel, String id, String bus, boolean ensureIdUnicity) {
         return voltageLevel.getBusBreakerView().newGround()
             .setId(id)
