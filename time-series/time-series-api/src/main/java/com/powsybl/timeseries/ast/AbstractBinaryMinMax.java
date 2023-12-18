@@ -1,8 +1,9 @@
 /**
- * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -12,29 +13,21 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
-import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
+public abstract class AbstractBinaryMinMax extends AbstractBinaryNodeCal {
 
-    protected NodeCalc child;
-
-    protected final double value;
-
-    protected AbstractMinMaxNodeCalc(NodeCalc child, double value) {
-        this.child = Objects.requireNonNull(child);
-        this.value = value;
+    protected AbstractBinaryMinMax(NodeCalc left, NodeCalc right) {
+        super(left, right);
     }
 
-    public NodeCalc getChild() {
-        return child;
-    }
+    @Override
+    public abstract int hashCode();
 
-    public void setChild(NodeCalc child) {
-        this.child = Objects.requireNonNull(child);
-    }
+    @Override
+    public abstract boolean equals(Object obj);
 
     protected abstract String getJsonName();
 
@@ -42,27 +35,23 @@ public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeFieldName(getJsonName());
         generator.writeStartObject();
-        child.writeJson(generator);
-        generator.writeNumberField("value", value);
+        left.writeJson(generator);
+        right.writeJson(generator);
         generator.writeEndObject();
     }
 
     protected static class ParsingContext {
-        NodeCalc child = null;
-        double value = Double.NaN;
+        NodeCalc left = null;
+        NodeCalc right = null;
     }
 
     static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
-        if ("value".equals(fieldName)) {
-            parser.nextValue();
-            context.value = parser.getValueAsDouble();
+        if (context.left == null) {
+            context.left = NodeCalc.parseJson(parser, token);
+        } else if (context.right == null) {
+            context.right = NodeCalc.parseJson(parser, token);
         } else {
-            if (context.child == null) {
-                context.child = NodeCalc.parseJson(parser, token);
-            } else {
-                throw new TimeSeriesException("Only 1 operand expected for a min/max");
-            }
+            throw new TimeSeriesException("2 operands expected for a binary min/max comparison");
         }
     }
 
@@ -75,8 +64,8 @@ public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
                     // Do nothing
                 }
                 case END_OBJECT -> {
-                    if (context.child == null || Double.isNaN(context.value)) {
-                        throw new TimeSeriesException("Invalid min/max node calc JSON");
+                    if (context.left == null || context.right == null) {
+                        throw new TimeSeriesException("Invalid binary min/max node calc JSON");
                     }
                     return context;
                 }
@@ -84,6 +73,6 @@ public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
                 default -> throw NodeCalc.createUnexpectedToken(token);
             }
         }
-        throw NodeCalc.createUnexpectedToken(token);
+        throw NodeCalc.createUnexpectedToken(null);
     }
 }
