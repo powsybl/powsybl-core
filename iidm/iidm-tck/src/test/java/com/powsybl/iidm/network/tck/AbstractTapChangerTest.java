@@ -245,7 +245,7 @@ public abstract class AbstractTapChangerTest {
         VariantManager variantManager = network.getVariantManager();
         createPhaseTapChangerWith2Steps(1, 0, false,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, terminal);
-        createRatioTapChangerWith3Steps(0, 1, true, true, RatioTapChanger.RegulationMode.VOLTAGE, 10.0, 1.0, terminal);
+        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
         createThreeWindingTransformer();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
         ThreeWindingsTransformer.Leg leg2 = threeWindingsTransformer.getLeg2();
@@ -531,15 +531,13 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidTapPosition() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 4, true, false,
-                RatioTapChanger.RegulationMode.VOLTAGE, 10.0, 1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 4, true, false, 10.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("incorrect tap position"));
     }
 
     @Test
     public void undefinedRegulationValue() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
-                RatioTapChanger.RegulationMode.VOLTAGE, Double.NaN, 1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal));
         assertTrue(e.getMessage().contains("a regulation value has to be set for a regulating ratio tap changer"));
 
         ValidationException e2 = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
@@ -549,50 +547,50 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void undefinedTargetVOnlyWarning() {
-        createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.VOLTAGE, Double.NaN, 1.0, terminal);
+        createRatioTapChangerWith3Steps(0, 1, false, true, Double.NaN, 1.0, terminal);
         RatioTapChanger rtc = twt.getRatioTapChanger();
         assertNotNull(rtc);
         assertFalse(rtc.hasLoadTapChangingCapabilities());
         assertTrue(rtc.isRegulating());
-        assertTrue(Double.isNaN(rtc.getRegulationValue()));
+        assertTrue(Double.isNaN(rtc.getTargetV()));
     }
 
     @Test
-    public void invalidNullMode() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
-                null, 10.0, 1.0, terminal));
-        assertTrue(e.getMessage().contains("ratio regulation mode is not set"));
+    public void validNullMode() {
+        assertDoesNotThrow(() -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
     }
 
     @Test
     public void negativeTargetV() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
-                RatioTapChanger.RegulationMode.VOLTAGE, -10.0, 1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("bad target voltage"));
     }
 
     @Test
     public void invalidTargetDeadbandRtc() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
-                RatioTapChanger.RegulationMode.VOLTAGE, 10.0, -1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, -1.0, terminal));
         assertTrue(e.getMessage().contains("2 windings transformer 'twt': Unexpected value for target deadband of ratio tap changer: -1.0"));
     }
 
     @Test
     public void nullRegulatingTerminal() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true,
-                RatioTapChanger.RegulationMode.VOLTAGE, 10.0, 1.0, null));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null));
         assertTrue(e.getMessage().contains("a regulation terminal has to be set for a regulating ratio tap changer"));
     }
 
     @Test
     public void nullRegulatingTerminalOnlyWarning() {
-        createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.VOLTAGE, 10.0, 1.0, null);
+        createRatioTapChangerWith3Steps(0, 1, false, true, 10.0, 1.0, null);
         RatioTapChanger rtc = twt.getRatioTapChanger();
         assertNotNull(rtc);
         assertFalse(rtc.hasLoadTapChangingCapabilities());
         assertTrue(rtc.isRegulating());
         assertNull(rtc.getRegulationTerminal());
+    }
+
+    private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
+                                                 double targetV, double deadband, Terminal terminal) {
+        createRatioTapChangerWith3Steps(low, tap, load, regulating, RatioTapChanger.RegulationMode.VOLTAGE, targetV, deadband, terminal);
     }
 
     private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,

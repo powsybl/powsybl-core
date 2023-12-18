@@ -52,7 +52,6 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      */
     RatioTapChanger setRegulationValue(double regulationValue);
 
-
     /**
      * Get the target voltage in kV.
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
@@ -62,7 +61,7 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      */
     @Deprecated(since = "6.1.0")
     double getTargetV();
-    
+
     /**
      * Set the target voltage in kV.
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
