@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * A ratio tap changer that is associated to a transformer to control the voltage.
+ * A ratio tap changer that is associated to a transformer to control the ratio.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -33,13 +33,14 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      */
     RatioTapChanger setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
 
+
     /**
-     * Get the regulation value, depending on the regulation mode {@link RegulationMode}.
-     * If {@link RegulationMode#VOLTAGE}, get the target in kV.
-     * Else if {@link RegulationMode#REACTIVE_POWER}, get the target in MVar.
-     * <p>Depends on the working variant.</p>
+     * Get the regulation value.
+     *   - a setpoint in kV in case of {@link RegulationMode#VOLTAGE} regulation
+     *   - a setpoint in MVar in case of {@link RegulationMode#REACTIVE_POWER} regulation
+     * <p>
+     * Depends on the working variant.
      * @see VariantManager
-     * @return the regulation value.
      */
     double getRegulationValue();
 
@@ -57,9 +58,7 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
      * <p>Depends on the working variant.</p>
      * @see VariantManager
-     * @deprecated Use {@link RatioTapChanger#getRegulationValue()} instead.
      */
-    @Deprecated(since = "6.1.0")
     double getTargetV();
 
     /**
@@ -67,9 +66,8 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
      * <p>Depends on the working variant.</p>
      * @see VariantManager
-     * @deprecated Use {@link RatioTapChanger#setRegulationValue(double)} ()} instead.
+     * @return itself for method chaining.
      */
-    @Deprecated(since = "6.1.0")
     RatioTapChanger setTargetV(double targetV);
 
     /**
@@ -79,6 +77,7 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
 
     /**
      * Set the load tap changing capabilities status.
+     * @return itself for method chaining.
      */
     RatioTapChanger setLoadTapChangingCapabilities(boolean status);
 }
