@@ -124,6 +124,12 @@ class GeneratorScalable extends AbstractInjectionScalable {
             if (parameters.isReconnect()) {
                 new ConnectGenerator(g.getId()).apply(n);
                 LOGGER.info("Connecting {}", g.getId());
+                if (!t.isConnected() || !g.getRegulatingTerminal().isConnected()) {
+                    //If the generator still disconnected, we should not change the active power setPoint
+                    LOGGER.info("Generator {} could not be connected, discarded from scaling", g.getId());
+                    return 0.;
+                }
+
             } else {
                 LOGGER.info("Generator {} is not connected, discarded from scaling", g.getId());
                 return 0.;
