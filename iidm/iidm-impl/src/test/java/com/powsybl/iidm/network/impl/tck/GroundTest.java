@@ -224,17 +224,17 @@ class GroundTest {
             .setNode1(2)
             .setNode2(7)
             .add();
-        Ground groundNBSub1_6 = createGroundNodeBreaker(vl1Sub1, "GroundNBSub1_6", 6, true);
-        Ground groundNBSub1_7 = createGroundNodeBreaker(vl1Sub1, "GroundNBSub1_7", 7, true);
+        Ground groundNBSub16 = createGroundNodeBreaker(vl1Sub1, "GroundNBSub1_6", 6, true);
+        Ground groundNBSub17 = createGroundNodeBreaker(vl1Sub1, "GroundNBSub1_7", 7, true);
 
         // Create ground in bus-breaker view
-        Ground groundBBSub1_2 = createGroundBusBreaker(vl2Sub1, "GroundBBSub1_2", "BUS2", true);
+        Ground groundBBSub12 = createGroundBusBreaker(vl2Sub1, "GroundBBSub1_2", "BUS2", true);
 
         // List of grounds
-        List<Ground> groundList = List.of(groundNBSub1_6, groundNBSub1_7, groundBBSub1_2);
+        List<Ground> groundList = List.of(groundNBSub16, groundNBSub17, groundBBSub12);
 
         // Assertions
-        assertEquals(groundNBSub1_6, subnetwork1.getGround("GroundNBSub1_6"));
+        assertEquals(groundNBSub16, subnetwork1.getGround("GroundNBSub1_6"));
         assertEquals(3, ((List<?>) subnetwork1.getGrounds()).size());
         subnetwork1.getGrounds().forEach(ground -> assertTrue(groundList.contains(ground)));
         assertEquals(3, subnetwork1.getGroundStream().count());
