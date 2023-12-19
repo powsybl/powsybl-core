@@ -10,6 +10,7 @@ import com.fasterxml.uuid.Generators;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -366,6 +368,7 @@ public class CgmesExportContext {
     }
 
     private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {
+        DecimalFormat noTrailingZerosFormat = new DecimalFormat("0.##");
         if (mapping.isBaseVoltageEmpty()) {
             // Here we do not have previous information about base voltages
             // (The mapping is filled when the Network has been imported from CGMES)
@@ -374,18 +377,17 @@ public class CgmesExportContext {
                 double nominalV = vl.getNominalV();
                 // Only create a new unique id if no reference data exists
                 String baseVoltageId = null;
-                Source source = null;
                 if (referenceDataProvider != null) {
                     baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
                     if (baseVoltageId != null) {
-                        source = Source.BOUNDARY;
+                        mapping.addBaseVoltage(nominalV, baseVoltageId, Source.BOUNDARY);
                     }
                 }
-                if (baseVoltageId == null) {
-                    baseVoltageId = namingStrategy.getUniqueId(ref("" + nominalV), BASE_VOLTAGE);
-                    source = Source.IGM;
+                if (baseVoltageId == null && mapping.getBaseVoltage(nominalV) == null) {
+                    CgmesObjectReference vref = ref(noTrailingZerosFormat.format(nominalV));
+                    baseVoltageId = namingStrategy.getUniqueId(vref, BASE_VOLTAGE);
+                    mapping.addBaseVoltage(nominalV, baseVoltageId, Source.IGM);
                 }
-                mapping.addBaseVoltage(nominalV, baseVoltageId, source);
             }
         }
         Map<Double, BaseVoltageMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
