@@ -79,7 +79,13 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         }
         writeTapChanger(rtc, context);
         context.getWriter().writeBooleanAttribute("loadTapChangingCapabilities", rtc.hasLoadTapChangingCapabilities());
-        context.getWriter().writeDoubleAttribute("targetV", rtc.getRegulationValue());
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", rtc.getTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+            context.getWriter().writeEnumAttribute("regulationMode", rtc.getRegulationMode());
+            if (rtc.getRegulationMode() != null || !Double.isNaN(rtc.getRegulationValue())) {
+                context.getWriter().writeDoubleAttribute("regulationValue", rtc.getRegulationValue());
+            }
+        });
         if (rtc.getRegulationTerminal() != null) {
             TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
@@ -102,12 +108,22 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
         boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute("loadTapChangingCapabilities");
-        double targetV = context.getReader().readDoubleAttribute("targetV");
+
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> {
+            double targetV = context.getReader().readDoubleAttribute("targetV");
+            adder.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                    .setTargetV(targetV);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+            RatioTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", RatioTapChanger.RegulationMode.class);
+            double regulationValue = context.getReader().readDoubleAttribute("regulationValue");
+            adder.setRegulationMode(regulationMode)
+                    .setRegulationValue(regulationValue);
+        });
 
         adder.setLowTapPosition(lowTapPosition)
                 .setTargetDeadband(targetDeadband)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
-                .setTargetV(targetV)
                 .setRegulating(regulating);
         if (tapPosition != null) {
             adder.setTapPosition(tapPosition);
