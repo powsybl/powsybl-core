@@ -164,7 +164,7 @@ public class CgmesExport implements Exporter {
                     StateVariablesExport.write(network, writer, context);
                 }
             }
-            context.getNamingStrategy().xxxDebugIdMapping(baseName, ds);
+            context.getNamingStrategy().xxxDebug(baseName, ds);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (XMLStreamException e) {

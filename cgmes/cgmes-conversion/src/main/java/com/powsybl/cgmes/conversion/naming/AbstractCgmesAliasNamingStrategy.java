@@ -17,6 +17,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.univocity.parsers.csv.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
@@ -30,6 +32,7 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy {
 
     private final BiMap<String, String> idByUuid = HashBiMap.create();
+    private final Map<String, String> uuidSeed = new HashMap<>();
     private final NameBasedGenerator nameBasedGenerator;
 
     protected AbstractCgmesAliasNamingStrategy(UUID uuidNamespace) {
@@ -136,8 +139,8 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     }
 
     @Override
-    public void xxxDebugIdMapping(String baseName, DataSource ds) {
-        String mappingFilename = baseName + "_debug_id_mapping.csv";
+    public void xxxDebug(String baseName, DataSource ds) {
+        String mappingFilename = baseName + "_debug_naming_strategy.csv";
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFilename, false)))) {
             CsvWriterSettings settings = new CsvWriterSettings();
             settings.getFormat().setLineSeparator(System.lineSeparator());
@@ -145,11 +148,22 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
             settings.getFormat().setQuoteEscape('"');
             CsvWriter csvWriter = new CsvWriter(writer, settings);
             try {
-                String[] nextLine = new String[2];
+                String[] nextLine = new String[3];
                 for (Map.Entry<String, String> e : idByUuid.entrySet()) {
-                    nextLine[0] = e.getKey();
+                    String uuid = e.getKey();
+                    nextLine[0] = uuid;
                     nextLine[1] = e.getValue();
+                    nextLine[2] = uuidSeed.get(uuid);
                     csvWriter.writeRow(nextLine);
+                }
+                for (Map.Entry<String, String> e : uuidSeed.entrySet()) {
+                    String uuid = e.getKey();
+                    if (!idByUuid.containsKey(uuid)) {
+                        nextLine[0] = uuid;
+                        nextLine[1] = "unknown";
+                        nextLine[2] = uuidSeed.get(uuid);
+                        csvWriter.writeRow(nextLine);
+                    }
                 }
             } finally {
                 csvWriter.close();
@@ -168,10 +182,16 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     public String getUniqueId(CgmesObjectReference... refs) {
         if (XXX_USE_NAME_BASED_UUIDS) {
             String seed = XXX_PREFIX + CgmesObjectReference.combine(refs);
-            return nameBasedGenerator.generate(seed).toString();
+            String uuid = nameBasedGenerator.generate(seed).toString();
+            if (uuidSeed.containsKey(uuid)) {
+                LOG.warn("Unique ID for seed {} called multiple times ", seed);
+            }
+            uuidSeed.put(uuid, seed);
+            return uuid;
         } else {
             return CgmesExportUtil.getUniqueRandomId();
         }
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesAliasNamingStrategy.class);
 }

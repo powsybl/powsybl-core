@@ -42,7 +42,7 @@ public interface NamingStrategy {
         return identifier;
     }
 
-    void xxxDebugIdMapping(String baseName, DataSource ds);
+    void xxxDebug(String baseName, DataSource ds);
 
     // FIXME(Luma) This will end up being a way to obtain a unique id for a given identifiable and a list of (enumerated) subojects
     //  Different naming strategies may choose to:
@@ -79,7 +79,7 @@ public interface NamingStrategy {
         }
 
         @Override
-        public void xxxDebugIdMapping(String baseName, DataSource ds) {
+        public void xxxDebug(String baseName, DataSource ds) {
             // do nothing
         }
 
