@@ -78,6 +78,8 @@ public interface CgmesObjectReference {
         LOAD_GROUP("LG"),
         LOAD_RESPONSE_CHARACTERISTICS("LRC"),
         OPERATIONAL_LIMIT_TYPE("OLT"),
+        OPERATIONAL_LIMIT_SET("OLS"),
+        OPERATIONAL_LIMIT_VALUE("OLV"),
         PATL("PATL"),
         PHASE_TAP_CHANGER("PTC"),
         PHASE_TAP_CHANGER_STEP("PTCS"),

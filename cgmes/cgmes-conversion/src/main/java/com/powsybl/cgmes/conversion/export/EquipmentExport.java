@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.*;
@@ -1050,25 +1051,41 @@ public final class EquipmentExport {
     }
 
     private static void writeLoadingLimits(LoadingLimits limits, String terminalId, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String className = loadingLimitClassName(limits);
+
         if (!Double.isNaN(limits.getPermanentLimit())) {
-            String operationalLimitTypeId = context.getNamingStrategy().getUniqueId(ref("PATL9999"), OPERATIONAL_LIMIT_TYPE);
+            CgmesObjectReference[] refs = {ref(terminalId), ref(className), null, PATL};
+            String name = className + " PATL";
+
+            refs[2] = OPERATIONAL_LIMIT_TYPE;
+            String operationalLimitTypeId = context.getNamingStrategy().getUniqueId(refs);
             OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-            String operationalLimitSetId = context.getNamingStrategy().getUniqueId(ref(terminalId), PATL);
-            OperationalLimitSetEq.write(operationalLimitSetId, "operational limit patl", terminalId, cimNamespace, writer, context);
-            String limitId = context.getNamingStrategy().getUniqueId(ref(terminalId), ref(loadingLimitClassName(limits.getClass())), PATL);
-            LoadingLimitEq.write(limitId, limits.getClass(), loadingLimitClassName(limits.getClass()) + " PATL",
-                    limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
+
+            refs[2] = OPERATIONAL_LIMIT_SET;
+            String operationalLimitSetId = context.getNamingStrategy().getUniqueId(refs);
+            OperationalLimitSetEq.write(operationalLimitSetId, name, terminalId, cimNamespace, writer, context);
+
+            refs[2] = OPERATIONAL_LIMIT_VALUE;
+            String limitId = context.getNamingStrategy().getUniqueId(refs);
+            LoadingLimitEq.write(limitId, limits, name, limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
         }
         if (!limits.getTemporaryLimits().isEmpty()) {
+            CgmesObjectReference[] refs = {ref(terminalId), ref(className), null, TATL, null};
             for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
                 int acceptableDuration = temporaryLimit.getAcceptableDuration();
-                String operationalLimitTypeId = context.getNamingStrategy().getUniqueId(ref("TATL"), ref(acceptableDuration), OPERATIONAL_LIMIT_TYPE);
-                OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, "TATL " + acceptableDuration, temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-                String operationalLimitSetId = context.getNamingStrategy().getUniqueId(ref(terminalId), ref(acceptableDuration), TATL);
-                OperationalLimitSetEq.write(operationalLimitSetId, "operational limit tatl", terminalId, cimNamespace, writer, context);
-                String limitId = context.getNamingStrategy().getUniqueId(ref(terminalId), ref(loadingLimitClassName(limits.getClass())), ref(acceptableDuration), TATL);
-                LoadingLimitEq.write(limitId, limits.getClass(), temporaryLimit.getName(),
-                        temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
+                refs[4] = ref(acceptableDuration);
+                String name = className + "TATL " + acceptableDuration;
+
+                refs[1] = OPERATIONAL_LIMIT_TYPE;
+                String operationalLimitTypeId = context.getNamingStrategy().getUniqueId(refs);
+                OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, name, temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+
+                refs[1] = OPERATIONAL_LIMIT_SET;
+                String operationalLimitSetId = context.getNamingStrategy().getUniqueId(refs);
+                OperationalLimitSetEq.write(operationalLimitSetId, name, terminalId, cimNamespace, writer, context);
+
+                String limitId = context.getNamingStrategy().getUniqueId(refs);
+                LoadingLimitEq.write(limitId, limits, temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
             }
         }
     }
