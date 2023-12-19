@@ -722,7 +722,6 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
                 twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
                 Double.NaN);
-        // TODO : add reactive power case ?
         if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getRegulationValue())
                 && twoWindingsTransformer.getRatioTapChanger().getRegulationMode() == RatioTapChanger.RegulationMode.VOLTAGE) {
             uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getRegulationValue());

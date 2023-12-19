@@ -81,7 +81,7 @@ class TransformersValidationTest extends AbstractValidationTest {
         Mockito.when(ratioTapChanger.getCurrentStep()).thenReturn(currentStep);
         Mockito.when(ratioTapChanger.getStep(tapPosition - 1)).thenReturn(previousStep);
         Mockito.when(ratioTapChanger.getStep(tapPosition + 1)).thenReturn(nextStep);
-        Mockito.when(ratioTapChanger.getRegulationValue()).thenReturn(targetV);
+        Mockito.when(ratioTapChanger.getTargetV()).thenReturn(targetV);
 
         transformer = Mockito.mock(TwoWindingsTransformer.class);
         Mockito.when(transformer.getId()).thenReturn("transformer");

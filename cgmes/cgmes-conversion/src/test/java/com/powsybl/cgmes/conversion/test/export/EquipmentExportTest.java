@@ -819,11 +819,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     private static void checkLeg(ThreeWindingsTransformer.Leg legNetwork, ThreeWindingsTransformer.Leg legActual) {
-        assertEquals(legNetwork.getRatioTapChanger().getRegulationMode().name(), legActual.getRatioTapChanger().getRegulationMode().name());
+        assertEquals(legNetwork.getRatioTapChanger().getRegulationMode(), legActual.getRatioTapChanger().getRegulationMode());
         assertEquals(legNetwork.getRatioTapChanger().getRegulationValue(), legActual.getRatioTapChanger().getRegulationValue());
         assertEquals(legNetwork.getRatioTapChanger().getTargetDeadband(), legActual.getRatioTapChanger().getTargetDeadband());
 
-        assertEquals(legNetwork.getPhaseTapChanger().getRegulationMode().name(), legActual.getPhaseTapChanger().getRegulationMode().name());
+        assertEquals(legNetwork.getPhaseTapChanger().getRegulationMode(), legActual.getPhaseTapChanger().getRegulationMode());
         assertEquals(legNetwork.getPhaseTapChanger().getRegulationValue(), legActual.getPhaseTapChanger().getRegulationValue());
         assertEquals(legNetwork.getPhaseTapChanger().getTargetDeadband(), legActual.getPhaseTapChanger().getTargetDeadband());
     }

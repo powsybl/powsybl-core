@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -564,8 +565,8 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    public void validNullMode() {
-        assertDoesNotThrow(() -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
+    public void invalidNullModeRatio() {
+        assertThrows(NullPointerException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
     }
 
     @Test
@@ -578,7 +579,7 @@ public abstract class AbstractTapChangerTest {
     public void invalidTargetVAccess() {
         createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
         RatioTapChanger rtc = twt.getRatioTapChanger();
-        IllegalAccessError e = assertThrows(IllegalAccessError.class, rtc::getTargetV);
+        PowsyblException e = assertThrows(PowsyblException.class, rtc::getTargetV);
         assertTrue(e.getMessage().contains("Regulation mode must be in voltage to access to target V"));
     }
 
@@ -586,7 +587,7 @@ public abstract class AbstractTapChangerTest {
     public void invalidTargetVSetting() {
         createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
         RatioTapChanger rtc = twt.getRatioTapChanger();
-        IllegalAccessError e = assertThrows(IllegalAccessError.class, () -> rtc.setTargetV(130));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> rtc.setTargetV(130));
         assertTrue(e.getMessage().contains("Regulation mode must be in voltage to set target V"));
     }
 

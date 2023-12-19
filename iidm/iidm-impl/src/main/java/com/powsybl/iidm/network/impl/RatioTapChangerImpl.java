@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -32,7 +33,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         super(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband, "ratio tap changer");
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.regulationMode = regulationMode;
+        this.regulationMode = Objects.requireNonNull(regulationMode);
         this.regulationValue = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.regulationValue.add(regulationValue);
@@ -102,7 +103,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public double getTargetV() {
         if (regulationMode != RegulationMode.VOLTAGE) {
-            throw new IllegalAccessError("Regulation mode must be in voltage to access to target V");
+            throw new PowsyblException("Regulation mode must be in voltage to access to target V");
         }
         return getRegulationValue();
     }
@@ -110,7 +111,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
         if (regulationMode != RegulationMode.VOLTAGE) {
-            throw new IllegalAccessError("Regulation mode must be in voltage to set target V");
+            throw new PowsyblException("Regulation mode must be in voltage to set target V");
         }
         return setRegulationValue(targetV);
     }
@@ -124,7 +125,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     public RatioTapChangerImpl setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
-                regulatingPoint.getRegulatingTerminal(), getRegulationMode(),
+                regulatingPoint.getRegulatingTerminal(), regulationMode,
                 getRegulationValue(), n, n.getMinValidationLevel());
         RatioTapChanger.RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
@@ -142,7 +143,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     public RatioTapChangerImpl setRegulationValue(double regulationValue) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
-                regulatingPoint.getRegulatingTerminal(), getRegulationMode(), getRegulationValue(),
+                regulatingPoint.getRegulatingTerminal(), getRegulationMode(), regulationValue,
                 n, n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.regulationValue.set(variantIndex, regulationValue);

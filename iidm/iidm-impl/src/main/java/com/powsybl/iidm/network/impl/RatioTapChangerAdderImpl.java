@@ -10,10 +10,7 @@ import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,7 +152,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     @Override
     public RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
-        this.regulationMode = regulationMode;
+        this.regulationMode = Objects.requireNonNull(regulationMode);
         return this;
     }
 
