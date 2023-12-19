@@ -907,7 +907,11 @@ final class ExportXmlCompare {
             int maxNodes = 5;
             for (int k = 0; k < maxNodes && k < n.getChildNodes().getLength(); k++) {
                 Node n1 = n.getChildNodes().item(k);
-                LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
+                if (n1.getLocalName() != null) {
+                    LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
+                } else {
+                    LOG.error("            {}", n1.getTextContent());
+                }
                 debugAttributes(n1, "                ");
             }
             if (n.getChildNodes().getLength() > maxNodes) {

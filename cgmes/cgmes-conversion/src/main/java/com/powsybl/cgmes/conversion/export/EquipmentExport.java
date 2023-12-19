@@ -1074,16 +1074,17 @@ public final class EquipmentExport {
             for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
                 int acceptableDuration = temporaryLimit.getAcceptableDuration();
                 refs[4] = ref(acceptableDuration);
-                String name = className + "TATL " + acceptableDuration;
+                String name = className + " TATL " + acceptableDuration;
 
-                refs[1] = OPERATIONAL_LIMIT_TYPE;
+                refs[2] = OPERATIONAL_LIMIT_TYPE;
                 String operationalLimitTypeId = context.getNamingStrategy().getUniqueId(refs);
                 OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, name, temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
 
-                refs[1] = OPERATIONAL_LIMIT_SET;
+                refs[2] = OPERATIONAL_LIMIT_SET;
                 String operationalLimitSetId = context.getNamingStrategy().getUniqueId(refs);
                 OperationalLimitSetEq.write(operationalLimitSetId, name, terminalId, cimNamespace, writer, context);
 
+                refs[2] = OPERATIONAL_LIMIT_VALUE;
                 String limitId = context.getNamingStrategy().getUniqueId(refs);
                 LoadingLimitEq.write(limitId, limits, temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
             }

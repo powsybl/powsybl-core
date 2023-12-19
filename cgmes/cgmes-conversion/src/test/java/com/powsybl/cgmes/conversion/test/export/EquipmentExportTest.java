@@ -526,7 +526,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = Cgmes3ModifiedCatalog.microGridBaseCaseAllTypesOfLoads().dataSource();
         Properties properties = new Properties();
         properties.setProperty("iidm.import.cgmes.convert-boundary", "true");
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = Network.read(dataSource, properties);
         Network actual = exportImportNodeBreaker(expected, dataSource);
 
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.ASYNCHRONOUS_MACHINE), loadsCreatedFromOriginalClassCount(actual, CgmesNames.ASYNCHRONOUS_MACHINE));
@@ -1023,7 +1023,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network).setExportEquipment(true).setExportTransformersWithHighestVoltageAtEnd1(transformersWithHighestVoltageAtEnd1);
+            CgmesExportContext context = new CgmesExportContext(network)
+                    .setExportEquipment(true)
+                    .setExportTransformersWithHighestVoltageAtEnd1(transformersWithHighestVoltageAtEnd1);
             EquipmentExport.write(network, writer, context);
         }
         return exportedEq;
