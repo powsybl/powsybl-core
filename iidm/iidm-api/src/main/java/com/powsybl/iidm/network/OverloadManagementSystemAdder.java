@@ -29,12 +29,6 @@ public interface OverloadManagementSystemAdder extends IdentifiableAdder<Overloa
         I setName(String name);
 
         /**
-         * Change the state of the tripping.
-         * @param enabled <code>true</code> to enable it
-         */
-        I setEnabled(boolean enabled);
-
-        /**
          * Set the minimum acceptable current value (in A).
          * @param lowLimit the minimum current value
          */
@@ -70,7 +64,7 @@ public interface OverloadManagementSystemAdder extends IdentifiableAdder<Overloa
 
         BranchTrippingAdder setBranchToOperateId(String branchId);
 
-        BranchTrippingAdder setSideToOperate(Branch.Side side);
+        BranchTrippingAdder setSideToOperate(TwoSides side);
     }
 
     interface ThreeWindingsTransformerTrippingAdder extends TrippingAdder<ThreeWindingsTransformerTrippingAdder> {

@@ -50,18 +50,6 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
         Tripping setName(String name);
 
         /**
-         * Tell if the tripping is active or not.
-         * @return <code>true</code> is the tripping is enabled
-         */
-        boolean isEnabled();
-
-        /**
-         * Change the state of the tripping.
-         * @param enabled <code>true</code> to enable it
-         */
-        Tripping setEnabled(boolean enabled);
-
-        /**
          * Return the minimum acceptable current value (in A).
          * @return the minimum current value, or `Optional.empty()` if no low limit is defined
          */
@@ -108,9 +96,9 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
 
         BranchTripping setBranchToOperate(Branch<?> branch);
 
-        Branch.Side getSideToOperate();
+        TwoSides getSideToOperate();
 
-        BranchTripping setSideToOperate(Branch.Side side);
+        BranchTripping setSideToOperate(TwoSides side);
     }
 
     interface ThreeWindingsTransformerTripping extends Tripping {
@@ -128,8 +116,7 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
         ThreeWindingsTransformerTripping setSideToOperate(ThreeSides side);
 
         default ThreeWindingsTransformer.Leg getLegToOperate() {
-            //TODO(op) This should be simplified once the sides' refactoring is merged
-            return getThreeWindingsTransformerToOperate().getLeg(getSideToOperate().toThreeWindingsTransformerSide());
+            return getThreeWindingsTransformerToOperate().getLeg(getSideToOperate());
         }
     }
 

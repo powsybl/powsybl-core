@@ -22,18 +22,15 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         private final String overloadManagementSystemId;
         private final String key;
         private String name;
-        private boolean enabled;
         private Double lowLimit;
         private Double highLimit;
         private boolean openAction;
 
-        protected AbstractTrippingImpl(String overloadManagementSystemId,
-                                       String key, String name, boolean enabled,
+        protected AbstractTrippingImpl(String overloadManagementSystemId, String key, String name,
                                        Double lowLimit, Double highLimit, boolean openAction) {
             this.overloadManagementSystemId = overloadManagementSystemId;
             this.key = Objects.requireNonNull(key);
             this.name = name;
-            this.enabled = enabled;
             if (lowLimit == null && highLimit == null) {
                 throw new ValidationException(this, "Both lowLimit and highLimit are not set.");
             }
@@ -55,17 +52,6 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         @Override
         public Tripping setName(String name) {
             this.name = name;
-            return this;
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return this.enabled;
-        }
-
-        @Override
-        public Tripping setEnabled(boolean enabled) {
-            this.enabled = enabled;
             return this;
         }
 
@@ -115,11 +101,10 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
     static class SwitchTrippingImpl extends AbstractTrippingImpl implements SwitchTripping {
         private Switch switchToOperate;
 
-        public SwitchTrippingImpl(String overloadManagementSystemId,
-                                  String key, String name, boolean enabled,
+        public SwitchTrippingImpl(String overloadManagementSystemId, String key, String name,
                                   Double lowLimit, Double highLimit, boolean openAction,
                                   Switch switchToOperate) {
-            super(overloadManagementSystemId, key, name, enabled, lowLimit, highLimit, openAction);
+            super(overloadManagementSystemId, key, name, lowLimit, highLimit, openAction);
             this.switchToOperate = Objects.requireNonNull(switchToOperate);
         }
 
@@ -137,13 +122,12 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
 
     static class BranchTrippingImpl extends AbstractTrippingImpl implements OverloadManagementSystem.BranchTripping {
         private Branch<?> branchToOperate;
-        private Branch.Side side; //TODO replace it by a TwoSides
+        private TwoSides side;
 
-        protected BranchTrippingImpl(String overloadManagementSystemId,
-                                     String key, String name, boolean enabled,
+        protected BranchTrippingImpl(String overloadManagementSystemId, String key, String name,
                                      Double lowLimit, Double highLimit, boolean openAction,
-                                     Branch<?> branchToOperate, Branch.Side side) {
-            super(overloadManagementSystemId, key, name, enabled, lowLimit, highLimit, openAction);
+                                     Branch<?> branchToOperate, TwoSides side) {
+            super(overloadManagementSystemId, key, name, lowLimit, highLimit, openAction);
             this.branchToOperate = Objects.requireNonNull(branchToOperate);
             this.side = Objects.requireNonNull(side);
         }
@@ -160,12 +144,12 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         }
 
         @Override
-        public Branch.Side getSideToOperate() {
+        public TwoSides getSideToOperate() {
             return this.side;
         }
 
         @Override
-        public BranchTripping setSideToOperate(Branch.Side side) {
+        public BranchTripping setSideToOperate(TwoSides side) {
             this.side = Objects.requireNonNull(side);
             return this;
         }
@@ -177,11 +161,10 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         private ThreeWindingsTransformer threeWindingsTransformer;
         private ThreeSides side;
 
-        protected ThreeWindingsTransformerTrippingImpl(String overloadManagementSystemId,
-                                                       String key, String name, boolean enabled,
+        protected ThreeWindingsTransformerTrippingImpl(String overloadManagementSystemId, String key, String name,
                                                        Double lowLimit, Double highLimit, boolean openAction,
                                                        ThreeWindingsTransformer threeWindingsTransformer, ThreeSides side) {
-            super(overloadManagementSystemId, key, name, enabled, lowLimit, highLimit, openAction);
+            super(overloadManagementSystemId, key, name, lowLimit, highLimit, openAction);
             this.threeWindingsTransformer = Objects.requireNonNull(threeWindingsTransformer);
             this.side = Objects.requireNonNull(side);
         }

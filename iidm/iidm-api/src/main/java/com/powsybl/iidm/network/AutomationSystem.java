@@ -13,7 +13,7 @@ package com.powsybl.iidm.network;
 public interface AutomationSystem<I extends AutomationSystem<I>> extends Identifiable<I> {
 
     /**
-     * Tell if the system is active or not.
+     * Says if the system is active or not.
      * @return <code>true</code> is the automation system is enabled
      */
     boolean isEnabled();

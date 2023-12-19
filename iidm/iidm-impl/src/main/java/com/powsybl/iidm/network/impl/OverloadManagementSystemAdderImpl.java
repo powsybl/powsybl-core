@@ -18,8 +18,7 @@ import java.util.function.BiFunction;
 class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<OverloadManagementSystemAdderImpl>
         implements OverloadManagementSystemAdder {
 
-    abstract class AbstractTrippingAdderImpl<I extends TrippingAdder<I>>
-            implements Validable, TrippingAdder<I> {
+    abstract class AbstractTrippingAdderImpl<I extends TrippingAdder<I>> implements Validable, TrippingAdder<I> {
         protected String key = null;
         protected String name = null;
         protected boolean enabled = true;
@@ -34,11 +33,6 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
 
         public I setName(String name) {
             this.name = name;
-            return (I) this;
-        }
-
-        public I setEnabled(boolean enabled) {
-            this.enabled = enabled;
             return (I) this;
         }
 
@@ -105,7 +99,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     class BranchTrippingAdderImpl extends AbstractTrippingAdderImpl<BranchTrippingAdder>
             implements OverloadManagementSystemAdder.BranchTrippingAdder {
         private String branchId;
-        private Branch.Side side; //TODO replace by a TwoSides
+        private TwoSides side;
 
         @Override
         public OverloadManagementSystemAdder.BranchTrippingAdder setBranchToOperateId(String branchId) {
@@ -114,7 +108,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         }
 
         @Override
-        public OverloadManagementSystemAdder.BranchTrippingAdder setSideToOperate(Branch.Side side) {
+        public OverloadManagementSystemAdder.BranchTrippingAdder setSideToOperate(TwoSides side) {
             this.side = side;
             return this;
         }
@@ -238,7 +232,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
 
     private OverloadManagementSystem.Tripping createTripping(SwitchTrippingAdderImpl adder, String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.SwitchTrippingImpl(
-                overloadManagementSystemId, adder.key, adder.name, adder.enabled,
+                overloadManagementSystemId, adder.key, adder.name,
                 adder.lowLimit, adder.highLimit, adder.openAction,
                 adder.checkAndGetSwitch());
     }
@@ -246,7 +240,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     private OverloadManagementSystem.Tripping createTripping(BranchTrippingAdderImpl adder, String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.BranchTrippingImpl(
                 overloadManagementSystemId,
-                adder.key, adder.name, adder.enabled, adder.lowLimit, adder.highLimit, adder.openAction,
+                adder.key, adder.name, adder.lowLimit, adder.highLimit, adder.openAction,
                 adder.checkAndGetBranch(), adder.side);
     }
 
@@ -254,7 +248,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
                                                              String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl(
                 overloadManagementSystemId,
-                adder.key, adder.name, adder.enabled, adder.lowLimit, adder.highLimit, adder.openAction,
+                adder.key, adder.name, adder.lowLimit, adder.highLimit, adder.openAction,
                 adder.checkAndGetThreeWindingsTransformer(), adder.side);
     }
 
