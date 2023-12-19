@@ -969,12 +969,15 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
-        public double getLowestTatlPercentageCoefficient() {
-            return lowestTatlPercentageCoefficient;
+        public double getMissingPermanentLimitPercentage() {
+            return missingPermanentLimitPercentage;
         }
 
-        public Config setLowestTatlPercentageCoefficient(double lowestTatlPercentageCoefficient) {
-            this.lowestTatlPercentageCoefficient = lowestTatlPercentageCoefficient;
+        public Config setMissingPermanentLimitPercentage(double missingPermanentLimitPercentage) {
+            if (missingPermanentLimitPercentage < 0 || missingPermanentLimitPercentage > 100) {
+                new IllegalArgumentException("Missing permanent limit percentage must be between 0 and 100.");
+            }
+            this.missingPermanentLimitPercentage = missingPermanentLimitPercentage;
             return this;
         }
 
@@ -1027,7 +1030,7 @@ public class Conversion {
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
 
-        private double lowestTatlPercentageCoefficient = 100;
+        private double missingPermanentLimitPercentage = 100;
     }
 
     private final CgmesModel cgmes;

@@ -184,7 +184,9 @@ public final class ConnectableSerDeUtil {
     private static <A extends LoadingLimitsAdder> void readLoadingLimits(String type, A adder, TreeDataReader reader, IidmVersion iidmVersion) {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         if (iidmVersion.compareTo(IidmVersion.V_1_12) >= 0) {
-            // TODO add check on permanent limit
+            if (Double.isNaN(permanentLimit)) {
+
+            }
         }
         adder.setPermanentLimit(permanentLimit);
         reader.readChildNodes(elementName -> {
