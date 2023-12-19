@@ -7,11 +7,17 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.util.SwitchPredicates;
+import org.slf4j.Logger;
 
 import java.util.Objects;
 import java.util.function.Predicate;
+
+import static com.powsybl.iidm.modification.util.ModificationReports.connectableDisconnectionReport;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -23,5 +29,29 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
     AbstractDisconnection(String connectableId) {
         this.connectableId = Objects.requireNonNull(connectableId);
         this.openableSwitches = SwitchPredicates.IS_OPEN.negate();
+    }
+
+    public void applyModification(Network network, boolean isPlanned, Logger logger, Reporter reporter) {
+        // Add the reporter to the network reporter context
+        network.getReporterContext().pushReporter(reporter);
+
+        // Get the connectable
+        Connectable<?> connectable = network.getConnectable(connectableId);
+
+        // Disconnect the connectable
+        boolean hasBeenDisconnected;
+        Reporter poppedReporter;
+        try {
+            hasBeenDisconnected = connectable.disconnect(openableSwitches);
+        } finally {
+            poppedReporter = network.getReporterContext().popReporter();
+        }
+
+        if (hasBeenDisconnected) {
+            logger.info("Connectable {} has been disconnected.", connectableId);
+        } else {
+            logger.info("Connectable {} has NOT been disconnected.", connectableId);
+        }
+        connectableDisconnectionReport(poppedReporter, connectable, hasBeenDisconnected, isPlanned);
     }
 }
