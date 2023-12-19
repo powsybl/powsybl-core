@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * An overload management system.
@@ -50,20 +49,12 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
         Tripping setName(String name);
 
         /**
-         * Return the minimum acceptable current value (in A).
-         * @return the minimum current value, or `Optional.empty()` if no low limit is defined
-         */
-        Optional<Double> getLowLimit();
-
-        Tripping setLowLimit(Double lowLimit);
-
-        /**
          * Return the maximum acceptable current value (in A).
-         * @return the maximum current value, or `Optional.empty()` if no high limit is defined
+         * @return the maximum current value
          */
-        Optional<Double> getHighLimit();
+        double getCurrentLimit();
 
-        Tripping setHighLimit(Double highLimit);
+        Tripping setCurrentLimit(double currentLimit);
 
         /**
          * Tell if the tripping operation consists in opening (<code>true</code>) or closing (<code>false</code>)

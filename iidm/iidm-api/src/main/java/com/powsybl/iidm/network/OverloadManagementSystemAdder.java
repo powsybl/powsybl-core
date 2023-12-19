@@ -29,16 +29,10 @@ public interface OverloadManagementSystemAdder extends IdentifiableAdder<Overloa
         I setName(String name);
 
         /**
-         * Set the minimum acceptable current value (in A).
-         * @param lowLimit the minimum current value
-         */
-        I setLowLimit(Double lowLimit);
-
-        /**
          * Set the maximum acceptable current value (in A).
-         * @param highLimit the maximum current value
+         * @param currentLimit the maximum current value
          */
-        I setHighLimit(Double highLimit);
+        I setCurrentLimit(double currentLimit);
 
         I setOpenAction(boolean open);
 

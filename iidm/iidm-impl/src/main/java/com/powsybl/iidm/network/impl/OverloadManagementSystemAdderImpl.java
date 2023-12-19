@@ -21,9 +21,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     abstract class AbstractTrippingAdderImpl<I extends TrippingAdder<I>> implements Validable, TrippingAdder<I> {
         protected String key = null;
         protected String name = null;
-        protected boolean enabled = true;
-        protected Double lowLimit = null;
-        protected Double highLimit = null;
+        protected double currentLimit = Double.NaN;
         protected boolean openAction = true;
 
         public I setKey(String key) {
@@ -36,13 +34,8 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
             return (I) this;
         }
 
-        public I setLowLimit(Double lowLimit) {
-            this.lowLimit = lowLimit;
-            return (I) this;
-        }
-
-        public I setHighLimit(Double highLimit) {
-            this.highLimit = highLimit;
+        public I setCurrentLimit(double currentLimit) {
+            this.currentLimit = currentLimit;
             return (I) this;
         }
 
@@ -233,14 +226,14 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     private OverloadManagementSystem.Tripping createTripping(SwitchTrippingAdderImpl adder, String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.SwitchTrippingImpl(
                 overloadManagementSystemId, adder.key, adder.name,
-                adder.lowLimit, adder.highLimit, adder.openAction,
+                adder.currentLimit, adder.openAction,
                 adder.checkAndGetSwitch());
     }
 
     private OverloadManagementSystem.Tripping createTripping(BranchTrippingAdderImpl adder, String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.BranchTrippingImpl(
                 overloadManagementSystemId,
-                adder.key, adder.name, adder.lowLimit, adder.highLimit, adder.openAction,
+                adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkAndGetBranch(), adder.side);
     }
 
@@ -248,8 +241,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
                                                              String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl(
                 overloadManagementSystemId,
-                adder.key, adder.name, adder.lowLimit, adder.highLimit, adder.openAction,
+                adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkAndGetThreeWindingsTransformer(), adder.side);
     }
-
 }

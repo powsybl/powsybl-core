@@ -22,20 +22,20 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         private final String overloadManagementSystemId;
         private final String key;
         private String name;
-        private Double lowLimit;
-        private Double highLimit;
+        private double currentLimit;
         private boolean openAction;
 
         protected AbstractTrippingImpl(String overloadManagementSystemId, String key, String name,
-                                       Double lowLimit, Double highLimit, boolean openAction) {
+                                       double currentLimit, boolean openAction) {
             this.overloadManagementSystemId = overloadManagementSystemId;
             this.key = Objects.requireNonNull(key);
             this.name = name;
-            if (lowLimit == null && highLimit == null) {
-                throw new ValidationException(this, "Both lowLimit and highLimit are not set.");
+            if (Double.isNaN(currentLimit)) {
+                throw new ValidationException(this, "Current limit is mandatory.");
+            } else if (currentLimit < 0) {
+                throw new ValidationException(this, "Current limit must be positive.");
             }
-            this.lowLimit = lowLimit;
-            this.highLimit = highLimit;
+            this.currentLimit = currentLimit;
             this.openAction = openAction;
         }
 
@@ -56,24 +56,13 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         }
 
         @Override
-        public Optional<Double> getLowLimit() {
-            return Optional.ofNullable(this.lowLimit);
+        public double getCurrentLimit() {
+            return this.currentLimit;
         }
 
         @Override
-        public Tripping setLowLimit(Double lowLimit) {
-            this.lowLimit = lowLimit;
-            return this;
-        }
-
-        @Override
-        public Optional<Double> getHighLimit() {
-            return Optional.ofNullable(this.highLimit);
-        }
-
-        @Override
-        public Tripping setHighLimit(Double highLimit) {
-            this.highLimit = highLimit;
+        public Tripping setCurrentLimit(double currentLimit) {
+            this.currentLimit = currentLimit;
             return this;
         }
 
@@ -102,9 +91,9 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         private Switch switchToOperate;
 
         public SwitchTrippingImpl(String overloadManagementSystemId, String key, String name,
-                                  Double lowLimit, Double highLimit, boolean openAction,
+                                  double currentLimit, boolean openAction,
                                   Switch switchToOperate) {
-            super(overloadManagementSystemId, key, name, lowLimit, highLimit, openAction);
+            super(overloadManagementSystemId, key, name, currentLimit, openAction);
             this.switchToOperate = Objects.requireNonNull(switchToOperate);
         }
 
@@ -125,9 +114,9 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         private TwoSides side;
 
         protected BranchTrippingImpl(String overloadManagementSystemId, String key, String name,
-                                     Double lowLimit, Double highLimit, boolean openAction,
+                                     double currentLimit, boolean openAction,
                                      Branch<?> branchToOperate, TwoSides side) {
-            super(overloadManagementSystemId, key, name, lowLimit, highLimit, openAction);
+            super(overloadManagementSystemId, key, name, currentLimit, openAction);
             this.branchToOperate = Objects.requireNonNull(branchToOperate);
             this.side = Objects.requireNonNull(side);
         }
@@ -162,9 +151,9 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         private ThreeSides side;
 
         protected ThreeWindingsTransformerTrippingImpl(String overloadManagementSystemId, String key, String name,
-                                                       Double lowLimit, Double highLimit, boolean openAction,
+                                                       double currentLimit, boolean openAction,
                                                        ThreeWindingsTransformer threeWindingsTransformer, ThreeSides side) {
-            super(overloadManagementSystemId, key, name, lowLimit, highLimit, openAction);
+            super(overloadManagementSystemId, key, name, currentLimit, openAction);
             this.threeWindingsTransformer = Objects.requireNonNull(threeWindingsTransformer);
             this.side = Objects.requireNonNull(side);
         }

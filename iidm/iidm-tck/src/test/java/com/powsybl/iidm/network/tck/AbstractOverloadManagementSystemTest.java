@@ -35,15 +35,13 @@ public abstract class AbstractOverloadManagementSystemTest {
                 .newSwitchTripping()
                     .setKey("SwTrip")
                     .setName("Tripping on switch")
-                    .setLowLimit(null)
-                    .setHighLimit(80.)
+                    .setCurrentLimit(80.)
                     .setOpenAction(true)
                     .setSwitchToOperateId("S1VL2_LINES1S2V1_1_BREAKER")
                     .add()
                 .newBranchTripping()
                     .setKey("LineTrip")
-                    .setLowLimit(-50.)
-                    .setHighLimit(null)
+                    .setCurrentLimit(50)
                     .setOpenAction(false)
                     .setBranchToOperateId("LINE_S1S2V1_2")
                     .setSideToOperate(TwoSides.ONE)
@@ -57,8 +55,7 @@ public abstract class AbstractOverloadManagementSystemTest {
                 .newBranchTripping()
                     .setKey("2wtTrip")
                     .setName("Tripping on 2 windings transformer")
-                    .setLowLimit(-100.)
-                    .setHighLimit(100.)
+                    .setCurrentLimit(100.)
                     .setOpenAction(true)
                     .setBranchToOperateId("TWT")
                     .setSideToOperate(TwoSides.TWO)
@@ -97,9 +94,7 @@ public abstract class AbstractOverloadManagementSystemTest {
         OverloadManagementSystem.SwitchTripping swTripping = (OverloadManagementSystem.SwitchTripping) trippings.get(0);
         assertEquals("SwTrip", swTripping.getKey());
         assertEquals("Tripping on switch", swTripping.getNameOrKey());
-        assertTrue(swTripping.getLowLimit().isEmpty());
-        assertTrue(swTripping.getHighLimit().isPresent());
-        assertEquals(80., swTripping.getHighLimit().get());
+        assertEquals(80., swTripping.getCurrentLimit());
         assertTrue(swTripping.isOpenAction());
         assertEquals("S1VL2_LINES1S2V1_1_BREAKER", swTripping.getSwitchToOperate().getId());
 
@@ -107,9 +102,7 @@ public abstract class AbstractOverloadManagementSystemTest {
         OverloadManagementSystem.BranchTripping brTripping = (OverloadManagementSystem.BranchTripping) trippings.get(1);
         assertEquals("LineTrip", brTripping.getKey());
         assertEquals("LineTrip", brTripping.getNameOrKey());
-        assertTrue(brTripping.getLowLimit().isPresent());
-        assertEquals(-50., brTripping.getLowLimit().get());
-        assertTrue(brTripping.getHighLimit().isEmpty());
+        assertEquals(50., brTripping.getCurrentLimit());
         assertFalse(brTripping.isOpenAction());
         assertEquals("LINE_S1S2V1_2", brTripping.getBranchToOperate().getId());
         assertEquals(TwoSides.ONE, brTripping.getSideToOperate());
@@ -120,10 +113,7 @@ public abstract class AbstractOverloadManagementSystemTest {
         brTripping = (OverloadManagementSystem.BranchTripping) trippings.get(0);
         assertEquals("2wtTrip", brTripping.getKey());
         assertEquals("Tripping on 2 windings transformer", brTripping.getNameOrKey());
-        assertTrue(brTripping.getLowLimit().isPresent());
-        assertEquals(-100., brTripping.getLowLimit().get());
-        assertTrue(brTripping.getHighLimit().isPresent());
-        assertEquals(100., brTripping.getHighLimit().get());
+        assertEquals(100., brTripping.getCurrentLimit());
         assertTrue(brTripping.isOpenAction());
         assertEquals("TWT", brTripping.getBranchToOperate().getId());
         assertEquals(TwoSides.TWO, brTripping.getSideToOperate());
@@ -142,8 +132,7 @@ public abstract class AbstractOverloadManagementSystemTest {
                 .newThreeWindingsTransformerTripping()
                     .setKey("3wtTrip")
                     .setName("Tripping on 3 windings transformer")
-                    .setLowLimit(null)
-                    .setHighLimit(60.)
+                    .setCurrentLimit(60.)
                     .setOpenAction(true)
                     .setThreeWindingsTransformerToOperate("3WT")
                     .setSideToOperate(ThreeSides.THREE)
@@ -158,9 +147,7 @@ public abstract class AbstractOverloadManagementSystemTest {
                 (OverloadManagementSystem.ThreeWindingsTransformerTripping) trippings.get(0);
         assertEquals("3wtTrip", twtTripping.getKey());
         assertEquals("Tripping on 3 windings transformer", twtTripping.getNameOrKey());
-        assertTrue(twtTripping.getLowLimit().isEmpty());
-        assertTrue(twtTripping.getHighLimit().isPresent());
-        assertEquals(60., twtTripping.getHighLimit().get());
+        assertEquals(60., twtTripping.getCurrentLimit());
         assertTrue(twtTripping.isOpenAction());
         assertEquals("3WT", twtTripping.getThreeWindingsTransformerToOperate().getId());
         assertEquals(ThreeSides.THREE, twtTripping.getSideToOperate());
