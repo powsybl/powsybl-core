@@ -645,4 +645,31 @@ public final class ModificationReports {
             .withSeverity(TypedValue.INFO_SEVERITY)
             .build());
     }
+
+    public static void connectableConnectionReport(Reporter reporter, Connectable<?> connectable, boolean connectionSuccessful) {
+        String defaultMessage = connectionSuccessful ?
+            "Connectable ${connectable} has been connected." :
+            "Connectable ${connectable} has NOT been connected.";
+        String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
+        reporter.report(Report.builder()
+            .withKey(key)
+            .withDefaultMessage(defaultMessage)
+            .withValue("connectable", connectable.getId())
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .build());
+    }
+
+    public static void connectableDisconnectionReport(Reporter reporter, Connectable<?> connectable, boolean disconnectionSuccessful, boolean isPlanned) {
+        String defaultMessage = disconnectionSuccessful ?
+            "Connectable ${connectable} has been disconnected." :
+            "Connectable ${connectable} has NOT been disconnected.";
+        String key = isPlanned ? "planned" : "unplanned";
+        key += disconnectionSuccessful ? "ConnectableDisconnected" : "ConnectableNotDisconnected";
+        reporter.report(Report.builder()
+            .withKey(key)
+            .withDefaultMessage(defaultMessage)
+            .withValue("connectable", connectable.getId())
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .build());
+    }
 }

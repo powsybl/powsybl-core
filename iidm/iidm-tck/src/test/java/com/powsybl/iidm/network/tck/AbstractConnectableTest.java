@@ -314,7 +314,9 @@ public abstract class AbstractConnectableTest {
 
         // disconnect the already fully disconnected line 1
         ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
-        assertFalse(line1.disconnect(reporter));
+        network.getReporterContext().pushReporter(reporter);
+        assertFalse(line1.disconnect());
+        network.getReporterContext().popReporter();
         assertEquals("alreadyDisconnectedTerminal", reporter.getReports().iterator().next().getReportKey());
 
         // Reconnect the line 1
@@ -362,7 +364,9 @@ public abstract class AbstractConnectableTest {
 
         // connect the already fully connected line 2
         ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
-        assertFalse(line2.connect(reporter));
+        network.getReporterContext().pushReporter(reporter);
+        assertFalse(line2.connect());
+        network.getReporterContext().popReporter();
         assertEquals("alreadyConnectedTerminal", reporter.getReports().iterator().next().getReportKey());
 
         // Disconnect the twt

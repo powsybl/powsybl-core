@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import static com.powsybl.iidm.modification.util.ModificationReports.connectableConnectionReport;
+
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
@@ -48,14 +50,23 @@ public class ConnectableConnection extends AbstractNetworkModification {
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
 
+        // Add the reporter to the network reporter context
+        network.getReporterContext().pushReporter(reporter);
+
         // Disconnect the connectable
-        boolean hasBeenConnected = connectable.connect(isTypeSwitchToOperate, reporter);
+        boolean hasBeenConnected;
+        Reporter poppedReporter;
+        try {
+            hasBeenConnected = connectable.connect(isTypeSwitchToOperate);
+        } finally {
+            poppedReporter = network.getReporterContext().popReporter();
+        }
 
         if (hasBeenConnected) {
             LOG.info("Connectable {} has been connected.", connectableId);
         } else {
             LOG.info("Connectable {} has NOT been connected.", connectableId);
         }
-
+        connectableConnectionReport(poppedReporter, connectable, hasBeenConnected);
     }
 }

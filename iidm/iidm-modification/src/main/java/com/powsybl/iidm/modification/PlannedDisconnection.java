@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.powsybl.iidm.modification.util.ModificationReports.connectableDisconnectionReport;
+
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
@@ -34,16 +36,26 @@ public class PlannedDisconnection extends AbstractDisconnection {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
+        // Add the reporter to the network reporter context
+        network.getReporterContext().pushReporter(reporter);
+
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
 
         // Disconnect the connectable
-        boolean hasBeenDisconnected = connectable.disconnect(openableSwitches, reporter);
+        boolean hasBeenDisconnected;
+        Reporter poppedReporter;
+        try {
+            hasBeenDisconnected = connectable.disconnect(openableSwitches);
+        } finally {
+            poppedReporter = network.getReporterContext().popReporter();
+        }
 
         if (hasBeenDisconnected) {
             LOG.info("Connectable {} has been disconnected.", connectableId);
         } else {
             LOG.info("Connectable {} has NOT been disconnected.", connectableId);
         }
+        connectableDisconnectionReport(poppedReporter, connectable, hasBeenDisconnected, true);
     }
 }

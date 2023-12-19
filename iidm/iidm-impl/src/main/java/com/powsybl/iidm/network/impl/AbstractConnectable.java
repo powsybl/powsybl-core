@@ -195,18 +195,13 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     public boolean connect() {
-        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER, Reporter.NO_OP);
-    }
-
-    public boolean connect(Reporter reporter) {
-        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER, reporter);
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
 
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        return connect(isTypeSwitchToOperate, Reporter.NO_OP);
-    }
+        // Reporter
+        Reporter reporter = this.getNetwork().getReporterContext().getReporter();
 
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, Reporter reporter) {
         // Booleans
         boolean isAlreadyConnected = true;
         boolean isNowConnected = true;
@@ -261,18 +256,13 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     public boolean disconnect() {
-        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER, Reporter.NO_OP);
+        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
     }
 
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        return disconnect(isSwitchOpenable, Reporter.NO_OP);
-    }
+        // Reporter
+        Reporter reporter = this.getNetwork().getReporterContext().getReporter();
 
-    public boolean disconnect(Reporter reporter) {
-        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER, reporter);
-    }
-
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, Reporter reporter) {
         // Booleans
         boolean isAlreadyDisconnected = true;
         boolean isNowDisconnected = true;
