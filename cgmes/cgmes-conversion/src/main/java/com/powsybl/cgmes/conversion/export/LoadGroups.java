@@ -41,7 +41,9 @@ class LoadGroups {
         String id = context.getNamingStrategy().getUniqueId(ref(loadClassName), LOAD_GROUP);
         String className = GROUP_CLASS_NAMES.get(loadClassName);
         String groupName = GROUP_NAMES.get(loadClassName);
-        return new LoadGroup(className, id, groupName);
+        LoadGroup loadGroup = new LoadGroup(className, id, groupName);
+        uniqueGroupByClass.put(loadClassName, loadGroup);
+        return loadGroup;
     }
 
     static final Map<String, String> GROUP_CLASS_NAMES = Map.of(
