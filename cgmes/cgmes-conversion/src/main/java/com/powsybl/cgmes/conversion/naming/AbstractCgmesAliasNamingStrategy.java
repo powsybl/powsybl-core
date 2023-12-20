@@ -192,7 +192,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     @Override
     public String getUniqueId(CgmesObjectReference... refs) {
         if (XXX_USE_NAME_BASED_UUIDS) {
-            String seed = CgmesObjectReference.combine(refs);
+            String seed = "_" + CgmesObjectReference.combine(refs);
             String uuid = nameBasedGenerator.generate(seed).toString();
             if (uuidSeed.containsKey(uuid)) {
                 LOG.debug("Unique ID for seed {} called multiple times ", seed);

@@ -179,7 +179,7 @@ public interface CgmesObjectReference {
     }
 
     static String combine(CgmesObjectReference... refs) {
-        return "_" + Arrays.stream(refs).map(CgmesObjectReference::toString).collect(Collectors.joining("_"));
+        return Arrays.stream(refs).map(CgmesObjectReference::toString).collect(Collectors.joining("_"));
     }
 
 }
