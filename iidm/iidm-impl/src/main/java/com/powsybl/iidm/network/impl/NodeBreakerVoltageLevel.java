@@ -1211,12 +1211,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         // Initialisation of a list to open in case some terminals are in node-breaker view
-        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+        Set<SwitchImpl> switchForConnection = new HashSet<>();
 
         // Get the list of switches to close
-        if (getConnectingSwitches(terminal, isSwitchOperable, switchForDisconnection)) {
+        if (getConnectingSwitches(terminal, isSwitchOperable, switchForConnection)) {
             // Close the switches
-            switchForDisconnection.forEach(sw -> sw.setOpen(false));
+            switchForConnection.forEach(sw -> sw.setOpen(false));
             return true;
         } else {
             return false;
