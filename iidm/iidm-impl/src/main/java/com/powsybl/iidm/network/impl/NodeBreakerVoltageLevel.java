@@ -464,30 +464,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     switch (connectable.getType()) {
-                        case LINE:
-                        case TWO_WINDINGS_TRANSFORMER:
-                        case THREE_WINDINGS_TRANSFORMER:
-                        case HVDC_CONVERTER_STATION:
-                        case DANGLING_LINE:
+                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, DANGLING_LINE -> {
                             branchCount++;
                             feederCount++;
-                            break;
-
-                        case LOAD:
-                        case GENERATOR:
-                        case BATTERY:
-                        case SHUNT_COMPENSATOR:
-                        case STATIC_VAR_COMPENSATOR:
-                        case GROUND:
-                            feederCount++;
-                            break;
-
-                        case BUSBAR_SECTION:
-                            busbarSectionCount++;
-                            break;
-
-                        default:
-                            throw new IllegalStateException();
+                        }
+                        case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, GROUND -> feederCount++;
+                        case BUSBAR_SECTION -> busbarSectionCount++;
+                        default -> throw new IllegalStateException();
                     }
                 }
             }
