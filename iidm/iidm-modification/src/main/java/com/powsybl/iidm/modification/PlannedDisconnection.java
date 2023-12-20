@@ -23,11 +23,9 @@ public class PlannedDisconnection extends AbstractDisconnection {
     private static final Logger LOG = LoggerFactory.getLogger(PlannedDisconnection.class);
 
     PlannedDisconnection(String connectableId, boolean openFictitiousSwitches) {
-        super(connectableId);
-
-        if (!openFictitiousSwitches) {
-            this.openableSwitches = this.openableSwitches.and(SwitchPredicates.IS_NONFICTIONAL);
-        }
+        super(connectableId, openFictitiousSwitches ?
+            SwitchPredicates.IS_OPEN.negate() :
+            SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_NONFICTIONAL));
     }
 
     @Override

@@ -11,7 +11,6 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.slf4j.Logger;
 
 import java.util.Objects;
@@ -24,11 +23,11 @@ import static com.powsybl.iidm.modification.util.ModificationReports.connectable
  */
 public abstract class AbstractDisconnection extends AbstractNetworkModification {
     final String connectableId;
-    Predicate<Switch> openableSwitches;
+    final Predicate<Switch> openableSwitches;
 
-    AbstractDisconnection(String connectableId) {
+    AbstractDisconnection(String connectableId, Predicate<Switch> openableSwitches) {
         this.connectableId = Objects.requireNonNull(connectableId);
-        this.openableSwitches = SwitchPredicates.IS_OPEN.negate();
+        this.openableSwitches = openableSwitches;
     }
 
     public void applyModification(Network network, boolean isPlanned, Logger logger, Reporter reporter) {

@@ -29,20 +29,26 @@ public class ConnectableConnection extends AbstractNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectableConnection.class);
     final String connectableId;
-    Predicate<Switch> isTypeSwitchToOperate = SwitchPredicates.IS_NON_NULL;
+    final Predicate<Switch> isTypeSwitchToOperate;
 
     ConnectableConnection(String connectableId, boolean openFictitiousSwitches, boolean operateOnlyBreakers) {
         this.connectableId = Objects.requireNonNull(connectableId);
 
+        // Initial predicate
+        Predicate<Switch> predicate = SwitchPredicates.IS_NON_NULL;
+
         // If selected, only non-fictitious switches can be operated
         if (!openFictitiousSwitches) {
-            isTypeSwitchToOperate = isTypeSwitchToOperate.and(SwitchPredicates.IS_NONFICTIONAL);
+            predicate = predicate.and(SwitchPredicates.IS_NONFICTIONAL);
         }
 
         // If selected, only breakers can be operated
         if (operateOnlyBreakers) {
-            isTypeSwitchToOperate = isTypeSwitchToOperate.and(SwitchPredicates.IS_BREAKER);
+            predicate = predicate.and(SwitchPredicates.IS_BREAKER);
         }
+
+        // Save the predicate
+        this.isTypeSwitchToOperate = predicate;
     }
 
     @Override

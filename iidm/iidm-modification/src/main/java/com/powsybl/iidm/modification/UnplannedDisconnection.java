@@ -23,13 +23,9 @@ public class UnplannedDisconnection extends AbstractDisconnection {
     private static final Logger LOG = LoggerFactory.getLogger(UnplannedDisconnection.class);
 
     UnplannedDisconnection(String connectableId, boolean openFictitiousSwitches) {
-        super(connectableId);
-
-        if (openFictitiousSwitches) {
-            this.openableSwitches = this.openableSwitches.and(SwitchPredicates.IS_BREAKER);
-        } else {
-            this.openableSwitches = this.openableSwitches.and(SwitchPredicates.IS_BREAKER).and(SwitchPredicates.IS_NONFICTIONAL);
-        }
+        super(connectableId, openFictitiousSwitches ?
+            SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_BREAKER) :
+            SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_BREAKER).and(SwitchPredicates.IS_NONFICTIONAL));
     }
 
     @Override
