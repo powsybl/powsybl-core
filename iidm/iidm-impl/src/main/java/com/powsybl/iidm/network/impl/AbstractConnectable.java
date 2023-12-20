@@ -282,7 +282,6 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
                     .build());
                 continue;
             }
-            
             // The terminal is connected
             isAlreadyDisconnected = false;
 
