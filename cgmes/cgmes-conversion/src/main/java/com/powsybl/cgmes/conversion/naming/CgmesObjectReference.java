@@ -1,8 +1,15 @@
 package com.powsybl.cgmes.conversion.naming;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Load;
 
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -37,13 +44,54 @@ public interface CgmesObjectReference {
 
     class Identifiable implements CgmesObjectReference {
         private final com.powsybl.iidm.network.Identifiable<?> value;
+        private static final EnumMap<IdentifiableType, String> SUFFIXES = new EnumMap<>(Map.ofEntries(
+                Map.entry(IdentifiableType.NETWORK, "N"),
+                Map.entry(IdentifiableType.SUBSTATION, "S"),
+                Map.entry(IdentifiableType.VOLTAGE_LEVEL, "VL"),
+                Map.entry(IdentifiableType.HVDC_LINE, "DCLS"),
+                Map.entry(IdentifiableType.BUS, "TN"),
+                Map.entry(IdentifiableType.SWITCH, "SW"),
+                Map.entry(IdentifiableType.BUSBAR_SECTION, "BS"),
+                Map.entry(IdentifiableType.LINE, "ACLS"),
+                Map.entry(IdentifiableType.TIE_LINE, "ACLS"),
+                Map.entry(IdentifiableType.TWO_WINDINGS_TRANSFORMER, "PT"),
+                Map.entry(IdentifiableType.THREE_WINDINGS_TRANSFORMER, "PT"),
+                Map.entry(IdentifiableType.GENERATOR, "SM"),
+                Map.entry(IdentifiableType.BATTERY, "SM"),
+                // There is no single suffix for LOAD identifiables,
+                // They can be mapped to ConformLoad, NonConformLoad, EnergyConsumer, ...
+                Map.entry(IdentifiableType.SHUNT_COMPENSATOR, "SC"),
+                Map.entry(IdentifiableType.DANGLING_LINE, "ACLS"),
+                Map.entry(IdentifiableType.STATIC_VAR_COMPENSATOR, "SVC"),
+                Map.entry(IdentifiableType.HVDC_CONVERTER_STATION, "DCCS")
+        ));
 
         public Identifiable(com.powsybl.iidm.network.Identifiable<?> value) {
             this.value = value;
         }
 
+        public String suffix() {
+            IdentifiableType type = value.getType();
+            if (SUFFIXES.containsKey(type)) {
+                return SUFFIXES.get(type);
+            } else if (type == IdentifiableType.LOAD) {
+                String className = CgmesExportUtil.loadClassName((Load) value);
+                return switch (className) {
+                    case CgmesNames.ASYNCHRONOUS_MACHINE -> "AM";
+                    case CgmesNames.ENERGY_SOURCE -> "ES";
+                    case CgmesNames.ENERGY_CONSUMER -> "EC";
+                    case CgmesNames.CONFORM_LOAD -> "CL";
+                    case CgmesNames.NONCONFORM_LOAD -> "NCL";
+                    case CgmesNames.STATION_SUPPLY -> "SS";
+                    default -> throw new PowsyblException("Unexpected class name for Load: " + className);
+                };
+            } else {
+                throw new PowsyblException("Unexpected IdentifiableType as CGMES object reference " + value.getType());
+            }
+        }
+
         public String toString() {
-            return value.getId();
+            return value.getId() + "_" + suffix();
         }
     }
 
@@ -131,7 +179,7 @@ public interface CgmesObjectReference {
     }
 
     static String combine(CgmesObjectReference... refs) {
-        return Arrays.stream(refs).map(CgmesObjectReference::toString).collect(Collectors.joining("_"));
+        return "_" + Arrays.stream(refs).map(CgmesObjectReference::toString).collect(Collectors.joining("_"));
     }
 
 }

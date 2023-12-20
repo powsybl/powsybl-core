@@ -203,7 +203,7 @@ public final class CgmesExportUtil {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
     }
 
-    static String loadClassName(Load load) {
+    public static String loadClassName(Load load) {
         String originalClassName = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "undefined");
         double p0 = load.getP0();
         LoadDetail loadDetail = load.getExtension(LoadDetail.class);
@@ -223,10 +223,10 @@ public final class CgmesExportUtil {
         // As negative loads are not allowed, they are modeled as energy source.
         // Note that negative loads can be the result of network reduction and could be modeled
         // as equivalent injections.
-        return p0 < 0 ? CgmesNames.ENERGY_SOURCE : loadClassName(loadDetail);
+        return p0 < 0 ? CgmesNames.ENERGY_SOURCE : loadDetailClassName(loadDetail);
     }
 
-    public static String loadClassName(LoadDetail loadDetail) {
+    public static String loadDetailClassName(LoadDetail loadDetail) {
         if (loadDetail != null) {
             if (isConformLoad(loadDetail)) {
                 return CgmesNames.CONFORM_LOAD;

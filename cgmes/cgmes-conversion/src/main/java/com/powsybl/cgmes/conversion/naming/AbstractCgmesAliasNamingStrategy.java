@@ -57,8 +57,13 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
 
     @Override
     public String getCgmesId(Identifiable<?> identifiable) {
-        String id = identifiable.getId();
-        return getCgmesId(identifiable, id, "UUID");
+        if (CgmesExportUtil.isValidCimMasterRID(identifiable.getId())) {
+            return identifiable.getId();
+        } else {
+            String uuid = getUniqueId(ref(identifiable));
+            idByUuid.put(uuid, identifiable.getId());
+            return uuid;
+        }
     }
 
     @Override
@@ -140,6 +145,9 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
 
     @Override
     public void xxxDebug(String baseName, DataSource ds) {
+        if (!LOG.isDebugEnabled()) {
+            return;
+        }
         String mappingFilename = baseName + "_debug_naming_strategy.csv";
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFilename, false)))) {
             CsvWriterSettings settings = new CsvWriterSettings();
@@ -149,6 +157,11 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
             CsvWriter csvWriter = new CsvWriter(writer, settings);
             try {
                 String[] nextLine = new String[3];
+                nextLine[0] = "CgmesUuid";
+                nextLine[1] = "IidmId";
+                nextLine[2] = "seed";
+                csvWriter.writeRow(nextLine);
+
                 for (Map.Entry<String, String> e : idByUuid.entrySet()) {
                     String uuid = e.getKey();
                     nextLine[0] = uuid;
@@ -175,16 +188,14 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
 
     // FIXME(Luma) For easy testing while we work on moving to name-based UUIDs
     private static final boolean XXX_USE_NAME_BASED_UUIDS = true;
-    // FIXME(Luma) adding or not a prefix should be specified by a specific strategy or a configuration parameter
-    private static final String XXX_PREFIX = "_";
 
     @Override
     public String getUniqueId(CgmesObjectReference... refs) {
         if (XXX_USE_NAME_BASED_UUIDS) {
-            String seed = XXX_PREFIX + CgmesObjectReference.combine(refs);
+            String seed = CgmesObjectReference.combine(refs);
             String uuid = nameBasedGenerator.generate(seed).toString();
             if (uuidSeed.containsKey(uuid)) {
-                LOG.warn("Unique ID for seed {} called multiple times ", seed);
+                LOG.debug("Unique ID for seed {} called multiple times ", seed);
             }
             uuidSeed.put(uuid, seed);
             return uuid;
