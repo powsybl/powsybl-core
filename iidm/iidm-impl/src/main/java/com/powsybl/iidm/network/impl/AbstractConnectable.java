@@ -286,15 +286,12 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             isAlreadyDisconnected = false;
 
             // If it's a node-breaker terminal, the switches to disconnect are added to a set
-            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel) {
-                isNowDisconnected = nodeBreakerVoltageLevel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection);
-            }
-            // If it's a bus-breaker terminal, there is nothing to do
-
-            // Exit if the terminal cannot be disconnected
-            if (!isNowDisconnected) {
+            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel
+                && !nodeBreakerVoltageLevel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection)) {
+                // Exit if the terminal cannot be disconnected
                 return false;
             }
+            // If it's a bus-breaker terminal, there is nothing to do
         }
 
         // Exit if the connectable is already fully disconnected
