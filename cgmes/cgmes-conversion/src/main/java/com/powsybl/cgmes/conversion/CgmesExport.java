@@ -244,8 +244,8 @@ public class CgmesExport implements Exporter {
     public static final String MAX_Q_MISMATCH_CONVERGED = "iidm.export.cgmes.max-q-mismatch-converged";
     public static final String EXPORT_SV_INJECTIONS_FOR_SLACKS = "iidm.export.cgmes.export-sv-injections-for-slacks";
     public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
+    public static final String UUID_NAMESPACE = "iidm.export.cgmes.uuid-namespace";
     private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
-    private static final String UUID_NAMESPACE = "iidm.export.cgmes.uuid-namespace";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
