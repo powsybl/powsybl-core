@@ -281,9 +281,10 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build());
                 continue;
-            } else {
-                isAlreadyDisconnected = false;
             }
+            
+            // The terminal is connected
+            isAlreadyDisconnected = false;
 
             // If it's a node-breaker terminal, the switches to disconnect are added to a set
             if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel) {
