@@ -9,38 +9,26 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Ground;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class GroundImpl extends AbstractIdentifiable<Ground> implements Ground {
+class GroundImpl extends AbstractConnectable<Ground> implements Ground {
 
-    private final VoltageLevelExt voltageLevel;
+    GroundImpl(Ref<NetworkImpl> networkRef,
+               String id, String name) {
+        super(networkRef, id, name, false);
+    }
 
-    GroundImpl(VoltageLevelExt voltageLevel, String id, String name) {
-        super(id, name, false);
-        this.voltageLevel = voltageLevel;
+    @Override
+    public TerminalExt getTerminal() {
+        return terminals.get(0);
     }
 
     @Override
     public void setFictitious(boolean fictitious) {
         throw new PowsyblException("The ground cannot be fictitious.");
-    }
-
-    @Override
-    public NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
-    }
-
-    @Override
-    public Network getParentNetwork() {
-        return voltageLevel.getParentNetwork();
-    }
-
-    @Override
-    public VoltageLevelExt getVoltageLevel() {
-        return voltageLevel;
     }
 
     @Override

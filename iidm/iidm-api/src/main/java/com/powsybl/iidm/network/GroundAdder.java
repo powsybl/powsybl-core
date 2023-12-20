@@ -10,10 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public interface Ground extends Injection<Ground> {
-
+public interface GroundAdder extends InjectionAdder<Ground, GroundAdder> {
     @Override
-    default IdentifiableType getType() {
-        return IdentifiableType.GROUND;
-    }
+    Ground add();
 }

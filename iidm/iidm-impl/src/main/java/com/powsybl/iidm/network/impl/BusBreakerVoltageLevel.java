@@ -107,46 +107,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    private final class GroundAdderImpl extends AbstractIdentifiableAdder<GroundAdderImpl> implements BusBreakerView.GroundAdder {
-        private String busId;
-
-        private GroundAdderImpl() {
-        }
-
-        @Override
-        protected NetworkImpl getNetwork() {
-            return BusBreakerVoltageLevel.this.getNetwork();
-        }
-
-        @Override
-        protected String getTypeDescription() {
-            return "Ground";
-        }
-
-        @Override
-        public BusBreakerView.GroundAdder setBus(String bus) {
-            this.busId = bus;
-            return this;
-        }
-
-        @Override
-        public Ground add() {
-            // Check the ID
-            String id = checkAndGetUniqueId();
-
-            // Check that the bus is defined
-            if (busId == null) {
-                throw new ValidationException(this, "bus is not set");
-            }
-
-            // Create the ground element
-            GroundImpl ground = new GroundImpl(BusBreakerVoltageLevel.this, id, getName());
-            getNetwork().getIndex().checkAndAdd(ground);
-            getNetwork().getListeners().notifyCreation(ground);
-            return ground;
-        }
-    }
-
     private final UndirectedGraphImpl<ConfiguredBus, SwitchImpl> graph = new UndirectedGraphImpl<>(NODE_INDEX_LIMIT);
 
     /* buses indexed by vertex number */
@@ -529,11 +489,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public GroundAdder newGround() {
-            throw createNotSupportedBusBreakerTopologyException();
-        }
-
-        @Override
         public InternalConnectionAdder newInternalConnection() {
             throw createNotSupportedBusBreakerTopologyException();
         }
@@ -731,11 +686,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public BusBreakerView.SwitchAdder newSwitch() {
             return new SwitchAdderImpl();
-        }
-
-        @Override
-        public BusBreakerView.GroundAdder newGround() {
-            return new GroundAdderImpl();
         }
 
         private com.powsybl.math.graph.Traverser adapt(TopologyTraverser t) {

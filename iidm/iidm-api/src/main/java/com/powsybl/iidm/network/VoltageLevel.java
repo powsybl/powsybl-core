@@ -432,13 +432,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             Switch add();
         }
 
-        interface GroundAdder extends IdentifiableAdder<Ground, GroundAdder> {
-            GroundAdder setNode(int node);
-
-            @Override
-            Ground add();
-        }
-
         interface InternalConnectionAdder {
 
             InternalConnectionAdder setNode1(int node1);
@@ -471,11 +464,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get a builder to create a new switch.
          */
         SwitchAdder newSwitch();
-
-        /**
-         * Get a builder to create a new ground.
-         */
-        GroundAdder newGround();
 
         /**
          * Get a builder to create a new switch.
@@ -704,13 +692,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         }
 
-        interface GroundAdder extends IdentifiableAdder<Ground, GroundAdder> {
-            GroundAdder setBus(String bus);
-
-            @Override
-            Ground add();
-        }
-
         /**
          * Get buses.
          * <p>
@@ -854,13 +835,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
          */
         SwitchAdder newSwitch();
-
-        /**
-         * Get a builder to create a new ground.
-         *
-         * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
-         */
-        GroundAdder newGround();
 
         interface TopologyTraverser {
             /**
@@ -1277,6 +1251,26 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return three windings transformer count connected to this voltage level
      */
     int getThreeWindingsTransformerCount();
+
+    /**
+     * Get a builder to create a new ground.
+     */
+    GroundAdder newGround();
+
+    /**
+     * Get grounds.
+     */
+    Iterable<Ground> getGrounds();
+
+    /**
+     * Get grounds.
+     */
+    Stream<Ground> getGroundStream();
+
+    /**
+     * Get ground count.
+     */
+    int getGroundCount();
 
     /**
      * Remove this voltage level from the network.

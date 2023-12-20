@@ -176,47 +176,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    private final class GroundAdderImpl extends AbstractIdentifiableAdder<GroundAdderImpl> implements NodeBreakerView.GroundAdder {
-        private Integer node;
-
-        private GroundAdderImpl() {
-        }
-
-        @Override
-        protected NetworkImpl getNetwork() {
-            return NodeBreakerVoltageLevel.this.getNetwork();
-        }
-
-        @Override
-        protected String getTypeDescription() {
-            return "Ground";
-        }
-
-        @Override
-        public NodeBreakerView.GroundAdder setNode(int node) {
-            this.node = node;
-            return this;
-        }
-
-        @Override
-        public Ground add() {
-            // Check the ID
-            String id = checkAndGetUniqueId();
-
-            // Check that the bus is defined
-            if (node == null) {
-                throw new ValidationException(this, "node is not set");
-            }
-
-            // Create the ground element
-            GroundImpl ground = new GroundImpl(NodeBreakerVoltageLevel.this, id, getName());
-            getNetwork().getIndex().checkAndAdd(ground);
-            getNetwork().getListeners().notifyCreation(ground);
-            return ground;
-        }
-
-    }
-
     private final class InternalConnectionAdderImpl implements NodeBreakerView.InternalConnectionAdder {
 
         private Integer node1;
@@ -519,6 +478,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         case BATTERY:
                         case SHUNT_COMPENSATOR:
                         case STATIC_VAR_COMPENSATOR:
+                        case GROUND:
                             feederCount++;
                             break;
 
@@ -838,11 +798,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public GroundAdder newGround() {
-            return new GroundAdderImpl();
-        }
-
-        @Override
         public InternalConnectionAdder newInternalConnection() {
             return new InternalConnectionAdderImpl();
         }
@@ -1128,11 +1083,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public BusBreakerView.SwitchAdder newSwitch() {
-            throw createNotSupportedNodeBreakerTopologyException();
-        }
-
-        @Override
-        public GroundAdder newGround() {
             throw createNotSupportedNodeBreakerTopologyException();
         }
 

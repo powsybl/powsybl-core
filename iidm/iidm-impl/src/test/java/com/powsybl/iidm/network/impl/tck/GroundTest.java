@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -177,12 +178,13 @@ class GroundTest {
 
         // List of grounds
         List<Ground> groundList = List.of(groundNB, groundBB);
+        List<Ground> groundListVl1 = Collections.singletonList(groundNB);
 
         // Test getters
         assertEquals(IdentifiableType.GROUND, groundNB.getType());
         assertEquals(IdentifiableType.GROUND, groundBB.getType());
-        assertEquals(vl1, groundNB.getVoltageLevel());
-        assertEquals(vl2, groundBB.getVoltageLevel());
+        assertEquals(vl1, groundNB.getTerminal().getVoltageLevel());
+        assertEquals(vl2, groundBB.getTerminal().getVoltageLevel());
         assertEquals("GroundNB", groundNB.getId());
         assertEquals("GroundBB", groundBB.getId());
         assertEquals(network, groundNB.getNetwork());
@@ -197,6 +199,10 @@ class GroundTest {
         network.getGroundStream().forEach(ground -> assertTrue(groundList.contains(ground)));
         assertEquals(2, network.getGroundCount());
         assertNull(network.getGround("GroundNB2"));
+        assertEquals(1, ((Collection<?>) vl1.getGrounds()).size());
+        vl1.getGrounds().forEach(ground -> assertTrue(groundListVl1.contains(ground)));
+        vl1.getGroundStream().forEach(ground -> assertTrue(groundListVl1.contains(ground)));
+        assertEquals(1, vl1.getGroundCount());
     }
 
     @Test
@@ -228,7 +234,7 @@ class GroundTest {
         Ground groundNBSub17 = createGroundNodeBreaker(vl1Sub1, "GroundNBSub1_7", 7, true);
 
         // Create ground in bus-breaker view
-        Ground groundBBSub12 = createGroundBusBreaker(vl2Sub1, "GroundBBSub1_2", "BUS2", true);
+        Ground groundBBSub12 = createGroundBusBreaker(vl2Sub1, "GroundBBSub1_2", "Sub1_BUS2", true);
 
         // List of grounds
         List<Ground> groundList = List.of(groundNBSub16, groundNBSub17, groundBBSub12);
@@ -302,24 +308,24 @@ class GroundTest {
             .setNode2(6)
             .add();
         // Create a ground in NB
-        VoltageLevel.NodeBreakerView.GroundAdder groundAdderNB = vl1.getNodeBreakerView().newGround()
+        GroundAdder groundAdderNB = vl1.newGround()
             .setId("Ground")
             .setEnsureIdUnicity(true);
         ValidationException exception = assertThrows(ValidationException.class, groundAdderNB::add);
-        assertEquals("Ground 'Ground': node is not set", exception.getMessage());
-        groundAdderNB = vl1.getNodeBreakerView().newGround()
+        assertEquals("Ground 'Ground': connectable bus is not set", exception.getMessage());
+        groundAdderNB = vl1.newGround()
             .setNode(6)
             .setEnsureIdUnicity(true);
         PowsyblException powsyblException = assertThrows(PowsyblException.class, groundAdderNB::add);
         assertEquals("Ground id is not set", powsyblException.getMessage());
 
         // Create a ground in BB
-        VoltageLevel.BusBreakerView.GroundAdder groundAdderBB = vl2.getBusBreakerView().newGround()
+        GroundAdder groundAdderBB = vl2.newGround()
             .setId("Ground")
             .setEnsureIdUnicity(true);
         exception = assertThrows(ValidationException.class, groundAdderBB::add);
-        assertEquals("Ground 'Ground': bus is not set", exception.getMessage());
-        groundAdderBB = vl2.getBusBreakerView().newGround()
+        assertEquals("Ground 'Ground': connectable bus is not set", exception.getMessage());
+        groundAdderBB = vl2.newGround()
             .setBus("BUS1")
             .setEnsureIdUnicity(true);
         powsyblException = assertThrows(PowsyblException.class, groundAdderBB::add);
@@ -327,7 +333,7 @@ class GroundTest {
     }
 
     private Ground createGroundNodeBreaker(VoltageLevel voltageLevel, String id, int node, boolean ensureIdUnicity) {
-        return voltageLevel.getNodeBreakerView().newGround()
+        return voltageLevel.newGround()
             .setId(id)
             .setNode(node)
             .setEnsureIdUnicity(ensureIdUnicity)
@@ -335,7 +341,7 @@ class GroundTest {
     }
 
     private Ground createGroundBusBreaker(VoltageLevel voltageLevel, String id, String bus, boolean ensureIdUnicity) {
-        return voltageLevel.getBusBreakerView().newGround()
+        return voltageLevel.newGround()
             .setId(id)
             .setBus(bus)
             .setEnsureIdUnicity(ensureIdUnicity)
