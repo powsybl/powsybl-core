@@ -120,6 +120,11 @@ public interface CgmesObjectReference {
         EQUIVALENT_INJECTION("EI"),
         FICTITIOUS("FICT"),
         FULL_MODEL("_FM"),
+        WIND_GENERATING_UNIT("WGU"),
+        NUCLEAR_GENERATING_UNIT("NGU"),
+        SOLAR_GENERATING_UNIT("SGU"),
+        THERMAL_GENERATING_UNIT("TGU"),
+        HYDRO_GENERATING_UNIT("HGU"),
         GENERATING_UNIT("GU"),
         GEOGRAPHICAL_REGION("GR"),
         LOAD_AREA("LA"),
@@ -131,10 +136,10 @@ public interface CgmesObjectReference {
         PATL("PATL"),
         PHASE_TAP_CHANGER("PTC"),
         PHASE_TAP_CHANGER_STEP("PTCS"),
-        PHASE_TAP_CHANGER_TABLE("PTCT"),
+        PHASE_TAP_CHANGER_TABLE("PTC_T"),
         RATIO_TAP_CHANGER("RTC"),
         RATIO_TAP_CHANGER_STEP("RTCS"),
-        RATIO_TAP_CHANGER_TABLE("RTCT"),
+        RATIO_TAP_CHANGER_TABLE("RTC_T"),
         REACTIVE_CAPABIILITY_CURVE_POINT("RCC_CP"),
         REACTIVE_CAPABILITY_CURVE("RCC"),
         REGULATING_CONTROL("RC"),
@@ -147,7 +152,7 @@ public interface CgmesObjectReference {
         TIE_FLOW("TF"),
         TOPOLOGICAL_ISLAND("TI"),
         TOPOLOGICAL_NODE("TN"),
-        TRANSFORMER_END("TE"),
+        TRANSFORMER_END("TW"),
         VOLTAGE_LEVEL("VL");
 
         private final String suffix;
