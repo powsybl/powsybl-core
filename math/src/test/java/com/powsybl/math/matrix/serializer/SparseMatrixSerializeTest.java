@@ -9,19 +9,17 @@ package com.powsybl.math.matrix.serializer;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.math.matrix.MatrixFactory;
 import com.powsybl.math.matrix.SparseMatrix;
 import com.powsybl.math.matrix.SparseMatrixFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Christian Biasuzzi {@literal <christian.biasuzzi at soft.it>}
@@ -61,58 +59,34 @@ class SparseMatrixSerializeTest {
     }
 
     @Test
-    void testGetFormats() {
-        assertEquals("[DEFAULT, MAT]", SparseMatrixSerializers.getFormats().toString());
-    }
-
-    @Test
-    void testGetExporter() {
-        assertEquals("DEFAULT", SparseMatrixSerializers.getSerializer("DEFAULT").getFormat());
-        assertEquals("MAT", SparseMatrixSerializers.getSerializer("MAT").getFormat());
-        assertNull(SparseMatrixSerializers.getSerializer("DOES_NOT_EXIST"));
-    }
-
-    @Test
-    void testSerializeToFileUnrecognizedFormat() {
-        SparseMatrix matrix = createSimpleSparseMatrix();
-        Path file = fileSystem.getPath("/work/sparse-matrix-test.obj");
-        assertThrows(PowsyblException.class, () -> SparseMatrixSerializers.save(matrix, file, "DOES_NOT_EXIST"));
-    }
-
-    @Test
     void testSerializeToFile() {
         SparseMatrix matrix = createSimpleSparseMatrix();
-        Path file = fileSystem.getPath("/work/sparse-matrix-test.obj");
-        SparseMatrixSerializers.save(matrix, file, "DEFAULT");
-        SparseMatrix m1 = SparseMatrixSerializers.load(file, "DEFAULT");
+        Path file = fileSystem.getPath("/work/sparse-matrix-test.bin");
+        SparseMatrix.save(matrix, file);
+        SparseMatrix m1 = SparseMatrix.load(file);
+        assertEquals(matrix, m1);
+    }
+
+    @Test
+    void testSerializeLargerSparseMatrixToFile() {
+        //create a 100x100 sparse matrix with 20% (circa) non zero values
+        SparseMatrix matrix = createRandomSparseMatrix(100, 100, 0.2);
+        Path file = fileSystem.getPath("/work/sparse-large-matrix-test.bin");
+        SparseMatrix.save(matrix, file);
+        SparseMatrix m1 = SparseMatrix.load(file);
         assertEquals(matrix, m1);
     }
 
     @Test
     void testSerializeSparseMatrixToMatlabFormat() {
         SparseMatrix matrix = createSimpleSparseMatrix();
-        SparseMatrixSerializer serializer = SparseMatrixSerializers.getSerializer("MAT");
         Path file = fileSystem.getPath("/work/sparse-matrix-test.mat");
-        serializer.save(matrix, file);
-        SparseMatrix m1 = serializer.load(file);
+        SparseMatrixSerializer sms = new SparseMatrixMatSerializer();
+        assertEquals("MAT", sms.getFormat());
+        assertEquals("MATLAB binary format", sms.getComment());
+        sms.save(matrix, file);
+        SparseMatrix m1 = sms.load(file);
         assertEquals(matrix, m1);
-    }
-
-    @Test
-    void testSerializeSparseMatrixToMatlabFormat2() {
-        SparseMatrix matrix = createSimpleSparseMatrix();
-        Path file = fileSystem.getPath("/work/sparse-matrix-test.mat");
-        SparseMatrixSerializers.save(matrix, file, "MAT");
-        SparseMatrix m1 = SparseMatrixSerializers.load(file, "MAT");
-        assertEquals(matrix, m1);
-    }
-
-    @Test
-    void testSerializeSparseMatrixMismatchingFormats() {
-        SparseMatrix matrix = createSimpleSparseMatrix();
-        Path file = fileSystem.getPath("/work/sparse-matrix-test.mat");
-        SparseMatrixSerializers.save(matrix, file, "DEFAULT");
-        assertThrows(UncheckedIOException.class, () -> SparseMatrixSerializers.load(file, "MAT"));
     }
 
     @Test
@@ -120,8 +94,9 @@ class SparseMatrixSerializeTest {
         //create a 100x100 sparse matrix with 30% (circa) non zero values
         SparseMatrix matrix = createRandomSparseMatrix(100, 100, 0.3);
         Path file = fileSystem.getPath("/work/sparse-large-matrix-test.mat");
-        SparseMatrixSerializers.save(matrix, file, "MAT");
-        SparseMatrix m1 = SparseMatrixSerializers.load(file, "MAT");
+        SparseMatrixSerializer sms = new SparseMatrixMatSerializer();
+        sms.save(matrix, file);
+        SparseMatrix m1 = sms.load(file);
         assertEquals(matrix, m1);
     }
 }

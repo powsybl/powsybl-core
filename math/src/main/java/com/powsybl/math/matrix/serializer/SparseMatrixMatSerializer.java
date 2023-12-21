@@ -7,7 +7,6 @@
  */
 package com.powsybl.math.matrix.serializer;
 
-import com.google.auto.service.AutoService;
 import com.powsybl.math.matrix.SparseMatrix;
 
 import java.io.InputStream;
@@ -18,7 +17,6 @@ import java.io.OutputStream;
  * .
  * @author Christian Biasuzzi {@literal <christian.biasuzzi at soft.it>}
  */
-@AutoService(SparseMatrixSerializer.class)
 public class SparseMatrixMatSerializer extends AbstractSparseMatrixSerializer {
 
     private static final String FORMAT_ID = "MAT";

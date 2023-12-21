@@ -6,11 +6,13 @@
  */
 package com.powsybl.math.matrix;
 
+import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
 
-import java.io.PrintStream;
-import java.io.Serializable;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -458,5 +460,45 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
                     values.equals(other.values);
         }
         return false;
+    }
+
+    public static void save(SparseMatrix matrix, OutputStream outputStream) {
+        Objects.requireNonNull(matrix);
+        Objects.requireNonNull(outputStream);
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            objectOutputStream.writeObject(matrix);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static SparseMatrix load(InputStream inputStream) {
+        Objects.requireNonNull(inputStream);
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+            return (SparseMatrix) objectInputStream.readObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (ClassNotFoundException e) {
+            throw new UncheckedClassNotFoundException(e);
+        }
+    }
+
+    public static void save(SparseMatrix matrix, Path file) {
+        Objects.requireNonNull(matrix);
+        Objects.requireNonNull(file);
+        try (OutputStream outputStream = Files.newOutputStream(file)) {
+            save(matrix, outputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static SparseMatrix load(Path file) {
+        Objects.requireNonNull(file);
+        try (InputStream inputStream = Files.newInputStream(file)) {
+            return load(inputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }
