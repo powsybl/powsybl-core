@@ -4,8 +4,7 @@ import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -181,6 +180,17 @@ public interface CgmesObjectReference {
 
     static CgmesObjectReference ref(CgmesSubset value) {
         return new Subset(value);
+    }
+
+    static Part refGeneratingUnit(Generator generator) {
+        return switch (generator.getEnergySource()) {
+            case HYDRO -> Part.WIND_GENERATING_UNIT;
+            case NUCLEAR -> Part.NUCLEAR_GENERATING_UNIT;
+            case WIND -> Part.SOLAR_GENERATING_UNIT;
+            case THERMAL -> Part.THERMAL_GENERATING_UNIT;
+            case SOLAR -> Part.HYDRO_GENERATING_UNIT;
+            case OTHER -> Part.GENERATING_UNIT;
+        };
     }
 
     static String combine(CgmesObjectReference... refs) {

@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refGeneratingUnit;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -523,19 +524,7 @@ public class CgmesExportContext {
         for (Generator generator : network.getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
             if (generatingUnit == null) {
-                if (generator.getEnergySource() == EnergySource.WIND) {
-                    generatingUnit = namingStrategy.getUniqueId(ref(generator), Part.WIND_GENERATING_UNIT);
-                } else if (generator.getEnergySource() == EnergySource.NUCLEAR) {
-                    generatingUnit = namingStrategy.getUniqueId(ref(generator), Part.NUCLEAR_GENERATING_UNIT);
-                } else if (generator.getEnergySource() == EnergySource.SOLAR) {
-                    generatingUnit = namingStrategy.getUniqueId(ref(generator), Part.SOLAR_GENERATING_UNIT);
-                } else if (generator.getEnergySource() == EnergySource.THERMAL) {
-                    generatingUnit = namingStrategy.getUniqueId(ref(generator), Part.THERMAL_GENERATING_UNIT);
-                } else if (generator.getEnergySource() == EnergySource.HYDRO) {
-                    generatingUnit = namingStrategy.getUniqueId(ref(generator), Part.HYDRO_GENERATING_UNIT);
-                } else {
-                    generatingUnit = namingStrategy.getUniqueId(ref(generator), Part.GENERATING_UNIT);
-                }
+                generatingUnit = namingStrategy.getUniqueId(ref(generator), refGeneratingUnit(generator));
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
