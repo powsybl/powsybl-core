@@ -43,6 +43,8 @@ public interface CgmesObjectReference {
 
     class Identifiable implements CgmesObjectReference {
         private final com.powsybl.iidm.network.Identifiable<?> value;
+        private final boolean addSuffix;
+
         private static final EnumMap<IdentifiableType, String> SUFFIXES = new EnumMap<>(Map.ofEntries(
                 Map.entry(IdentifiableType.NETWORK, "N"),
                 Map.entry(IdentifiableType.SUBSTATION, "S"),
@@ -66,7 +68,12 @@ public interface CgmesObjectReference {
         ));
 
         public Identifiable(com.powsybl.iidm.network.Identifiable<?> value) {
+            this(value, true);
+        }
+
+        public Identifiable(com.powsybl.iidm.network.Identifiable<?> value, boolean addSuffix) {
             this.value = value;
+            this.addSuffix = addSuffix;
         }
 
         public String suffix() {
@@ -90,7 +97,7 @@ public interface CgmesObjectReference {
         }
 
         public String toString() {
-            return value.getId() + "_" + suffix();
+            return addSuffix ? value.getId() + "_" + suffix() : value.getId();
         }
     }
 
@@ -176,6 +183,10 @@ public interface CgmesObjectReference {
 
     static CgmesObjectReference ref(com.powsybl.iidm.network.Identifiable<?> identifiable) {
         return new Identifiable(identifiable);
+    }
+
+    static CgmesObjectReference ref(com.powsybl.iidm.network.Identifiable<?> identifiable, boolean addSuffix) {
+        return new Identifiable(identifiable, addSuffix);
     }
 
     static CgmesObjectReference ref(CgmesSubset value) {

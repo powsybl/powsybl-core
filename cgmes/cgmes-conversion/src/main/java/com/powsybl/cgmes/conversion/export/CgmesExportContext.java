@@ -524,7 +524,7 @@ public class CgmesExportContext {
         for (Generator generator : network.getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
             if (generatingUnit == null) {
-                generatingUnit = namingStrategy.getUniqueId(ref(generator), refGeneratingUnit(generator));
+                generatingUnit = namingStrategy.getUniqueId(ref(generator, false), refGeneratingUnit(generator));
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
