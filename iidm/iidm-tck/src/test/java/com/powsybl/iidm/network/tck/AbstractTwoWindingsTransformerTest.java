@@ -240,7 +240,6 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setTapPosition(0)
                 .setRegulating(regulating)
                 .setRegulationTerminal(terminal)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
                 .setTargetDeadband(0.5)
                 .beginStep()
                 .setR(39.78473)

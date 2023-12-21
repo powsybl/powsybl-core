@@ -566,7 +566,8 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidNullModeRatio() {
-        assertThrows(NullPointerException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
+        assertTrue(e.getMessage().contains("regulation mode of regulating ratio tap changer must be given"));
     }
 
     @Test

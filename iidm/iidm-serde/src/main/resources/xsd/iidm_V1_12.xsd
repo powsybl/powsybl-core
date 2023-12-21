@@ -541,7 +541,7 @@
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
-        <xs:attribute name="regulationMode" use="required" type="iidm:RatioRegulationMode"/>
+        <xs:attribute name="regulationMode" use="optional" type="iidm:RatioRegulationMode"/>
         <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:simpleType name="PhaseRegulationMode">

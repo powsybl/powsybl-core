@@ -152,7 +152,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     @Override
     public RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
-        this.regulationMode = Objects.requireNonNull(regulationMode);
+        this.regulationMode = regulationMode;
         return this;
     }
 

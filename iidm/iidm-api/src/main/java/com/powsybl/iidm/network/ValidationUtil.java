@@ -497,7 +497,7 @@ public final class ValidationUtil {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (regulating) {
             if (Objects.isNull(regulationMode)) {
-                throw new ValidationException(validable, "Regulation mode of regulating ratio tap changer must be given");
+                throw new ValidationException(validable, "regulation mode of regulating ratio tap changer must be given");
             }
             if (Double.isNaN(regulationValue)) {
                 validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation value has to be set for a regulating ratio tap changer", throwException, reporter));
