@@ -14,12 +14,18 @@ import com.powsybl.math.matrix.SparseMatrix;
 import com.powsybl.math.matrix.SparseMatrixFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Christian Biasuzzi {@literal <christian.biasuzzi at soft.it>}
@@ -68,6 +74,17 @@ class SparseMatrixSerializeTest {
     }
 
     @Test
+    void testSerializeToFileExceptions() throws IOException {
+        SparseMatrix matrix = createSimpleSparseMatrix();
+        assertThrows(UncheckedIOException.class, () -> SparseMatrix.save(matrix, fileSystem.getPath("")));
+        assertThrows(UncheckedIOException.class, () -> SparseMatrix.load(fileSystem.getPath("")));
+        assertThrows(UncheckedIOException.class, () -> SparseMatrix.load(new ByteArrayInputStream(new byte[0])));
+        OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
+        Mockito.doThrow(new IOException()).when(mockOutputStream).close();
+        assertThrows(UncheckedIOException.class, () -> SparseMatrix.save(matrix, mockOutputStream));
+    }
+
+    @Test
     void testSerializeLargerSparseMatrixToFile() {
         //create a 100x100 sparse matrix with 20% (circa) non zero values
         SparseMatrix matrix = createRandomSparseMatrix(100, 100, 0.2);
@@ -87,6 +104,13 @@ class SparseMatrixSerializeTest {
         sms.save(matrix, file);
         SparseMatrix m1 = sms.load(file);
         assertEquals(matrix, m1);
+    }
+
+    @Test
+    void testSerializeToMatlabFormatExceptions() throws IOException {
+        SparseMatrix matrix = createSimpleSparseMatrix();
+        assertThrows(UncheckedIOException.class, () -> new SparseMatrixMatSerializer().save(matrix, fileSystem.getPath("")));
+        assertThrows(UncheckedIOException.class, () -> new SparseMatrixMatSerializer().load(fileSystem.getPath("")));
     }
 
     @Test
