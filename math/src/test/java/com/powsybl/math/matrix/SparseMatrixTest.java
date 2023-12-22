@@ -86,4 +86,23 @@ class SparseMatrixTest extends AbstractMatrixTest {
             assertThrows(MatrixException.class, decomposition::update);
         }
     }
+
+    @Test
+    void initFromArrayIssue() {
+        SparseMatrix a = new SparseMatrix(2, 2, 2);
+        a.add(0, 0, 1d);
+        a.add(1, 0, 1d);
+        a.add(0, 1, 1d);
+        try (LUDecomposition decomposition = a.decomposeLU()) {
+            double[] x = new double[] {1, 0};
+            decomposition.solve(x);
+            assertArrayEquals(new double[] {0, 1}, x);
+        }
+        SparseMatrix m = new SparseMatrix(a.getRowCount(), a.getColumnCount(), a.getColumnStart(), a.getRowIndices(), a.getValues());
+        try (LUDecomposition decomposition = m.decomposeLU()) {
+            double[] x = new double[] {1, 0};
+            decomposition.solve(x);
+            assertArrayEquals(new double[] {0, 1}, x);
+        }
+    }
 }

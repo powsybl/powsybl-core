@@ -96,14 +96,22 @@ public class SparseMatrix extends AbstractMatrix {
      * @param rowIndices row indices vector
      * @param values value vector
      */
-    SparseMatrix(int rowCount, int columnCount, int[] columnStart, int[] rowIndices, double[] values) {
+    public SparseMatrix(int rowCount, int columnCount, int[] columnStart, int[] rowIndices, double[] values) {
+        checkSize(rowCount, columnCount);
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         this.columnStart = Objects.requireNonNull(columnStart);
+        if (columnStart.length != columnCount + 1) {
+            throw new IllegalArgumentException("columnStart array length has to be columnCount + 1");
+        }
         columnValueCount = new int[columnCount];
         this.rowIndices = new TIntArrayListHack(Objects.requireNonNull(rowIndices));
         this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
+        if (rowIndices.length != values.length) {
+            throw new IllegalArgumentException("rowIndices and values arrays must have the same length");
+        }
         fillColumnValueCount(this.columnCount, this.columnStart, columnValueCount, this.values);
+        currentColumn = columnCount - 1;
     }
 
     private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
@@ -129,12 +137,7 @@ public class SparseMatrix extends AbstractMatrix {
      * @param estimatedValueCount estimated number of values (used for internal pre-allocation)
      */
     SparseMatrix(int rowCount, int columnCount, int estimatedValueCount) {
-        if (rowCount < 0) {
-            throw new MatrixException("row count has to be positive");
-        }
-        if (columnCount < 0) {
-            throw new MatrixException("column count has to be positive");
-        }
+        checkSize(rowCount, columnCount);
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         columnStart = new int[columnCount + 1];
@@ -143,6 +146,15 @@ public class SparseMatrix extends AbstractMatrix {
         this.columnStart[columnCount] = 0;
         rowIndices = new TIntArrayListHack(estimatedValueCount);
         values = new TDoubleArrayListHack(estimatedValueCount);
+    }
+
+    private static void checkSize(int rowCount, int columnCount) {
+        if (rowCount < 1) {
+            throw new MatrixException("row count has to be strictly positive");
+        }
+        if (columnCount < 1) {
+            throw new MatrixException("column count has to be strictly positive");
+        }
     }
 
     public double getRgrowthThreshold() {
