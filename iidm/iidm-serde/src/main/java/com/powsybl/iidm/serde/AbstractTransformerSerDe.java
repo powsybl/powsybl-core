@@ -27,6 +27,8 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     private static final String ATTR_TAP_POSITION = "tapPosition";
     private static final String ATTR_REGULATING = "regulating";
     private static final String ELEM_TERMINAL_REF = "terminalRef";
+    private static final String ATTR_REGULATION_MODE = "regulationMode";
+    private static final String ATTR_REGULATION_VALUE = "regulationValue";
     static final String STEP_ROOT_ELEMENT_NAME = "step";
     static final String STEP_ARRAY_ELEMENT_NAME = "steps";
     private static final String TARGET_DEADBAND = "targetDeadband";
@@ -81,8 +83,8 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeBooleanAttribute("loadTapChangingCapabilities", rtc.hasLoadTapChangingCapabilities());
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", rtc.getRegulationValue()));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            context.getWriter().writeEnumAttribute("regulationMode", rtc.getRegulationMode());
-            context.getWriter().writeDoubleAttribute("regulationValue", rtc.getRegulationValue());
+            context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, rtc.getRegulationMode());
+            context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, rtc.getRegulationValue());
         });
         if (rtc.getRegulationTerminal() != null) {
             TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
@@ -115,8 +117,8 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             adder.setRegulationValue(targetV);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            RatioTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", RatioTapChanger.RegulationMode.class);
-            double regulationValue = context.getReader().readDoubleAttribute("regulationValue");
+            RatioTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RatioTapChanger.RegulationMode.class);
+            double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
             adder.setRegulationMode(regulationMode)
                     .setRegulationValue(regulationValue);
         });
@@ -172,10 +174,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             context.getWriter().writeBooleanAttribute(ATTR_REGULATING, ptc.isRegulating());
         }
         writeTapChanger(ptc, context);
-        context.getWriter().writeEnumAttribute("regulationMode", ptc.getRegulationMode());
+        context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, ptc.getRegulationMode());
         if (ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
                 || !Double.isNaN(ptc.getRegulationValue())) {
-            context.getWriter().writeDoubleAttribute("regulationValue", ptc.getRegulationValue());
+            context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, ptc.getRegulationValue());
         }
         if (ptc.getRegulationTerminal() != null) {
             TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
@@ -199,8 +201,8 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
-        PhaseTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", PhaseTapChanger.RegulationMode.class);
-        double regulationValue = context.getReader().readDoubleAttribute("regulationValue");
+        PhaseTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChanger.RegulationMode.class);
+        double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
 
         adder.setLowTapPosition(lowTapPosition)
                 .setTargetDeadband(targetDeadband)
