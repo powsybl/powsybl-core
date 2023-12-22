@@ -105,4 +105,12 @@ class SparseMatrixTest extends AbstractMatrixTest {
             assertArrayEquals(new double[] {0, 1}, x);
         }
     }
+
+    @Test
+    void testFromArrayConstructorErrors() {
+        MatrixException e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1}, new int[]{0, 1}, new double[]{0.5, 0.3}));
+        assertEquals("columnStart array length has to be columnCount + 1", e.getMessage());
+        e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1, 1}, new int[]{0, 1, 1}, new double[]{0.5, 0.3}));
+        assertEquals("rowIndices and values arrays must have the same length", e.getMessage());
+    }
 }

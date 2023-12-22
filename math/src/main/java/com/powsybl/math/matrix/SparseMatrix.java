@@ -102,13 +102,13 @@ public class SparseMatrix extends AbstractMatrix {
         this.columnCount = columnCount;
         this.columnStart = Objects.requireNonNull(columnStart);
         if (columnStart.length != columnCount + 1) {
-            throw new IllegalArgumentException("columnStart array length has to be columnCount + 1");
+            throw new MatrixException("columnStart array length has to be columnCount + 1");
         }
         columnValueCount = new int[columnCount];
         this.rowIndices = new TIntArrayListHack(Objects.requireNonNull(rowIndices));
         this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
         if (rowIndices.length != values.length) {
-            throw new IllegalArgumentException("rowIndices and values arrays must have the same length");
+            throw new MatrixException("rowIndices and values arrays must have the same length");
         }
         fillColumnValueCount(this.columnCount, this.columnStart, columnValueCount, this.values);
         currentColumn = columnCount - 1;
