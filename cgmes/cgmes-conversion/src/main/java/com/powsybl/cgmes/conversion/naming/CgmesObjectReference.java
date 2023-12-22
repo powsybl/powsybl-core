@@ -115,7 +115,6 @@ public interface CgmesObjectReference {
 
     enum Part implements CgmesObjectReference {
         ACDC_CONVERTER_DC_TERMINAL("ACDCCDCT"),
-        AC_LINE_SEGMENT("ACLS"),
         BASE_VOLTAGE("BV"),
         BOUNDARY_TERMINAL("BT"),
         CONNECTIVITY_NODE("CN"),
@@ -195,11 +194,11 @@ public interface CgmesObjectReference {
 
     static Part refGeneratingUnit(Generator generator) {
         return switch (generator.getEnergySource()) {
-            case HYDRO -> Part.WIND_GENERATING_UNIT;
+            case HYDRO -> Part.HYDRO_GENERATING_UNIT;
             case NUCLEAR -> Part.NUCLEAR_GENERATING_UNIT;
-            case WIND -> Part.SOLAR_GENERATING_UNIT;
+            case WIND -> Part.WIND_GENERATING_UNIT;
             case THERMAL -> Part.THERMAL_GENERATING_UNIT;
-            case SOLAR -> Part.HYDRO_GENERATING_UNIT;
+            case SOLAR -> Part.SOLAR_GENERATING_UNIT;
             case OTHER -> Part.GENERATING_UNIT;
         };
     }
