@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class IdentifierContingencyList implements ContingencyList {
 
     private static final String VERSION = "1.2";
+    public static final String TYPE = "identifier";
     private final String name;
     private final List<NetworkElementIdentifier> networkElementIdentifiers;
 
@@ -41,7 +42,7 @@ public class IdentifierContingencyList implements ContingencyList {
 
     @Override
     public String getType() {
-        return "identifier";
+        return TYPE;
     }
 
     public List<NetworkElementIdentifier> getIdentifiants() {

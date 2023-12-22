@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -120,8 +121,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
             ObjectMapper objectMapper = createMapper();
             ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-            DummyExtension updatedParameters = objectReader.readValue(jsonParser, DummyExtension.class);
-            return updatedParameters;
+            return objectReader.readValue(jsonParser, DummyExtension.class);
         }
 
         @Override
@@ -296,6 +296,13 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testInvalidVersion12VoltageNotSupportedInVoltageRange() {
+        InputStream is = getClass().getResourceAsStream("/ShortCircuitParametersVersion12Invalid.json");
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonShortCircuitParameters.read(is));
+        assertTrue(e.getMessage().contains("VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3"));
+    }
+
+    @Test
     void readVersion13() {
         ShortCircuitParameters parameters = JsonShortCircuitParameters
                 .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion13.json"));
@@ -306,8 +313,13 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
         assertEquals(0.7, parameters.getSubTransientCoefficient(), 0);
-        assertEquals(InitialVoltageProfileMode.NOMINAL, parameters.getInitialVoltageProfileMode());
         assertFalse(parameters.isDetailedReport());
+        assertEquals(InitialVoltageProfileMode.CONFIGURED, parameters.getInitialVoltageProfileMode());
+        assertEquals(1, parameters.getVoltageRanges().size());
+        VoltageRange voltageRange = parameters.getVoltageRanges().get(0);
+        assertEquals(Range.of(380., 410.), voltageRange.getRange());
+        assertEquals(1.05, voltageRange.getRangeCoefficient());
+        assertEquals(380., voltageRange.getVoltage());
     }
 
     @Test
@@ -411,5 +423,42 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
                 .read(stream));
         assertEquals("Voltage ranges for configured initial voltage profile are overlapping", e0.getMessage());
+    }
+
+    @Test
+    void testVoltageRangeWithSpecificVoltage() {
+        VoltageRange range = new VoltageRange(100, 200, 0.9, 150);
+        assertEquals(100, range.getMinimumNominalVoltage());
+        assertEquals(200, range.getMaximumNominalVoltage());
+        assertEquals(0.9, range.getRangeCoefficient());
+        assertEquals(150, range.getVoltage());
+    }
+
+    @Test
+    void testVoltageRangeWithSpecificVoltageOutOfBounds() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> new VoltageRange(100, 150, 0.9, 200));
+        assertEquals("Range voltage should be in voltageRange [100.0..150.0] but it is 200.0", e.getMessage());
+    }
+
+    @Test
+    void roundTripWithVoltageInVoltageRange() throws IOException {
+        List<VoltageRange> voltageRanges = new ArrayList<>();
+        voltageRanges.add(new VoltageRange(0, 100, 0.95, 100));
+        voltageRanges.add(new VoltageRange(101, 150, 1.1, 140));
+        ShortCircuitParameters parameters = new ShortCircuitParameters()
+                .setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED)
+                .setVoltageRanges(voltageRanges);
+        roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
+                "/ShortCircuitParametersWithRangeVoltage.json");
+    }
+
+    @Test
+    void testVoltageRange() {
+        VoltageRange voltageRange0 = new VoltageRange(350.0, 400.0, 1.05, 380.0);
+        VoltageRange voltageRange1 = new VoltageRange(350.0, 400.0, 1.05, 380.0);
+        assertEquals(voltageRange1, voltageRange0);
+        assertNotNull(voltageRange0);
+        assertNotEquals(new VoltageRange(350.0, 400.0, 1.05), voltageRange0);
+        assertEquals(voltageRange0.hashCode(), voltageRange1.hashCode());
     }
 }
