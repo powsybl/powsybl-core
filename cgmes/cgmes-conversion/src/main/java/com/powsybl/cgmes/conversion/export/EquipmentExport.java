@@ -851,10 +851,12 @@ public final class EquipmentExport {
 
     private static int getRatioTapChangerNeutralStep(RatioTapChanger rtc) {
         int neutralStep = rtc.getLowTapPosition();
-        while (rtc.getStep(neutralStep).getRho() != 1.0) {
-            neutralStep++;
-            if (neutralStep > rtc.getHighTapPosition()) {
-                return rtc.getHighTapPosition();
+        double minRatio = Math.abs(1 - rtc.getStep(neutralStep).getRho());
+        for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
+            double tempRatio = Math.abs(1 - step.getValue().getRho());
+            if (tempRatio < minRatio) {
+                minRatio = tempRatio;
+                neutralStep = step.getKey();
             }
         }
         return neutralStep;
