@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
@@ -76,9 +77,11 @@ class SparseMatrixSerializeTest {
     @Test
     void testSerializeToFileExceptions() throws IOException {
         SparseMatrix matrix = createSimpleSparseMatrix();
-        assertThrows(UncheckedIOException.class, () -> SparseMatrix.save(matrix, fileSystem.getPath("")));
-        assertThrows(UncheckedIOException.class, () -> SparseMatrix.load(fileSystem.getPath("")));
-        assertThrows(UncheckedIOException.class, () -> SparseMatrix.load(new ByteArrayInputStream(new byte[0])));
+        Path file = fileSystem.getPath("");
+        assertThrows(UncheckedIOException.class, () -> SparseMatrix.save(matrix, file));
+        assertThrows(UncheckedIOException.class, () -> SparseMatrix.load(file));
+        InputStream testInputStream = new ByteArrayInputStream(new byte[0]);
+        assertThrows(UncheckedIOException.class, () -> SparseMatrix.load(testInputStream));
         OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
         Mockito.doThrow(new IOException()).when(mockOutputStream).close();
         assertThrows(UncheckedIOException.class, () -> SparseMatrix.save(matrix, mockOutputStream));
@@ -109,8 +112,10 @@ class SparseMatrixSerializeTest {
     @Test
     void testSerializeToMatlabFormatExceptions() throws IOException {
         SparseMatrix matrix = createSimpleSparseMatrix();
-        assertThrows(UncheckedIOException.class, () -> new SparseMatrixMatSerializer().save(matrix, fileSystem.getPath("")));
-        assertThrows(UncheckedIOException.class, () -> new SparseMatrixMatSerializer().load(fileSystem.getPath("")));
+        Path file = fileSystem.getPath("");
+        SparseMatrixSerializer ser = new SparseMatrixMatSerializer();
+        assertThrows(UncheckedIOException.class, () -> ser.save(matrix, file));
+        assertThrows(UncheckedIOException.class, () -> ser.load(file));
     }
 
     @Test
