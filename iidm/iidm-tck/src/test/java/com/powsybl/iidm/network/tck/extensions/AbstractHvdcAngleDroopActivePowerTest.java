@@ -123,13 +123,13 @@ public abstract class AbstractHvdcAngleDroopActivePowerTest {
             hadpc.setP0(Float.NaN);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("p0 is not set", e.getMessage());
+            assertEquals("p0 value (NaN) is invalid for HVDC line L", e.getMessage());
         }
         try {
             hadpc.setDroop(Float.NaN);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("droop is not set", e.getMessage());
+            assertEquals("droop value (NaN) is invalid for HVDC line L", e.getMessage());
         }
     }
 }
