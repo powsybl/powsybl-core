@@ -104,6 +104,7 @@
         <commonslang3.version>3.13.0</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>
         <commonstext.version>1.10.0</commonstext.version>
+        <ejml.version>0.43.1</ejml.version>
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <gdata.version>1.47.1_1</gdata.version>
@@ -800,6 +801,11 @@
                 <version>${rdf4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.ejml</groupId>
+                <artifactId>ejml-core</artifactId>
+                <version>${ejml.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
                 <version>${jgrapht.version}</version>
@@ -848,6 +854,11 @@
             <dependency>
                 <groupId>us.hebi.matlab.mat</groupId>
                 <artifactId>mfl-core</artifactId>
+                <version>${mfl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>us.hebi.matlab.mat</groupId>
+                <artifactId>mfl-ejml</artifactId>
                 <version>${mfl.version}</version>
             </dependency>
             <dependency>
