@@ -585,11 +585,11 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    public void invalidTargetVSetting() {
+    public void targetVSetting() {
         createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
         RatioTapChanger rtc = twt.getRatioTapChanger();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> rtc.setTargetV(130));
-        assertTrue(e.getMessage().contains("Regulation mode must be in voltage to set target V"));
+        assertDoesNotThrow(() -> rtc.setTargetV(130));
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, rtc.getRegulationMode());
     }
 
     @Test

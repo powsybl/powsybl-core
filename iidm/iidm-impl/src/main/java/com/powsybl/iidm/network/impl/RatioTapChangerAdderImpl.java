@@ -35,7 +35,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private boolean regulating = false;
 
-    private RatioTapChanger.RegulationMode regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
+    private RatioTapChanger.RegulationMode regulationMode = null;
 
     private double regulationValue = Double.NaN;
 
@@ -143,9 +143,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     @Override
     public RatioTapChangerAdder setTargetV(double targetV) {
-        if (this.regulationMode != RatioTapChanger.RegulationMode.VOLTAGE) {
-            throw new IllegalAccessError("Regulation mode must be in voltage to set target V");
-        }
+        this.regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
         this.regulationValue = targetV;
         return this;
     }

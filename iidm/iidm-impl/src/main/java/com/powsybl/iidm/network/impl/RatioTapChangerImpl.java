@@ -110,10 +110,19 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
-        if (regulationMode != RegulationMode.VOLTAGE) {
-            throw new PowsyblException("Regulation mode must be in voltage to set target V");
-        }
-        return setRegulationValue(targetV);
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
+                regulatingPoint.getRegulatingTerminal(), RegulationMode.VOLTAGE,
+                targetV, n, n.getMinValidationLevel());
+        int variantIndex = network.get().getVariantIndex();
+        double oldRegulationValue = this.regulationValue.set(variantIndex, targetV);
+        RatioTapChanger.RegulationMode oldRegulationMode = this.regulationMode;
+        regulationMode = RegulationMode.VOLTAGE;
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldRegulationValue, targetV);
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldRegulationMode, regulationMode);
+        return this;
     }
 
     @Override

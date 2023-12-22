@@ -39,6 +39,7 @@ class TransformersValidationTest extends AbstractValidationTest {
     private final int tapPosition = 8;
     private final int lowTapPosition = 0;
     private final int highTapPosition = 30;
+    private final RatioTapChanger.RegulationMode regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
     private final double targetV = 92.7781;
     private final TwoSides regulatedSide = TwoSides.ONE;
     private final double v = 92.8007;
@@ -81,6 +82,7 @@ class TransformersValidationTest extends AbstractValidationTest {
         Mockito.when(ratioTapChanger.getCurrentStep()).thenReturn(currentStep);
         Mockito.when(ratioTapChanger.getStep(tapPosition - 1)).thenReturn(previousStep);
         Mockito.when(ratioTapChanger.getStep(tapPosition + 1)).thenReturn(nextStep);
+        Mockito.when(ratioTapChanger.getRegulationMode()).thenReturn(regulationMode);
         Mockito.when(ratioTapChanger.getTargetV()).thenReturn(targetV);
 
         transformer = Mockito.mock(TwoWindingsTransformer.class);

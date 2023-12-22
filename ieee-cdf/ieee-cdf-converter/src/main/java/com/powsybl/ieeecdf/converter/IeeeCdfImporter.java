@@ -425,10 +425,12 @@ public class IeeeCdfImporter implements Importer {
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(regulating)
                 .setRegulationTerminal(regulatingTerminal)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
                 .setRegulationValue(targetV)
                 .setTargetDeadband(regulating ? 0.0 : Double.NaN)
                 .setTapPosition(0);
+        if (!Double.isNaN(targetV)) {
+            ratioTapChangerAdder.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+        }
         for (double rho : rhos) {
             ratioTapChangerAdder.beginStep()
                     .setRho(rho)

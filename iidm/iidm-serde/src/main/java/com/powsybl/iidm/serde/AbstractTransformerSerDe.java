@@ -79,12 +79,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         }
         writeTapChanger(rtc, context);
         context.getWriter().writeBooleanAttribute("loadTapChangingCapabilities", rtc.hasLoadTapChangingCapabilities());
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", rtc.getTargetV()));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", rtc.getRegulationValue()));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
             context.getWriter().writeEnumAttribute("regulationMode", rtc.getRegulationMode());
-            if (rtc.getRegulationMode() != null || !Double.isNaN(rtc.getRegulationValue())) {
-                context.getWriter().writeDoubleAttribute("regulationValue", rtc.getRegulationValue());
-            }
+            context.getWriter().writeDoubleAttribute("regulationValue", rtc.getRegulationValue());
         });
         if (rtc.getRegulationTerminal() != null) {
             TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
@@ -111,8 +109,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> {
             double targetV = context.getReader().readDoubleAttribute("targetV");
-            adder.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                    .setTargetV(targetV);
+            if (!Double.isNaN(targetV)) {
+                adder.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+            }
+            adder.setRegulationValue(targetV);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
             RatioTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", RatioTapChanger.RegulationMode.class);

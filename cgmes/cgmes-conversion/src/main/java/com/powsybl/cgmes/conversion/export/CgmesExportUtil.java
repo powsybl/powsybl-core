@@ -383,7 +383,7 @@ public final class CgmesExportUtil {
     }
 
     static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
-        return !Double.isNaN(rtc.getTargetV())
+        return !Double.isNaN(rtc.getRegulationValue())
                 && !Double.isNaN(rtc.getTargetDeadband())
                 && rtc.getRegulationTerminal() != null;
     }
