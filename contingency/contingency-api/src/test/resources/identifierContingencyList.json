@@ -1,6 +1,6 @@
 {
-  "version" : "1.2",
   "type" : "identifier",
+  "version" : "1.2",
   "name" : "list1",
   "identifiers" : [ {
     "type" : "ID_BASED",

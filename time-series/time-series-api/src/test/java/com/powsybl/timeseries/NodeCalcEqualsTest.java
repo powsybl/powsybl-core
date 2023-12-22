@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -107,5 +109,39 @@ class NodeCalcEqualsTest {
                 .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(1), 3), new MaxNodeCalc(new IntegerNodeCalc(1), 3))
                 .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(2), 5), new MaxNodeCalc(new IntegerNodeCalc(2), 5))
                 .testEquals();
+    }
+
+    @Test
+    void binaryMinOperationTest() {
+        new EqualsTester()
+                .addEqualityGroup(new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)))
+                .addEqualityGroup(new BinaryMinCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)), new BinaryMinCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)))
+                .testEquals();
+
+        // Different BinaryMinCalc
+        assertNotEquals(new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMinCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)));
+        assertNotEquals(new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(5)));
+
+        // BinaryMinCalc and other NodeCal
+        NodeCalc node1 = new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        NodeCalc node2 = new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        assertNotEquals(node2, node1);
+    }
+
+    @Test
+    void binaryMaxOperationTest() {
+        new EqualsTester()
+                .addEqualityGroup(new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)))
+                .addEqualityGroup(new BinaryMaxCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)), new BinaryMaxCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)))
+                .testEquals();
+
+        // Different BinaryMaxCalc
+        assertNotEquals(new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMaxCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)));
+        assertNotEquals(new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(5)));
+
+        // BinaryMaxCalc and other NodeCal
+        NodeCalc node1 = new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        NodeCalc node2 = new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        assertNotEquals(node1, node2);
     }
 }

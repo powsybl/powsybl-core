@@ -8,11 +8,8 @@ package com.powsybl.math.matrix;
 
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
-import org.scijava.nativelib.NativeLoader;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -25,17 +22,6 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SparseMatrix extends AbstractMatrix {
-
-    private static native void nativeInit();
-
-    static {
-        try {
-            NativeLoader.loadLibrary("math");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        nativeInit();
-    }
 
     /**
      * Sparse Element implementation.
@@ -140,9 +126,9 @@ public class SparseMatrix extends AbstractMatrix {
      *
      * @param rowCount row count
      * @param columnCount column count
-     * @param estimatedNonZeroValueCount estimated number of non zero values (used for internal pre-allocation)
+     * @param estimatedValueCount estimated number of values (used for internal pre-allocation)
      */
-    SparseMatrix(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
+    SparseMatrix(int rowCount, int columnCount, int estimatedValueCount) {
         if (rowCount < 0) {
             throw new MatrixException("row count has to be positive");
         }
@@ -155,8 +141,8 @@ public class SparseMatrix extends AbstractMatrix {
         columnValueCount = new int[columnCount];
         Arrays.fill(columnStart, -1);
         this.columnStart[columnCount] = 0;
-        rowIndices = new TIntArrayListHack(estimatedNonZeroValueCount);
-        values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
+        rowIndices = new TIntArrayListHack(estimatedValueCount);
+        values = new TDoubleArrayListHack(estimatedValueCount);
     }
 
     public double getRgrowthThreshold() {
@@ -172,7 +158,7 @@ public class SparseMatrix extends AbstractMatrix {
      *
      * @return columm start index vector
      */
-    int[] getColumnStart() {
+    public int[] getColumnStart() {
         return columnStart;
     }
 
@@ -190,7 +176,7 @@ public class SparseMatrix extends AbstractMatrix {
      *
      * @return row index vector
      */
-    int[] getRowIndices() {
+    public int[] getRowIndices() {
         return rowIndices.getData();
     }
 
@@ -199,7 +185,7 @@ public class SparseMatrix extends AbstractMatrix {
      *
      * @return non zero value vector
      */
-    double[] getValues() {
+    public double[] getValues() {
         return values.getData();
     }
 
@@ -424,7 +410,7 @@ public class SparseMatrix extends AbstractMatrix {
     }
 
     @Override
-    protected int getEstimatedNonZeroValueCount() {
+    public int getValueCount() {
         return values.size();
     }
 
