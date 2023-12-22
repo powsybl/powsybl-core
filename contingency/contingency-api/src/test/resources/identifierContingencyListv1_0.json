@@ -1,6 +1,6 @@
 {
-  "version" : "1.0",
   "type" : "identifier",
+  "version" : "1.0",
   "name" : "list1",
   "identifiableType" : "type",
   "identifiers" : [ {
