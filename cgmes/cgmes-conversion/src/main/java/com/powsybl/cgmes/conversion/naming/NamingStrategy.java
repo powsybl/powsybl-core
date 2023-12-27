@@ -18,8 +18,6 @@ public interface NamingStrategy {
 
     String getName();
 
-    String getGeographicalTag(String geo);
-
     String getIidmId(String type, String id);
 
     String getIidmName(String type, String name);
@@ -51,11 +49,6 @@ public interface NamingStrategy {
         @Override
         public String getName() {
             return NamingStrategyFactory.IDENTITY;
-        }
-
-        @Override
-        public String getGeographicalTag(String geo) {
-            return geo;
         }
 
         @Override

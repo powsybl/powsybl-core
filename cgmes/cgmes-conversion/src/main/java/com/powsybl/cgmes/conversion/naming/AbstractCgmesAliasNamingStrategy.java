@@ -41,11 +41,6 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     }
 
     @Override
-    public String getGeographicalTag(String geo) {
-        return geo;
-    }
-
-    @Override
     public String getIidmId(String type, String id) {
         return idByUuid.getOrDefault(id, id);
     }
