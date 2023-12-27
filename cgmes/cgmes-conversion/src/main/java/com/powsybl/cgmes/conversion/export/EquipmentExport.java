@@ -38,7 +38,6 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 public final class EquipmentExport {
 
     private static final String AC_DC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
-    private static final String CONNECTIVITY_NODE_SUFFIX = "CN";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
@@ -141,11 +140,11 @@ public final class EquipmentExport {
     }
 
     private static String buildNodeKey(VoltageLevel vl, int node) {
-        return vl.getId() + "_" + node + "_" + CONNECTIVITY_NODE_SUFFIX;
+        return vl.getId() + "_" + node;
     }
 
     private static String buildNodeKey(Bus bus) {
-        return bus.getId() + "_" + CONNECTIVITY_NODE_SUFFIX;
+        return bus.getId();
     }
 
     private static void writeBusbarSectionsConnectivity(Network network, Map <String, String> mapNodeKey2NodeId, String cimNamespace,
@@ -175,7 +174,7 @@ public final class EquipmentExport {
 
     private static void writeBuses(VoltageLevel vl, String cgmesVlId, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus bus : vl.getBusBreakerView().getBuses()) {
-            String cgmesNodeId = context.getNamingStrategy().getCgmesId(bus, CONNECTIVITY_NODE_SUFFIX);
+            String cgmesNodeId = context.getNamingStrategy().getCgmesId(ref(bus), Part.CONNECTIVITY_NODE);
             ConnectivityNodeEq.write(cgmesNodeId, bus.getNameOrId(), cgmesVlId, cimNamespace, writer, context);
             mapNodeKey2NodeId.put(buildNodeKey(bus), cgmesNodeId);
         }

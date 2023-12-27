@@ -27,16 +27,6 @@ public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStra
     }
 
     @Override
-    public String getCgmesId(Identifiable<?> identifiable, String subObject) {
-        // ConnectivityNodes built as identifiers plus a suffix _CN must be fixed also in base naming strategy
-        boolean mustBeFixed = "CN".equals(subObject);
-        if (!mustBeFixed) {
-            return identifiable.getId() + "_" + subObject;
-        }
-        return super.getCgmesId(identifiable, subObject);
-    }
-
-    @Override
     public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
         // We assume all identifiers stored in aliases came from original CGMES models
         // and we do not try to fix them

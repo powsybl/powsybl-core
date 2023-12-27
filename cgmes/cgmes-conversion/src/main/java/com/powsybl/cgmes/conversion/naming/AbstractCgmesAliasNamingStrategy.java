@@ -55,21 +55,13 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         String identifier = identifiable.getId();
         if (idByUuid.containsValue(identifier)) {
             return idByUuid.inverse().get(identifier);
-        } else if (CgmesExportUtil.isValidCimMasterRID(identifiable.getId())) {
-            return identifiable.getId();
+        } else if (CgmesExportUtil.isValidCimMasterRID(identifier)) {
+            return identifier;
         } else {
             String uuid = getCgmesId(ref(identifiable));
-            idByUuid.put(uuid, identifiable.getId());
+            idByUuid.put(uuid, identifier);
             return uuid;
         }
-    }
-
-    @Override
-    public String getCgmesId(Identifiable<?> identifiable, String subObject) {
-        //  This is a hack to save in the naming strategy an identifier for something that is not an identifiable:
-        //  Connectivity nodes linked to bus/breaker view buses
-        String id = identifiable.getId() + "_" + subObject;
-        return getCgmesId(identifiable, id, "_" + subObject + "_" + "UUID");
     }
 
     @Override

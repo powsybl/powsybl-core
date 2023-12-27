@@ -24,10 +24,6 @@ public interface NamingStrategy {
 
     String getCgmesId(Identifiable<?> identifiable);
 
-    default String getCgmesId(Identifiable<?> identifiable, String subObject) {
-        return identifiable.getId() + "_" + subObject;
-    }
-
     default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
         return identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
     }
