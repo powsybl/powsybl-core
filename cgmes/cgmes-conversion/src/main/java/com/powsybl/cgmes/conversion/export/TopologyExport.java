@@ -258,7 +258,7 @@ public final class TopologyExport {
                             dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }
-                String fictTopologicalNodeId = context.getNamingStrategy().getUniqueId(ref(dl), TOPOLOGICAL_NODE);
+                String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(ref(dl), TOPOLOGICAL_NODE);
                 dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
                 writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
             }

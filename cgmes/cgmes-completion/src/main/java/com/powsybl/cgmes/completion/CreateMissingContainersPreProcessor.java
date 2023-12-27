@@ -189,9 +189,9 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         // EquipmentExport::writeFictitiousSubstationFor and use it here.
         // We could group all missing voltage levels in the same (fictitious) substation
         RegionContainers regionContainers = new RegionContainers();
-        regionContainers.subGeographicalRegionId = context.getNamingStrategy().getUniqueId(ref(network), ref("SubgeographicalRegionId"));
+        regionContainers.subGeographicalRegionId = context.getNamingStrategy().getCgmesId(ref(network), ref("SubgeographicalRegionId"));
         String subGeographicalRegionName = "SGR fix for missing data";
-        regionContainers.geographicalRegionId = context.getNamingStrategy().getUniqueId(ref(network), ref("GeographicalRegionId"));
+        regionContainers.geographicalRegionId = context.getNamingStrategy().getCgmesId(ref(network), ref("GeographicalRegionId"));
         String geographicalRegionName = "GR fix for missing data";
         SubGeographicalRegionEq.write(regionContainers.subGeographicalRegionId, subGeographicalRegionName, regionContainers.geographicalRegionId, cimNamespace, writer, context);
         GeographicalRegionEq.write(regionContainers.geographicalRegionId, geographicalRegionName, cimNamespace, writer, context);
@@ -205,9 +205,9 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         // we do not have additional information about the voltage level,
         // we create a different substation and base voltage for every missing voltage level
         String voltageLevelName = voltageLevelId + " VL";
-        String substationId = context.getNamingStrategy().getUniqueId(ref(voltageLevelId), ref("Substation"));
+        String substationId = context.getNamingStrategy().getCgmesId(ref(voltageLevelId), ref("Substation"));
         String substationName = voltageLevelId + "SUB for missing VL " + voltageLevelId;
-        String baseVoltageId = context.getNamingStrategy().getUniqueId(ref(voltageLevelId), ref("BaseVoltage"));
+        String baseVoltageId = context.getNamingStrategy().getCgmesId(ref(voltageLevelId), ref("BaseVoltage"));
 
         VoltageLevelEq.write(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, writer, context);
         SubstationEq.write(substationId, substationName, regionContainers.subGeographicalRegionId, cimNamespace, writer, context);

@@ -80,7 +80,7 @@ public final class StateVariablesExport {
                 LOG.info(log.get());
                 continue;
             }
-            String islandId = context.getNamingStrategy().getUniqueId(ref(island.key), TOPOLOGICAL_ISLAND);
+            String islandId = context.getNamingStrategy().getCgmesId(ref(island.key), TOPOLOGICAL_ISLAND);
             CgmesExportUtil.writeStartIdName(CgmesNames.TOPOLOGICAL_ISLAND, islandId, islandId, cimNamespace, writer, context);
             CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.key), cimNamespace, writer, context);
             if (context.isExportLoadFlowStatus()) {

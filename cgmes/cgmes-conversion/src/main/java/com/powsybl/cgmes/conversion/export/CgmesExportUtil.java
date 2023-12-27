@@ -118,7 +118,7 @@ public final class CgmesExportUtil {
         // the network, the subset (EQ, SSH, SV, ...), and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
         CgmesObjectReference[] modelRef = {ref(network), ref(subset), Part.FULL_MODEL};
-        String modelId = "urn:uuid:" + context.getNamingStrategy().getUniqueId(modelRef);
+        String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
         modelDescription.setIds(modelId);
         context.updateDependencies();
 
@@ -361,7 +361,7 @@ public final class CgmesExportUtil {
             if (optionalTapChangerId2.isEmpty()) {
                 // We create a new id always at end 1
                 Part ratioPhasePart = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
-                String newTapChangerId = context.getNamingStrategy().getUniqueId(ref(twt), ratioPhasePart);
+                String newTapChangerId = context.getNamingStrategy().getCgmesId(ref(twt), ratioPhasePart);
                 twt.addAlias(newTapChangerId, aliasType1);
                 return newTapChangerId;
             } else {
@@ -375,7 +375,7 @@ public final class CgmesExportUtil {
         Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
         if (optionalTapChangerId.isEmpty()) {
             Part ratioPhasePart = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
-            String newTapChangerId = context.getNamingStrategy().getUniqueId(ref(twt), ratioPhasePart);
+            String newTapChangerId = context.getNamingStrategy().getCgmesId(ref(twt), ratioPhasePart);
             twt.addAlias(newTapChangerId, aliasType);
             return newTapChangerId;
         } else {
@@ -411,11 +411,11 @@ public final class CgmesExportUtil {
         if (cgmesTapChanger == null) {
             cgmesTapChanger = cgmesTapChangers.newTapChanger()
                     .setId(tapChangerId)
-                    .setControlId(context.getNamingStrategy().getUniqueId(ref(twt), refTapChanger, Part.REGULATING_CONTROL))
+                    .setControlId(context.getNamingStrategy().getCgmesId(ref(twt), refTapChanger, Part.REGULATING_CONTROL))
                     .add();
         }
         if (cgmesTapChanger.getControlId() == null) {
-            cgmesTapChanger.setControlId(context.getNamingStrategy().getUniqueId(ref(twt), refTapChanger, Part.REGULATING_CONTROL));
+            cgmesTapChanger.setControlId(context.getNamingStrategy().getCgmesId(ref(twt), refTapChanger, Part.REGULATING_CONTROL));
         }
     }
 

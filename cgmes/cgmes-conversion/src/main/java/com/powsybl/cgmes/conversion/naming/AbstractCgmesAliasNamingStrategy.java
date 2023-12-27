@@ -57,10 +57,13 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
 
     @Override
     public String getCgmesId(Identifiable<?> identifiable) {
-        if (CgmesExportUtil.isValidCimMasterRID(identifiable.getId())) {
+        String identifier = identifiable.getId();
+        if (idByUuid.containsValue(identifier)) {
+            return idByUuid.inverse().get(identifier);
+        } else if (CgmesExportUtil.isValidCimMasterRID(identifiable.getId())) {
             return identifiable.getId();
         } else {
-            String uuid = getUniqueId(ref(identifiable));
+            String uuid = getCgmesId(ref(identifiable));
             idByUuid.put(uuid, identifiable.getId());
             return uuid;
         }
@@ -118,7 +121,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         if (CgmesExportUtil.isValidCimMasterRID(identifier)) {
             uuid = identifier;
         } else {
-            uuid = getUniqueId(ref(identifier));
+            uuid = getCgmesId(ref(identifier));
             // Only store the IDs that have been created during the export
             idByUuid.put(uuid, identifier);
         }
@@ -136,7 +139,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
             uuid = id;
         } else {
-            uuid = getUniqueId(ref(id));
+            uuid = getCgmesId(ref(id));
             // Only store the IDs that have been created during the export
             idByUuid.put(uuid, id);
         }
@@ -190,7 +193,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     private static final boolean XXX_USE_NAME_BASED_UUIDS = true;
 
     @Override
-    public String getUniqueId(CgmesObjectReference... refs) {
+    public String getCgmesId(CgmesObjectReference... refs) {
         if (XXX_USE_NAME_BASED_UUIDS) {
             String seed = "_" + CgmesObjectReference.combine(refs);
             String uuid = nameBasedGenerator.generate(seed).toString();

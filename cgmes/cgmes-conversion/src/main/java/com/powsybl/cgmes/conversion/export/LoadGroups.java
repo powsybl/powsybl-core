@@ -38,7 +38,7 @@ class LoadGroups {
     }
 
     LoadGroup createGroupFor(String loadClassName, CgmesExportContext context) {
-        String id = context.getNamingStrategy().getUniqueId(ref(loadClassName), LOAD_GROUP);
+        String id = context.getNamingStrategy().getCgmesId(ref(loadClassName), LOAD_GROUP);
         String className = GROUP_CLASS_NAMES.get(loadClassName);
         String groupName = GROUP_NAMES.get(loadClassName);
         LoadGroup loadGroup = new LoadGroup(className, id, groupName);

@@ -44,12 +44,7 @@ public interface NamingStrategy {
 
     void xxxDebug(String baseName, DataSource ds);
 
-    // FIXME(Luma) This will end up being a way to obtain a unique id for a given identifiable and a list of (enumerated) subojects
-    //  Different naming strategies may choose to:
-    //  - return random uuids (not stable, previously were persisted in an external file) or
-    //  - stable name-based uids combining identifiable id with prefixes and/or suffixes based on the list of enumerated subobjects
-
-    String getUniqueId(CgmesObjectReference... refs);
+    String getCgmesId(CgmesObjectReference... refs);
 
     final class Identity implements NamingStrategy {
 
@@ -84,7 +79,7 @@ public interface NamingStrategy {
         }
 
         @Override
-        public String getUniqueId(CgmesObjectReference... refs) {
+        public String getCgmesId(CgmesObjectReference... refs) {
             return CgmesObjectReference.combine(refs);
         }
     }
