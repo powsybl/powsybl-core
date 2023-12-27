@@ -142,7 +142,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     }
 
     @Override
-    public void xxxDebug(String baseName, DataSource ds) {
+    public void debug(String baseName, DataSource ds) {
         if (!LOG.isDebugEnabled()) {
             return;
         }
@@ -157,7 +157,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
                 String[] nextLine = new String[3];
                 nextLine[0] = "CgmesUuid";
                 nextLine[1] = "IidmId";
-                nextLine[2] = "seed";
+                nextLine[2] = "Seed";
                 csvWriter.writeRow(nextLine);
 
                 for (Map.Entry<String, String> e : idByUuid.entrySet()) {

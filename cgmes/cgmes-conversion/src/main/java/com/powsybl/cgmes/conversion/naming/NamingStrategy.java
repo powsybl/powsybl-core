@@ -40,7 +40,7 @@ public interface NamingStrategy {
         return identifier;
     }
 
-    void xxxDebug(String baseName, DataSource ds);
+    void debug(String baseName, DataSource ds);
 
     String getCgmesId(CgmesObjectReference... refs);
 
@@ -67,7 +67,7 @@ public interface NamingStrategy {
         }
 
         @Override
-        public void xxxDebug(String baseName, DataSource ds) {
+        public void debug(String baseName, DataSource ds) {
             // do nothing
         }
 
