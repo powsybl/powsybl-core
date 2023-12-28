@@ -89,6 +89,7 @@ public interface CgmesObjectReference {
                     case CgmesNames.CONFORM_LOAD -> "CL";
                     case CgmesNames.NONCONFORM_LOAD -> "NCL";
                     case CgmesNames.STATION_SUPPLY -> "SS";
+                    case CgmesNames.SV_INJECTION -> "SVI";
                     default -> throw new PowsyblException("Unexpected class name for Load: " + className);
                 };
             } else {

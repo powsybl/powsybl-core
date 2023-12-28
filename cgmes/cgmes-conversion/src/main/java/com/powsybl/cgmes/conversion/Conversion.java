@@ -723,7 +723,7 @@ public class Conversion {
                     .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
                     .orElse(null);
             if (regionName1 != null && regionName1.equals(regionName2)) {
-                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
+                context.ignored(node, "Both dangling lines are in the same region: we do not consider them as a merged line");
                 conversion1.convertAtBoundary();
                 conversion2.convertAtBoundary();
             } else if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {

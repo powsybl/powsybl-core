@@ -68,8 +68,11 @@ public final class TopologyExport {
                     if (b == null) {
                         b = t.getBusBreakerView().getConnectableBus();
                     }
-                    String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
-                    writeTerminal(CgmesExportUtil.getTerminalId(t, context), topologicalNodeId, cimNamespace, writer, context);
+                    // An isolated busbar section in a node/breaker model does not have even a connectable bus
+                    if (b != null) {
+                        String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
+                        writeTerminal(CgmesExportUtil.getTerminalId(t, context), topologicalNodeId, cimNamespace, writer, context);
+                    }
                 }
             }
         }
@@ -186,6 +189,12 @@ public final class TopologyExport {
 
     private static void writeHvdcBusTerminals(HvdcLine line, HvdcConverterStation<?> converter, int side, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         Bus bus = converter.getTerminal().getBusBreakerView().getBus();
+        if (bus == null) {
+            bus = converter.getTerminal().getBusBreakerView().getConnectableBus();
+        }
+        if (bus == null) {
+            return;
+        }
         String dcTopologicalNode = context.getNamingStrategy().getCgmesId(bus) + "DC";
         String dcNode = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + side).orElseThrow(PowsyblException::new);
         writeDCNode(dcNode, dcTopologicalNode, cimNamespace, writer, context);
@@ -276,13 +285,19 @@ public final class TopologyExport {
         Set<String> written = new HashSet<>();
         for (HvdcLine line : network.getHvdcLines()) {
             Bus b1 = line.getConverterStation1().getTerminal().getBusBreakerView().getBus();
-            if (!written.contains(b1.getId())) {
+            if (b1 == null) {
+                b1 = line.getConverterStation1().getTerminal().getBusBreakerView().getConnectableBus();
+            }
+            if (b1 != null && !written.contains(b1.getId())) {
                 writeDCTopologicalNode(b1.getId() + "DC", line.getNameOrId() + 1, cimNamespace, writer, context);
                 written.add(b1.getId());
             }
 
             Bus b2 = line.getConverterStation2().getTerminal().getBusBreakerView().getBus();
-            if (!written.contains(b2.getId())) {
+            if (b2 == null) {
+                b2 = line.getConverterStation2().getTerminal().getBusBreakerView().getConnectableBus();
+            }
+            if (b2 != null && !written.contains(b2.getId())) {
                 writeDCTopologicalNode(b2.getId() + "DC", line.getNameOrId() + 2, cimNamespace, writer, context);
                 written.add(b2.getId());
             }
