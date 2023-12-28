@@ -54,7 +54,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-math-native</artifactId>
         </dependency>
 
