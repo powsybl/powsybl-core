@@ -9,9 +9,12 @@ package com.powsybl.cgmes.conversion.test.export.issues;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
@@ -20,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -60,6 +64,33 @@ class SwitchExportTest extends AbstractSerDeTest {
         String switchIdSsh = readId("ProtectedSwitch", "about", tmpDir.resolve(basename + "_SSH.xml"));
         assertEquals("_" + switchId, switchIdEq);
         assertEquals("#_" + switchId, switchIdSsh);
+    }
+
+    @Test
+    void testExportRetainedSwitchWithSameBusBreakerBusAtBothEnds() {
+        // We create a network where a retained breaker has the same bus-breaker buses at both ends
+        // After #2574, a breaker with these characteristics was not exported to CGMES
+        Network n = Network.create("double-breaker-between-busbar-sections", "manual");
+        VoltageLevel vl = n.newVoltageLevel().setId("vl").setName("vl").setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(10).add();
+        VoltageLevel.NodeBreakerView nb = vl.getNodeBreakerView();
+        vl.newLoad().setId("load").setName("load").setNode(11)
+                .setP0(10).setQ0(0).add();
+        nb.newBusbarSection().setId("bbs1").setNode(1).add();
+        nb.newSwitch().setId("bkload").setName("bkload").setNode1(1).setNode2(11).setKind(SwitchKind.BREAKER).add();
+        vl.newGenerator().setId("gen").setName("gen").setNode(22)
+                .setTargetP(10).setTargetV(10).setMinP(0).setMaxP(100).setVoltageRegulatorOn(true).add();
+        nb.newBusbarSection().setId("bbs2").setNode(2).add();
+        nb.newSwitch().setId("bkgen").setName("bkgen").setNode1(2).setNode2(22).setKind(SwitchKind.BREAKER).add();
+        // There are two couplers linking the busbar sections, only one is marked as retained
+        nb.newSwitch().setId("coupler1").setName("coupler1").setNode1(1).setNode2(2).setKind(SwitchKind.BREAKER).setRetained(true).add();
+        nb.newSwitch().setId("coupler2").setName("coupler2").setNode1(1).setNode2(2).setKind(SwitchKind.BREAKER).setRetained(false).add();
+
+        // Check that both couplers are preserved when exported to CGMES
+        String basename = "double-breaker-between-busbars";
+        n.write("CGMES", null, tmpDir.resolve(basename));
+        Network n1 = Network.read(new FileDataSource(tmpDir, basename));
+        assertNotNull(n1.getSwitch("coupler2"));
+        assertNotNull(n1.getSwitch("coupler1"));
     }
 
     private static String readId(String elementName, String rdfIdAttrName, Path ssh) {
