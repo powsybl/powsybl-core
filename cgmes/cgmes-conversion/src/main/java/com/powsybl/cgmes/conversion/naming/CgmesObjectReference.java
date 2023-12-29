@@ -123,6 +123,7 @@ public interface CgmesObjectReference {
         CONVERTER_STATION("CS"),
         DCNODE("DCNODE"),
         DC_CONVERTER_UNIT("DCCU"),
+        DC_TOPOLOGICAL_NODE("DCTN"),
         EQUIVALENT_INJECTION("EI"),
         FICTITIOUS("FICT"),
         FULL_MODEL("_FM"),
