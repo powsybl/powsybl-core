@@ -285,15 +285,15 @@ public final class TopologyExport {
     private static void writeDcTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         Set<String> written = new HashSet<>();
         for (HvdcLine line : network.getHvdcLines()) {
-            writeDCTopologicalNode(line, 1, line.getConverterStation1().getTerminal(), written, cimNamespace, writer, context);
-            writeDCTopologicalNode(line, 2, line.getConverterStation2().getTerminal(), written, cimNamespace, writer, context);
+            writeDCTopologicalNode(line, 1, line.getConverterStation1(), written, cimNamespace, writer, context);
+            writeDCTopologicalNode(line, 2, line.getConverterStation2(), written, cimNamespace, writer, context);
         }
     }
 
-    private static void writeDCTopologicalNode(HvdcLine line, int side, Terminal acTerminal, Set<String> written, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        Bus b = acTerminal.getBusBreakerView().getBus();
+    private static void writeDCTopologicalNode(HvdcLine line, int side, HvdcConverterStation<?> converter, Set<String> written, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        Bus b = converter.getTerminal().getBusBreakerView().getBus();
         if (b == null) {
-            b = acTerminal.getBusBreakerView().getConnectableBus();
+            b = converter.getTerminal().getBusBreakerView().getConnectableBus();
         }
         if (b != null && !written.contains(b.getId())) {
             String id = context.getNamingStrategy().getCgmesId(ref(b), DC_TOPOLOGICAL_NODE);
