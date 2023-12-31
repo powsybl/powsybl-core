@@ -10,7 +10,6 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
@@ -71,17 +70,12 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         // Transformer ends of power transformers
         // Tap changers of power transformers
         String id;
-        Identifiable<?> realIdentifiable = identifiable;
         if (identifiable instanceof DanglingLine dl) {
             id = identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
-            if (dl.isPaired()) {
-                realIdentifiable = dl.getTieLine().orElseThrow(IllegalStateException::new);
-            }
         } else {
-            id = identifiable.getAliasFromType(aliasType)
-                    .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+            id = identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
         }
-        return getCgmesId(realIdentifiable, id, "_" + aliasType + "_" + "UUID");
+        return getCgmesId(id);
     }
 
     @Override
@@ -93,7 +87,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         if (id == null) {
             return null;
         } else {
-            return getCgmesId(identifiable, id, "_" + propertyName + "_" + "UUID");
+            return getCgmesId(id);
         }
     }
 
@@ -111,24 +105,6 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
             uuid = getCgmesId(ref(identifier));
             // Only store the IDs that have been created during the export
             idByUuid.put(uuid, identifier);
-        }
-        return uuid;
-    }
-
-    private String getCgmesId(Identifiable<?> identifiable, String id, String aliasName) {
-        if (idByUuid.containsValue(id)) {
-            return idByUuid.inverse().get(id);
-        }
-        String uuid;
-        Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + aliasName);
-        if (uuidFromAlias.isPresent()) {
-            uuid = uuidFromAlias.get();
-        } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
-            uuid = id;
-        } else {
-            uuid = getCgmesId(ref(id));
-            // Only store the IDs that have been created during the export
-            idByUuid.put(uuid, id);
         }
         return uuid;
     }

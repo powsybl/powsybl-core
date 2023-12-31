@@ -439,6 +439,7 @@ public final class CgmesExportUtil {
         return network.getBoundaryElements().stream()
                 .filter(DanglingLine.class::isInstance)
                 .map(DanglingLine.class::cast)
+                .sorted(Comparator.comparing(Identifiable::getId))
                 .toList();
     }
 
