@@ -152,22 +152,15 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         }
     }
 
-    // FIXME(Luma) For easy testing while we work on moving to name-based UUIDs
-    private static final boolean XXX_USE_NAME_BASED_UUIDS = true;
-
     @Override
     public String getCgmesId(CgmesObjectReference... refs) {
-        if (XXX_USE_NAME_BASED_UUIDS) {
-            String seed = "_" + CgmesObjectReference.combine(refs);
-            String uuid = nameBasedGenerator.generate(seed).toString();
-            if (uuidSeed.containsKey(uuid)) {
-                LOG.debug("Unique ID for seed {} called multiple times ", seed);
-            }
-            uuidSeed.put(uuid, seed);
-            return uuid;
-        } else {
-            return CgmesExportUtil.getUniqueRandomId();
+        String seed = "_" + CgmesObjectReference.combine(refs);
+        String uuid = nameBasedGenerator.generate(seed).toString();
+        if (uuidSeed.containsKey(uuid)) {
+            LOG.debug("Unique ID for seed {} called multiple times ", seed);
         }
+        uuidSeed.put(uuid, seed);
+        return uuid;
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesAliasNamingStrategy.class);
