@@ -60,7 +60,9 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
     private VoltageLevel newBoundarySubstationVoltageLevel() {
         double nominalVoltage = context.cgmes().nominalVoltage(p.getId("BaseVoltage"));
-        LOG.warn("Boundary node will be converted {}, nominalVoltage {} from base voltage {}", id, nominalVoltage, p.getId("BaseVoltage"));
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Boundary node will be converted {}, nominalVoltage {} from base voltage {}", id, nominalVoltage, p.getId("BaseVoltage"));
+        }
         String substationId = Context.boundarySubstationId(this.id);
         String vlId = Context.boundaryVoltageLevelId(this.id);
         String substationName = "boundary";
@@ -74,13 +76,12 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             adder.setGeographicalTags(boundaryCountryCode().toString());
         }
         Substation substation = adder.add();
-        VoltageLevel vl = substation.newVoltageLevel()
+        return substation.newVoltageLevel()
             .setId(context.namingStrategy().getIidmId("VoltageLevel", vlId))
             .setName(vlName)
             .setNominalV(nominalVoltage)
             .setTopologyKind(context.nodeBreaker() ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER)
             .add();
-        return vl;
     }
 
     private Country boundaryCountryCode() {

@@ -399,7 +399,7 @@ public class CgmesExportContext {
         for (Connectable<?> c : network.getConnectables()) {
             if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c, network); //TODO: what to put here?
+                    addIidmMappingsTerminal(t, c, network);
                 }
             }
         }

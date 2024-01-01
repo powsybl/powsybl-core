@@ -50,7 +50,7 @@ public class CgmesImport implements Importer {
     enum FictitiousSwitchesCreationMode {
         ALWAYS,
         ALWAYS_EXCEPT_SWITCHES,
-        NEVER;
+        NEVER
     }
 
     public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
@@ -159,10 +159,8 @@ public class CgmesImport implements Importer {
         Objects.requireNonNull(to);
         try {
             CgmesOnDataSource fromCgmes = new CgmesOnDataSource(from);
-            // TODO map "from names" to "to names" using base names of data sources
-            for (String fromName : fromCgmes.names()) {
-                String toName = fromName;
-                copyStream(from, to, fromName, toName);
+            for (String name : fromCgmes.names()) {
+                copyStream(from, to, name, name);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -287,8 +285,9 @@ public class CgmesImport implements Importer {
                                 defaultValueConfig));
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
 
-        // FIXME(Luma) When using a naming strategy for CGMES import we should not need an uuid namespace,
-        //   because we won't be creating new UUIDs
+        // Build the naming strategy with the default uuid namespace for creating name-based uuids
+        // In fact, when using a naming strategy for CGMES import we should not need an uuid namespace,
+        // because we won't be creating new UUIDs
         UUID uuidNamespace = CgmesExportContext.DEFAULT_UUID_NAMESPACE;
         config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, uuidNamespace));
         return config;
