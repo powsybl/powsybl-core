@@ -98,7 +98,8 @@ public interface CgmesObjectReference {
         }
 
         public String toString() {
-            return addSuffix ? value.getId() + "_" + suffix() : value.getId();
+            String id = value.getId().replace("urn:uuid:", "");
+            return addSuffix ? id + "_" + suffix() : id;
         }
     }
 
