@@ -51,22 +51,22 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
     @Test
     void microGridBE() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(),
                 false,
                 2,
                 false,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
     void microGridBEFlowsForSwitches() throws IOException, XMLStreamException {
         // Activate export of flows for switches on a small network with few switches,
         // Writing flows for all switches has impact on performance
-        test(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(),
                 false,
                 2,
                 true,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
@@ -113,7 +113,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK21", 2)));
         assertEqualsPowerFlow(new PowerFlow(10.01, 1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK22", 1)));
         assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK22", 2)));
-
     }
 
     private static void assertEqualsPowerFlow(PowerFlow expected, PowerFlow actual) {
@@ -141,50 +140,50 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
     @Test
     void microGridAssembled() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(),
                 false,
                 4,
                 false,
             r -> {
                 addRepackagerFiles("NL", r);
                 addRepackagerFiles("BE", r);
-            });
+            }));
     }
 
     @Test
     void smallGridBusBranch() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallBusBranch().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(),
                 false,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
     void smallGridNodeBreakerHVDC() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(),
                 true,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFilesExcludeTp);
+                StateVariablesExportTest::addRepackagerFilesExcludeTp));
     }
 
     @Test
     void smallGridNodeBreaker() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(),
                 true,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFilesExcludeTp);
+                StateVariablesExportTest::addRepackagerFilesExcludeTp));
     }
 
     @Test
     void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
-        test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(),
+        assertTrue(test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(),
                 false,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
@@ -534,7 +533,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .with("test_SSH.xml", Repackager::ssh);
     }
 
-    private void test(ReadOnlyDataSource dataSource, boolean exportTp, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
+    private boolean test(ReadOnlyDataSource dataSource, boolean exportTp, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
         // Import original
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
@@ -603,6 +602,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(expectedPath, actualPath);
+        return ExportXmlCompare.compareNetworks(expectedPath, actualPath);
     }
 }

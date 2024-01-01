@@ -166,7 +166,7 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         Network network1 = export2IidmAndImport(network);
         network1.setCaseDate(network.getCaseDate());
         exportNetwork(network1, exportDataSource2, baseName);
-        compareFiles("export1", "export2");
+        assertTrue(compareFiles("export1", "export2"));
     }
 
     @Test
@@ -178,14 +178,13 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         DataSource exportDataSource2 = tmpDataSource("export2", baseName);
         exportNetwork(network, exportDataSource1, baseName);
         exportNetwork(network, exportDataSource2, baseName);
-        compareFiles("export1", "export2");
+        assertTrue(compareFiles("export1", "export2"));
     }
 
-    private void compareFiles(String export1, String export2) throws IOException {
+    private boolean compareFiles(String export1, String export2) throws IOException {
         List<Path> files;
         try (Stream<Path> walk = Files.walk(tmpDir.resolve(export1))) {
-            files = walk.filter(Files::isRegularFile)
-                    .collect(Collectors.toList());
+            files = walk.filter(Files::isRegularFile).toList();
         }
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
@@ -198,8 +197,11 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringLoadAreaIds,
                 ExportXmlCompare::ignoringEnergyAreaIdOfControlArea);
         for (Path file : files) {
-            ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
+            if (!ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs)) {
+                return false;
+            }
         }
+        return true;
     }
 
     private void exportNetwork(Network network, DataSource exportDataSource, String baseName) {
