@@ -29,14 +29,9 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
                                        double currentLimit, boolean openAction) {
             this.overloadManagementSystemId = overloadManagementSystemId;
             this.key = Objects.requireNonNull(key);
-            this.name = name;
-            if (Double.isNaN(currentLimit)) {
-                throw new ValidationException(this, "Current limit is mandatory.");
-            } else if (currentLimit < 0) {
-                throw new ValidationException(this, "Current limit must be positive.");
-            }
-            this.currentLimit = currentLimit;
-            this.openAction = openAction;
+            setName(name);
+            setCurrentLimit(currentLimit);
+            setOpenAction(openAction);
         }
 
         @Override
@@ -62,6 +57,11 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
 
         @Override
         public Tripping setCurrentLimit(double currentLimit) {
+            if (Double.isNaN(currentLimit)) {
+                throw new ValidationException(this, "Current limit is mandatory.");
+            } else if (currentLimit < 0) {
+                throw new ValidationException(this, "Current limit must be positive.");
+            }
             this.currentLimit = currentLimit;
             return this;
         }
@@ -94,7 +94,7 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
                                   double currentLimit, boolean openAction,
                                   Switch switchToOperate) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
-            this.switchToOperate = Objects.requireNonNull(switchToOperate);
+            setSwitchToOperate(switchToOperate);
         }
 
         @Override
@@ -117,8 +117,8 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
                                      double currentLimit, boolean openAction,
                                      Branch<?> branchToOperate, TwoSides side) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
-            this.branchToOperate = Objects.requireNonNull(branchToOperate);
-            this.side = Objects.requireNonNull(side);
+            setBranchToOperate(branchToOperate);
+            setSideToOperate(side);
         }
 
         @Override
@@ -154,8 +154,8 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
                                                        double currentLimit, boolean openAction,
                                                        ThreeWindingsTransformer threeWindingsTransformer, ThreeSides side) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
-            this.threeWindingsTransformer = Objects.requireNonNull(threeWindingsTransformer);
-            this.side = Objects.requireNonNull(side);
+            setThreeWindingsTransformerToOperate(threeWindingsTransformer);
+            setSideToOperate(side);
         }
 
         @Override
