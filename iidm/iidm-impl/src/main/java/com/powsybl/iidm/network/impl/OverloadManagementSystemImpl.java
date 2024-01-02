@@ -191,9 +191,20 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
                                  boolean enabled) {
         super(Objects.requireNonNull(substation).getNetworkRef(), id, name, enabled);
         this.substation = Objects.requireNonNull(substation);
-        this.monitoredElementId = Objects.requireNonNull(monitoredElementId);
+        this.monitoredElementId = checkMonitoredElementId(monitoredElementId);
         this.monitoredSide = Objects.requireNonNull(monitoredSide);
         this.trippings = new ArrayList<>();
+    }
+
+    private String checkMonitoredElementId(String monitoredElementId) {
+        if (monitoredElementId == null) {
+            throw new ValidationException(this, "monitoredElementId is not set");
+        }
+        Identifiable<?> element = getNetwork().getIdentifiable(monitoredElementId);
+        if (element == null) {
+            throw new ValidationException(this, " '" + monitoredElementId + "' not found");
+        }
+        return monitoredElementId;
     }
 
     @Override

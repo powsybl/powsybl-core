@@ -281,6 +281,28 @@ public abstract class AbstractOverloadManagementSystemTest {
     }
 
     @Test
+    public void unknownMonitoredElementTest() {
+        Network network = SecurityAnalysisTestNetworkFactory.create();
+        Substation substation = network.getSubstation("S1");
+        OverloadManagementSystemAdder omsAdder = substation.newOverloadManagementSystem()
+                .setId("OMS1")
+                .setMonitoredElementSide(ThreeSides.ONE)
+                .newBranchTripping()
+                    .setKey("LineTrip")
+                    .setOpenAction(false)
+                    .setBranchToOperateId("LINE_S1S2V1_2")
+                    .setSideToOperate(TwoSides.ONE)
+                    .setCurrentLimit(50)
+                    .add();
+        ValidationException ex = assertThrows(ValidationException.class, omsAdder::add);
+        assertTrue(ex.getMessage().contains("monitoredElementId is not set"));
+
+        omsAdder.setMonitoredElementId("UNKNOWN");
+        ex = assertThrows(ValidationException.class, omsAdder::add);
+        assertTrue(ex.getMessage().contains("'UNKNOWN' not found"));
+    }
+
+    @Test
     public void unknownTrippingElementTest() {
         Network network = SecurityAnalysisTestNetworkFactory.create();
         Substation substation = network.getSubstation("S1");
@@ -291,10 +313,11 @@ public abstract class AbstractOverloadManagementSystemTest {
                 .newBranchTripping()
                     .setKey("LineTrip")
                     .setOpenAction(false)
-                    .setBranchToOperateId("Unknown")
+                    .setBranchToOperateId("UNKNOWN")
                     .setSideToOperate(TwoSides.ONE)
                     .setCurrentLimit(50)
                     .add();
-        assertThrows(ValidationException.class, omsAdder::add);
+        ValidationException ex = assertThrows(ValidationException.class, omsAdder::add);
+        assertTrue(ex.getMessage().contains("'UNKNOWN' not found"));
     }
 }
