@@ -200,4 +200,101 @@ public abstract class AbstractOverloadManagementSystemTest {
         variantManager.removeVariant("s4");
         assertThrows(Exception.class, oms1::isEnabled);
     }
+
+    @Test
+    public void invalidCurrentLimitsTest() {
+        Network network = SecurityAnalysisTestNetworkFactory.create();
+        Substation substation = network.getSubstation("S1");
+        OverloadManagementSystemAdder omsAdder = substation.newOverloadManagementSystem()
+                .setId("OMS1")
+                .setMonitoredElementId("LINE_S1S2V1_1")
+                .setMonitoredElementSide(ThreeSides.ONE);
+        OverloadManagementSystemAdder.BranchTrippingAdder trippingAdder = omsAdder
+                .newBranchTripping()
+                    .setKey("LineTrip")
+                    .setOpenAction(false)
+                    .setBranchToOperateId("LINE_S1S2V1_2")
+                    .setSideToOperate(TwoSides.ONE)
+                    .setCurrentLimit(-50);
+        trippingAdder.add();
+        assertThrows(ValidationException.class, omsAdder::add);
+
+        trippingAdder.setCurrentLimit(Double.NaN);
+        assertThrows(ValidationException.class, omsAdder::add);
+    }
+
+    @Test
+    public void duplicateTrippingKeysOnSameOmsTest() {
+        Network network = SecurityAnalysisTestNetworkFactory.create();
+        Substation substation = network.getSubstation("S1");
+        String duplicateKey = "duplicate";
+        OverloadManagementSystemAdder omsAdder = substation.newOverloadManagementSystem()
+                .setId("OMS1")
+                .setMonitoredElementId("LINE_S1S2V1_1")
+                .setMonitoredElementSide(ThreeSides.ONE)
+                .newSwitchTripping()
+                    .setKey(duplicateKey)
+                    .setCurrentLimit(80.)
+                    .setOpenAction(true)
+                    .setSwitchToOperateId("S1VL2_LINES1S2V1_1_BREAKER")
+                    .add()
+                .newBranchTripping()
+                    .setKey(duplicateKey)
+                    .setOpenAction(false)
+                    .setBranchToOperateId("LINE_S1S2V1_2")
+                    .setSideToOperate(TwoSides.ONE)
+                    .setCurrentLimit(-50)
+                    .add();
+        // duplicate tripping keys are NOT allowed if they are on the same OverloadManagementSystem
+        assertThrows(ValidationException.class, omsAdder::add);
+    }
+
+    @Test
+    public void duplicateTrippingKeysOnDifferentOmsTest() {
+        Network network = SecurityAnalysisTestNetworkFactory.create();
+        Substation substation = network.getSubstation("S1");
+        String duplicateKey = "duplicate";
+        substation.newOverloadManagementSystem()
+                .setId("OMS1")
+                .setMonitoredElementId("LINE_S1S2V1_1")
+                .setMonitoredElementSide(ThreeSides.ONE)
+                .newSwitchTripping()
+                    .setKey(duplicateKey)
+                    .setCurrentLimit(80.)
+                    .setOpenAction(true)
+                    .setSwitchToOperateId("S1VL2_LINES1S2V1_1_BREAKER")
+                    .add()
+                .add();
+        OverloadManagementSystemAdder omsAdder = substation.newOverloadManagementSystem()
+                .setId("OMS2")
+                .setMonitoredElementId("LINE_S1S2V1_1")
+                .setMonitoredElementSide(ThreeSides.TWO)
+                .newBranchTripping()
+                    .setKey(duplicateKey)
+                    .setOpenAction(false)
+                    .setBranchToOperateId("LINE_S1S2V1_2")
+                    .setSideToOperate(TwoSides.ONE)
+                    .setCurrentLimit(50)
+                    .add();
+        // duplicate tripping keys are allowed if they are on distinct OverloadManagementSystems
+        assertDoesNotThrow(omsAdder::add);
+    }
+
+    @Test
+    public void unknownTrippingElementTest() {
+        Network network = SecurityAnalysisTestNetworkFactory.create();
+        Substation substation = network.getSubstation("S1");
+        OverloadManagementSystemAdder omsAdder = substation.newOverloadManagementSystem()
+                .setId("OMS1")
+                .setMonitoredElementId("LINE_S1S2V1_1")
+                .setMonitoredElementSide(ThreeSides.ONE)
+                .newBranchTripping()
+                    .setKey("LineTrip")
+                    .setOpenAction(false)
+                    .setBranchToOperateId("Unknown")
+                    .setSideToOperate(TwoSides.ONE)
+                    .setCurrentLimit(50)
+                    .add();
+        assertThrows(ValidationException.class, omsAdder::add);
+    }
 }
