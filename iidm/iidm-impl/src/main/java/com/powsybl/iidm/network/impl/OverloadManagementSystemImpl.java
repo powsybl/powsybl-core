@@ -202,6 +202,16 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
     }
 
     @Override
+    public NetworkImpl getNetwork() {
+        return this.substation.getNetwork();
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        return this.substation.getParentNetwork();
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Overload management system";
     }

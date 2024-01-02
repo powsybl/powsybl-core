@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.test.SecurityAnalysisTestNetworkFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
@@ -153,5 +154,50 @@ public abstract class AbstractOverloadManagementSystemTest {
         assertEquals(ThreeSides.THREE, twtTripping.getSideToOperate());
         ThreeWindingsTransformer.Leg leg = network.getThreeWindingsTransformer("3WT").getLeg3();
         assertEquals(leg, twtTripping.getLegToOperate());
+    }
+
+    @Test
+    public void testSetterGetterInMultiVariants() {
+        Network network = SecurityAnalysisTestNetworkFactory.create();
+        Substation substation = network.getSubstation("S1");
+        OverloadManagementSystem oms1 = substation.newOverloadManagementSystem()
+                .setId("OMS1")
+                .setEnabled(true)
+                .setMonitoredElementId("LINE_S1S2V1_1")
+                .setMonitoredElementSide(ThreeSides.ONE)
+                .newBranchTripping()
+                    .setKey("LineTrip")
+                    .setCurrentLimit(50)
+                    .setOpenAction(false)
+                    .setBranchToOperateId("LINE_S1S2V1_2")
+                    .setSideToOperate(TwoSides.ONE)
+                    .add()
+                .add();
+        VariantManager variantManager = network.getVariantManager();
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+
+        variantManager.setWorkingVariant("s4");
+        // check value cloned by extend
+        assertTrue(oms1.isEnabled());
+        // change value in s4
+        oms1.setEnabled(false);
+
+        // remove s2
+        variantManager.removeVariant("s2");
+
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
+        // check value cloned by allocate
+        assertFalse(oms1.isEnabled());
+
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertTrue(oms1.isEnabled());
+
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
+        assertThrows(Exception.class, oms1::isEnabled);
     }
 }
