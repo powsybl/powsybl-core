@@ -82,6 +82,9 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
     }
 
     private static void writeOverloadManagementSystems(Substation s, NetworkSerializerContext context) {
+        if (!context.getOptions().isWithAutomationSystems()) {
+            return;
+        }
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
             context.getWriter().writeStartNodes();
             IidmSerDeUtil.sorted(s.getOverloadManagementSystems(), context.getOptions())

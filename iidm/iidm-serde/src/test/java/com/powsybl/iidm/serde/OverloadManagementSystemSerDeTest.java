@@ -7,11 +7,21 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.anonymizer.Anonymizer;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
@@ -20,16 +30,85 @@ import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
  */
 class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
 
+    private static Network network;
+
+    @BeforeAll
+    public static void setup() {
+        network = createNetwork();
+    }
+
     @Test
     void roundTripTest() throws IOException {
-        Network network = createNetwork();
-
         // backward compatibility
         allFormatsRoundTripAllPreviousVersionedXmlTest("overloadManagementSystemRoundTripRef.xml");
         allFormatsRoundTripTest(network, "overloadManagementSystemRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
-    private Network createNetwork() {
+    private record ExportResult(Anonymizer anonymizer, String content) {
+    }
+
+    static Stream<Arguments> provideFormats() {
+        return Stream.of(
+                Arguments.of(TreeDataFormat.JSON),
+                Arguments.of(TreeDataFormat.XML)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideFormats")
+    void exportDisabledTest(TreeDataFormat format) {
+        testForAllVersionsSince(IidmVersion.V_1_12, v -> exportDisabledTest(format, v));
+    }
+
+    private void exportDisabledTest(TreeDataFormat format, IidmVersion version) {
+        // Export the network without the automation systems
+        ExportResult exportResult = writeNetwork(format, version);
+        // Check that the exported String does NOT contain OMS tags
+        Assertions.assertFalse(exportResult.content().contains(OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME));
+        // Load the exported String to check if it is really valid
+        Network networkOutput = readNetwork(format, exportResult);
+        // Check that the read network has substations, lines, ... but no OMS (none were exported)
+        checkNetworkAgainstRef(networkOutput, false);
+    }
+
+    private static ExportResult writeNetwork(TreeDataFormat format, IidmVersion version) {
+        ExportOptions options = new ExportOptions()
+                .setFormat(format)
+                .setWithAutomationSystems(false)
+                .setVersion(version.toString("."));
+        ExportResult exportResult;
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            Anonymizer anonymizer = NetworkSerDe.write(network, options, os);
+            String exportedContent = os.toString(StandardCharsets.UTF_8);
+            exportResult = new ExportResult(anonymizer, exportedContent);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+        return exportResult;
+    }
+
+    private static Network readNetwork(TreeDataFormat format, ExportResult exportResult) {
+        ImportOptions options = new ImportOptions()
+                .setFormat(format);
+        Network networkOutput;
+        try (InputStream is = IOUtils.toInputStream(exportResult.content(), "UTF-8")) {
+            networkOutput = NetworkSerDe.read(is, options, exportResult.anonymizer());
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+        return networkOutput;
+    }
+
+    private static void checkNetworkAgainstRef(Network networkOutput, boolean shouldHaveAutomationSystems) {
+        Assertions.assertEquals(network.getSubstationCount(), networkOutput.getSubstationCount());
+        Assertions.assertEquals(network.getLineCount(), networkOutput.getLineCount());
+        Assertions.assertEquals(network.getTwoWindingsTransformerCount(), networkOutput.getTwoWindingsTransformerCount());
+        Assertions.assertEquals(network.getThreeWindingsTransformerCount(), networkOutput.getThreeWindingsTransformerCount());
+        int expectedNbAutomationSystem = shouldHaveAutomationSystems ? network.getOverloadManagementSystemCount() : 0;
+        Assertions.assertEquals(expectedNbAutomationSystem, networkOutput.getOverloadManagementSystemCount());
+    }
+
+    private static Network createNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("fictitious", "test");
         network.setCaseDate(ZonedDateTime.parse("2024-01-02T15:00:00.000+01:00"));
         network.setForecastDistance(0);
@@ -109,7 +188,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
         return network;
     }
 
-    private VoltageLevel createVoltageLevel(Substation substation, int nominalV) {
+    private static VoltageLevel createVoltageLevel(Substation substation, int nominalV) {
         String vlId = String.format("%s_%d", substation.getId(), nominalV);
         VoltageLevel vl = substation.newVoltageLevel()
                 .setId(vlId)
@@ -123,7 +202,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
         return vl;
     }
 
-    private void createLine(Network network, VoltageLevel s1v400, VoltageLevel s2v400, int nb) {
+    private static void createLine(Network network, VoltageLevel s1v400, VoltageLevel s2v400, int nb) {
         createSwitch(s1v400, "S1_400_LINE_" + nb + "_DISCONNECTOR", SwitchKind.DISCONNECTOR, 0, nb);
         createSwitch(s1v400, "S1_400_LINE_" + nb + "_BREAKER", SwitchKind.BREAKER, nb, 10 + nb);
         createSwitch(s2v400, "S2_400_LINE_" + nb + "_DISCONNECTOR", SwitchKind.DISCONNECTOR, 0, nb);
@@ -143,7 +222,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
                 .add();
     }
 
-    private void createTwoWindingsTransformer(Substation s1, VoltageLevel s1v400, VoltageLevel s1v225) {
+    private static void createTwoWindingsTransformer(Substation s1, VoltageLevel s1v400, VoltageLevel s1v225) {
         createSwitch(s1v400, "S1_400_BBS_2WT_DISCONNECTOR", SwitchKind.DISCONNECTOR, 0, 13);
         createSwitch(s1v400, "S1_400_2WT_BREAKER", SwitchKind.BREAKER, 13, 23);
         createSwitch(s1v225, "S1_225_BBS_2WT_DISCONNECTOR", SwitchKind.DISCONNECTOR, 0, 13);
@@ -163,7 +242,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
                 .add();
     }
 
-    private void createThreeWindingsTransformer(Substation s1, VoltageLevel s1v400, VoltageLevel s1v225, VoltageLevel s1v90) {
+    private static void createThreeWindingsTransformer(Substation s1, VoltageLevel s1v400, VoltageLevel s1v225, VoltageLevel s1v90) {
         createSwitch(s1v400, "S1_400_BBS_3WT_DISCONNECTOR", SwitchKind.DISCONNECTOR, 0, 14);
         createSwitch(s1v400, "S1_400_3WT_BREAKER", SwitchKind.BREAKER, 14, 24);
         createSwitch(s1v225, "S1_225_BBS_3WT_DISCONNECTOR", SwitchKind.DISCONNECTOR, 0, 14);
