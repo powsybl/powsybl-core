@@ -9,27 +9,26 @@ package com.powsybl.security.json.action;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.action.LineConnectionAction;
+import com.powsybl.security.action.TerminalConnectionAction;
 
 import java.io.IOException;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class LineConnectionActionSerializer extends StdSerializer<LineConnectionAction> {
+public class TerminalConnectionActionSerializer extends StdSerializer<TerminalConnectionAction> {
 
-    public LineConnectionActionSerializer() {
-        super(LineConnectionAction.class);
+    public TerminalConnectionActionSerializer() {
+        super(TerminalConnectionAction.class);
     }
 
     @Override
-    public void serialize(LineConnectionAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(TerminalConnectionAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("lineId", action.getLineId());
-        jsonGenerator.writeBooleanField("openSide1", action.isOpenSide1());
-        jsonGenerator.writeBooleanField("openSide2", action.isOpenSide2());
+        jsonGenerator.writeStringField("elementId", action.getElementId());
+        jsonGenerator.writeBooleanField("open", action.isOpen());
         jsonGenerator.writeEndObject();
     }
 }

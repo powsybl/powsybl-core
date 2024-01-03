@@ -47,8 +47,8 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         List<Action> actions = new ArrayList<>();
         actions.add(new SwitchAction("id1", "switchId1", true));
         actions.add(new MultipleActionsAction("id2", Collections.singletonList(new SwitchAction("id3", "switchId2", true))));
-        actions.add(new LineConnectionAction("id3", "lineId3", true, true));
-        actions.add(new LineConnectionAction("id4", "lineId4", false));
+        actions.add(new TerminalConnectionAction("id3", "lineId3", true)); // both sides.
+        actions.add(new TerminalConnectionAction("id4", "lineId4", false));
         actions.add(new PhaseTapChangerTapPositionAction("id5", "transformerId1", true, 5, ThreeSides.TWO));
         actions.add(new PhaseTapChangerTapPositionAction("id6", "transformerId2", false, 12));
         actions.add(new PhaseTapChangerTapPositionAction("id7", "transformerId3", true, -5, ThreeSides.ONE));
