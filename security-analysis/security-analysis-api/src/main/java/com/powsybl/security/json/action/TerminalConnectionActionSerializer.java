@@ -9,6 +9,7 @@ package com.powsybl.security.json.action;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.action.TerminalConnectionAction;
 
 import java.io.IOException;
@@ -28,6 +29,9 @@ public class TerminalConnectionActionSerializer extends StdSerializer<TerminalCo
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
         jsonGenerator.writeStringField("elementId", action.getElementId());
+        if (action.getSide().isPresent()) {
+            JsonUtil.writeOptionalStringField(jsonGenerator, "side", String.valueOf(action.getSide().get()));
+        }
         jsonGenerator.writeBooleanField("open", action.isOpen());
         jsonGenerator.writeEndObject();
     }

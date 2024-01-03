@@ -177,5 +177,11 @@
     "staticVarCompensatorId" : "svc",
     "regulationMode" : "REACTIVE_POWER",
     "reactivePowerSetpoint" : 120.0
+  }, {
+    "type" : "TERMINAL_CONNECTION",
+    "id" : "id4",
+    "elementId" : "transformerId25",
+    "side" : "THREE",
+    "open" : true
   } ]
 }

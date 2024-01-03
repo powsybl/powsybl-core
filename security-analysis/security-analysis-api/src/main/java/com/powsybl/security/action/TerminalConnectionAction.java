@@ -49,7 +49,7 @@ public class TerminalConnectionAction extends AbstractAction {
      * Return the optional side of the connection/disconnection action.
      */
     public Optional<ThreeSides> getSide() {
-        return Optional.of(side);
+        return Optional.ofNullable(side);
     }
 
     /**
