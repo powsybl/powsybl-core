@@ -62,19 +62,41 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
 
     private void exportDisabledTest(TreeDataFormat format, IidmVersion version) {
         // Export the network without the automation systems
-        ExportResult exportResult = writeNetwork(format, version);
+        ExportResult exportResult = writeNetwork(format, version, false);
         // Check that the exported String does NOT contain OMS tags
         Assertions.assertFalse(exportResult.content().contains(OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME));
         // Load the exported String to check if it is really valid
-        Network networkOutput = readNetwork(format, exportResult);
+        Network networkOutput = readNetwork(format, exportResult, true);
         // Check that the read network has substations, lines, ... but no OMS (none were exported)
         checkNetworkAgainstRef(networkOutput, false);
     }
 
-    private static ExportResult writeNetwork(TreeDataFormat format, IidmVersion version) {
+    @ParameterizedTest
+    @MethodSource("provideFormats")
+    void importDisabledTest(TreeDataFormat format) {
+        testForAllVersionsSince(IidmVersion.V_1_12, v -> importDisabledTest(format, v));
+    }
+
+    private void importDisabledTest(TreeDataFormat format, IidmVersion version) {
+        // Export the network (with the automation systems)
+        ExportResult exportResult = writeNetwork(format, version, true);
+        // Check that the exported String DOES contain OMS tags
+        Assertions.assertTrue(exportResult.content().contains(OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME));
+        // Load the exported String without the automation systems
+        Network networkOutput = readNetwork(format, exportResult, false);
+        // Check that the read network has substations, lines, ... but no OMS (none were imported)
+        checkNetworkAgainstRef(networkOutput, false);
+
+        // Final check: import the same network, but this time with the automation systems
+        // They should now be present
+        networkOutput = readNetwork(format, exportResult, true);
+        checkNetworkAgainstRef(networkOutput, true);
+    }
+
+    private static ExportResult writeNetwork(TreeDataFormat format, IidmVersion version, boolean withAutomationSystems) {
         ExportOptions options = new ExportOptions()
                 .setFormat(format)
-                .setWithAutomationSystems(false)
+                .setWithAutomationSystems(withAutomationSystems)
                 .setVersion(version.toString("."));
         ExportResult exportResult;
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -87,9 +109,10 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
         return exportResult;
     }
 
-    private static Network readNetwork(TreeDataFormat format, ExportResult exportResult) {
+    private static Network readNetwork(TreeDataFormat format, ExportResult exportResult, boolean withAutomationSystems) {
         ImportOptions options = new ImportOptions()
-                .setFormat(format);
+                .setFormat(format)
+                .setWithAutomationSystems(withAutomationSystems);
         Network networkOutput;
         try (InputStream is = IOUtils.toInputStream(exportResult.content(), "UTF-8")) {
             networkOutput = NetworkSerDe.read(is, options, exportResult.anonymizer());

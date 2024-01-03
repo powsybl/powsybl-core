@@ -17,6 +17,7 @@ import java.util.Set;
 public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
+    private boolean withAutomationSystems = true;
 
     public ImportOptions() {
     }
@@ -49,5 +50,14 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
     @Override
     public boolean isThrowExceptionIfExtensionNotFound() {
         return throwExceptionIfExtensionNotFound;
+    }
+
+    public boolean isWithAutomationSystems() {
+        return withAutomationSystems;
+    }
+
+    public ImportOptions setWithAutomationSystems(boolean withAutomationSystems) {
+        this.withAutomationSystems = withAutomationSystems;
+        return this;
     }
 }

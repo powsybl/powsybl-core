@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -100,9 +101,11 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
         String monitoredElementId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("monitoredElementId"));
         String side = context.getReader().readStringAttribute("side");
         ThreeSides monitoredSide = side == null ? ThreeSides.ONE : ThreeSides.valueOf(side);
-        adder.setEnabled(enabled)
-                .setMonitoredElementId(monitoredElementId)
-                .setMonitoredElementSide(monitoredSide);
+        if (adder != null) {
+            adder.setEnabled(enabled)
+                    .setMonitoredElementId(monitoredElementId)
+                    .setMonitoredElementSide(monitoredSide);
+        }
     }
 
     @Override
@@ -121,25 +124,29 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
                     String side = context.getReader().readStringAttribute("side");
                     TwoSides sideToOperate = side == null ? TwoSides.ONE : TwoSides.valueOf(side);
                     context.getReader().readEndNode();
-                    adder.newBranchTripping()
-                            .setKey(key)
-                            .setName(name)
-                            .setCurrentLimit(currentLimit)
-                            .setOpenAction(openAction)
-                            .setBranchToOperateId(branchId)
-                            .setSideToOperate(sideToOperate)
-                            .add();
+                    if (adder != null) {
+                        adder.newBranchTripping()
+                                .setKey(key)
+                                .setName(name)
+                                .setCurrentLimit(currentLimit)
+                                .setOpenAction(openAction)
+                                .setBranchToOperateId(branchId)
+                                .setSideToOperate(sideToOperate)
+                                .add();
+                    }
                 }
                 case SWITCH_TRIPPING_TAG -> {
                     String switchId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("switchId"));
                     context.getReader().readEndNode();
-                    adder.newSwitchTripping()
-                            .setKey(key)
-                            .setName(name)
-                            .setCurrentLimit(currentLimit)
-                            .setOpenAction(openAction)
-                            .setSwitchToOperateId(switchId)
-                            .add();
+                    if (adder != null) {
+                        adder.newSwitchTripping()
+                                .setKey(key)
+                                .setName(name)
+                                .setCurrentLimit(currentLimit)
+                                .setOpenAction(openAction)
+                                .setSwitchToOperateId(switchId)
+                                .add();
+                    }
                 }
                 case THREE_WINDINGS_TRANSFORMER_TRIPPING_TAG -> {
                     String twtId = context.getAnonymizer().deanonymizeString(
@@ -147,14 +154,16 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
                     String side = context.getReader().readStringAttribute("side");
                     ThreeSides sideToOperate = side == null ? ThreeSides.ONE : ThreeSides.valueOf(side);
                     context.getReader().readEndNode();
-                    adder.newThreeWindingsTransformerTripping()
-                            .setKey(key)
-                            .setName(name)
-                            .setCurrentLimit(currentLimit)
-                            .setOpenAction(openAction)
-                            .setThreeWindingsTransformerToOperateId(twtId)
-                            .setSideToOperate(sideToOperate)
-                            .add();
+                    if (adder != null) {
+                        adder.newThreeWindingsTransformerTripping()
+                                .setKey(key)
+                                .setName(name)
+                                .setCurrentLimit(currentLimit)
+                                .setOpenAction(openAction)
+                                .setThreeWindingsTransformerToOperateId(twtId)
+                                .setSideToOperate(sideToOperate)
+                                .add();
+                    }
                 }
                 default -> readSubElement(elementName, id, toApply, context);
             }
@@ -168,5 +177,12 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
         // This could lead to errors at the OverloadManagementSystem's creation.
         // To avoid this, this latter is postponed.
         return true;
+    }
+
+    public final void skip(NetworkDeserializerContext context) {
+        List<Consumer<OverloadManagementSystem>> toApply = new ArrayList<>();
+        String id = readIdentifierAttributes(null, context);
+        readRootElementAttributes(null, toApply, context);
+        readSubElements(id, null, toApply, context);
     }
 }

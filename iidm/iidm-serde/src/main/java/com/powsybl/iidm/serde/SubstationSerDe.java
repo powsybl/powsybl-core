@@ -129,6 +129,10 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
     private static void checkSupportedAndReadOverloadManagementSystems(Substation s, NetworkDeserializerContext context) {
         IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME,
                 IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-        OverloadManagementSystemSerDe.INSTANCE.read(s, context);
+        if (context.getOptions().isWithAutomationSystems()) {
+            OverloadManagementSystemSerDe.INSTANCE.read(s, context);
+        } else {
+            OverloadManagementSystemSerDe.INSTANCE.skip(context);
+        }
     }
 }
