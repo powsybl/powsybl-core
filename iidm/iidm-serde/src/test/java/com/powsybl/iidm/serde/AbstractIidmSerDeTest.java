@@ -190,6 +190,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * </ul>
      * @param network the network to start with
      * @param filename the filename of the reference versioned file resource
+     * @param version the version to use for exporting and for the versioned filename
      * @return the Network read just before the end of the round trip
      */
     public Network allFormatsRoundTripTest(Network network, String filename, IidmVersion version) throws IOException {
