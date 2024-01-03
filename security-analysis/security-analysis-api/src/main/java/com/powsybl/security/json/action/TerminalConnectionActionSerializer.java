@@ -10,9 +10,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.action.TerminalConnectionAction;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -29,8 +31,9 @@ public class TerminalConnectionActionSerializer extends StdSerializer<TerminalCo
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
         jsonGenerator.writeStringField("elementId", action.getElementId());
-        if (action.getSide().isPresent()) {
-            JsonUtil.writeOptionalStringField(jsonGenerator, "side", String.valueOf(action.getSide().get()));
+        Optional<ThreeSides> side = action.getSide();
+        if (side.isPresent()) {
+            JsonUtil.writeOptionalStringField(jsonGenerator, "side", String.valueOf(side.get()));
         }
         jsonGenerator.writeBooleanField("open", action.isOpen());
         jsonGenerator.writeEndObject();
