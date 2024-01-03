@@ -41,6 +41,9 @@ public class TerminalConnectionAction extends AbstractAction {
         return NAME;
     }
 
+    /**
+     * Return the element id. TODO: define the scope.
+     */
     public String getElementId() {
         return elementId;
     }
@@ -53,7 +56,7 @@ public class TerminalConnectionAction extends AbstractAction {
     }
 
     /**
-     * If {@code true}, applying the action will open the terminal 2 of the line,
+     * If {@code true}, applying the action will open the terminal reference,
      * else it will close it.
      */
     public boolean isOpen() {
