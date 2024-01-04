@@ -602,7 +602,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                 .writeCell(rtc.getTapPosition() - rtc.getLowTapPosition() + 1)
                 .writeCell(tcsNum)
                 .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
-            if (config.isExportRatioTapChangerVoltageTarget() && rtc.getRegulationMode() == RatioTapChanger.RegulationMode.VOLTAGE) {
+            if (config.isExportRatioTapChangerVoltageTarget()) {
                 formatter.writeCell(rtc.getTargetV());
             }
             formatter.writeCell(faultNum)

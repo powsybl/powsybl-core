@@ -190,8 +190,8 @@ class UcteExporterTest extends AbstractSerDeTest {
         }
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             RatioTapChanger rtc = twt.getRatioTapChanger();
-            if (rtc != null && rtc.isRegulating() && rtc.getRegulationMode() == RatioTapChanger.RegulationMode.VOLTAGE) {
-                rtc.setRegulationValue(rtc.getRegulationTerminal().getVoltageLevel().getNominalV() * 1.4);
+            if (rtc != null && rtc.isRegulating()) {
+                rtc.setTargetV(rtc.getRegulationTerminal().getVoltageLevel().getNominalV() * 1.4);
             }
         }
         testExporter(network, "/invalidVoltageReference.uct");

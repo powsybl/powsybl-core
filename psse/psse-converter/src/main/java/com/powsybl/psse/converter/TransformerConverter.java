@@ -772,8 +772,7 @@ class TransformerConverter extends AbstractConverter {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
         }
-        rtc.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-            .setRegulationValue(targetV)
+        rtc.setTargetV(targetV)
             .setTargetDeadband(targetDeadBand)
             .setRegulationTerminal(regulatingTerminal)
             .setRegulating(regulating);

@@ -46,7 +46,8 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
 
     /**
      * Set the regulation value.
-     * <p>Depends on the working variant.</p>
+     * <p>
+     * Depends on the working variant.
      * @see VariantManager
      * @param regulationValue the regulation value.
      * @return itself for method chaining.
@@ -55,16 +56,18 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
 
     /**
      * Get the target voltage in kV.
-     * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
-     * <p>Depends on the working variant.</p>
+     * <p>
+     * Returns NaN if the regulation mode is not {@link RegulationMode#VOLTAGE}.
+     * <p>
+     * Depends on the working variant.
      * @see VariantManager
      */
     double getTargetV();
 
     /**
-     * Set the target voltage in kV.
-     * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
-     * <p>Depends on the working variant.</p>
+     * Set the target voltage in kV and sets regulating mode to {@link RegulationMode#VOLTAGE}.
+     * <p>
+     * Depends on the working variant.
      * @see VariantManager
      * @return itself for method chaining.
      */

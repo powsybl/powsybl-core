@@ -503,8 +503,7 @@ public class UcteImporter implements Importer {
         if (!Double.isNaN(uctePhaseRegulation.getU())) {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(true)
-                    .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                    .setRegulationValue(uctePhaseRegulation.getU())
+                    .setTargetV(uctePhaseRegulation.getU())
                     .setTargetDeadband(0.0)
                     .setRegulationTerminal(transformer.getTerminal1());
         }

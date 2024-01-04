@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -580,8 +579,7 @@ public abstract class AbstractTapChangerTest {
     public void invalidTargetVAccess() {
         createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
         RatioTapChanger rtc = twt.getRatioTapChanger();
-        PowsyblException e = assertThrows(PowsyblException.class, rtc::getTargetV);
-        assertTrue(e.getMessage().contains("Regulation mode must be in voltage to access to target V"));
+        assertTrue(Double.isNaN(rtc.getTargetV()));
     }
 
     @Test

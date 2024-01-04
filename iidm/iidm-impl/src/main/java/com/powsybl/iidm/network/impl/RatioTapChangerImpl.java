@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -103,7 +102,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public double getTargetV() {
         if (regulationMode != RegulationMode.VOLTAGE) {
-            throw new PowsyblException("Regulation mode must be in voltage to access to target V");
+            return Double.NaN;
         }
         return getRegulationValue();
     }
@@ -117,7 +116,9 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         int variantIndex = network.get().getVariantIndex();
         double oldRegulationValue = this.regulationValue.set(variantIndex, targetV);
         RatioTapChanger.RegulationMode oldRegulationMode = this.regulationMode;
-        regulationMode = RegulationMode.VOLTAGE;
+        if (!Double.isNaN(targetV)) {
+            regulationMode = RegulationMode.VOLTAGE;
+        }
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldRegulationValue, targetV);

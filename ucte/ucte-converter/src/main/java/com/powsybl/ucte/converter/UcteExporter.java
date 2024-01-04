@@ -722,9 +722,8 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
                 twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
                 Double.NaN);
-        if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getRegulationValue())
-                && twoWindingsTransformer.getRatioTapChanger().getRegulationMode() == RatioTapChanger.RegulationMode.VOLTAGE) {
-            uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getRegulationValue());
+        if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
+            uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getTargetV());
         }
         return uctePhaseRegulation;
     }
