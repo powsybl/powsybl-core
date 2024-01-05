@@ -975,7 +975,7 @@ public class Conversion {
 
         public Config setMissingPermanentLimitPercentage(double missingPermanentLimitPercentage) {
             if (missingPermanentLimitPercentage < 0 || missingPermanentLimitPercentage > 100) {
-                new IllegalArgumentException("Missing permanent limit percentage must be between 0 and 100.");
+                throw new IllegalArgumentException("Missing permanent limit percentage must be between 0 and 100.");
             }
             this.missingPermanentLimitPercentage = missingPermanentLimitPercentage;
             return this;
