@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapChangerStep, RatioTapChangerStepsReplacer> {
+public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapChangerStep, RatioTapChangerStepsReplacer, RatioTapChangerStepsReplacerStepAdder> {
 
     /**
      * Get the target voltage in kV.
