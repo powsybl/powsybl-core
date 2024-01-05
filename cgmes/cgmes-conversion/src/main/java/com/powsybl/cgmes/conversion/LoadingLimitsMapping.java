@@ -6,14 +6,14 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
-
-import static java.lang.Integer.MAX_VALUE;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -36,46 +36,20 @@ public class LoadingLimitsMapping {
             if (!Double.isNaN(entry.getValue().getPermanentLimit()) || entry.getValue().hasTemporaryLimits()) {
                 boolean badPermanentLimit = false;
                 if (Double.isNaN(entry.getValue().getPermanentLimit())) {
-                    entry.getValue().setPermanentLimit(Double.MAX_VALUE); // FIXME
+                    // Temporarily set a fictive permanent limit to allow `adder.add()` to execute.
+                    // It will be fixed just afterward.
+                    entry.getValue().setPermanentLimit(Integer.MAX_VALUE);
                     badPermanentLimit = true;
                 }
                 LoadingLimits limits = entry.getValue().add();
                 if (badPermanentLimit) {
-                    Collection<LoadingLimits.TemporaryLimit> temporaryLimitsToRemove = new ArrayList<>();
-                    double lowestTemporaryLimitWithInfiniteAcceptableDuration = MAX_VALUE;
-                    boolean hasTemporaryLimitWithInfiniteAcceptableDuration = false;
-                    for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
-                        if (isAcceptableDurationInfinite(temporaryLimit)) {
-                            hasTemporaryLimitWithInfiniteAcceptableDuration = true;
-                            lowestTemporaryLimitWithInfiniteAcceptableDuration =
-                                    Math.min(lowestTemporaryLimitWithInfiniteAcceptableDuration, temporaryLimit.getValue());
-                            temporaryLimitsToRemove.add(temporaryLimit);
-                        }
-                    }
-                    limits.getTemporaryLimits().removeAll(temporaryLimitsToRemove);
-
-                    if (hasTemporaryLimitWithInfiniteAcceptableDuration) {
-                        context.fixed("Operational Limit Set of " + entry.getKey(),
-                                "An operational limit set without permanent limit is considered with permanent limit" +
-                                        "equal to lowest TATL value with infinite acceptable duration",
-                                Double.NaN, lowestTemporaryLimitWithInfiniteAcceptableDuration);
-                        limits.setPermanentLimit(lowestTemporaryLimitWithInfiniteAcceptableDuration);
-                    } else {
-                        double firstTemporaryLimit = Iterables.get(limits.getTemporaryLimits(), 0).getValue();
-                        double fixedPermanentLimit = firstTemporaryLimit * context.config().getMissingPermanentLimitPercentage() / 100;
-                        context.fixed("Operational Limit Set of " + entry.getKey(),
-                                "An operational limit set without permanent limit is considered with permanent limit" +
-                                        "equal to lowest TATL value weighted by a coefficient of " + context.config().getMissingPermanentLimitPercentage() / 100,
-                                Double.NaN, fixedPermanentLimit);
-                        limits.setPermanentLimit(fixedPermanentLimit);
-                    }
+                    LoadingLimitsUtil.fixMissingPermanentLimit(limits,
+                            context.config().getMissingPermanentLimitPercentage(),
+                            entry.getKey(), context::fixed);
                 }
             }
         }
         adders.clear();
     }
 
-    private boolean isAcceptableDurationInfinite(LoadingLimits.TemporaryLimit temporaryLimit) {
-        return temporaryLimit.getAcceptableDuration() == MAX_VALUE;
-    }
 }

@@ -32,6 +32,9 @@ import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -40,6 +43,7 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
@@ -358,15 +362,30 @@ class CgmesConformity1ModifiedConversionTest {
         assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
     }
 
-    @Test
-    void microBEUndefinedPatl() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUndefinedPatl().dataSource(),
+    @ParameterizedTest(name = "{1}")
+    @MethodSource("getMicroBEUndefinedPatlParameters")
+    void microBEUndefinedPatl(double expectedPermanentLimitValue, Double percentage) {
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        if (percentage != null) {
+            platformConfig.createModuleConfig("import-export-parameters-default-value")
+                    .setStringProperty(CgmesImport.MISSING_PERMANENT_LIMIT_PERCENTAGE, percentage.toString());
+        }
+
+        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUndefinedPatl().dataSource(),
                 NetworkFactory.findDefault(), null);
         Line line = network.getLine("ffbabc27-1ccd-4fdc-b037-e341706c8d29");
         CurrentLimits limits = line.getCurrentLimits1().orElse(null);
         assertNotNull(limits);
         assertEquals(2, limits.getTemporaryLimits().size());
-        assertEquals(1312.0, limits.getPermanentLimit(), 0.0);
+        assertEquals(expectedPermanentLimitValue, limits.getPermanentLimit(), 0.001);
+    }
+
+    static Stream<Arguments> getMicroBEUndefinedPatlParameters() {
+        return Stream.of(
+                Arguments.of(1312., null),
+                Arguments.of(1312., 100.),
+                Arguments.of(984., 75.)
+        );
     }
 
     @Test

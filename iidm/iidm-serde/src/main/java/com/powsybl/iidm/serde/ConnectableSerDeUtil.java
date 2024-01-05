@@ -11,6 +11,7 @@ import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 /**
@@ -169,26 +170,33 @@ public final class ConnectableSerDeUtil {
                 .setQ(q);
     }
 
-    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion) {
-        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader, iidmVersion);
+    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
+        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader, iidmVersion, options);
     }
 
-    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion) {
-        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader, iidmVersion);
+    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
+        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader, iidmVersion, options);
     }
 
-    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion) {
-        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader, iidmVersion);
+    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
+        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader, iidmVersion, options);
     }
 
-    private static <A extends LoadingLimitsAdder> void readLoadingLimits(String type, A adder, TreeDataReader reader, IidmVersion iidmVersion) {
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, ?>> void readLoadingLimits(String type, A adder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
-        if (iidmVersion.compareTo(IidmVersion.V_1_12) >= 0) {
-            if (Double.isNaN(permanentLimit)) {
-
+        boolean badPermanentLimit = false;
+        if (Double.isNaN(permanentLimit)) {
+            // Permanent limit is now mandatory since IIDM v1.12
+            if (iidmVersion.compareTo(IidmVersion.V_1_12) >= 0) {
+                throw new PowsyblException("permanentLimit is absent in '" + type + "'");
             }
+            // Temporarily set a fictive permanent limit to allow `adder.add()` to execute.
+            // It will be fixed just afterward.
+            permanentLimit = Integer.MAX_VALUE;
+            badPermanentLimit = true;
         }
         adder.setPermanentLimit(permanentLimit);
+        // Read and add the temporary limits
         reader.readChildNodes(elementName -> {
             if (TEMPORARY_LIMITS_ROOT_ELEMENT_NAME.equals(elementName)) {
                 String name = reader.readStringAttribute("name");
@@ -206,7 +214,11 @@ public final class ConnectableSerDeUtil {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
         });
-        adder.add();
+        LoadingLimits limits = adder.add();
+        // Fix the permanentLimit
+        if (badPermanentLimit) {
+            LoadingLimitsUtil.fixMissingPermanentLimit(limits, options.getMissingPermanentLimitPercentage());
+        }
     }
 
     static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmVersion version,

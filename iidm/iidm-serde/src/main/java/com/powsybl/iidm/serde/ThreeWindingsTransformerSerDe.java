@@ -181,31 +181,31 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
             switch (elementName) {
                 case ACTIVE_POWER_LIMITS_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg1().newActivePowerLimits(), context.getReader(), context.getVersion()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg1().newActivePowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case APPARENT_POWER_LIMITS_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg1().newApparentPowerLimits(), context.getReader(), context.getVersion()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg1().newApparentPowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
-                case "currentLimits1" -> readCurrentLimits(tx.getLeg1().newCurrentLimits(), context.getReader(), context.getVersion());
+                case "currentLimits1" -> readCurrentLimits(tx.getLeg1().newCurrentLimits(), context.getReader(), context.getVersion(), context.getOptions());
                 case ACTIVE_POWER_LIMITS_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg2().newActivePowerLimits(), context.getReader(), context.getVersion()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg2().newActivePowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case APPARENT_POWER_LIMITS_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg2().newApparentPowerLimits(), context.getReader(), context.getVersion()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg2().newApparentPowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
-                case "currentLimits2" -> readCurrentLimits(tx.getLeg2().newCurrentLimits(), context.getReader(), context.getVersion());
+                case "currentLimits2" -> readCurrentLimits(tx.getLeg2().newCurrentLimits(), context.getReader(), context.getVersion(), context.getOptions());
                 case ACTIVE_POWER_LIMITS_3 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg3().newActivePowerLimits(), context.getReader(), context.getVersion()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg3().newActivePowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case APPARENT_POWER_LIMITS_3 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg3().newApparentPowerLimits(), context.getReader(), context.getVersion()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg3().newApparentPowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
-                case "currentLimits3" -> readCurrentLimits(tx.getLeg3().newCurrentLimits(), context.getReader(), context.getVersion());
+                case "currentLimits3" -> readCurrentLimits(tx.getLeg3().newCurrentLimits(), context.getReader(), context.getVersion(), context.getOptions());
                 case RATIO_TAP_CHANGER_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
                     readRatioTapChanger(1, tx.getLeg1(), context);

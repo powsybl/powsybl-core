@@ -484,7 +484,7 @@ public class CgmesImport implements Importer {
             MISSING_PERMANENT_LIMIT_PERCENTAGE,
             ParameterType.DOUBLE,
             "Percentage applied to lowest TATL limit to use as PATL when PATL is missing",
-            Double.valueOf(100));
+            100.);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,

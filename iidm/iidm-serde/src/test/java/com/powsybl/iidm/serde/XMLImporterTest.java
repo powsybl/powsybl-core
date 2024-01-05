@@ -138,7 +138,7 @@ class XMLImporterTest extends AbstractSerDeTest {
 
     @Test
     void getParameters() {
-        assertEquals(2, importer.getParameters().size());
+        assertEquals(3, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
