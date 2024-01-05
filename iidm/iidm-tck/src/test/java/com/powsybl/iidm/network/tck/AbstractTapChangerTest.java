@@ -576,9 +576,10 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    public void invalidTargetVAccess() {
+    public void targetVGettingInReactivePowerMode() {
         createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
         RatioTapChanger rtc = twt.getRatioTapChanger();
+        // getTargetV NaN because RTC is in reactive power control mode
         assertTrue(Double.isNaN(rtc.getTargetV()));
     }
 
@@ -587,7 +588,9 @@ public abstract class AbstractTapChangerTest {
         createRatioTapChangerWith3Steps(0, 1, false, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, -50, 1.0, terminal);
         RatioTapChanger rtc = twt.getRatioTapChanger();
         assertDoesNotThrow(() -> rtc.setTargetV(130));
+        // setTargetV switched RTC to voltage control mode
         assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, rtc.getRegulationMode());
+        assertEquals(130, rtc.getTargetV(), 0.0);
     }
 
     @Test
