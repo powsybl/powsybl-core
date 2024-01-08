@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -41,6 +42,8 @@ public interface TreeDataWriter extends AutoCloseable {
     void writeIntAttribute(String name, int value);
 
     void writeIntAttribute(String name, int value, int absentValue);
+
+    void writeOptionalIntAttribute(String name, IntSupplier valueSupplier, BooleanSupplier write);
 
     void writeIntArrayAttribute(String name, Collection<Integer> values);
 

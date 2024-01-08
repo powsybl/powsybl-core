@@ -71,8 +71,7 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
             default:
                 throw new PowsyblException("Unsupported version (" + extVersionStr + ") for " + ConnectablePosition.NAME);
         }
-        Optional<Integer> oOrder = feeder.getOrder();
-        oOrder.ifPresent(integer -> context.getWriter().writeIntAttribute("order", integer));
+        context.getWriter().writeOptionalIntAttribute("order", feeder.getOrder()::orElseThrow, feeder.getOrder()::isPresent);
         context.getWriter().writeStringAttribute("direction", feeder.getDirection().name());
         context.getWriter().writeEndNode();
     }
