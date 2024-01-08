@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * A ratio tap changer that is associated to a transformer to control the ratio.
+ * A ratio tap changer that is associated to a transformer to control the voltage or reactive power.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
