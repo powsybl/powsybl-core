@@ -6,10 +6,12 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -104,21 +106,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         if (dl.getGeneration() != null) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> ReactiveLimitsSerDe.INSTANCE.write(dl.getGeneration(), context));
         }
-        Optional<ActivePowerLimits> activePowerLimits = dl.getActivePowerLimits();
-        if (activePowerLimits.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(null, activePowerLimits.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<ApparentPowerLimits> apparentPowerLimits = dl.getApparentPowerLimits();
-        if (apparentPowerLimits.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(null, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
-        if (currentLimits.isPresent()) {
-            writeCurrentLimits(null, currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
+        writeLimits(context, null, ROOT_ELEMENT_NAME, dl.getActivePowerLimits(), dl.getApparentPowerLimits(), dl.getCurrentLimits());
     }
 
     @Override

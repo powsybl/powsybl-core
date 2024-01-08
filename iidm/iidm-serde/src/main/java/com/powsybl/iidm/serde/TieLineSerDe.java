@@ -11,8 +11,6 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
@@ -75,36 +73,8 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_9, context, () -> {
-            Optional<ActivePowerLimits> activePowerLimits1 = tl.getDanglingLine1().getActivePowerLimits();
-            if (activePowerLimits1.isPresent()) {
-                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(1, activePowerLimits1.get(), context.getWriter(),
-                        context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<ApparentPowerLimits> apparentPowerLimits1 = tl.getDanglingLine1().getApparentPowerLimits();
-            if (apparentPowerLimits1.isPresent()) {
-                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(1, apparentPowerLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<CurrentLimits> currentLimits1 = tl.getDanglingLine1().getCurrentLimits();
-            if (currentLimits1.isPresent()) {
-                writeCurrentLimits(1, currentLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-            }
-            Optional<ActivePowerLimits> activePowerLimits2 = tl.getDanglingLine2().getActivePowerLimits();
-            if (activePowerLimits2.isPresent()) {
-                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(2, activePowerLimits2.get(), context.getWriter(),
-                        context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<ApparentPowerLimits> apparentPowerLimits2 = tl.getDanglingLine2().getApparentPowerLimits();
-            if (apparentPowerLimits2.isPresent()) {
-                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(2, apparentPowerLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<CurrentLimits> currentLimits2 = tl.getDanglingLine2().getCurrentLimits();
-            if (currentLimits2.isPresent()) {
-                writeCurrentLimits(2, currentLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-            }
+            writeLimits(context, 1, ROOT_ELEMENT_NAME, tl.getActivePowerLimits1(), tl.getApparentPowerLimits1(), tl.getCurrentLimits1());
+            writeLimits(context, 2, ROOT_ELEMENT_NAME, tl.getActivePowerLimits2(), tl.getApparentPowerLimits2(), tl.getCurrentLimits2());
         });
     }
 

@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.Optional;
-
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
@@ -87,19 +85,7 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         int[] i = new int[1];
         i[0] = 1;
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-            Optional<ActivePowerLimits> activePowerLimits = leg.getActivePowerLimits();
-            if (activePowerLimits.isPresent()) {
-                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(i[0], activePowerLimits.get(), context.getWriter(),
-                        context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<ApparentPowerLimits> apparentPowerLimits = leg.getApparentPowerLimits();
-            if (apparentPowerLimits.isPresent()) {
-                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<CurrentLimits> currentLimits = leg.getCurrentLimits();
-            currentLimits.ifPresent(limits -> writeCurrentLimits(i[0], limits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getActivePowerLimits(), leg.getApparentPowerLimits(), leg.getCurrentLimits());
             i[0]++;
         }
     }

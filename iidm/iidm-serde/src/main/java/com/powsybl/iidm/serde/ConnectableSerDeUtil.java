@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.Optional;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -201,18 +203,8 @@ public final class ConnectableSerDeUtil {
     }
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, IidmVersion version,
-                                          ExportOptions exportOptions) {
-        writeCurrentLimits(index, limits, writer, version, true, exportOptions);
-    }
-
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, IidmVersion version,
                                           boolean valid, ExportOptions exportOptions) {
         writeCurrentLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions);
-    }
-
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, String nsUri, IidmVersion version,
-                                          ExportOptions exportOptions) {
-        writeLoadingLimits(index, limits, writer, nsUri, version, true, exportOptions, CURRENT_LIMITS);
     }
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, String nsUri, IidmVersion version,
@@ -238,4 +230,19 @@ public final class ConnectableSerDeUtil {
             writer.writeEndNode();
         }
     }
+
+    static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, Optional<ActivePowerLimits> activePowerLimits, Optional<ApparentPowerLimits> apparentPowerLimits, Optional<CurrentLimits> currentLimits) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        if (activePowerLimits.isPresent()) {
+            IidmSerDeUtil.assertMinimumVersion(rootName, ACTIVE_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(index, activePowerLimits.get(), context.getWriter(),
+                    context.getVersion(), context.isValid(), context.getOptions()));
+        }
+        if (apparentPowerLimits.isPresent()) {
+            IidmSerDeUtil.assertMinimumVersion(rootName, APPARENT_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(index, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+        }
+        currentLimits.ifPresent(cl -> writeCurrentLimits(index, cl, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+    }
+
 }
