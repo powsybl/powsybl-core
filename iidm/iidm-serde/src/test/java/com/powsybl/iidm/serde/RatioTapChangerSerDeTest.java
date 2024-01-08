@@ -10,12 +10,13 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
+class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
@@ -24,7 +25,10 @@ public class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void readFaultyVersionRatioTapChangerFile() {
-        testForAllPreviousVersions(IidmVersion.V_1_12, version -> assertThrows(NullPointerException.class, () -> NetworkSerDe.read(getVersionedNetworkAsStream("ratioTapChangerReactivePowerControlRef.xml", version))));
+        testForAllPreviousVersions(IidmVersion.V_1_12, version -> {
+            InputStream is = getVersionedNetworkAsStream("ratioTapChangerReactivePowerControlRef.xml", version);
+            assertThrows(NullPointerException.class, () -> NetworkSerDe.read(is));
+        });
     }
 
     Network createTestNetwork() {
