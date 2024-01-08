@@ -39,10 +39,8 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
         context.getWriter().writeDoubleAttribute("b2", l.getB2());
         writeNodeOrBus(1, l.getTerminal1(), context);
         writeNodeOrBus(2, l.getTerminal2(), context);
-        if (context.getOptions().isWithBranchSV()) {
-            writePQ(1, l.getTerminal1(), context.getWriter());
-            writePQ(2, l.getTerminal2(), context.getWriter());
-        }
+        writeOptionalPQ(1, l.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        writeOptionalPQ(2, l.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
     }
 
     @Override

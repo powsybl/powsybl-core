@@ -157,10 +157,8 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         }
         writeTapChanger(ptc, context);
         context.getWriter().writeEnumAttribute("regulationMode", ptc.getRegulationMode());
-        if (ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
-                || !Double.isNaN(ptc.getRegulationValue())) {
-            context.getWriter().writeDoubleAttribute("regulationValue", ptc.getRegulationValue());
-        }
+        context.getWriter().writeOptionalDoubleAttribute("regulationValue", ptc::getRegulationValue,
+                () -> ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP);
         if (ptc.getRegulationTerminal() != null) {
             TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }

@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -160,6 +161,11 @@ public final class ConnectableSerDeUtil {
     public static void writePQ(Integer index, Terminal t, TreeDataWriter writer) {
         writer.writeDoubleAttribute("p" + indexToString(index), t.getP());
         writer.writeDoubleAttribute("q" + indexToString(index), t.getQ());
+    }
+
+    public static void writeOptionalPQ(Integer index, Terminal t, TreeDataWriter writer, BooleanSupplier write) {
+        writer.writeOptionalDoubleAttribute("p" + indexToString(index), t::getP, write);
+        writer.writeOptionalDoubleAttribute("q" + indexToString(index), t::getQ, write);
     }
 
     public static void readPQ(Integer index, Terminal t, TreeDataReader reader) {

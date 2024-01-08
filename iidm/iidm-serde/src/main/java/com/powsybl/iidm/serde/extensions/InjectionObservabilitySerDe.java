@@ -10,9 +10,9 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
@@ -48,7 +48,7 @@ public class InjectionObservabilitySerDe<T extends Injection<T>> extends Abstrac
         if (quality != null) {
             writer.writeStartNode(getNamespaceUri(), elementName);
             writer.writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-            quality.isRedundant().ifPresent(redundant -> writer.writeBooleanAttribute(REDUNDANT, redundant));
+            writer.writeOptionalBooleanAttribute(REDUNDANT, quality.isRedundant().orElse(null), quality.isRedundant()::isPresent);
             writer.writeEndNode();
         }
     }

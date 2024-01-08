@@ -65,11 +65,9 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         writeNodeOrBus(1, twt.getLeg1().getTerminal(), context);
         writeNodeOrBus(2, twt.getLeg2().getTerminal(), context);
         writeNodeOrBus(3, twt.getLeg3().getTerminal(), context);
-        if (context.getOptions().isWithBranchSV()) {
-            writePQ(1, twt.getLeg1().getTerminal(), context.getWriter());
-            writePQ(2, twt.getLeg2().getTerminal(), context.getWriter());
-            writePQ(3, twt.getLeg3().getTerminal(), context.getWriter());
-        }
+        writeOptionalPQ(1, twt.getLeg1().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        writeOptionalPQ(2, twt.getLeg2().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        writeOptionalPQ(3, twt.getLeg3().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
     }
 
     @Override

@@ -40,10 +40,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         writeRatedS("ratedS", twt.getRatedS(), context);
         writeNodeOrBus(1, twt.getTerminal1(), context);
         writeNodeOrBus(2, twt.getTerminal2(), context);
-        if (context.getOptions().isWithBranchSV()) {
-            writePQ(1, twt.getTerminal1(), context.getWriter());
-            writePQ(2, twt.getTerminal2(), context.getWriter());
-        }
+        writeOptionalPQ(1, twt.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        writeOptionalPQ(2, twt.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
     }
 
     @Override

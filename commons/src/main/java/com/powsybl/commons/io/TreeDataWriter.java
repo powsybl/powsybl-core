@@ -8,6 +8,8 @@ package com.powsybl.commons.io;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -34,6 +36,8 @@ public interface TreeDataWriter extends AutoCloseable {
 
     void writeDoubleAttribute(String name, double value, double absentValue);
 
+    void writeOptionalDoubleAttribute(String name, DoubleSupplier valueSupplier, BooleanSupplier write);
+
     void writeIntAttribute(String name, int value);
 
     void writeIntAttribute(String name, int value, int absentValue);
@@ -47,6 +51,8 @@ public interface TreeDataWriter extends AutoCloseable {
     void writeBooleanAttribute(String name, boolean value);
 
     void writeBooleanAttribute(String name, boolean value, boolean absentValue);
+
+    void writeOptionalBooleanAttribute(String name, Boolean value, BooleanSupplier write);
 
     @Override
     void close();

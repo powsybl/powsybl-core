@@ -8,7 +8,7 @@ package com.powsybl.commons.xml;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.io.AbstractTreeDataWriter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.stream.XMLStreamException;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class XmlWriter implements TreeDataWriter {
+public class XmlWriter extends AbstractTreeDataWriter {
 
     private final XMLStreamWriter writer;
 

@@ -34,8 +34,8 @@ public final class VoltageAngleLimitSerDe {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
             context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(voltageAngleLimit.getId()));
-            voltageAngleLimit.getLowLimit().ifPresent(low -> context.getWriter().writeDoubleAttribute(LOW_LIMIT, low));
-            voltageAngleLimit.getHighLimit().ifPresent(high -> context.getWriter().writeDoubleAttribute(HIGH_LIMIT, high));
+            context.getWriter().writeOptionalDoubleAttribute(LOW_LIMIT, () -> voltageAngleLimit.getLowLimit().orElse(Double.NaN), voltageAngleLimit.getLowLimit()::isPresent);
+            context.getWriter().writeOptionalDoubleAttribute(HIGH_LIMIT, () -> voltageAngleLimit.getHighLimit().orElse(Double.NaN), voltageAngleLimit.getHighLimit()::isPresent);
             TerminalRefSerDe.writeTerminalRef(voltageAngleLimit.getTerminalFrom(), context, FROM);
             TerminalRefSerDe.writeTerminalRef(voltageAngleLimit.getTerminalTo(), context, TO);
             context.getWriter().writeEndNode();

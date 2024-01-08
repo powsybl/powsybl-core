@@ -63,10 +63,8 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
             }
             writeNodeOrBus(1, tl.getDanglingLine1().getTerminal(), context);
             writeNodeOrBus(2, tl.getDanglingLine2().getTerminal(), context);
-            if (context.getOptions().isWithBranchSV()) {
-                writePQ(1, tl.getDanglingLine1().getTerminal(), context.getWriter());
-                writePQ(2, tl.getDanglingLine2().getTerminal(), context.getWriter());
-            }
+            writeOptionalPQ(1, tl.getDanglingLine1().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
+            writeOptionalPQ(2, tl.getDanglingLine2().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
             writeDanglingLine(tl.getDanglingLine1(), context, 1);
             writeDanglingLine(tl.getDanglingLine2(), context, 2);
         });

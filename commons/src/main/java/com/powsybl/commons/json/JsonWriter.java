@@ -8,7 +8,7 @@ package com.powsybl.commons.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.io.AbstractTreeDataWriter;
 import com.powsybl.commons.json.JsonUtil.Context;
 import com.powsybl.commons.json.JsonUtil.ContextType;
 
@@ -20,7 +20,7 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class JsonWriter implements TreeDataWriter {
+public class JsonWriter extends AbstractTreeDataWriter {
 
     public static final String VERSION = "version";
     private static final String EXTENSION_VERSIONS = "extensionVersions";
