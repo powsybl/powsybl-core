@@ -75,14 +75,12 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         }
         Terminal t = terminalGetter.get();
         writeNodeOrBus(null, t, context);
-        if (dl.getPairingKey() != null) {
-            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context,
-                () -> context.getWriter().writeStringAttribute("ucteXnodeCode", dl.getPairingKey())
-            );
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context,
-                () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
-            );
-        }
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context,
+            () -> context.getWriter().writeStringAttribute("ucteXnodeCode", dl.getPairingKey())
+        );
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context,
+            () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
+        );
         writePQ(null, t, context.getWriter());
 
     }

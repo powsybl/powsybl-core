@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.Optional;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -82,12 +84,10 @@ public final class ConnectableSerDeUtil {
     }
 
     private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkSerializerContext context) {
-        if (bus != null) {
-            context.getWriter().writeStringAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
-        }
-        if (connectableBus != null) {
-            context.getWriter().writeStringAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
-        }
+        context.getWriter().writeStringAttribute(BUS + indexToString(index),
+                Optional.ofNullable(bus).map(b -> context.getAnonymizer().anonymizeString(b.getId())).orElse(null));
+        context.getWriter().writeStringAttribute(CONNECTABLE_BUS + indexToString(index),
+                Optional.ofNullable(connectableBus).map(b -> context.getAnonymizer().anonymizeString(b.getId())).orElse(null));
     }
 
     public static void readNodeOrBus(InjectionAdder<?, ?> adder, NetworkDeserializerContext context) {

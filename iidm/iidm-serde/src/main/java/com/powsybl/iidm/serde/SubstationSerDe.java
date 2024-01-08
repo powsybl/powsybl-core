@@ -31,8 +31,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
 
     @Override
     protected void writeRootElementAttributes(Substation s, Network n, NetworkSerializerContext context) {
-        Optional<Country> country = s.getCountry();
-        country.ifPresent(value -> context.getWriter().writeStringAttribute(COUNTRY, context.getAnonymizer().anonymizeCountry(value).toString()));
+        context.getWriter().writeStringAttribute(COUNTRY, s.getCountry().map(c -> context.getAnonymizer().anonymizeCountry(c).toString()).orElse(null));
         if (s.getTso() != null) {
             context.getWriter().writeStringAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
