@@ -25,6 +25,11 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
     }
 
     @Override
+    public String getId() {
+        return identifiable.getId();
+    }
+
+    @Override
     public void setOperationalLimits(LimitType limitType, OperationalLimits operationalLimits) {
         OperationalLimits oldValue;
         if (operationalLimits == null) {

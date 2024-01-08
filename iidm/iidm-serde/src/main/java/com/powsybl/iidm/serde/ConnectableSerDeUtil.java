@@ -11,7 +11,6 @@ import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
-import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 /**
@@ -182,18 +181,10 @@ public final class ConnectableSerDeUtil {
         readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader, iidmVersion, options);
     }
 
-    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, ?>> void readLoadingLimits(String type, A adder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimits(String type, A adder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
-        boolean badPermanentLimit = false;
-        if (Double.isNaN(permanentLimit)) {
-            // Permanent limit is now mandatory since IIDM v1.12
-            if (iidmVersion.compareTo(IidmVersion.V_1_12) >= 0) {
-                throw new PowsyblException("permanentLimit is absent in '" + type + "'");
-            }
-            // Temporarily set a fictive permanent limit to allow `adder.add()` to execute.
-            // It will be fixed just afterward.
-            permanentLimit = Integer.MAX_VALUE;
-            badPermanentLimit = true;
+        if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0) {
+            throw new PowsyblException("permanentLimit is absent in '" + type + "'");
         }
         adder.setPermanentLimit(permanentLimit);
         // Read and add the temporary limits
@@ -214,11 +205,7 @@ public final class ConnectableSerDeUtil {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
         });
-        LoadingLimits limits = adder.add();
-        // Fix the permanentLimit
-        if (badPermanentLimit) {
-            LoadingLimitsUtil.fixMissingPermanentLimit(limits, options.getMissingPermanentLimitPercentage());
-        }
+        adder.fixLimits(options.getMissingPermanentLimitPercentage()).add();
     }
 
     static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmVersion version,

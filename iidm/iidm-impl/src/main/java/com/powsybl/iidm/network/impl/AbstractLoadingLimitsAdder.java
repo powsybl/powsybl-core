@@ -13,10 +13,13 @@ import com.powsybl.iidm.network.ValidationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import static java.lang.Integer.MAX_VALUE;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -142,6 +145,41 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     @Override
     public boolean hasTemporaryLimits() {
         return !temporaryLimits.isEmpty();
+    }
+
+    private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {
+        return temporaryLimits.values().stream().filter(l -> l.getName().equals(name))
+                .findFirst();
+    }
+
+    @Override
+    public double getTemporaryLimitValue(String name) {
+        return getTemporaryLimitByName(name).map(LoadingLimits.TemporaryLimit::getValue).orElse(Double.NaN);
+    }
+
+    @Override
+    public int getTemporaryLimitAcceptableDuration(String name) {
+        return getTemporaryLimitByName(name).map(LoadingLimits.TemporaryLimit::getAcceptableDuration).orElse(MAX_VALUE);
+    }
+
+    @Override
+    public double getLowestTemporaryLimitValue() {
+        return temporaryLimits.values().stream().map(LoadingLimits.TemporaryLimit::getValue).min(Double::compareTo).orElse(Double.NaN);
+    }
+
+    @Override
+    public Collection<String> getTemporaryLimitNames() {
+        return temporaryLimits.values().stream().map(LoadingLimits.TemporaryLimit::getName).toList();
+    }
+
+    @Override
+    public void removeTemporaryLimit(String name) {
+        temporaryLimits.values().removeIf(l -> l.getName().equals(name));
+    }
+
+    @Override
+    public String getOwnerId() {
+        return owner.getId();
     }
 
     private void checkTemporaryLimits() {

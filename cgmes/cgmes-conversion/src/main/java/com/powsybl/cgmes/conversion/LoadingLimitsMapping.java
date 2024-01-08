@@ -6,9 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
-import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,19 +32,9 @@ public class LoadingLimitsMapping {
     void addAll() {
         for (Map.Entry<String, LoadingLimitsAdder<?, ?>> entry : adders.entrySet()) {
             if (!Double.isNaN(entry.getValue().getPermanentLimit()) || entry.getValue().hasTemporaryLimits()) {
-                boolean badPermanentLimit = false;
-                if (Double.isNaN(entry.getValue().getPermanentLimit())) {
-                    // Temporarily set a fictive permanent limit to allow `adder.add()` to execute.
-                    // It will be fixed just afterward.
-                    entry.getValue().setPermanentLimit(Integer.MAX_VALUE);
-                    badPermanentLimit = true;
-                }
-                LoadingLimits limits = entry.getValue().add();
-                if (badPermanentLimit) {
-                    LoadingLimitsUtil.fixMissingPermanentLimit(limits,
-                            context.config().getMissingPermanentLimitPercentage(),
-                            entry.getKey(), context::fixed);
-                }
+                entry.getValue()
+                        .fixLimits(context.config().getMissingPermanentLimitPercentage(), context::fixed)
+                        .add();
             }
         }
         adders.clear();

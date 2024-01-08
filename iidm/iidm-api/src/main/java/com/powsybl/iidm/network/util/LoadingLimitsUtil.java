@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.LoadingLimitsAdder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,67 +24,66 @@ public final class LoadingLimitsUtil {
     }
 
     /**
-     * Interface for objects used to report the performed operation on the permanent limit when fixed by
-     * {@link #fixMissingPermanentLimit(LoadingLimits, double, String, PermanentLimitFixReporter)}.
+     * Interface for objects used to report the performed operation on limits when fixed by
+     * {@link #fixMissingPermanentLimit(LoadingLimitsAdder, double, String, LimitFixLogger)}.
      */
-    public interface PermanentLimitFixReporter {
+    public interface LimitFixLogger {
+        LimitFixLogger NO_OP = (what, reason, wrongValue, fixedValue) -> { };
+
         void log(String what, String reason, double wrongValue, double fixedValue);
     }
 
     /**
      * <p>Compute a missing permanent accordingly to the temporary limits and to a given percentage.</p>
-     * <p>Note that this method doesn't check whether the permanent limit is valid or not.</p>
-     * @param limits the LoadingLimits which permanent limit should be fixed
+     * @param limitsAdder the LoadingLimitsAdder which permanent limit should be fixed
      * @param missingPermanentLimitPercentage The percentage to apply
      */
-    public static void fixMissingPermanentLimit(LoadingLimits limits, double missingPermanentLimitPercentage) {
-        PermanentLimitFixReporter noOp = (what, reason, wrongValue, fixedValue) -> { };
-        fixMissingPermanentLimit(limits, missingPermanentLimitPercentage, "", noOp);
+    public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void fixMissingPermanentLimit(LoadingLimitsAdder<L, A> limitsAdder,
+                                                                                                              double missingPermanentLimitPercentage) {
+        fixMissingPermanentLimit(limitsAdder, missingPermanentLimitPercentage, "", LimitFixLogger.NO_OP);
     }
 
     /**
      * <p>Compute a missing permanent accordingly to the temporary limits and to a given percentage.</p>
-     * <p>Note that this method doesn't check whether the permanent limit is valid or not.</p>
-     * @param limits the LoadingLimits which permanent limit should be fixed
+     * @param adder the LoadingLimitsAdder which permanent limit should be fixed
      * @param missingPermanentLimitPercentage The percentage to apply
-     * @param parentId id of the limits' network element. It is only used for reporting purposes.
-     * @param permanentLimitFixReporter the object used to report the performed operation on the permanent limit.
+     * @param ownerId id of the limits' network element. It is only used for reporting purposes.
+     * @param limitFixLogger the object used to report the performed operation on the permanent limit.
      */
-    public static void fixMissingPermanentLimit(LoadingLimits limits, double missingPermanentLimitPercentage,
-                                                String parentId, PermanentLimitFixReporter permanentLimitFixReporter) {
-        Collection<LoadingLimits.TemporaryLimit> temporaryLimitsToRemove = new ArrayList<>();
+    public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void fixMissingPermanentLimit(LoadingLimitsAdder<L, A> adder, double missingPermanentLimitPercentage,
+                                                                                                              String ownerId, LimitFixLogger limitFixLogger) {
+        if (!Double.isNaN(adder.getPermanentLimit())) {
+            return;
+        }
+
+        Collection<String> temporaryLimitsToRemove = new ArrayList<>();
         double lowestTemporaryLimitWithInfiniteAcceptableDuration = MAX_VALUE;
         boolean hasTemporaryLimitWithInfiniteAcceptableDuration = false;
-        for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
-            if (isAcceptableDurationInfinite(temporaryLimit)) {
+        for (String name : adder.getTemporaryLimitNames()) {
+            if (adder.getTemporaryLimitAcceptableDuration(name) == MAX_VALUE) {
                 hasTemporaryLimitWithInfiniteAcceptableDuration = true;
                 lowestTemporaryLimitWithInfiniteAcceptableDuration =
-                        Math.min(lowestTemporaryLimitWithInfiniteAcceptableDuration, temporaryLimit.getValue());
-                temporaryLimitsToRemove.add(temporaryLimit);
+                        Math.min(lowestTemporaryLimitWithInfiniteAcceptableDuration, adder.getTemporaryLimitValue(name));
+                temporaryLimitsToRemove.add(name);
             }
         }
-        limits.getTemporaryLimits().removeAll(temporaryLimitsToRemove);
+        temporaryLimitsToRemove.forEach(adder::removeTemporaryLimit);
 
         if (hasTemporaryLimitWithInfiniteAcceptableDuration) {
-            permanentLimitFixReporter.log("Operational Limit Set of " + parentId,
+            limitFixLogger.log("Operational Limit Set of " + ownerId,
                     "An operational limit set without permanent limit is considered with permanent limit " +
                             "equal to lowest TATL value with infinite acceptable duration",
                     Double.NaN, lowestTemporaryLimitWithInfiniteAcceptableDuration);
-            limits.setPermanentLimit(lowestTemporaryLimitWithInfiniteAcceptableDuration);
+            adder.setPermanentLimit(lowestTemporaryLimitWithInfiniteAcceptableDuration);
         } else {
-            double firstTemporaryLimit = Iterables.get(limits.getTemporaryLimits(), 0).getValue();
+            double firstTemporaryLimit = adder.getLowestTemporaryLimitValue();
             double percentage = missingPermanentLimitPercentage / 100.;
             double fixedPermanentLimit = firstTemporaryLimit * percentage;
-            permanentLimitFixReporter.log("Operational Limit Set of " + parentId,
+            limitFixLogger.log("Operational Limit Set of " + ownerId,
                     "An operational limit set without permanent limit is considered with permanent limit " +
                             "equal to lowest TATL value weighted by a coefficient of " + percentage + ".",
                     Double.NaN, fixedPermanentLimit);
-            limits.setPermanentLimit(fixedPermanentLimit);
+            adder.setPermanentLimit(fixedPermanentLimit);
         }
     }
-
-    private static boolean isAcceptableDurationInfinite(LoadingLimits.TemporaryLimit temporaryLimit) {
-        return temporaryLimit.getAcceptableDuration() == MAX_VALUE;
-    }
-
 }
