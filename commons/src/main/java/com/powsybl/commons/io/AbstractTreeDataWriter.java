@@ -17,9 +17,9 @@ import java.util.function.IntSupplier;
 public abstract class AbstractTreeDataWriter implements TreeDataWriter {
 
     @Override
-    public void writeOptionalBooleanAttribute(String name, Boolean value, BooleanSupplier write) {
-        if (write.getAsBoolean() && value != null) {
-            writeBooleanAttribute(name, value);
+    public void writeOptionalBooleanAttribute(String name, BooleanSupplier valueSupplier, BooleanSupplier write) {
+        if (write.getAsBoolean()) {
+            writeBooleanAttribute(name, valueSupplier.getAsBoolean());
         }
     }
 

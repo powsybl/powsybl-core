@@ -149,15 +149,13 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkSerializerContext context) {
+        boolean nonFixedRegulationMode = ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP;
+
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
-        if (ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
-                || ptc.isRegulating()) {
-            context.getWriter().writeBooleanAttribute(ATTR_REGULATING, ptc.isRegulating());
-        }
+        context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, ptc::isRegulating, () -> nonFixedRegulationMode || ptc.isRegulating());
         writeTapChanger(ptc, context);
         context.getWriter().writeEnumAttribute("regulationMode", ptc.getRegulationMode());
-        context.getWriter().writeOptionalDoubleAttribute("regulationValue", ptc::getRegulationValue,
-                () -> ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP);
+        context.getWriter().writeOptionalDoubleAttribute("regulationValue", ptc::getRegulationValue, () -> nonFixedRegulationMode);
         if (ptc.getRegulationTerminal() != null) {
             TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }

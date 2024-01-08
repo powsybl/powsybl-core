@@ -48,7 +48,7 @@ public class InjectionObservabilitySerDe<T extends Injection<T>> extends Abstrac
         if (quality != null) {
             writer.writeStartNode(getNamespaceUri(), elementName);
             writer.writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-            writer.writeOptionalBooleanAttribute(REDUNDANT, quality.isRedundant().orElse(null), quality.isRedundant()::isPresent);
+            writer.writeOptionalBooleanAttribute(REDUNDANT, quality.isRedundant()::orElseThrow, quality.isRedundant()::isPresent);
             writer.writeEndNode();
         }
     }

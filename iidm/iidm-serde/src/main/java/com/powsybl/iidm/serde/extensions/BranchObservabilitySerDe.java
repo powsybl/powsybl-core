@@ -58,7 +58,7 @@ public class BranchObservabilitySerDe<T extends Branch<T>> extends AbstractExten
             context.getWriter().writeStartNode(getNamespaceUri(), type);
             context.getWriter().writeEnumAttribute(SIDE, side);
             context.getWriter().writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-            context.getWriter().writeOptionalBooleanAttribute(REDUNDANT, quality.isRedundant().orElse(null), quality.isRedundant()::isPresent);
+            context.getWriter().writeOptionalBooleanAttribute(REDUNDANT, quality.isRedundant()::orElseThrow, quality.isRedundant()::isPresent);
             context.getWriter().writeEndNode();
         }
     }

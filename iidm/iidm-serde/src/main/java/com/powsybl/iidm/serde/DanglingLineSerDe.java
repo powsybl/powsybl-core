@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -63,16 +64,15 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         context.getWriter().writeDoubleAttribute("x", dl.getX());
         context.getWriter().writeDoubleAttribute("g", dl.getG());
         context.getWriter().writeDoubleAttribute("b", dl.getB());
-        if (generation != null) {
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-                context.getWriter().writeBooleanAttribute("generationVoltageRegulationOn", generation.isVoltageRegulationOn());
-                context.getWriter().writeDoubleAttribute(GENERATION_MIN_P, generation.getMinP());
-                context.getWriter().writeDoubleAttribute(GENERATION_MAX_P, generation.getMaxP());
-                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_P, generation.getTargetP());
-                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_V, generation.getTargetV());
-                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_Q, generation.getTargetQ());
-            });
-        }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
+            BooleanSupplier write = () -> generation != null;
+            context.getWriter().writeOptionalBooleanAttribute("generationVoltageRegulationOn", generation::isVoltageRegulationOn, write);
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_MIN_P, generation::getMinP, write);
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_MAX_P, generation::getMaxP, write);
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_P, generation::getTargetP, write);
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_V, generation::getTargetV, write);
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_Q, generation::getTargetQ, write);
+        });
         Terminal t = terminalGetter.get();
         writeNodeOrBus(null, t, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context,
