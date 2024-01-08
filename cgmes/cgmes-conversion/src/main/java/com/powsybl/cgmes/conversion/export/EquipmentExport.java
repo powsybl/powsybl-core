@@ -802,10 +802,12 @@ public final class EquipmentExport {
 
     private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
         int neutralStep = ptc.getLowTapPosition();
-        while (ptc.getStep(neutralStep).getAlpha() != 0.0) {
-            neutralStep++;
-            if (neutralStep > ptc.getHighTapPosition()) {
-                return ptc.getHighTapPosition();
+        double minAlpha = Math.abs(ptc.getStep(neutralStep).getAlpha());
+        for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
+            double tempAlpha = Math.abs(1 - step.getValue().getAlpha());
+            if (tempAlpha < minAlpha) {
+                minAlpha = tempAlpha;
+                neutralStep = step.getKey();
             }
         }
         return neutralStep;
