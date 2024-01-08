@@ -9,6 +9,7 @@ package com.powsybl.commons.io;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -26,6 +27,13 @@ public abstract class AbstractTreeDataWriter implements TreeDataWriter {
     public void writeOptionalDoubleAttribute(String name, DoubleSupplier valueSupplier, BooleanSupplier write) {
         if (write.getAsBoolean()) {
             writeDoubleAttribute(name, valueSupplier.getAsDouble());
+        }
+    }
+
+    @Override
+    public void writeOptionalIntAttribute(String name, IntSupplier valueSupplier, BooleanSupplier write) {
+        if (write.getAsBoolean()) {
+            writeIntAttribute(name, valueSupplier.getAsInt());
         }
     }
 }
