@@ -25,9 +25,9 @@ public final class LoadingLimitsUtil {
 
     /**
      * Interface for objects used to report the performed operation on the permanent limit when fixed by
-     * {@link #fixMissingPermanentLimit(LoadingLimits, double, String, PermanentLimitFixLogger)}.
+     * {@link #fixMissingPermanentLimit(LoadingLimits, double, String, PermanentLimitFixReporter)}.
      */
-    public interface PermanentLimitFixLogger {
+    public interface PermanentLimitFixReporter {
         void log(String what, String reason, double wrongValue, double fixedValue);
     }
 
@@ -38,7 +38,7 @@ public final class LoadingLimitsUtil {
      * @param missingPermanentLimitPercentage The percentage to apply
      */
     public static void fixMissingPermanentLimit(LoadingLimits limits, double missingPermanentLimitPercentage) {
-        PermanentLimitFixLogger noOp = (what, reason, wrongValue, fixedValue) -> { };
+        PermanentLimitFixReporter noOp = (what, reason, wrongValue, fixedValue) -> { };
         fixMissingPermanentLimit(limits, missingPermanentLimitPercentage, "", noOp);
     }
 
@@ -48,10 +48,10 @@ public final class LoadingLimitsUtil {
      * @param limits the LoadingLimits which permanent limit should be fixed
      * @param missingPermanentLimitPercentage The percentage to apply
      * @param parentId id of the limits' network element. It is only used for reporting purposes.
-     * @param permanentLimitFixLogger the object used to report the performed operation on the permanent limit.
+     * @param permanentLimitFixReporter the object used to report the performed operation on the permanent limit.
      */
     public static void fixMissingPermanentLimit(LoadingLimits limits, double missingPermanentLimitPercentage,
-                                                String parentId, PermanentLimitFixLogger permanentLimitFixLogger) {
+                                                String parentId, PermanentLimitFixReporter permanentLimitFixReporter) {
         Collection<LoadingLimits.TemporaryLimit> temporaryLimitsToRemove = new ArrayList<>();
         double lowestTemporaryLimitWithInfiniteAcceptableDuration = MAX_VALUE;
         boolean hasTemporaryLimitWithInfiniteAcceptableDuration = false;
@@ -66,8 +66,8 @@ public final class LoadingLimitsUtil {
         limits.getTemporaryLimits().removeAll(temporaryLimitsToRemove);
 
         if (hasTemporaryLimitWithInfiniteAcceptableDuration) {
-            permanentLimitFixLogger.log("Operational Limit Set of " + parentId,
-                    "An operational limit set without permanent limit is considered with permanent limit" +
+            permanentLimitFixReporter.log("Operational Limit Set of " + parentId,
+                    "An operational limit set without permanent limit is considered with permanent limit " +
                             "equal to lowest TATL value with infinite acceptable duration",
                     Double.NaN, lowestTemporaryLimitWithInfiniteAcceptableDuration);
             limits.setPermanentLimit(lowestTemporaryLimitWithInfiniteAcceptableDuration);
@@ -75,9 +75,9 @@ public final class LoadingLimitsUtil {
             double firstTemporaryLimit = Iterables.get(limits.getTemporaryLimits(), 0).getValue();
             double percentage = missingPermanentLimitPercentage / 100.;
             double fixedPermanentLimit = firstTemporaryLimit * percentage;
-            permanentLimitFixLogger.log("Operational Limit Set of " + parentId,
-                    "An operational limit set without permanent limit is considered with permanent limit" +
-                            "equal to lowest TATL value weighted by a coefficient of " + percentage,
+            permanentLimitFixReporter.log("Operational Limit Set of " + parentId,
+                    "An operational limit set without permanent limit is considered with permanent limit " +
+                            "equal to lowest TATL value weighted by a coefficient of " + percentage + ".",
                     Double.NaN, fixedPermanentLimit);
             limits.setPermanentLimit(fixedPermanentLimit);
         }
