@@ -171,9 +171,11 @@ public class XmlWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeIntArrayAttribute(String name, Collection<Integer> values) {
-        writeStringAttribute(name, values.stream()
-                .map(i -> Integer.toString(i))
-                .collect(Collectors.joining(",")));
+        if (!values.isEmpty()) {
+            writeStringAttribute(name, values.stream()
+                    .map(i -> Integer.toString(i))
+                    .collect(Collectors.joining(",")));
+        }
     }
 
     @Override

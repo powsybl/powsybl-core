@@ -192,12 +192,14 @@ public class JsonWriter extends AbstractTreeDataWriter {
     @Override
     public void writeIntArrayAttribute(String name, Collection<Integer> values) {
         try {
-            jsonGenerator.writeFieldName(name);
-            jsonGenerator.writeStartArray();
-            for (int value : values) {
-                jsonGenerator.writeNumber(value);
+            if (!values.isEmpty()) {
+                jsonGenerator.writeFieldName(name);
+                jsonGenerator.writeStartArray();
+                for (int value : values) {
+                    jsonGenerator.writeNumber(value);
+                }
+                jsonGenerator.writeEndArray();
             }
-            jsonGenerator.writeEndArray();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
