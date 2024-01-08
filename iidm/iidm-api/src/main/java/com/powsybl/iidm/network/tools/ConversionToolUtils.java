@@ -73,7 +73,7 @@ public final class ConversionToolUtils {
 
     public static Option createImportParametersFileOption() {
         return Option.builder().longOpt(IMPORT_PARAMETERS)
-                .desc("the importer configuation file")
+                .desc("the importer configuration file")
                 .hasArg()
                 .argName("IMPORT_PARAMETERS")
                 .build();

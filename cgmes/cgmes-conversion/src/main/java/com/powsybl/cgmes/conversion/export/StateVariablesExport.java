@@ -315,8 +315,11 @@ public final class StateVariablesExport {
         // Voltages at inner nodes of Tie Lines
         // (boundary nodes that have been left inside CGM)
         for (TieLine l : network.getTieLines()) {
-            String topologicalNode = l.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)
-                    .orElseGet(() -> l.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE + "_1"));
+            // The topological node should be the same in both dangling lines
+            String topologicalNode = l.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+            if (topologicalNode == null) {
+                topologicalNode = l.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+            }
             if (topologicalNode != null) {
                 writeVoltage(topologicalNode, l.getDanglingLine1().getBoundary().getV(), l.getDanglingLine1().getBoundary().getAngle(), cimNamespace, writer, context);
             }
