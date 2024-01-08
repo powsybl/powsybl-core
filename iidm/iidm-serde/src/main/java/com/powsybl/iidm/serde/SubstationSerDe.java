@@ -35,9 +35,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
         if (s.getTso() != null) {
             context.getWriter().writeStringAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
-        if (!s.getGeographicalTags().isEmpty()) {
-            context.getWriter().writeStringArrayAttribute("geographicalTags", s.getGeographicalTags().stream().map(tag -> context.getAnonymizer().anonymizeString(tag)).toList());
-        }
+        context.getWriter().writeStringArrayAttribute("geographicalTags", s.getGeographicalTags().stream().map(tag -> context.getAnonymizer().anonymizeString(tag)).toList());
     }
 
     @Override
