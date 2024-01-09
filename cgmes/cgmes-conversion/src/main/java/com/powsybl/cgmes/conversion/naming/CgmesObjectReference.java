@@ -160,7 +160,9 @@ public interface CgmesObjectReference {
         TIE_FLOW("TF"),
         TOPOLOGICAL_ISLAND("TI"),
         TOPOLOGICAL_NODE("TN"),
-        TRANSFORMER_END("TW"),
+        TRANSFORMER_END_1("TW1"),
+        TRANSFORMER_END_2("TW2"),
+        TRANSFORMER_END_3("TW3"),
         VOLTAGE_LEVEL("VL");
 
         private final String suffix;

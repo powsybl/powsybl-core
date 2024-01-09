@@ -111,9 +111,6 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
 
     @Override
     public void debug(String baseName, DataSource ds) {
-        if (!LOG.isDebugEnabled()) {
-            return;
-        }
         String mappingFilename = baseName + "_debug_naming_strategy.csv";
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFilename, false)))) {
             CsvWriterSettings settings = new CsvWriterSettings();

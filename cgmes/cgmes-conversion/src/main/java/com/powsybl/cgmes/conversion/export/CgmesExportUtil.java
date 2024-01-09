@@ -411,11 +411,11 @@ public final class CgmesExportUtil {
         if (cgmesTapChanger == null) {
             cgmesTapChanger = cgmesTapChangers.newTapChanger()
                     .setId(tapChangerId)
-                    .setControlId(context.getNamingStrategy().getCgmesId(ref(twt), refTapChanger, Part.REGULATING_CONTROL))
+                    .setControlId(context.getNamingStrategy().getCgmesId(ref(twt, false), refTapChanger, Part.REGULATING_CONTROL))
                     .add();
         }
         if (cgmesTapChanger.getControlId() == null) {
-            cgmesTapChanger.setControlId(context.getNamingStrategy().getCgmesId(ref(twt), refTapChanger, Part.REGULATING_CONTROL));
+            cgmesTapChanger.setControlId(context.getNamingStrategy().getCgmesId(ref(twt, false), refTapChanger, Part.REGULATING_CONTROL));
         }
     }
 
