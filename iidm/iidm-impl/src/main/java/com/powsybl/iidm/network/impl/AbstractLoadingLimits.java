@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends AbstractOperationalLimits implements LoadingLimits {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
 
     private double permanentLimit;
 
