@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -584,8 +585,8 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkPermanentLimit(Validable validable, double permanentLimit) {
-        if (Double.isNaN(permanentLimit) || permanentLimit <= 0) {
+    public static void checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
+        if (Double.isNaN(permanentLimit) && temporaryLimits.isEmpty() || permanentLimit <= 0) {
             throw new ValidationException(validable, "permanent limit must be defined and be > 0");
         }
     }

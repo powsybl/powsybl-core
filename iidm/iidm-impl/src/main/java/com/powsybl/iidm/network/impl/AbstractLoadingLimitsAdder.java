@@ -3,21 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
 
@@ -25,8 +22,6 @@ import static java.lang.Integer.MAX_VALUE;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
@@ -180,33 +175,5 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     @Override
     public String getOwnerId() {
         return owner.getId();
-    }
-
-    private void checkTemporaryLimits() {
-        // check temporary limits are consistents with permanent
-        double previousLimit = Double.NaN;
-        for (LoadingLimits.TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
-            if (tl.getValue() <= permanentLimit) {
-                LOGGER.debug("{}, temporary limit should be greater than permanent limit", owner.getMessageHeader());
-            }
-            if (Double.isNaN(previousLimit)) {
-                previousLimit = tl.getValue();
-            } else if (tl.getValue() <= previousLimit) {
-                LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
-            }
-        }
-        // check name unicity
-        temporaryLimits.values().stream()
-                .collect(Collectors.groupingBy(LoadingLimits.TemporaryLimit::getName))
-                .forEach((name, temporaryLimits1) -> {
-                    if (temporaryLimits1.size() > 1) {
-                        throw new ValidationException(owner, temporaryLimits1.size() + "temporary limits have the same name " + name);
-                    }
-                });
-    }
-
-    protected void checkLoadingLimits() {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
-        checkTemporaryLimits();
     }
 }

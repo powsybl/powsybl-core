@@ -3,20 +3,27 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends AbstractOperationalLimits implements LoadingLimits {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
     private double permanentLimit;
 
@@ -64,6 +71,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
         super(owner);
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
+        checkLoadingLimits();
     }
 
     @Override
@@ -73,7 +81,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
     @Override
     public L setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getTemporaryLimits());
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
         owner.notifyUpdate(getLimitType(), "permanentLimit", oldValue, this.permanentLimit);
@@ -94,5 +102,33 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     public double getTemporaryLimitValue(int acceptableDuration) {
         TemporaryLimit tl = getTemporaryLimit(acceptableDuration);
         return tl != null ? tl.getValue() : Double.NaN;
+    }
+
+    private void checkTemporaryLimits() {
+        // check temporary limits are consistent with permanent
+        double previousLimit = Double.NaN;
+        for (LoadingLimits.TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
+            if (tl.getValue() <= permanentLimit) {
+                LOGGER.debug("{}, temporary limit should be greater than permanent limit", owner.getMessageHeader());
+            }
+            if (Double.isNaN(previousLimit)) {
+                previousLimit = tl.getValue();
+            } else if (tl.getValue() <= previousLimit) {
+                LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
+            }
+        }
+        // check name unicity
+        temporaryLimits.values().stream()
+                .collect(Collectors.groupingBy(LoadingLimits.TemporaryLimit::getName))
+                .forEach((name, temporaryLimits1) -> {
+                    if (temporaryLimits1.size() > 1) {
+                        throw new ValidationException(owner, temporaryLimits1.size() + "temporary limits have the same name " + name);
+                    }
+                });
+    }
+
+    protected void checkLoadingLimits() {
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimits.values());
+        checkTemporaryLimits();
     }
 }
