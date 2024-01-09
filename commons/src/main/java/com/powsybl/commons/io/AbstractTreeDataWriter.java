@@ -24,9 +24,23 @@ public abstract class AbstractTreeDataWriter implements TreeDataWriter {
     }
 
     @Override
+    public void writeOptionalBooleanAttribute(String name, Boolean value) {
+        if (value != null) {
+            writeBooleanAttribute(name, value);
+        }
+    }
+
+    @Override
     public void writeOptionalDoubleAttribute(String name, DoubleSupplier valueSupplier, BooleanSupplier write) {
         if (write.getAsBoolean()) {
             writeDoubleAttribute(name, valueSupplier.getAsDouble());
+        }
+    }
+
+    @Override
+    public void writeOptionalDoubleAttribute(String name, Double value) {
+        if (value != null) {
+            writeDoubleAttribute(name, value);
         }
     }
 

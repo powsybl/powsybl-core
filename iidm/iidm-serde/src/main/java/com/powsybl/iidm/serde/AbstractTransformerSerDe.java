@@ -155,7 +155,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, ptc::isRegulating, () -> nonFixedRegulationMode || ptc.isRegulating());
         writeTapChanger(ptc, context);
         context.getWriter().writeEnumAttribute("regulationMode", ptc.getRegulationMode());
-        context.getWriter().writeOptionalDoubleAttribute("regulationValue", ptc::getRegulationValue, () -> nonFixedRegulationMode);
+        context.getWriter().writeDoubleAttribute("regulationValue", ptc.getRegulationValue());
         if (ptc.getRegulationTerminal() != null) {
             TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }

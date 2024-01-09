@@ -7,10 +7,11 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DanglingLine.Generation;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -42,7 +43,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     }
 
     static void writeRootElementAttributesInternal(DanglingLine dl, Supplier<Terminal> terminalGetter, NetworkSerializerContext context) {
-        DanglingLine.Generation generation = dl.getGeneration();
+        Generation generation = dl.getGeneration();
         double[] p0 = new double[1];
         double[] q0 = new double[1];
         p0[0] = dl.getP0();
@@ -65,13 +66,12 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         context.getWriter().writeDoubleAttribute("g", dl.getG());
         context.getWriter().writeDoubleAttribute("b", dl.getB());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            BooleanSupplier write = () -> generation != null;
-            context.getWriter().writeOptionalBooleanAttribute("generationVoltageRegulationOn", generation::isVoltageRegulationOn, write);
-            context.getWriter().writeOptionalDoubleAttribute(GENERATION_MIN_P, generation::getMinP, write);
-            context.getWriter().writeOptionalDoubleAttribute(GENERATION_MAX_P, generation::getMaxP, write);
-            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_P, generation::getTargetP, write);
-            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_V, generation::getTargetV, write);
-            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_Q, generation::getTargetQ, write);
+            context.getWriter().writeOptionalBooleanAttribute("generationVoltageRegulationOn", getOptionalValue(generation, Generation::isVoltageRegulationOn));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_MIN_P, getOptionalValue(generation, Generation::getMinP));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_MAX_P, getOptionalValue(generation, Generation::getMaxP));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_P, getOptionalValue(generation, Generation::getTargetP));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_V, getOptionalValue(generation, Generation::getTargetV));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_Q, getOptionalValue(generation, Generation::getTargetQ));
         });
         Terminal t = terminalGetter.get();
         writeNodeOrBus(null, t, context);
@@ -83,6 +83,10 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         );
         writePQ(null, t, context.getWriter());
 
+    }
+
+    private static <T> T getOptionalValue(Generation generation, Function<Generation, T> valueGetter) {
+        return Optional.ofNullable(generation).map(valueGetter).orElse(null);
     }
 
     @Override
