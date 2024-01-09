@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,8 +39,10 @@ public final class ConnectableSerDeUtil {
     static final String APPARENT_POWER_LIMITS_2 = "apparentPowerLimits2";
     static final String ACTIVE_POWER_LIMITS_3 = "activePowerLimits3";
     static final String APPARENT_POWER_LIMITS_3 = "apparentPowerLimits3";
-
     static final String CURRENT_LIMITS = "currentLimits";
+    static final String LIMITS_GROUPS = "operationalLimitsGroups";
+    static final String LIMITS_GROUP = "operationalLimitsGroup";
+    static final String DEFAULT_GROUP_ID = "defaultOperationalLimitsGroupId";
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
@@ -192,6 +195,65 @@ public final class ConnectableSerDeUtil {
         adder.add();
     }
 
+    private static void readAllLoadingLimits(TreeDataReader reader, String groupElementName, OperationalLimitsGroup group) {
+        reader.readChildNodes(limitElementName -> {
+            switch (limitElementName) {
+                case ACTIVE_POWER_LIMITS -> readActivePowerLimits(group.newActivePowerLimits(), reader);
+                case APPARENT_POWER_LIMITS -> readApparentPowerLimits(group.newApparentPowerLimits(), reader);
+                case CURRENT_LIMITS -> readCurrentLimits(group.newCurrentLimits(), reader);
+                default -> throw new PowsyblException("Unknown element name '" + limitElementName + "' in '" + groupElementName + "'");
+            }
+        });
+    }
+
+    static void readLoadingLimitsGroups1(Branch<?> b, TreeDataReader reader) {
+        String defaultId = reader.readStringAttribute(DEFAULT_GROUP_ID);
+        reader.readChildNodes(groupElementName -> {
+            if (LIMITS_GROUP.equals(groupElementName)) {
+                String id = reader.readStringAttribute("id");
+                OperationalLimitsGroup group = b.newOperationalLimitsGroup1(id);
+                readAllLoadingLimits(reader, groupElementName, group);
+            } else {
+                throw new PowsyblException("Unknown element name '" + groupElementName + "' in '" + LIMITS_GROUPS + "1'");
+            }
+        });
+        if (defaultId != null) {
+            b.setDefaultOperationalLimitsGroup1To(defaultId);
+        }
+    }
+
+    static void readLoadingLimitsGroups2(Branch<?> b, TreeDataReader reader) {
+        String defaultId = reader.readStringAttribute(DEFAULT_GROUP_ID);
+        reader.readChildNodes(groupElementName -> {
+            if (LIMITS_GROUP.equals(groupElementName)) {
+                String id = reader.readStringAttribute("id");
+                OperationalLimitsGroup group = b.newOperationalLimitsGroup2(id);
+                readAllLoadingLimits(reader, groupElementName, group);
+            } else {
+                throw new PowsyblException("Unknown element name '" + groupElementName + "' in '" + LIMITS_GROUPS + "2'");
+            }
+        });
+        if (defaultId != null) {
+            b.setDefaultOperationalLimitsGroup2To(defaultId);
+        }
+    }
+
+    static void readLoadingLimitsGroups(FlowsLimitsHolder h, TreeDataReader reader) {
+        String defaultId = reader.readStringAttribute(DEFAULT_GROUP_ID);
+        reader.readChildNodes(groupElementName -> {
+            if (LIMITS_GROUP.equals(groupElementName)) {
+                String id = reader.readStringAttribute("id");
+                OperationalLimitsGroup group = h.newOperationalLimitsGroup(id);
+                readAllLoadingLimits(reader, groupElementName, group);
+            } else {
+                throw new PowsyblException("Unknown element name '" + groupElementName + "' in '" + LIMITS_GROUPS + "'");
+            }
+        });
+        if (defaultId != null) {
+            h.setDefaultOperationalLimitsGroupTo(defaultId);
+        }
+    }
+
     static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmVersion version,
                                               boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions, ACTIVE_POWER_LIMITS);
@@ -231,18 +293,46 @@ public final class ConnectableSerDeUtil {
         }
     }
 
-    static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, Optional<ActivePowerLimits> activePowerLimits, Optional<ApparentPowerLimits> apparentPowerLimits, Optional<CurrentLimits> currentLimits) {
-        String suffix = index == null ? "" : String.valueOf(index);
-        if (activePowerLimits.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(rootName, ACTIVE_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(index, activePowerLimits.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
+    private static void writeLoadingLimitsGroups(Integer index, Optional<String> defaultId, List<OperationalLimitsGroup> groups, TreeDataWriter writer, IidmVersion version, boolean valid, ExportOptions exportOptions) {
+        if (groups.isEmpty() && defaultId.isEmpty()) {
+            return;
         }
-        if (apparentPowerLimits.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(rootName, APPARENT_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(index, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+        writer.writeStartNode(version.getNamespaceURI(valid), LIMITS_GROUPS + indexToString(index));
+        defaultId.ifPresent(id -> writer.writeStringAttribute(DEFAULT_GROUP_ID, id));
+        writer.writeStartNodes(); // ?
+        for (OperationalLimitsGroup g : groups) {
+            writer.writeStartNode(version.getNamespaceURI(valid), LIMITS_GROUP);
+            writer.writeStringAttribute("id", g.getId());
+            g.getActivePowerLimits()
+                    .ifPresent(l -> writeActivePowerLimits(null, l, writer, version, valid, exportOptions));
+            g.getApparentPowerLimits()
+                    .ifPresent(l -> writeApparentPowerLimits(null, l, writer, version, valid, exportOptions));
+            g.getCurrentLimits().ifPresent(l -> writeCurrentLimits(null, l, writer, version, valid, exportOptions));
+            writer.writeEndNode();
         }
-        currentLimits.ifPresent(cl -> writeCurrentLimits(index, cl, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+        writer.writeEndNodes();
+        writer.writeEndNode();
     }
 
+    static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, Optional<OperationalLimitsGroup> defaultGroup, Optional<String> defaultId, List<OperationalLimitsGroup> groups) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> defaultGroup.ifPresent(dg -> {
+            if (dg.getActivePowerLimits().isPresent()) {
+                IidmSerDeUtil.assertMinimumVersion(rootName, ACTIVE_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(index, dg.getActivePowerLimits()
+                                .get(), context.getWriter(),
+                        context.getVersion(), context.isValid(), context.getOptions()));
+            }
+            if (dg.getApparentPowerLimits().isPresent()) {
+                IidmSerDeUtil.assertMinimumVersion(rootName, APPARENT_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(index, dg.getApparentPowerLimits()
+                        .get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            }
+            dg.getCurrentLimits()
+                    .ifPresent(cl -> writeCurrentLimits(index, cl, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+        }));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                writeLoadingLimitsGroups(index, defaultId, groups, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions())
+        );
+    }
 }

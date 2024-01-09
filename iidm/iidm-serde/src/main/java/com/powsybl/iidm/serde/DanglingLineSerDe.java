@@ -106,7 +106,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         if (dl.getGeneration() != null) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> ReactiveLimitsSerDe.INSTANCE.write(dl.getGeneration(), context));
         }
-        writeLimits(context, null, ROOT_ELEMENT_NAME, dl.getActivePowerLimits(), dl.getApparentPowerLimits(), dl.getCurrentLimits());
+        writeLimits(context, null, ROOT_ELEMENT_NAME, dl.getDefaultOperationalLimitsGroup(), dl.getDefaultIdOperationalLimitsGroups(), dl.getOperationalLimitsGroups());
     }
 
     @Override
@@ -163,6 +163,10 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     protected void readSubElements(DanglingLine dl, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
+                case LIMITS_GROUPS -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUPS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(dl, context.getReader()));
+                }
                 case ACTIVE_POWER_LIMITS -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(dl.newActivePowerLimits(), context.getReader()));
