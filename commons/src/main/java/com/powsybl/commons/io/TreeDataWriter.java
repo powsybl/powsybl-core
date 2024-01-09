@@ -57,7 +57,7 @@ public interface TreeDataWriter extends AutoCloseable {
 
     void writeBooleanAttribute(String name, boolean value, boolean absentValue);
 
-    void writeOptionalBooleanAttribute(String name, BooleanSupplier value, BooleanSupplier write);
+    void writeOptionalBooleanAttribute(String name, BooleanSupplier valueSupplier, BooleanSupplier write);
 
     void writeOptionalBooleanAttribute(String name, Boolean value);
 
