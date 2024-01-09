@@ -242,7 +242,7 @@ public class CgmesImport implements Importer {
                     .map(name -> readModelingAuthority(name).map(ma -> Map.entry(ma, name)))
                     .flatMap(Optional::stream)
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(List.of(e.getValue()))));
-            if (LOGGER.isInfoEnabled() && !igmNames.isEmpty()) {
+            if (!igmNames.isEmpty()) {
                 LOGGER.info("IGM EQ files identified by Modeling Authority:");
                 igmNames.forEach((k, v) -> LOGGER.info("  {} {}", k, v.get(0)));
             }
@@ -265,7 +265,7 @@ public class CgmesImport implements Importer {
                         }
                     });
             // Build one data source for each IGM found
-            if (LOGGER.isInfoEnabled() && !igmNames.isEmpty()) {
+            if (!igmNames.isEmpty()) {
                 LOGGER.info("IGM files identified by Modeling Authority:");
                 igmNames.forEach((k, v) -> LOGGER.info("  {} {}", k, String.join(",", v)));
                 if (!shared.isEmpty()) {
