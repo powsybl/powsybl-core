@@ -586,7 +586,7 @@ public final class ValidationUtil {
     }
 
     public static void checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
-        if (Double.isNaN(permanentLimit) && temporaryLimits.isEmpty() || permanentLimit <= 0) {
+        if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty() || permanentLimit <= 0) {
             throw new ValidationException(validable, "permanent limit must be defined and be > 0");
         }
     }
