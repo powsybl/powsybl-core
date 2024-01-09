@@ -10,7 +10,6 @@ package com.powsybl.commons.binary;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataReader;
 
-import javax.xml.stream.XMLStreamConstants;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
