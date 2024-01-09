@@ -27,6 +27,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
@@ -45,6 +46,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
+
+    private Properties importParams;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        super.setUp();
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+    }
 
     @Test
     void microGridBE() throws IOException, XMLStreamException {
@@ -113,9 +123,8 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
     private boolean test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
         // Import original
-        Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
         // Export SSH
         Path exportedSsh = tmpDir.resolve("exportedSsh.xml");
@@ -147,7 +156,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
         // Import with new SSH
         Network actual = Network.read(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), importParams);
 
         // Remove ControlAreas extension
         expected.removeExtension(CgmesControlAreas.class);
@@ -167,7 +176,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
     @Test
     void equivalentShuntTest() throws XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
         String ssh = exportSshAsString(network, 2);
 
@@ -242,7 +251,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Files.createDirectories(outputPath);
 
         // Read network and check control area data
-        Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
+        Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
         CgmesControlAreas controlAreas = be.getExtension(CgmesControlAreas.class);
         assertNotNull(controlAreas);
         assertFalse(controlAreas.getCgmesControlAreas().isEmpty());
@@ -344,7 +353,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
     @Test
     void microGridCgmesExportPreservingOriginalClassesOfLoads() throws IOException, XMLStreamException {
         ReadOnlyDataSource ds = Cgmes3ModifiedCatalog.microGridBaseCaseAllTypesOfLoads().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -354,7 +363,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
 
         InputStream expectedSsh = Repackager.newInputStream(ds, Repackager::ssh);
         String actualSsh = exportSshAsString(actual, 5);

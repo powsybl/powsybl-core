@@ -28,6 +28,7 @@ import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
@@ -48,6 +49,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class StateVariablesExportTest extends AbstractSerDeTest {
+
+    private Properties importParams;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        super.setUp();
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+    }
 
     @Test
     void microGridBE() throws IOException, XMLStreamException {
@@ -238,7 +248,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     @Test
     void equivalentShuntTest() throws XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
         String sv = exportSvAsString(network, 2);
 
@@ -491,9 +501,10 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     }
 
     private static Network importNetwork(ReadOnlyDataSource ds) {
-        Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
-        return new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
+        Properties importParams = new Properties();
+        importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        return new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
     }
 
     private String exportSvAsString(Network network, int svVersion) throws XMLStreamException {
@@ -535,9 +546,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
     private boolean test(ReadOnlyDataSource dataSource, boolean exportTp, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
         // Import original
-        Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
-        Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
+        Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
         // Ensure all information in IIDM mapping extensions is created
         // Some mappings are not built until export is requested
@@ -581,7 +591,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         // Import with new SV
         Network actual = Network.read(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), importParams);
 
         // Before comparison, set undefined p/q in expected network at 0.0
         expected.getConnectableStream()

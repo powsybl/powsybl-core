@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -61,8 +62,11 @@ class TopologyExportTest extends AbstractSerDeTest {
     }
 
     private boolean test(ReadOnlyDataSource dataSource, boolean importSsh) throws IOException, XMLStreamException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
         // Import original
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
         // Export TP
         Path exportedTp = tmpDir.resolve("exportedTp.xml");
@@ -86,7 +90,7 @@ class TopologyExportTest extends AbstractSerDeTest {
 
         // Import with new TP
         Network actual = Network.read(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), null);
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), importParams);
 
         prepareNetworkForComparison(expected);
         prepareNetworkForComparison(actual);
