@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.XMLImporter;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,15 @@ class CgmesMappingTest extends AbstractSerDeTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesMappingTest.class);
 
+    private Properties importParams;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        super.setUp();
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+    }
+
     @Test
     void testExplicitMappingConstructors() {
         AbstractCgmesAliasNamingStrategy nss = new SimpleCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
@@ -64,24 +74,24 @@ class CgmesMappingTest extends AbstractSerDeTest {
     @Test
     void testExportUsingCgmesNamingStrategyCgmesMicroGrid() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource();
-        Network network = Importers.importData("CGMES", ds, null);
-        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, network, "MicroGrid", null, Collections.emptySet(), ds);
+        Network network = Importers.importData("CGMES", ds, importParams);
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, network, "MicroGrid", importParams, Collections.emptySet(), ds);
     }
 
     @Test
     void testExportUsingCgmesNamingStrategyMicroGrid() throws IOException {
         // We select a case that contains invalid IDs
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledBadIds().dataSource();
-        Network network = Importers.importData("CGMES", ds, null);
-        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS, network, "MicroGrid", null, Collections.emptySet(), ds);
+        Network network = Importers.importData("CGMES", ds, importParams);
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS, network, "MicroGrid", importParams, Collections.emptySet(), ds);
     }
 
     private void testExportUsingCgmesNamingStrategy(String namingStrategy, String baseName, String generatorForSlack) throws IOException {
         ReadOnlyDataSource inputIidm = new ResourceDataSource(baseName, new ResourceSet("/cim14", baseName + ".xiidm"));
-        Network network = new XMLImporter().importData(inputIidm, NetworkFactory.findDefault(), null);
+        Network network = new XMLImporter().importData(inputIidm, NetworkFactory.findDefault(), importParams);
         // Force writing CGMES topological island by assigning a slack bus
         SlackTerminal.attach(network.getGenerator(generatorForSlack).getTerminal().getBusBreakerView().getBus());
-        testExportUsingCgmesNamingStrategy(namingStrategy, network, baseName, null, Collections.emptySet(), null);
+        testExportUsingCgmesNamingStrategy(namingStrategy, network, baseName, importParams, Collections.emptySet(), null);
     }
 
     void testExportUsingCgmesNamingStrategy(String namingStrategy, Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds, ReadOnlyDataSource originalDataSource) throws IOException {
@@ -107,10 +117,9 @@ class CgmesMappingTest extends AbstractSerDeTest {
         // resulting in different number of nodes and connections
 
         // By default, the identity naming strategy is configured, we have to set a specific one if we have a mapping file
-        Properties reimportParams1 = new Properties(reimportParams);
-        reimportParams1.put(CgmesImport.NAMING_STRATEGY, namingStrategy);
+        reimportParams.put(CgmesImport.NAMING_STRATEGY, namingStrategy);
 
-        Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams1);
+        Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams);
         Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual, tmpDir.resolve("exportedCgmes" + baseName));
         checkDiffs(diffs, knownErrorsSubstationsIds);
 
@@ -134,7 +143,7 @@ class CgmesMappingTest extends AbstractSerDeTest {
         if (originalDataSource != null) {
             copyBoundary(reOutputFolder, baseName, originalDataSource);
         }
-        Network networkActualReimportedWithoutMapping = Importers.importData("CGMES", reExportedCgmes, reimportParams1);
+        Network networkActualReimportedWithoutMapping = Importers.importData("CGMES", reExportedCgmes, reimportParams);
         // Convert to strings with newlines for easier visual comparison in case of differences
         assertEquals(
                 Arrays.toString(network1.getIdentifiables().stream()
@@ -148,12 +157,12 @@ class CgmesMappingTest extends AbstractSerDeTest {
     }
 
     private void checkDiffs(Collection<Diff> diffs, Set<String> knownErrorsSubstationsIds) {
-        if (diffs.size() > 0) {
+        if (!diffs.isEmpty()) {
             LOG.error("differences found:");
             diffs.forEach(d -> LOG.error(d.toString()));
         }
         Collection<Diff> notExpected = diffs.stream().filter(d -> !knownErrorsSubstationsIds.contains(d.substationId)).collect(Collectors.toList());
-        if (notExpected.size() > 0) {
+        if (!notExpected.isEmpty()) {
             notExpected.forEach(d -> LOG.error(d.toString()));
             fail();
         }
@@ -291,8 +300,7 @@ class CgmesMappingTest extends AbstractSerDeTest {
     }
 
     private static String getId(Connectable<?> c) {
-        if (c instanceof DanglingLine) {
-            DanglingLine dl = (DanglingLine) c;
+        if (c instanceof DanglingLine dl) {
             return dl.getTieLine().map(TieLine::getId).orElseGet(dl::getId);
         }
         return c.getId();
@@ -302,7 +310,7 @@ class CgmesMappingTest extends AbstractSerDeTest {
     void compareCgmesAndIidmExports() throws IOException {
         String baseName = "nordic32";
         ReadOnlyDataSource dataSource = new ResourceDataSource(baseName, new ResourceSet("/cim14", "nordic32.xiidm"));
-        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), importParams);
         DataSource exportDataSource1 = tmpDataSource("export1", baseName);
         DataSource exportDataSource2 = tmpDataSource("export2", baseName);
         exportNetwork(network, exportDataSource1, baseName);
@@ -316,7 +324,7 @@ class CgmesMappingTest extends AbstractSerDeTest {
     void compare2Exports() throws IOException {
         String baseName = "nordic32";
         ReadOnlyDataSource dataSource = new ResourceDataSource(baseName, new ResourceSet("/cim14", "nordic32.xiidm"));
-        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), importParams);
         DataSource exportDataSource1 = tmpDataSource("export1", baseName);
         DataSource exportDataSource2 = tmpDataSource("export2", baseName);
         exportNetwork(network, exportDataSource1, baseName);
@@ -343,7 +351,6 @@ class CgmesMappingTest extends AbstractSerDeTest {
         for (Path file : files) {
             ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
         }
-
     }
 
     private void exportNetwork(Network network, DataSource exportDataSource, String baseName) {
