@@ -67,7 +67,7 @@ public interface OverloadManagementSystemAdder extends IdentifiableAdder<Overloa
             return OverloadManagementSystem.Tripping.Type.THREE_WINDINGS_TRANSFORMER_TRIPPING;
         }
 
-        ThreeWindingsTransformerTrippingAdder setThreeWindingsTransformerToOperate(String threeWindingsTransformerId);
+        ThreeWindingsTransformerTrippingAdder setThreeWindingsTransformerToOperateId(String threeWindingsTransformerId);
 
         ThreeWindingsTransformerTrippingAdder setSideToOperate(ThreeSides side);
 

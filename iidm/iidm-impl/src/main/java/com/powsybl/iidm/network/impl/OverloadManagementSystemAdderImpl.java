@@ -62,7 +62,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
             return type + " '" + id + "' not found";
         }
 
-        protected <E> E checkAndGetElement(String elementId, BiFunction<Network, String, E> getter, String attributeName, String type) {
+        protected <E> String checkElementId(String elementId, BiFunction<Network, String, E> getter, String attributeName, String type) {
             if (elementId == null) {
                 throw new ValidationException(this, attributeName + " is not set");
             }
@@ -70,7 +70,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
             if (element == null) {
                 throw new ValidationException(this, getNotFoundMessage(type, elementId));
             }
-            return element;
+            return elementId;
         }
     }
 
@@ -84,8 +84,8 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
             return this;
         }
 
-        protected Switch checkAndGetSwitch() {
-            return checkAndGetElement(switchId, Network::getSwitch, "switchId", "switch");
+        protected String checkSwitchId() {
+            return checkElementId(switchId, Network::getSwitch, "switchId", "switch");
         }
     }
 
@@ -106,8 +106,8 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
             return this;
         }
 
-        protected Branch checkAndGetBranch() {
-            return checkAndGetElement(branchId, Network::getBranch, "branchId", "branch");
+        protected String checkBranchId() {
+            return checkElementId(branchId, Network::getBranch, "branchId", "branch");
         }
     }
 
@@ -117,7 +117,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         private ThreeSides side;
 
         @Override
-        public OverloadManagementSystemAdder.ThreeWindingsTransformerTrippingAdder setThreeWindingsTransformerToOperate(
+        public OverloadManagementSystemAdder.ThreeWindingsTransformerTrippingAdder setThreeWindingsTransformerToOperateId(
                 String threeWindingsTransformerId) {
             this.threeWindingsTransformerId = threeWindingsTransformerId;
             return this;
@@ -129,8 +129,8 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
             return this;
         }
 
-        protected ThreeWindingsTransformer checkAndGetThreeWindingsTransformer() {
-            return checkAndGetElement(threeWindingsTransformerId, Network::getThreeWindingsTransformer,
+        protected String checkThreeWindingsTransformerId() {
+            return checkElementId(threeWindingsTransformerId, Network::getThreeWindingsTransformer,
                     "threeWindingsTransformerId", "three windings transformer");
         }
     }
@@ -227,14 +227,14 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         return new OverloadManagementSystemImpl.SwitchTrippingImpl(
                 overloadManagementSystemId, adder.key, adder.name,
                 adder.currentLimit, adder.openAction,
-                adder.checkAndGetSwitch());
+                adder.checkSwitchId());
     }
 
     private OverloadManagementSystem.Tripping createTripping(BranchTrippingAdderImpl adder, String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.BranchTrippingImpl(
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
-                adder.checkAndGetBranch(), adder.side);
+                adder.checkBranchId(), adder.side);
     }
 
     private OverloadManagementSystem.Tripping createTripping(ThreeWindingsTransformerTrippingAdderImpl adder,
@@ -242,6 +242,6 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         return new OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl(
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
-                adder.checkAndGetThreeWindingsTransformer(), adder.side);
+                adder.checkThreeWindingsTransformerId(), adder.side);
     }
 }

@@ -88,47 +88,47 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
     }
 
     static class SwitchTrippingImpl extends AbstractTrippingImpl implements SwitchTripping {
-        private Switch switchToOperate;
+        private String switchToOperateId;
 
         public SwitchTrippingImpl(String overloadManagementSystemId, String key, String name,
                                   double currentLimit, boolean openAction,
-                                  Switch switchToOperate) {
+                                  String switchToOperateId) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
-            setSwitchToOperate(switchToOperate);
+            setSwitchToOperateId(switchToOperateId);
         }
 
         @Override
-        public Switch getSwitchToOperate() {
-            return this.switchToOperate;
+        public String getSwitchToOperateId() {
+            return this.switchToOperateId;
         }
 
         @Override
-        public SwitchTripping setSwitchToOperate(Switch switchToOperate) {
-            this.switchToOperate = Objects.requireNonNull(switchToOperate);
+        public SwitchTripping setSwitchToOperateId(String switchToOperateId) {
+            this.switchToOperateId = Objects.requireNonNull(switchToOperateId);
             return this;
         }
     }
 
     static class BranchTrippingImpl extends AbstractTrippingImpl implements OverloadManagementSystem.BranchTripping {
-        private Branch<?> branchToOperate;
+        private String branchToOperateId;
         private TwoSides side;
 
         protected BranchTrippingImpl(String overloadManagementSystemId, String key, String name,
                                      double currentLimit, boolean openAction,
-                                     Branch<?> branchToOperate, TwoSides side) {
+                                     String branchToOperateId, TwoSides side) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
-            setBranchToOperate(branchToOperate);
+            setBranchToOperateId(branchToOperateId);
             setSideToOperate(side);
         }
 
         @Override
-        public Branch getBranchToOperate() {
-            return this.branchToOperate;
+        public String getBranchToOperateId() {
+            return this.branchToOperateId;
         }
 
         @Override
-        public BranchTripping setBranchToOperate(Branch<?> branch) {
-            this.branchToOperate = Objects.requireNonNull(branch);
+        public BranchTripping setBranchToOperateId(String branchId) {
+            this.branchToOperateId = Objects.requireNonNull(branchId);
             return this;
         }
 
@@ -147,25 +147,25 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
     static class ThreeWindingsTransformerTrippingImpl extends AbstractTrippingImpl
             implements OverloadManagementSystem.ThreeWindingsTransformerTripping {
 
-        private ThreeWindingsTransformer threeWindingsTransformer;
+        private String threeWindingsTransformerId;
         private ThreeSides side;
 
         protected ThreeWindingsTransformerTrippingImpl(String overloadManagementSystemId, String key, String name,
                                                        double currentLimit, boolean openAction,
-                                                       ThreeWindingsTransformer threeWindingsTransformer, ThreeSides side) {
+                                                       String threeWindingsTransformerId, ThreeSides side) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
-            setThreeWindingsTransformerToOperate(threeWindingsTransformer);
+            setThreeWindingsTransformerToOperateId(threeWindingsTransformerId);
             setSideToOperate(side);
         }
 
         @Override
-        public ThreeWindingsTransformer getThreeWindingsTransformerToOperate() {
-            return this.threeWindingsTransformer;
+        public String getThreeWindingsTransformerToOperateId() {
+            return this.threeWindingsTransformerId;
         }
 
         @Override
-        public ThreeWindingsTransformerTripping setThreeWindingsTransformerToOperate(ThreeWindingsTransformer threeWindingsTransformer) {
-            this.threeWindingsTransformer = Objects.requireNonNull(threeWindingsTransformer);
+        public ThreeWindingsTransformerTripping setThreeWindingsTransformerToOperateId(String threeWindingsTransformerId) {
+            this.threeWindingsTransformerId = Objects.requireNonNull(threeWindingsTransformerId);
             return this;
         }
 

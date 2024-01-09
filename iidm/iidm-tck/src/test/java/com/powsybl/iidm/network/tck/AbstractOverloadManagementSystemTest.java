@@ -97,7 +97,7 @@ public abstract class AbstractOverloadManagementSystemTest {
         assertEquals("Tripping on switch", swTripping.getNameOrKey());
         assertEquals(80., swTripping.getCurrentLimit());
         assertTrue(swTripping.isOpenAction());
-        assertEquals("S1VL2_LINES1S2V1_1_BREAKER", swTripping.getSwitchToOperate().getId());
+        assertEquals("S1VL2_LINES1S2V1_1_BREAKER", swTripping.getSwitchToOperateId());
 
         assertEquals(OverloadManagementSystem.Tripping.Type.BRANCH_TRIPPING, trippings.get(1).getType());
         OverloadManagementSystem.BranchTripping brTripping = (OverloadManagementSystem.BranchTripping) trippings.get(1);
@@ -105,7 +105,7 @@ public abstract class AbstractOverloadManagementSystemTest {
         assertEquals("LineTrip", brTripping.getNameOrKey());
         assertEquals(50., brTripping.getCurrentLimit());
         assertFalse(brTripping.isOpenAction());
-        assertEquals("LINE_S1S2V1_2", brTripping.getBranchToOperate().getId());
+        assertEquals("LINE_S1S2V1_2", brTripping.getBranchToOperateId());
         assertEquals(TwoSides.ONE, brTripping.getSideToOperate());
 
         trippings = oms2.getTrippings();
@@ -116,7 +116,7 @@ public abstract class AbstractOverloadManagementSystemTest {
         assertEquals("Tripping on 2 windings transformer", brTripping.getNameOrKey());
         assertEquals(100., brTripping.getCurrentLimit());
         assertTrue(brTripping.isOpenAction());
-        assertEquals("TWT", brTripping.getBranchToOperate().getId());
+        assertEquals("TWT", brTripping.getBranchToOperateId());
         assertEquals(TwoSides.TWO, brTripping.getSideToOperate());
     }
 
@@ -135,7 +135,7 @@ public abstract class AbstractOverloadManagementSystemTest {
                     .setName("Tripping on 3 windings transformer")
                     .setCurrentLimit(60.)
                     .setOpenAction(true)
-                    .setThreeWindingsTransformerToOperate("3WT")
+                    .setThreeWindingsTransformerToOperateId("3WT")
                     .setSideToOperate(ThreeSides.THREE)
                     .add()
                 .add();
@@ -150,10 +150,8 @@ public abstract class AbstractOverloadManagementSystemTest {
         assertEquals("Tripping on 3 windings transformer", twtTripping.getNameOrKey());
         assertEquals(60., twtTripping.getCurrentLimit());
         assertTrue(twtTripping.isOpenAction());
-        assertEquals("3WT", twtTripping.getThreeWindingsTransformerToOperate().getId());
+        assertEquals("3WT", twtTripping.getThreeWindingsTransformerToOperateId());
         assertEquals(ThreeSides.THREE, twtTripping.getSideToOperate());
-        ThreeWindingsTransformer.Leg leg = network.getThreeWindingsTransformer("3WT").getLeg3();
-        assertEquals(leg, twtTripping.getLegToOperate());
     }
 
     @Test

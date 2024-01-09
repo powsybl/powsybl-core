@@ -72,9 +72,9 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
             return Type.SWITCH_TRIPPING;
         }
 
-        Switch getSwitchToOperate();
+        String getSwitchToOperateId();
 
-        SwitchTripping setSwitchToOperate(Switch switchToOperate);
+        SwitchTripping setSwitchToOperateId(String switchToOperateId);
     }
 
     interface BranchTripping extends Tripping {
@@ -83,9 +83,9 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
             return Type.BRANCH_TRIPPING;
         }
 
-        Branch getBranchToOperate();
+        String getBranchToOperateId();
 
-        BranchTripping setBranchToOperate(Branch<?> branch);
+        BranchTripping setBranchToOperateId(String branch);
 
         TwoSides getSideToOperate();
 
@@ -98,17 +98,13 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
             return Type.THREE_WINDINGS_TRANSFORMER_TRIPPING;
         }
 
-        ThreeWindingsTransformer getThreeWindingsTransformerToOperate();
+        String getThreeWindingsTransformerToOperateId();
 
-        ThreeWindingsTransformerTripping setThreeWindingsTransformerToOperate(ThreeWindingsTransformer threeWindingsTransformer);
+        ThreeWindingsTransformerTripping setThreeWindingsTransformerToOperateId(String threeWindingsTransformerId);
 
         ThreeSides getSideToOperate();
 
         ThreeWindingsTransformerTripping setSideToOperate(ThreeSides side);
-
-        default ThreeWindingsTransformer.Leg getLegToOperate() {
-            return getThreeWindingsTransformerToOperate().getLeg(getSideToOperate());
-        }
     }
 
     /**
