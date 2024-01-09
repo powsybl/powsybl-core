@@ -281,7 +281,7 @@ public abstract class AbstractTieLineTest {
         assertNotNull(tieLine);
         int count = network.getTieLineCount();
         tieLine.remove();
-        assertNull(network.getLine(TO_REMOVE));
+        assertNull(network.getTieLine(TO_REMOVE));
         assertNotNull(tieLine);
         assertEquals(count - 1L, network.getTieLineCount());
     }
@@ -293,24 +293,28 @@ public abstract class AbstractTieLineTest {
         TieLine tieLine2 = eurostagNetwork.getTieLine("NHV1_NHV2_2");
         assertNotNull(tieLine1);
         assertNotNull(tieLine2);
-        assertEquals(0.0, tieLine1.getDanglingLine1().getP0());
-        assertEquals(0.0, tieLine1.getDanglingLine1().getQ0());
-        assertEquals(0.0, tieLine1.getDanglingLine2().getP0());
-        assertEquals(0.0, tieLine1.getDanglingLine2().getQ0());
-        assertEquals(0.0, tieLine2.getDanglingLine1().getP0());
-        assertEquals(0.0, tieLine2.getDanglingLine1().getQ0());
-        assertEquals(0.0, tieLine2.getDanglingLine2().getP0());
-        assertEquals(0.0, tieLine2.getDanglingLine2().getQ0());
+        DanglingLine danglingLine11 = tieLine1.getDanglingLine1();
+        DanglingLine danglingLine12 = tieLine1.getDanglingLine2();
+        DanglingLine danglingLine21 = tieLine2.getDanglingLine1();
+        DanglingLine danglingLine22 = tieLine2.getDanglingLine2();
+        assertEquals(0.0, danglingLine11.getP0());
+        assertEquals(0.0, danglingLine11.getQ0());
+        assertEquals(0.0, danglingLine12.getP0());
+        assertEquals(0.0, danglingLine12.getQ0());
+        assertEquals(0.0, danglingLine21.getP0());
+        assertEquals(0.0, danglingLine21.getQ0());
+        assertEquals(0.0, danglingLine22.getP0());
+        assertEquals(0.0, danglingLine22.getQ0());
         tieLine1.remove(true);
         tieLine2.remove(true);
-        assertEquals(301.316, tieLine1.getDanglingLine1().getP0(), 0.001);
-        assertEquals(116.525, tieLine1.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(-301.782, tieLine1.getDanglingLine2().getP0(), 0.001);
-        assertEquals(-116.442, tieLine1.getDanglingLine2().getQ0(), 0.001);
-        assertEquals(301.316, tieLine2.getDanglingLine1().getP0(), 0.001);
-        assertEquals(116.525, tieLine2.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(-301.782, tieLine2.getDanglingLine2().getP0(), 0.001);
-        assertEquals(-116.442, tieLine2.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(301.316, danglingLine11.getP0(), 0.001);
+        assertEquals(116.525, danglingLine11.getQ0(), 0.001);
+        assertEquals(-301.782, danglingLine12.getP0(), 0.001);
+        assertEquals(-116.442, danglingLine12.getQ0(), 0.001);
+        assertEquals(301.316, danglingLine21.getP0(), 0.001);
+        assertEquals(116.525, danglingLine21.getQ0(), 0.001);
+        assertEquals(-301.782, danglingLine22.getP0(), 0.001);
+        assertEquals(-116.442, danglingLine22.getQ0(), 0.001);
     }
 
     @Test
@@ -320,40 +324,44 @@ public abstract class AbstractTieLineTest {
         TieLine tieLine2 = eurostagNetwork.getTieLine("NHV1_NHV2_2");
         assertNotNull(tieLine1);
         assertNotNull(tieLine2);
-        assertEquals(0.0, tieLine1.getDanglingLine1().getP0());
-        assertEquals(0.0, tieLine1.getDanglingLine1().getQ0());
-        assertEquals(0.0, tieLine1.getDanglingLine2().getP0());
-        assertEquals(0.0, tieLine1.getDanglingLine2().getQ0());
-        assertEquals(0.0, tieLine2.getDanglingLine1().getP0());
-        assertEquals(0.0, tieLine2.getDanglingLine1().getQ0());
-        assertEquals(0.0, tieLine2.getDanglingLine2().getP0());
-        assertEquals(0.0, tieLine2.getDanglingLine2().getQ0());
+        DanglingLine danglingLine11 = tieLine1.getDanglingLine1();
+        DanglingLine danglingLine12 = tieLine1.getDanglingLine2();
+        DanglingLine danglingLine21 = tieLine2.getDanglingLine1();
+        DanglingLine danglingLine22 = tieLine2.getDanglingLine2();
+        assertEquals(0.0, danglingLine11.getP0());
+        assertEquals(0.0, danglingLine11.getQ0());
+        assertEquals(0.0, danglingLine12.getP0());
+        assertEquals(0.0, danglingLine12.getQ0());
+        assertEquals(0.0, danglingLine21.getP0());
+        assertEquals(0.0, danglingLine21.getQ0());
+        assertEquals(0.0, danglingLine22.getP0());
+        assertEquals(0.0, danglingLine22.getQ0());
         // reset the terminal flows at dangling lines, we simulate we do not have calculated
-        tieLine1.getDanglingLine1().getTerminal().setP(Double.NaN);
-        tieLine1.getDanglingLine1().getTerminal().setQ(Double.NaN);
-        tieLine1.getDanglingLine2().getTerminal().setP(Double.NaN);
-        tieLine1.getDanglingLine2().getTerminal().setQ(Double.NaN);
-        tieLine2.getDanglingLine1().getTerminal().setP(Double.NaN);
-        tieLine2.getDanglingLine1().getTerminal().setQ(Double.NaN);
-        tieLine2.getDanglingLine2().getTerminal().setP(Double.NaN);
-        tieLine2.getDanglingLine2().getTerminal().setQ(Double.NaN);
+        danglingLine11.getTerminal().setP(Double.NaN);
+        danglingLine11.getTerminal().setQ(Double.NaN);
+        danglingLine12.getTerminal().setP(Double.NaN);
+        danglingLine12.getTerminal().setQ(Double.NaN);
+        danglingLine21.getTerminal().setP(Double.NaN);
+        danglingLine21.getTerminal().setQ(Double.NaN);
+        danglingLine22.getTerminal().setP(Double.NaN);
+        danglingLine22.getTerminal().setQ(Double.NaN);
         // Set some non-zero p0, q0 values to check that:
         // if we remove the tie line without flows calculated
         // p0, q0 of dangling lines are preserved
-        tieLine1.getDanglingLine1().setP0(10);
-        tieLine1.getDanglingLine1().setQ0(20);
-        tieLine1.getDanglingLine2().setP0(-10);
-        tieLine1.getDanglingLine2().setQ0(-20);
+        danglingLine11.setP0(10);
+        danglingLine11.setQ0(20);
+        danglingLine12.setP0(-10);
+        danglingLine12.setQ0(-20);
         tieLine1.remove(true);
         tieLine2.remove(true);
-        assertEquals(10, tieLine1.getDanglingLine1().getP0(), 0.001);
-        assertEquals(20, tieLine1.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(-10, tieLine1.getDanglingLine2().getP0(), 0.001);
-        assertEquals(-20, tieLine1.getDanglingLine2().getQ0(), 0.001);
-        assertEquals(0, tieLine2.getDanglingLine1().getP0(), 0.001);
-        assertEquals(0, tieLine2.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(0, tieLine2.getDanglingLine2().getP0(), 0.001);
-        assertEquals(0, tieLine2.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(10, danglingLine11.getP0(), 0.001);
+        assertEquals(20, danglingLine11.getQ0(), 0.001);
+        assertEquals(-10, danglingLine12.getP0(), 0.001);
+        assertEquals(-20, danglingLine12.getQ0(), 0.001);
+        assertEquals(0, danglingLine21.getP0(), 0.001);
+        assertEquals(0, danglingLine21.getQ0(), 0.001);
+        assertEquals(0, danglingLine22.getP0(), 0.001);
+        assertEquals(0, danglingLine22.getQ0(), 0.001);
     }
 
     @Test
@@ -363,36 +371,40 @@ public abstract class AbstractTieLineTest {
         TieLine tieLine2 = eurostagNetwork.getTieLine("NHV1_NHV2_2");
         assertNotNull(tieLine1);
         assertNotNull(tieLine2);
-        assertEquals(0.0, tieLine1.getDanglingLine1().getP0());
-        assertEquals(0.0, tieLine1.getDanglingLine1().getQ0());
-        assertEquals(0.0, tieLine1.getDanglingLine2().getP0());
-        assertEquals(0.0, tieLine1.getDanglingLine2().getQ0());
-        assertEquals(0.0, tieLine2.getDanglingLine1().getP0());
-        assertEquals(0.0, tieLine2.getDanglingLine1().getQ0());
-        assertEquals(0.0, tieLine2.getDanglingLine2().getP0());
-        assertEquals(0.0, tieLine2.getDanglingLine2().getQ0());
+        DanglingLine danglingLine11 = tieLine1.getDanglingLine1();
+        DanglingLine danglingLine12 = tieLine1.getDanglingLine2();
+        DanglingLine danglingLine21 = tieLine2.getDanglingLine1();
+        DanglingLine danglingLine22 = tieLine2.getDanglingLine2();
+        assertEquals(0.0, danglingLine11.getP0());
+        assertEquals(0.0, danglingLine11.getQ0());
+        assertEquals(0.0, danglingLine12.getP0());
+        assertEquals(0.0, danglingLine12.getQ0());
+        assertEquals(0.0, danglingLine21.getP0());
+        assertEquals(0.0, danglingLine21.getQ0());
+        assertEquals(0.0, danglingLine22.getP0());
+        assertEquals(0.0, danglingLine22.getQ0());
         // reset only the terminal q values (simulate only a dc load flow has been calculated)
-        tieLine1.getDanglingLine1().getTerminal().setQ(Double.NaN);
-        tieLine1.getDanglingLine2().getTerminal().setQ(Double.NaN);
-        tieLine2.getDanglingLine1().getTerminal().setQ(Double.NaN);
-        tieLine2.getDanglingLine2().getTerminal().setQ(Double.NaN);
+        danglingLine11.getTerminal().setQ(Double.NaN);
+        danglingLine12.getTerminal().setQ(Double.NaN);
+        danglingLine21.getTerminal().setQ(Double.NaN);
+        danglingLine22.getTerminal().setQ(Double.NaN);
         // Set some non-zero p0, q0 values to check that:
         // if we remove the tie line with only p flows calculated
         // q0 values of dangling lines are preserved
-        tieLine1.getDanglingLine1().setP0(10);
-        tieLine1.getDanglingLine1().setQ0(20);
-        tieLine1.getDanglingLine2().setP0(-10);
-        tieLine1.getDanglingLine2().setQ0(-20);
+        danglingLine11.setP0(10);
+        danglingLine11.setQ0(20);
+        danglingLine12.setP0(-10);
+        danglingLine12.setQ0(-20);
         tieLine1.remove(true);
         tieLine2.remove(true);
-        assertEquals(302.444, tieLine1.getDanglingLine1().getP0(), 0.001);
-        assertEquals(20, tieLine1.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(-300.434, tieLine1.getDanglingLine2().getP0(), 0.001);
-        assertEquals(-20, tieLine1.getDanglingLine2().getQ0(), 0.001);
-        assertEquals(302.444, tieLine2.getDanglingLine1().getP0(), 0.001);
-        assertEquals(0, tieLine2.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(-300.434, tieLine2.getDanglingLine2().getP0(), 0.001);
-        assertEquals(0, tieLine2.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(302.444, danglingLine11.getP0(), 0.001);
+        assertEquals(20, danglingLine11.getQ0(), 0.001);
+        assertEquals(-300.434, danglingLine12.getP0(), 0.001);
+        assertEquals(-20, danglingLine12.getQ0(), 0.001);
+        assertEquals(302.444, danglingLine21.getP0(), 0.001);
+        assertEquals(0, danglingLine21.getQ0(), 0.001);
+        assertEquals(-300.434, danglingLine22.getP0(), 0.001);
+        assertEquals(0, danglingLine22.getQ0(), 0.001);
     }
 
     private void createTieLineWithDanglingline2ByDefault(String id, String name, String danglingLineId, double r, double x,
