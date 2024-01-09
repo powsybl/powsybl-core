@@ -21,7 +21,6 @@ import javax.xml.stream.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -92,7 +91,6 @@ class SwitchExportTest extends AbstractSerDeTest {
 
         // Check that the coupler is preserved when exported to CGMES
         String basename = n.getNameOrId();
-        tmpDir = Paths.get("/Users/zamarrenolm/Downloads/");
         n.write("CGMES", null, tmpDir.resolve(basename));
         Network n1 = Network.read(new FileDataSource(tmpDir, basename));
         assertNotNull(n1.getSwitch("coupler"));
