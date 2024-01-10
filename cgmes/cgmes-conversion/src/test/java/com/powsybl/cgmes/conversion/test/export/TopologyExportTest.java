@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Properties;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -59,8 +60,11 @@ class TopologyExportTest extends AbstractSerDeTest {
     }
 
     private void test(ReadOnlyDataSource dataSource, boolean importSsh) throws IOException, XMLStreamException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
         // Import original
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
         // Export TP
         Path exportedTp = tmpDir.resolve("exportedTp.xml");
@@ -84,7 +88,7 @@ class TopologyExportTest extends AbstractSerDeTest {
 
         // Import with new TP
         Network actual = Network.read(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), null);
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), importParams);
 
         prepareNetworkForComparison(expected);
         prepareNetworkForComparison(actual);
@@ -113,8 +117,6 @@ class TopologyExportTest extends AbstractSerDeTest {
         // As the network does not have SSH or SV data, the buses are not exported to the IIDM file,
         // in order to verify that the nodes that make up each bus are correct, Nomianl V are copied from the voltage level
         // to the bus.
-        network.getBusView().getBuses().forEach(bus -> {
-            bus.setV(bus.getVoltageLevel().getNominalV());
-        });
+        network.getBusView().getBuses().forEach(bus -> bus.setV(bus.getVoltageLevel().getNominalV()));
     }
 }
