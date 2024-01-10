@@ -66,13 +66,13 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
                 context.getWriter().writeStringAttribute("name", feeder.getName().orElse(connectableId));
                 break;
             case V_1_1:
-                feeder.getName().ifPresent(name -> context.getWriter().writeStringAttribute("name", name));
+                context.getWriter().writeStringAttribute("name", feeder.getName().orElse(null));
                 break;
             default:
                 throw new PowsyblException("Unsupported version (" + extVersionStr + ") for " + ConnectablePosition.NAME);
         }
         context.getWriter().writeOptionalIntAttribute("order", feeder.getOrder().orElse(null));
-        context.getWriter().writeStringAttribute("direction", feeder.getDirection().name());
+        context.getWriter().writeEnumAttribute("direction", feeder.getDirection());
         context.getWriter().writeEndNode();
     }
 

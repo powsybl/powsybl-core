@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.function.Consumer;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readNodeOrBus;
@@ -64,9 +65,11 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
             int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
             context.getWriter().writeIntAttribute("currentSectionCount", currentSectionCount);
         });
-        if (sc.findSectionCount().isPresent()) {
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> context.getWriter().writeIntAttribute("sectionCount", sc.getSectionCount()));
-        }
+
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
+            OptionalInt sectionCount = sc.findSectionCount();
+            context.getWriter().writeOptionalIntAttribute("sectionCount", sectionCount.isPresent() ? sectionCount.getAsInt() : null);
+        });
         IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
@@ -143,7 +146,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
                     .add();
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            Integer sectionCount = context.getReader().readIntAttribute("sectionCount");
+            Integer sectionCount = context.getReader().readOptionalIntAttribute("sectionCount");
             if (sectionCount != null) {
                 adder.setSectionCount(sectionCount);
             }

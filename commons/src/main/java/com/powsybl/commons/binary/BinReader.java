@@ -142,7 +142,10 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public Double readOptionalDoubleAttribute(String name) {
-        return readBoolean() ? readDouble() : null;
+        if (!readBoolean()) {
+            return null;
+        }
+        return readDouble();
     }
 
     @Override
@@ -167,7 +170,10 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public Integer readOptionalIntAttribute(String name) {
-        return readBoolean() ? readInt() : null;
+        if (!readBoolean()) {
+            return null;
+        }
+        return readInt();
     }
 
     @Override
@@ -187,7 +193,10 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public Boolean readOptionalBooleanAttribute(String name) {
-        return readBoolean() ? readBoolean() : null;
+        if (!readBoolean()) {
+            return null;
+        }
+        return readBoolean();
     }
 
     @Override
@@ -197,7 +206,7 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue) {
-        return clazz.getEnumConstants()[readInt()];
+        return readEnum(clazz);
     }
 
     @Override

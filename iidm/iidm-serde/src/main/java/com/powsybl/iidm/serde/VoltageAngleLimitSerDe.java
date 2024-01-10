@@ -39,7 +39,7 @@ public final class VoltageAngleLimitSerDe {
             context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(voltageAngleLimit.getId()));
 
             OptionalDouble lowLimit = voltageAngleLimit.getLowLimit();
-            OptionalDouble highLimit = voltageAngleLimit.getLowLimit();
+            OptionalDouble highLimit = voltageAngleLimit.getHighLimit();
             context.getWriter().writeOptionalDoubleAttribute(LOW_LIMIT, lowLimit.isPresent() ? lowLimit.getAsDouble() : null);
             context.getWriter().writeOptionalDoubleAttribute(HIGH_LIMIT, highLimit.isPresent() ? highLimit.getAsDouble() : null);
 
