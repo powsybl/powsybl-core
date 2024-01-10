@@ -168,7 +168,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
             switch (elementName) {
                 case REGULATING_TERMINAL -> {
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
-                    String regSide = context.getReader().readStringAttribute("side");
+                    ThreeSides regSide = context.getReader().readEnumAttribute("side", ThreeSides.class);
                     context.getReader().readEndNode();
                     toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefSerDe.resolve(regId, regSide, sc.getNetwork()))));
                 }

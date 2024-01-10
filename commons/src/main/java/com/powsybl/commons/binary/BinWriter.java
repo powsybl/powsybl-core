@@ -17,6 +17,9 @@ import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 
+import static com.powsybl.commons.binary.BinUtil.END_NODE;
+import static com.powsybl.commons.binary.BinUtil.NULL_ENUM;
+
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
@@ -115,7 +118,7 @@ public class BinWriter implements TreeDataWriter {
 
     @Override
     public void writeEndNode() {
-        writeIndex(0, tmpDos);
+        writeIndex(END_NODE, tmpDos);
     }
 
     @Override
@@ -212,7 +215,7 @@ public class BinWriter implements TreeDataWriter {
 
     @Override
     public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
-        writeIndex(value.ordinal(), tmpDos);
+        writeIndex(value != null ? value.ordinal() : NULL_ENUM, tmpDos);
     }
 
     @Override

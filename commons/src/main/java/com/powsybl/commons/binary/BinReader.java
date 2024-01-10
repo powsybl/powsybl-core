@@ -17,12 +17,14 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.powsybl.commons.binary.BinUtil.END_NODE;
+import static com.powsybl.commons.binary.BinUtil.NULL_ENUM;
+
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class BinReader implements TreeDataReader {
 
-    private static final int END_NODE = 0;
     private final DataInputStream dis;
     private final Map<Integer, String> dictionary = new HashMap<>();
 
@@ -89,7 +91,8 @@ public class BinReader implements TreeDataReader {
 
     private <T extends Enum<T>> T readEnum(Class<T> clazz) {
         try {
-            return clazz.getEnumConstants()[dis.readShort()];
+            short ordinal = dis.readShort();
+            return ordinal != NULL_ENUM ? clazz.getEnumConstants()[ordinal] : null;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
