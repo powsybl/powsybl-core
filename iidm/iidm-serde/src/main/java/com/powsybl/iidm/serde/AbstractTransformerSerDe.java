@@ -79,9 +79,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         writeTapChanger(rtc, context);
         context.getWriter().writeBooleanAttribute("loadTapChangingCapabilities", rtc.hasLoadTapChangingCapabilities());
         context.getWriter().writeDoubleAttribute("targetV", rtc.getTargetV());
-        if (rtc.getRegulationTerminal() != null) {
-            TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
-        }
+        TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
         context.getWriter().writeStartNodes();
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
@@ -156,9 +154,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         writeTapChanger(ptc, context);
         context.getWriter().writeEnumAttribute("regulationMode", ptc.getRegulationMode());
         context.getWriter().writeDoubleAttribute("regulationValue", ptc.getRegulationValue());
-        if (ptc.getRegulationTerminal() != null) {
-            TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
-        }
+        TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
         context.getWriter().writeStartNodes();
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {

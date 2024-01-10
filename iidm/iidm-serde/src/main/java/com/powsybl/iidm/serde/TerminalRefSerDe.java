@@ -31,9 +31,11 @@ public final class TerminalRefSerDe {
     }
 
     public static void writeTerminalRef(Terminal t, NetworkSerializerContext context, String namespace, String elementName, TreeDataWriter writer) {
-        writer.writeStartNode(namespace, elementName);
-        writeTerminalRefAttribute(t, context, writer);
-        writer.writeEndNode();
+        if (t != null) {
+            writer.writeStartNode(namespace, elementName);
+            writeTerminalRefAttribute(t, context, writer);
+            writer.writeEndNode();
+        }
     }
 
     public static void writeTerminalRefAttribute(Terminal t, NetworkSerializerContext context) {
