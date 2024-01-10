@@ -119,55 +119,64 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
             boolean openAction = context.getReader().readBooleanAttribute("openAction");
 
             switch (elementName) {
-                case BRANCH_TRIPPING_TAG -> {
-                    String branchId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("branchId"));
-                    String side = context.getReader().readStringAttribute("side");
-                    TwoSides sideToOperate = side == null ? TwoSides.ONE : TwoSides.valueOf(side);
-                    context.getReader().readEndNode();
-                    if (adder != null) {
-                        adder.newBranchTripping()
-                                .setKey(key)
-                                .setName(name)
-                                .setCurrentLimit(currentLimit)
-                                .setOpenAction(openAction)
-                                .setBranchToOperateId(branchId)
-                                .setSideToOperate(sideToOperate)
-                                .add();
-                    }
-                }
-                case SWITCH_TRIPPING_TAG -> {
-                    String switchId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("switchId"));
-                    context.getReader().readEndNode();
-                    if (adder != null) {
-                        adder.newSwitchTripping()
-                                .setKey(key)
-                                .setName(name)
-                                .setCurrentLimit(currentLimit)
-                                .setOpenAction(openAction)
-                                .setSwitchToOperateId(switchId)
-                                .add();
-                    }
-                }
-                case THREE_WINDINGS_TRANSFORMER_TRIPPING_TAG -> {
-                    String twtId = context.getAnonymizer().deanonymizeString(
-                            context.getReader().readStringAttribute("threeWindingsTransformerId"));
-                    String side = context.getReader().readStringAttribute("side");
-                    ThreeSides sideToOperate = side == null ? ThreeSides.ONE : ThreeSides.valueOf(side);
-                    context.getReader().readEndNode();
-                    if (adder != null) {
-                        adder.newThreeWindingsTransformerTripping()
-                                .setKey(key)
-                                .setName(name)
-                                .setCurrentLimit(currentLimit)
-                                .setOpenAction(openAction)
-                                .setThreeWindingsTransformerToOperateId(twtId)
-                                .setSideToOperate(sideToOperate)
-                                .add();
-                    }
-                }
+                case BRANCH_TRIPPING_TAG -> readBranchTripping(adder, context, key, name, currentLimit, openAction);
+                case SWITCH_TRIPPING_TAG -> readSwitchTripping(adder, context, key, name, currentLimit, openAction);
+                case THREE_WINDINGS_TRANSFORMER_TRIPPING_TAG -> readThreeWindingsTransformerTripping(adder, context, key, name, currentLimit, openAction);
                 default -> readSubElement(elementName, id, toApply, context);
             }
         });
+    }
+
+    private static void readBranchTripping(OverloadManagementSystemAdder adder, NetworkDeserializerContext context,
+                                           String key, String name, double currentLimit, boolean openAction) {
+        String branchId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("branchId"));
+        String side = context.getReader().readStringAttribute("side");
+        TwoSides sideToOperate = side == null ? TwoSides.ONE : TwoSides.valueOf(side);
+        context.getReader().readEndNode();
+        if (adder != null) {
+            adder.newBranchTripping()
+                    .setKey(key)
+                    .setName(name)
+                    .setCurrentLimit(currentLimit)
+                    .setOpenAction(openAction)
+                    .setBranchToOperateId(branchId)
+                    .setSideToOperate(sideToOperate)
+                    .add();
+        }
+    }
+
+    private static void readSwitchTripping(OverloadManagementSystemAdder adder, NetworkDeserializerContext context,
+                                           String key, String name, double currentLimit, boolean openAction) {
+        String switchId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("switchId"));
+        context.getReader().readEndNode();
+        if (adder != null) {
+            adder.newSwitchTripping()
+                    .setKey(key)
+                    .setName(name)
+                    .setCurrentLimit(currentLimit)
+                    .setOpenAction(openAction)
+                    .setSwitchToOperateId(switchId)
+                    .add();
+        }
+    }
+
+    private static void readThreeWindingsTransformerTripping(OverloadManagementSystemAdder adder, NetworkDeserializerContext context,
+                                                             String key, String name, double currentLimit, boolean openAction) {
+        String twtId = context.getAnonymizer().deanonymizeString(
+                context.getReader().readStringAttribute("threeWindingsTransformerId"));
+        String side = context.getReader().readStringAttribute("side");
+        ThreeSides sideToOperate = side == null ? ThreeSides.ONE : ThreeSides.valueOf(side);
+        context.getReader().readEndNode();
+        if (adder != null) {
+            adder.newThreeWindingsTransformerTripping()
+                    .setKey(key)
+                    .setName(name)
+                    .setCurrentLimit(currentLimit)
+                    .setOpenAction(openAction)
+                    .setThreeWindingsTransformerToOperateId(twtId)
+                    .setSideToOperate(sideToOperate)
+                    .add();
+        }
     }
 
     @Override
