@@ -51,7 +51,7 @@ public abstract class AbstractCoordinatedReactiveControlTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> generator.newExtension(CoordinatedReactiveControlAdder.class)
                 .withQPercent(Double.NaN)
                 .add());
-        assertTrue(e.getMessage().contains("Undefined value for qPercent"));
+        assertTrue(e.getMessage().contains("Undefined value (NaN) for qPercent for generator GEN"));
     }
 
     @Test
