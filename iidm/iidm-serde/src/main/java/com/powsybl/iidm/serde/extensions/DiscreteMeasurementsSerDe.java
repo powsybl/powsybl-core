@@ -10,10 +10,10 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}

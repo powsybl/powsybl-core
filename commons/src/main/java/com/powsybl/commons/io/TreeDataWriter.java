@@ -8,9 +8,6 @@ package com.powsybl.commons.io;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
