@@ -52,8 +52,7 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
             writer.writeStringAttribute("type", tapChanger.getType());
             writer.writeBooleanAttribute("hidden", tapChanger.isHidden(), false);
             writer.writeOptionalIntAttribute("step",
-                    () -> tapChanger.getStep().orElseThrow(() -> new PowsyblException("Step should be defined")),
-                    tapChanger::isHidden);
+                    !tapChanger.isHidden() ? null : tapChanger.getStep().orElseThrow(() -> new PowsyblException("Step should be defined")));
             writer.writeStringAttribute("controlId", tapChanger.getControlId());
             writer.writeEndNode();
         }

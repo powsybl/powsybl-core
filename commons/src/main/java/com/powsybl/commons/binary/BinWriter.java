@@ -11,11 +11,11 @@ import com.powsybl.commons.io.TreeDataWriter;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.function.BooleanSupplier;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 
 import static com.powsybl.commons.binary.BinUtil.END_NODE;
 import static com.powsybl.commons.binary.BinUtil.NULL_ENUM;
@@ -156,19 +156,6 @@ public class BinWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeOptionalDoubleAttribute(String name, DoubleSupplier valueSupplier, BooleanSupplier write) {
-        try {
-            boolean writeValue = write.getAsBoolean();
-            tmpDos.writeBoolean(writeValue);
-            if (writeValue) {
-                writeDouble(valueSupplier.getAsDouble());
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
     public void writeOptionalDoubleAttribute(String name, Double value) {
         try {
             tmpDos.writeBoolean(value != null);
@@ -191,12 +178,11 @@ public class BinWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeOptionalIntAttribute(String name, IntSupplier valueSupplier, BooleanSupplier write) {
+    public void writeOptionalIntAttribute(String name, Integer value) {
         try {
-            boolean writeValue = write.getAsBoolean();
-            tmpDos.writeBoolean(writeValue);
-            if (writeValue) {
-                writeDouble(valueSupplier.getAsInt());
+            tmpDos.writeBoolean(value != null);
+            if (value != null) {
+                writeInt(value);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -226,19 +212,6 @@ public class BinWriter implements TreeDataWriter {
     @Override
     public void writeBooleanAttribute(String name, boolean value, boolean absentValue) {
         writeBoolean(value);
-    }
-
-    @Override
-    public void writeOptionalBooleanAttribute(String name, BooleanSupplier valueSupplier, BooleanSupplier write) {
-        try {
-            boolean writeValue = write.getAsBoolean();
-            tmpDos.writeBoolean(writeValue);
-            if (writeValue) {
-                writeBoolean(valueSupplier.getAsBoolean());
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     @Override

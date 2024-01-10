@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.function.DoubleConsumer;
@@ -67,7 +68,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     private static void writeTapChanger(TapChanger<?, ?> tc, NetworkSerializerContext context) {
         context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition());
         var tp = tc.findTapPosition();
-        context.getWriter().writeOptionalIntAttribute(ATTR_TAP_POSITION, tp::orElseThrow, tp::isPresent);
+        context.getWriter().writeOptionalIntAttribute(ATTR_TAP_POSITION, tp.isPresent() ? tp.getAsInt() : null);
         writeTargetDeadband(tc.getTargetDeadband(), context);
     }
 
@@ -147,12 +148,14 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkSerializerContext context) {
-        boolean nonFixedRegulationMode = ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP;
-
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
-        context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, ptc::isRegulating, () -> nonFixedRegulationMode || ptc.isRegulating());
+
+        RegulationMode regMode = ptc.getRegulationMode();
+        Boolean optionalRegulatingValue = (regMode == null || regMode == RegulationMode.FIXED_TAP) && !ptc.isRegulating() ? null : ptc.isRegulating();
+        context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
+
         writeTapChanger(ptc, context);
-        context.getWriter().writeEnumAttribute("regulationMode", ptc.getRegulationMode());
+        context.getWriter().writeEnumAttribute("regulationMode", regMode);
         context.getWriter().writeDoubleAttribute("regulationValue", ptc.getRegulationValue());
         TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
@@ -174,7 +177,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
-        PhaseTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", PhaseTapChanger.RegulationMode.class);
+        RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", RegulationMode.class);
         double regulationValue = context.getReader().readDoubleAttribute("regulationValue");
 
         adder.setLowTapPosition(lowTapPosition)

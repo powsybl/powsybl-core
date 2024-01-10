@@ -37,15 +37,13 @@ public interface TreeDataWriter extends AutoCloseable {
 
     void writeDoubleAttribute(String name, double value, double absentValue);
 
-    void writeOptionalDoubleAttribute(String name, DoubleSupplier valueSupplier, BooleanSupplier write);
-
     void writeOptionalDoubleAttribute(String name, Double value);
 
     void writeIntAttribute(String name, int value);
 
     void writeIntAttribute(String name, int value, int absentValue);
 
-    void writeOptionalIntAttribute(String name, IntSupplier valueSupplier, BooleanSupplier write);
+    void writeOptionalIntAttribute(String name, Integer value);
 
     void writeIntArrayAttribute(String name, Collection<Integer> values);
 
@@ -56,8 +54,6 @@ public interface TreeDataWriter extends AutoCloseable {
     void writeBooleanAttribute(String name, boolean value);
 
     void writeBooleanAttribute(String name, boolean value, boolean absentValue);
-
-    void writeOptionalBooleanAttribute(String name, BooleanSupplier valueSupplier, BooleanSupplier write);
 
     void writeOptionalBooleanAttribute(String name, Boolean value);
 

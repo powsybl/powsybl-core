@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.VoltageAngleLimit;
 import com.powsybl.iidm.network.VoltageAngleLimitAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.OptionalDouble;
+
 /**
  *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -34,8 +36,12 @@ public final class VoltageAngleLimitSerDe {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
             context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(voltageAngleLimit.getId()));
-            context.getWriter().writeOptionalDoubleAttribute(LOW_LIMIT, () -> voltageAngleLimit.getLowLimit().orElse(Double.NaN), voltageAngleLimit.getLowLimit()::isPresent);
-            context.getWriter().writeOptionalDoubleAttribute(HIGH_LIMIT, () -> voltageAngleLimit.getHighLimit().orElse(Double.NaN), voltageAngleLimit.getHighLimit()::isPresent);
+
+            OptionalDouble lowLimit = voltageAngleLimit.getLowLimit();
+            OptionalDouble highLimit = voltageAngleLimit.getLowLimit();
+            context.getWriter().writeOptionalDoubleAttribute(LOW_LIMIT, lowLimit.isPresent() ? lowLimit.getAsDouble() : null);
+            context.getWriter().writeOptionalDoubleAttribute(HIGH_LIMIT, highLimit.isPresent() ? highLimit.getAsDouble() : null);
+
             TerminalRefSerDe.writeTerminalRef(voltageAngleLimit.getTerminalFrom(), context, FROM);
             TerminalRefSerDe.writeTerminalRef(voltageAngleLimit.getTerminalTo(), context, TO);
             context.getWriter().writeEndNode();

@@ -173,8 +173,10 @@ public final class ConnectableSerDeUtil {
     }
 
     public static void writeOptionalPQ(Integer index, Terminal t, TreeDataWriter writer, BooleanSupplier write) {
-        writer.writeOptionalDoubleAttribute("p" + indexToString(index), t::getP, write);
-        writer.writeOptionalDoubleAttribute("q" + indexToString(index), t::getQ, write);
+        Double nullableP = write.getAsBoolean() ? t.getP() : null;
+        Double nullableQ = write.getAsBoolean() ? t.getQ() : null;
+        writer.writeOptionalDoubleAttribute("p" + indexToString(index), nullableP);
+        writer.writeOptionalDoubleAttribute("q" + indexToString(index), nullableQ);
     }
 
     public static void readPQ(Integer index, Terminal t, TreeDataReader reader) {
