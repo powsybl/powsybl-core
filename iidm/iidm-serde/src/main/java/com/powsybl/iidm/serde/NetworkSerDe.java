@@ -10,6 +10,8 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.binary.BinReader;
+import com.powsybl.commons.binary.BinWriter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
@@ -263,6 +265,10 @@ public final class NetworkSerDe {
         }
     }
 
+    private static TreeDataWriter createBinWriter(OutputStream os, ExportOptions options) {
+        return new BinWriter(os, options.getVersion().toString("."));
+    }
+
     private static void writeRootElement(Network n, NetworkSerializerContext context) {
         IidmSerDeUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL,
                 IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context.getVersion());
@@ -409,6 +415,7 @@ public final class NetworkSerDe {
         return switch (options.getFormat()) {
             case XML -> createXmlWriter(n, os, options);
             case JSON -> createJsonWriter(os, options);
+            case BIN -> createBinWriter(os, options);
         };
     }
 
@@ -508,7 +515,16 @@ public final class NetworkSerDe {
         return switch (config.getFormat()) {
             case XML -> createXmlReader(is, config);
             case JSON -> createJsonReader(is, config);
+            case BIN -> createBinReader(is);
         };
+    }
+
+    private static TreeDataReader createBinReader(InputStream is) {
+        try {
+            return new BinReader(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private static TreeDataReader createJsonReader(InputStream is, ImportOptions config) {
