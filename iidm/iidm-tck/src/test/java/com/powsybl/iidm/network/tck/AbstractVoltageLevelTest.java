@@ -60,7 +60,7 @@ public abstract class AbstractVoltageLevelTest {
         assertEquals(500.0, voltageLevel.getNominalV(), 0.0);
 
         // Remove
-        voltageLevel.remove();
+        voltageLevel.remove();    // <---- TODO HERE
         assertNotNull(voltageLevel);
         try {
             voltageLevel.getSubstation();
