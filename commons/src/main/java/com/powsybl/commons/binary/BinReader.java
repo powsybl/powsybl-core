@@ -14,6 +14,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -51,7 +52,7 @@ public class BinReader implements TreeDataReader {
             if (nbBytesRead != stringNbBytes) {
                 throw new PowsyblException("Cannot read the full string, bytes missing: " + (stringNbBytes - nbBytesRead));
             }
-            return new String(stringBytes);
+            return new String(stringBytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
