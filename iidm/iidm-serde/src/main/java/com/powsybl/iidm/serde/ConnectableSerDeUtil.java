@@ -184,10 +184,10 @@ public final class ConnectableSerDeUtil {
     }
 
     public static void readOptionalPQ(Integer index, Terminal t, TreeDataReader reader) {
-        Double p = reader.readOptionalDoubleAttribute("p" + indexToString(index));
-        Double q = reader.readOptionalDoubleAttribute("q" + indexToString(index));
-        Optional.ofNullable(p).ifPresent(t::setP);
-        Optional.ofNullable(q).ifPresent(t::setQ);
+        reader.readOptionalDoubleAttribute("p" + indexToString(index))
+                .ifPresent(t::setP);
+        reader.readOptionalDoubleAttribute("q" + indexToString(index))
+                .ifPresent(t::setQ);
     }
 
     public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) {

@@ -19,6 +19,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 /**
@@ -112,6 +114,11 @@ public final class XmlUtil {
         return attributeValue != null ? Integer.valueOf(attributeValue) : null;
     }
 
+    public static OptionalInt readOptionalIntegerAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? OptionalInt.of(Integer.parseInt(attributeValue)) : OptionalInt.empty();
+    }
+
     public static int readIntAttribute(XMLStreamReader reader, String name, int defaultValue) {
         String attributeValue = reader.getAttributeValue(null, name);
         return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
@@ -132,9 +139,9 @@ public final class XmlUtil {
         return attributeValue != null ? Double.parseDouble(attributeValue) : defaultValue;
     }
 
-    public static Double readOptionalDoubleAttribute(XMLStreamReader reader, String name) {
+    public static OptionalDouble readOptionalDoubleAttribute(XMLStreamReader reader, String name) {
         String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Double.parseDouble(attributeValue) : null;
+        return attributeValue != null ? OptionalDouble.of(Double.parseDouble(attributeValue)) : OptionalDouble.empty();
     }
 
     public static float readFloatAttribute(XMLStreamReader reader, String name, float defaultValue) {

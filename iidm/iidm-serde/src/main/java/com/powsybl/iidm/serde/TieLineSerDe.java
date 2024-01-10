@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
@@ -158,16 +159,16 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
             DanglingLineAdder adderDl1 = readVlAndNodeOrBus(context, network, 1);
             DanglingLineAdder adderDl2 = readVlAndNodeOrBus(context, network, 2);
-            Double p1 = context.getReader().readOptionalDoubleAttribute("p1");
-            Double q1 = context.getReader().readOptionalDoubleAttribute("q1");
-            Double p2 = context.getReader().readOptionalDoubleAttribute("p2");
-            Double q2 = context.getReader().readOptionalDoubleAttribute("q2");
+            OptionalDouble p1 = context.getReader().readOptionalDoubleAttribute("p1");
+            OptionalDouble q1 = context.getReader().readOptionalDoubleAttribute("q1");
+            OptionalDouble p2 = context.getReader().readOptionalDoubleAttribute("p2");
+            OptionalDouble q2 = context.getReader().readOptionalDoubleAttribute("q2");
             DanglingLine dl1 = readDanglingLine(adderDl1, pairingKey, context, 1);
             DanglingLine dl2 = readDanglingLine(adderDl2, pairingKey, context, 2);
-            Optional.ofNullable(p1).ifPresent(dl1.getTerminal()::setP);
-            Optional.ofNullable(q1).ifPresent(dl1.getTerminal()::setQ);
-            Optional.ofNullable(p2).ifPresent(dl2.getTerminal()::setP);
-            Optional.ofNullable(q2).ifPresent(dl2.getTerminal()::setQ);
+            p1.ifPresent(dl1.getTerminal()::setP);
+            q1.ifPresent(dl1.getTerminal()::setQ);
+            p2.ifPresent(dl2.getTerminal()::setP);
+            q2.ifPresent(dl2.getTerminal()::setQ);
             adder.setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId());
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_10, context, () -> {

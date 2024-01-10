@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.OptionalInt;
 import java.util.function.DoubleConsumer;
 
 /**
@@ -96,12 +97,9 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
-        Boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING);
-        if (regulating == null) {
-            regulating = false;
-        }
+        boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
-        Integer tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
+        OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
         boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute("loadTapChangingCapabilities");
         double targetV = context.getReader().readDoubleAttribute("targetV");
@@ -111,9 +109,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
                 .setTargetV(targetV)
                 .setRegulating(regulating);
-        if (tapPosition != null) {
-            adder.setTapPosition(tapPosition);
-        }
+        tapPosition.ifPresent(adder::setTapPosition);
 
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(subElementName -> {
@@ -177,12 +173,9 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
-        Boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING);
-        if (regulating == null) {
-            regulating = false;
-        }
+        boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
-        Integer tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
+        OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
         RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", RegulationMode.class);
         double regulationValue = context.getReader().readDoubleAttribute("regulationValue");
@@ -192,9 +185,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                 .setRegulationMode(regulationMode)
                 .setRegulationValue(regulationValue)
                 .setRegulating(regulating);
-        if (tapPosition != null) {
-            adder.setTapPosition(tapPosition);
-        }
+        tapPosition.ifPresent(adder::setTapPosition);
 
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(elementName -> {

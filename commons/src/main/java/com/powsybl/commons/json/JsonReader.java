@@ -84,8 +84,8 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Double readOptionalDoubleAttribute(String name) {
-        return Objects.requireNonNull(name).equals(getFieldName()) ? getDoubleValue() : null;
+    public OptionalDouble readOptionalDoubleAttribute(String name) {
+        return Objects.requireNonNull(name).equals(getFieldName()) ? OptionalDouble.of(getDoubleValue()) : OptionalDouble.empty();
     }
 
     @Override
@@ -126,8 +126,8 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Integer readOptionalIntAttribute(String name) {
-        return Objects.requireNonNull(name).equals(getFieldName()) ? getIntValue() : null;
+    public OptionalInt readOptionalIntAttribute(String name) {
+        return Objects.requireNonNull(name).equals(getFieldName()) ? OptionalInt.of(getIntValue()) : OptionalInt.empty();
     }
 
     @Override
@@ -150,8 +150,8 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Boolean readOptionalBooleanAttribute(String name) {
-        return Objects.requireNonNull(name).equals(getFieldName()) ? getBooleanValue() : null;
+    public Optional<Boolean> readOptionalBooleanAttribute(String name) {
+        return Objects.requireNonNull(name).equals(getFieldName()) ? Optional.of(getBooleanValue()) : Optional.empty();
     }
 
     private double getDoubleValue() {

@@ -10,16 +10,15 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -74,8 +73,7 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
                         .setType(reader.readStringAttribute("type"))
                         .setHiddenStatus(reader.readBooleanAttribute("hidden", false))
                         .setControlId(reader.readStringAttribute("controlId"));
-                Optional.ofNullable(reader.readOptionalIntAttribute("step"))
-                        .ifPresent(adder::setStep);
+                reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
                 context.getReader().readEndNode();
                 adder.add();
             } else {

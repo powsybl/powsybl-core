@@ -6,8 +6,7 @@
  */
 package com.powsybl.commons.io;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -32,7 +31,7 @@ public interface TreeDataReader extends AutoCloseable {
 
     double readDoubleAttribute(String name, double defaultValue);
 
-    Double readOptionalDoubleAttribute(String name);
+    OptionalDouble readOptionalDoubleAttribute(String name);
 
     float readFloatAttribute(String name);
 
@@ -42,7 +41,7 @@ public interface TreeDataReader extends AutoCloseable {
 
     int readIntAttribute(String name);
 
-    Integer readOptionalIntAttribute(String name);
+    OptionalInt readOptionalIntAttribute(String name);
 
     int readIntAttribute(String name, int defaultValue);
 
@@ -50,7 +49,7 @@ public interface TreeDataReader extends AutoCloseable {
 
     boolean readBooleanAttribute(String name, boolean defaultValue);
 
-    Boolean readOptionalBooleanAttribute(String name);
+    Optional<Boolean> readOptionalBooleanAttribute(String name);
 
     <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz);
 

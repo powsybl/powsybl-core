@@ -64,7 +64,7 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Double readOptionalDoubleAttribute(String name) {
+    public OptionalDouble readOptionalDoubleAttribute(String name) {
         return XmlUtil.readOptionalDoubleAttribute(reader, name);
     }
 
@@ -88,8 +88,8 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Integer readOptionalIntAttribute(String name) {
-        return XmlUtil.readIntegerAttribute(reader, name);
+    public OptionalInt readOptionalIntAttribute(String name) {
+        return XmlUtil.readOptionalIntegerAttribute(reader, name);
     }
 
     @Override
@@ -112,8 +112,8 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Boolean readOptionalBooleanAttribute(String name) {
-        return XmlUtil.readBooleanAttribute(reader, name);
+    public Optional<Boolean> readOptionalBooleanAttribute(String name) {
+        return Optional.ofNullable(XmlUtil.readBooleanAttribute(reader, name));
     }
 
     @Override

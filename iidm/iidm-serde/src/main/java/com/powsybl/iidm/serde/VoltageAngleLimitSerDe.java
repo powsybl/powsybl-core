@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.VoltageAngleLimit;
 import com.powsybl.iidm.network.VoltageAngleLimitAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
@@ -53,13 +52,13 @@ public final class VoltageAngleLimitSerDe {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
 
             String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
-            Double lowLimit = context.getReader().readOptionalDoubleAttribute(LOW_LIMIT);
-            Double highLimit = context.getReader().readOptionalDoubleAttribute(HIGH_LIMIT);
+            OptionalDouble lowLimit = context.getReader().readOptionalDoubleAttribute(LOW_LIMIT);
+            OptionalDouble highLimit = context.getReader().readOptionalDoubleAttribute(HIGH_LIMIT);
 
             VoltageAngleLimitAdder adder = network.newVoltageAngleLimit();
             adder.setId(id);
-            Optional.ofNullable(lowLimit).ifPresent(adder::setLowLimit);
-            Optional.ofNullable(highLimit).ifPresent(adder::setHighLimit);
+            lowLimit.ifPresent(adder::setLowLimit);
+            highLimit.ifPresent(adder::setHighLimit);
             context.getReader().readChildNodes(elementName -> {
                 Terminal terminal = TerminalRefSerDe.readTerminal(context, network);
                 switch (elementName) {

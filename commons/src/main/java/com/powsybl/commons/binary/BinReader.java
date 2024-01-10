@@ -141,11 +141,11 @@ public class BinReader implements TreeDataReader {
     }
 
     @Override
-    public Double readOptionalDoubleAttribute(String name) {
+    public OptionalDouble readOptionalDoubleAttribute(String name) {
         if (!readBoolean()) {
-            return null;
+            return OptionalDouble.empty();
         }
-        return readDouble();
+        return OptionalDouble.of(readDouble());
     }
 
     @Override
@@ -169,11 +169,11 @@ public class BinReader implements TreeDataReader {
     }
 
     @Override
-    public Integer readOptionalIntAttribute(String name) {
+    public OptionalInt readOptionalIntAttribute(String name) {
         if (!readBoolean()) {
-            return null;
+            return OptionalInt.empty();
         }
-        return readInt();
+        return OptionalInt.of(readInt());
     }
 
     @Override
@@ -192,11 +192,11 @@ public class BinReader implements TreeDataReader {
     }
 
     @Override
-    public Boolean readOptionalBooleanAttribute(String name) {
+    public Optional<Boolean> readOptionalBooleanAttribute(String name) {
         if (!readBoolean()) {
-            return null;
+            return Optional.empty();
         }
-        return readBoolean();
+        return Optional.of(readBoolean());
     }
 
     @Override

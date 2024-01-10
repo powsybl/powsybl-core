@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.DanglingLine.Generation;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -147,20 +148,20 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         double g = context.getReader().readDoubleAttribute("g");
         double b = context.getReader().readDoubleAttribute("b");
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            Boolean voltageRegulationOn = context.getReader().readOptionalBooleanAttribute("generationVoltageRegulationOn");
-            Double minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
-            Double maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
-            Double targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);
-            Double targetV = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_V);
-            Double targetQ = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_Q);
-            if (voltageRegulationOn != null) {
+            Optional<Boolean> voltageRegulationOn = context.getReader().readOptionalBooleanAttribute("generationVoltageRegulationOn");
+            OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
+            OptionalDouble maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
+            OptionalDouble targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);
+            OptionalDouble targetV = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_V);
+            OptionalDouble targetQ = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_Q);
+            if (voltageRegulationOn.isPresent()) {
                 DanglingLineAdder.GenerationAdder generationAdder = adder.newGeneration()
-                        .setVoltageRegulationOn(voltageRegulationOn);
-                Optional.ofNullable(minP).ifPresent(generationAdder::setMinP);
-                Optional.ofNullable(maxP).ifPresent(generationAdder::setMaxP);
-                Optional.ofNullable(targetP).ifPresent(generationAdder::setTargetP);
-                Optional.ofNullable(targetV).ifPresent(generationAdder::setTargetV);
-                Optional.ofNullable(targetQ).ifPresent(generationAdder::setTargetQ);
+                        .setVoltageRegulationOn(voltageRegulationOn.get());
+                minP.ifPresent(generationAdder::setMinP);
+                maxP.ifPresent(generationAdder::setMaxP);
+                targetP.ifPresent(generationAdder::setTargetP);
+                targetV.ifPresent(generationAdder::setTargetV);
+                targetQ.ifPresent(generationAdder::setTargetQ);
                 generationAdder.add();
             }
         });

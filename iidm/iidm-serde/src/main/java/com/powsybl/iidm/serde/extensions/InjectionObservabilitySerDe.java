@@ -62,10 +62,7 @@ public class InjectionObservabilitySerDe<T extends Injection<T>> extends Abstrac
 
         context.getReader().readChildNodes(elementName -> {
             var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-            var redundant = context.getReader().readOptionalBooleanAttribute(REDUNDANT);
-            if (redundant == null) {
-                redundant = false;
-            }
+            boolean redundant = context.getReader().readOptionalBooleanAttribute(REDUNDANT).orElse(false);
             context.getReader().readEndNode();
             switch (elementName) {
                 case QUALITY_P -> adder.withStandardDeviationP(standardDeviation).withRedundantP(redundant);

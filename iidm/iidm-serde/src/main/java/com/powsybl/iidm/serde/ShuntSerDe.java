@@ -146,10 +146,8 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
                     .add();
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            Integer sectionCount = context.getReader().readOptionalIntAttribute("sectionCount");
-            if (sectionCount != null) {
-                adder.setSectionCount(sectionCount);
-            }
+            OptionalInt sectionCount = context.getReader().readOptionalIntAttribute("sectionCount");
+            sectionCount.ifPresent(adder::setSectionCount);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> {
             boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
