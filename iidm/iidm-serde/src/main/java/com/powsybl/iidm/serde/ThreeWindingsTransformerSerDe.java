@@ -160,9 +160,9 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
             adder.setRatedU0(ratedU0);
         });
 
-        readNodeOrBus(1, legAdder1, context);
-        readNodeOrBus(2, legAdder2, context);
-        readNodeOrBus(3, legAdder3, context);
+        readNodeOrBus(1, legAdder1, s.getNetwork(), context);
+        readNodeOrBus(2, legAdder2, s.getNetwork(), context);
+        readNodeOrBus(3, legAdder3, s.getNetwork(), context);
         legAdder1.add();
         legAdder2.add();
         legAdder3.add();

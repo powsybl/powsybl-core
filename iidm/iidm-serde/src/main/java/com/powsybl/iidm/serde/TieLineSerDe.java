@@ -178,8 +178,9 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
 
     private static DanglingLineAdder readVlAndNodeOrBus(NetworkDeserializerContext context, Network network, int side) {
         String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + side));
-        DanglingLineAdder adderDl1 = network.getVoltageLevel(voltageLevelId).newDanglingLine();
-        readNodeOrBus(adderDl1, String.valueOf(side), context);
+        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        DanglingLineAdder adderDl1 = voltageLevel.newDanglingLine();
+        readNodeOrBus(adderDl1, String.valueOf(side), context, voltageLevel.getTopologyKind());
         return adderDl1;
     }
 

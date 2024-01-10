@@ -80,7 +80,7 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint)
                 .setRegulationMode(regulationMode);
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         StaticVarCompensator svc = adder.add();
         readPQ(null, svc.getTerminal(), context.getReader());
         return svc;

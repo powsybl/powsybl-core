@@ -220,7 +220,14 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public void readEndNode() {
-        // Nothing to do
+        try {
+            int nextIndex = dis.readShort();
+            if (nextIndex != END_NODE) {
+                throw new PowsyblException("Binary parsing: expected end node but got " + nextIndex);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override

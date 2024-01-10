@@ -125,7 +125,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
 
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
-        readRootElementAttributesInternal(adder, context);
+        readRootElementAttributesInternal(adder, voltageLevel, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
             adder.setPairingKey(pairingKey);
@@ -139,7 +139,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         return dl;
     }
 
-    public static void readRootElementAttributesInternal(DanglingLineAdder adder, NetworkDeserializerContext context) {
+    public static void readRootElementAttributesInternal(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
         double r = context.getReader().readDoubleAttribute("r");
@@ -164,7 +164,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
                         .add();
             }
         });
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setP0(p0)
                 .setQ0(q0)
                 .setR(r)

@@ -15,6 +15,8 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -91,71 +93,78 @@ public final class ConnectableSerDeUtil {
                 Optional.ofNullable(connectableBus).map(b -> context.getAnonymizer().anonymizeString(b.getId())).orElse(null));
     }
 
-    public static void readNodeOrBus(InjectionAdder<?, ?> adder, NetworkDeserializerContext context) {
-        readNodeOrBus(adder, "", context);
+    public static void readNodeOrBus(InjectionAdder<?, ?> adder, NetworkDeserializerContext context, TopologyKind topologyKind) {
+        readNodeOrBus(adder, "", context, topologyKind);
     }
 
-    public static void readNodeOrBus(InjectionAdder<?, ?> adder, String suffix, NetworkDeserializerContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS + suffix));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + suffix));
+    public static void readNodeOrBus(InjectionAdder<?, ?> adder, String suffix, NetworkDeserializerContext context, TopologyKind topologyKind) {
+        switch (topologyKind) {
+            case NODE_BREAKER -> readNode(adder::setNode, suffix, context);
+            case BUS_BREAKER -> {
+                readBus(adder::setBus, suffix, context);
+                readConnectableBus(adder::setConnectableBus, suffix, context);
+            }
+        }
+    }
+
+    private static void readNode(IntConsumer nodeAdder, String suffix, NetworkDeserializerContext context) {
         Integer node = context.getReader().readIntAttribute(NODE + suffix);
-        if (bus != null) {
-            adder.setBus(bus);
-        }
-        if (connectableBus != null) {
-            adder.setConnectableBus(connectableBus);
-        }
         if (node != null) {
-            adder.setNode(node);
+            nodeAdder.accept(node);
         }
     }
 
-    public static void readNodeOrBus(BranchAdder<?, ?> adder, NetworkDeserializerContext context) {
+    private static void readBus(Consumer<String> busAdder, String suffix, NetworkDeserializerContext context) {
+        busAdder.accept(context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS + suffix)));
+    }
+
+    private static void readConnectableBus(Consumer<String> busAdder, String suffix, NetworkDeserializerContext context) {
+        busAdder.accept(context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + suffix)));
+    }
+
+    public static void readNodeOrBus(BranchAdder<?, ?> adder, Network network, NetworkDeserializerContext context) {
         String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId1"));
-        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus1"));
-        String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("connectableBus1"));
-        Integer node1 = context.getReader().readIntAttribute("node1");
-        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId2"));
-        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus2"));
-        String connectableBus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("connectableBus2"));
-        Integer node2 = context.getReader().readIntAttribute("node2");
-        if (bus1 != null) {
-            adder.setBus1(bus1);
-        }
-        if (connectableBus1 != null) {
-            adder.setConnectableBus1(connectableBus1);
-        }
-        if (node1 != null) {
-            adder.setNode1(node1);
-        }
         adder.setVoltageLevel1(voltageLevelId1);
-        if (bus2 != null) {
-            adder.setBus2(bus2);
+        String suffix1 = String.valueOf(1);
+        switch (getTopologKind(voltageLevelId1, network)) {
+            case NODE_BREAKER -> readNode(adder::setNode1, suffix1, context);
+            case BUS_BREAKER -> {
+                readBus(adder::setBus1, suffix1, context);
+                readConnectableBus(adder::setConnectableBus1, suffix1, context);
+            }
         }
-        if (connectableBus2 != null) {
-            adder.setConnectableBus2(connectableBus2);
-        }
-        if (node2 != null) {
-            adder.setNode2(node2);
-        }
+
+        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId2"));
         adder.setVoltageLevel2(voltageLevelId2);
+        String suffix2 = String.valueOf(2);
+        switch (getTopologKind(voltageLevelId2, network)) {
+            case NODE_BREAKER -> readNode(adder::setNode2, suffix2, context);
+            case BUS_BREAKER -> {
+                readBus(adder::setBus2, suffix2, context);
+                readConnectableBus(adder::setConnectableBus2, suffix2, context);
+            }
+        }
     }
 
-    public static void readNodeOrBus(int index, LegAdder adder, NetworkDeserializerContext context) {
+    private static TopologyKind getTopologKind(String vlId, Network network) {
+        VoltageLevel vl = network.getVoltageLevel(vlId);
+        if (vl == null) {
+            throw new PowsyblException("Voltage level '" + vlId + "' not found");
+        }
+        return vl.getTopologyKind();
+    }
+
+    public static void readNodeOrBus(int index, LegAdder adder, Network network, NetworkDeserializerContext context) {
         String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + index));
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS + index));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + index));
-        Integer node = context.getReader().readIntAttribute(NODE + index);
-        if (bus != null) {
-            adder.setBus(bus);
-        }
-        if (connectableBus != null) {
-            adder.setConnectableBus(connectableBus);
-        }
-        if (node != null) {
-            adder.setNode(node);
-        }
         adder.setVoltageLevel(voltageLevelId);
+        String suffix = String.valueOf(index);
+        switch (getTopologKind(voltageLevelId, network)) {
+            case NODE_BREAKER -> readNode(adder::setNode, suffix, context);
+            case BUS_BREAKER -> {
+                readBus(adder::setBus, suffix, context);
+                readConnectableBus(adder::setConnectableBus, suffix, context);
+            }
+        }
     }
 
     public static void writePQ(Integer index, Terminal t, TreeDataWriter writer) {

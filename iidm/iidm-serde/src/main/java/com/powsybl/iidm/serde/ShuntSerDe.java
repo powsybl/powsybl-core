@@ -130,7 +130,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
     }
 
     @Override
-    protected void readRootElementAttributes(ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(ShuntCompensatorAdder adder, VoltageLevel parent, List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> adder.setVoltageRegulatorOn(false));
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_2, context, () -> {
             double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
@@ -156,7 +156,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
                     .setTargetDeadband(targetDeadband)
                     .setVoltageRegulatorOn(voltageRegulatorOn);
         });
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, parent.getTopologyKind());
         double p = context.getReader().readDoubleAttribute("p");
         double q = context.getReader().readDoubleAttribute("q");
         toApply.add(sc -> sc.getTerminal().setP(p).setQ(q));

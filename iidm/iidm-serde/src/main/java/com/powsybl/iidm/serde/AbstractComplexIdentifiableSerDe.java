@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  */
 abstract class AbstractComplexIdentifiableSerDe<T extends Identifiable<T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableSerDe<T, A, P> {
 
-    protected abstract void readRootElementAttributes(A adder, List<Consumer<T>> toApply, NetworkDeserializerContext context);
+    protected abstract void readRootElementAttributes(A adder, P parent, List<Consumer<T>> toApply, NetworkDeserializerContext context);
 
     protected void readSubElement(String elementName, String id, List<Consumer<T>> toApply, NetworkDeserializerContext context) {
         switch (elementName) {
@@ -43,7 +43,7 @@ abstract class AbstractComplexIdentifiableSerDe<T extends Identifiable<T>, A ext
         List<Consumer<T>> toApply = new ArrayList<>();
         A adder = createAdder(parent);
         String id = readIdentifierAttributes(adder, context);
-        readRootElementAttributes(adder, toApply, context);
+        readRootElementAttributes(adder, parent, toApply, context);
         readSubElements(id, adder, toApply, context);
         T identifiable = adder.add();
         toApply.forEach(consumer -> consumer.accept(identifiable));

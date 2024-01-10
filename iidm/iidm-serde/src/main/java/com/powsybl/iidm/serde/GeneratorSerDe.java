@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
@@ -65,7 +62,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetV = context.getReader().readDoubleAttribute("targetV");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setEnergySource(energySource)
                 .setMinP(minP)
                 .setMaxP(maxP)
