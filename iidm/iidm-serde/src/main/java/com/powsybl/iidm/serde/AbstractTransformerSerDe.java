@@ -97,7 +97,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
         boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING, false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
-        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
+        Integer tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
         boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute("loadTapChangingCapabilities");
         double targetV = context.getReader().readDoubleAttribute("targetV");
@@ -175,7 +175,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
         boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING, false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
-        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
+        Integer tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
         RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", RegulationMode.class);
         double regulationValue = context.getReader().readDoubleAttribute("regulationValue");

@@ -96,7 +96,7 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
 
     private void readPosition(DeserializerContext context, ConnectablePositionAdder.FeederAdder<C> adder) {
         String name = context.getReader().readStringAttribute("name");
-        Optional.ofNullable(context.getReader().readIntAttribute("order")).
+        Optional.ofNullable(context.getReader().readOptionalIntAttribute("order")).
                 ifPresent(adder::withOrder);
         ConnectablePosition.Direction direction = context.getReader().readEnumAttribute("direction", ConnectablePosition.Direction.class);
         context.getReader().readEndNode();

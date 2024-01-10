@@ -156,8 +156,13 @@ public class BinReader implements TreeDataReader {
     }
 
     @Override
-    public Integer readIntAttribute(String name) {
+    public int readIntAttribute(String name) {
         return readInt();
+    }
+
+    @Override
+    public Integer readOptionalIntAttribute(String name) {
+        return readBoolean() ? readInt() : null;
     }
 
     @Override

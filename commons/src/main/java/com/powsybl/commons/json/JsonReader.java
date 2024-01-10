@@ -112,7 +112,16 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Integer readIntAttribute(String name) {
+    public int readIntAttribute(String name) {
+        String fieldName = getFieldName();
+        if (!Objects.requireNonNull(name).equals(fieldName)) {
+            throw new PowsyblException("JSON parsing: expected '" + name + "' but got '" + fieldName + "'");
+        }
+        return getIntValue();
+    }
+
+    @Override
+    public Integer readOptionalIntAttribute(String name) {
         return Objects.requireNonNull(name).equals(getFieldName()) ? getIntValue() : null;
     }
 

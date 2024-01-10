@@ -108,10 +108,7 @@ public final class ConnectableSerDeUtil {
     }
 
     private static void readNode(IntConsumer nodeAdder, String suffix, NetworkDeserializerContext context) {
-        Integer node = context.getReader().readIntAttribute(NODE + suffix);
-        if (node != null) {
-            nodeAdder.accept(node);
-        }
+        nodeAdder.accept(context.getReader().readIntAttribute(NODE + suffix));
     }
 
     private static void readBus(Consumer<String> busAdder, String suffix, NetworkDeserializerContext context) {

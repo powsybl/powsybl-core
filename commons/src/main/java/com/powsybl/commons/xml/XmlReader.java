@@ -8,6 +8,7 @@ package com.powsybl.commons.xml;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.AbstractTreeDataReader;
@@ -73,7 +74,16 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Integer readIntAttribute(String name) {
+    public int readIntAttribute(String name) {
+        Integer value = XmlUtil.readIntegerAttribute(reader, name);
+        if (value == null) {
+            throw new PowsyblException("XML parsing: unknown required attribute '" + name + "'");
+        }
+        return value;
+    }
+
+    @Override
+    public Integer readOptionalIntAttribute(String name) {
         return XmlUtil.readIntegerAttribute(reader, name);
     }
 

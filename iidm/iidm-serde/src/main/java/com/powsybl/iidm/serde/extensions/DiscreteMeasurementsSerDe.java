@@ -57,17 +57,9 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
             writer.writeEnumAttribute("tapChanger", discreteMeasurement.getTapChanger());
             writer.writeEnumAttribute("valueType", discreteMeasurement.getValueType());
             switch (discreteMeasurement.getValueType()) {
-                case BOOLEAN:
-                    writer.writeBooleanAttribute(VALUE, discreteMeasurement.getValueAsBoolean());
-                    break;
-                case INT:
-                    writer.writeIntAttribute(VALUE, discreteMeasurement.getValueAsInt());
-                    break;
-                case STRING:
-                    writer.writeStringAttribute(VALUE, discreteMeasurement.getValueAsString());
-                    break;
-                default:
-                    throw new PowsyblException("Unsupported serialization for value type: " + discreteMeasurement.getValueType());
+                case BOOLEAN -> writer.writeBooleanAttribute(VALUE, discreteMeasurement.getValueAsBoolean());
+                case INT -> writer.writeIntAttribute(VALUE, discreteMeasurement.getValueAsInt());
+                case STRING -> writer.writeStringAttribute(VALUE, discreteMeasurement.getValueAsString());
             }
             writer.writeBooleanAttribute("valid", discreteMeasurement.isValid());
 
@@ -110,10 +102,9 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
                 .setType(type)
                 .setTapChanger(tapChanger);
         switch (valueType) {
-            case BOOLEAN -> Optional.ofNullable(reader.readBooleanAttribute(VALUE)).ifPresent(adder::setValue);
-            case INT -> Optional.ofNullable(reader.readIntAttribute(VALUE)).ifPresent(adder::setValue);
-            case STRING -> Optional.ofNullable(reader.readStringAttribute(VALUE)).ifPresent(adder::setValue);
-            default -> throw new PowsyblException("Unsupported value type: " + valueType);
+            case BOOLEAN -> adder.setValue(reader.readBooleanAttribute(VALUE));
+            case INT -> adder.setValue(reader.readIntAttribute(VALUE));
+            case STRING -> adder.setValue(reader.readStringAttribute(VALUE));
         }
 
         adder.setValid(reader.readBooleanAttribute("valid", true));

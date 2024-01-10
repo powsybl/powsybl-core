@@ -19,6 +19,7 @@ import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -73,10 +74,8 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
                         .setType(reader.readStringAttribute("type"))
                         .setHiddenStatus(reader.readBooleanAttribute("hidden", false))
                         .setControlId(reader.readStringAttribute("controlId"));
-                Integer step = reader.readIntAttribute("step");
-                if (step != null) {
-                    adder.setStep(step);
-                }
+                Optional.ofNullable(reader.readOptionalIntAttribute("step"))
+                        .ifPresent(adder::setStep);
                 context.getReader().readEndNode();
                 adder.add();
             } else {
