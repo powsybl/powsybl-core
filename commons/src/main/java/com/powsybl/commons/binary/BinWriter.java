@@ -46,9 +46,13 @@ public class BinWriter implements TreeDataWriter {
 
     private static void writeString(String value, DataOutputStream dataOutputStream) {
         try {
-            byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-            writeIndex(bytes.length, dataOutputStream);
-            dataOutputStream.write(bytes);
+            if (value == null) {
+                writeIndex(0, dataOutputStream);
+            } else {
+                byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+                writeIndex(bytes.length, dataOutputStream);
+                dataOutputStream.write(bytes);
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -101,8 +105,12 @@ public class BinWriter implements TreeDataWriter {
 
     @Override
     public void writeStartNode(String namespace, String name) {
-        int index = nodeNamesIndex.computeIfAbsent(name, n -> 1 + nodeNamesIndex.size());
-        writeIndex(index, tmpDos);
+        if (nodeNamesIndex.isEmpty()) {
+            nodeNamesIndex.put(name, 1); // root element is not a child of another node, hence index is not expected
+        } else {
+            int index = nodeNamesIndex.computeIfAbsent(name, n -> 1 + nodeNamesIndex.size());
+            writeIndex(index, tmpDos);
+        }
     }
 
     @Override

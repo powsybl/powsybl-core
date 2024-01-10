@@ -41,6 +41,9 @@ public class BinReader implements TreeDataReader {
     private String readString() {
         try {
             int stringNbBytes = dis.readShort();
+            if (stringNbBytes == 0) {
+                return null;
+            }
             byte[] stringBytes = new byte[stringNbBytes];
             int nbBytesRead = dis.read(stringBytes, 0, stringNbBytes);
             if (nbBytesRead != stringNbBytes) {
@@ -85,7 +88,11 @@ public class BinReader implements TreeDataReader {
     }
 
     private <T extends Enum<T>> T readEnum(Class<T> clazz) {
-        return clazz.getEnumConstants()[readInt()];
+        try {
+            return clazz.getEnumConstants()[dis.readShort()];
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private <T> List<T> readArray(Supplier<T> valueReader) {
