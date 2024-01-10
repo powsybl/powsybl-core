@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface TapChangerStepAdder<S extends com.powsybl.iidm.network.TapChangerStepAdder<S, A>, A extends TapChangerAdder<A, S, ?>> {
+public interface TapChangerStepAdder<S extends TapChangerStepAdder<S, A>, A extends TapChangerAdder<A, S, ?>> {
     S setRho(double rho);
 
     S setR(double r);
