@@ -147,7 +147,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         double g = context.getReader().readDoubleAttribute("g");
         double b = context.getReader().readDoubleAttribute("b");
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            Boolean voltageRegulationOn = context.getReader().readBooleanAttribute("generationVoltageRegulationOn");
+            Boolean voltageRegulationOn = context.getReader().readOptionalBooleanAttribute("generationVoltageRegulationOn");
             Double minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
             Double maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
             Double targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);

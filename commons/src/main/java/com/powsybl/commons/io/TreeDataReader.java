@@ -46,9 +46,11 @@ public interface TreeDataReader extends AutoCloseable {
 
     int readIntAttribute(String name, int defaultValue);
 
-    Boolean readBooleanAttribute(String name);
+    boolean readBooleanAttribute(String name);
 
     boolean readBooleanAttribute(String name, boolean defaultValue);
+
+    Boolean readOptionalBooleanAttribute(String name);
 
     <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz);
 

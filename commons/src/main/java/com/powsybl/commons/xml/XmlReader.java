@@ -82,7 +82,7 @@ public class XmlReader extends AbstractTreeDataReader {
     public int readIntAttribute(String name) {
         Integer value = XmlUtil.readIntegerAttribute(reader, name);
         if (value == null) {
-            throw new PowsyblException("XML parsing: unknown required attribute '" + name + "'");
+            throw new PowsyblException("XML parsing: cannot find required attribute '" + name + "'");
         }
         return value;
     }
@@ -98,13 +98,22 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Boolean readBooleanAttribute(String name) {
-        return XmlUtil.readBooleanAttribute(reader, name);
+    public boolean readBooleanAttribute(String name) {
+        Boolean value = XmlUtil.readBooleanAttribute(reader, name);
+        if (value == null) {
+            throw new PowsyblException("XML parsing: cannot find required attribute '" + name + "'");
+        }
+        return value;
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
         return XmlUtil.readBooleanAttribute(reader, name, defaultValue);
+    }
+
+    @Override
+    public Boolean readOptionalBooleanAttribute(String name) {
+        return XmlUtil.readBooleanAttribute(reader, name);
     }
 
     @Override

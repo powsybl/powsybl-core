@@ -176,13 +176,18 @@ public class BinReader implements TreeDataReader {
     }
 
     @Override
-    public Boolean readBooleanAttribute(String name) {
+    public boolean readBooleanAttribute(String name) {
         return readBoolean();
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
         return readBoolean();
+    }
+
+    @Override
+    public Boolean readOptionalBooleanAttribute(String name) {
+        return readBoolean() ? readBoolean() : null;
     }
 
     @Override

@@ -74,9 +74,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
-        if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
-            context.getWriter().writeBooleanAttribute(ATTR_REGULATING, rtc.isRegulating());
-        }
+
+        Boolean optionalRegulatingValue = rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating() ? rtc.isRegulating() : null;
+        context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
+
         writeTapChanger(rtc, context);
         context.getWriter().writeBooleanAttribute("loadTapChangingCapabilities", rtc.hasLoadTapChangingCapabilities());
         context.getWriter().writeDoubleAttribute("targetV", rtc.getTargetV());
@@ -95,7 +96,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
-        boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING, false);
+        Boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING);
+        if (regulating == null) {
+            regulating = false;
+        }
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         Integer tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
@@ -173,7 +177,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
-        boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING, false);
+        Boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING);
+        if (regulating == null) {
+            regulating = false;
+        }
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         Integer tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);

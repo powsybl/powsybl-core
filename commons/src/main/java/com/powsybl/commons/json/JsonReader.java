@@ -136,13 +136,22 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Boolean readBooleanAttribute(String name) {
-        return Objects.requireNonNull(name).equals(getFieldName()) ? getBooleanValue() : null;
+    public boolean readBooleanAttribute(String name) {
+        String fieldName = getFieldName();
+        if (!Objects.requireNonNull(name).equals(fieldName)) {
+            throw new PowsyblException("JSON parsing: expected '" + name + "' but got '" + fieldName + "'");
+        }
+        return getBooleanValue();
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
         return Objects.requireNonNull(name).equals(getFieldName()) ? getBooleanValue() : defaultValue;
+    }
+
+    @Override
+    public Boolean readOptionalBooleanAttribute(String name) {
+        return Objects.requireNonNull(name).equals(getFieldName()) ? getBooleanValue() : null;
     }
 
     private double getDoubleValue() {

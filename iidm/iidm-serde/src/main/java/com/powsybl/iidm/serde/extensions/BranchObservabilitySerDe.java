@@ -73,7 +73,7 @@ public class BranchObservabilitySerDe<T extends Branch<T>> extends AbstractExten
         context.getReader().readChildNodes(elementName -> {
             var side = context.getReader().readEnumAttribute(SIDE, TwoSides.class);
             var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-            var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
+            var redundant = context.getReader().readOptionalBooleanAttribute(REDUNDANT);
             context.getReader().readEndNode();
             switch (elementName) {
                 case QUALITY_P -> readQualityP(standardDeviation, redundant, side, adder);
