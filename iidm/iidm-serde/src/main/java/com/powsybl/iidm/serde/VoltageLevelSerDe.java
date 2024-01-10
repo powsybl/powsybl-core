@@ -51,7 +51,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeDoubleAttribute("highVoltageLimit", vl.getHighVoltageLimit());
 
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        context.getWriter().writeStringAttribute("topologyKind", topologyLevel.getTopologyKind().name());
+        context.getWriter().writeEnumAttribute("topologyKind", topologyLevel.getTopologyKind());
     }
 
     @Override
