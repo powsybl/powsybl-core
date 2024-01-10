@@ -84,6 +84,11 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
+    public Double readOptionalDoubleAttribute(String name) {
+        return Objects.requireNonNull(name).equals(getFieldName()) ? getDoubleValue() : null;
+    }
+
+    @Override
     public float readFloatAttribute(String name, float defaultValue) {
         return Objects.requireNonNull(name).equals(getFieldName()) ? getFloatValue() : defaultValue;
     }

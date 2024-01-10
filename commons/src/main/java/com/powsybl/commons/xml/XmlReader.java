@@ -64,6 +64,11 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
+    public Double readOptionalDoubleAttribute(String name) {
+        return XmlUtil.readOptionalDoubleAttribute(reader, name);
+    }
+
+    @Override
     public float readFloatAttribute(String name, float defaultValue) {
         return XmlUtil.readFloatAttribute(reader, name, defaultValue);
     }

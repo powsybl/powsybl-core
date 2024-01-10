@@ -108,8 +108,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         readRatedS("ratedS", context, adder::setRatedS);
         readNodeOrBus(adder, s.getNetwork(), context);
         TwoWindingsTransformer twt = adder.add();
-        readPQ(1, twt.getTerminal1(), context.getReader());
-        readPQ(2, twt.getTerminal2(), context.getReader());
+        readOptionalPQ(1, twt.getTerminal1(), context.getReader());
+        readOptionalPQ(2, twt.getTerminal2(), context.getReader());
         return twt;
     }
 

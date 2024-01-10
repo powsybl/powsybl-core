@@ -141,6 +141,11 @@ public class BinReader implements TreeDataReader {
     }
 
     @Override
+    public Double readOptionalDoubleAttribute(String name) {
+        return readBoolean() ? readDouble() : null;
+    }
+
+    @Override
     public float readFloatAttribute(String name) {
         return readFloat();
     }

@@ -158,14 +158,16 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
             DanglingLineAdder adderDl1 = readVlAndNodeOrBus(context, network, 1);
             DanglingLineAdder adderDl2 = readVlAndNodeOrBus(context, network, 2);
-            double p1 = context.getReader().readDoubleAttribute("p1");
-            double q1 = context.getReader().readDoubleAttribute("q1");
-            double p2 = context.getReader().readDoubleAttribute("p2");
-            double q2 = context.getReader().readDoubleAttribute("q2");
+            Double p1 = context.getReader().readOptionalDoubleAttribute("p1");
+            Double q1 = context.getReader().readOptionalDoubleAttribute("q1");
+            Double p2 = context.getReader().readOptionalDoubleAttribute("p2");
+            Double q2 = context.getReader().readOptionalDoubleAttribute("q2");
             DanglingLine dl1 = readDanglingLine(adderDl1, pairingKey, context, 1);
             DanglingLine dl2 = readDanglingLine(adderDl2, pairingKey, context, 2);
-            dl1.getTerminal().setP(p1).setQ(q1);
-            dl2.getTerminal().setP(p2).setQ(q2);
+            Optional.ofNullable(p1).ifPresent(dl1.getTerminal()::setP);
+            Optional.ofNullable(q1).ifPresent(dl1.getTerminal()::setQ);
+            Optional.ofNullable(p2).ifPresent(dl2.getTerminal()::setP);
+            Optional.ofNullable(q2).ifPresent(dl2.getTerminal()::setQ);
             adder.setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId());
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_10, context, () -> {

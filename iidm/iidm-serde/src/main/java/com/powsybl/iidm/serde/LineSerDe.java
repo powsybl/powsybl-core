@@ -94,8 +94,8 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
                 .setB2(b2);
         readNodeOrBus(adder, network, context);
         Line l = adder.add();
-        readPQ(1, l.getTerminal1(), context.getReader());
-        readPQ(2, l.getTerminal2(), context.getReader());
+        readOptionalPQ(1, l.getTerminal1(), context.getReader());
+        readOptionalPQ(2, l.getTerminal2(), context.getReader());
         return l;
     }
 

@@ -167,9 +167,9 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         legAdder2.add();
         legAdder3.add();
         ThreeWindingsTransformer twt = adder.add();
-        readPQ(1, twt.getLeg1().getTerminal(), context.getReader());
-        readPQ(2, twt.getLeg2().getTerminal(), context.getReader());
-        readPQ(3, twt.getLeg3().getTerminal(), context.getReader());
+        readOptionalPQ(1, twt.getLeg1().getTerminal(), context.getReader());
+        readOptionalPQ(2, twt.getLeg2().getTerminal(), context.getReader());
+        readOptionalPQ(3, twt.getLeg3().getTerminal(), context.getReader());
         return twt;
     }
 

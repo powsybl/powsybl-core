@@ -132,6 +132,11 @@ public final class XmlUtil {
         return attributeValue != null ? Double.parseDouble(attributeValue) : defaultValue;
     }
 
+    public static Double readOptionalDoubleAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Double.parseDouble(attributeValue) : null;
+    }
+
     public static float readFloatAttribute(XMLStreamReader reader, String name, float defaultValue) {
         String attributeValue = reader.getAttributeValue(null, name);
         return attributeValue != null ? Float.parseFloat(attributeValue) : defaultValue;

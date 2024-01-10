@@ -148,20 +148,20 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         double b = context.getReader().readDoubleAttribute("b");
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
             Boolean voltageRegulationOn = context.getReader().readBooleanAttribute("generationVoltageRegulationOn");
+            Double minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
+            Double maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
+            Double targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);
+            Double targetV = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_V);
+            Double targetQ = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_Q);
             if (voltageRegulationOn != null) {
-                double minP = context.getReader().readDoubleAttribute(GENERATION_MIN_P);
-                double maxP = context.getReader().readDoubleAttribute(GENERATION_MAX_P);
-                double targetP = context.getReader().readDoubleAttribute(GENERATION_TARGET_P);
-                double targetV = context.getReader().readDoubleAttribute(GENERATION_TARGET_V);
-                double targetQ = context.getReader().readDoubleAttribute(GENERATION_TARGET_Q);
-                adder.newGeneration()
-                        .setMinP(minP)
-                        .setMaxP(maxP)
-                        .setVoltageRegulationOn(voltageRegulationOn)
-                        .setTargetP(targetP)
-                        .setTargetV(targetV)
-                        .setTargetQ(targetQ)
-                        .add();
+                DanglingLineAdder.GenerationAdder generationAdder = adder.newGeneration()
+                        .setVoltageRegulationOn(voltageRegulationOn);
+                Optional.ofNullable(minP).ifPresent(generationAdder::setMinP);
+                Optional.ofNullable(maxP).ifPresent(generationAdder::setMaxP);
+                Optional.ofNullable(targetP).ifPresent(generationAdder::setTargetP);
+                Optional.ofNullable(targetV).ifPresent(generationAdder::setTargetV);
+                Optional.ofNullable(targetQ).ifPresent(generationAdder::setTargetQ);
+                generationAdder.add();
             }
         });
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());

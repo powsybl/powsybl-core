@@ -32,6 +32,8 @@ public interface TreeDataReader extends AutoCloseable {
 
     double readDoubleAttribute(String name, double defaultValue);
 
+    Double readOptionalDoubleAttribute(String name);
+
     float readFloatAttribute(String name);
 
     float readFloatAttribute(String name, float defaultValue);
