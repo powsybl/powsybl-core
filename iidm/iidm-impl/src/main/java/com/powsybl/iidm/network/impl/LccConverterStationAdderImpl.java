@@ -39,10 +39,6 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
         return getNetworkRef();
     }
 
-    private Ref<NetworkImpl> getNetworkRef() {
-        return getVoltageLevel().getNetworkRef();
-    }
-
     @Override
     public LccConverterStation add() {
         String id = checkAndGetUniqueId();

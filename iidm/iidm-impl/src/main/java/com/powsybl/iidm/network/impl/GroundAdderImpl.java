@@ -15,15 +15,8 @@ import com.powsybl.iidm.network.impl.util.Ref;
  */
 class GroundAdderImpl extends AbstractInjectionAdder<GroundAdderImpl> implements GroundAdder {
 
-    private final VoltageLevelExt voltageLevel;
-
     GroundAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     @Override
@@ -34,10 +27,6 @@ class GroundAdderImpl extends AbstractInjectionAdder<GroundAdderImpl> implements
     @Override
     protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
         return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
     }
 
     @Override

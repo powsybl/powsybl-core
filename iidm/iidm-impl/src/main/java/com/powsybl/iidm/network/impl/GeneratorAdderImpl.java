@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.impl.util.Ref;
  */
 class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> implements GeneratorAdder {
 
-    private final VoltageLevelExt voltageLevel;
-
     private EnergySource energySource = EnergySource.OTHER;
 
     private double minP = Double.NaN;
@@ -37,11 +35,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     GeneratorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     @Override
@@ -106,10 +99,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
         return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
     }
 
     @Override

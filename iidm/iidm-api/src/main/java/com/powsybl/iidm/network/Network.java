@@ -1155,7 +1155,7 @@ public interface Network extends Container<Network> {
     int getGroundCount();
 
     /**
-     * Get a load.
+     * Get a ground.
      *
      * @param id the id or an alias of the ground
      */

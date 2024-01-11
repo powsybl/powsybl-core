@@ -18,8 +18,6 @@ import com.powsybl.iidm.network.impl.util.Ref;
  */
 class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
 
-    private final VoltageLevelExt voltageLevel;
-
     private double p0 = Double.NaN;
 
     private double q0 = Double.NaN;
@@ -38,11 +36,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    public NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     void setGenerationAdder(GenerationAdderImpl adder) {
@@ -99,10 +92,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     @Override
     protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
         return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
     }
 
     @Override

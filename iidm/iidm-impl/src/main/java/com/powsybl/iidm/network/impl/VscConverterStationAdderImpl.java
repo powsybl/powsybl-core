@@ -8,8 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
@@ -62,10 +62,6 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     @Override
     protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
         return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return getVoltageLevel().getNetworkRef();
     }
 
     @Override

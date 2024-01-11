@@ -19,8 +19,6 @@ import java.util.stream.IntStream;
  */
 class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorAdderImpl> implements ShuntCompensatorAdder {
 
-    private final VoltageLevelExt voltageLevel;
-
     private ShuntCompensatorModelBuilder modelBuilder;
 
     private Integer sectionCount;
@@ -35,11 +33,6 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     ShuntCompensatorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     @Override
@@ -211,10 +204,6 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     @Override
     protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
         return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
     }
 
     @Override

@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.impl.util.Ref;
  */
 class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements LoadAdder {
 
-    private final VoltageLevelExt voltageLevel;
-
     private LoadType loadType = LoadType.UNDEFINED;
 
     private AbstractLoadModelImpl model;
@@ -27,11 +25,6 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
 
     LoadAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     @Override
@@ -74,10 +67,6 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     @Override
     protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
         return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
     }
 
     @Override
