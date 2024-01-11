@@ -34,7 +34,7 @@ public class BinWriter implements TreeDataWriter {
 
     public BinWriter(OutputStream outputStream, String rootVersion) {
         this.rootVersion = Objects.requireNonNull(rootVersion);
-        this.dos = new DataOutputStream(Objects.requireNonNull(outputStream));
+        this.dos = new DataOutputStream(new BufferedOutputStream(Objects.requireNonNull(outputStream)));
         this.buffer = new ByteArrayOutputStream();
         this.tmpDos = new DataOutputStream(buffer);
     }

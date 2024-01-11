@@ -10,10 +10,7 @@ package com.powsybl.commons.binary;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataReader;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Supplier;
@@ -30,7 +27,7 @@ public class BinReader implements TreeDataReader {
     private final Map<Integer, String> dictionary = new HashMap<>();
 
     public BinReader(InputStream is) throws IOException {
-        this.dis = new DataInputStream(Objects.requireNonNull(is));
+        this.dis = new DataInputStream(new BufferedInputStream(Objects.requireNonNull(is)));
         readDictionary();
     }
 
