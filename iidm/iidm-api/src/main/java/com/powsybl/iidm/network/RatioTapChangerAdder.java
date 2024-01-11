@@ -11,6 +11,10 @@ package com.powsybl.iidm.network;
  */
 public interface RatioTapChangerAdder extends TapChangerAdder<RatioTapChangerAdder, RatioTapChangerStepAdder, RatioTapChanger> {
 
+    RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
+
+    RatioTapChangerAdder setRegulationValue(double regulationValue);
+
     RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 
     RatioTapChangerAdder setTargetV(double targetV);
