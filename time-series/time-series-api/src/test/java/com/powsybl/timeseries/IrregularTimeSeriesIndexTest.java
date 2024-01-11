@@ -35,7 +35,7 @@ class IrregularTimeSeriesIndexTest {
         assertEquals("2015-01-01T01:00:00Z", Instant.ofEpochMilli(index.getTimeAt(1)).toString());
         assertEquals(2, index.getPointCount());
 
-        // test iterator ans stream
+        // test iterator and stream
         assertEquals(instants, index.stream().collect(Collectors.toList()));
         assertEquals(instants, Lists.newArrayList(index.iterator()));
 

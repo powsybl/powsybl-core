@@ -152,5 +152,4 @@ public abstract class AbstractStandbyAutomatonTest {
             assertEquals("Variant index not set", e.getMessage());
         }
     }
-
 }
