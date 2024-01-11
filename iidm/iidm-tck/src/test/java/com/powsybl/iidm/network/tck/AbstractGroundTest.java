@@ -164,6 +164,11 @@ public abstract class AbstractGroundTest {
             .setNode2(6)
             .add();
         Ground ground = createGroundNodeBreaker(vl1, "Ground", 7, false);
+
+        // Ground cannot be fictitious
+        ground.setFictitious(false);
+        assertFalse(ground.isFictitious());
+
         // Create a second with the same ID
         PowsyblException exception = assertThrows(PowsyblException.class, () -> ground.setFictitious(true));
         assertTrue(Pattern.compile("The ground cannot be fictitious.").matcher(exception.getMessage()).find());

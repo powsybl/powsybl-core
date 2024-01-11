@@ -28,7 +28,11 @@ class GroundImpl extends AbstractConnectable<Ground> implements Ground {
 
     @Override
     public void setFictitious(boolean fictitious) {
-        throw new PowsyblException("The ground cannot be fictitious.");
+        if (fictitious) {
+            throw new PowsyblException("The ground cannot be fictitious.");
+        } else {
+            this.fictitious = false;
+        }
     }
 
     @Override
