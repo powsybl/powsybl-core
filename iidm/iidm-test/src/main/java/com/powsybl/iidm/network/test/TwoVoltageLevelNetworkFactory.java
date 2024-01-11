@@ -1,44 +1,32 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.serde;
+package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import com.powsybl.iidm.network.test.TwoVoltageLevelNetworkFactory;
-import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
-
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class GroundSerDeTest extends AbstractIidmSerDeTest {
+public final class TwoVoltageLevelNetworkFactory {
 
-    @Test
-    void test() throws IOException {
-        // Initialise the network
-//        Network network = initNetwork();
-        Network network = TwoVoltageLevelNetworkFactory.createWithGrounds();
-
-        // Test for current version
-        allFormatsRoundTripTest(network, "ground.xml", CURRENT_IIDM_VERSION);
-
-        // backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("ground.xml", IidmVersion.V_1_11);
+    private TwoVoltageLevelNetworkFactory() {
     }
 
-    private Network initNetwork() {
+    public static Network create() {
+        return create(NetworkFactory.findDefault());
+    }
 
+    public static Network create(NetworkFactory networkFactory) {
         // Network initialisation
-        Network network = Network.create("test", "test");
+        Network network = networkFactory.createNetwork("test", "test");
         network.setCaseDate(ZonedDateTime.parse("2023-12-18T14:49:00.000+01:00"));
 
         // Substation
@@ -162,6 +150,20 @@ class GroundSerDeTest extends AbstractIidmSerDeTest {
             .setBus2("BUS2")
             .setOpen(false)
             .add();
+
+        return network;
+    }
+
+    public static Network createWithGrounds() {
+        return createWithGrounds(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithGrounds(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+
+        // Get the voltage level
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        VoltageLevel vl2 = network.getVoltageLevel("VL2");
 
         // Create disconnector and ground element in node-breaker view
         vl1.getNodeBreakerView().newDisconnector()
