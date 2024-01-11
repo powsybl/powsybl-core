@@ -321,6 +321,27 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return getOverloadManagementSystemStream().toList();
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return getNetwork().getOverloadManagementSystemStream().filter(this::contains);
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return (int) getOverloadManagementSystemStream().count();
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        OverloadManagementSystem oms = getNetwork().getOverloadManagementSystem(id);
+        return contains(oms) ? oms : null;
+    }
+
+    @Override
     public Iterable<Generator> getGenerators() {
         return getGeneratorStream().toList();
     }
