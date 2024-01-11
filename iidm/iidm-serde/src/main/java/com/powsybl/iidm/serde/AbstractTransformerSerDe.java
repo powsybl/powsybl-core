@@ -103,11 +103,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
-        boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING, false);
-        int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
-        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
-        double targetDeadband = readTargetDeadband(context, regulating);
+        readTapChangerAttributes(adder, context);
+
         boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute("loadTapChangingCapabilities");
+        adder.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
 
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> {
             double targetV = context.getReader().readDoubleAttribute("targetV");
@@ -123,32 +122,17 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                     .setRegulationValue(regulationValue);
         });
 
-        adder.setLowTapPosition(lowTapPosition)
-                .setTargetDeadband(targetDeadband)
-                .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
-                .setRegulating(regulating);
-        if (tapPosition != null) {
-            adder.setTapPosition(tapPosition);
-        }
-
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(subElementName -> {
             switch (subElementName) {
                 case ELEM_TERMINAL_REF -> {
                     hasTerminalRef[0] = true;
-                    TerminalRefSerDe.readTerminalRef(context, terminal.getVoltageLevel().getNetwork(), tRef -> {
-                        adder.setRegulationTerminal(tRef);
-                        adder.add();
-                    });
+                    readTapChangerTerminalRef(adder, terminal, context);
                 }
                 case STEP_ROOT_ELEMENT_NAME -> {
-                    readSteps(context, (r, x, g, b, rho) -> adder.beginStep()
-                            .setR(r)
-                            .setX(x)
-                            .setG(g)
-                            .setB(b)
-                            .setRho(rho)
-                            .endStep());
+                    RatioTapChangerStepAdder stepAdder = adder.beginStep();
+                    readSteps(context, stepAdder);
+                    stepAdder.endStep();
                     context.getReader().readEndNode();
                 }
                 default -> throw new PowsyblException("Unknown element name '" + subElementName + "' in '" + elementName + "'");
@@ -197,49 +181,53 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
-        boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING, false);
-        int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
-        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
-        double targetDeadband = readTargetDeadband(context, regulating);
+        readTapChangerAttributes(adder, context);
+
         PhaseTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChanger.RegulationMode.class);
         double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
-
-        adder.setLowTapPosition(lowTapPosition)
-                .setTargetDeadband(targetDeadband)
-                .setRegulationMode(regulationMode)
-                .setRegulationValue(regulationValue)
-                .setRegulating(regulating);
-        if (tapPosition != null) {
-            adder.setTapPosition(tapPosition);
-        }
+        adder.setRegulationMode(regulationMode)
+                .setRegulationValue(regulationValue);
 
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case ELEM_TERMINAL_REF -> {
                     hasTerminalRef[0] = true;
-                    TerminalRefSerDe.readTerminalRef(context, terminal.getVoltageLevel().getNetwork(), tRef -> {
-                        adder.setRegulationTerminal(tRef);
-                        adder.add();
-                    });
+                    readTapChangerTerminalRef(adder, terminal, context);
                 }
                 case STEP_ROOT_ELEMENT_NAME -> {
                     PhaseTapChangerAdderStepAdder stepAdder = adder.beginStep();
-                    readSteps(context, (r, x, g, b, rho) -> stepAdder.setR(r)
-                            .setX(x)
-                            .setG(g)
-                            .setB(b)
-                            .setRho(rho));
+                    readSteps(context, stepAdder);
                     double alpha = context.getReader().readDoubleAttribute("alpha");
-                    context.getReader().readEndNode();
                     stepAdder.setAlpha(alpha)
                             .endStep();
+                    context.getReader().readEndNode();
                 }
                 default -> throw new PowsyblException("Unknown element name '" + elementName + "' in '" + name + "'");
             }
         });
         if (!hasTerminalRef[0]) {
             adder.add();
+        }
+    }
+
+    private static void readTapChangerTerminalRef(TapChangerAdder<?, ?, ?> adder, Terminal terminal, NetworkDeserializerContext context) {
+        TerminalRefSerDe.readTerminalRef(context, terminal.getVoltageLevel().getNetwork(), tRef -> {
+            adder.setRegulationTerminal(tRef);
+            adder.add();
+        });
+    }
+
+    private static void readTapChangerAttributes(TapChangerAdder<?, ?, ?> adder, NetworkDeserializerContext context) {
+        boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING, false);
+        int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
+        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
+        double targetDeadband = readTargetDeadband(context, regulating);
+        adder.setLowTapPosition(lowTapPosition)
+                .setTargetDeadband(targetDeadband)
+                .setRegulating(regulating);
+        if (tapPosition != null) {
+            adder.setTapPosition(tapPosition);
         }
     }
 
@@ -251,13 +239,13 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         readPhaseTapChanger(PHASE_TAP_CHANGER + leg, twl.newPhaseTapChanger(), twl.getTerminal(), context);
     }
 
-    private static void readSteps(NetworkDeserializerContext context, StepConsumer consumer) {
+    private static void readSteps(NetworkDeserializerContext context, TapChangerStepAdder<?, ?> adder) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
         double g = context.getReader().readDoubleAttribute("g");
         double b = context.getReader().readDoubleAttribute("b");
         double rho = context.getReader().readDoubleAttribute("rho");
-        consumer.accept(r, x, g, b, rho);
+        adder.setR(r).setX(x).setG(g).setB(b).setRho(rho);
     }
 
     /**
