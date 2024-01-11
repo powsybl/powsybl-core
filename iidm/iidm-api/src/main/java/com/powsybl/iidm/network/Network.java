@@ -1162,9 +1162,9 @@ public interface Network extends Container<Network> {
     Ground getGround(String id);
 
     /**
-     * * Get an equipment by its ID or alias
+     * * Get an identifiable by its ID or alias
      *
-     * @param id the id or an alias of the equipment
+     * @param id the id or an alias of the identifiable
      */
     Identifiable<?> getIdentifiable(String id);
 
