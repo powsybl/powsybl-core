@@ -23,7 +23,6 @@ class GroundSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void test() throws IOException {
         // Initialise the network
-//        Network network = initNetwork();
         Network network = TwoVoltageLevelNetworkFactory.createWithGrounds();
 
         // Test for current version
