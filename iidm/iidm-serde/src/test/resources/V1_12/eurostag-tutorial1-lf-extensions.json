@@ -139,7 +139,8 @@
         "tapPosition" : 1,
         "targetDeadband" : 0.0,
         "loadTapChangingCapabilities" : true,
-        "targetV" : 158.0,
+        "regulationMode" : "VOLTAGE",
+        "regulationValue" : 158.0,
         "terminalRef" : {
           "id" : "NHV2_NLOAD",
           "side" : "TWO"

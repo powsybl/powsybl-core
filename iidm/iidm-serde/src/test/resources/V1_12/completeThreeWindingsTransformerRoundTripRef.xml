@@ -29,7 +29,7 @@
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612" b="0.10000000149011612" rho="1.0" alpha="-50.0"/>
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612" b="0.10000000149011612" rho="1.0" alpha="-25.0"/>
             </iidm:phaseTapChanger1>
-            <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="2" loadTapChangingCapabilities="true" regulating="true" targetV="33.0" targetDeadband="0.0">
+            <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="2" loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE" regulationValue="33.0" targetDeadband="0.0">
                 <iidm:terminalRef id="LOAD_33"/>
                 <iidm:step r="0.9801" x="0.09801" g="0.08264462809917356" b="0.008264462809917356" rho="0.9"/>
                 <iidm:step r="1.089" x="0.1089" g="0.09182736455463728" b="0.009182736455463728" rho="1.0"/>
@@ -39,7 +39,7 @@
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612" b="0.10000000149011612" rho="1.0" alpha="-50.0"/>
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612" b="0.10000000149011612" rho="1.0" alpha="-25.0"/>
             </iidm:phaseTapChanger2>
-            <iidm:ratioTapChanger3 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="false" targetV="11.0">
+            <iidm:ratioTapChanger3 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="false" regulationMode="VOLTAGE" regulationValue="11.0">
                 <iidm:terminalRef id="LOAD_11"/>
                 <iidm:step r="0.1089" x="0.01089" g="0.8264462809917356" b="0.08264462809917356" rho="0.9"/>
                 <iidm:step r="0.121" x="0.0121" g="0.8264462809917356" b="0.08264462809917356" rho="1.0"/>
