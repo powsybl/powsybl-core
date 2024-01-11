@@ -98,7 +98,7 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, A arg) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

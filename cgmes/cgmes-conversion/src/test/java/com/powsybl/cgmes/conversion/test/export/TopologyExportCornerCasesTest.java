@@ -1,6 +1,7 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -79,8 +80,9 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
         params.put(CgmesExport.CIM_VERSION, "100");
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
-        Properties properties = new Properties();
-        Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"), LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), properties);
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"), LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), importParams);
         if (checkAllTerminalsConnected) {
             checkAllTerminalsConnected(network, name + "_from_CGMES");
         }

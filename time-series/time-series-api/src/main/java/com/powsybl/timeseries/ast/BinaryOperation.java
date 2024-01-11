@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class BinaryOperation extends AbstractBinaryNodeCal {
+public class BinaryOperation extends AbstractBinaryNodeCalc {
 
     static final String NAME = "binaryOp";
 
