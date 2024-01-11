@@ -156,9 +156,7 @@ public interface CgmesObjectReference {
         TIE_FLOW("TF"),
         TOPOLOGICAL_ISLAND("TI"),
         TOPOLOGICAL_NODE("TN"),
-        TRANSFORMER_END_1("TW1"),
-        TRANSFORMER_END_2("TW2"),
-        TRANSFORMER_END_3("TW3"),
+        TRANSFORMER_END("TW"),
         VOLTAGE_LEVEL("VL");
 
         private final String suffix;
@@ -170,6 +168,21 @@ public interface CgmesObjectReference {
         @Override
         public String toString() {
             return suffix;
+        }
+    }
+
+    class Combo implements CgmesObjectReference {
+        private final CgmesObjectReference a;
+        private final CgmesObjectReference b;
+
+        public Combo(CgmesObjectReference a, CgmesObjectReference b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public String toString() {
+            // Join the two string representations without introducing a separator
+            return a.toString() + b.toString();
         }
     }
 
@@ -187,6 +200,10 @@ public interface CgmesObjectReference {
 
     static CgmesObjectReference ref(com.powsybl.iidm.network.Identifiable<?> identifiable) {
         return new Identifiable(identifiable, false);
+    }
+
+    static CgmesObjectReference combo(CgmesObjectReference a, CgmesObjectReference b) {
+        return new Combo(a, b);
     }
 
     static CgmesObjectReference ref(CgmesSubset value) {

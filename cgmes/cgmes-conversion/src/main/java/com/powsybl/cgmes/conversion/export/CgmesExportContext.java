@@ -596,15 +596,7 @@ public class CgmesExportContext {
     private void addIidmTransformerEnd(Identifiable<?> eq, int end) {
         String endId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end).orElse(null);
         if (endId == null) {
-            Part suffix;
-            if (end == 1) {
-                suffix = TRANSFORMER_END_1;
-            } else if (end == 2) {
-                suffix = TRANSFORMER_END_2;
-            } else {
-                suffix = TRANSFORMER_END_3;
-            }
-            endId = namingStrategy.getCgmesId(ref(eq), suffix);
+            endId = namingStrategy.getCgmesId(ref(eq), combo(TRANSFORMER_END, ref(end)));
             eq.addAlias(endId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end);
         }
     }
