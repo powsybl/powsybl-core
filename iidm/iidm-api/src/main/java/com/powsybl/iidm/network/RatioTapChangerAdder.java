@@ -35,6 +35,10 @@ public interface RatioTapChangerAdder {
 
     RatioTapChangerAdder setRegulating(boolean regulating);
 
+    RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
+
+    RatioTapChangerAdder setRegulationValue(double regulationValue);
+
     RatioTapChangerAdder setTargetV(double targetV);
 
     RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);

@@ -55,5 +55,5 @@ public interface NodeCalcVisitor<R, A> {
 
     R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right);
 
-    Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, A arg);
+    Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg);
 }
