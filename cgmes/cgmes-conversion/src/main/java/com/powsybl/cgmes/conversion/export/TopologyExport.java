@@ -22,7 +22,7 @@ import java.util.*;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_TOPOLOGICAL_NODE;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TOPOLOGICAL_NODE;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -196,7 +196,7 @@ public final class TopologyExport {
         if (bus == null) {
             return;
         }
-        String dcTopologicalNode = context.getNamingStrategy().getCgmesId(ref(bus), DC_TOPOLOGICAL_NODE);
+        String dcTopologicalNode = context.getNamingStrategy().getCgmesId(refTyped(bus), DC_TOPOLOGICAL_NODE);
         String dcNode = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + side).orElseThrow(PowsyblException::new);
         writeDCNode(dcNode, dcTopologicalNode, cimNamespace, writer, context);
         String dcTerminal = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal" + side).orElseThrow(PowsyblException::new);
@@ -268,7 +268,7 @@ public final class TopologyExport {
                             dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }
-                String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(ref(dl), TOPOLOGICAL_NODE);
+                String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(refTyped(dl), TOPOLOGICAL_NODE);
                 dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
                 writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
             }
@@ -296,7 +296,7 @@ public final class TopologyExport {
             b = converter.getTerminal().getBusBreakerView().getConnectableBus();
         }
         if (b != null && !written.contains(b.getId())) {
-            String id = context.getNamingStrategy().getCgmesId(ref(b), DC_TOPOLOGICAL_NODE);
+            String id = context.getNamingStrategy().getCgmesId(refTyped(b), DC_TOPOLOGICAL_NODE);
             String name = line.getNameOrId() + side;
             writeDCTopologicalNode(id, name, cimNamespace, writer, context);
             written.add(b.getId());

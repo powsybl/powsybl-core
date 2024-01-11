@@ -47,6 +47,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  * <p>
@@ -189,9 +190,9 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         // EquipmentExport::writeFictitiousSubstationFor and use it here.
         // We could group all missing voltage levels in the same (fictitious) substation
         RegionContainers regionContainers = new RegionContainers();
-        regionContainers.subGeographicalRegionId = context.getNamingStrategy().getCgmesId(ref(network), ref("SubgeographicalRegionId"));
+        regionContainers.subGeographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(network), ref("SubgeographicalRegionId"));
         String subGeographicalRegionName = "SGR fix for missing data";
-        regionContainers.geographicalRegionId = context.getNamingStrategy().getCgmesId(ref(network), ref("GeographicalRegionId"));
+        regionContainers.geographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(network), ref("GeographicalRegionId"));
         String geographicalRegionName = "GR fix for missing data";
         SubGeographicalRegionEq.write(regionContainers.subGeographicalRegionId, subGeographicalRegionName, regionContainers.geographicalRegionId, cimNamespace, writer, context);
         GeographicalRegionEq.write(regionContainers.geographicalRegionId, geographicalRegionName, cimNamespace, writer, context);

@@ -30,6 +30,7 @@ import java.util.*;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -130,7 +131,7 @@ public final class EquipmentExport {
     private static void writeSwitchConnectivity(String nodeKey, VoltageLevel vl, String cgmesVlId, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         mapNodeKey2NodeId.computeIfAbsent(nodeKey, k -> {
             try {
-                String node = context.getNamingStrategy().getCgmesId(ref(vl), ref(nodeKey), CONNECTIVITY_NODE);
+                String node = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodeKey), CONNECTIVITY_NODE);
                 ConnectivityNodeEq.write(node, nodeKey, cgmesVlId, cimNamespace, writer, context);
                 return node;
             } catch (XMLStreamException e) {
@@ -153,7 +154,7 @@ public final class EquipmentExport {
             String connectivityNodeId = connectivityNodeId(mapNodeKey2NodeId, bus.getTerminal());
             if (connectivityNodeId == null) {
                 VoltageLevel vl = bus.getTerminal().getVoltageLevel();
-                String node = context.getNamingStrategy().getCgmesId(ref(bus), CONNECTIVITY_NODE);
+                String node = context.getNamingStrategy().getCgmesId(refTyped(bus), CONNECTIVITY_NODE);
                 ConnectivityNodeEq.write(node, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer, context);
                 String key = buildNodeKey(vl, bus.getTerminal().getNodeBreakerView().getNode());
                 mapNodeKey2NodeId.put(key, node);
@@ -164,7 +165,7 @@ public final class EquipmentExport {
     private static void writeNodes(VoltageLevel vl, String cgmesVlId, VoltageLevelAdjacency vlAdjacencies, Map <String, String> mapNodeKey2NodeId, String cimNamespace,
                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (List<Integer> nodes : vlAdjacencies.getNodes()) {
-            String cgmesNodeId = context.getNamingStrategy().getCgmesId(ref(vl), ref(nodes.get(0)), CONNECTIVITY_NODE);
+            String cgmesNodeId = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodes.get(0)), CONNECTIVITY_NODE);
             ConnectivityNodeEq.write(cgmesNodeId, CgmesExportUtil.format(nodes.get(0)), cgmesVlId, cimNamespace, writer, context);
             for (Integer nodeNumber : nodes) {
                 mapNodeKey2NodeId.put(buildNodeKey(vl, nodeNumber), cgmesNodeId);
@@ -174,7 +175,7 @@ public final class EquipmentExport {
 
     private static void writeBuses(VoltageLevel vl, String cgmesVlId, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus bus : vl.getBusBreakerView().getBuses()) {
-            String cgmesNodeId = context.getNamingStrategy().getCgmesId(ref(bus), Part.CONNECTIVITY_NODE);
+            String cgmesNodeId = context.getNamingStrategy().getCgmesId(refTyped(bus), Part.CONNECTIVITY_NODE);
             ConnectivityNodeEq.write(cgmesNodeId, bus.getNameOrId(), cgmesVlId, cimNamespace, writer, context);
             mapNodeKey2NodeId.put(buildNodeKey(bus), cgmesNodeId);
         }
@@ -269,9 +270,9 @@ public final class EquipmentExport {
     private static String writeLoadGroups(Network network, Collection<LoadGroup> foundLoadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Write one load area and one sub load area for the whole network
         String baseName = network.getNameOrId();
-        String loadAreaId = context.getNamingStrategy().getCgmesId(ref(network), LOAD_AREA);
+        String loadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), LOAD_AREA);
         LoadAreaEq.write(loadAreaId, baseName, cimNamespace, writer, context);
-        String subLoadAreaId = context.getNamingStrategy().getCgmesId(ref(network), SUB_LOAD_AREA);
+        String subLoadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), SUB_LOAD_AREA);
         LoadAreaEq.writeSubArea(subLoadAreaId, loadAreaId, baseName, cimNamespace, writer, context);
         for (LoadGroup loadGroup : foundLoadGroups) {
             CgmesExportUtil.writeStartIdName(loadGroup.className, loadGroup.id, loadGroup.name, cimNamespace, writer, context);
@@ -331,7 +332,7 @@ public final class EquipmentExport {
                                                                double pConstantCurrent, double qConstantCurrent,
                                                                double pConstantImpedance, double qConstantImpedance,
                                                                String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String loadResponseId = context.getNamingStrategy().getCgmesId(ref(load), LOAD_RESPONSE_CHARACTERISTICS);
+        String loadResponseId = context.getNamingStrategy().getCgmesId(refTyped(load), LOAD_RESPONSE_CHARACTERISTICS);
         String loadResponseName = "LRC_" + load.getNameOrId();
 
         LoadResponseCharacteristicEq.write(loadResponseId, loadResponseName,
@@ -403,10 +404,10 @@ public final class EquipmentExport {
                     break;
                 }
 
-                reactiveLimitsId = context.getNamingStrategy().getCgmesId(ref(i), REACTIVE_CAPABILITY_CURVE);
+                reactiveLimitsId = context.getNamingStrategy().getCgmesId(refTyped(i), REACTIVE_CAPABILITY_CURVE);
                 int pointIndex = 0;
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    String pointId = context.getNamingStrategy().getCgmesId(ref(i), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
+                    String pointId = context.getNamingStrategy().getCgmesId(refTyped(i), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
                     CurveDataEq.write(pointId, point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context);
                     pointIndex++;
                 }
@@ -488,7 +489,7 @@ public final class EquipmentExport {
                     double b = 0.0;
                     double g = 0.0;
                     for (int section = 1; section <= s.getMaximumSectionCount(); section++) {
-                        String pointId = context.getNamingStrategy().getCgmesId(ref(s), ref(section), SHUNT_COMPENSATOR);
+                        String pointId = context.getNamingStrategy().getCgmesId(refTyped(s), ref(section), SHUNT_COMPENSATOR);
                         ShuntCompensatorEq.writePoint(pointId, context.getNamingStrategy().getCgmesId(s), section, s.getB(section) - b, s.getG(section) - g, cimNamespace, writer, context);
                         b = s.getB(section);
                         g = s.getG(section);
@@ -759,7 +760,7 @@ public final class EquipmentExport {
                     regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
             }
-            String phaseTapChangerTableId = context.getNamingStrategy().getCgmesId(ref(eq), ref(endNumber), PHASE_TAP_CHANGER_TABLE);
+            String phaseTapChangerTableId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), PHASE_TAP_CHANGER_TABLE);
             // If we write the EQ, we will always write the Tap Changer as tabular
             // We reset the phase tap changer type stored in the extensions
             String typeTabular = CgmesNames.PHASE_TAP_CHANGER_TABULAR;
@@ -768,7 +769,7 @@ public final class EquipmentExport {
             TapChangerEq.writePhase(typeTabular, cgmesTapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, ltcFlag, phaseTapChangerTableId, cgmesRegulatingControlId, cimNamespace, writer, context);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
-                String stepId = context.getNamingStrategy().getCgmesId(ref(eq), ref(endNumber), ref(step.getKey()), PHASE_TAP_CHANGER_STEP);
+                String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), PHASE_TAP_CHANGER_STEP);
                 TapChangerEq.writePhaseTablePoint(stepId, phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(), step.getKey(), cimNamespace, writer, context);
             }
         }
@@ -823,7 +824,7 @@ public final class EquipmentExport {
             } else {
                 stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0 / rtc.getStep(rtc.getHighTapPosition()).getRho()) / (rtc.getLowTapPosition() - rtc.getHighTapPosition());
             }
-            String ratioTapChangerTableId = context.getNamingStrategy().getCgmesId(ref(eq), ref(endNumber), RATIO_TAP_CHANGER_TABLE);
+            String ratioTapChangerTableId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), RATIO_TAP_CHANGER_TABLE);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             String controlMode = rtc.isRegulating() ? "volt" : "reactive";
@@ -841,7 +842,7 @@ public final class EquipmentExport {
                     ratioTapChangerTableId, cgmesRegulatingControlId, controlMode, cimNamespace, writer, context);
             TapChangerEq.writeRatioTable(ratioTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
-                String stepId = context.getNamingStrategy().getCgmesId(ref(eq), ref(endNumber), ref(step.getKey()), RATIO_TAP_CHANGER_STEP);
+                String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), RATIO_TAP_CHANGER_STEP);
                 TapChangerEq.writeRatioTablePoint(stepId, ratioTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), step.getKey(), cimNamespace, writer, context);
             }
 
@@ -932,7 +933,7 @@ public final class EquipmentExport {
                 // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
                 LOG.info("Dangling line {}{} is not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created",
                         danglingLine.getId(), danglingLine.getPairingKey() != null ? " linked to X-node " + danglingLine.getPairingKey() : "");
-                connectivityNodeId = context.getNamingStrategy().getCgmesId(ref(danglingLine), CONNECTIVITY_NODE);
+                connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(danglingLine), CONNECTIVITY_NODE);
                 String connectivityNodeContainerId = createFictitiousContainerFor(danglingLine, baseVoltageId, cimNamespace, writer, context);
                 ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
                 danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
@@ -965,18 +966,18 @@ public final class EquipmentExport {
         // Because regions and subregions with the same name are merged
         // For names we put "fict" as a prefix instead of a suffix to avoid it being lost because name length limitations
         String baseName = identifiable.getNameOrId();
-        String geographicalRegionId = context.getNamingStrategy().getCgmesId(ref(identifiable), FICTITIOUS, GEOGRAPHICAL_REGION);
+        String geographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, GEOGRAPHICAL_REGION);
         GeographicalRegionEq.write(geographicalRegionId, "fictGR_" + baseName, cimNamespace, writer, context);
-        String subGeographicalRegionId = context.getNamingStrategy().getCgmesId(ref(identifiable), FICTITIOUS, SUB_GEOGRAPHICAL_REGION);
+        String subGeographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, SUB_GEOGRAPHICAL_REGION);
         SubGeographicalRegionEq.write(subGeographicalRegionId, "fictSGR_" + baseName, geographicalRegionId, cimNamespace, writer, context);
-        String substationId = context.getNamingStrategy().getCgmesId(ref(identifiable), FICTITIOUS, SUBSTATION);
+        String substationId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, SUBSTATION);
         SubstationEq.write(substationId, "fictS_" + baseName, subGeographicalRegionId, cimNamespace, writer, context);
         return substationId;
     }
 
     private static String writeFictitiousVoltageLevelFor(Identifiable<?> identifiable, String substationId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // New VoltageLevel
-        String voltageLevelId = context.getNamingStrategy().getCgmesId(ref(identifiable), FICTITIOUS, VOLTAGE_LEVEL);
+        String voltageLevelId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, VOLTAGE_LEVEL);
         VoltageLevelEq.write(voltageLevelId, identifiable.getNameOrId() + "_VL", Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, writer, context);
         return voltageLevelId;
     }
@@ -1100,12 +1101,12 @@ public final class EquipmentExport {
             String substation1Id = namingStrategy.getCgmesId(line.getConverterStation1().getTerminal().getVoltageLevel().getNullableSubstation());
             String substation2Id = namingStrategy.getCgmesId(line.getConverterStation2().getTerminal().getVoltageLevel().getNullableSubstation());
 
-            String dcConverterUnit1 = context.getNamingStrategy().getCgmesId(ref(line), DC_CONVERTER_UNIT, ref(1));
+            String dcConverterUnit1 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(1));
             writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", substation1Id, cimNamespace, writer, context);
             String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode1").orElseThrow(PowsyblException::new);
             writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1, cimNamespace, writer, context);
 
-            String dcConverterUnit2 = context.getNamingStrategy().getCgmesId(ref(line), DC_CONVERTER_UNIT, ref(2));
+            String dcConverterUnit2 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(2));
             writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", substation2Id, cimNamespace, writer, context);
             String dcNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode2").orElseThrow(PowsyblException::new);
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer, context);
@@ -1119,14 +1120,14 @@ public final class EquipmentExport {
             String terminalId;
 
             HvdcConverterStation<?> converter = line.getConverterStation1();
-            terminalId = context.getNamingStrategy().getCgmesId(ref(line), ref(converter), CONVERTER_STATION, ref(1));
+            terminalId = context.getNamingStrategy().getCgmesId(refTyped(line), refTyped(converter), CONVERTER_STATION, ref(1));
             writeTerminal(converter.getTerminal(), mapTerminal2Id, terminalId, converter1Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal()), 1, cimNamespace, writer, context);
             String capabilityCurveId1 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + AC_DC_CONVERTER_DC_TERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal1, converter1Id, dcNode1, 2, cimNamespace, writer, context);
 
             converter = line.getConverterStation2();
-            terminalId = context.getNamingStrategy().getCgmesId(ref(line), ref(converter), CONVERTER_STATION, ref(2));
+            terminalId = context.getNamingStrategy().getCgmesId(refTyped(line), refTyped(converter), CONVERTER_STATION, ref(2));
             writeTerminal(converter.getTerminal(), mapTerminal2Id, terminalId, converter2Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal()), 1, cimNamespace, writer, context);
             String capabilityCurveId2 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + AC_DC_CONVERTER_DC_TERMINAL).orElseThrow(PowsyblException::new);
@@ -1146,13 +1147,13 @@ public final class EquipmentExport {
         if (vscConverter.getReactiveLimits() == null) {
             return null;
         }
-        String reactiveLimitsId = context.getNamingStrategy().getCgmesId(ref(vscConverter), REACTIVE_CAPABILITY_CURVE);
+        String reactiveLimitsId = context.getNamingStrategy().getCgmesId(refTyped(vscConverter), REACTIVE_CAPABILITY_CURVE);
         switch (vscConverter.getReactiveLimits().getKind()) {
             case CURVE:
                 ReactiveCapabilityCurve curve = vscConverter.getReactiveLimits(ReactiveCapabilityCurve.class);
                 int pointIndex = 0;
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    String pointId = context.getNamingStrategy().getCgmesId(ref(vscConverter), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
+                    String pointId = context.getNamingStrategy().getCgmesId(refTyped(vscConverter), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
                     CurveDataEq.write(pointId, point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context);
                     pointIndex++;
                 }
@@ -1217,7 +1218,7 @@ public final class EquipmentExport {
             Connectable<?> c = terminal.getConnectable();
             if (c instanceof DanglingLine dl) {
                 if (network.isBoundaryElement(dl)) {
-                    String tieFlowId = context.getNamingStrategy().getCgmesId(ref(c), TIE_FLOW);
+                    String tieFlowId = context.getNamingStrategy().getCgmesId(refTyped(c), TIE_FLOW);
                     String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
                     TieFlowEq.write(tieFlowId, controlAreaCgmesId, terminalId, cimNamespace, writer, context);
                 } else {

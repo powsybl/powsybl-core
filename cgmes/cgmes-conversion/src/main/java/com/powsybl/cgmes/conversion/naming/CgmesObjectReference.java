@@ -43,9 +43,9 @@ public interface CgmesObjectReference {
 
     class Identifiable implements CgmesObjectReference {
         private final com.powsybl.iidm.network.Identifiable<?> value;
-        private final boolean addSuffix;
+        private final boolean addType;
 
-        private static final EnumMap<IdentifiableType, String> SUFFIXES = new EnumMap<>(Map.ofEntries(
+        private static final EnumMap<IdentifiableType, String> TYPE_SUFFIXES = new EnumMap<>(Map.ofEntries(
                 Map.entry(IdentifiableType.NETWORK, "N"),
                 Map.entry(IdentifiableType.SUBSTATION, "S"),
                 Map.entry(IdentifiableType.VOLTAGE_LEVEL, "VL"),
@@ -67,19 +67,15 @@ public interface CgmesObjectReference {
                 Map.entry(IdentifiableType.HVDC_CONVERTER_STATION, "DCCS")
         ));
 
-        public Identifiable(com.powsybl.iidm.network.Identifiable<?> value) {
-            this(value, true);
-        }
-
-        public Identifiable(com.powsybl.iidm.network.Identifiable<?> value, boolean addSuffix) {
+        public Identifiable(com.powsybl.iidm.network.Identifiable<?> value, boolean addType) {
             this.value = value;
-            this.addSuffix = addSuffix;
+            this.addType = addType;
         }
 
-        public String suffix() {
+        public String typeSuffix() {
             IdentifiableType type = value.getType();
-            if (SUFFIXES.containsKey(type)) {
-                return SUFFIXES.get(type);
+            if (TYPE_SUFFIXES.containsKey(type)) {
+                return TYPE_SUFFIXES.get(type);
             } else if (type == IdentifiableType.LOAD) {
                 String className = CgmesExportUtil.loadClassName((Load) value);
                 return switch (className) {
@@ -99,7 +95,7 @@ public interface CgmesObjectReference {
 
         public String toString() {
             String id = value.getId().replace("urn:uuid:", "");
-            return addSuffix ? id + "_" + suffix() : id;
+            return addType ? id + "_" + typeSuffix() : id;
         }
     }
 
@@ -185,12 +181,12 @@ public interface CgmesObjectReference {
         return new Key(key);
     }
 
-    static CgmesObjectReference ref(com.powsybl.iidm.network.Identifiable<?> identifiable) {
-        return new Identifiable(identifiable);
+    static CgmesObjectReference refTyped(com.powsybl.iidm.network.Identifiable<?> identifiable) {
+        return new Identifiable(identifiable, true);
     }
 
-    static CgmesObjectReference ref(com.powsybl.iidm.network.Identifiable<?> identifiable, boolean addSuffix) {
-        return new Identifiable(identifiable, addSuffix);
+    static CgmesObjectReference ref(com.powsybl.iidm.network.Identifiable<?> identifiable) {
+        return new Identifiable(identifiable, false);
     }
 
     static CgmesObjectReference ref(CgmesSubset value) {

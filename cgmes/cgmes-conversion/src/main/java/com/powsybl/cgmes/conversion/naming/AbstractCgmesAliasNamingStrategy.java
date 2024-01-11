@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
 /**
@@ -57,7 +58,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         } else if (CgmesExportUtil.isValidCimMasterRID(identifier)) {
             return identifier;
         } else {
-            String uuid = getCgmesId(ref(identifiable));
+            String uuid = getCgmesId(refTyped(identifiable));
             idByUuid.put(uuid, identifier);
             return uuid;
         }
@@ -154,7 +155,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
 
     @Override
     public String getCgmesId(CgmesObjectReference... refs) {
-        String seed = "_" + CgmesObjectReference.combine(refs);
+        String seed = "_" + combine(refs);
         String uuid = nameBasedGenerator.generate(seed).toString();
         if (uuidSeed.containsKey(uuid)) {
             LOG.debug("Unique ID for seed {} called multiple times ", seed);
