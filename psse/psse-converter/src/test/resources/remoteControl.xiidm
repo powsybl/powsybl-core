@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_11" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="remoteControl" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="remoteControl" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="230.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -72,7 +72,7 @@
             <iidm:currentLimits2 permanentLimit="52481.13946933699"/>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T-4-8-1" r="0.0" x="67.29778" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B8" connectableBus2="B8" voltageLevelId2="VL7">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" targetDeadband="0.3999999999999986" loadTapChangingCapabilities="false" regulating="true" targetV="20.2">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" targetDeadband="0.3999999999999986" loadTapChangingCapabilities="false" regulating="true" regulationMode="VOLTAGE" regulationValue="20.2">
                 <iidm:terminalRef id="B9-L1"/>
                 <iidm:step r="0.0" x="0.0" g="-6.1039000000000065" b="-6.1039000000000065" rho="1.0319917440660475"/>
                 <iidm:step r="0.0" x="0.0" g="-3.960000000000008" b="-3.960000000000008" rho="1.0204081632653061"/>
