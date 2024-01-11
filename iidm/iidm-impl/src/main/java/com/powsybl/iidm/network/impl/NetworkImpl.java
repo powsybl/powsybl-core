@@ -443,6 +443,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return Collections.unmodifiableCollection(index.getAll(OverloadManagementSystemImpl.class));
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return index.getAll(OverloadManagementSystemImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return index.getAll(OverloadManagementSystemImpl.class).size();
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        return index.get(id, OverloadManagementSystemImpl.class);
+    }
+
+    @Override
     public Iterable<Generator> getGenerators() {
         return Collections.unmodifiableCollection(index.getAll(GeneratorImpl.class));
     }
