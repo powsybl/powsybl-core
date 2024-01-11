@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -140,6 +141,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         NetworkImpl mergedNetwork = new NetworkImpl(id, name, networks[0].getSourceFormat());
         setValidationLevels(mergedNetwork, networks);
+        setCommonCaseDate(mergedNetwork, networks);
         for (Network other : networks) {
             mergedNetwork.merge(other);
         }
@@ -159,6 +161,17 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
         mergedNetwork.setMinimumAcceptableValidationLevel(minLevel);
         mergedNetwork.setValidationLevelIfGreaterThan(validationLevel);
+    }
+
+    private static void setCommonCaseDate(NetworkImpl mergedNetwork, Network[] networks) {
+        //if all subnetworks have same case date then apply it to merged network
+        ZonedDateTime caseDate = networks[0].getCaseDate();
+        for (Network n : networks) {
+            if (!Objects.equals(caseDate, n.getCaseDate())) {
+                return;
+            }
+        }
+        mergedNetwork.setCaseDate(caseDate);
     }
 
     RefChain<NetworkImpl> getRef() {
@@ -427,6 +440,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
         return index.get(id, ThreeWindingsTransformerImpl.class);
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return Collections.unmodifiableCollection(index.getAll(OverloadManagementSystemImpl.class));
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return index.getAll(OverloadManagementSystemImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return index.getAll(OverloadManagementSystemImpl.class).size();
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        return index.get(id, OverloadManagementSystemImpl.class);
     }
 
     @Override
