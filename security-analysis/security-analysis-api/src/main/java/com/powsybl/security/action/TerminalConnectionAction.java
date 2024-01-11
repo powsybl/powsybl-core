@@ -23,6 +23,14 @@ public class TerminalConnectionAction extends AbstractAction {
     private ThreeSides side;
     private final boolean open;
 
+    /**
+     * @param id the id of the action.
+     * @param elementId the id of the element which terminals are operated. The element could be any connectable.
+     *                  We can also imagine that the element could ba a tie line, referring the terminal of an underlying
+     *                  dangling line.
+     * @param side the side of the element to operate in the action.
+     * @param open the status of the terminal to operate. {@code true} means terminal to open.
+     */
     public TerminalConnectionAction(String id, String elementId, ThreeSides side, boolean open) {
         super(id);
         this.elementId = Objects.requireNonNull(elementId);
@@ -30,6 +38,13 @@ public class TerminalConnectionAction extends AbstractAction {
         this.open = open;
     }
 
+    /**
+     * @param id the id of the action.
+     * @param elementId the id of the element which terminals are operated. The element could be any connectable.
+     *                  We can also imagine that the element could ba a tie line, referring the terminal of an underlying
+     *                  dangling line.
+     * @param open the status of all the terminals of the element to operate. {@code true} means all terminals to open.
+     */
     public TerminalConnectionAction(String id, String elementId, boolean open) {
         super(id);
         this.elementId = Objects.requireNonNull(elementId);
@@ -42,22 +57,25 @@ public class TerminalConnectionAction extends AbstractAction {
     }
 
     /**
-     * Return the element id. TODO: define the scope.
+     * @return the element id.
      */
     public String getElementId() {
         return elementId;
     }
 
     /**
-     * Return the optional side of the connection/disconnection action.
+     * The side is optional. In case of empty, it means that all the terminals of the element will be operated
+     * in the action with the status open or close also defined.
+     * @return the optional side of the connection/disconnection action.
      */
     public Optional<ThreeSides> getSide() {
         return Optional.ofNullable(side);
     }
 
     /**
-     * If {@code true}, applying the action will open the terminal reference,
-     * else it will close it.
+     * If {@code true}, applying the action will open the terminal reference with side is given,
+     * else it will close it. If the side is not given, if {@code true}, applying the action will open all the terminals
+     * of the element, else it will close them.
      */
     public boolean isOpen() {
         return open;
