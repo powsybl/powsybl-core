@@ -37,6 +37,7 @@ import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
@@ -58,10 +59,19 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class EquipmentExportTest extends AbstractSerDeTest {
 
+    private Properties importParams;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        super.setUp();
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+    }
+
     @Test
     void smallGridHvdc() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportNodeBreaker(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -69,7 +79,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void smallNodeBreaker() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreaker().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportNodeBreaker(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -77,7 +87,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void smallBusBranch() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallBusBranch().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -85,7 +95,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void smallGridHvdcWithCapabilityCurve() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportNodeBreaker(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -93,7 +103,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void miniNodeBreaker() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportNodeBreaker(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -101,7 +111,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void miniBusBranch() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniBusBranch().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranchNoBoundaries(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -109,7 +119,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void microGridWithTieFlowMappedToEquivalentInjection() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -117,7 +127,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void microGridBaseCaseAssembledSwitchAtBoundary() throws XMLStreamException, IOException {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
-        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
         network.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
@@ -147,7 +157,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void microGrid() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridType4BE().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -155,7 +165,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void microGridCreateEquivalentInjectionAliases() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         // Remove aliases of equivalent injections, so they will have to be created during export
         for (DanglingLine danglingLine : expected.getDanglingLines(DanglingLineFilter.ALL)) {
             danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
@@ -186,7 +196,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void nordic32SortTransformerEnds() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
-        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), importParams);
         exportToCgmesEQ(network, true);
         exportToCgmesTP(network);
         // Import EQ & TP file, no additional information (boundaries) are required
@@ -296,7 +306,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     void bPerSectionTest() throws IOException, XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridType4BE().dataSource();
 
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
         ShuntCompensatorLinearModel sh = (ShuntCompensatorLinearModel) network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
         assertEquals(0.024793, sh.getBPerSection(), 0.0);
 
@@ -516,7 +526,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void testLoadGroups() throws XMLStreamException, IOException {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -524,9 +534,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void microGridCgmesExportPreservingOriginalClassesOfLoads() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = Cgmes3ModifiedCatalog.microGridBaseCaseAllTypesOfLoads().dataSource();
-        Properties properties = new Properties();
-        properties.setProperty("iidm.import.cgmes.convert-boundary", "true");
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        importParams.put("iidm.import.cgmes.convert-boundary", "true");
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
+        importParams.put("iidm.import.cgmes.convert-boundary", "false");
         Network actual = exportImportNodeBreaker(expected, dataSource);
 
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.ASYNCHRONOUS_MACHINE), loadsCreatedFromOriginalClassCount(actual, CgmesNames.ASYNCHRONOUS_MACHINE));
@@ -566,7 +576,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void equivalentShuntTest() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -576,7 +586,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
 
         ShuntCompensator expectedEquivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
         ShuntCompensator actualEquivalentShunt = actual.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
@@ -586,7 +596,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void equivalentShuntWithZeroSectionCountTest() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
         ShuntCompensator equivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
         equivalentShunt.setSectionCount(0);
 
@@ -598,7 +608,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
 
         ShuntCompensator actualEquivalentShunt = actual.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
         assertTrue(equivalentShuntsAreEqual(equivalentShunt, actualEquivalentShunt));
@@ -644,7 +654,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void tapChangerControlDefineControlTest() throws IOException {
         ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
         TwoWindingsTransformer twtNetwork = network.getTwoWindingsTransformer("e8a7eaec-51d6-4571-b3d9-c36d52073c33");
         twtNetwork.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
@@ -660,7 +670,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("e8a7eaec-51d6-4571-b3d9-c36d52073c33");
 
         assertEquals(twtNetwork.getPhaseTapChanger().getRegulationMode().name(), twtActual.getPhaseTapChanger().getRegulationMode().name());
@@ -671,7 +681,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void tapChangerControlDefineRatioTapChangerAndPhaseTapChangerTest() throws IOException {
         ReadOnlyDataSource ds = Cgmes3Catalog.miniGrid().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
         TwoWindingsTransformer twtNetwork = network.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
         twtNetwork.newRatioTapChanger()
@@ -705,7 +715,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
 
         assertEquals(twtNetwork.getRatioTapChanger().getTargetV(), twtActual.getRatioTapChanger().getTargetV());
@@ -719,7 +729,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void tapChangerControlDefineRatioTapChangerAndPhaseTapChangerT3wLeg1Test() throws IOException {
         ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
         ThreeWindingsTransformer twtNetwork = network.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
         addRatioTapChangerAndPhaseTapChanger(twtNetwork.getLeg1());
@@ -732,7 +742,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
 
         checkLeg(twtNetwork.getLeg1(), twtActual.getLeg1());
@@ -741,7 +751,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void tapChangerControlDefineRatioTapChangerAndPhaseTapChangerT3wLeg2Test() throws IOException {
         ReadOnlyDataSource ds = Cgmes3Catalog.miniGrid().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtNetwork = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
         addRatioTapChangerAndPhaseTapChanger(twtNetwork.getLeg2());
 
@@ -753,7 +763,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
 
         checkLeg(twtNetwork.getLeg2(), twtActual.getLeg2());
@@ -762,7 +772,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     @Test
     void tapChangerControlDefineRatioTapChangerAndPhaseTapChangerT3wLeg3Test() throws IOException {
         ReadOnlyDataSource ds = Cgmes3Catalog.miniGrid().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), new Properties());
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtNetwork = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
         addRatioTapChangerAndPhaseTapChanger(twtNetwork.getLeg3());
 
@@ -774,7 +784,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
 
         checkLeg(twtNetwork.getLeg3(), twtActual.getLeg3());
@@ -1011,7 +1021,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // There is no need to create the IIDM-CGMES mappings
         // We are reading only an EQ, we won't have TP data in the input
         // And to compare the expected and actual networks we are dropping all IIDM-CGMES mapping context information
-        return Network.read(repackaged, LocalComputationManager.getDefault(), ImportConfig.load(), null);
+        return Network.read(repackaged, LocalComputationManager.getDefault(), ImportConfig.load(), importParams);
     }
 
     private Path exportToCgmesEQ(Network network) throws IOException, XMLStreamException {

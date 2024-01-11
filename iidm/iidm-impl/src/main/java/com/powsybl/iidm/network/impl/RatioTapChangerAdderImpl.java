@@ -10,10 +10,7 @@ import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +35,9 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private boolean regulating = false;
 
-    private double targetV = Double.NaN;
+    private RatioTapChanger.RegulationMode regulationMode = null;
+
+    private double regulationValue = Double.NaN;
 
     private double targetDeadband = Double.NaN;
 
@@ -144,7 +143,22 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     @Override
     public RatioTapChangerAdder setTargetV(double targetV) {
-        this.targetV = targetV;
+        if (!Double.isNaN(targetV)) {
+            this.regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
+        }
+        this.regulationValue = targetV;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
+        this.regulationMode = regulationMode;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setRegulationValue(double regulationValue) {
+        this.regulationValue = regulationValue;
         return this;
     }
 
@@ -185,12 +199,12 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
-                targetV, network, network.getMinValidationLevel()));
+                regulationMode, regulationValue, network, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband,
                 network.getMinValidationLevel()));
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                                          tapPosition, regulating, targetV, targetDeadband);
+                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 
         Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());

@@ -149,7 +149,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setTapPosition(2)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setTargetV(33.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(33.0)
                 .setTargetDeadband(0)
                 .setRegulationTerminal(load33.getTerminal())
                 .add();
@@ -179,7 +180,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setTapPosition(0)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(false)
-                .setTargetV(11.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(11.0)
                 .setRegulationTerminal(load11.getTerminal())
                 .add();
 
@@ -348,7 +350,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setTapPosition(2)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setTargetV(33.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(33.0)
                 .setTargetDeadband(0)
                 .setRegulationTerminal(load33.getTerminal())
                 .add();
@@ -378,7 +381,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setTapPosition(0)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(false)
-                .setTargetV(11.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(11.0)
                 .setRegulationTerminal(load11.getTerminal())
                 .add();
 
