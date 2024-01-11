@@ -54,8 +54,10 @@ class TapChangerAttributeTest {
         // Test ratio tap changer steps replacement
         RatioTapChanger rtc = twt2.getRatioTapChanger();
         assertEquals(3, rtc.getStepCount());
-        RatioTapChangerStepsReplacer ratioStepsReplacer = rtc.stepsReplacer()
-            .beginStep()
+        RatioTapChangerStepsReplacer ratioStepsReplacer = rtc.stepsReplacer();
+        assertEquals("2 windings transformer 'twt2': a tap changer shall have at least one step",
+            assertThrows(ValidationException.class, ratioStepsReplacer::replaceSteps).getMessage());
+        ratioStepsReplacer.beginStep()
             .setR(1.0)
             .setX(2.0)
             .setG(3.0)
@@ -90,8 +92,10 @@ class TapChangerAttributeTest {
         // Test phase tap changer steps replacement
         PhaseTapChanger ptc = twt2.getPhaseTapChanger();
         assertEquals(2, ptc.getStepCount());
-        PhaseTapChangerStepsReplacer phaseStepsReplacer = ptc.stepsReplacer()
-            .beginStep()
+        PhaseTapChangerStepsReplacer phaseStepsReplacer = ptc.stepsReplacer();
+        assertEquals("2 windings transformer 'twt2': a tap changer shall have at least one step",
+            assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
+        phaseStepsReplacer.beginStep()
             .setR(6.0)
             .setX(5.0)
             .setG(4.0)

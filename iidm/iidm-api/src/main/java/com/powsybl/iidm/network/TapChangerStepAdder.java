@@ -12,8 +12,9 @@ package com.powsybl.iidm.network;
  * Set of methods to build a new step for a tap changer.
  * Can be used both when creating a new tap changer with {@link TapChangerAdder}
  * or when replacing steps of an existing tap changer with {@link TapChangerStepsReplacer}.
+ *
  * @param <S> for SELF (itself)
- * @param <T> the parent, so either a {@link TapChangerAdder} or a {@link TapChangerStepsReplacer})
+ * @param <T> the parent, so either a {@link TapChangerAdder} or a {@link TapChangerStepsReplacer}
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
 public interface TapChangerStepAdder<S extends TapChangerStepAdder<S, T>, T> {
