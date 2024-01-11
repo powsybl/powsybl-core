@@ -99,6 +99,9 @@ public class CgmesExportContext {
                     .clearDependencies()
                     .addDependencies(eqModelIds);
             getSvModelDescription().clearDependencies();
+            if (getCimVersion() >= 100) {
+                getSvModelDescription().addDependencies(eqModelIds);
+            }
             Set<String> tpModelIds = getTpModelDescription().getIds();
             if (!tpModelIds.isEmpty()) {
                 getSvModelDescription().addDependencies(tpModelIds);
@@ -109,11 +112,12 @@ public class CgmesExportContext {
             }
             if (boundaryEqId != null) {
                 getEqModelDescription().addDependency(boundaryEqId);
-                getTpModelDescription().addDependency(boundaryEqId);
             }
             if (boundaryTpId != null) {
-                getTpModelDescription().addDependency(boundaryTpId);
                 getSvModelDescription().addDependency(boundaryTpId);
+                if (getCimVersion() >= 100) {
+                    getTpModelDescription().addDependency(boundaryTpId);
+                }
             }
         }
     }
