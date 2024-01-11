@@ -468,7 +468,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                             branchCount++;
                             feederCount++;
                         }
-                        case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, GROUND -> feederCount++;
+                        case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR -> feederCount++;
                         case BUSBAR_SECTION -> busbarSectionCount++;
                         default -> throw new IllegalStateException();
                     }
