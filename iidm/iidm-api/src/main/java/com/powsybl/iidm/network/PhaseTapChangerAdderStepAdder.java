@@ -9,7 +9,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * Interface to build a single step when using {@link PhaseTapChangerAdder}.
+ * Interface for classes responsible for building a single step when using {@link PhaseTapChangerAdder}.
  *
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
