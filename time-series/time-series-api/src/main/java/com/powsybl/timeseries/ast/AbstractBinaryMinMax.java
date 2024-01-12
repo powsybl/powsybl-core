@@ -13,14 +13,18 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public abstract class AbstractBinaryMinMax extends AbstractBinaryNodeCalc {
 
+    protected int hash;
+
     protected AbstractBinaryMinMax(NodeCalc left, NodeCalc right) {
         super(left, right);
+        this.hash = Objects.hash(left, right, this.getJsonName());
     }
 
     @Override

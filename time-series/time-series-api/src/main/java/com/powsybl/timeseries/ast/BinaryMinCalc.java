@@ -52,6 +52,6 @@ public class BinaryMinCalc extends AbstractBinaryMinMax {
 
     @Override
     public int hashCode() {
-        return left.hashCode() + right.hashCode();
+        return hash;
     }
 }

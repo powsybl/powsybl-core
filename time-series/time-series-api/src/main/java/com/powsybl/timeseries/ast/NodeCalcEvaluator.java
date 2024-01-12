@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoint> {
 
-    private static final Map<NodeCalc, Double> CACHE = new HashMap<>();
+    private static final Map<Integer, Double> CACHE = new HashMap<>(50, 0.5f);
 
     public static double eval(NodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         return new NodeCalcEvaluator().evaluateWithCache(nodeCalc, multiPoint);
@@ -52,7 +52,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     @Override
     public Double visit(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
         // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc);
+        Double cachedValue = CACHE.get(nodeCalc.hashCode());
         if (cachedValue != null) {
             return cachedValue;
         }
@@ -74,14 +74,14 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         };
 
         // Put in the cache
-        CACHE.put(nodeCalc, result);
+        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
     @Override
     public Double visit(UnaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double child) {
         // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc);
+        Double cachedValue = CACHE.get(nodeCalc.hashCode());
         if (cachedValue != null) {
             return cachedValue;
         }
@@ -95,7 +95,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         };
 
         // Put in the cache
-        CACHE.put(nodeCalc, result);
+        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -106,18 +106,18 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
 
     @Override
     public Double visit(MinNodeCalc nodeCalc, DoubleMultiPoint multiPoint, Double child) {
-        // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc);
-        if (cachedValue != null) {
-            return cachedValue;
-        }
+//        // Check if already in cache
+//        Double cachedValue = CACHE.get(nodeCalc.hashCode());
+//        if (cachedValue != null) {
+//            return cachedValue;
+//        }
 
         // Compute if not in cache
         double childValue = child;
         double result = Math.min(childValue, nodeCalc.getMin());
 
         // Put in the cache
-        CACHE.put(nodeCalc, result);
+        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -128,18 +128,18 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
 
     @Override
     public Double visit(MaxNodeCalc nodeCalc, DoubleMultiPoint multiPoint, Double child) {
-        // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc);
-        if (cachedValue != null) {
-            return cachedValue;
-        }
+//        // Check if already in cache
+//        Double cachedValue = CACHE.get(nodeCalc.hashCode());
+//        if (cachedValue != null) {
+//            return cachedValue;
+//        }
 
         // Compute if not in cache
         double childValue = child;
         double result = Math.max(childValue, nodeCalc.getMax());
 
         // Put in the cache
-        CACHE.put(nodeCalc, result);
+        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -151,7 +151,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     @Override
     public Double visit(TimeNodeCalc nodeCalc, DoubleMultiPoint multiPoint, Double child) {
         // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc);
+        Double cachedValue = CACHE.get(nodeCalc.hashCode());
         if (cachedValue != null) {
             return cachedValue;
         }
@@ -160,7 +160,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         double result = multiPoint.getTime();
 
         // Put in the cache
-        CACHE.put(nodeCalc, result);
+        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -174,18 +174,20 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         if (multiPoint == null) {
             throw new IllegalStateException("Multi point is null");
         }
-        // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc);
-        if (cachedValue != null) {
-            return cachedValue;
-        }
-
-        // Compute if not in cache
-        double result = multiPoint.getValue(nodeCalc.getTimeSeriesNum());
-
-        // Put in the cache
-        CACHE.put(nodeCalc, result);
-        return result;
+//        // Check if already in cache
+//        Double cachedValue = CACHE.get(nodeCalc.hashCode());
+//        if (cachedValue != null) {
+//            return cachedValue;
+//        }
+//
+//        // Compute if not in cache
+//        double result = multiPoint.getValue(nodeCalc.getTimeSeriesNum());
+//
+//        // Put in the cache
+//        CACHE.put(nodeCalc.hashCode(), result);
+//        CACHE.put(0, result);
+//        return result;
+        return multiPoint.getValue(nodeCalc.getTimeSeriesNum());
     }
 
     @Override
@@ -195,11 +197,11 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
 
     @Override
     public Double visit(BinaryMinCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
-        // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc);
-        if (cachedValue != null) {
-            return cachedValue;
-        }
+//        // Check if already in cache
+//        Double cachedValue = CACHE.get(nodeCalc.hashCode());
+//        if (cachedValue != null) {
+//            return cachedValue;
+//        }
 
         // Compute if not in cache
         double leftValue = left;
@@ -207,17 +209,17 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         double result = Math.min(leftValue, rightValue);
 
         // Put in the cache
-        CACHE.put(nodeCalc, result);
+        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
     @Override
     public Double visit(BinaryMaxCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
-        // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc);
-        if (cachedValue != null) {
-            return cachedValue;
-        }
+//        // Check if already in cache
+//        Double cachedValue = CACHE.get(nodeCalc.hashCode());
+//        if (cachedValue != null) {
+//            return cachedValue;
+//        }
 
         // Compute if not in cache
         double leftValue = left;
@@ -225,7 +227,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         double result = Math.max(leftValue, rightValue);
 
         // Put in the cache
-        CACHE.put(nodeCalc, result);
+        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 

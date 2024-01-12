@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
 import java.util.Deque;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -67,7 +66,7 @@ public class MaxNodeCalc extends AbstractMinMaxNodeCalc {
 
     @Override
     public int hashCode() {
-        return child.hashCode() + Objects.hash(value);
+        return hash;
     }
 
     @Override

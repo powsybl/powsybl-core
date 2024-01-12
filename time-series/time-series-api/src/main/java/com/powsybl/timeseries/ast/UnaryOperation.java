@@ -21,6 +21,7 @@ import java.util.Objects;
 public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
     static final String NAME = "unaryOp";
+    private final int hash;
 
     public enum Operator {
         ABS("abs"),
@@ -56,6 +57,7 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
     UnaryOperation(NodeCalc child, Operator operator) {
         super(child);
         this.operator = Objects.requireNonNull(operator);
+        this.hash = Objects.hash(child, NAME, operator);
     }
 
     public Operator getOperator() {
@@ -139,7 +141,7 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
     @Override
     public int hashCode() {
-        return child.hashCode() + operator.hashCode();
+        return hash;
     }
 
     @Override

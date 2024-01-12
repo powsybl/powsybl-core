@@ -19,6 +19,7 @@ import java.util.Objects;
  */
 public class BinaryOperation extends AbstractBinaryNodeCalc {
 
+    private final int hash;
     static final String NAME = "binaryOp";
 
     public enum Operator {
@@ -90,6 +91,7 @@ public class BinaryOperation extends AbstractBinaryNodeCalc {
     BinaryOperation(NodeCalc left, NodeCalc right, Operator operator) {
         super(left, right);
         this.operator = Objects.requireNonNull(operator);
+        this.hash = Objects.hash(left, right, NAME, operator);
     }
 
     @Override
@@ -160,7 +162,7 @@ public class BinaryOperation extends AbstractBinaryNodeCalc {
 
     @Override
     public int hashCode() {
-        return left.hashCode() + right.hashCode() + operator.hashCode();
+        return hash;
     }
 
     @Override

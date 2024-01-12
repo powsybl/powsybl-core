@@ -22,10 +22,12 @@ public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
     protected NodeCalc child;
 
     protected final double value;
+    protected final int hash;
 
     protected AbstractMinMaxNodeCalc(NodeCalc child, double value) {
         this.child = Objects.requireNonNull(child);
         this.value = value;
+        this.hash = Objects.hash(child, value, this.getJsonName());
     }
 
     public NodeCalc getChild() {
