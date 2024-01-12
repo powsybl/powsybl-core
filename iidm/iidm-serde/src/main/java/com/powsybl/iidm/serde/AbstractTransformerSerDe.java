@@ -206,14 +206,14 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         }
     }
 
-    private static void readTapChangerTerminalRef(TapChangerAdder<?, ?, ?> adder, Terminal terminal, NetworkDeserializerContext context) {
+    private static void readTapChangerTerminalRef(TapChangerAdder<?, ?, ?, ?, ?, ?> adder, Terminal terminal, NetworkDeserializerContext context) {
         TerminalRefSerDe.readTerminalRef(context, terminal.getVoltageLevel().getNetwork(), tRef -> {
             adder.setRegulationTerminal(tRef);
             adder.add();
         });
     }
 
-    private static void readTapChangerAttributes(TapChangerAdder<?, ?, ?> adder, NetworkDeserializerContext context) {
+    private static void readTapChangerAttributes(TapChangerAdder<?, ?, ?, ?, ?, ?> adder, NetworkDeserializerContext context) {
         boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING, false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
