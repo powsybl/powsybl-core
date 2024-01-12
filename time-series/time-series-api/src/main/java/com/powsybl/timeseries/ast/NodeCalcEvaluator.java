@@ -79,11 +79,6 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
-    }
-
-    @Override
     public Double visit(UnaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double child) {
         // Check if already in cache
         Double cachedValue = CACHE.get(nodeCalc);
@@ -200,16 +195,38 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
 
     @Override
     public Double visit(BinaryMinCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+        // Check if already in cache
+        Double cachedValue = CACHE.get(nodeCalc);
+        if (cachedValue != null) {
+            return cachedValue;
+        }
+
+        // Compute if not in cache
         double leftValue = left;
         double rightValue = right;
-        return Math.min(leftValue, rightValue);
+        double result = Math.min(leftValue, rightValue);
+
+        // Put in the cache
+        CACHE.put(nodeCalc, result);
+        return result;
     }
 
     @Override
     public Double visit(BinaryMaxCalc nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+        // Check if already in cache
+        Double cachedValue = CACHE.get(nodeCalc);
+        if (cachedValue != null) {
+            return cachedValue;
+        }
+
+        // Compute if not in cache
         double leftValue = left;
         double rightValue = right;
-        return Math.max(leftValue, rightValue);
+        double result = Math.max(leftValue, rightValue);
+
+        // Put in the cache
+        CACHE.put(nodeCalc, result);
+        return result;
     }
 
     @Override
