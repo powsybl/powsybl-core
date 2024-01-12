@@ -18,11 +18,6 @@ import java.util.function.DoubleConsumer;
  */
 abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends IdentifiableAdder<T, A>> extends AbstractSimpleIdentifiableSerDe<T, A, Substation> {
 
-    private interface StepConsumer {
-
-        void accept(double r, double x, double g, double b, double rho);
-    }
-
     private static final String ATTR_LOW_TAP_POSITION = "lowTapPosition";
     private static final String ATTR_TAP_POSITION = "tapPosition";
     private static final String ATTR_REGULATING = "regulating";
