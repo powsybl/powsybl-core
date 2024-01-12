@@ -58,6 +58,11 @@ class TapChangerAttributeTest {
         assertEquals("2 windings transformer 'twt2': a tap changer shall have at least one step",
             assertThrows(ValidationException.class, ratioStepsReplacer::replaceSteps).getMessage());
         ratioStepsReplacer.beginStep()
+            .endStep();
+        assertEquals("2 windings transformer 'twt2': step rho is not set",
+            assertThrows(ValidationException.class, ratioStepsReplacer::replaceSteps).getMessage());
+        ratioStepsReplacer = rtc.stepsReplacer();
+        ratioStepsReplacer.beginStep()
             .setR(1.0)
             .setX(2.0)
             .setG(3.0)
@@ -95,6 +100,11 @@ class TapChangerAttributeTest {
         PhaseTapChangerStepsReplacer phaseStepsReplacer = ptc.stepsReplacer();
         assertEquals("2 windings transformer 'twt2': a tap changer shall have at least one step",
             assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
+        phaseStepsReplacer.beginStep()
+            .endStep();
+        assertEquals("2 windings transformer 'twt2': step rho is not set",
+            assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
+        phaseStepsReplacer = ptc.stepsReplacer();
         phaseStepsReplacer.beginStep()
             .setR(6.0)
             .setX(5.0)
