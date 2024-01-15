@@ -239,6 +239,7 @@ public class BinWriter implements TreeDataWriter {
                 writeString(extensionVersion, dos);
             });
             dos.write(buffer.toByteArray());
+            dos.close();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
