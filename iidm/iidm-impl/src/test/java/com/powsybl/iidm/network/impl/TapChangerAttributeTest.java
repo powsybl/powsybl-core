@@ -51,7 +51,46 @@ class TapChangerAttributeTest {
         createRatioTapChanger(twt2);
         createPhaseTapChanger(twt2);
 
-        // Test ratio tap changer steps replacement
+        testPhaseTapChangerStepsReplacement(twt2);
+
+        testRatioTapChangerStepsReplacement(twt2);
+    }
+
+    private static void testRatioTapChangerStepsReplacement(TwoWindingsTransformer twt2) {
+        PhaseTapChanger ptc = twt2.getPhaseTapChanger();
+        assertEquals(2, ptc.getStepCount());
+        PhaseTapChangerStepsReplacer phaseStepsReplacer = ptc.stepsReplacer();
+        assertEquals("2 windings transformer 'twt2': a tap changer shall have at least one step",
+            assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
+        phaseStepsReplacer.beginStep()
+            .endStep();
+        assertEquals("2 windings transformer 'twt2': step rho is not set",
+            assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
+        phaseStepsReplacer = ptc.stepsReplacer();
+        phaseStepsReplacer.beginStep()
+            .setR(6.0)
+            .setX(5.0)
+            .setG(4.0)
+            .setB(3.0)
+            .setAlpha(2.0)
+            .setRho(1.0)
+            .endStep();
+        ptc.setTapPosition(1);
+        assertEquals("2 windings transformer 'twt2': incorrect tap position 1 [0, 0]",
+            assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
+        ptc.setTapPosition(0);
+        phaseStepsReplacer.replaceSteps();
+        assertEquals(1, ptc.getStepCount());
+        int phaseLowTapPosition = ptc.getLowTapPosition();
+        assertEquals(6.0, ptc.getStep(phaseLowTapPosition).getR());
+        assertEquals(5.0, ptc.getStep(phaseLowTapPosition).getX());
+        assertEquals(4.0, ptc.getStep(phaseLowTapPosition).getG());
+        assertEquals(3.0, ptc.getStep(phaseLowTapPosition).getB());
+        assertEquals(2.0, ptc.getStep(phaseLowTapPosition).getAlpha());
+        assertEquals(1.0, ptc.getStep(phaseLowTapPosition).getRho());
+    }
+
+    private static void testPhaseTapChangerStepsReplacement(TwoWindingsTransformer twt2) {
         RatioTapChanger rtc = twt2.getRatioTapChanger();
         assertEquals(3, rtc.getStepCount());
         RatioTapChangerStepsReplacer ratioStepsReplacer = rtc.stepsReplacer();
@@ -93,39 +132,6 @@ class TapChangerAttributeTest {
         assertEquals(8.0, rtc.getStep(ratioLowTapPosition + 1).getG());
         assertEquals(9.0, rtc.getStep(ratioLowTapPosition + 1).getB());
         assertEquals(10.0, rtc.getStep(ratioLowTapPosition + 1).getRho());
-
-        // Test phase tap changer steps replacement
-        PhaseTapChanger ptc = twt2.getPhaseTapChanger();
-        assertEquals(2, ptc.getStepCount());
-        PhaseTapChangerStepsReplacer phaseStepsReplacer = ptc.stepsReplacer();
-        assertEquals("2 windings transformer 'twt2': a tap changer shall have at least one step",
-            assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
-        phaseStepsReplacer.beginStep()
-            .endStep();
-        assertEquals("2 windings transformer 'twt2': step rho is not set",
-            assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
-        phaseStepsReplacer = ptc.stepsReplacer();
-        phaseStepsReplacer.beginStep()
-            .setR(6.0)
-            .setX(5.0)
-            .setG(4.0)
-            .setB(3.0)
-            .setAlpha(2.0)
-            .setRho(1.0)
-            .endStep();
-        ptc.setTapPosition(1);
-        assertEquals("2 windings transformer 'twt2': incorrect tap position 1 [0, 0]",
-            assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
-        ptc.setTapPosition(0);
-        phaseStepsReplacer.replaceSteps();
-        assertEquals(1, ptc.getStepCount());
-        int phaseLowTapPosition = ptc.getLowTapPosition();
-        assertEquals(6.0, ptc.getStep(phaseLowTapPosition).getR());
-        assertEquals(5.0, ptc.getStep(phaseLowTapPosition).getX());
-        assertEquals(4.0, ptc.getStep(phaseLowTapPosition).getG());
-        assertEquals(3.0, ptc.getStep(phaseLowTapPosition).getB());
-        assertEquals(2.0, ptc.getStep(phaseLowTapPosition).getAlpha());
-        assertEquals(1.0, ptc.getStep(phaseLowTapPosition).getRho());
     }
 
     private ThreeWindingsTransformer createThreeWindingsTransformer(Substation substation) {
