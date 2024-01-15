@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.OptionalInt;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerStepImpl<S>> implements MultiVariantObject {
@@ -118,10 +117,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public C setTapPosition(int tapPosition) {
         NetworkImpl n = getNetwork();
         if (tapPosition < lowTapPosition
-                || tapPosition > getHighTapPosition()) {
-            throw new ValidationException(parent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", "
-                    + getHighTapPosition() + "]");
+            || tapPosition > getHighTapPosition()) {
+            throwIncorrectTapPosition(tapPosition, getHighTapPosition());
         }
         int variantIndex = n.getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, tapPosition);
@@ -144,9 +141,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public S getStep(int tapPosition) {
         if (tapPosition < lowTapPosition || tapPosition > getHighTapPosition()) {
-            throw new ValidationException(parent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", " + getHighTapPosition()
-                    + "]");
+            throwIncorrectTapPosition(tapPosition, getHighTapPosition());
         }
         return steps.get(tapPosition - lowTapPosition);
     }
@@ -160,9 +155,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         // We check if the tap position is still correct
         int newHighTapPosition = lowTapPosition + steps.size() - 1;
         if (getTapPosition() > newHighTapPosition) {
-            throw new ValidationException(parent, "incorrect tap position "
-                + getTapPosition() + " [" + lowTapPosition + ", "
-                + newHighTapPosition + "]");
+            throwIncorrectTapPosition(getTapPosition(), newHighTapPosition);
         }
 
         this.steps = steps;
@@ -256,4 +249,9 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
+    private void throwIncorrectTapPosition(int tapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect tap position "
+            + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
+    }
 }
