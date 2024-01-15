@@ -110,6 +110,7 @@
                         <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
                         <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
                         <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
+                        <xs:element name="ground" type="iidm:Ground"/>
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="nominalV" use="required" type="xs:double"/>
@@ -693,5 +694,11 @@
 		<xs:attribute name="id" use="required" type="xs:string"/>
         <xs:attribute name="highLimit" use="optional" type="xs:double"/>
         <xs:attribute name="lowLimit" use="optional" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="Ground">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 </xs:schema>
