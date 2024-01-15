@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -199,11 +198,6 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;
         return this;
-    }
-
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
     }
 
     @Override

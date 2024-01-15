@@ -42,14 +42,12 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
         return voltageLevel.getNetwork();
     }
 
-    protected abstract Ref<? extends VariantManagerHolder> getVariantManagerHolder();
-
     protected Ref<NetworkImpl> getNetworkRef() {
         return voltageLevel.getNetworkRef();
     }
 
     protected TerminalExt checkAndGetTerminal() {
-        return new TerminalBuilder(getVariantManagerHolder(), this)
+        return new TerminalBuilder(getNetworkRef(), this)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)

@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.GroundAdder;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -22,11 +21,6 @@ class GroundAdderImpl extends AbstractInjectionAdder<GroundAdderImpl> implements
     @Override
     protected String getTypeDescription() {
         return "Ground";
-    }
-
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
     }
 
     @Override

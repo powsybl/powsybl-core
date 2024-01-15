@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 
@@ -73,11 +72,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     public BatteryAdderImpl setMaxP(double maxP) {
         this.maxP = maxP;
         return this;
-    }
-
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
     }
 
     /**

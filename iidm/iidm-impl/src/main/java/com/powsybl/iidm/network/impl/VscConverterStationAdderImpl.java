@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.VscConverterStationAdder;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -57,11 +56,6 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     public VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         return this;
-    }
-
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
     }
 
     @Override
