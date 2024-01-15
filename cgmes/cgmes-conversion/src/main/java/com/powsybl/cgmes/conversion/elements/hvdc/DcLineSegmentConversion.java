@@ -71,11 +71,11 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         identify(adder, isDuplicated ? "-1" : "");
         HvdcLine hvdcLine = adder.add();
 
-        addHvdcAliasesAndProperties(super.p, isDuplicated ? "-1" : "", context.cgmes(), hvdcLine, context);
+        addHvdcAliasesAndProperties(super.p, isDuplicated ? "-1" : "", context.cgmes(), hvdcLine);
     }
 
     // We do not use "#n" to guarantee uniqueness since the getId() method does not support more than one '#' character
-    private static void addHvdcAliasesAndProperties(PropertyBag pb, String duplicatedTag, CgmesModel cgmesModel, HvdcLine hvdcLine, Context context) {
+    private static void addHvdcAliasesAndProperties(PropertyBag pb, String duplicatedTag, CgmesModel cgmesModel, HvdcLine hvdcLine) {
         CgmesDcTerminal t1 = cgmesModel.dcTerminal(pb.getId(CgmesNames.DC_TERMINAL + 1));
         String dcNode1 = CgmesDcConversion.getDcNode(cgmesModel, t1);
         CgmesDcTerminal t2 = cgmesModel.dcTerminal(pb.getId(CgmesNames.DC_TERMINAL + 2));
@@ -86,7 +86,6 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         hvdcLine.addAlias(t2.id() + duplicatedTag, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + 2);
         hvdcLine.addAlias(dcNode1 + duplicatedTag, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + 1);
         hvdcLine.addAlias(dcNode2 + duplicatedTag, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + 2);
-        context.namingStrategy().readIdMapping(hvdcLine, "DCLineSegment");
     }
 
     private static double getMaxP(double pAC1, double pAC2, HvdcLine.ConvertersMode mode) {

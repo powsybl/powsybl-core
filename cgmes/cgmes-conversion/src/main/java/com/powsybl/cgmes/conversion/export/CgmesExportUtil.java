@@ -8,16 +8,17 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
+import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
+import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.util.LinkData;
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +31,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
+import static com.powsybl.cgmes.model.CgmesNames.PHASE_TAP_CHANGER;
+import static com.powsybl.cgmes.model.CgmesNames.RATIO_TAP_CHANGER;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -94,7 +98,7 @@ public final class CgmesExportUtil {
                 || ENTSOE_BD_EXCEPTIONS_PATTERN2.matcher(id).matches();
     }
 
-    public static String getUniqueId() {
+    public static String getUniqueRandomId() {
         return UUID.randomUUID().toString();
     }
 
@@ -110,11 +114,16 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
-        writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId();
+    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
+        // The ref to build a unique model id must contain:
+        // the network, the subset (EQ, SSH, SV, ...), and the FULL_MODEL part
+        // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
+        CgmesObjectReference[] modelRef = {refTyped(network), ref(subset), Part.FULL_MODEL};
+        String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
         modelDescription.setIds(modelId);
         context.updateDependencies();
+
+        writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
         context.getReporter().report("CgmesId", modelId);
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
@@ -142,6 +151,12 @@ public final class CgmesExportUtil {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
+        if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind().equals(CgmesTopologyKind.NODE_BREAKER) && context.getCimVersion() < 100) {
+            // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
+            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
+            writer.writeCharacters(context.getCim().getProfileUri("EQ_OP"));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
         writer.writeCharacters(modelDescription.getModelingAuthoritySet());
         writer.writeEndElement();
@@ -190,16 +205,7 @@ public final class CgmesExportUtil {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
     }
 
-    public static Complex complexVoltage(double r, double x, double g, double b,
-                                         double v, double angle, double p, double q) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
-                new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
-        Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
-        Complex s1 = new Complex(p, q);
-        return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
-    }
-
-    static String loadClassName(Load load) {
+    public static String loadClassName(Load load) {
         String originalClassName = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "undefined");
         double p0 = load.getP0();
         LoadDetail loadDetail = load.getExtension(LoadDetail.class);
@@ -219,10 +225,10 @@ public final class CgmesExportUtil {
         // As negative loads are not allowed, they are modeled as energy source.
         // Note that negative loads can be the result of network reduction and could be modeled
         // as equivalent injections.
-        return p0 < 0 ? CgmesNames.ENERGY_SOURCE : loadClassName(loadDetail);
+        return p0 < 0 ? CgmesNames.ENERGY_SOURCE : loadDetailClassName(loadDetail);
     }
 
-    public static String loadClassName(LoadDetail loadDetail) {
+    public static String loadDetailClassName(LoadDetail loadDetail) {
         if (loadDetail != null) {
             if (isConformLoad(loadDetail)) {
                 return CgmesNames.CONFORM_LOAD;
@@ -253,16 +259,15 @@ public final class CgmesExportUtil {
     }
 
     public static String switchClassname(SwitchKind kind) {
-        switch (kind) {
-            case BREAKER:
-                return "Breaker";
-            case DISCONNECTOR:
-                return "Disconnector";
-            case LOAD_BREAK_SWITCH:
-                return "LoadBreakSwitch";
-        }
-        LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
-        return "Switch";
+        return switch (kind) {
+            case BREAKER -> "Breaker";
+            case DISCONNECTOR -> "Disconnector";
+            case LOAD_BREAK_SWITCH -> "LoadBreakSwitch";
+            default -> {
+                LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
+                yield "Switch";
+            }
+        };
     }
 
     public static int getTerminalSequenceNumber(Terminal t, List<DanglingLine> boundaryDanglingLines) {
@@ -290,15 +295,10 @@ public final class CgmesExportUtil {
 
     public static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
         if (converterStation.getHvdcLine().getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
-            if (converterStation.getHvdcLine().getConverterStation1().equals(converterStation)) {
-                return true;
-            }
+            return converterStation.getHvdcLine().getConverterStation1().equals(converterStation);
         } else {
-            if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
-                return true;
-            }
+            return converterStation.getHvdcLine().getConverterStation2().equals(converterStation);
         }
-        return false;
     }
 
     public static String converterClassName(HvdcConverterStation<?> converterStation) {
@@ -333,26 +333,26 @@ public final class CgmesExportUtil {
     }
 
     // tap changer is exported as it is modelled in IIDM, always at end 1
-    static void addUpdateCgmesTapChangerExtension(TwoWindingsTransformer twt) {
-        twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER), regulatingControlIsDefined(rtc)));
-        twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER), regulatingControlIsDefined(ptc)));
+    static void addUpdateCgmesTapChangerExtension(TwoWindingsTransformer twt, CgmesExportContext context) {
+        twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, context), regulatingControlIsDefined(rtc), context));
+        twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, context), regulatingControlIsDefined(ptc), context));
     }
 
-    static void addUpdateCgmesTapChangerExtension(ThreeWindingsTransformer twt) {
-        twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 1), regulatingControlIsDefined(rtc)));
-        twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 1), regulatingControlIsDefined(ptc)));
+    static void addUpdateCgmesTapChangerExtension(ThreeWindingsTransformer twt, CgmesExportContext context) {
+        twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 1, context), regulatingControlIsDefined(rtc), context));
+        twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 1, context), regulatingControlIsDefined(ptc), context));
 
-        twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 2), regulatingControlIsDefined(rtc)));
-        twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 2), regulatingControlIsDefined(ptc)));
+        twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 2, context), regulatingControlIsDefined(rtc), context));
+        twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 2, context), regulatingControlIsDefined(ptc), context));
 
-        twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 3), regulatingControlIsDefined(rtc)));
-        twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 3), regulatingControlIsDefined(ptc)));
+        twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 3, context), regulatingControlIsDefined(rtc), context));
+        twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 3, context), regulatingControlIsDefined(ptc), context));
     }
 
     // If we had alias only for tc1, it will be at end 1
     // If we had alias for tc1 and tc2, tc2 has been moved to end 1 and combined with tc1, tc1 id will be used
     // If we only had tc at end 2, it has been moved to end 1 but the id is recorded at end2, tc2 id will be used
-    private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag) {
+    private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag, CgmesExportContext context) {
         String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + 1;
         Optional<String> optionalTapChangerId1 = twt.getAliasFromType(aliasType1);
         if (optionalTapChangerId1.isPresent()) {
@@ -362,7 +362,8 @@ public final class CgmesExportUtil {
             Optional<String> optionalTapChangerId2 = twt.getAliasFromType(aliasType2);
             if (optionalTapChangerId2.isEmpty()) {
                 // We create a new id always at end 1
-                String newTapChangerId = CgmesExportUtil.getUniqueId();
+                Part ratioPhasePart = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
+                String newTapChangerId = context.getNamingStrategy().getCgmesId(refTyped(twt), ratioPhasePart);
                 twt.addAlias(newTapChangerId, aliasType1);
                 return newTapChangerId;
             } else {
@@ -371,11 +372,12 @@ public final class CgmesExportUtil {
         }
     }
 
-    private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag, int endNumber) {
+    private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag, int endNumber, CgmesExportContext context) {
         String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + endNumber;
         Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
         if (optionalTapChangerId.isEmpty()) {
-            String newTapChangerId = CgmesExportUtil.getUniqueId();
+            Part ratioPhasePart = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
+            String newTapChangerId = context.getNamingStrategy().getCgmesId(refTyped(twt), ratioPhasePart);
             twt.addAlias(newTapChangerId, aliasType);
             return newTapChangerId;
         } else {
@@ -396,7 +398,7 @@ public final class CgmesExportUtil {
                 && ptc.getRegulationTerminal() != null;
     }
 
-    private static <C extends Connectable<C>> void addTapChangerExtension(C twt, String tapChangerId, boolean regulatingControlIsDefined) {
+    private static <C extends Connectable<C>> void addTapChangerExtension(C twt, String cgmesTapChangerTag, String tapChangerId, boolean regulatingControlIsDefined, CgmesExportContext context) {
         if (!regulatingControlIsDefined) {
             return;
         }
@@ -406,14 +408,16 @@ public final class CgmesExportUtil {
             cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
         }
         CgmesTapChanger cgmesTapChanger = cgmesTapChangers.getTapChanger(tapChangerId);
+
+        Part refTapChanger = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
         if (cgmesTapChanger == null) {
             cgmesTapChanger = cgmesTapChangers.newTapChanger()
                     .setId(tapChangerId)
-                    .setControlId(CgmesExportUtil.getUniqueId())
+                    .setControlId(context.getNamingStrategy().getCgmesId(ref(twt), refTapChanger, Part.REGULATING_CONTROL))
                     .add();
         }
         if (cgmesTapChanger.getControlId() == null) {
-            cgmesTapChanger.setControlId(CgmesExportUtil.getUniqueId());
+            cgmesTapChanger.setControlId(context.getNamingStrategy().getCgmesId(ref(twt), refTapChanger, Part.REGULATING_CONTROL));
         }
     }
 
@@ -437,7 +441,8 @@ public final class CgmesExportUtil {
         return network.getBoundaryElements().stream()
                 .filter(DanglingLine.class::isInstance)
                 .map(DanglingLine.class::cast)
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(Identifiable::getId))
+                .toList();
     }
 
     public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {

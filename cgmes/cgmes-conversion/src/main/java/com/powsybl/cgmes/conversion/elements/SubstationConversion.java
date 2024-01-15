@@ -42,8 +42,6 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         // After applying naming strategy it is possible that two CGMES substations are mapped
         // to the same Network substation, so we should check if corresponding substation has
         // already been created
-        String geoTag = context.namingStrategy().getGeographicalTag(subRegionName);
-
         String iidmSubstationId = context.substationIdMapping().substationIidm(id);
         Substation substation = context.network().getSubstation(iidmSubstationId);
         if (substation != null) {
@@ -54,8 +52,8 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
                 .setName(iidmName())
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .setCountry(country);
-        if (geoTag != null) {
-            adder.setGeographicalTags(geoTag);
+        if (subRegionName != null) {
+            adder.setGeographicalTags(subRegionName);
         }
         Substation s = adder.add();
         addAliasesAndProperties(s, p.getId("SubRegion"), p.getId("Region"), regionName);
@@ -70,6 +68,5 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName", regionName);
-        context.namingStrategy().readIdMapping(s, "Substation");
     }
 }

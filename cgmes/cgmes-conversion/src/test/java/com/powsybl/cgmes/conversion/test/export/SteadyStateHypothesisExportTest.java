@@ -66,7 +66,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
             ExportXmlCompare::ignoringCgmesSshMetadataId);
-        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm);
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
     }
 
     @Test
@@ -79,7 +79,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
             ExportXmlCompare::ignoringCgmesSshMetadataId);
-        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm);
+        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
     }
 
     @Test
@@ -91,7 +91,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
             ExportXmlCompare::ignoringCgmesSshMetadataId);
-        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm);
+        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
     }
 
     @Test
@@ -100,11 +100,11 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+        assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringCgmesSshMetadataId,
-                ExportXmlCompare::ignoringControlAreaNetInterchange));
+                ExportXmlCompare::ignoringControlAreaNetInterchange)));
     }
 
     @Test
@@ -113,15 +113,15 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::sameScenarioTime,
                 ExportXmlCompare::ensuringIncreasedModelVersion,
                 ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringControlAreaNetInterchange,
                 ExportXmlCompare::ignoringCgmesSshMetadataId,
-                ExportXmlCompare::ignoringHvdcLinePmax));
+                ExportXmlCompare::ignoringHvdcLinePmax)));
     }
 
-    private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
+    private boolean test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
         // Import original
         importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
@@ -138,7 +138,9 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         // Compare the exported SSH with the original one
         try (InputStream expectedssh = Repackager.newInputStream(dataSource, Repackager::ssh);
              InputStream actualssh = Files.newInputStream(exportedSsh)) {
-            ExportXmlCompare.compareSSH(expectedssh, actualssh, knownDiffsSsh);
+            if (!ExportXmlCompare.compareSSH(expectedssh, actualssh, knownDiffsSsh)) {
+                return false;
+            }
         }
 
         // Zip with new SSH
@@ -168,7 +170,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(expectedPath, actualPath, knownDiffsIidm);
+        return ExportXmlCompare.compareNetworks(expectedPath, actualPath, knownDiffsIidm);
     }
 
     @Test
@@ -377,7 +379,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringRdfChildLookupEquivalentInjection,
                 ExportXmlCompare::ignoringRdfChildLookupStaticVarCompensator,
                 ExportXmlCompare::ignoringRdfChildLookupRegulatingControl);
-        ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh);
+        assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
     }
 
     private static void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
