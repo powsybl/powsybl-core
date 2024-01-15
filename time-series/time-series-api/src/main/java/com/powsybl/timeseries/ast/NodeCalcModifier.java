@@ -109,7 +109,7 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
         return visitBinaryNodeCalc(nodeCalc, left, right);
     }
 
-    private NodeCalc visitBinaryNodeCalc(AbstractBinaryNodeCal nodeCalc, NodeCalc left, NodeCalc right) {
+    private NodeCalc visitBinaryNodeCalc(AbstractBinaryNodeCalc nodeCalc, NodeCalc left, NodeCalc right) {
         if (left != null) {
             nodeCalc.setLeft(left);
         }
@@ -120,7 +120,7 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, A arg) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

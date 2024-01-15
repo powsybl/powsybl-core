@@ -103,7 +103,7 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, Void arg) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, Void arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

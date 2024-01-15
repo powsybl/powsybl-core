@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractBinaryMinMax extends AbstractBinaryNodeCal {
+public abstract class AbstractBinaryMinMax extends AbstractBinaryNodeCalc {
 
     protected AbstractBinaryMinMax(NodeCalc left, NodeCalc right) {
         super(left, right);

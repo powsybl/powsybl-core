@@ -131,7 +131,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, DoubleMultiPoint multiPoint) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }
