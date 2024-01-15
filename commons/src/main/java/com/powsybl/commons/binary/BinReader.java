@@ -8,6 +8,7 @@
 package com.powsybl.commons.binary;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataHeader;
 import com.powsybl.commons.io.TreeDataReader;
 
 import java.io.*;
@@ -26,9 +27,28 @@ public class BinReader implements TreeDataReader {
     private final DataInputStream dis;
     private final Map<Integer, String> dictionary = new HashMap<>();
 
-    public BinReader(InputStream is) throws IOException {
+    public BinReader(InputStream is) {
         this.dis = new DataInputStream(new BufferedInputStream(Objects.requireNonNull(is)));
-        readDictionary();
+    }
+
+    @Override
+    public TreeDataHeader readHeader() {
+        try {
+            TreeDataHeader header = new TreeDataHeader(readString(), readExtensionVersions());
+            readDictionary();
+            return header;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public Map<String, String> readExtensionVersions() throws IOException {
+        int nbVersions = dis.readShort();
+        Map<String, String> versions = new HashMap<>();
+        for (int i = 0; i < nbVersions; i++) {
+            versions.put(readString(), readString());
+        }
+        return versions;
     }
 
     private void readDictionary() throws IOException {
@@ -103,25 +123,6 @@ public class BinReader implements TreeDataReader {
                 values.add(valueReader.get());
             }
             return values;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public String readRootVersion() {
-        return readString();
-    }
-
-    @Override
-    public Map<String, String> readVersions() {
-        try {
-            int nbVersions = dis.readShort();
-            Map<String, String> versions = new HashMap<>();
-            for (int i = 0; i < nbVersions; i++) {
-                versions.put(readString(), readString());
-            }
-            return versions;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

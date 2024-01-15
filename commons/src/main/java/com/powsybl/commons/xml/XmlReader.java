@@ -47,7 +47,7 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Map<String, String> readVersions() {
+    public Map<String, String> readExtensionVersions() {
         Map<String, String> versions = new HashMap<>();
         for (ExtensionSerDe<?, ?> e : extensionProviders) {
             String namespaceUri = reader.getNamespaceURI(e.getNamespacePrefix());

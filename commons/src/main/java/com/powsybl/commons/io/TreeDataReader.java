@@ -6,7 +6,10 @@
  */
 package com.powsybl.commons.io;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -23,9 +26,7 @@ public interface TreeDataReader extends AutoCloseable {
         void onStartNode(String nodeName);
     }
 
-    String readRootVersion();
-
-    Map<String, String> readVersions();
+    TreeDataHeader readHeader();
 
     double readDoubleAttribute(String name);
 

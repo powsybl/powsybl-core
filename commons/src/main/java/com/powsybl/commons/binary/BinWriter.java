@@ -230,19 +230,28 @@ public class BinWriter implements TreeDataWriter {
     public void close() {
         try {
             tmpDos.flush();
-            writeIndex(nodeNamesIndex.size(), dos);
-            nodeNamesIndex.forEach((name, index) -> writeString(name, dos));
-            writeString(rootVersion, dos);
-            writeIndex(extensionVersions.size(), dos);
-            extensionVersions.forEach((extensionName, extensionVersion) -> {
-                writeString(extensionName, dos);
-                writeString(extensionVersion, dos);
-            });
+            writeHeader();
             dos.write(buffer.toByteArray());
             dos.close();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private void writeHeader() {
+        // iidm version
+        writeString(rootVersion, dos);
+
+        // extensions versions
+        writeIndex(extensionVersions.size(), dos);
+        extensionVersions.forEach((extensionName, extensionVersion) -> {
+            writeString(extensionName, dos);
+            writeString(extensionVersion, dos);
+        });
+
+        // dictionary
+        writeIndex(nodeNamesIndex.size(), dos);
+        nodeNamesIndex.forEach((name, index) -> writeString(name, dos));
     }
 
     @Override

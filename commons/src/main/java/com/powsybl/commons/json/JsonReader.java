@@ -50,7 +50,7 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Map<String, String> readVersions() {
+    public Map<String, String> readExtensionVersions() {
         if (!(EXTENSION_VERSIONS_NAME.equals(getFieldName()))) {
             return Collections.emptyMap();
         }

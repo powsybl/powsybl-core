@@ -20,6 +20,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.TreeDataFormat;
+import com.powsybl.commons.io.TreeDataHeader;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonReader;
@@ -515,16 +516,8 @@ public final class NetworkSerDe {
         return switch (config.getFormat()) {
             case XML -> createXmlReader(is, config);
             case JSON -> createJsonReader(is, config);
-            case BIN -> createBinReader(is);
+            case BIN -> new BinReader(is);
         };
-    }
-
-    private static TreeDataReader createBinReader(InputStream is) {
-        try {
-            return new BinReader(is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     private static TreeDataReader createJsonReader(InputStream is, ImportOptions config) {
@@ -698,10 +691,9 @@ public final class NetworkSerDe {
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(reporter);
 
-        IidmVersion iidmVersion = IidmVersion.of(reader.readRootVersion(), ".");
-        Map<String, String> extensionVersions = reader.readVersions();
-
-        NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, extensionVersions);
+        TreeDataHeader header = reader.readHeader();
+        IidmVersion iidmVersion = IidmVersion.of(header.rootVersion(), ".");
+        NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, header.extensionVersions());
 
         Network network = initNetwork(networkFactory, context, reader, null);
         network.getReporterContext().pushReporter(reporter);
