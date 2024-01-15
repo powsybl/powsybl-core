@@ -9,9 +9,9 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.ControlZone;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -21,12 +21,11 @@ import java.util.Objects;
  */
 public class SecondaryVoltageControlImpl extends AbstractExtension<Network> implements SecondaryVoltageControl {
 
-    private final List<ControlZone> controlZones = new ArrayList<>();
+    private final List<ControlZone> controlZones;
 
-    public SecondaryVoltageControlImpl(Network network, List<ControlZone> controlZones) {
+    SecondaryVoltageControlImpl(Network network, List<ControlZone> controlZones) {
         super(network);
-        Objects.requireNonNull(controlZones).forEach(Objects::requireNonNull);
-        this.controlZones.addAll(controlZones);
+        this.controlZones = Objects.requireNonNull(controlZones);
     }
 
     @Override

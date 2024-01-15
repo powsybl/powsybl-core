@@ -6,33 +6,34 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.extensions.Extension;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface NetworkListener {
 
-    void onCreation(Identifiable identifiable);
+    void onCreation(Identifiable<?> identifiable);
 
-    void beforeRemoval(Identifiable identifiable);
+    void beforeRemoval(Identifiable<?> identifiable);
 
     void afterRemoval(String id);
 
-    void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue);
+    void onUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue);
 
-    default void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue,
-            Object newValue) {
+    void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue);
+
+    void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue);
+
+    default void onElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
         // empty default implementation
     }
 
-    default void onElementAdded(Identifiable identifiable, String attribute, Object newValue) {
+    default void onElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         // empty default implementation
     }
 
-    default void onElementReplaced(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
-        // empty default implementation
-    }
-
-    default void onElementRemoved(Identifiable identifiable, String attribute, Object oldValue) {
+    default void onElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
         // empty default implementation
     }
 

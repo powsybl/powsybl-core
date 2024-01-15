@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,22 +7,19 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Network;
-
 import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface SecondaryVoltageControl extends Extension<Network> {
+public interface PilotPoint {
 
-    String NAME = "secondaryVoltageControl";
+    /**
+     * Get pilot point busbar section ID or bus ID of the bus/breaker view.
+     */
+    List<String> getBusbarSectionsOrBusesIds();
 
-    List<ControlZone> getControlZones();
+    double getTargetV();
 
-    @Override
-    default String getName() {
-        return NAME;
-    }
+    void setTargetV(double targetV);
 }
