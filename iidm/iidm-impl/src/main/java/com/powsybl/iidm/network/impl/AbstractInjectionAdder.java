@@ -38,7 +38,7 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
     protected abstract Ref<? extends VariantManagerHolder> getVariantManagerHolder();
 
     protected TerminalExt checkAndGetTerminal() {
-        return new TerminalBuilder(getVariantManagerHolder(), this)
+        return new TerminalBuilder(getVariantManagerHolder(), this, null)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)
