@@ -95,8 +95,8 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         setMixInAnnotation(Action.class, ActionMixIn.class);
         registerActionType(SwitchAction.class, SwitchAction.NAME,
                 new SwitchActionSerializer(), new SwitchActionDeserializer());
-        registerActionType(TerminalConnectionAction.class, TerminalConnectionAction.NAME,
-                new TerminalConnectionActionSerializer(), new TerminalConnectionActionDeserializer());
+        registerActionType(TerminalsConnectionAction.class, TerminalsConnectionAction.NAME,
+                new TerminalsConnectionActionSerializer(), new TerminalsConnectionActionDeserializer());
         registerActionType(MultipleActionsAction.class, MultipleActionsAction.NAME,
                 new MultipleActionsActionSerializer(), new MultipleActionsActionDeserializer());
         registerActionType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME,

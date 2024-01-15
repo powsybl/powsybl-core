@@ -12,17 +12,17 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.security.action.TerminalConnectionAction;
+import com.powsybl.security.action.TerminalsConnectionAction;
 
 import java.io.IOException;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class TerminalConnectionActionDeserializer extends StdDeserializer<TerminalConnectionAction> {
+public class TerminalsConnectionActionDeserializer extends StdDeserializer<TerminalsConnectionAction> {
 
-    public TerminalConnectionActionDeserializer() {
-        super(TerminalConnectionAction.class);
+    public TerminalsConnectionActionDeserializer() {
+        super(TerminalsConnectionAction.class);
     }
 
     private static class ParsingContext {
@@ -33,13 +33,13 @@ public class TerminalConnectionActionDeserializer extends StdDeserializer<Termin
     }
 
     @Override
-    public TerminalConnectionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public TerminalsConnectionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
-                    if (!TerminalConnectionAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + TerminalConnectionAction.NAME);
+                    if (!TerminalsConnectionAction.NAME.equals(jsonParser.nextTextValue())) {
+                        throw JsonMappingException.from(jsonParser, "Expected type " + TerminalsConnectionAction.NAME);
                     }
                     return true;
                 case "id":
@@ -64,9 +64,9 @@ public class TerminalConnectionActionDeserializer extends StdDeserializer<Termin
             throw JsonMappingException.from(jsonParser, "for terminal connection action open field can't be null");
         }
         if (context.side == null) {
-            return new TerminalConnectionAction(context.id, context.elementId, context.open);
+            return new TerminalsConnectionAction(context.id, context.elementId, context.open);
         } else {
-            return new TerminalConnectionAction(context.id, context.elementId, context.side, context.open);
+            return new TerminalsConnectionAction(context.id, context.elementId, context.side, context.open);
         }
     }
 }

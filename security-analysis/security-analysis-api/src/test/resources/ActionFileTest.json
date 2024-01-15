@@ -1,5 +1,5 @@
 {
-  "version" : "1.2",
+  "version" : "1.1",
   "actions" : [ {
     "type" : "SWITCH",
     "id" : "id1",
@@ -15,12 +15,12 @@
       "open" : true
     } ]
   }, {
-    "type" : "TERMINAL_CONNECTION",
+    "type" : "TERMINALS_CONNECTION",
     "id" : "id3",
     "elementId" : "lineId3",
     "open" : true
   }, {
-    "type" : "TERMINAL_CONNECTION",
+    "type" : "TERMINALS_CONNECTION",
     "id" : "id4",
     "elementId" : "lineId4",
     "open" : false
@@ -178,7 +178,7 @@
     "regulationMode" : "REACTIVE_POWER",
     "reactivePowerSetpoint" : 120.0
   }, {
-    "type" : "TERMINAL_CONNECTION",
+    "type" : "TERMINALS_CONNECTION",
     "id" : "id4",
     "elementId" : "transformerId25",
     "side" : "THREE",

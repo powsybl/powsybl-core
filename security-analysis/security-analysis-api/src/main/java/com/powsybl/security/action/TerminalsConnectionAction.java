@@ -1,8 +1,9 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.action;
 
@@ -16,9 +17,9 @@ import java.util.Optional;
  *
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public class TerminalConnectionAction extends AbstractAction {
+public class TerminalsConnectionAction extends AbstractAction {
 
-    public static final String NAME = "TERMINAL_CONNECTION";
+    public static final String NAME = "TERMINALS_CONNECTION";
     private final String elementId;
     private ThreeSides side;
     private final boolean open;
@@ -31,7 +32,7 @@ public class TerminalConnectionAction extends AbstractAction {
      * @param side the side of the element to operate in the action.
      * @param open the status of the terminal to operate. {@code true} means terminal to open.
      */
-    public TerminalConnectionAction(String id, String elementId, ThreeSides side, boolean open) {
+    public TerminalsConnectionAction(String id, String elementId, ThreeSides side, boolean open) {
         super(id);
         this.elementId = Objects.requireNonNull(elementId);
         this.side = Objects.requireNonNull(side);
@@ -45,7 +46,7 @@ public class TerminalConnectionAction extends AbstractAction {
      *                  dangling line.
      * @param open the status of all the terminals of the element to operate. {@code true} means all terminals to open.
      */
-    public TerminalConnectionAction(String id, String elementId, boolean open) {
+    public TerminalsConnectionAction(String id, String elementId, boolean open) {
         super(id);
         this.elementId = Objects.requireNonNull(elementId);
         this.open = open;

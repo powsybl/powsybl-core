@@ -15,12 +15,12 @@
       "open" : true
     } ]
   }, {
-    "type" : "TERMINAL_CONNECTION",
+    "type" : "TERMINALS_CONNECTION",
     "id" : "id3",
     "elementId" : "lineId3",
     "open" : true
   }, {
-    "type" : "TERMINAL_CONNECTION",
+    "type" : "TERMINALS_CONNECTION",
     "id" : "id4",
     "elementId" : "lineId4",
     "open" : false
