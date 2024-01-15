@@ -691,11 +691,23 @@
           "alpha" : 42.8
         } ]
       },
-      "currentLimits1" : {
-        "permanentLimit" : 931.0
+      "operationalLimitsGroups1" : {
+        "defaultOperationalLimitsGroupId" : "",
+        "operationalLimitsGroups" : [ {
+          "id" : "",
+          "currentLimits" : {
+            "permanentLimit" : 931.0
+          }
+        } ]
       },
-      "currentLimits2" : {
-        "permanentLimit" : 931.0
+      "operationalLimitsGroups2" : {
+        "defaultOperationalLimitsGroupId" : "",
+        "operationalLimitsGroups" : [ {
+          "id" : "",
+          "currentLimits" : {
+            "permanentLimit" : 931.0
+          }
+        } ]
       }
     } ]
   } ],
@@ -711,18 +723,30 @@
     "node1" : 4,
     "voltageLevelId2" : "N",
     "node2" : 5,
-    "currentLimits1" : {
-      "permanentLimit" : 931.0
+    "operationalLimitsGroups1" : {
+      "defaultOperationalLimitsGroupId" : "",
+      "operationalLimitsGroups" : [ {
+        "id" : "",
+        "currentLimits" : {
+          "permanentLimit" : 931.0
+        }
+      } ]
     },
-    "currentLimits2" : {
-      "permanentLimit" : 931.0,
-      "temporaryLimits" : [ {
-        "name" : "IST",
-        "value" : 1640.0,
-        "fictitious" : true
-      }, {
-        "name" : "IT1",
-        "acceptableDuration" : 60
+    "operationalLimitsGroups2" : {
+      "defaultOperationalLimitsGroupId" : "",
+      "operationalLimitsGroups" : [ {
+        "id" : "",
+        "currentLimits" : {
+          "permanentLimit" : 931.0,
+          "temporaryLimits" : [ {
+            "name" : "IST",
+            "value" : 1640.0,
+            "fictitious" : true
+          }, {
+            "name" : "IT1",
+            "acceptableDuration" : 60
+          } ]
+        }
       } ]
     }
   } ]

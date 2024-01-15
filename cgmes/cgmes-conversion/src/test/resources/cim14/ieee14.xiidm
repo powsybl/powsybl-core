@@ -116,8 +116,16 @@
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9259259104728699"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9090908765792847"/>
             </iidm:ratioTapChanger>
-            <iidm:currentLimits1 permanentLimit="836.739990234375"/>
-            <iidm:currentLimits2 permanentLimit="4183.7001953125"/>
+            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+                <iidm:operationalLimitsGroup id="">
+                    <iidm:currentLimits permanentLimit="836.739990234375"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:operationalLimitsGroups1>
+            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
+                <iidm:operationalLimitsGroup id="">
+                    <iidm:currentLimits permanentLimit="4183.7001953125"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:operationalLimitsGroups2>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="BUS____4-BUS____7-1_PT" name="BUS    4-BUS    7-1" r="0.0" x="0.39824801683425903" g="0.0" b="0.0" ratedU1="69.0" ratedU2="13.800000190734863" bus1="BUS____4_TN" connectableBus1="BUS____4_TN" voltageLevelId1="BUS____4_VL" bus2="BUS____7_TN" connectableBus2="BUS____7_TN" voltageLevelId2="BUS____7_VL">
             <iidm:ratioTapChanger lowTapPosition="1" tapPosition="5" loadTapChangingCapabilities="false">
@@ -133,8 +141,16 @@
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9259259104728699"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9090908765792847"/>
             </iidm:ratioTapChanger>
-            <iidm:currentLimits1 permanentLimit="836.739990234375"/>
-            <iidm:currentLimits2 permanentLimit="4183.7001953125"/>
+            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+                <iidm:operationalLimitsGroup id="">
+                    <iidm:currentLimits permanentLimit="836.739990234375"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:operationalLimitsGroups1>
+            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
+                <iidm:operationalLimitsGroup id="">
+                    <iidm:currentLimits permanentLimit="4183.7001953125"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:operationalLimitsGroups2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="BUS____5_SS" name="BUS    5_SS" geographicalTags="01">
@@ -168,8 +184,16 @@
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9259259104728699"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9090908765792847"/>
             </iidm:ratioTapChanger>
-            <iidm:currentLimits1 permanentLimit="836.739990234375"/>
-            <iidm:currentLimits2 permanentLimit="4183.7001953125"/>
+            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+                <iidm:operationalLimitsGroup id="">
+                    <iidm:currentLimits permanentLimit="836.739990234375"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:operationalLimitsGroups1>
+            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
+                <iidm:operationalLimitsGroup id="">
+                    <iidm:currentLimits permanentLimit="4183.7001953125"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:operationalLimitsGroups2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="BUS____8_SS" name="BUS    8_SS" geographicalTags="01">
@@ -184,54 +208,122 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="BUS___10-BUS___11-1_AC" name="BUS   10-BUS   11-1" r="0.15625600516796112" x="0.36577799916267395" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS___10_TN" connectableBus1="BUS___10_TN" voltageLevelId1="BUS___10_VL" bus2="BUS___11_TN" connectableBus2="BUS___11_TN" voltageLevelId2="BUS___11_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS___12-BUS___13-1_AC" name="BUS   12-BUS   13-1" r="0.42072001099586487" x="0.38065099716186523" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS___12_TN" connectableBus1="BUS___12_TN" voltageLevelId1="BUS___12_VL" bus2="BUS___13_TN" connectableBus2="BUS___13_TN" voltageLevelId2="BUS___13_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS___13-BUS___14-1_AC" name="BUS   13-BUS   14-1" r="0.32551899552345276" x="0.6627690196037292" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS___13_TN" connectableBus1="BUS___13_TN" voltageLevelId1="BUS___13_VL" bus2="BUS___14_TN" connectableBus2="BUS___14_TN" voltageLevelId2="BUS___14_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____1-BUS____2-1_AC" name="BUS    1-BUS    2-1" r="0.922681987285614" x="2.817080020904541" g1="0.0" b1="5.545049789361656E-4" g2="0.0" b2="5.545049789361656E-4" bus1="BUS____1_TN" connectableBus1="BUS____1_TN" voltageLevelId1="BUS____1_VL" bus2="BUS____2_TN" connectableBus2="BUS____2_TN" voltageLevelId2="BUS____2_VL">
-        <iidm:currentLimits1 permanentLimit="836.739990234375"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="836.739990234375"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____1-BUS____5-1_AC" name="BUS    1-BUS    5-1" r="2.5723700523376465" x="10.618900299072266" g1="0.0" b1="5.166999762877822E-4" g2="0.0" b2="5.166999762877822E-4" bus1="BUS____1_TN" connectableBus1="BUS____1_TN" voltageLevelId1="BUS____1_VL" bus2="BUS____5_TN" connectableBus2="BUS____5_TN" voltageLevelId2="BUS____5_VL">
-        <iidm:currentLimits1 permanentLimit="836.739990234375"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="836.739990234375"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____2-BUS____3-1_AC" name="BUS    2-BUS    3-1" r="2.237190008163452" x="9.425350189208984" g1="0.0" b1="4.59987495560199E-4" g2="0.0" b2="4.59987495560199E-4" bus1="BUS____2_TN" connectableBus1="BUS____2_TN" voltageLevelId1="BUS____2_VL" bus2="BUS____3_TN" connectableBus2="BUS____3_TN" voltageLevelId2="BUS____3_VL">
-        <iidm:currentLimits1 permanentLimit="836.739990234375"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="836.739990234375"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____2-BUS____4-1_AC" name="BUS    2-BUS    4-1" r="2.766619920730591" x="8.394599914550781" g1="0.0" b1="3.5706799826584756E-4" g2="0.0" b2="3.5706799826584756E-4" bus1="BUS____2_TN" connectableBus1="BUS____2_TN" voltageLevelId1="BUS____2_VL" bus2="BUS____4_TN" connectableBus2="BUS____4_TN" voltageLevelId2="BUS____4_VL">
-        <iidm:currentLimits1 permanentLimit="836.739990234375"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="836.739990234375"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____2-BUS____5-1_AC" name="BUS    2-BUS    5-1" r="2.7113900184631348" x="8.278429985046387" g1="0.0" b1="3.6336900666356087E-4" g2="0.0" b2="3.6336900666356087E-4" bus1="BUS____2_TN" connectableBus1="BUS____2_TN" voltageLevelId1="BUS____2_VL" bus2="BUS____5_TN" connectableBus2="BUS____5_TN" voltageLevelId2="BUS____5_VL">
-        <iidm:currentLimits1 permanentLimit="836.739990234375"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="836.739990234375"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____3-BUS____4-1_AC" name="BUS    3-BUS    4-1" r="3.19035005569458" x="8.142740249633789" g1="0.0" b1="1.3442549970932305E-4" g2="0.0" b2="1.3442549970932305E-4" bus1="BUS____3_TN" connectableBus1="BUS____3_TN" voltageLevelId1="BUS____3_VL" bus2="BUS____4_TN" connectableBus2="BUS____4_TN" voltageLevelId2="BUS____4_VL">
-        <iidm:currentLimits1 permanentLimit="836.739990234375"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="836.739990234375"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____4-BUS____5-1_AC" name="BUS    4-BUS    5-1" r="0.6355929970741272" x="2.0048599243164062" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS____4_TN" connectableBus1="BUS____4_TN" voltageLevelId1="BUS____4_VL" bus2="BUS____5_TN" connectableBus2="BUS____5_TN" voltageLevelId2="BUS____5_VL">
-        <iidm:currentLimits1 permanentLimit="836.739990234375"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="836.739990234375"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____6-BUS___11-1_AC" name="BUS    6-BUS   11-1" r="0.18087999522686005" x="0.37878501415252686" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS____6_TN" connectableBus1="BUS____6_TN" voltageLevelId1="BUS____6_VL" bus2="BUS___11_TN" connectableBus2="BUS___11_TN" voltageLevelId2="BUS___11_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____6-BUS___12-1_AC" name="BUS    6-BUS   12-1" r="0.23407000303268433" x="0.48716500401496887" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS____6_TN" connectableBus1="BUS____6_TN" voltageLevelId1="BUS____6_VL" bus2="BUS___12_TN" connectableBus2="BUS___12_TN" voltageLevelId2="BUS___12_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____6-BUS___13-1_AC" name="BUS    6-BUS   13-1" r="0.12597599625587463" x="0.24808600544929504" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS____6_TN" connectableBus1="BUS____6_TN" voltageLevelId1="BUS____6_VL" bus2="BUS___13_TN" connectableBus2="BUS___13_TN" voltageLevelId2="BUS___13_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____7-BUS____8-1_AC" name="BUS    7-BUS    8-1" r="0.0" x="0.33546000719070435" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS____7_TN" connectableBus1="BUS____7_TN" voltageLevelId1="BUS____7_VL" bus2="BUS____8_TN" connectableBus2="BUS____8_TN" voltageLevelId2="BUS____8_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____7-BUS____9-1_AC" name="BUS    7-BUS    9-1" r="0.0" x="0.20950299501419067" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS____7_TN" connectableBus1="BUS____7_TN" voltageLevelId1="BUS____7_VL" bus2="BUS____9_TN" connectableBus2="BUS____9_TN" voltageLevelId2="BUS____9_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____9-BUS___10-1_AC" name="BUS    9-BUS   10-1" r="0.06057899817824364" x="0.16092200577259064" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS____9_TN" connectableBus1="BUS____9_TN" voltageLevelId1="BUS____9_VL" bus2="BUS___10_TN" connectableBus2="BUS___10_TN" voltageLevelId2="BUS___10_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
     <iidm:line id="BUS____9-BUS___14-1_AC" name="BUS    9-BUS   14-1" r="0.24206799268722534" x="0.5149120092391968" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS____9_TN" connectableBus1="BUS____9_TN" voltageLevelId1="BUS____9_VL" bus2="BUS___14_TN" connectableBus2="BUS___14_TN" voltageLevelId2="BUS___14_VL">
-        <iidm:currentLimits1 permanentLimit="4183.7001953125"/>
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
+            <iidm:operationalLimitsGroup id="">
+                <iidm:currentLimits permanentLimit="4183.7001953125"/>
+            </iidm:operationalLimitsGroup>
+        </iidm:operationalLimitsGroups1>
     </iidm:line>
 </iidm:network>
