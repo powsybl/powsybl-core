@@ -56,11 +56,15 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<? super T>, A ex
     protected String readIdentifierAttributes(A adder, NetworkDeserializerContext context) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("name"));
-        adder.setId(id)
-                .setName(name);
+        if (adder != null) {
+            adder.setId(id)
+                    .setName(name);
+        }
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> {
             boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
-            adder.setFictitious(fictitious);
+            if (adder != null) {
+                adder.setFictitious(fictitious);
+            }
         });
         return id;
     }
