@@ -154,10 +154,8 @@ class BusTerminal extends AbstractTerminal {
         }
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
-        if (connected != oldValue) {
-            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-            getConnectable().notifyUpdate("connected" + getAttributeSideSuffix(), variantId, oldValue, connected);
-        }
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+        getConnectable().notifyUpdate("connected" + getAttributeSideSuffix(), variantId, oldValue, connected);
     }
 
     @Override
