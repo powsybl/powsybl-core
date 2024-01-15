@@ -12,10 +12,8 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -75,14 +73,20 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         params.put(CgmesExport.CIM_VERSION, "100");
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
         new CgmesExport().export(network, params, zip);
-        Network network100 = Network.read(tmpDir.resolve(cimZipFilename + ".zip"));
+
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        Network network100 = Network.read(zip, importParams);
+
         CgmesModel cgmesModel100 = network100.getExtension(CgmesModelExtension.class).getCgmesModel();
         assertTrue(cgmesModel100.isNodeBreaker());
     }
 
     private static Network ieee14Cim14() {
         ReadOnlyDataSource dataSource = Cim14SmallCasesCatalog.ieee14().dataSource();
-        return new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        return new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
     }
 
     private void testExportToCim(Network network, String name, int cimVersion) {
@@ -93,7 +97,9 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         new CgmesExport().export(network, params, zip);
 
         // Reimport and verify contents of Network
-        Network networkCimVersion = Network.read(tmpDir.resolve(cimZipFilename + ".zip"));
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        Network networkCimVersion = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve(cimZipFilename + ".zip")), importParams);
         CimCharacteristics cim = networkCimVersion.getExtension(CimCharacteristics.class);
 
         assertEquals(cimVersion, cim.getCimVersion());

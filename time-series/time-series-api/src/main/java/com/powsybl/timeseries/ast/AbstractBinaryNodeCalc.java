@@ -15,12 +15,12 @@ import java.util.Objects;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractBinaryNodeCal implements NodeCalc {
+public abstract class AbstractBinaryNodeCalc implements NodeCalc {
 
     protected NodeCalc left;
     protected NodeCalc right;
 
-    protected AbstractBinaryNodeCal(NodeCalc left, NodeCalc right) {
+    protected AbstractBinaryNodeCalc(NodeCalc left, NodeCalc right) {
         this.left = Objects.requireNonNull(left);
         this.right = Objects.requireNonNull(right);
     }

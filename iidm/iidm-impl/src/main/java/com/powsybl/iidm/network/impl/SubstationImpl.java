@@ -34,6 +34,8 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private final Set<VoltageLevelExt> voltageLevels = new LinkedHashSet<>();
 
+    private final Set<OverloadManagementSystemImpl> overloadManagementSystems = new LinkedHashSet<>();
+
     private boolean removed = false;
 
     SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef, Ref<SubnetworkImpl> subnetworkRef) {
@@ -164,6 +166,30 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     public int getThreeWindingsTransformerCount() {
         return Ints.checkedCast(getThreeWindingsTransformerStream()
                 .count());
+    }
+
+    void addOverloadManagementSystem(OverloadManagementSystemImpl overloadManagementSystem) {
+        overloadManagementSystems.add(overloadManagementSystem);
+    }
+
+    @Override
+    public OverloadManagementSystemAdderImpl newOverloadManagementSystem() {
+        return new OverloadManagementSystemAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return Collections.unmodifiableSet(overloadManagementSystems);
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return overloadManagementSystems.stream().map(Function.identity());
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return Ints.checkedCast(getOverloadManagementSystemStream().count());
     }
 
     @Override
