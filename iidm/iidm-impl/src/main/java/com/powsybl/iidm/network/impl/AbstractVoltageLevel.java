@@ -425,6 +425,26 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public GroundAdder newGround() {
+        return new GroundAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return getConnectables(Ground.class);
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return getConnectableStream(Ground.class);
+    }
+
+    @Override
+    public int getGroundCount() {
+        return getConnectableCount(Ground.class);
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Voltage level";
     }

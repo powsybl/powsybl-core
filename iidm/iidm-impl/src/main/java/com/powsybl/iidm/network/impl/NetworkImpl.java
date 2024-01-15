@@ -443,6 +443,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return Collections.unmodifiableCollection(index.getAll(OverloadManagementSystemImpl.class));
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return index.getAll(OverloadManagementSystemImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return index.getAll(OverloadManagementSystemImpl.class).size();
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        return index.get(id, OverloadManagementSystemImpl.class);
+    }
+
+    @Override
     public Iterable<Generator> getGenerators() {
         return Collections.unmodifiableCollection(index.getAll(GeneratorImpl.class));
     }
@@ -697,6 +717,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public HvdcLineAdder newHvdcLine() {
         return newHvdcLine(null);
+    }
+
+    @Override
+    public Ground getGround(String id) {
+        return index.get(id, GroundImpl.class);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return Collections.unmodifiableCollection(index.getAll(GroundImpl.class));
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return index.getAll(GroundImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getGroundCount() {
+        return index.getAll(GroundImpl.class).size();
     }
 
     HvdcLineAdder newHvdcLine(String subnetwork) {

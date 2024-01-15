@@ -43,7 +43,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private TerminalExt regulationTerminal;
 
-    class StepAdderImpl implements StepAdder {
+    class StepAdderImpl implements RatioTapChangerStepAdder {
 
         private double rho = Double.NaN;
 
@@ -56,31 +56,31 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         private double b = 0.0;
 
         @Override
-        public StepAdder setRho(double rho) {
+        public RatioTapChangerStepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public StepAdder setR(double r) {
+        public RatioTapChangerStepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public StepAdder setX(double x) {
+        public RatioTapChangerStepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public StepAdder setG(double g) {
+        public RatioTapChangerStepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public StepAdder setB(double b) {
+        public RatioTapChangerStepAdder setB(double b) {
             this.b = b;
             return this;
         }
@@ -175,7 +175,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public StepAdder beginStep() {
+    public RatioTapChangerStepAdder beginStep() {
         return new StepAdderImpl();
     }
 
