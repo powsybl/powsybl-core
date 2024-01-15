@@ -38,7 +38,22 @@ public class DefaultNetworkListener implements NetworkListener {
     }
 
     @Override
+    public void onExtensionCreation(Extension<?> extension) {
+        // empty default implementation
+    }
+
+    @Override
     public void onExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onExtensionBeforeRemoval(Extension<?> extension) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
         // empty default implementation
     }
 }

@@ -23,6 +23,12 @@ public interface NetworkListener {
 
     void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue);
 
+    void onExtensionCreation(Extension<?> extension);
+
+    void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName);
+
+    void onExtensionBeforeRemoval(Extension<?> extension);
+
     void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue);
 
     default void onElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {

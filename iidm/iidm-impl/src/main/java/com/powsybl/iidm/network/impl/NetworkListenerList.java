@@ -78,6 +78,36 @@ public class NetworkListenerList {
         }
     }
 
+    public void notifyExtensionCreation(Extension<?> extension) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onExtensionCreation(extension);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    public void notifyExtensionBeforeRemoval(Extension<?> extension) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onExtensionBeforeRemoval(extension);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    public void notifyExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onExtensionAfterRemoval(identifiable, extensionName);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
     public void notifyExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
             notifyExtensionUpdateListeners(extension, attribute, oldValue, newValue);
@@ -201,5 +231,4 @@ public class NetworkListenerList {
             }
         }
     }
-
 }
