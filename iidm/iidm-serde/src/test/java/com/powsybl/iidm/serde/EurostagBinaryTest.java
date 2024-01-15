@@ -35,7 +35,7 @@ class EurostagBinaryTest extends AbstractIidmSerDeTest {
                 getVersionedNetworkPath("eurostag-tutorial1-lf.bin", CURRENT_IIDM_VERSION));
 
         //backward compatibility
-        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf.bin", IidmVersion.V_1_11);
+        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf.bin", IidmVersion.V_1_12);
     }
 
     @Test
@@ -52,6 +52,6 @@ class EurostagBinaryTest extends AbstractIidmSerDeTest {
                 getVersionedNetworkPath("eurostag-tutorial1-lf-extensions.bin", CURRENT_IIDM_VERSION));
 
         //backward compatibility
-        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf-extensions.bin", IidmVersion.V_1_11);
+        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf-extensions.bin", IidmVersion.V_1_12);
     }
 }
