@@ -54,24 +54,8 @@
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-8.594264815634256"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-9.167216087934422"/>
             </iidm:phaseTapChanger>
-            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
-                    <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-                        <iidm:operationalLimitsGroup id="">
-                            <iidm:currentLimits permanentLimit="1000.0"/>
-                        </iidm:operationalLimitsGroup>
-                    </iidm:operationalLimitsGroups1>
-                </iidm:operationalLimitsGroup>
-            </iidm:operationalLimitsGroups1>
-            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
-                    <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
-                        <iidm:operationalLimitsGroup id="">
-                            <iidm:currentLimits permanentLimit="1000.0"/>
-                        </iidm:operationalLimitsGroup>
-                    </iidm:operationalLimitsGroups2>
-                </iidm:operationalLimitsGroup>
-            </iidm:operationalLimitsGroups2>
+            <iidm:currentLimits1 permanentLimit="1000.0"/>
+            <iidm:currentLimits2 permanentLimit="1000.0"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="FS.BIS11_SS" name="FS.BIS11_SS" geographicalTags="07">
@@ -136,101 +120,45 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="FP.AND11-FVERGE11-1_AC" name="FP.AND11-FVERGE11-1" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FP.AND11_TN" connectableBus1="FP.AND11_TN" voltageLevelId1="FP.AND11_VL" bus2="FVERGE11_TN" connectableBus2="FVERGE11_TN" voltageLevelId2="FVERGE11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FP.AND11-FVERGE11-2_AC" name="FP.AND11-FVERGE11-2" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FP.AND11_TN" connectableBus1="FP.AND11_TN" voltageLevelId1="FP.AND11_VL" bus2="FVERGE11_TN" connectableBus2="FVERGE11_TN" voltageLevelId2="FVERGE11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FS.BIS11-FVALDI11-1_AC" name="FS.BIS11-FVALDI11-1" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FS.BIS11_TN" connectableBus1="FS.BIS11_TN" voltageLevelId1="FS.BIS11_VL" bus2="FVALDI11_TN" connectableBus2="FVALDI11_TN" voltageLevelId2="FVALDI11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FS.BIS11-FVALDI11-2_AC" name="FS.BIS11-FVALDI11-2" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FS.BIS11_TN" connectableBus1="FS.BIS11_TN" voltageLevelId1="FS.BIS11_VL" bus2="FVALDI11_TN" connectableBus2="FVALDI11_TN" voltageLevelId2="FVALDI11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FSSV.O11-FP.AND11-1_AC" name="FSSV.O11-FP.AND11-1" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FSSV.O11_TN" connectableBus1="FSSV.O11_TN" voltageLevelId1="FSSV.O11_VL" bus2="FP.AND11_TN" connectableBus2="FP.AND11_TN" voltageLevelId2="FP.AND11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FSSV.O11-FP.AND11-2_AC" name="FSSV.O11-FP.AND11-2" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FSSV.O11_TN" connectableBus1="FSSV.O11_TN" voltageLevelId1="FSSV.O11_VL" bus2="FP.AND11_TN" connectableBus2="FP.AND11_TN" voltageLevelId2="FP.AND11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FSSV.O11-FTILL511-1_AC" name="FSSV.O11-FTILL511-1" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FSSV.O11_TN" connectableBus1="FSSV.O11_TN" voltageLevelId1="FSSV.O11_VL" bus2="FTILL511_TN" connectableBus2="FTILL511_TN" voltageLevelId2="FTILL511_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FSSV.O11-FTILL511-2_AC" name="FSSV.O11-FTILL511-2" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FSSV.O11_TN" connectableBus1="FSSV.O11_TN" voltageLevelId1="FSSV.O11_VL" bus2="FTILL511_TN" connectableBus2="FTILL511_TN" voltageLevelId2="FTILL511_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FTDPRA11-FVERGE11-1_AC" name="FTDPRA11-FVERGE11-1" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FTDPRA11_TN" connectableBus1="FTDPRA11_TN" voltageLevelId1="FTDPRA11_VL" bus2="FVERGE11_TN" connectableBus2="FVERGE11_TN" voltageLevelId2="FVERGE11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FTDPRA11-FVERGE11-2_AC" name="FTDPRA11-FVERGE11-2" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FTDPRA11_TN" connectableBus1="FTDPRA11_TN" voltageLevelId1="FTDPRA11_VL" bus2="FVERGE11_TN" connectableBus2="FVERGE11_TN" voltageLevelId2="FVERGE11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FTILL511-FS.BIS11-1_AC" name="FTILL511-FS.BIS11-1" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FTILL511_TN" connectableBus1="FTILL511_TN" voltageLevelId1="FTILL511_VL" bus2="FS.BIS11_TN" connectableBus2="FS.BIS11_TN" voltageLevelId2="FS.BIS11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FTILL511-FS.BIS11-2_AC" name="FTILL511-FS.BIS11-2" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FTILL511_TN" connectableBus1="FTILL511_TN" voltageLevelId1="FTILL511_VL" bus2="FS.BIS11_TN" connectableBus2="FS.BIS11_TN" voltageLevelId2="FS.BIS11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FVALDI11-FTDPRA11-1_AC" name="FVALDI11-FTDPRA11-1" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FVALDI11_TN" connectableBus1="FVALDI11_TN" voltageLevelId1="FVALDI11_VL" bus2="FTDPRA11_TN" connectableBus2="FTDPRA11_TN" voltageLevelId2="FTDPRA11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
     <iidm:line id="FVALDI11-FTDPRA11-2_AC" name="FVALDI11-FTDPRA11-2" r="0.00866399984806776" x="0.9992480278015137" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="FVALDI11_TN" connectableBus1="FVALDI11_TN" voltageLevelId1="FVALDI11_VL" bus2="FTDPRA11_TN" connectableBus2="FTDPRA11_TN" voltageLevelId2="FTDPRA11_VL">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
-                <iidm:currentLimits permanentLimit="1000.0"/>
-            </iidm:operationalLimitsGroup>
-        </iidm:operationalLimitsGroups1>
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
     </iidm:line>
 </iidm:network>
