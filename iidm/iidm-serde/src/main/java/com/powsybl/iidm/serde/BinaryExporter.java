@@ -42,7 +42,7 @@ public class BinaryExporter extends AbstractTreeDataExporter {
 
     @Override
     protected TreeDataFormat getTreeDataFormat() {
-        return TreeDataFormat.JSON;
+        return TreeDataFormat.BIN;
     }
 
     @Override
