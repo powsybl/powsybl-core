@@ -10,9 +10,6 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import static java.lang.Integer.MAX_VALUE;
 
 /**
@@ -34,7 +31,7 @@ public final class LoadingLimitsUtil {
     }
 
     /**
-     * <p>Compute a missing permanent accordingly to the temporary limits and to a given percentage.</p>
+     * <p>Compute a missing permanent limit accordingly to the temporary limits and to a given percentage.</p>
      * @param limitsAdder the LoadingLimitsAdder which permanent limit should be fixed
      * @param missingPermanentLimitPercentage The percentage to apply
      */
@@ -44,7 +41,7 @@ public final class LoadingLimitsUtil {
     }
 
     /**
-     * <p>Compute a missing permanent accordingly to the temporary limits and to a given percentage.</p>
+     * <p>Compute a missing permanent limit accordingly to the temporary limits and to a given percentage.</p>
      * @param adder the LoadingLimitsAdder which permanent limit should be fixed
      * @param missingPermanentLimitPercentage The percentage to apply
      * @param ownerId id of the limits' network element. It is only used for reporting purposes.
@@ -56,7 +53,6 @@ public final class LoadingLimitsUtil {
             return;
         }
 
-        Collection<String> temporaryLimitsToRemove = new ArrayList<>();
         double lowestTemporaryLimitWithInfiniteAcceptableDuration = MAX_VALUE;
         boolean hasTemporaryLimitWithInfiniteAcceptableDuration = false;
         for (String name : adder.getTemporaryLimitNames()) {
@@ -64,10 +60,9 @@ public final class LoadingLimitsUtil {
                 hasTemporaryLimitWithInfiniteAcceptableDuration = true;
                 lowestTemporaryLimitWithInfiniteAcceptableDuration =
                         Math.min(lowestTemporaryLimitWithInfiniteAcceptableDuration, adder.getTemporaryLimitValue(name));
-                temporaryLimitsToRemove.add(name);
+                adder.removeTemporaryLimit(name);
             }
         }
-        temporaryLimitsToRemove.forEach(adder::removeTemporaryLimit);
 
         if (hasTemporaryLimitWithInfiniteAcceptableDuration) {
             limitFixLogger.log("Operational Limit Set of " + ownerId,

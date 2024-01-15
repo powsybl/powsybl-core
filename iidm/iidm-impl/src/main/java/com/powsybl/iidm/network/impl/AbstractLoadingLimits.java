@@ -106,15 +106,18 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
     private void checkTemporaryLimits() {
         // check temporary limits are consistent with permanent
-        double previousLimit = Double.NaN;
-        for (LoadingLimits.TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
-            if (tl.getValue() <= permanentLimit) {
-                LOGGER.debug("{}, temporary limit should be greater than permanent limit", owner.getMessageHeader());
-            }
-            if (Double.isNaN(previousLimit)) {
+        if (LOGGER.isDebugEnabled()) {
+            double previousLimit = Double.NaN;
+            boolean wrongOrderMessageAlreadyLogged = false;
+            for (LoadingLimits.TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
+                if (tl.getValue() <= permanentLimit) {
+                    LOGGER.debug("{}, temporary limit should be greater than permanent limit", owner.getMessageHeader());
+                }
+                if (!wrongOrderMessageAlreadyLogged && !Double.isNaN(previousLimit) && tl.getValue() <= previousLimit) {
+                    LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
+                    wrongOrderMessageAlreadyLogged = true;
+                }
                 previousLimit = tl.getValue();
-            } else if (tl.getValue() <= previousLimit) {
-                LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
             }
         }
         // check name unicity
