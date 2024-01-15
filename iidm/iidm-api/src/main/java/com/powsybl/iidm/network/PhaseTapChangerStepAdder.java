@@ -9,7 +9,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * Interface to build a single step.
+ * Interface for classes responsible for building a single step.
  * @param <S> for SELF (itself)
  * @param <T> the return type when building the step by calling {@link TapChangerStepAdder#endStep()}
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
