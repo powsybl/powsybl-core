@@ -8,7 +8,10 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -16,6 +19,8 @@ import java.util.Optional;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, SubstationAdder, Network> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubstationSerDe.class);
 
     static final SubstationSerDe INSTANCE = new SubstationSerDe();
 
@@ -86,11 +91,53 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
             return;
         }
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            context.getWriter().writeStartNodes();
-            IidmSerDeUtil.sorted(s.getOverloadManagementSystems(), context.getOptions())
-                    .forEach(oms -> OverloadManagementSystemSerDe.INSTANCE.write(oms, null, context));
-            context.getWriter().writeEndNodes();
+            Collection<OverloadManagementSystem> validOverloadManagementSystems = filterValidOverloadManagementSystems(s);
+            if (!validOverloadManagementSystems.isEmpty()) {
+                context.getWriter().writeStartNodes();
+                IidmSerDeUtil.sorted(validOverloadManagementSystems, context.getOptions())
+                        .forEach(oms -> OverloadManagementSystemSerDe.INSTANCE.write(oms, null, context));
+                context.getWriter().writeEndNodes();
+            }
         });
+    }
+
+    private static Collection<OverloadManagementSystem> filterValidOverloadManagementSystems(Substation s) {
+        Network n = s.getNetwork();
+        return s.getOverloadManagementSystemStream().filter(o -> {
+            if (n.getIdentifiable(o.getMonitoredElementId()) == null) {
+                LOGGER.warn(String.format("Discard overload management system '%s': monitored element '%s' is unknown.",
+                        o.getNameOrId(), o.getMonitoredElementId()));
+                return false;
+            }
+            for (OverloadManagementSystem.Tripping tripping : o.getTrippings()) {
+                Identifiable<?> element = null;
+                String id = "";
+                String type = "";
+                switch (tripping.getType()) {
+                    case BRANCH_TRIPPING -> {
+                        type = "branch";
+                        id = ((OverloadManagementSystem.BranchTripping) tripping).getBranchToOperateId();
+                        element = n.getBranch(id);
+                    }
+                    case SWITCH_TRIPPING -> {
+                        type = "switch";
+                        id = ((OverloadManagementSystem.SwitchTripping) tripping).getSwitchToOperateId();
+                        element = n.getSwitch(id);
+                    }
+                    case THREE_WINDINGS_TRANSFORMER_TRIPPING -> {
+                        type = "three windings transformer";
+                        id = ((OverloadManagementSystem.ThreeWindingsTransformerTripping) tripping).getThreeWindingsTransformerToOperateId();
+                        element = n.getThreeWindingsTransformer(id);
+                    }
+                }
+                if (element == null) {
+                    LOGGER.warn(String.format("Discard overload management system '%s': invalid %s tripping. '%s' is unknown.",
+                            o.getNameOrId(), type, id));
+                    return false;
+                }
+            }
+            return true;
+        }).toList();
     }
 
     @Override

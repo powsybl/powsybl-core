@@ -62,7 +62,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
 
     private void exportDisabledTest(TreeDataFormat format, IidmVersion version) {
         // Export the network without the automation systems
-        ExportResult exportResult = writeNetwork(format, version, false);
+        ExportResult exportResult = writeNetwork(network, format, version, false);
         // Check that the exported String does NOT contain OMS tags
         Assertions.assertFalse(exportResult.content().contains(OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME));
         // Load the exported String to check if it is really valid
@@ -79,7 +79,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
 
     private void importDisabledTest(TreeDataFormat format, IidmVersion version) {
         // Export the network (with the automation systems)
-        ExportResult exportResult = writeNetwork(format, version, true);
+        ExportResult exportResult = writeNetwork(network, format, version, true);
         // Check that the exported String DOES contain OMS tags
         Assertions.assertTrue(exportResult.content().contains(OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME));
         // Load the exported String without the automation systems
@@ -93,14 +93,44 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
         checkNetworkAgainstRef(networkOutput, true);
     }
 
-    private static ExportResult writeNetwork(TreeDataFormat format, IidmVersion version, boolean withAutomationSystems) {
+    @ParameterizedTest
+    @MethodSource("provideFormats")
+    void roundTripWithInvalidOverloadManagementSystemsTest(TreeDataFormat format) {
+        Network n = createNetwork();
+        // Remove the monitoredElement of OMS2
+        n.getLine("LINE_1").remove();
+        ExportResult exportResult = writeNetwork(n, format, CURRENT_IIDM_VERSION, true);
+        Network networkOutput = readNetwork(format, exportResult, true);
+        Assertions.assertNotNull(networkOutput.getOverloadManagementSystem("OMS1"));
+        Assertions.assertNull(networkOutput.getOverloadManagementSystem("OMS2"));
+
+        // Remove the 3 windings transformer (3WT) of the OMS1's 3WT tripping
+        n.getThreeWindingsTransformer("3WT").remove();
+        exportResult = writeNetwork(n, format, CURRENT_IIDM_VERSION, true);
+        networkOutput = readNetwork(format, exportResult, true);
+        Assertions.assertNull(networkOutput.getOverloadManagementSystem("OMS1"));
+
+        // Recreate the network
+        n = createNetwork();
+
+        // Remove the branch of the OMS2's tripping
+        n.getLine("LINE_2").remove();
+        exportResult = writeNetwork(n, format, CURRENT_IIDM_VERSION, true);
+        networkOutput = readNetwork(format, exportResult, true);
+        Assertions.assertNotNull(networkOutput.getOverloadManagementSystem("OMS1"));
+        Assertions.assertNull(networkOutput.getOverloadManagementSystem("OMS2"));
+
+        // No test on switch tripping because the switch cannot be removed with the API.
+    }
+
+    private static ExportResult writeNetwork(Network n, TreeDataFormat format, IidmVersion version, boolean withAutomationSystems) {
         ExportOptions options = new ExportOptions()
                 .setFormat(format)
                 .setWithAutomationSystems(withAutomationSystems)
                 .setVersion(version.toString("."));
         ExportResult exportResult;
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            Anonymizer anonymizer = NetworkSerDe.write(network, options, os);
+            Anonymizer anonymizer = NetworkSerDe.write(n, options, os);
             String exportedContent = os.toString(StandardCharsets.UTF_8);
             exportResult = new ExportResult(anonymizer, exportedContent);
         } catch (IOException ex) {
