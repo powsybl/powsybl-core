@@ -7,23 +7,24 @@
 package com.powsybl.timeseries.ast;
 
 import com.powsybl.timeseries.DoubleMultiPoint;
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoint> {
 
-    private static final Map<Integer, Double> CACHE = new HashMap<>(50, 0.5f);
+//    private static final Map<Integer, Double> CACHE = new HashMap<>(50, 0.5f);
+    private static final Int2DoubleMap CACHE = new Int2DoubleOpenHashMap(100, 0.5f);
 
     public static double eval(NodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         return new NodeCalcEvaluator().evaluateWithCache(nodeCalc, multiPoint);
     }
 
     private double evaluateWithCache(NodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
+        CACHE.defaultReturnValue();
         double result = nodeCalc.accept(this, multiPoint, 0);
         invalidateCache(); // Invalider le cache après l'évaluation du nœud racine
         return result;
@@ -52,9 +53,12 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     @Override
     public Double visit(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
         // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc.hashCode());
-        if (cachedValue != null) {
-            return cachedValue;
+//        Double cachedValue = CACHE.get(nodeCalc.hashCode());
+//        if (cachedValue != null) {
+//            return cachedValue;
+//        }
+        if (CACHE.containsKey(nodeCalc.hashCode())) {
+            return CACHE.get(nodeCalc.hashCode());
         }
 
         // Compute if not in cache
@@ -81,9 +85,12 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     @Override
     public Double visit(UnaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double child) {
         // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc.hashCode());
-        if (cachedValue != null) {
-            return cachedValue;
+//        Double cachedValue = CACHE.get(nodeCalc.hashCode());
+//        if (cachedValue != null) {
+//            return cachedValue;
+//        }
+        if (CACHE.containsKey(nodeCalc.hashCode())) {
+            return CACHE.get(nodeCalc.hashCode());
         }
 
         // Compute if not in cache
@@ -151,9 +158,9 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     @Override
     public Double visit(TimeNodeCalc nodeCalc, DoubleMultiPoint multiPoint, Double child) {
         // Check if already in cache
-        Double cachedValue = CACHE.get(nodeCalc.hashCode());
-        if (cachedValue != null) {
-            return cachedValue;
+//        Double cachedValue = CACHE.get(nodeCalc.hashCode());
+        if (CACHE.containsKey(nodeCalc.hashCode())) {
+            return CACHE.get(nodeCalc.hashCode());
         }
 
         // Compute if not in cache
