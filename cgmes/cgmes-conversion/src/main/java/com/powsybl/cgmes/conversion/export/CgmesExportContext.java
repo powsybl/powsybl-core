@@ -97,7 +97,7 @@ public class CgmesExportContext {
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
     // SV.dependentOn TP, SSH[, TP_BD]
-    // TP.dependentOn EQ[, EQ_BD][, TP_BD]
+    // TP.dependentOn EQ
     // SSH.dependentOn EQ
     public void updateDependencies() {
         Set<String> eqModelIds = getEqModelDescription().getIds();
@@ -119,10 +119,8 @@ public class CgmesExportContext {
             }
             if (boundaryEqId != null) {
                 getEqModelDescription().addDependency(boundaryEqId);
-                getTpModelDescription().addDependency(boundaryEqId);
             }
             if (boundaryTpId != null) {
-                getTpModelDescription().addDependency(boundaryTpId);
                 getSvModelDescription().addDependency(boundaryTpId);
             }
         }
