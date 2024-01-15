@@ -53,7 +53,7 @@ public class BinaryImporter extends AbstractTreeDataImporter {
                     byte[] stringBytes = dis.readNBytes(versionNbBytes);
                     if (stringBytes.length == versionNbBytes) {
                         String version = new String(stringBytes, StandardCharsets.UTF_8);
-                        return version.matches("^\\d+_\\d+(_\\d+)?$");
+                        return version.matches("^\\d+\\.\\d+(\\.\\d+)?$");
                     }
                 }
             }
