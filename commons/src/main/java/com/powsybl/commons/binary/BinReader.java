@@ -44,10 +44,9 @@ public class BinReader implements TreeDataReader {
             if (stringNbBytes == 0) {
                 return null;
             }
-            byte[] stringBytes = new byte[stringNbBytes];
-            int nbBytesRead = dis.read(stringBytes, 0, stringNbBytes);
-            if (nbBytesRead != stringNbBytes) {
-                throw new PowsyblException("Cannot read the full string, bytes missing: " + (stringNbBytes - nbBytesRead));
+            byte[] stringBytes = dis.readNBytes(stringNbBytes);
+            if (stringBytes.length != stringNbBytes) {
+                throw new PowsyblException("Cannot read the full string, bytes missing: " + (stringNbBytes - stringBytes.length));
             }
             return new String(stringBytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
