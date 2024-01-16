@@ -169,21 +169,25 @@ public final class ConnectableSerDeUtil {
                 .setQ(q);
     }
 
-    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
+    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
+        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader, iidmVersion, options);
     }
 
-    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
+    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
+        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader, iidmVersion, options);
     }
 
-    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader);
+    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
+        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader, iidmVersion, options);
     }
 
-    private static <A extends LoadingLimitsAdder> void readLoadingLimits(String type, A adder, TreeDataReader reader) {
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimits(String type, A adder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
+        if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0) {
+            throw new PowsyblException("permanentLimit is absent in '" + type + "'");
+        }
         adder.setPermanentLimit(permanentLimit);
+        // Read and add the temporary limits
         reader.readChildNodes(elementName -> {
             if (TEMPORARY_LIMITS_ROOT_ELEMENT_NAME.equals(elementName)) {
                 String name = reader.readStringAttribute("name");
@@ -201,7 +205,7 @@ public final class ConnectableSerDeUtil {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
         });
-        adder.add();
+        adder.fixLimits(options.getMissingPermanentLimitPercentage()).add();
     }
 
     static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmVersion version,
