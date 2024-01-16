@@ -63,4 +63,9 @@ public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVi
     public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
         visitEquipment(converterStation);
     }
+
+    @Override
+    public void visitGround(Ground ground) {
+        visitEquipment(ground);
+    }
 }

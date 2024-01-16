@@ -15,17 +15,15 @@
       "open" : true
     } ]
   }, {
-    "type" : "LINE_CONNECTION",
+    "type" : "TERMINALS_CONNECTION",
     "id" : "id3",
-    "lineId" : "lineId3",
-    "openSide1" : true,
-    "openSide2" : true
+    "elementId" : "lineId3",
+    "open" : true
   }, {
-    "type" : "LINE_CONNECTION",
+    "type" : "TERMINALS_CONNECTION",
     "id" : "id4",
-    "lineId" : "lineId4",
-    "openSide1" : false,
-    "openSide2" : false
+    "elementId" : "lineId4",
+    "open" : false
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id5",
@@ -179,5 +177,11 @@
     "staticVarCompensatorId" : "svc",
     "regulationMode" : "REACTIVE_POWER",
     "reactivePowerSetpoint" : 120.0
+  }, {
+    "type" : "TERMINALS_CONNECTION",
+    "id" : "id4",
+    "elementId" : "transformerId25",
+    "side" : "THREE",
+    "open" : true
   } ]
 }

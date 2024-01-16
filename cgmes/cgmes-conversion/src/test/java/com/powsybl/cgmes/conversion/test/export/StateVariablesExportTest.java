@@ -11,13 +11,13 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
@@ -61,22 +61,22 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
     @Test
     void microGridBE() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(),
                 false,
                 2,
                 false,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
     void microGridBEFlowsForSwitches() throws IOException, XMLStreamException {
         // Activate export of flows for switches on a small network with few switches,
         // Writing flows for all switches has impact on performance
-        test(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(),
                 false,
                 2,
                 true,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
@@ -123,7 +123,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK21", 2)));
         assertEqualsPowerFlow(new PowerFlow(10.01, 1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK22", 1)));
         assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK22", 2)));
-
     }
 
     private static void assertEqualsPowerFlow(PowerFlow expected, PowerFlow actual) {
@@ -151,50 +150,50 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
     @Test
     void microGridAssembled() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(),
                 false,
                 4,
                 false,
             r -> {
                 addRepackagerFiles("NL", r);
                 addRepackagerFiles("BE", r);
-            });
+            }));
     }
 
     @Test
     void smallGridBusBranch() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallBusBranch().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(),
                 false,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
     void smallGridNodeBreakerHVDC() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(),
                 true,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFilesExcludeTp);
+                StateVariablesExportTest::addRepackagerFilesExcludeTp));
     }
 
     @Test
     void smallGridNodeBreaker() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(),
                 true,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFilesExcludeTp);
+                StateVariablesExportTest::addRepackagerFilesExcludeTp));
     }
 
     @Test
     void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
-        test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(),
+        assertTrue(test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(),
                 false,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
@@ -306,7 +305,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
     @Test
     void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws XMLStreamException {
-
         Network network = ConversionUtil.networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
 
         // Add a PTC
@@ -323,8 +321,16 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .setAlpha(20)
                 .endStep()
                 .add();
-        // Change the RTC tap position and add a PTC
+        // We have added a PTC, we add a known alias for it
+        // This is not mandatory, but it simplifies comparing the data in the network and the exported SV file
+        // If we do not add it in advance, a proper CGMES ID for the new PTC would have been generated during export
+        String t2ptcId = "ptc2w";
+        t2wt.addAlias(t2ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
+
+        // Also, change the RTC tap position and add a PTC to a three-winding transformer
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+        t3wt.getLeg1().getRatioTapChanger()
+                .setTapPosition(16);
         t3wt.getLeg1().newPhaseTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(1)
@@ -345,6 +351,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .setAlpha(20)
                 .endStep()
                 .add();
+        String t3ptcId = "ptc3w";
+        t3wt.addAlias(t3ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
 
         String expected = buildNetworkSvTapStepsString(network);
         String sv = exportSvAsString(network, 2);
@@ -410,30 +418,35 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     private static String buildNetworkSvTapStepsString(Network network) {
         SvTapSteps svTapSteps = new SvTapSteps();
         network.getTwoWindingsTransformers().forEach(twt -> {
-            twt.getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1, rtc.getTapPosition(), svTapSteps));
-            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1, ptc.getTapPosition(), svTapSteps));
+            twt.getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER), rtc.getTapPosition()));
+            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER), ptc.getTapPosition()));
         });
         network.getThreeWindingsTransformers().forEach(twt -> {
-            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1, rtc.getTapPosition(), svTapSteps));
-            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1, ptc.getTapPosition(), svTapSteps));
-            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2, rtc.getTapPosition(), svTapSteps));
-            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2, ptc.getTapPosition(), svTapSteps));
-            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 3, rtc.getTapPosition(), svTapSteps));
-            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 3, ptc.getTapPosition(), svTapSteps));
+            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 1), rtc.getTapPosition()));
+            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 1), ptc.getTapPosition()));
+            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 2), rtc.getTapPosition()));
+            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 2), ptc.getTapPosition()));
+            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 3), rtc.getTapPosition()));
+            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 3), ptc.getTapPosition()));
         });
         return svTapSteps.toSortedString();
     }
 
-    private static void obtainAndRecordTapChangerId(Identifiable<?> eq, String aliasType, int tapPosition, SvTapSteps svTapSteps) {
-        Optional<String> optionalTapChangerId = eq.getAliasFromType(aliasType);
-        String tapChangerId;
-        if (optionalTapChangerId.isPresent()) {
-            tapChangerId = optionalTapChangerId.get();
-        } else {
-            tapChangerId = CgmesExportUtil.getUniqueId();
-            eq.addAlias(tapChangerId, aliasType);  // record as alias to be used when the sv file is exported
-        }
-        svTapSteps.add(tapChangerId, tapPosition);
+    private static String getTapChangerId(TwoWindingsTransformer twt, String baseAliasType) {
+        // For two winding transformers the CGMES tap changer id may be stored with suffix 1 or 2,
+        // depending on its original location in CGMES model
+        String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + baseAliasType + 1;
+        String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + baseAliasType + 2;
+        return twt.getAliasFromType(aliasType1)
+                .or(() -> twt.getAliasFromType(aliasType2))
+                .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType1 + " or " + aliasType2));
+    }
+
+    private static String getTapChangerId(ThreeWindingsTransformer twt, String baseAliasType, int leg) {
+        // For three winding transformers, the tap changer id has to be stored in the alias number corresponding to the leg
+        String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + baseAliasType + leg;
+        return twt.getAliasFromType(aliasType)
+                .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType));
     }
 
     private static SvTapSteps readSvTapSteps(String sv) {
@@ -531,7 +544,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .with("test_SSH.xml", Repackager::ssh);
     }
 
-    private void test(ReadOnlyDataSource dataSource, boolean exportTp, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
+    private boolean test(ReadOnlyDataSource dataSource, boolean exportTp, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
         // Import original
         importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
@@ -599,6 +612,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(expectedPath, actualPath);
+        return ExportXmlCompare.compareNetworks(expectedPath, actualPath);
     }
 }
