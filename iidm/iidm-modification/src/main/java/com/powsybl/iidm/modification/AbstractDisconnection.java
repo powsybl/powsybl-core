@@ -39,11 +39,10 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
 
         // Disconnect the connectable
         boolean hasBeenDisconnected;
-        Reporter poppedReporter;
         try {
             hasBeenDisconnected = connectable.disconnect(openableSwitches);
         } finally {
-            poppedReporter = network.getReporterContext().popReporter();
+            network.getReporterContext().popReporter();
         }
 
         if (hasBeenDisconnected) {
@@ -51,6 +50,6 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         } else {
             logger.info("Connectable {} has NOT been disconnected.", connectableId);
         }
-        connectableDisconnectionReport(poppedReporter, connectable, hasBeenDisconnected, isPlanned);
+        connectableDisconnectionReport(reporter, connectable, hasBeenDisconnected, isPlanned);
     }
 }

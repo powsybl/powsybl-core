@@ -61,11 +61,10 @@ public class ConnectableConnection extends AbstractNetworkModification {
 
         // Disconnect the connectable
         boolean hasBeenConnected;
-        Reporter poppedReporter;
         try {
             hasBeenConnected = connectable.connect(isTypeSwitchToOperate);
         } finally {
-            poppedReporter = network.getReporterContext().popReporter();
+            network.getReporterContext().popReporter();
         }
 
         if (hasBeenConnected) {
@@ -73,6 +72,6 @@ public class ConnectableConnection extends AbstractNetworkModification {
         } else {
             LOG.info("Connectable {} has NOT been connected.", connectableId);
         }
-        connectableConnectionReport(poppedReporter, connectable, hasBeenConnected);
+        connectableConnectionReport(reporter, connectable, hasBeenConnected);
     }
 }
