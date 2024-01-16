@@ -317,7 +317,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .build();
         modification.apply(network, reporter);
         writeXmlTest(network, "/network-disconnection-with-fictitious.xiidm");
-        testReporter(reporter, "/reporter/connectable-disconnected.txt");
+        testReporter(reporter, "/reporter/connectable-disconnected-planned.txt");
     }
 
     @Test
@@ -336,6 +336,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .build();
         modification.apply(network, reporter);
         writeXmlTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
+        testReporter(reporter, "/reporter/connectable-not-disconnected-planned.txt");
     }
 
     @Test
@@ -351,7 +352,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .build();
         modification.apply(network, reporter);
         writeXmlTest(network, "/network-disconnection-with-fictitious.xiidm");
-        testReporter(reporter, "/reporter/connectable-disconnected.txt");
+        testReporter(reporter, "/reporter/connectable-disconnected-unplanned.txt");
     }
 
     @Test
@@ -367,7 +368,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .build();
         modification.apply(network, reporter);
         writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
-        testReporter(reporter, "/reporter/connectable-not-disconnected.txt");
+        testReporter(reporter, "/reporter/connectable-not-disconnected-unplanned.txt");
     }
 
     @Test

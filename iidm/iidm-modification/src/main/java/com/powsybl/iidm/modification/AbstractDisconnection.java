@@ -48,9 +48,9 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         }
 
         if (hasBeenDisconnected) {
-            LOG.info("Connectable {} has been disconnected.", connectableId);
+            LOG.info("Connectable {} has been disconnected ({} disconnection).", connectableId, isPlanned ? "planned" : "unplanned");
         } else {
-            LOG.info("Connectable {} has NOT been disconnected.", connectableId);
+            LOG.info("Connectable {} has NOT been disconnected ({} disconnection).", connectableId, isPlanned ? "planned" : "unplanned");
         }
         connectableDisconnectionReport(reporter, connectable, hasBeenDisconnected, isPlanned);
     }
