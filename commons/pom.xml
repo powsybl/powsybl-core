@@ -108,7 +108,7 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-commons-test</artifactId>
             <scope>test</scope>
         </dependency>

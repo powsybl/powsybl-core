@@ -42,17 +42,17 @@ this
 
     <dependencies>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-computation</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-ampl-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
