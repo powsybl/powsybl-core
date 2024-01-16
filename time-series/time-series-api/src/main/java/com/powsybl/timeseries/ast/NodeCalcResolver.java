@@ -15,9 +15,11 @@ import java.util.Objects;
 public class NodeCalcResolver extends NodeCalcCloner<Void> {
 
     private final Map<String, Integer> timeSeriesNums;
+    private final TimeSeriesNumNodeCalc[] timeSeriesNumNodeCalcs;
 
     public NodeCalcResolver(Map<String, Integer> timeSeriesNums) {
         this.timeSeriesNums = Objects.requireNonNull(timeSeriesNums);
+        this.timeSeriesNumNodeCalcs = new TimeSeriesNumNodeCalc[timeSeriesNums.size()];
     }
 
     public static NodeCalc resolve(NodeCalc nodeCalc, Map<String, Integer> timeSeriesNums) {
@@ -31,6 +33,11 @@ public class NodeCalcResolver extends NodeCalcCloner<Void> {
         if (num == null) {
             throw new IllegalStateException("Num of time series " + nodeCalc.getTimeSeriesName() + " not found");
         }
-        return new TimeSeriesNumNodeCalc(num);
+        TimeSeriesNumNodeCalc timeSeriesNumNodeCalc = timeSeriesNumNodeCalcs[num];
+        if (timeSeriesNumNodeCalc == null) {
+            timeSeriesNumNodeCalc = new TimeSeriesNumNodeCalc(num);
+            timeSeriesNumNodeCalcs[num] = timeSeriesNumNodeCalc;
+        }
+        return timeSeriesNumNodeCalc;
     }
 }
