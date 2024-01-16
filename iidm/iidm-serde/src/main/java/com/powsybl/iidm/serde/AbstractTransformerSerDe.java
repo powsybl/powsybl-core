@@ -9,8 +9,10 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.OptionalInt;
 import java.util.function.DoubleConsumer;
 
 /**
@@ -63,17 +65,17 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static void writeTapChanger(TapChanger<?, ?, ?, ?> tc, NetworkSerializerContext context) {
         context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition());
-        if (tc.findTapPosition().isPresent()) {
-            context.getWriter().writeIntAttribute(ATTR_TAP_POSITION, tc.getTapPosition());
-        }
+        var tp = tc.findTapPosition();
+        context.getWriter().writeOptionalIntAttribute(ATTR_TAP_POSITION, tp.isPresent() ? tp.getAsInt() : null);
         writeTargetDeadband(tc.getTargetDeadband(), context);
     }
 
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
-        if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
-            context.getWriter().writeBooleanAttribute(ATTR_REGULATING, rtc.isRegulating());
-        }
+
+        Boolean optionalRegulatingValue = rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating() ? rtc.isRegulating() : null;
+        context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
+
         writeTapChanger(rtc, context);
         context.getWriter().writeBooleanAttribute("loadTapChangingCapabilities", rtc.hasLoadTapChangingCapabilities());
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", rtc.getRegulationValue()));
@@ -81,9 +83,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, rtc.getRegulationMode());
             context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, rtc.getRegulationValue());
         });
-        if (rtc.getRegulationTerminal() != null) {
-            TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
-        }
+        TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
         context.getWriter().writeStartNodes();
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
@@ -148,19 +148,15 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
-        if (ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
-                || ptc.isRegulating()) {
-            context.getWriter().writeBooleanAttribute(ATTR_REGULATING, ptc.isRegulating());
-        }
+
+        RegulationMode regMode = ptc.getRegulationMode();
+        Boolean optionalRegulatingValue = (regMode == null || regMode == RegulationMode.FIXED_TAP) && !ptc.isRegulating() ? null : ptc.isRegulating();
+        context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
+
         writeTapChanger(ptc, context);
-        context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, ptc.getRegulationMode());
-        if (ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
-                || !Double.isNaN(ptc.getRegulationValue())) {
-            context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, ptc.getRegulationValue());
-        }
-        if (ptc.getRegulationTerminal() != null) {
-            TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
-        }
+        context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, regMode);
+        context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, ptc.getRegulationValue());
+        TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
         context.getWriter().writeStartNodes();
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
@@ -214,16 +210,14 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     private static void readTapChangerAttributes(TapChangerAdder<?, ?, ?, ?, ?, ?> adder, NetworkDeserializerContext context) {
-        boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING, false);
+        boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
-        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
+        OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
         adder.setLowTapPosition(lowTapPosition)
                 .setTargetDeadband(targetDeadband)
                 .setRegulating(regulating);
-        if (tapPosition != null) {
-            adder.setTapPosition(tapPosition);
-        }
+        tapPosition.ifPresent(adder::setTapPosition);
     }
 
     protected static void readPhaseTapChanger(TwoWindingsTransformer twt, NetworkDeserializerContext context) {
@@ -250,8 +244,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
      * @param consumer the method will used apparent power value read
      */
     protected static void readRatedS(String name, NetworkDeserializerContext context, DoubleConsumer consumer) {
-        double ratedS = context.getReader().readDoubleAttribute(name);
-        consumer.accept(ratedS);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> {
+            double ratedS = context.getReader().readDoubleAttribute(name);
+            consumer.accept(ratedS);
+        });
     }
 
     /**

@@ -82,11 +82,11 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
     }
 
     @Override
-    protected void readRootElementAttributes(LoadAdder adder, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(LoadAdder adder, VoltageLevel parent, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
         LoadType loadType = context.getReader().readEnumAttribute("loadType", LoadType.class, LoadType.UNDEFINED);
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, parent.getTopologyKind());
         adder.setLoadType(loadType)
                 .setP0(p0)
                 .setQ0(q0);

@@ -40,10 +40,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         writeRatedS("ratedS", twt.getRatedS(), context);
         writeNodeOrBus(1, twt.getTerminal1(), context);
         writeNodeOrBus(2, twt.getTerminal2(), context);
-        if (context.getOptions().isWithBranchSV()) {
-            writePQ(1, twt.getTerminal1(), context.getWriter());
-            writePQ(2, twt.getTerminal2(), context.getWriter());
-        }
+        writeOptionalPQ(1, twt.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        writeOptionalPQ(2, twt.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
     }
 
     @Override
@@ -108,10 +106,10 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
                 .setRatedU1(ratedU1)
                 .setRatedU2(ratedU2);
         readRatedS("ratedS", context, adder::setRatedS);
-        readNodeOrBus(adder, context);
+        ConnectableSerDeUtil.readVoltageLevelAndNodeOrBus(adder, s.getNetwork(), context);
         TwoWindingsTransformer twt = adder.add();
-        readPQ(1, twt.getTerminal1(), context.getReader());
-        readPQ(2, twt.getTerminal2(), context.getReader());
+        readOptionalPQ(1, twt.getTerminal1(), context.getReader());
+        readOptionalPQ(2, twt.getTerminal2(), context.getReader());
         return twt;
     }
 
