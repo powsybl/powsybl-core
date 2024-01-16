@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,11 +7,11 @@
  */
 package com.powsybl.commons.io;
 
+import java.util.Map;
+
 /**
- * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public enum TreeDataFormat {
-    XML,
-    JSON,
-    BIN
+public record TreeDataHeader(String rootVersion, Map<String, String> extensionVersions) {
+
 }

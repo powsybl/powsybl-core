@@ -32,7 +32,7 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<? super T>, A ex
         }
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         context.getWriter().writeStringAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-        identifiable.getOptionalName().ifPresent(name -> context.getWriter().writeStringAttribute("name", context.getAnonymizer().anonymizeString(name)));
+        context.getWriter().writeStringAttribute("name", identifiable.getOptionalName().map(context.getAnonymizer()::anonymizeString).orElse(null));
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> context.getWriter().writeBooleanAttribute("fictitious", identifiable.isFictitious(), false));
 

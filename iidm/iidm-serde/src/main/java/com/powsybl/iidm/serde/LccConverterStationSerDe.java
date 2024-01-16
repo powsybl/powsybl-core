@@ -45,7 +45,7 @@ public class LccConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<Lc
     protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         float lossFactor = context.getReader().readFloatAttribute("lossFactor");
         float powerFactor = context.getReader().readFloatAttribute("powerFactor");
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         LccConverterStation cs = adder
                 .setLossFactor(lossFactor)
                 .setPowerFactor(powerFactor)
