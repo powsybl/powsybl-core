@@ -38,13 +38,13 @@
             <name>Mathieu BAGUE</name>
             <email>mathieu.bague@rte-france.com</email>
             <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
         </developer>
         <developer>
             <name>Geoffroy JAMGOTCHIAN</name>
             <email>geoffroy.jamgotchian@rte-france.com</email>
             <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
         </developer>
     </developers>
 
