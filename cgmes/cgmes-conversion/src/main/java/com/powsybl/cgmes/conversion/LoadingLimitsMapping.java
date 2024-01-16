@@ -39,5 +39,4 @@ public class LoadingLimitsMapping {
         }
         adders.clear();
     }
-
 }

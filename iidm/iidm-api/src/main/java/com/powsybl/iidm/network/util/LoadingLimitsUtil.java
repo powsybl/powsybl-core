@@ -65,18 +65,18 @@ public final class LoadingLimitsUtil {
         }
 
         if (hasTemporaryLimitWithInfiniteAcceptableDuration) {
-            limitFixLogger.log("Operational Limit Set of " + ownerId,
-                    "An operational limit set without permanent limit is considered with permanent limit " +
-                            "equal to lowest TATL value with infinite acceptable duration",
+            limitFixLogger.log("Operational Limits of " + ownerId,
+                    "Operational limits without permanent limit is considered with permanent limit " +
+                            "equal to lowest temporary limit value with infinite acceptable duration",
                     Double.NaN, lowestTemporaryLimitWithInfiniteAcceptableDuration);
             adder.setPermanentLimit(lowestTemporaryLimitWithInfiniteAcceptableDuration);
         } else {
             double firstTemporaryLimit = adder.getLowestTemporaryLimitValue();
             double percentage = missingPermanentLimitPercentage / 100.;
             double fixedPermanentLimit = firstTemporaryLimit * percentage;
-            limitFixLogger.log("Operational Limit Set of " + ownerId,
-                    "An operational limit set without permanent limit is considered with permanent limit " +
-                            "equal to lowest TATL value weighted by a coefficient of " + percentage + ".",
+            limitFixLogger.log("Operational Limits of " + ownerId,
+                    "Operational limits without permanent limit is considered with permanent limit " +
+                            "equal to lowest temporary limit value weighted by a coefficient of " + percentage + ".",
                     Double.NaN, fixedPermanentLimit);
             adder.setPermanentLimit(fixedPermanentLimit);
         }

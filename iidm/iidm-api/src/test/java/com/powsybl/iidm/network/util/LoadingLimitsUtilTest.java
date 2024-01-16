@@ -71,9 +71,9 @@ class LoadingLimitsUtilTest {
         assertEquals(1200., temps.get(1).value());
 
         LoggedData loggedData = customLogger.getLoggedData();
-        assertEquals("Operational Limit Set of ownerId", loggedData.what());
-        assertEquals("An operational limit set without permanent limit is considered with permanent limit " +
-                "equal to lowest TATL value weighted by a coefficient of 0.9.", loggedData.reason());
+        assertEquals("Operational Limits of ownerId", loggedData.what());
+        assertEquals("Operational limits without permanent limit is considered with permanent limit " +
+                "equal to lowest temporary limit value weighted by a coefficient of 0.9.", loggedData.reason());
         assertTrue(Double.isNaN(loggedData.wrongValue()));
         assertEquals(900., loggedData.fixedValue(), 0.001);
     }
@@ -102,9 +102,9 @@ class LoadingLimitsUtilTest {
         assertEquals(1200., temps.get(0).value());
 
         LoggedData loggedData = customLogger.getLoggedData();
-        assertEquals("Operational Limit Set of ownerId", loggedData.what());
-        assertEquals("An operational limit set without permanent limit is considered with permanent limit " +
-                "equal to lowest TATL value with infinite acceptable duration", loggedData.reason());
+        assertEquals("Operational Limits of ownerId", loggedData.what());
+        assertEquals("Operational limits without permanent limit is considered with permanent limit " +
+                "equal to lowest temporary limit value with infinite acceptable duration", loggedData.reason());
         assertTrue(Double.isNaN(loggedData.wrongValue()));
         assertEquals(1000., loggedData.fixedValue(), 0.001);
     }
