@@ -18,6 +18,7 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
     private boolean withAutomationSystems = true;
+    private double missingPermanentLimitPercentage = 100.;
 
     public ImportOptions() {
     }
@@ -59,5 +60,23 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
     public ImportOptions setWithAutomationSystems(boolean withAutomationSystems) {
         this.withAutomationSystems = withAutomationSystems;
         return this;
+    }
+
+    public ImportOptions setMissingPermanentLimitPercentage(double missingPermanentLimitPercentage) {
+        if (missingPermanentLimitPercentage < 0 || missingPermanentLimitPercentage > 100) {
+            throw new IllegalArgumentException("Missing permanent limit percentage must be between 0 and 100.");
+        }
+        this.missingPermanentLimitPercentage = missingPermanentLimitPercentage;
+        return this;
+    }
+
+    /**
+     * <p>Percentage to use to compute a missing permanent limit from the temporary limits.</p>
+     * <p>IMPORTANT: This parameter is only effective when importing networks in IIDM version < 1.12
+     * (the permanent limit is mandatory since IIDM v1.12).</p>
+     * @return the percentage to use to compute the value for missing permanent limits
+     */
+    public double getMissingPermanentLimitPercentage() {
+        return missingPermanentLimitPercentage;
     }
 }

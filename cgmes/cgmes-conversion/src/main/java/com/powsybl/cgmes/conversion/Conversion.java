@@ -970,6 +970,18 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
+        public double getMissingPermanentLimitPercentage() {
+            return missingPermanentLimitPercentage;
+        }
+
+        public Config setMissingPermanentLimitPercentage(double missingPermanentLimitPercentage) {
+            if (missingPermanentLimitPercentage < 0 || missingPermanentLimitPercentage > 100) {
+                throw new IllegalArgumentException("Missing permanent limit percentage must be between 0 and 100.");
+            }
+            this.missingPermanentLimitPercentage = missingPermanentLimitPercentage;
+            return this;
+        }
+
         public CgmesImport.FictitiousSwitchesCreationMode getCreateFictitiousSwitchesForDisconnectedTerminalsMode() {
             return createFictitiousSwitchesForDisconnectedTerminalsMode;
         }
@@ -1018,6 +1030,8 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
+
+        private double missingPermanentLimitPercentage = 100;
     }
 
     private final CgmesModel cgmes;
