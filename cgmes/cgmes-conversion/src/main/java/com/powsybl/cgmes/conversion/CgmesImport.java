@@ -9,6 +9,8 @@ package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
@@ -40,7 +42,6 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -162,7 +163,7 @@ public class CgmesImport implements Importer {
     private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
         CgmesModel cgmes = readCgmes(ds, p, reporter);
         Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
-        return new Conversion(cgmes, config(ds, p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
@@ -357,10 +358,8 @@ public class CgmesImport implements Importer {
         Objects.requireNonNull(to);
         try {
             CgmesOnDataSource fromCgmes = new CgmesOnDataSource(from);
-            // TODO map "from names" to "to names" using base names of data sources
-            for (String fromName : fromCgmes.names()) {
-                String toName = fromName;
-                copyStream(from, to, fromName, toName);
+            for (String name : fromCgmes.names()) {
+                copyStream(from, to, name, name);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -397,7 +396,7 @@ public class CgmesImport implements Importer {
                 defaultValueConfig);
     }
 
-    private Conversion.Config config(ReadOnlyDataSource ds, Properties p) {
+    private Conversion.Config config(Properties p) {
         Conversion.Config config = new Conversion.Config()
                 .setAllowUnsupportedTapChangers(
                         Parameter.readBoolean(
@@ -482,14 +481,21 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+                                defaultValueConfig))
+                .setMissingPermanentLimitPercentage(
+                        Parameter.readDouble(
+                                getFormat(),
+                                p,
+                                MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
                                 defaultValueConfig));
+
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
-        String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
-        if (idMappingFilePath == null) {
-            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
-        } else {
-            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
-        }
+
+        // Build the naming strategy with the default uuid namespace for creating name-based uuids
+        // In fact, when using a naming strategy for CGMES import we should not need an uuid namespace,
+        // because we won't be creating new UUIDs
+        UUID uuidNamespace = CgmesExportContext.DEFAULT_UUID_NAMESPACE;
+        config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, uuidNamespace));
         return config;
     }
 
@@ -544,7 +550,6 @@ public class CgmesImport implements Importer {
     public static final String CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE = "iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode";
     public static final String DECODE_ESCAPED_IDENTIFIERS = "iidm.import.cgmes.decode-escaped-identifiers";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
-    public static final String ID_MAPPING_FILE_PATH = "iidm.import.cgmes.id-mapping-file-path";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String NAMING_STRATEGY = "iidm.import.cgmes.naming-strategy";
     public static final String PRE_PROCESSORS = "iidm.import.cgmes.pre-processors";
@@ -556,6 +561,7 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
     public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
+    public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.cgmes.missing-permanent-limit-percentage";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
 
@@ -595,20 +601,12 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Ensure IDs and aliases are unique",
             Boolean.FALSE);
-    private static final Parameter ID_MAPPING_FILE_PATH_PARAMETER = new Parameter(
-            ID_MAPPING_FILE_PATH,
-            ParameterType.STRING,
-            "Path of ID mapping file",
-            null,
-            null,
-            ParameterScope.TECHNICAL);
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(
             NAMING_STRATEGY,
             ParameterType.STRING,
-            "Configure what type of naming strategy you want to use for the provided ID mapping file",
+            "Configure what type of naming strategy you want to use",
             NamingStrategyFactory.IDENTITY,
-            new ArrayList<>(NamingStrategyFactory.LIST))
-            .addAdditionalNames("iidm.import.cgmes.id-mapping-file-naming-strategy");
+            new ArrayList<>(NamingStrategyFactory.LIST));
     private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
             IMPORT_CONTROL_AREAS,
             ParameterType.BOOLEAN,
@@ -684,6 +682,12 @@ public class CgmesImport implements Importer {
             SubnetworkDefinedBy.MODELING_AUTHORITY.name(),
             Arrays.stream(SubnetworkDefinedBy.values()).map(Enum::name).collect(Collectors.toList()));
 
+    public static final Parameter MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER = new Parameter(
+            MISSING_PERMANENT_LIMIT_PERCENTAGE,
+            ParameterType.DOUBLE,
+            "Percentage applied to lowest TATL limit to use as PATL when PATL is missing",
+            100.);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
@@ -691,7 +695,6 @@ public class CgmesImport implements Importer {
             CONVERT_SV_INJECTIONS_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
-            ID_MAPPING_FILE_PATH_PARAMETER,
             NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
@@ -705,7 +708,8 @@ public class CgmesImport implements Importer {
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
             DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
-            IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER);
+            IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
+            MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;

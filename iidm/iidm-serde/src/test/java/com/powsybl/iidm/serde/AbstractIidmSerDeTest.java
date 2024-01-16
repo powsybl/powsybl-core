@@ -129,6 +129,15 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute a given test for all IIDM versions newer or equal than a given minimum IIDM version.
+     */
+    protected void testForAllVersionsSince(IidmVersion minVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0)
+                .forEach(test);
+    }
+
+    /**
      * Execute a write test for the given network, for all IIDM versions strictly older than a given maximum IIDM
      * version, and compare to the given versioned xml reference test resource.
      */
@@ -190,6 +199,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * </ul>
      * @param network the network to start with
      * @param filename the filename of the reference versioned file resource
+     * @param version the version to use for exporting and for the versioned filename
      * @return the Network read just before the end of the round trip
      */
     public Network allFormatsRoundTripTest(Network network, String filename, IidmVersion version) throws IOException {
