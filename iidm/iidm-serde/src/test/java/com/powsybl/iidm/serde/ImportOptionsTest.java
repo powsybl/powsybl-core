@@ -36,10 +36,12 @@ class ImportOptionsTest {
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         ImportOptions options = new ImportOptions(Boolean.FALSE);
         options.setExtensions(extensionsList);
+        options.setMissingPermanentLimitPercentage(95.);
 
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(95., options.getMissingPermanentLimitPercentage());
     }
 
     @Test
@@ -51,5 +53,6 @@ class ImportOptionsTest {
         assertEquals(-1, (int) options.getExtensions().map(Set::size).orElse(-1));
         assertEquals(Boolean.TRUE, options.withAllExtensions());
         assertEquals(Boolean.TRUE, options.isWithAutomationSystems());
+        assertEquals(100., options.getMissingPermanentLimitPercentage());
     }
 }
