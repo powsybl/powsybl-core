@@ -7,12 +7,16 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
+import com.powsybl.iidm.network.Validable;
 
 import java.util.Optional;
 
 /**
- * */
+ * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
+ */
 class CurrentLimitsAndGroupAdderImpl extends AbstractLoadingLimitsAdder<CurrentLimits, CurrentLimitsAdder> implements CurrentLimitsAdder {
 
     OperationalLimitsGroups owner;

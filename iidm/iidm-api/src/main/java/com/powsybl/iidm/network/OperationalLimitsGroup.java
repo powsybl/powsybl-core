@@ -9,6 +9,9 @@
 package com.powsybl.iidm.network;
 import java.util.Optional;
 
+/**
+ * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
+ */
 public interface OperationalLimitsGroup {
 
     String getId();

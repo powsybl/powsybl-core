@@ -9,8 +9,12 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
+ */
 class OperationalLimitsGroupImpl implements OperationalLimitsGroup {
 
     private final OperationalLimitsGroups.GroupsValidable validable;

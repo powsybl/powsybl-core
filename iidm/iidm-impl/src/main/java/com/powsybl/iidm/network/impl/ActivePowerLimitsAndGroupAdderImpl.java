@@ -7,11 +7,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ActivePowerLimits;
+import com.powsybl.iidm.network.ActivePowerLimitsAdder;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
+import com.powsybl.iidm.network.Validable;
 
 import java.util.Optional;
 
 /**
+ * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
  */
 class ActivePowerLimitsAndGroupAdderImpl extends AbstractLoadingLimitsAdder<ActivePowerLimits, ActivePowerLimitsAdder> implements ActivePowerLimitsAdder {
 

@@ -9,12 +9,14 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+
+import java.util.List;
 import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> extends AbstractConnectable<I> implements Branch<I>, FlowsLimitsDefaultHolder1, FlowsLimitsDefaultHolder2 {
+abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> extends AbstractConnectable<I> implements Branch<I> {
 
     protected final OperationalLimitsGroupsImpl operationalLimitsHolder1;
 
@@ -50,14 +52,122 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
     }
 
-    @Override
-    public OperationalLimitsGroupsImpl getOperationalLimitsHolder1() {
+    private OperationalLimitsGroupsImpl getOperationalLimitsHolder1() {
         return operationalLimitsHolder1;
     }
 
     @Override
-    public OperationalLimitsGroupsImpl getOperationalLimitsHolder2() {
+    public Optional<String> getDefaultIdOperationalLimitsGroups1() {
+        return getOperationalLimitsHolder1().getDefaultId();
+    }
+
+    @Override
+    public List<OperationalLimitsGroup> getOperationalLimitsGroups1() {
+        return getOperationalLimitsHolder1().getAllOperationalLimitsGroup();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id) {
+        return getOperationalLimitsHolder1().getOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup1() {
+        return getOperationalLimitsHolder1().getDefaultOperationalLimitsGroup();
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
+        return getOperationalLimitsHolder1().newOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void setDefaultOperationalLimitsGroup1To(String id) {
+        getOperationalLimitsHolder1().setDefaultTo(id);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup1(String id) {
+        getOperationalLimitsHolder1().removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelDefaultOperationalLimitsGroup1() {
+        getOperationalLimitsHolder1().cancelDefault();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits1() {
+        return getOperationalLimitsHolder1().newCurrentLimits();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return getOperationalLimitsHolder1().newActivePowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        return getOperationalLimitsHolder1().newApparentPowerLimits();
+    }
+
+    private OperationalLimitsGroupsImpl getOperationalLimitsHolder2() {
         return operationalLimitsHolder2;
+    }
+
+    @Override
+    public List<OperationalLimitsGroup> getOperationalLimitsGroups2() {
+        return getOperationalLimitsHolder2().getAllOperationalLimitsGroup();
+    }
+
+    @Override
+    public Optional<String> getDefaultIdOperationalLimitsGroups2() {
+        return getOperationalLimitsHolder2().getDefaultId();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id) {
+        return getOperationalLimitsHolder2().getOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup2() {
+        return getOperationalLimitsHolder2().getDefaultOperationalLimitsGroup();
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
+        return getOperationalLimitsHolder2().newOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void setDefaultOperationalLimitsGroup2To(String id) {
+        getOperationalLimitsHolder2().setDefaultTo(id);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup2(String id) {
+        getOperationalLimitsHolder2().removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelDefaultOperationalLimitsGroup2() {
+        getOperationalLimitsHolder2().cancelDefault();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits2() {
+        return getOperationalLimitsHolder2().newCurrentLimits();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return getOperationalLimitsHolder2().newActivePowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        return getOperationalLimitsHolder2().newApparentPowerLimits();
     }
 
     @Override

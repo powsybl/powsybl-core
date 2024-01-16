@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -96,7 +97,7 @@ import java.util.Optional;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface Branch<I extends Branch<I>> extends Identifiable<I>, FlowsLimitsHolder1, FlowsLimitsHolder2 {
+public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     /**
      * Get the first terminal.
@@ -113,6 +114,98 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I>, FlowsLimit
     Terminal getTerminal(String voltageLevelId);
 
     TwoSides getSide(Terminal terminal);
+
+    List<OperationalLimitsGroup> getOperationalLimitsGroups1();
+
+    Optional<String> getDefaultIdOperationalLimitsGroups1();
+
+    Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id);
+
+    Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup1();
+
+    OperationalLimitsGroup newOperationalLimitsGroup1(String id);
+
+    void setDefaultOperationalLimitsGroup1To(String id);
+
+    void removeOperationalLimitsGroup1(String id);
+
+    void cancelDefaultOperationalLimitsGroup1();
+
+    default Optional<CurrentLimits> getCurrentLimits1() {
+        return getDefaultOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getCurrentLimits);
+    }
+
+    default CurrentLimits getNullableCurrentLimits1() {
+        return getCurrentLimits1().orElse(null);
+    }
+
+    default Optional<ActivePowerLimits> getActivePowerLimits1() {
+        return getDefaultOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getActivePowerLimits);
+    }
+
+    default ActivePowerLimits getNullableActivePowerLimits1() {
+        return getActivePowerLimits1().orElse(null);
+    }
+
+    default Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        return getDefaultOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
+    }
+
+    default ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return getApparentPowerLimits1().orElse(null);
+    }
+
+    CurrentLimitsAdder newCurrentLimits1();
+
+    ActivePowerLimitsAdder newActivePowerLimits1();
+
+    ApparentPowerLimitsAdder newApparentPowerLimits1();
+
+    List<OperationalLimitsGroup> getOperationalLimitsGroups2();
+
+    Optional<String> getDefaultIdOperationalLimitsGroups2();
+
+    Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id);
+
+    Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup2();
+
+    OperationalLimitsGroup newOperationalLimitsGroup2(String id);
+
+    void setDefaultOperationalLimitsGroup2To(String id);
+
+    void removeOperationalLimitsGroup2(String id);
+
+    void cancelDefaultOperationalLimitsGroup2();
+
+    default Optional<CurrentLimits> getCurrentLimits2() {
+        return getDefaultOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getCurrentLimits);
+    }
+
+    default CurrentLimits getNullableCurrentLimits2() {
+        return getCurrentLimits2().orElse(null);
+    }
+
+    default Optional<ActivePowerLimits> getActivePowerLimits2() {
+        return getDefaultOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getActivePowerLimits);
+    }
+
+    default ActivePowerLimits getNullableActivePowerLimits2() {
+        return getActivePowerLimits2().orElse(null);
+    }
+
+    default Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        return getDefaultOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
+    }
+
+    default ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return getApparentPowerLimits2().orElse(null);
+    }
+
+    CurrentLimitsAdder newCurrentLimits2();
+
+    ActivePowerLimitsAdder newActivePowerLimits2();
+
+    ApparentPowerLimitsAdder newApparentPowerLimits2();
 
     default Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
         switch (side) {

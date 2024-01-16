@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
+ */
 public abstract class AbstractOperationalLimitsGroupsTest {
 
     private static Network createNetworkWithLine() {
