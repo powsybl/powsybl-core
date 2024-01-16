@@ -4,21 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.cgmes.conversion;
+package com.powsybl.cgmes.conversion.naming;
 
-import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at rte-france.com>}
  */
 public class FixedCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
 
-    public FixedCgmesAliasNamingStrategy() {
-        super();
-    }
-
-    public FixedCgmesAliasNamingStrategy(Map<String, String> idByUuid) {
-        super(idByUuid);
+    public FixedCgmesAliasNamingStrategy(UUID uuidNamespace) {
+        super(uuidNamespace);
     }
 
     @Override

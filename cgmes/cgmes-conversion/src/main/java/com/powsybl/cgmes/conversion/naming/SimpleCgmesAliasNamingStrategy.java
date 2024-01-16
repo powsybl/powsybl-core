@@ -4,40 +4,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.cgmes.conversion;
+package com.powsybl.cgmes.conversion.naming;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 
-import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at rte-france.com>}
  */
 public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
 
-    public SimpleCgmesAliasNamingStrategy() {
-        super();
-    }
-
-    public SimpleCgmesAliasNamingStrategy(Map<String, String> idByUuid) {
-        super(idByUuid);
+    public SimpleCgmesAliasNamingStrategy(UUID uuidNamespace) {
+        super(uuidNamespace);
     }
 
     @Override
     public String getName() {
         return NamingStrategyFactory.CGMES;
-    }
-
-    @Override
-    public String getCgmesId(Identifiable<?> identifiable, String subObject) {
-        // ConnectivityNodes built as identifiers plus a suffix _CN must be fixed also in base naming strategy
-        boolean mustBeFixed = "CN".equals(subObject);
-        if (!mustBeFixed) {
-            return identifiable.getId() + "_" + subObject;
-        }
-        return super.getCgmesId(identifiable, subObject);
     }
 
     @Override
