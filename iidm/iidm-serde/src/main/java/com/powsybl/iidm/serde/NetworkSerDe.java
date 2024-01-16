@@ -80,6 +80,9 @@ public final class NetworkSerDe {
     private static final String ID = "id";
     private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
 
+    /** Magic number for binary iidm files ("Binary IIDM" in ASCII) */
+    static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
+
     private static final Supplier<ExtensionProviders<ExtensionSerDe>> EXTENSIONS_SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
 
@@ -267,7 +270,7 @@ public final class NetworkSerDe {
     }
 
     private static TreeDataWriter createBinWriter(OutputStream os, ExportOptions options) {
-        return new BinWriter(os, options.getVersion().toString("."));
+        return new BinWriter(os, BIIDM_MAGIC_NUMBER, options.getVersion().toString("."));
     }
 
     private static void writeRootElement(Network n, NetworkSerializerContext context) {
@@ -516,7 +519,7 @@ public final class NetworkSerDe {
         return switch (config.getFormat()) {
             case XML -> createXmlReader(is, config);
             case JSON -> createJsonReader(is, config);
-            case BIN -> new BinReader(is);
+            case BIN -> new BinReader(is, BIIDM_MAGIC_NUMBER);
         };
     }
 

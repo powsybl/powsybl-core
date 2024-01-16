@@ -12,9 +12,9 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.Importer;
 
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -47,15 +47,8 @@ public class BinaryImporter extends AbstractTreeDataImporter {
     @Override
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
         if (ext != null) {
-            try (DataInputStream dis = new DataInputStream(dataSource.newInputStream(null, ext))) {
-                int versionNbBytes = dis.readShort();
-                if (versionNbBytes > 0 && versionNbBytes < 50) { // large enough for version string
-                    byte[] stringBytes = dis.readNBytes(versionNbBytes);
-                    if (stringBytes.length == versionNbBytes) {
-                        String version = new String(stringBytes, StandardCharsets.UTF_8);
-                        return version.matches("^\\d+\\.\\d+(\\.\\d+)?$");
-                    }
-                }
+            try (InputStream dis = dataSource.newInputStream(null, ext)) {
+                return Arrays.equals(dis.readNBytes(NetworkSerDe.BIIDM_MAGIC_NUMBER.length), NetworkSerDe.BIIDM_MAGIC_NUMBER);
             }
         }
         return false;

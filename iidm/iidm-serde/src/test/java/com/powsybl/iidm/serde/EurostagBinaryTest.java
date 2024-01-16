@@ -16,6 +16,9 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
@@ -26,16 +29,21 @@ class EurostagBinaryTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.BIN);
-        ImportOptions importOptions = new ImportOptions().setFormat(TreeDataFormat.BIN);
+        String fileName = "eurostag-tutorial1-lf.bin";
         roundTripTest(EurostagTutorialExample1Factory.createWithLFResults(),
-                (n, jsonFile) -> NetworkSerDe.write(n, exportOptions, jsonFile),
-                jsonFile -> NetworkSerDe.read(jsonFile, importOptions),
+                (n, jsonFile) -> NetworkSerDe.write(n, new ExportOptions().setFormat(TreeDataFormat.BIN), jsonFile),
+                n -> {
+                    try (InputStream is = Files.newInputStream(n)) {
+                        return Network.read(fileName, is);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                },
                 ComparisonUtils::compareBytes,
-                getVersionedNetworkPath("eurostag-tutorial1-lf.bin", CURRENT_IIDM_VERSION));
+                getVersionedNetworkPath(fileName, CURRENT_IIDM_VERSION));
 
         //backward compatibility
-        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf.bin", IidmVersion.V_1_12);
+        roundTripVersionedJsonFromMinToCurrentVersionTest(fileName, IidmVersion.V_1_12);
     }
 
     @Test
@@ -46,8 +54,8 @@ class EurostagBinaryTest extends AbstractIidmSerDeTest {
         network.getGeneratorStream().findFirst().ifPresent(g -> g.newExtension(ActivePowerControlAdder.class).withDroop(2).withParticipate(true).add());
         network.getLoadStream().forEach(l -> l.newExtension(ConnectablePositionAdder.class).newFeeder().withDirection(ConnectablePosition.Direction.BOTTOM).add().add());
         roundTripTest(network,
-                (n, jsonFile) -> NetworkSerDe.write(n, exportOptions, jsonFile),
-                jsonFile -> NetworkSerDe.read(jsonFile, importOptions),
+                (n, binFile) -> NetworkSerDe.write(n, exportOptions, binFile),
+                binFile -> NetworkSerDe.read(binFile, importOptions),
                 ComparisonUtils::compareBytes,
                 getVersionedNetworkPath("eurostag-tutorial1-lf-extensions.bin", CURRENT_IIDM_VERSION));
 

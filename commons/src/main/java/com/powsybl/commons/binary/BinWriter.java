@@ -31,8 +31,10 @@ public class BinWriter implements TreeDataWriter {
     private final ByteArrayOutputStream buffer;
     private final Map<String, Integer> nodeNamesIndex = new LinkedHashMap<>();
     private Map<String, String> extensionVersions;
+    private final byte[] binaryMagicNumber;
 
-    public BinWriter(OutputStream outputStream, String rootVersion) {
+    public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
+        this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
         this.rootVersion = Objects.requireNonNull(rootVersion);
         this.dos = new DataOutputStream(new BufferedOutputStream(Objects.requireNonNull(outputStream)));
         this.buffer = new ByteArrayOutputStream();
@@ -238,7 +240,10 @@ public class BinWriter implements TreeDataWriter {
         }
     }
 
-    private void writeHeader() {
+    private void writeHeader() throws IOException {
+        // magic number ("Binary IIDM" in ASCII)
+        dos.write(binaryMagicNumber);
+
         // iidm version
         writeString(rootVersion, dos);
 

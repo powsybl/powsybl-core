@@ -26,19 +26,29 @@ public class BinReader implements TreeDataReader {
 
     private final DataInputStream dis;
     private final Map<Integer, String> dictionary = new HashMap<>();
+    private final byte[] binaryMagicNumber;
 
-    public BinReader(InputStream is) {
+    public BinReader(InputStream is, byte[] binaryMagicNumber) {
+        this.binaryMagicNumber = binaryMagicNumber;
         this.dis = new DataInputStream(new BufferedInputStream(Objects.requireNonNull(is)));
     }
 
     @Override
     public TreeDataHeader readHeader() {
         try {
+            readMagicNumber();
             TreeDataHeader header = new TreeDataHeader(readString(), readExtensionVersions());
             readDictionary();
             return header;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private void readMagicNumber() throws IOException {
+        byte[] read = dis.readNBytes(binaryMagicNumber.length);
+        if (!Arrays.equals(read, binaryMagicNumber)) {
+            throw new PowsyblException("Unexpected bytes at file start");
         }
     }
 
