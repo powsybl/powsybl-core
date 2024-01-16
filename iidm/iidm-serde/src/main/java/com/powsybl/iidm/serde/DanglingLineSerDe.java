@@ -95,13 +95,6 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         return parent.newDanglingLine();
     }
 
-    static boolean hasValidGeneration(DanglingLine dl, NetworkSerializerContext context) {
-        if (dl.getGeneration() != null) {
-            return context.getVersion().compareTo(IidmVersion.V_1_3) > 0;
-        }
-        return false;
-    }
-
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkSerializerContext context) {
         if (dl.getGeneration() != null) {
