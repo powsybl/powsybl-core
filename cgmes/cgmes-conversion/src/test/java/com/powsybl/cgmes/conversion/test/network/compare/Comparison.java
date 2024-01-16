@@ -733,9 +733,9 @@ public class Comparison {
                 actual.getRegulationValue());
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
-            TapChanger<TC, TCS> expected,
-            TapChanger<TC, TCS> actual,
+    private <TC extends TapChanger<TC, TCS, ?, ?>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
+            TapChanger<TC, TCS, ?, ?> expected,
+            TapChanger<TC, TCS, ?, ?> actual,
             BiConsumer<TCS, TCS> testTapChangerStep1) {
         if (expected == null) {
             if (actual != null) {
@@ -795,7 +795,7 @@ public class Comparison {
         }
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
+    private <TC extends TapChanger<TC, TCS, ?, ?>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
             TCS expected,
             TCS actual,
             BiConsumer<TCS, TCS> testTapChangerStep1) {

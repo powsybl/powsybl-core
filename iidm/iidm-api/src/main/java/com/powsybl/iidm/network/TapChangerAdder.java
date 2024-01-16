@@ -9,9 +9,22 @@
 package com.powsybl.iidm.network;
 
 /**
+ * Generic adder interface of the tap changer.
+ * @param <S> for SELF (itself)
+ * @param <D> the step
+ * @param <A> the step adder of the tap changer adder <S>
+ * @param <B> the step adder of the steps replacer <R>
+ * @param <R> the steps replacer
+ * @param <C> the tap changer
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface TapChangerAdder<S extends TapChangerAdder<S, A, C>, A extends TapChangerStepAdder<A, S>, C extends TapChanger<C, ?>> {
+public interface TapChangerAdder<
+    S extends TapChangerAdder<S, D, A, B, R, C>,
+    D extends TapChangerStep<D>,
+    A extends TapChangerStepAdder<A, S>,
+    B extends TapChangerStepAdder<B, R>,
+    R extends TapChangerStepsReplacer<R, B>,
+    C extends TapChanger<C, D, R, B>> {
 
     S setLowTapPosition(int lowTapPosition);
 

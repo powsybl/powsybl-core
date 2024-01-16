@@ -9,11 +9,13 @@
 package com.powsybl.iidm.network;
 
 /**
- * Interface for classes responsible for building a single step.
+ * Contains methods to build and replace the list of steps of an existing tap changer.
  * @param <S> for SELF (itself)
- * @param <T> the return type when building the step by calling {@link TapChangerStepAdder#endStep()}
+ * @param <A> the step adder to build and add one step
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface PhaseTapChangerStepAdder<S extends PhaseTapChangerStepAdder<S, T>, T> extends TapChangerStepAdder<S, T> {
-    S setAlpha(double alpha);
+public interface TapChangerStepsReplacer<S extends TapChangerStepsReplacer<S, A>, A extends TapChangerStepAdder<A, S>> {
+    A beginStep();
+
+    void replaceSteps();
 }
