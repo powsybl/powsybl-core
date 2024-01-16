@@ -10,10 +10,7 @@ import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +35,15 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private boolean regulating = false;
 
-    private double targetV = Double.NaN;
+    private RatioTapChanger.RegulationMode regulationMode = null;
+
+    private double regulationValue = Double.NaN;
 
     private double targetDeadband = Double.NaN;
 
     private TerminalExt regulationTerminal;
 
-    class StepAdderImpl implements StepAdder {
+    class StepAdderImpl implements RatioTapChangerStepAdder {
 
         private double rho = Double.NaN;
 
@@ -57,31 +56,31 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         private double b = 0.0;
 
         @Override
-        public StepAdder setRho(double rho) {
+        public RatioTapChangerStepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public StepAdder setR(double r) {
+        public RatioTapChangerStepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public StepAdder setX(double x) {
+        public RatioTapChangerStepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public StepAdder setG(double g) {
+        public RatioTapChangerStepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public StepAdder setB(double b) {
+        public RatioTapChangerStepAdder setB(double b) {
             this.b = b;
             return this;
         }
@@ -144,7 +143,22 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     @Override
     public RatioTapChangerAdder setTargetV(double targetV) {
-        this.targetV = targetV;
+        if (!Double.isNaN(targetV)) {
+            this.regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
+        }
+        this.regulationValue = targetV;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
+        this.regulationMode = regulationMode;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setRegulationValue(double regulationValue) {
+        this.regulationValue = regulationValue;
         return this;
     }
 
@@ -161,7 +175,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public StepAdder beginStep() {
+    public RatioTapChangerStepAdder beginStep() {
         return new StepAdderImpl();
     }
 
@@ -185,12 +199,12 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
-                targetV, network, network.getMinValidationLevel()));
+                regulationMode, regulationValue, network, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband,
                 network.getMinValidationLevel()));
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                                          tapPosition, regulating, targetV, targetDeadband);
+                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 
         Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
