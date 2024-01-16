@@ -194,10 +194,12 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         notifyUpdate("terminal" + (iSide + 1), oldTopologyPoint, terminalExt.getTopologyPoint());
     }
 
+    @Override
     public boolean connect() {
         return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
 
+    @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
         // Reporter
         Reporter reporter = this.getNetwork().getReporterContext().getReporter();
@@ -255,10 +257,12 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         return isNowConnected;
     }
 
+    @Override
     public boolean disconnect() {
         return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
     }
 
+    @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         // Reporter
         Reporter reporter = this.getNetwork().getReporterContext().getReporter();
