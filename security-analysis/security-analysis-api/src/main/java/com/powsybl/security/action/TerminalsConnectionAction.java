@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * An action of opening or closing a terminal.
+ * An action of opening or closing an equipment terminal(s).
  *
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
@@ -26,11 +26,11 @@ public class TerminalsConnectionAction extends AbstractAction {
 
     /**
      * @param id the id of the action.
-     * @param elementId the id of the element which terminals are operated. The element could be any connectable.
-     *                  We can also imagine that the element could be a tie line, referring the terminal of an underlying
-     *                  dangling line.
+     * @param elementId the id of the element which terminals are operated.
+     *                  The element can be any connectable, including a tie line by referring the terminal of
+     *                  an underlying dangling line.
      * @param side the side of the element to operate in the action.
-     * @param open the status of the terminal to operate. {@code true} means terminal to open.
+     * @param open the status for the terminal to operate. {@code true} means terminal opening.
      */
     public TerminalsConnectionAction(String id, String elementId, ThreeSides side, boolean open) {
         super(id);
@@ -41,10 +41,10 @@ public class TerminalsConnectionAction extends AbstractAction {
 
     /**
      * @param id the id of the action.
-     * @param elementId the id of the element which terminals are operated. The element could be any connectable.
-     *                  We can also imagine that the element could be a tie line, referring the terminal of an underlying
-     *                  dangling line.
-     * @param open the status of all the terminals of the element to operate. {@code true} means all terminals to open.
+     * @param elementId the id of the element which terminals are operated.
+     *                  The element can be any connectable, including a tie line by referring the terminal of
+     *                  an underlying dangling line.
+     * @param open the status for all the terminals of the element to operate. {@code true} means all terminals opening.
      */
     public TerminalsConnectionAction(String id, String elementId, boolean open) {
         super(id);
@@ -65,8 +65,8 @@ public class TerminalsConnectionAction extends AbstractAction {
     }
 
     /**
-     * The side is optional. In case of empty, it means that all the terminals of the element will be operated
-     * in the action with the status open or close also defined.
+     * The side is optional. Empty means that all the terminals of the element will be operated
+     * in the action with the defined open or close status.
      * @return the optional side of the connection/disconnection action.
      */
     public Optional<ThreeSides> getSide() {
