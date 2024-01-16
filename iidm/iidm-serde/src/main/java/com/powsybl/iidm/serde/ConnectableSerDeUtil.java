@@ -98,13 +98,7 @@ public final class ConnectableSerDeUtil {
     }
 
     public static void readNodeOrBus(InjectionAdder<?, ?> adder, String suffix, NetworkDeserializerContext context, TopologyKind topologyKind) {
-        switch (topologyKind) {
-            case NODE_BREAKER -> readNode(adder::setNode, suffix, context);
-            case BUS_BREAKER -> {
-                readBus(adder::setBus, suffix, context);
-                readConnectableBus(adder::setConnectableBus, suffix, context);
-            }
-        }
+        readNodeOrBus(suffix, topologyKind, adder::setNode, adder::setBus, adder::setConnectableBus, context);
     }
 
     private static void readNode(IntConsumer nodeAdder, String suffix, NetworkDeserializerContext context) {
@@ -119,27 +113,25 @@ public final class ConnectableSerDeUtil {
         busAdder.accept(context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + suffix)));
     }
 
-    public static void readNodeOrBus(BranchAdder<?, ?> adder, Network network, NetworkDeserializerContext context) {
-        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId1"));
-        adder.setVoltageLevel1(voltageLevelId1);
-        String suffix1 = String.valueOf(1);
-        switch (getTopologKind(voltageLevelId1, network)) {
-            case NODE_BREAKER -> readNode(adder::setNode1, suffix1, context);
-            case BUS_BREAKER -> {
-                readBus(adder::setBus1, suffix1, context);
-                readConnectableBus(adder::setConnectableBus1, suffix1, context);
-            }
-        }
+    public static void readVoltageLevelAndNodeOrBus(BranchAdder<?, ?> adder, Network network, NetworkDeserializerContext context) {
+        readVoltageLevelAndNodeOrBus("1", adder::setVoltageLevel1, adder::setNode1, adder::setBus1, adder::setConnectableBus1, network, context);
+        readVoltageLevelAndNodeOrBus("2", adder::setVoltageLevel2, adder::setNode2, adder::setBus2, adder::setConnectableBus2, network, context);
+    }
 
-        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId2"));
-        adder.setVoltageLevel2(voltageLevelId2);
-        String suffix2 = String.valueOf(2);
-        switch (getTopologKind(voltageLevelId2, network)) {
-            case NODE_BREAKER -> readNode(adder::setNode2, suffix2, context);
+    private static void readVoltageLevelAndNodeOrBus(String suffix, Consumer<String> voltageLevelSetter, IntConsumer nodeSetter, Consumer<String> busSetter, Consumer<String> connectableBusSetter, Network network, NetworkDeserializerContext context) {
+        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + suffix));
+        voltageLevelSetter.accept(voltageLevelId);
+        readNodeOrBus(suffix, getTopologKind(voltageLevelId, network), nodeSetter, busSetter, connectableBusSetter, context);
+    }
+
+    private static void readNodeOrBus(String suffix, TopologyKind topologyKind, IntConsumer nodeSetter, Consumer<String> busSetter, Consumer<String> connectableBusSetter, NetworkDeserializerContext context) {
+        switch (topologyKind) {
+            case NODE_BREAKER -> readNode(nodeSetter, suffix, context);
             case BUS_BREAKER -> {
-                readBus(adder::setBus2, suffix2, context);
-                readConnectableBus(adder::setConnectableBus2, suffix2, context);
+                readBus(busSetter, suffix, context);
+                readConnectableBus(connectableBusSetter, suffix, context);
             }
+            default -> throw new IllegalStateException();
         }
     }
 
@@ -152,16 +144,7 @@ public final class ConnectableSerDeUtil {
     }
 
     public static void readNodeOrBus(int index, LegAdder adder, Network network, NetworkDeserializerContext context) {
-        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + index));
-        adder.setVoltageLevel(voltageLevelId);
-        String suffix = String.valueOf(index);
-        switch (getTopologKind(voltageLevelId, network)) {
-            case NODE_BREAKER -> readNode(adder::setNode, suffix, context);
-            case BUS_BREAKER -> {
-                readBus(adder::setBus, suffix, context);
-                readConnectableBus(adder::setConnectableBus, suffix, context);
-            }
-        }
+        readVoltageLevelAndNodeOrBus(String.valueOf(index), adder::setVoltageLevel, adder::setNode, adder::setBus, adder::setConnectableBus, network, context);
     }
 
     public static void writePQ(Integer index, Terminal t, TreeDataWriter writer) {
