@@ -11,5 +11,10 @@ package com.powsybl.iidm.network;
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface PhaseTapChangerStepsReplacer extends TapChangerStepsReplacer<PhaseTapChangerStepsReplacer, PhaseTapChangerStepsReplacerStepAdder> {
+public interface PhaseTapChangerStepsReplacer extends TapChangerStepsReplacer<PhaseTapChangerStepsReplacer, PhaseTapChangerStepsReplacer.StepAdder> {
+    /**
+     * Interface for classes responsible for building a single step when using {@link PhaseTapChangerStepsReplacer}.
+     */
+    interface StepAdder extends PhaseTapChangerStepAdder<StepAdder, PhaseTapChangerStepsReplacer> {
+    }
 }

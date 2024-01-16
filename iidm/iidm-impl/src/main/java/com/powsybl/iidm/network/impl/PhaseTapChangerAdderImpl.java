@@ -44,7 +44,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private TerminalExt regulationTerminal;
 
-    class StepAdderImpl implements PhaseTapChangerAdderStepAdder {
+    class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -59,37 +59,37 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         private double b = 0.0;
 
         @Override
-        public PhaseTapChangerAdderStepAdder setAlpha(double alpha) {
+        public PhaseTapChangerAdder.StepAdder setAlpha(double alpha) {
             this.alpha = alpha;
             return this;
         }
 
         @Override
-        public PhaseTapChangerAdderStepAdder setRho(double rho) {
+        public PhaseTapChangerAdder.StepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public PhaseTapChangerAdderStepAdder setR(double r) {
+        public PhaseTapChangerAdder.StepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public PhaseTapChangerAdderStepAdder setX(double x) {
+        public PhaseTapChangerAdder.StepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public PhaseTapChangerAdderStepAdder setG(double g) {
+        public PhaseTapChangerAdder.StepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public PhaseTapChangerAdderStepAdder setB(double b) {
+        public PhaseTapChangerAdder.StepAdder setB(double b) {
             this.b = b;
             return this;
         }
@@ -155,7 +155,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
-    public PhaseTapChangerAdderStepAdder beginStep() {
+    public PhaseTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 

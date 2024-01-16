@@ -15,7 +15,7 @@ public interface RatioTapChanger extends TapChanger<
     RatioTapChanger,
     RatioTapChangerStep,
     RatioTapChangerStepsReplacer,
-    RatioTapChangerStepsReplacerStepAdder> {
+    RatioTapChangerStepsReplacer.StepAdder> {
 
     enum RegulationMode {
         VOLTAGE,

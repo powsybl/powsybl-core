@@ -15,7 +15,7 @@ public interface PhaseTapChanger extends TapChanger<
     PhaseTapChanger,
     PhaseTapChangerStep,
     PhaseTapChangerStepsReplacer,
-    PhaseTapChangerStepsReplacerStepAdder> {
+    PhaseTapChangerStepsReplacer.StepAdder> {
 
     enum RegulationMode {
         CURRENT_LIMITER,

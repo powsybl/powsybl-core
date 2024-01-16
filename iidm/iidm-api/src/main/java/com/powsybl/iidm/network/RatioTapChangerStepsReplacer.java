@@ -11,5 +11,10 @@ package com.powsybl.iidm.network;
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface RatioTapChangerStepsReplacer extends TapChangerStepsReplacer<RatioTapChangerStepsReplacer, RatioTapChangerStepsReplacerStepAdder> {
+public interface RatioTapChangerStepsReplacer extends TapChangerStepsReplacer<RatioTapChangerStepsReplacer, RatioTapChangerStepsReplacer.StepAdder> {
+    /**
+     * Interface for classes responsible for building a single step when using {@link RatioTapChangerStepsReplacer}.
+     */
+    interface StepAdder extends RatioTapChangerStepAdder<StepAdder, RatioTapChangerStepsReplacer> {
+    }
 }

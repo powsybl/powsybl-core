@@ -125,7 +125,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                     readTapChangerTerminalRef(adder, terminal, context);
                 }
                 case STEP_ROOT_ELEMENT_NAME -> {
-                    RatioTapChangerAdderStepAdder stepAdder = adder.beginStep();
+                    RatioTapChangerAdder.StepAdder stepAdder = adder.beginStep();
                     readSteps(context, stepAdder);
                     stepAdder.endStep();
                     context.getReader().readEndNode();
@@ -191,7 +191,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                     readTapChangerTerminalRef(adder, terminal, context);
                 }
                 case STEP_ROOT_ELEMENT_NAME -> {
-                    PhaseTapChangerAdderStepAdder stepAdder = adder.beginStep();
+                    PhaseTapChangerAdder.StepAdder stepAdder = adder.beginStep();
                     readSteps(context, stepAdder);
                     double alpha = context.getReader().readDoubleAttribute("alpha");
                     stepAdder.setAlpha(alpha)

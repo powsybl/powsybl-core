@@ -9,14 +9,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.RatioTapChangerStepsReplacer;
-import com.powsybl.iidm.network.RatioTapChangerStepsReplacerStepAdder;
 
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
 public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<RatioTapChangerStepsReplacerImpl, RatioTapChangerStepImpl> implements RatioTapChangerStepsReplacer {
 
-    class StepAdderImpl implements RatioTapChangerStepsReplacerStepAdder {
+    class StepAdderImpl implements RatioTapChangerStepsReplacer.StepAdder {
 
         private double rho = Double.NaN;
 
@@ -29,31 +28,31 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         private double b = 0.0;
 
         @Override
-        public RatioTapChangerStepsReplacerStepAdder setRho(double rho) {
+        public RatioTapChangerStepsReplacer.StepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public RatioTapChangerStepsReplacerStepAdder setR(double r) {
+        public RatioTapChangerStepsReplacer.StepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public RatioTapChangerStepsReplacerStepAdder setX(double x) {
+        public RatioTapChangerStepsReplacer.StepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public RatioTapChangerStepsReplacerStepAdder setG(double g) {
+        public RatioTapChangerStepsReplacer.StepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public RatioTapChangerStepsReplacerStepAdder setB(double b) {
+        public RatioTapChangerStepsReplacer.StepAdder setB(double b) {
             this.b = b;
             return this;
         }
@@ -72,7 +71,7 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
     }
 
     @Override
-    public RatioTapChangerStepsReplacerStepAdder beginStep() {
+    public RatioTapChangerStepsReplacer.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 }
