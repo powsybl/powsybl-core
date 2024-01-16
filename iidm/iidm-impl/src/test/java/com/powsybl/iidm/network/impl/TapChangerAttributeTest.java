@@ -56,7 +56,7 @@ class TapChangerAttributeTest {
         testRatioTapChangerStepsReplacement(twt2);
     }
 
-    private static void testRatioTapChangerStepsReplacement(TwoWindingsTransformer twt2) {
+    private static void testPhaseTapChangerStepsReplacement(TwoWindingsTransformer twt2) {
         PhaseTapChanger ptc = twt2.getPhaseTapChanger();
         assertEquals(2, ptc.getStepCount());
         PhaseTapChangerStepsReplacer phaseStepsReplacer = ptc.stepsReplacer();
@@ -64,7 +64,7 @@ class TapChangerAttributeTest {
             assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
         phaseStepsReplacer.beginStep()
             .endStep();
-        assertEquals("2 windings transformer 'twt2': step rho is not set",
+        assertEquals("2 windings transformer 'twt2': step alpha is not set",
             assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
         phaseStepsReplacer = ptc.stepsReplacer();
         phaseStepsReplacer.beginStep()
@@ -90,7 +90,7 @@ class TapChangerAttributeTest {
         assertEquals(1.0, ptc.getStep(phaseLowTapPosition).getRho());
     }
 
-    private static void testPhaseTapChangerStepsReplacement(TwoWindingsTransformer twt2) {
+    private static void testRatioTapChangerStepsReplacement(TwoWindingsTransformer twt2) {
         RatioTapChanger rtc = twt2.getRatioTapChanger();
         assertEquals(3, rtc.getStepCount());
         RatioTapChangerStepsReplacer ratioStepsReplacer = rtc.stepsReplacer();

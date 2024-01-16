@@ -19,7 +19,7 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
 
         private double alpha = Double.NaN;
 
-        private double rho = Double.NaN;
+        private double rho = 1.0;
 
         private double r = 0.0;
 
