@@ -270,6 +270,7 @@ public final class NetworkSerDe {
     }
 
     private static TreeDataWriter createBinWriter(OutputStream os, ExportOptions options) {
+        LOGGER.warn("BETA feature, the resulting binary file is not guaranteed to still be readable in the next releases");
         return new BinWriter(os, BIIDM_MAGIC_NUMBER, options.getVersion().toString("."));
     }
 
