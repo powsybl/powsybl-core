@@ -50,6 +50,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
 
+    public static final String WITH_AUTOMATION_SYSTEMS = "iidm.import.xml.with-automation-systems";
+
     public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.xml.missing-permanent-limit-percentage";
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
@@ -60,9 +62,13 @@ public abstract class AbstractTreeDataImporter implements Importer {
             = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
 
+    private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
+            "Import network with automation systems", Boolean.TRUE);
+
     public static final Parameter MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER = new Parameter(MISSING_PERMANENT_LIMIT_PERCENTAGE,
             ParameterType.DOUBLE, "Percentage applied to lowest temporary limit to compute the permanent limit when missing (for IIDM < 1.12 only)",
             100.);
+
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     static final String SUFFIX_MAPPING = "_mapping";
@@ -77,7 +83,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER);
+        return List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
+                WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER);
     }
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
@@ -156,6 +163,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
         return new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
                 .setMissingPermanentLimitPercentage(Parameter.readDouble(getFormat(), parameters, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER, defaultValueConfig));
     }
 }

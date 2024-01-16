@@ -77,6 +77,7 @@
                     <xs:choice minOccurs="0" maxOccurs="unbounded">
                         <xs:element name="twoWindingsTransformer" type="iidm:TwoWindingsTransformer" />
                         <xs:element name="threeWindingsTransformer" type="iidm:ThreeWindingsTransformer" />
+                        <xs:element name="overloadManagementSystem" type="iidm:OverloadManagementSystem" />
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="tso" use="optional" type="iidm:nonEmptyString"/>
@@ -495,6 +496,49 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:complexType name="OverloadManagementSystem">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="branchTripping" type="iidm:BranchTripping"/>
+                    <xs:element name="switchTripping" type="iidm:SwitchTripping"/>
+                    <xs:element name="threeWindingsTransformerTripping" type="iidm:ThreeWindingsTransformerTripping"/>
+                </xs:choice>
+                <xs:attribute name="enabled" use="optional" type="xs:boolean"/>
+                <xs:attribute name="monitoredElementId" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="side" use="optional" type="iidm:Side"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Tripping">
+        <xs:attribute name="key" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="name" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="currentLimit" use="required" type="xs:double"/>
+        <xs:attribute name="openAction" use="required" type="xs:boolean"/>
+    </xs:complexType>
+    <xs:complexType name="BranchTripping">
+        <xs:complexContent>
+            <xs:extension base="iidm:Tripping">
+                <xs:attribute name="branchId" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="side" use="optional" type="iidm:Side"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="SwitchTripping">
+        <xs:complexContent>
+            <xs:extension base="iidm:Tripping">
+                <xs:attribute name="switchId" use="required" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ThreeWindingsTransformerTripping">
+        <xs:complexContent>
+            <xs:extension base="iidm:Tripping">
+                <xs:attribute name="threeWindingsTransformerId" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="side" use="optional" type="iidm:Side"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:simpleType name="Side">
         <xs:restriction base="xs:string">
             <xs:enumeration value="ONE"/>
@@ -521,6 +565,12 @@
         <xs:attribute name="g" use="required" type="xs:double"/>
         <xs:attribute name="b" use="required" type="xs:double"/>
     </xs:complexType>
+    <xs:simpleType name="RatioRegulationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="VOLTAGE"/>
+            <xs:enumeration value="REACTIVE_POWER"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
@@ -531,7 +581,8 @@
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
-        <xs:attribute name="targetV" use="optional" type="xs:double"/>
+        <xs:attribute name="regulationMode" use="optional" type="iidm:RatioRegulationMode"/>
+        <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:simpleType name="PhaseRegulationMode">
         <xs:restriction base="xs:string">

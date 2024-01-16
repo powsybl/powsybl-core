@@ -502,17 +502,17 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-powerfactory-model</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-powerfactory-dgs</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-powerfactory-converter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -669,7 +669,7 @@
                 <version>${jimfs.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-math-native</artifactId>
                 <version>${powsyblmathnative.version}</version>
             </dependency>

@@ -76,4 +76,9 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
         visitInjection(converterStation);
     }
+
+    @Override
+    public void visitGround(Ground ground) {
+        visitInjection(ground);
+    }
 }
