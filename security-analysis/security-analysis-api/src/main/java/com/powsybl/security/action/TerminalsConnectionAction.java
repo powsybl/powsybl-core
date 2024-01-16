@@ -27,7 +27,7 @@ public class TerminalsConnectionAction extends AbstractAction {
     /**
      * @param id the id of the action.
      * @param elementId the id of the element which terminals are operated. The element could be any connectable.
-     *                  We can also imagine that the element could ba a tie line, referring the terminal of an underlying
+     *                  We can also imagine that the element could be a tie line, referring the terminal of an underlying
      *                  dangling line.
      * @param side the side of the element to operate in the action.
      * @param open the status of the terminal to operate. {@code true} means terminal to open.
@@ -42,7 +42,7 @@ public class TerminalsConnectionAction extends AbstractAction {
     /**
      * @param id the id of the action.
      * @param elementId the id of the element which terminals are operated. The element could be any connectable.
-     *                  We can also imagine that the element could ba a tie line, referring the terminal of an underlying
+     *                  We can also imagine that the element could be a tie line, referring the terminal of an underlying
      *                  dangling line.
      * @param open the status of all the terminals of the element to operate. {@code true} means all terminals to open.
      */
