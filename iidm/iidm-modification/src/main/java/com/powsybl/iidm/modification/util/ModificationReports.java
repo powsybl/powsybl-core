@@ -663,8 +663,7 @@ public final class ModificationReports {
         String defaultMessage = disconnectionSuccessful ?
             "Connectable ${connectable} has been disconnected." :
             "Connectable ${connectable} has NOT been disconnected.";
-        String key = isPlanned ? "planned" : "unplanned";
-        key += disconnectionSuccessful ? "ConnectableDisconnected" : "ConnectableNotDisconnected";
+        String key = disconnectionSuccessful ? "ConnectableDisconnected" : "ConnectableNotDisconnected";
         reporter.report(Report.builder()
             .withKey(key)
             .withDefaultMessage(defaultMessage)
