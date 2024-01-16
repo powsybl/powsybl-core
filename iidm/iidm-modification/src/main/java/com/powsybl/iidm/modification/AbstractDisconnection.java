@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -22,6 +23,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.connectable
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public abstract class AbstractDisconnection extends AbstractNetworkModification {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractDisconnection.class);
     final String connectableId;
     final Predicate<Switch> openableSwitches;
 
@@ -30,7 +32,7 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         this.openableSwitches = openableSwitches;
     }
 
-    public void applyModification(Network network, boolean isPlanned, Logger logger, Reporter reporter) {
+    public void applyModification(Network network, boolean isPlanned, Reporter reporter) {
         // Add the reporter to the network reporter context
         network.getReporterContext().pushReporter(reporter);
 
@@ -46,9 +48,9 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         }
 
         if (hasBeenDisconnected) {
-            logger.info("Connectable {} has been disconnected.", connectableId);
+            LOG.info("Connectable {} has been disconnected.", connectableId);
         } else {
-            logger.info("Connectable {} has NOT been disconnected.", connectableId);
+            LOG.info("Connectable {} has NOT been disconnected.", connectableId);
         }
         connectableDisconnectionReport(reporter, connectable, hasBeenDisconnected, isPlanned);
     }

@@ -12,15 +12,11 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class UnplannedDisconnection extends AbstractDisconnection {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UnplannedDisconnection.class);
 
     UnplannedDisconnection(String connectableId, boolean openFictitiousSwitches) {
         super(connectableId, openFictitiousSwitches ?
@@ -31,6 +27,6 @@ public class UnplannedDisconnection extends AbstractDisconnection {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
-        applyModification(network, false, LOG, reporter);
+        applyModification(network, false, reporter);
     }
 }
