@@ -36,4 +36,6 @@ public interface TopologyVisitor {
 
     default void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
     }
+
+    void visitGround(Ground connectable);
 }

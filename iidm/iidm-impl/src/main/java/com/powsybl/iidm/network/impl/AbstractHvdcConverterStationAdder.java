@@ -13,17 +13,10 @@ import com.powsybl.iidm.network.ValidationUtil;
  */
 public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcConverterStationAdder<T>> extends AbstractInjectionAdder<T> {
 
-    private final VoltageLevelExt voltageLevel;
-
     private float lossFactor = Float.NaN;
 
     AbstractHvdcConverterStationAdder(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     protected VoltageLevelExt getVoltageLevel() {

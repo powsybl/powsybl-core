@@ -38,6 +38,10 @@
         </plugins>
     </build>
 
+    <properties>
+        <jug.version>4.3.0</jug.version>
+    </properties>
+
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
@@ -76,6 +80,13 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- UUID generator for the naming strategy -->
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>${jug.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
