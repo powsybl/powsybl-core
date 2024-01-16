@@ -14,9 +14,7 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.ZonedDateTime;
-import java.util.Properties;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -337,7 +335,6 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .build();
         modification.apply(network, reporter);
-        network.write("XIIDM", new Properties(), Paths.get("network-planned-disconnection-not-disconnected.xiidm"));
         writeXmlTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
     }
 
