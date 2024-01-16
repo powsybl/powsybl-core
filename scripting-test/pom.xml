@@ -41,7 +41,7 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-scripting</artifactId>
         </dependency>
 
