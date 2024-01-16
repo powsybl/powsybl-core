@@ -244,8 +244,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
      * @param consumer the method will used apparent power value read
      */
     protected static void readRatedS(String name, NetworkDeserializerContext context, DoubleConsumer consumer) {
-        double ratedS = context.getReader().readDoubleAttribute(name);
-        consumer.accept(ratedS);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> {
+            double ratedS = context.getReader().readDoubleAttribute(name);
+            consumer.accept(ratedS);
+        });
     }
 
     /**

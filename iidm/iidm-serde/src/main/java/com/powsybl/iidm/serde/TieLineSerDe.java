@@ -36,7 +36,7 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
     private static void writeDanglingLine(DanglingLine danglingLine, NetworkSerializerContext context, int side) {
         Boundary boundary = danglingLine.getBoundary();
         context.getWriter().writeStringAttribute("id_" + side, context.getAnonymizer().anonymizeString(danglingLine.getId()));
-        danglingLine.getOptionalName().ifPresent(name -> context.getWriter().writeStringAttribute("name_" + side, context.getAnonymizer().anonymizeString(name)));
+        context.getWriter().writeStringAttribute("name_" + side, danglingLine.getOptionalName().map(n -> context.getAnonymizer().anonymizeString(n)).orElse(null));
         context.getWriter().writeDoubleAttribute("r_" + side, danglingLine.getR());
         context.getWriter().writeDoubleAttribute("x_" + side, danglingLine.getX());
         // TODO change serialization

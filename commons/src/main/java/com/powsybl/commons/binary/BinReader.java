@@ -209,7 +209,9 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public String readContent() {
-        return readString();
+        String content = readString();
+        readEndNode();
+        return content;
     }
 
     @Override

@@ -158,9 +158,15 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
                     .setVoltageRegulatorOn(voltageRegulatorOn);
         });
         readNodeOrBus(adder, context, parent.getTopologyKind());
-        double p = context.getReader().readDoubleAttribute("p");
-        double q = context.getReader().readDoubleAttribute("q");
-        toApply.add(sc -> sc.getTerminal().setP(p).setQ(q));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_8, context, () -> {
+            double q = context.getReader().readDoubleAttribute("q");
+            toApply.add(sc -> sc.getTerminal().setQ(q));
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_9, context, () -> {
+            double p = context.getReader().readDoubleAttribute("p");
+            double q = context.getReader().readDoubleAttribute("q");
+            toApply.add(sc -> sc.getTerminal().setP(p).setQ(q));
+        });
     }
 
     @Override

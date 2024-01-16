@@ -338,7 +338,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkDeserializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> {
-            context.getReader().readStringAttribute(NODE_COUNT);
+            context.getReader().readIntAttribute(NODE_COUNT);
             LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored.");
         });
         context.getReader().readChildNodes(elementName -> {
