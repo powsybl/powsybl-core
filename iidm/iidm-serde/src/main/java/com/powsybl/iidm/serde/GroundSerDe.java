@@ -41,7 +41,7 @@ public class GroundSerDe extends AbstractSimpleIdentifiableSerDe<Ground, GroundA
 
     @Override
     protected Ground readRootElementAttributes(GroundAdder adder, VoltageLevel parent, NetworkDeserializerContext context) {
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, parent.getTopologyKind());
         return adder.add();
     }
 

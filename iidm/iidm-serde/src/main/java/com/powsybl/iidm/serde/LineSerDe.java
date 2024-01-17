@@ -39,10 +39,8 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
         context.getWriter().writeDoubleAttribute("b2", l.getB2());
         writeNodeOrBus(1, l.getTerminal1(), context);
         writeNodeOrBus(2, l.getTerminal2(), context);
-        if (context.getOptions().isWithBranchSV()) {
-            writePQ(1, l.getTerminal1(), context.getWriter());
-            writePQ(2, l.getTerminal2(), context.getWriter());
-        }
+        writeOptionalPQ(1, l.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        writeOptionalPQ(2, l.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
     }
 
     @Override
@@ -94,10 +92,10 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
                 .setB1(b1)
                 .setG2(g2)
                 .setB2(b2);
-        readNodeOrBus(adder, context);
+        ConnectableSerDeUtil.readVoltageLevelAndNodeOrBus(adder, network, context);
         Line l = adder.add();
-        readPQ(1, l.getTerminal1(), context.getReader());
-        readPQ(2, l.getTerminal2(), context.getReader());
+        readOptionalPQ(1, l.getTerminal1(), context.getReader());
+        readOptionalPQ(2, l.getTerminal2(), context.getReader());
         return l;
     }
 

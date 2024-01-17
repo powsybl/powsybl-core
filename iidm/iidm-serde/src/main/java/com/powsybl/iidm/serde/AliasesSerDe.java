@@ -26,7 +26,7 @@ public final class AliasesSerDe {
         for (String alias : identifiable.getAliases()) {
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_4, context,
-                    () -> identifiable.getAliasType(alias).ifPresent(type -> context.getWriter().writeStringAttribute("type", type)));
+                    () -> context.getWriter().writeStringAttribute("type", identifiable.getAliasType(alias).orElse(null)));
             context.getWriter().writeNodeContent(context.getAnonymizer().anonymizeString(alias));
             context.getWriter().writeEndNode();
         }
