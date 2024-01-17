@@ -8,10 +8,11 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.iidm.network.Ground;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
@@ -22,6 +23,16 @@ class GroundConversionTest {
     @Test
     void groundConversionTest() {
         Network network = Network.read("groundTest.xml", getClass().getResourceAsStream("/groundTest.xml"));
-        assertEquals(2, network.getVoltageLevel("S").getGroundCount());
+
+        assertEquals(2, network.getGroundCount());
+
+        assertNotNull(network.getGround("OU"));
+
+        Ground groundCV = network.getGround("CV");
+        assertNotNull(groundCV);
+        assertTrue(groundCV.getNameOrId().equals("CW"));
+        assertNotNull(groundCV.getTerminal());
+        assertFalse(groundCV.getTerminal().isConnected());
+        assertTrue(groundCV.getTerminal().getVoltageLevel().getId().equals("S"));
     }
 }
