@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.OperationalLimits;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
-import com.powsybl.iidm.network.Validable;
 
 import java.util.Optional;
 
@@ -24,10 +21,4 @@ public interface OperationalLimitsGroups {
     void setDefault(String id);
 
     Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup();
-
-    interface GroupsValidable extends Validable {
-        void notifyUpdateIfDefaultLimits(String id, LimitType limitType, String attribute, double oldValue, double newValue);
-
-        void notifyUpdateIfDefaultLimits(String id, LimitType limitType, OperationalLimits oldValue, OperationalLimits newValue);
-    }
 }
