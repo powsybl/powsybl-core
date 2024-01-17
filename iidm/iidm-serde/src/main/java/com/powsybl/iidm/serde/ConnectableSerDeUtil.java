@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -283,27 +283,32 @@ public final class ConnectableSerDeUtil {
         }
     }
 
-    static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, Optional<OperationalLimitsGroup> defaultGroup, Optional<String> defaultId, List<OperationalLimitsGroup> groups) {
+    static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, OperationalLimitsGroup defaultGroup, Collection<OperationalLimitsGroup> groups) {
         String suffix = index == null ? "" : String.valueOf(index);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> defaultGroup.ifPresent(dg -> {
-            if (dg.getActivePowerLimits().isPresent()) {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> {
+            var activePowerLimits = Optional.ofNullable(defaultGroup).flatMap(OperationalLimitsGroup::getActivePowerLimits).orElse(null);
+            if (activePowerLimits != null) {
                 IidmSerDeUtil.assertMinimumVersion(rootName, ACTIVE_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(index, dg.getActivePowerLimits()
-                                .get(), context.getWriter(),
-                        context.getVersion(), context.isValid(), context.getOptions()));
             }
-            if (dg.getApparentPowerLimits().isPresent()) {
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () ->
+                    writeActivePowerLimits(index, activePowerLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+
+            var apparentPowerLimits = Optional.ofNullable(defaultGroup).flatMap(OperationalLimitsGroup::getApparentPowerLimits).orElse(null);
+            if (apparentPowerLimits != null) {
                 IidmSerDeUtil.assertMinimumVersion(rootName, APPARENT_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(index, dg.getApparentPowerLimits()
-                        .get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
             }
-            dg.getCurrentLimits()
-                    .ifPresent(cl -> writeCurrentLimits(index, cl, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> writeLoadingLimitsGroups(index, groups, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () ->
+                    writeApparentPowerLimits(index, apparentPowerLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+
+            var currentLimits = Optional.ofNullable(defaultGroup).flatMap(OperationalLimitsGroup::getCurrentLimits).orElse(null);
+            writeCurrentLimits(index, currentLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+        });
+
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                writeLoadingLimitsGroups(index, groups, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
     }
 
-    private static void writeLoadingLimitsGroups(Integer index, List<OperationalLimitsGroup> groups, TreeDataWriter writer, IidmVersion version, boolean valid, ExportOptions exportOptions) {
+    private static void writeLoadingLimitsGroups(Integer index, Collection<OperationalLimitsGroup> groups, TreeDataWriter writer, IidmVersion version, boolean valid, ExportOptions exportOptions) {
         String suffix = index == null ? "" : String.valueOf(index);
         writer.writeStartNodes();
         for (OperationalLimitsGroup g : groups) {

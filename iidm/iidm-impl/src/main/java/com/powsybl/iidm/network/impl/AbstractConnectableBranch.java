@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -18,9 +18,9 @@ import java.util.Optional;
  */
 abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> extends AbstractConnectable<I> implements Branch<I> {
 
-    protected final OperationalLimitsGroupsImpl operationalLimitsHolder1;
+    private final OperationalLimitsGroups operationalLimitsHolder1;
 
-    protected final OperationalLimitsGroupsImpl operationalLimitsHolder2;
+    private final OperationalLimitsGroups operationalLimitsHolder2;
 
     AbstractConnectableBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
         super(network, id, name, fictitious);
@@ -52,17 +52,17 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
     }
 
-    private OperationalLimitsGroupsImpl getOperationalLimitsHolder1() {
+    private OperationalLimitsGroups getOperationalLimitsHolder1() {
         return operationalLimitsHolder1;
     }
 
     @Override
-    public Optional<String> getDefaultIdOperationalLimitsGroups1() {
-        return getOperationalLimitsHolder1().getDefaultId();
+    public Optional<String> getDefaultOperationalLimitsGroupId1() {
+        return getOperationalLimitsHolder1().getDefaultOperationalLimitsGroupId();
     }
 
     @Override
-    public List<OperationalLimitsGroup> getOperationalLimitsGroups1() {
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
         return getOperationalLimitsHolder1().getAllOperationalLimitsGroup();
     }
 
@@ -83,7 +83,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public void setDefaultOperationalLimitsGroup1(String id) {
-        getOperationalLimitsHolder1().setDefault(id);
+        getOperationalLimitsHolder1().setDefaultOperationalLimitsGroup(id);
     }
 
     @Override
@@ -93,7 +93,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public void cancelDefaultOperationalLimitsGroup1() {
-        getOperationalLimitsHolder1().cancelDefault();
+        getOperationalLimitsHolder1().cancelDefaultOperationalLimitsGroup();
     }
 
     @Override
@@ -111,18 +111,18 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return getOperationalLimitsHolder1().newApparentPowerLimits();
     }
 
-    private OperationalLimitsGroupsImpl getOperationalLimitsHolder2() {
+    private OperationalLimitsGroups getOperationalLimitsHolder2() {
         return operationalLimitsHolder2;
     }
 
     @Override
-    public List<OperationalLimitsGroup> getOperationalLimitsGroups2() {
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
         return getOperationalLimitsHolder2().getAllOperationalLimitsGroup();
     }
 
     @Override
-    public Optional<String> getDefaultIdOperationalLimitsGroups2() {
-        return getOperationalLimitsHolder2().getDefaultId();
+    public Optional<String> getDefaultOperationalLimitsGroupId2() {
+        return getOperationalLimitsHolder2().getDefaultOperationalLimitsGroupId();
     }
 
     @Override
@@ -142,7 +142,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public void setDefaultOperationalLimitsGroup2(String id) {
-        getOperationalLimitsHolder2().setDefault(id);
+        getOperationalLimitsHolder2().setDefaultOperationalLimitsGroup(id);
     }
 
     @Override
@@ -152,7 +152,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public void cancelDefaultOperationalLimitsGroup2() {
-        getOperationalLimitsHolder2().cancelDefault();
+        getOperationalLimitsHolder2().cancelDefaultOperationalLimitsGroup();
     }
 
     @Override

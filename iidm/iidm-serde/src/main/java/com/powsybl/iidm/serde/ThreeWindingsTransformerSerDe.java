@@ -67,9 +67,9 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         writeOptionalPQ(2, twt.getLeg2().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(3, twt.getLeg3().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            writeDefaultGroupId(1, twt.getLeg1().getDefaultIdOperationalLimitsGroups().orElse(null), context.getWriter());
-            writeDefaultGroupId(2, twt.getLeg2().getDefaultIdOperationalLimitsGroups().orElse(null), context.getWriter());
-            writeDefaultGroupId(3, twt.getLeg3().getDefaultIdOperationalLimitsGroups().orElse(null), context.getWriter());
+            writeDefaultGroupId(1, twt.getLeg1().getDefaultOperationalLimitsGroupId().orElse(null), context.getWriter());
+            writeDefaultGroupId(2, twt.getLeg2().getDefaultOperationalLimitsGroupId().orElse(null), context.getWriter());
+            writeDefaultGroupId(3, twt.getLeg3().getDefaultOperationalLimitsGroupId().orElse(null), context.getWriter());
         });
     }
 
@@ -88,7 +88,7 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         int[] i = new int[1];
         i[0] = 1;
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getDefaultOperationalLimitsGroup(), leg.getDefaultIdOperationalLimitsGroups(), leg.getOperationalLimitsGroups());
+            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getDefaultOperationalLimitsGroup().orElse(null), leg.getOperationalLimitsGroups());
             i[0]++;
         }
     }

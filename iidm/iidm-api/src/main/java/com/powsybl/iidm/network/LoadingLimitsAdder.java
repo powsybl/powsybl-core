@@ -99,7 +99,7 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
      * <p>Get the id of the network element on which the LoadingLimits should be added.</p>
      * @return the id of the owner network element
      */
-    String getOwnerDescription();
+    String getOwnerId();
 
     /**
      * <p>Fix the limits to create if needed, especially the permanent limit when it is not defined (equals <code>Double.NaN</code>).</p>
@@ -128,7 +128,7 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
      * @see LoadingLimitsUtil#fixMissingPermanentLimit(LoadingLimitsAdder, double, String, LoadingLimitsUtil.LimitFixLogger)
      */
     default A fixLimits(double missingPermanentLimitPercentage, LoadingLimitsUtil.LimitFixLogger limitFixLogger) {
-        LoadingLimitsUtil.fixMissingPermanentLimit(this, missingPermanentLimitPercentage, getOwnerDescription(), limitFixLogger);
+        LoadingLimitsUtil.fixMissingPermanentLimit(this, missingPermanentLimitPercentage, getOwnerId(), limitFixLogger);
         return (A) this;
     }
 }

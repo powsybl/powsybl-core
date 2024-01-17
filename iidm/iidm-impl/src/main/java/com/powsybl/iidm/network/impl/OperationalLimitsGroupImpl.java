@@ -55,17 +55,17 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return new CurrentLimitsAdderImpl(this, identifiable);
+        return new CurrentLimitsAdderImpl(this, identifiable, identifiable.getId());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return new ActivePowerLimitsAdderImpl(this, identifiable);
+        return new ActivePowerLimitsAdderImpl(this, identifiable, identifiable.getId());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return new ApparentPowerLimitsAdderImpl(this, identifiable);
+        return new ApparentPowerLimitsAdderImpl(this, identifiable, identifiable.getId());
     }
 
     @Override

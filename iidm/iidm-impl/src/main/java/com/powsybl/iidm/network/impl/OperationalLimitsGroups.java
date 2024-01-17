@@ -7,8 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.ActivePowerLimitsAdder;
+import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
+import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -18,7 +22,23 @@ public interface OperationalLimitsGroups {
 
     OperationalLimitsGroup newOperationalLimitsGroup(String id);
 
-    void setDefault(String id);
+    void setDefaultOperationalLimitsGroup(String id);
 
     Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup();
+
+    Optional<String> getDefaultOperationalLimitsGroupId();
+
+    Collection<OperationalLimitsGroup> getAllOperationalLimitsGroup();
+
+    Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id);
+
+    void removeOperationalLimitsGroup(String id);
+
+    void cancelDefaultOperationalLimitsGroup();
+
+    CurrentLimitsAdder newCurrentLimits();
+
+    ActivePowerLimitsAdder newActivePowerLimits();
+
+    ApparentPowerLimitsAdder newApparentPowerLimits();
 }

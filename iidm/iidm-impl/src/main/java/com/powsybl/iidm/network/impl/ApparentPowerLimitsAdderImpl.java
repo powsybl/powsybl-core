@@ -18,8 +18,8 @@ class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ApparentPo
 
     OperationalLimitsGroupImpl group;
 
-    public ApparentPowerLimitsAdderImpl(OperationalLimitsGroupImpl group, Validable validable) {
-        super(validable);
+    public ApparentPowerLimitsAdderImpl(OperationalLimitsGroupImpl group, Validable validable, String ownerId) {
+        super(validable, ownerId);
         this.group = group;
     }
 

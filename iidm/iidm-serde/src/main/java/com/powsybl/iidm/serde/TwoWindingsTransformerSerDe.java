@@ -41,8 +41,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         writeOptionalPQ(1, twt.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, twt.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            writeDefaultGroupId(1, twt.getDefaultIdOperationalLimitsGroups1().orElse(null), context.getWriter());
-            writeDefaultGroupId(2, twt.getDefaultIdOperationalLimitsGroups2().orElse(null), context.getWriter());
+            writeDefaultGroupId(1, twt.getDefaultOperationalLimitsGroupId1().orElse(null), context.getWriter());
+            writeDefaultGroupId(2, twt.getDefaultOperationalLimitsGroupId2().orElse(null), context.getWriter());
         });
     }
 
@@ -56,8 +56,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         if (ptc != null) {
             writePhaseTapChanger("phaseTapChanger", ptc, context);
         }
-        writeLimits(context, 1, ROOT_ELEMENT_NAME, twt.getDefaultOperationalLimitsGroup1(), twt.getDefaultIdOperationalLimitsGroups1(), twt.getOperationalLimitsGroups1());
-        writeLimits(context, 2, ROOT_ELEMENT_NAME, twt.getDefaultOperationalLimitsGroup2(), twt.getDefaultIdOperationalLimitsGroups2(), twt.getOperationalLimitsGroups2());
+        writeLimits(context, 1, ROOT_ELEMENT_NAME, twt.getDefaultOperationalLimitsGroup1().orElse(null), twt.getOperationalLimitsGroups1());
+        writeLimits(context, 2, ROOT_ELEMENT_NAME, twt.getDefaultOperationalLimitsGroup2().orElse(null), twt.getOperationalLimitsGroups2());
     }
 
     @Override

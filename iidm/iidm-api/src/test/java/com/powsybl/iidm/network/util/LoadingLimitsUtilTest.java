@@ -59,7 +59,7 @@ class LoadingLimitsUtilTest {
         if (directCallFromAdder) {
             adder.fixLimits(90., customLogger);
         } else {
-            LoadingLimitsUtil.fixMissingPermanentLimit(adder, 90., adder.getOwnerDescription(), customLogger);
+            LoadingLimitsUtil.fixMissingPermanentLimit(adder, 90., adder.getOwnerId(), customLogger);
         }
 
         // The percentage is applied
@@ -92,7 +92,7 @@ class LoadingLimitsUtilTest {
         LimitsAdder<?, ?> adder = new LimitsAdder<>("ownerId", Double.NaN, List.of(tl1, tl2));
 
         CustomLogger customLogger = new CustomLogger();
-        LoadingLimitsUtil.fixMissingPermanentLimit(adder, 75., adder.getOwnerDescription(), customLogger);
+        LoadingLimitsUtil.fixMissingPermanentLimit(adder, 75., adder.getOwnerId(), customLogger);
 
         // The permanent limit is set with the value of temporary limit of infinite acceptable duration.
         // The percentage is not applied and the said temporary limit is removed from the temporary limits list.
@@ -192,7 +192,7 @@ class LoadingLimitsUtilTest {
         }
 
         @Override
-        public String getOwnerDescription() {
+        public String getOwnerId() {
             return this.ownerId;
         }
 

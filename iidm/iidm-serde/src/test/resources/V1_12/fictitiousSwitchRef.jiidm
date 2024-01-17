@@ -448,6 +448,8 @@
       "node1" : 2,
       "voltageLevelId2" : "N",
       "node2" : 10,
+      "defaultOperationalLimitsGroupId1" : "DEFAULT",
+      "defaultOperationalLimitsGroupId2" : "DEFAULT",
       "phaseTapChanger" : {
         "regulating" : false,
         "lowTapPosition" : 0,
@@ -691,24 +693,18 @@
           "alpha" : 42.8
         } ]
       },
-      "operationalLimitsGroups1" : {
-        "defaultOperationalLimitsGroupId" : "DEFAULT",
-        "operationalLimitsGroups" : [ {
-          "id" : "DEFAULT",
-          "currentLimits" : {
-            "permanentLimit" : 931.0
-          }
-        } ]
-      },
-      "operationalLimitsGroups2" : {
-        "defaultOperationalLimitsGroupId" : "DEFAULT",
-        "operationalLimitsGroups" : [ {
-          "id" : "DEFAULT",
-          "currentLimits" : {
-            "permanentLimit" : 931.0
-          }
-        } ]
-      }
+      "operationalLimitsGroups1" : [ {
+        "id" : "DEFAULT",
+        "currentLimits" : {
+          "permanentLimit" : 931.0
+        }
+      } ],
+      "operationalLimitsGroups2" : [ {
+        "id" : "DEFAULT",
+        "currentLimits" : {
+          "permanentLimit" : 931.0
+        }
+      } ]
     } ]
   } ],
   "lines" : [ {
@@ -723,31 +719,27 @@
     "node1" : 4,
     "voltageLevelId2" : "N",
     "node2" : 5,
-    "operationalLimitsGroups1" : {
-      "defaultOperationalLimitsGroupId" : "DEFAULT",
-      "operationalLimitsGroups" : [ {
-        "id" : "DEFAULT",
-        "currentLimits" : {
-          "permanentLimit" : 931.0
-        }
-      } ]
-    },
-    "operationalLimitsGroups2" : {
-      "defaultOperationalLimitsGroupId" : "DEFAULT",
-      "operationalLimitsGroups" : [ {
-        "id" : "DEFAULT",
-        "currentLimits" : {
-          "permanentLimit" : 931.0,
-          "temporaryLimits" : [ {
-            "name" : "IST",
-            "value" : 1640.0,
-            "fictitious" : true
-          }, {
-            "name" : "IT1",
-            "acceptableDuration" : 60
-          } ]
-        }
-      } ]
-    }
+    "defaultOperationalLimitsGroupId1" : "DEFAULT",
+    "defaultOperationalLimitsGroupId2" : "DEFAULT",
+    "operationalLimitsGroups1" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 931.0
+      }
+    } ],
+    "operationalLimitsGroups2" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 931.0,
+        "temporaryLimits" : [ {
+          "name" : "IST",
+          "value" : 1640.0,
+          "fictitious" : true
+        }, {
+          "name" : "IT1",
+          "acceptableDuration" : 60
+        } ]
+      }
+    } ]
   } ]
 }

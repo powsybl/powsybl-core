@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -426,13 +426,13 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public List<OperationalLimitsGroup> getOperationalLimitsGroups() {
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
         return getOperationalLimitsHolder().getAllOperationalLimitsGroup();
     }
 
     @Override
-    public Optional<String> getDefaultIdOperationalLimitsGroups() {
-        return getOperationalLimitsHolder().getDefaultId();
+    public Optional<String> getDefaultOperationalLimitsGroupId() {
+        return getOperationalLimitsHolder().getDefaultOperationalLimitsGroupId();
     }
 
     @Override
@@ -452,7 +452,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public void setDefaultOperationalLimitsGroup(String id) {
-        getOperationalLimitsHolder().setDefault(id);
+        getOperationalLimitsHolder().setDefaultOperationalLimitsGroup(id);
     }
 
     @Override
@@ -462,7 +462,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public void cancelDefaultOperationalLimitsGroup() {
-        getOperationalLimitsHolder().cancelDefault();
+        getOperationalLimitsHolder().cancelDefaultOperationalLimitsGroup();
     }
 
     @Override

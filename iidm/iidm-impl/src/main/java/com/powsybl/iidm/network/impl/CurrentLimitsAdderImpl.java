@@ -19,8 +19,8 @@ class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLimits, C
 
     OperationalLimitsGroupImpl group;
 
-    public CurrentLimitsAdderImpl(OperationalLimitsGroupImpl group, Validable validable) {
-        super(validable);
+    public CurrentLimitsAdderImpl(OperationalLimitsGroupImpl group, Validable validable, String ownerId) {
+        super(validable, ownerId);
         this.group = group;
     }
 

@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -115,9 +115,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     TwoSides getSide(Terminal terminal);
 
-    List<OperationalLimitsGroup> getOperationalLimitsGroups1();
+    Collection<OperationalLimitsGroup> getOperationalLimitsGroups1();
 
-    Optional<String> getDefaultIdOperationalLimitsGroups1();
+    Optional<String> getDefaultOperationalLimitsGroupId1();
 
     Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id);
 
@@ -161,9 +161,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     ApparentPowerLimitsAdder newApparentPowerLimits1();
 
-    List<OperationalLimitsGroup> getOperationalLimitsGroups2();
+    Collection<OperationalLimitsGroup> getOperationalLimitsGroups2();
 
-    Optional<String> getDefaultIdOperationalLimitsGroups2();
+    Optional<String> getDefaultOperationalLimitsGroupId2();
 
     Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id);
 

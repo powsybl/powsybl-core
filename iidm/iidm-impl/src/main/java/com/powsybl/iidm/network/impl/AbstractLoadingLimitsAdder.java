@@ -22,11 +22,10 @@ import static java.lang.Integer.MAX_VALUE;
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
-    static final String OPERATIONAL_LIMITS_GROUP_DEFAULT_ID = "DEFAULT";
-
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     protected final Validable validable;
+    private final String ownerId;
 
     protected double permanentLimit = Double.NaN;
 
@@ -113,8 +112,9 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
     }
 
-    AbstractLoadingLimitsAdder(Validable validable) {
+    AbstractLoadingLimitsAdder(Validable validable, String ownerId) {
         this.validable = Objects.requireNonNull(validable);
+        this.ownerId = ownerId;
     }
 
     @Override
@@ -202,7 +202,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     @Override
-    public String getOwnerDescription() {
-        return validable.getMessageHeader();
+    public String getOwnerId() {
+        return ownerId;
     }
 }

@@ -87,7 +87,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         );
         writePQ(null, t, context.getWriter());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
-                writeDefaultGroupId(null, dl.getDefaultIdOperationalLimitsGroups().orElse(null), context.getWriter()));
+                writeDefaultGroupId(null, dl.getDefaultOperationalLimitsGroupId().orElse(null), context.getWriter()));
     }
 
     private static <T> T getOptionalValue(Generation generation, Function<Generation, T> valueGetter) {
@@ -104,7 +104,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         if (dl.getGeneration() != null) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> ReactiveLimitsSerDe.INSTANCE.write(dl.getGeneration(), context));
         }
-        writeLimits(context, null, ROOT_ELEMENT_NAME, dl.getDefaultOperationalLimitsGroup(), dl.getDefaultIdOperationalLimitsGroups(), dl.getOperationalLimitsGroups());
+        writeLimits(context, null, ROOT_ELEMENT_NAME, dl.getDefaultOperationalLimitsGroup().orElse(null), dl.getOperationalLimitsGroups());
     }
 
     @Override

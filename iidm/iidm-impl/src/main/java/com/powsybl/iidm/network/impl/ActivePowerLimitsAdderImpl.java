@@ -15,8 +15,8 @@ import com.powsybl.iidm.network.*;
 class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ActivePowerLimits, ActivePowerLimitsAdder> implements ActivePowerLimitsAdder {
     OperationalLimitsGroupImpl group;
 
-    public ActivePowerLimitsAdderImpl(OperationalLimitsGroupImpl group, Validable validable) {
-        super(validable);
+    public ActivePowerLimitsAdderImpl(OperationalLimitsGroupImpl group, Validable validable, String ownerId) {
+        super(validable, ownerId);
         this.group = group;
     }
 

@@ -482,7 +482,7 @@ public abstract class AbstractCurrentLimitsTest {
     public void testAdderGetOwner() {
         Line line = createNetwork().getLine("L");
         CurrentLimitsAdder adder = line.newCurrentLimits1();
-        assertEquals("AC line 'L': ", adder.getOwnerDescription());
+        assertEquals("L", adder.getOwnerId());
     }
 
     @Test

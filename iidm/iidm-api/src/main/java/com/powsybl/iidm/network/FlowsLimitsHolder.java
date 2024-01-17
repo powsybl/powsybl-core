@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -14,9 +14,9 @@ import java.util.Optional;
  */
 public interface FlowsLimitsHolder {
 
-    List<OperationalLimitsGroup> getOperationalLimitsGroups();
+    Collection<OperationalLimitsGroup> getOperationalLimitsGroups();
 
-    Optional<String> getDefaultIdOperationalLimitsGroups();
+    Optional<String> getDefaultOperationalLimitsGroupId();
 
     Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id);
 

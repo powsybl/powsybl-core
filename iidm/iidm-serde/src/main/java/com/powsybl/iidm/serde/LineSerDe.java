@@ -42,15 +42,15 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
         writeOptionalPQ(1, l.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, l.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            writeDefaultGroupId(1, l.getDefaultIdOperationalLimitsGroups1().orElse(null), context.getWriter());
-            writeDefaultGroupId(2, l.getDefaultIdOperationalLimitsGroups2().orElse(null), context.getWriter());
+            writeDefaultGroupId(1, l.getDefaultOperationalLimitsGroupId1().orElse(null), context.getWriter());
+            writeDefaultGroupId(2, l.getDefaultOperationalLimitsGroupId2().orElse(null), context.getWriter());
         });
     }
 
     @Override
     protected void writeSubElements(Line l, Network n, NetworkSerializerContext context) {
-        writeLimits(context, 1, ROOT_ELEMENT_NAME, l.getDefaultOperationalLimitsGroup1(), l.getDefaultIdOperationalLimitsGroups1(), l.getOperationalLimitsGroups1());
-        writeLimits(context, 2, ROOT_ELEMENT_NAME, l.getDefaultOperationalLimitsGroup2(), l.getDefaultIdOperationalLimitsGroups2(), l.getOperationalLimitsGroups2());
+        writeLimits(context, 1, ROOT_ELEMENT_NAME, l.getDefaultOperationalLimitsGroup1().orElse(null), l.getOperationalLimitsGroups1());
+        writeLimits(context, 2, ROOT_ELEMENT_NAME, l.getDefaultOperationalLimitsGroup2().orElse(null), l.getOperationalLimitsGroups2());
     }
 
     @Override

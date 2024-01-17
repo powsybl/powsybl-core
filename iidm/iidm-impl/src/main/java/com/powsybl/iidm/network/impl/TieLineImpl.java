@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -190,12 +190,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Optional<String> getDefaultIdOperationalLimitsGroups1() {
-        return getOperationalLimitsHolder1().getDefaultId();
+    public Optional<String> getDefaultOperationalLimitsGroupId1() {
+        return getOperationalLimitsHolder1().getDefaultOperationalLimitsGroupId();
     }
 
     @Override
-    public List<OperationalLimitsGroup> getOperationalLimitsGroups1() {
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
         return getOperationalLimitsHolder1().getAllOperationalLimitsGroup();
     }
 
@@ -216,7 +216,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public void setDefaultOperationalLimitsGroup1(String id) {
-        getOperationalLimitsHolder1().setDefault(id);
+        getOperationalLimitsHolder1().setDefaultOperationalLimitsGroup(id);
     }
 
     @Override
@@ -226,7 +226,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public void cancelDefaultOperationalLimitsGroup1() {
-        getOperationalLimitsHolder1().cancelDefault();
+        getOperationalLimitsHolder1().cancelDefaultOperationalLimitsGroup();
     }
 
     @Override
@@ -249,13 +249,13 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public List<OperationalLimitsGroup> getOperationalLimitsGroups2() {
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
         return getOperationalLimitsHolder2().getAllOperationalLimitsGroup();
     }
 
     @Override
-    public Optional<String> getDefaultIdOperationalLimitsGroups2() {
-        return getOperationalLimitsHolder2().getDefaultId();
+    public Optional<String> getDefaultOperationalLimitsGroupId2() {
+        return getOperationalLimitsHolder2().getDefaultOperationalLimitsGroupId();
     }
 
     @Override
@@ -275,7 +275,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public void setDefaultOperationalLimitsGroup2(String id) {
-        getOperationalLimitsHolder2().setDefault(id);
+        getOperationalLimitsHolder2().setDefaultOperationalLimitsGroup(id);
     }
 
     @Override
@@ -285,7 +285,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public void cancelDefaultOperationalLimitsGroup2() {
-        getOperationalLimitsHolder2().cancelDefault();
+        getOperationalLimitsHolder2().cancelDefaultOperationalLimitsGroup();
     }
 
     @Override

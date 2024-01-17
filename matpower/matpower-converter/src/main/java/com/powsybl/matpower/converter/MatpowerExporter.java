@@ -329,7 +329,7 @@ public class MatpowerExporter implements Exporter {
         }
 
         @Override
-        public Optional<String> getDefaultIdOperationalLimitsGroups() {
+        public Optional<String> getDefaultOperationalLimitsGroupId() {
             throw new UnsupportedOperationException();
         }
 
