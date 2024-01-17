@@ -182,7 +182,8 @@ abstract class AbstractTerminal implements TerminalExt {
         boolean connectedBefore = isConnected();
         connectable.notifyUpdate("beginConnect", variantId, connectedBefore, null);
         boolean connected = voltageLevel.connect(this, isTypeSwitchToOperate);
-        connectable.notifyUpdate("endConnect", variantId, !connected, connected);
+        boolean connectedAfter = isConnected();
+        connectable.notifyUpdate("endConnect", variantId, null, connectedAfter);
         return connected;
     }
 
@@ -208,7 +209,8 @@ abstract class AbstractTerminal implements TerminalExt {
         boolean disconnectedBefore = !isConnected();
         connectable.notifyUpdate("beginDisconnect", variantId, disconnectedBefore, null);
         boolean disconnected = voltageLevel.disconnect(this, isSwitchOpenable);
-        connectable.notifyUpdate("endDisconnect", variantId, !disconnected, disconnected);
+        boolean disconnectedAfter = !isConnected();
+        connectable.notifyUpdate("endDisconnect", variantId, null, disconnectedAfter);
         return disconnected;
     }
 
