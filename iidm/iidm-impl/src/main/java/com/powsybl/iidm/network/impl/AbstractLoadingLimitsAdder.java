@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -10,11 +11,10 @@ import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.Integer.MAX_VALUE;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -165,7 +165,42 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     protected void checkLoadingLimits() {
-        ValidationUtil.checkPermanentLimit(validable, permanentLimit);
+        ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits.values());
         checkTemporaryLimits();
+    }
+
+    private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {
+        return temporaryLimits.values().stream().filter(l -> l.getName().equals(name))
+                .findFirst();
+    }
+
+    @Override
+    public double getTemporaryLimitValue(String name) {
+        return getTemporaryLimitByName(name).map(LoadingLimits.TemporaryLimit::getValue).orElse(Double.NaN);
+    }
+
+    @Override
+    public int getTemporaryLimitAcceptableDuration(String name) {
+        return getTemporaryLimitByName(name).map(LoadingLimits.TemporaryLimit::getAcceptableDuration).orElse(MAX_VALUE);
+    }
+
+    @Override
+    public double getLowestTemporaryLimitValue() {
+        return temporaryLimits.values().stream().map(LoadingLimits.TemporaryLimit::getValue).min(Double::compareTo).orElse(Double.NaN);
+    }
+
+    @Override
+    public Collection<String> getTemporaryLimitNames() {
+        return temporaryLimits.values().stream().map(LoadingLimits.TemporaryLimit::getName).toList();
+    }
+
+    @Override
+    public void removeTemporaryLimit(String name) {
+        temporaryLimits.values().removeIf(l -> l.getName().equals(name));
+    }
+
+    @Override
+    public String getOwnerDescription() {
+        return validable.getMessageHeader();
     }
 }

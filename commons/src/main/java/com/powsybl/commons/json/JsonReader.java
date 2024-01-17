@@ -50,7 +50,7 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Map<String, String> readVersions() {
+    public Map<String, String> readExtensionVersions() {
         if (!(EXTENSION_VERSIONS_NAME.equals(getFieldName()))) {
             return Collections.emptyMap();
         }
@@ -84,6 +84,11 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
+    public OptionalDouble readOptionalDoubleAttribute(String name) {
+        return Objects.requireNonNull(name).equals(getFieldName()) ? OptionalDouble.of(getDoubleValue()) : OptionalDouble.empty();
+    }
+
+    @Override
     public float readFloatAttribute(String name, float defaultValue) {
         return Objects.requireNonNull(name).equals(getFieldName()) ? getFloatValue() : defaultValue;
     }
@@ -112,8 +117,17 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Integer readIntAttribute(String name) {
-        return Objects.requireNonNull(name).equals(getFieldName()) ? getIntValue() : null;
+    public int readIntAttribute(String name) {
+        String fieldName = getFieldName();
+        if (!Objects.requireNonNull(name).equals(fieldName)) {
+            throw new PowsyblException("JSON parsing: expected '" + name + "' but got '" + fieldName + "'");
+        }
+        return getIntValue();
+    }
+
+    @Override
+    public OptionalInt readOptionalIntAttribute(String name) {
+        return Objects.requireNonNull(name).equals(getFieldName()) ? OptionalInt.of(getIntValue()) : OptionalInt.empty();
     }
 
     @Override
@@ -122,13 +136,22 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Boolean readBooleanAttribute(String name) {
-        return Objects.requireNonNull(name).equals(getFieldName()) ? getBooleanValue() : null;
+    public boolean readBooleanAttribute(String name) {
+        String fieldName = getFieldName();
+        if (!Objects.requireNonNull(name).equals(fieldName)) {
+            throw new PowsyblException("JSON parsing: expected '" + name + "' but got '" + fieldName + "'");
+        }
+        return getBooleanValue();
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
         return Objects.requireNonNull(name).equals(getFieldName()) ? getBooleanValue() : defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> readOptionalBooleanAttribute(String name) {
+        return Objects.requireNonNull(name).equals(getFieldName()) ? Optional.of(getBooleanValue()) : Optional.empty();
     }
 
     private double getDoubleValue() {

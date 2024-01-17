@@ -9,7 +9,19 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface PhaseTapChangerAdder extends TapChangerAdder<PhaseTapChangerAdder, PhaseTapChangerStepAdder, PhaseTapChanger> {
+public interface PhaseTapChangerAdder extends TapChangerAdder<
+    PhaseTapChangerAdder,
+    PhaseTapChangerStep,
+    PhaseTapChangerAdder.StepAdder,
+    PhaseTapChangerStepsReplacer.StepAdder,
+    PhaseTapChangerStepsReplacer,
+    PhaseTapChanger> {
+
+    /**
+     * Interface for classes responsible for building a single step when using {@link PhaseTapChangerAdder}.
+     */
+    interface StepAdder extends PhaseTapChangerStepAdder<StepAdder, PhaseTapChangerAdder> {
+    }
 
     PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode);
 

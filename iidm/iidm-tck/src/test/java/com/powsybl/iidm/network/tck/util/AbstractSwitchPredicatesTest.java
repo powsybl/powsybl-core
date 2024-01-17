@@ -271,6 +271,28 @@ public abstract class AbstractSwitchPredicatesTest {
     }
 
     @Test
+    public void testBreakers() {
+        // Predicate to test
+        Predicate<Switch> predicate = SwitchPredicates.IS_BREAKER;
+
+        // Tests
+        assertFalse(predicate.test(null));
+        assertFalse(predicate.test(network.getVoltageLevel("VL1").getNodeBreakerView().getSwitch("D4")));
+        assertTrue(predicate.test(network.getVoltageLevel("VL1").getNodeBreakerView().getSwitch("B3")));
+    }
+
+    @Test
+    public void testNonFictional() {
+        // Predicate to test
+        Predicate<Switch> predicate = SwitchPredicates.IS_NONFICTIONAL;
+
+        // Tests
+        assertFalse(predicate.test(null));
+        assertFalse(predicate.test(network.getVoltageLevel("VL1").getNodeBreakerView().getSwitch("B2")));
+        assertTrue(predicate.test(network.getVoltageLevel("VL1").getNodeBreakerView().getSwitch("B5")));
+    }
+
+    @Test
     public void testOpen() {
         // Predicate to test
         Predicate<Switch> predicate = SwitchPredicates.IS_OPEN;

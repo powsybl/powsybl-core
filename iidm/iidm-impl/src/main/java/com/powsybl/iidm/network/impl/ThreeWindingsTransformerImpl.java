@@ -42,25 +42,25 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private PhaseTapChangerImpl phaseTapChanger;
 
-        private int legNumber = 0;
+        private final ThreeSides side;
 
-        LegImpl(double r, double x, double g, double b, double ratedU, double ratedS, int legNumber) {
+        LegImpl(double r, double x, double g, double b, double ratedU, double ratedS, ThreeSides side) {
             this.r = r;
             this.x = x;
             this.g = g;
             this.b = b;
             this.ratedU = ratedU;
-            this.legNumber = legNumber;
+            this.side = Objects.requireNonNull(side);
             this.ratedS = ratedS;
         }
 
         void setTransformer(ThreeWindingsTransformerImpl transformer) {
             this.transformer = transformer;
-            operationalLimitsHolder = new OperationalLimitsGroupsImpl(transformer, "limits" + legNumber);
+            operationalLimitsHolder = new OperationalLimitsGroupsImpl(transformer, "limits" + side.getNum());
         }
 
         public TerminalExt getTerminal() {
-            return transformer.terminals.get(legNumber - 1);
+            return transformer.terminals.get(side.getNum() - 1);
         }
 
         public double getR() {
@@ -243,16 +243,16 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public String getTapChangerAttribute() {
-            return String.format("TapChanger%d", legNumber);
+            return String.format("TapChanger%d", side.getNum());
         }
 
         protected String getLegAttribute() {
-            return String.format("leg%d", legNumber);
+            return String.format("leg%d", side.getNum());
         }
 
         @Override
-        public Set<TapChanger<?, ?>> getAllTapChangers() {
-            Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
+        public Set<TapChanger<?, ?, ?, ?>> getAllTapChangers() {
+            Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
             transformer.leg1.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
             transformer.leg1.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
             transformer.leg2.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
@@ -288,7 +288,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public ThreeSides getSide() {
-            return ThreeSides.valueOf(legNumber);
+            return side;
         }
 
         @Override

@@ -570,7 +570,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void adjustTapChangerAliases2wt(TwoWindingsTransformer transformer, TapChanger<?, ?> tc, String tapChangerKind) {
+    private static void adjustTapChangerAliases2wt(TwoWindingsTransformer transformer, TapChanger<?, ?, ?, ?> tc, String tapChangerKind) {
         // If we had alias only for tc1, is ok, we will export only tc1 at end 1
         // If we had alias for tc1 and tc2, is ok, tc2 has been moved to end 1 and combined with tc1, but we preserve id for tc1
         // Only if we had tc at end 2 has been moved to end 1 and its identifier must be preserved

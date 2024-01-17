@@ -37,7 +37,7 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
     protected void writeRootElementAttributes(OverloadManagementSystem oms, Substation substation, NetworkSerializerContext context) {
         context.getWriter().writeBooleanAttribute("enabled", oms.isEnabled());
         context.getWriter().writeStringAttribute("monitoredElementId", context.getAnonymizer().anonymizeString(oms.getMonitoredElementId()));
-        context.getWriter().writeStringAttribute("side", oms.getMonitoredSide().name());
+        context.getWriter().writeEnumAttribute("side", oms.getMonitoredSide());
     }
 
     @Override
@@ -53,7 +53,7 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
                 writeTrippingCommonAttributes(tripping, context);
                 context.getWriter().writeStringAttribute("branchId",
                         context.getAnonymizer().anonymizeString(branchTripping.getBranchToOperateId()));
-                context.getWriter().writeStringAttribute("side", branchTripping.getSideToOperate().name());
+                context.getWriter().writeEnumAttribute("side", branchTripping.getSideToOperate());
                 context.getWriter().writeEndNode();
             }
             case SWITCH_TRIPPING -> {
@@ -71,7 +71,7 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
                 writeTrippingCommonAttributes(tripping, context);
                 context.getWriter().writeStringAttribute("threeWindingsTransformerId",
                         context.getAnonymizer().anonymizeString(twtTripping.getThreeWindingsTransformerToOperateId()));
-                context.getWriter().writeStringAttribute("side", twtTripping.getSideToOperate().name());
+                context.getWriter().writeEnumAttribute("side", twtTripping.getSideToOperate());
                 context.getWriter().writeEndNode();
             }
             default -> throw new PowsyblException("Unexpected tripping type: " + tripping.getType());
@@ -95,12 +95,12 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
 
     @Override
     protected void readRootElementAttributes(OverloadManagementSystemAdder adder,
+                                             Substation parent,
                                              List<Consumer<OverloadManagementSystem>> toApply,
                                              NetworkDeserializerContext context) {
         boolean enabled = context.getReader().readBooleanAttribute("enabled", true);
         String monitoredElementId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("monitoredElementId"));
-        String side = context.getReader().readStringAttribute("side");
-        ThreeSides monitoredSide = side == null ? ThreeSides.ONE : ThreeSides.valueOf(side);
+        ThreeSides monitoredSide = context.getReader().readEnumAttribute("side", ThreeSides.class, ThreeSides.ONE);
         if (adder != null) {
             adder.setEnabled(enabled)
                     .setMonitoredElementId(monitoredElementId)
@@ -130,8 +130,7 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
     private static void readBranchTripping(OverloadManagementSystemAdder adder, NetworkDeserializerContext context,
                                            String key, String name, double currentLimit, boolean openAction) {
         String branchId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("branchId"));
-        String side = context.getReader().readStringAttribute("side");
-        TwoSides sideToOperate = side == null ? TwoSides.ONE : TwoSides.valueOf(side);
+        TwoSides sideToOperate = context.getReader().readEnumAttribute("side", TwoSides.class, TwoSides.ONE);
         context.getReader().readEndNode();
         if (adder != null) {
             adder.newBranchTripping()
@@ -164,8 +163,7 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
                                                              String key, String name, double currentLimit, boolean openAction) {
         String twtId = context.getAnonymizer().deanonymizeString(
                 context.getReader().readStringAttribute("threeWindingsTransformerId"));
-        String side = context.getReader().readStringAttribute("side");
-        ThreeSides sideToOperate = side == null ? ThreeSides.ONE : ThreeSides.valueOf(side);
+        ThreeSides sideToOperate = context.getReader().readEnumAttribute("side", ThreeSides.class, ThreeSides.ONE);
         context.getReader().readEndNode();
         if (adder != null) {
             adder.newThreeWindingsTransformerTripping()
@@ -188,10 +186,10 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
         return true;
     }
 
-    public final void skip(NetworkDeserializerContext context) {
+    public final void skip(Substation s, NetworkDeserializerContext context) {
         List<Consumer<OverloadManagementSystem>> toApply = new ArrayList<>();
         String id = readIdentifierAttributes(null, context);
-        readRootElementAttributes(null, toApply, context);
+        readRootElementAttributes(null, s, toApply, context);
         readSubElements(id, null, toApply, context);
     }
 }
