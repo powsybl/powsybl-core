@@ -30,9 +30,9 @@ class GroundConversionTest {
 
         Ground groundCV = network.getGround("CV");
         assertNotNull(groundCV);
-        assertTrue(groundCV.getNameOrId().equals("CW"));
+        assertEquals("CW", groundCV.getNameOrId());
         assertNotNull(groundCV.getTerminal());
         assertFalse(groundCV.getTerminal().isConnected());
-        assertTrue(groundCV.getTerminal().getVoltageLevel().getId().equals("S"));
+        assertEquals("S", groundCV.getTerminal().getVoltageLevel().getId());
     }
 }
