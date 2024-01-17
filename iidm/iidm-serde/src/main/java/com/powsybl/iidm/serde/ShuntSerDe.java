@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.function.Consumer;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readNodeOrBus;
@@ -64,9 +65,11 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
             int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
             context.getWriter().writeIntAttribute("currentSectionCount", currentSectionCount);
         });
-        if (sc.findSectionCount().isPresent()) {
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> context.getWriter().writeIntAttribute("sectionCount", sc.getSectionCount()));
-        }
+
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
+            OptionalInt sectionCount = sc.findSectionCount();
+            context.getWriter().writeOptionalIntAttribute("sectionCount", sectionCount.isPresent() ? sectionCount.getAsInt() : null);
+        });
         IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
@@ -130,7 +133,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
     }
 
     @Override
-    protected void readRootElementAttributes(ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(ShuntCompensatorAdder adder, VoltageLevel parent, List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> adder.setVoltageRegulatorOn(false));
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_2, context, () -> {
             double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
@@ -143,10 +146,8 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
                     .add();
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            Integer sectionCount = context.getReader().readIntAttribute("sectionCount");
-            if (sectionCount != null) {
-                adder.setSectionCount(sectionCount);
-            }
+            OptionalInt sectionCount = context.getReader().readOptionalIntAttribute("sectionCount");
+            sectionCount.ifPresent(adder::setSectionCount);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> {
             boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
@@ -156,10 +157,16 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
                     .setTargetDeadband(targetDeadband)
                     .setVoltageRegulatorOn(voltageRegulatorOn);
         });
-        readNodeOrBus(adder, context);
-        double p = context.getReader().readDoubleAttribute("p");
-        double q = context.getReader().readDoubleAttribute("q");
-        toApply.add(sc -> sc.getTerminal().setP(p).setQ(q));
+        readNodeOrBus(adder, context, parent.getTopologyKind());
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_8, context, () -> {
+            double q = context.getReader().readDoubleAttribute("q");
+            toApply.add(sc -> sc.getTerminal().setQ(q));
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_9, context, () -> {
+            double p = context.getReader().readDoubleAttribute("p");
+            double q = context.getReader().readDoubleAttribute("q");
+            toApply.add(sc -> sc.getTerminal().setP(p).setQ(q));
+        });
     }
 
     @Override
@@ -168,7 +175,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
             switch (elementName) {
                 case REGULATING_TERMINAL -> {
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
-                    String regSide = context.getReader().readStringAttribute("side");
+                    ThreeSides regSide = context.getReader().readEnumAttribute("side", ThreeSides.class);
                     context.getReader().readEndNode();
                     toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefSerDe.resolve(regId, regSide, sc.getNetwork()))));
                 }

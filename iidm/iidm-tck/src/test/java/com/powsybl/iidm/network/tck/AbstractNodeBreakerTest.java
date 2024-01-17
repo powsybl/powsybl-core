@@ -354,6 +354,12 @@ public abstract class AbstractNodeBreakerTest {
 
         // check load is removed
         assertFalse(topo.getOptionalTerminal(4).isPresent());
+
+        // disconnect and reconnect the generator 1
+        g1.getTerminal().disconnect();
+        network.getSwitch("B_G1").setFictitious(true);
+        network.getSwitch("B1").setFictitious(true);
+        assertFalse(g1.getTerminal().connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER));
     }
 
     @Test

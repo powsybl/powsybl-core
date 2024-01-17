@@ -48,9 +48,7 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
         writer.writeStartNodes();
         for (Measurement measurement : extension.getMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), MEASUREMENT_ROOT_ELEMENT);
-            if (measurement.getId() != null) {
-                writer.writeStringAttribute("id", measurement.getId());
-            }
+            writer.writeStringAttribute("id", measurement.getId());
             writer.writeEnumAttribute("type", measurement.getType());
             writer.writeEnumAttribute("side", measurement.getSide());
             writer.writeDoubleAttribute(VALUE, measurement.getValue());

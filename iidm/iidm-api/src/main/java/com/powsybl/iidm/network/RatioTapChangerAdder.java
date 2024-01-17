@@ -9,7 +9,19 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface RatioTapChangerAdder extends TapChangerAdder<RatioTapChangerAdder, RatioTapChangerStepAdder, RatioTapChanger> {
+public interface RatioTapChangerAdder extends TapChangerAdder<
+    RatioTapChangerAdder,
+    RatioTapChangerStep,
+    RatioTapChangerAdder.StepAdder,
+    RatioTapChangerStepsReplacer.StepAdder,
+    RatioTapChangerStepsReplacer,
+    RatioTapChanger> {
+
+    /**
+     * Interface for classes responsible for building a single step when using {@link RatioTapChangerAdder}.
+     */
+    interface StepAdder extends RatioTapChangerStepAdder<StepAdder, RatioTapChangerAdder> {
+    }
 
     RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
 

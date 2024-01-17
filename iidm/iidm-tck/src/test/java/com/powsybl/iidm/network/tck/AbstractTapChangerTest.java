@@ -334,7 +334,7 @@ public abstract class AbstractTapChangerTest {
         assertEquals(11.0, ratioTapChangerInLeg3.getRegulationValue(), 0.0);
     }
 
-    private void getTapPositionThrowsException(TapChanger<?, ?> tapChanger) {
+    private void getTapPositionThrowsException(TapChanger<?, ?, ?, ?> tapChanger) {
         try {
             tapChanger.getTapPosition();
             fail();
