@@ -581,7 +581,10 @@ public final class NetworkSerDe {
                 Map.entry(VoltageLevelSerDe.INJ_ARRAY_ELEMENT_NAME, VoltageLevelSerDe.INJ_ROOT_ELEMENT_NAME),
                 Map.entry(VscConverterStationSerDe.ARRAY_ELEMENT_NAME, VscConverterStationSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(GroundSerDe.ARRAY_ELEMENT_NAME, GroundSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS, ConnectableSerDeUtil.LIMITS_GROUP)
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS, ConnectableSerDeUtil.LIMITS_GROUP),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_1, ConnectableSerDeUtil.LIMITS_GROUP_1),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_2, ConnectableSerDeUtil.LIMITS_GROUP_2),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_3, ConnectableSerDeUtil.LIMITS_GROUP_3)
         );
 
         Map<String, String> extensionsMap = new HashMap<>();

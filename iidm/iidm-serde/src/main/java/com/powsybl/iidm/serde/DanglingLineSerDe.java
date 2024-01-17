@@ -86,7 +86,8 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
             () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
         );
         writePQ(null, t, context.getWriter());
-
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                writeDefaultGroupId(null, dl.getDefaultIdOperationalLimitsGroups().orElse(null), context.getWriter()));
     }
 
     private static <T> T getOptionalValue(Generation generation, Function<Generation, T> valueGetter) {
@@ -119,6 +120,8 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         });
         DanglingLine dl = adder.add();
         readPQ(null, dl.getTerminal(), context.getReader());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                readDefaultGroupId(null, dl::setDefaultOperationalLimitsGroup, context));
         return dl;
     }
 
@@ -160,9 +163,9 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     protected void readSubElements(DanglingLine dl, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case LIMITS_GROUPS -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUPS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(dl, context.getReader(), context.getVersion(), context.getOptions()));
+                case LIMITS_GROUP -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(dl, LIMITS_GROUP, context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case ACTIVE_POWER_LIMITS -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);

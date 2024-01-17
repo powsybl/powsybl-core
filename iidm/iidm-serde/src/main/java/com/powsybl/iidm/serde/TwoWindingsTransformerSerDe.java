@@ -40,6 +40,10 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         writeNodeOrBus(2, twt.getTerminal2(), context);
         writeOptionalPQ(1, twt.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, twt.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+            writeDefaultGroupId(1, twt.getDefaultIdOperationalLimitsGroups1().orElse(null), context.getWriter());
+            writeDefaultGroupId(2, twt.getDefaultIdOperationalLimitsGroups2().orElse(null), context.getWriter());
+        });
     }
 
     @Override
@@ -80,6 +84,10 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         TwoWindingsTransformer twt = adder.add();
         readOptionalPQ(1, twt.getTerminal1(), context.getReader());
         readOptionalPQ(2, twt.getTerminal2(), context.getReader());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+            readDefaultGroupId(1, twt::setDefaultOperationalLimitsGroup1, context);
+            readDefaultGroupId(2, twt::setDefaultOperationalLimitsGroup2, context);
+        });
         return twt;
     }
 
@@ -87,9 +95,9 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected void readSubElements(TwoWindingsTransformer twt, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case LIMITS_GROUPS + "1" -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUPS + "1", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups1(twt, context.getReader(), context.getVersion(), context.getOptions()));
+                case LIMITS_GROUP_1 -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(twt::newOperationalLimitsGroup1, LIMITS_GROUP_1, context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case ACTIVE_POWER_LIMITS_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
@@ -100,9 +108,9 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(twt.newApparentPowerLimits1(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case "currentLimits1" -> readCurrentLimits(twt.newCurrentLimits1(), context.getReader(), context.getVersion(), context.getOptions());
-                case LIMITS_GROUPS + "2" -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUPS + "2", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups2(twt, context.getReader(), context.getVersion(), context.getOptions()));
+                case LIMITS_GROUP_2 -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(twt::newOperationalLimitsGroup2, LIMITS_GROUP_2, context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case ACTIVE_POWER_LIMITS_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);

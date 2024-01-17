@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 
 /**
@@ -43,8 +44,14 @@ public final class ConnectableSerDeUtil {
     static final String ACTIVE_POWER_LIMITS_3 = "activePowerLimits3";
     static final String APPARENT_POWER_LIMITS_3 = "apparentPowerLimits3";
     static final String CURRENT_LIMITS = "currentLimits";
-    static final String LIMITS_GROUPS = "operationalLimitsGroups";
     static final String LIMITS_GROUP = "operationalLimitsGroup";
+    static final String LIMITS_GROUP_1 = "operationalLimitsGroup1";
+    static final String LIMITS_GROUP_2 = "operationalLimitsGroup2";
+    static final String LIMITS_GROUP_3 = "operationalLimitsGroup3";
+    static final String LIMITS_GROUPS = "operationalLimitsGroups";
+    static final String LIMITS_GROUPS_1 = "operationalLimitsGroups1";
+    static final String LIMITS_GROUPS_2 = "operationalLimitsGroups2";
+    static final String LIMITS_GROUPS_3 = "operationalLimitsGroups3";
     static final String DEFAULT_GROUP_ID = "defaultOperationalLimitsGroupId";
 
     private static String indexToString(Integer index) {
@@ -212,52 +219,16 @@ public final class ConnectableSerDeUtil {
         });
     }
 
-    static void readLoadingLimitsGroups1(Branch<?> b, TreeDataReader reader, IidmVersion version, ImportOptions options) {
-        String defaultId = reader.readStringAttribute(DEFAULT_GROUP_ID);
-        reader.readChildNodes(groupElementName -> {
-            if (LIMITS_GROUP.equals(groupElementName)) {
-                String id = reader.readStringAttribute("id");
-                OperationalLimitsGroup group = b.newOperationalLimitsGroup1(id);
-                readAllLoadingLimits(reader, groupElementName, group, version, options);
-            } else {
-                throw new PowsyblException("Unknown element name '" + groupElementName + "' in '" + LIMITS_GROUPS + "1'");
-            }
-        });
-        if (defaultId != null) {
-            b.setDefaultOperationalLimitsGroup1(defaultId);
-        }
+    static void readLoadingLimitsGroup(Function<String, OperationalLimitsGroup> groupBuilder, String groupElementName, TreeDataReader reader, IidmVersion version, ImportOptions options) {
+        String id = reader.readStringAttribute("id");
+        OperationalLimitsGroup group = groupBuilder.apply(id);
+        readAllLoadingLimits(reader, groupElementName, group, version, options);
     }
 
-    static void readLoadingLimitsGroups2(Branch<?> b, TreeDataReader reader, IidmVersion version, ImportOptions options) {
-        String defaultId = reader.readStringAttribute(DEFAULT_GROUP_ID);
-        reader.readChildNodes(groupElementName -> {
-            if (LIMITS_GROUP.equals(groupElementName)) {
-                String id = reader.readStringAttribute("id");
-                OperationalLimitsGroup group = b.newOperationalLimitsGroup2(id);
-                readAllLoadingLimits(reader, groupElementName, group, version, options);
-            } else {
-                throw new PowsyblException("Unknown element name '" + groupElementName + "' in '" + LIMITS_GROUPS + "2'");
-            }
-        });
-        if (defaultId != null) {
-            b.setDefaultOperationalLimitsGroup2(defaultId);
-        }
-    }
-
-    static void readLoadingLimitsGroups(FlowsLimitsHolder h, TreeDataReader reader, IidmVersion version, ImportOptions options) {
-        String defaultId = reader.readStringAttribute(DEFAULT_GROUP_ID);
-        reader.readChildNodes(groupElementName -> {
-            if (LIMITS_GROUP.equals(groupElementName)) {
-                String id = reader.readStringAttribute("id");
-                OperationalLimitsGroup group = h.newOperationalLimitsGroup(id);
-                readAllLoadingLimits(reader, groupElementName, group, version, options);
-            } else {
-                throw new PowsyblException("Unknown element name '" + groupElementName + "' in '" + LIMITS_GROUPS + "'");
-            }
-        });
-        if (defaultId != null) {
-            h.setDefaultOperationalLimitsGroup(defaultId);
-        }
+    static void readLoadingLimitsGroups(FlowsLimitsHolder h, String groupElementName, TreeDataReader reader, IidmVersion version, ImportOptions options) {
+        String id = reader.readStringAttribute("id");
+        OperationalLimitsGroup group = h.newOperationalLimitsGroup(id);
+        readAllLoadingLimits(reader, groupElementName, group, version, options);
     }
 
     static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmVersion version,
@@ -299,25 +270,17 @@ public final class ConnectableSerDeUtil {
         }
     }
 
-    private static void writeLoadingLimitsGroups(Integer index, Optional<String> defaultId, List<OperationalLimitsGroup> groups, TreeDataWriter writer, IidmVersion version, boolean valid, ExportOptions exportOptions) {
-        if (groups.isEmpty() && defaultId.isEmpty()) {
-            return;
+    static void writeDefaultGroupId(Integer index, String defaultId, TreeDataWriter writer) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        writer.writeStringAttribute(DEFAULT_GROUP_ID + suffix, defaultId);
+    }
+
+    static void readDefaultGroupId(Integer index, Consumer<String> defaultGroupIdSetter, NetworkDeserializerContext context) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        String defaultGroupId = context.getReader().readStringAttribute(DEFAULT_GROUP_ID + suffix);
+        if (defaultGroupId != null) {
+            context.getEndTasks().add(() -> defaultGroupIdSetter.accept(defaultGroupId));
         }
-        writer.writeStartNode(version.getNamespaceURI(valid), LIMITS_GROUPS + indexToString(index));
-        defaultId.ifPresent(id -> writer.writeStringAttribute(DEFAULT_GROUP_ID, id));
-        writer.writeStartNodes(); // ?
-        for (OperationalLimitsGroup g : groups) {
-            writer.writeStartNode(version.getNamespaceURI(valid), LIMITS_GROUP);
-            writer.writeStringAttribute("id", g.getId());
-            g.getActivePowerLimits()
-                    .ifPresent(l -> writeActivePowerLimits(null, l, writer, version, valid, exportOptions));
-            g.getApparentPowerLimits()
-                    .ifPresent(l -> writeApparentPowerLimits(null, l, writer, version, valid, exportOptions));
-            g.getCurrentLimits().ifPresent(l -> writeCurrentLimits(null, l, writer, version, valid, exportOptions));
-            writer.writeEndNode();
-        }
-        writer.writeEndNodes();
-        writer.writeEndNode();
     }
 
     static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, Optional<OperationalLimitsGroup> defaultGroup, Optional<String> defaultId, List<OperationalLimitsGroup> groups) {
@@ -337,8 +300,22 @@ public final class ConnectableSerDeUtil {
             dg.getCurrentLimits()
                     .ifPresent(cl -> writeCurrentLimits(index, cl, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
-                writeLoadingLimitsGroups(index, defaultId, groups, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions())
-        );
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> writeLoadingLimitsGroups(index, groups, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+    }
+
+    private static void writeLoadingLimitsGroups(Integer index, List<OperationalLimitsGroup> groups, TreeDataWriter writer, IidmVersion version, boolean valid, ExportOptions exportOptions) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        writer.writeStartNodes();
+        for (OperationalLimitsGroup g : groups) {
+            writer.writeStartNode(version.getNamespaceURI(valid), LIMITS_GROUP + suffix);
+            writer.writeStringAttribute("id", g.getId());
+            g.getActivePowerLimits()
+                    .ifPresent(l -> writeActivePowerLimits(null, l, writer, version, valid, exportOptions));
+            g.getApparentPowerLimits()
+                    .ifPresent(l -> writeApparentPowerLimits(null, l, writer, version, valid, exportOptions));
+            g.getCurrentLimits().ifPresent(l -> writeCurrentLimits(null, l, writer, version, valid, exportOptions));
+            writer.writeEndNode();
+        }
+        writer.writeEndNodes();
     }
 }

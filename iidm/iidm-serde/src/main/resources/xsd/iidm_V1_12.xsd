@@ -351,19 +351,13 @@
         </xs:sequence>
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
-    <xs:complexType name="LoadingLimitGroup">
+    <xs:complexType name="OperationalLimitsGroup">
         <xs:sequence>
             <xs:element name="activePowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
             <xs:element name="apparentPowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
             <xs:element name="currentLimits" type="iidm:LoadingLimit" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="id" use="required" type="xs:string"/>
-    </xs:complexType>
-    <xs:complexType name="LoadingLimitGroups">
-        <xs:sequence>
-            <xs:element name="operationalLimitsGroup" type="iidm:LoadingLimitGroup" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-        <xs:attribute name="defaultOperationalLimitsGroupId" use="optional" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="DanglingLine">
         <xs:complexContent>
@@ -373,8 +367,9 @@
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
-                    <xs:element name="operationalLimitsGroups" type="iidm:LoadingLimitGroups" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroup" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
+                <xs:attribute name="defaultOperationalLimitsGroupId" use="optional" type="xs:string"/>
                 <xs:attribute name="p0" use="required" type="xs:double"/>
                 <xs:attribute name="q0" use="required" type="xs:double"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
@@ -436,9 +431,11 @@
                 <xs:sequence>
                     <xs:element name="ratioTapChanger" type="iidm:RatioTapChanger" minOccurs="0"/>
                     <xs:element name="phaseTapChanger" type="iidm:PhaseTapChanger" minOccurs="0"/>
-                    <xs:element name="operationalLimitsGroups1" type="iidm:LoadingLimitGroups" minOccurs="0"/>
-                    <xs:element name="operationalLimitsGroups2" type="iidm:LoadingLimitGroups" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroup1" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="operationalLimitsGroup2" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
+                <xs:attribute name="defaultOperationalLimitsGroupId1" use="optional" type="xs:string"/>
+                <xs:attribute name="defaultOperationalLimitsGroupId2" use="optional" type="xs:string"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
                 <xs:attribute name="g" use="required" type="xs:double"/>
@@ -459,10 +456,13 @@
                     <xs:element name="phaseTapChanger2" type="iidm:PhaseTapChanger" minOccurs="0"/>
                     <xs:element name="ratioTapChanger3" type="iidm:RatioTapChanger" minOccurs="0"/>
                     <xs:element name="phaseTapChanger3" type="iidm:PhaseTapChanger" minOccurs="0"/>
-                    <xs:element name="operationalLimitsGroups1" type="iidm:LoadingLimitGroups" minOccurs="0"/>
-                    <xs:element name="operationalLimitsGroups2" type="iidm:LoadingLimitGroups" minOccurs="0"/>
-                    <xs:element name="operationalLimitsGroups3" type="iidm:LoadingLimitGroups" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroup1" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="operationalLimitsGroup2" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="operationalLimitsGroup3" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
+                <xs:attribute name="defaultOperationalLimitsGroupId1" use="optional" type="xs:string"/>
+                <xs:attribute name="defaultOperationalLimitsGroupId2" use="optional" type="xs:string"/>
+                <xs:attribute name="defaultOperationalLimitsGroupId3" use="optional" type="xs:string"/>
                 <xs:attribute name="ratedU0" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:double"/>
@@ -614,9 +614,11 @@
         <xs:complexContent>
             <xs:extension base="iidm:Branch">
                 <xs:sequence>
-                    <xs:element name="operationalLimitsGroups1" type="iidm:LoadingLimitGroups" minOccurs="0"/>
-                    <xs:element name="operationalLimitsGroups2" type="iidm:LoadingLimitGroups" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroup1" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="operationalLimitsGroup2" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
+                <xs:attribute name="defaultOperationalLimitsGroupId1" use="optional" type="xs:string"/>
+                <xs:attribute name="defaultOperationalLimitsGroupId2" use="optional" type="xs:string"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
                 <xs:attribute name="g1" use="required" type="xs:double"/>
