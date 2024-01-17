@@ -65,11 +65,9 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         writeNodeOrBus(1, twt.getLeg1().getTerminal(), context);
         writeNodeOrBus(2, twt.getLeg2().getTerminal(), context);
         writeNodeOrBus(3, twt.getLeg3().getTerminal(), context);
-        if (context.getOptions().isWithBranchSV()) {
-            writePQ(1, twt.getLeg1().getTerminal(), context.getWriter());
-            writePQ(2, twt.getLeg2().getTerminal(), context.getWriter());
-            writePQ(3, twt.getLeg3().getTerminal(), context.getWriter());
-        }
+        writeOptionalPQ(1, twt.getLeg1().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        writeOptionalPQ(2, twt.getLeg2().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        writeOptionalPQ(3, twt.getLeg3().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
     }
 
     @Override
@@ -162,16 +160,16 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
             adder.setRatedU0(ratedU0);
         });
 
-        readNodeOrBus(1, legAdder1, context);
-        readNodeOrBus(2, legAdder2, context);
-        readNodeOrBus(3, legAdder3, context);
+        readNodeOrBus(1, legAdder1, s.getNetwork(), context);
+        readNodeOrBus(2, legAdder2, s.getNetwork(), context);
+        readNodeOrBus(3, legAdder3, s.getNetwork(), context);
         legAdder1.add();
         legAdder2.add();
         legAdder3.add();
         ThreeWindingsTransformer twt = adder.add();
-        readPQ(1, twt.getLeg1().getTerminal(), context.getReader());
-        readPQ(2, twt.getLeg2().getTerminal(), context.getReader());
-        readPQ(3, twt.getLeg3().getTerminal(), context.getReader());
+        readOptionalPQ(1, twt.getLeg1().getTerminal(), context.getReader());
+        readOptionalPQ(2, twt.getLeg2().getTerminal(), context.getReader());
+        readOptionalPQ(3, twt.getLeg3().getTerminal(), context.getReader());
         return twt;
     }
 

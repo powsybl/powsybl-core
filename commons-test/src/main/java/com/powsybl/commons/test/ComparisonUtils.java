@@ -16,8 +16,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Stanislao Fidanza {@literal <stanifidanza98@gmail.com>}
@@ -41,6 +40,14 @@ public final class ComparisonUtils {
     public static void compareTxt(InputStream expected, InputStream actual) {
         try {
             compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void compareBytes(InputStream expected, InputStream actual) {
+        try {
+            assertArrayEquals(expected.readAllBytes(), actual.readAllBytes());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

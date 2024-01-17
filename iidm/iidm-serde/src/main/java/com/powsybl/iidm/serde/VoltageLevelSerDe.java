@@ -51,7 +51,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeDoubleAttribute("highVoltageLimit", vl.getHighVoltageLimit());
 
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        context.getWriter().writeStringAttribute("topologyKind", topologyLevel.getTopologyKind().name());
+        context.getWriter().writeEnumAttribute("topologyKind", topologyLevel.getTopologyKind());
     }
 
     @Override
@@ -338,7 +338,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkDeserializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> {
-            context.getReader().readStringAttribute(NODE_COUNT);
+            context.getReader().readIntAttribute(NODE_COUNT);
             LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored.");
         });
         context.getReader().readChildNodes(elementName -> {

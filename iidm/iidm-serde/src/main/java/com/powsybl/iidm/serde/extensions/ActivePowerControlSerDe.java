@@ -75,7 +75,7 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
     @Override
     public ActivePowerControl<T> read(T identifiable, DeserializerContext context) {
         boolean participate = context.getReader().readBooleanAttribute("participate");
-        float droop = context.getReader().readFloatAttribute("droop");
+        double droop = context.getReader().readDoubleAttribute("droop");
         double participationFactor = Double.NaN;
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);

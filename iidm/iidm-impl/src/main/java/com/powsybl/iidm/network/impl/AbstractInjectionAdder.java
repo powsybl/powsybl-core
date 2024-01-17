@@ -47,7 +47,7 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
     }
 
     protected TerminalExt checkAndGetTerminal() {
-        return new TerminalBuilder(getNetworkRef(), this)
+        return new TerminalBuilder(getNetworkRef(), this, null)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)

@@ -9,8 +9,11 @@
 package com.powsybl.iidm.network;
 
 /**
+ * Interface for classes responsible for building a single step.
+ * @param <S> for SELF (itself)
+ * @param <T> the return type when building the step by calling {@link TapChangerStepAdder#endStep()}
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface PhaseTapChangerStepAdder extends TapChangerStepAdder<PhaseTapChangerStepAdder, PhaseTapChangerAdder> {
-    PhaseTapChangerStepAdder setAlpha(double alpha);
+public interface PhaseTapChangerStepAdder<S extends PhaseTapChangerStepAdder<S, T>, T> extends TapChangerStepAdder<S, T> {
+    S setAlpha(double alpha);
 }

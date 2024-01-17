@@ -44,8 +44,6 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     @Override BusViewExt getBusView();
 
-    void setNum(int num);
-
     /**
      * Traverse from this terminal using the given topology traverser, knowing that the terminals in the given
      * set have already been visited.
