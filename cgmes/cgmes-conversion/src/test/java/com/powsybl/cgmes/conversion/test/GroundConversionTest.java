@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +22,6 @@ class GroundConversionTest {
     @Test
     void groundConversionTest() {
         Network network = Network.read("groundTest.xml", getClass().getResourceAsStream("/groundTest.xml"));
-        long groundCount = network.getVoltageLevelStream().map(VoltageLevel::getGrounds).count();
-        assertEquals(2, groundCount);
+        assertEquals(2, network.getVoltageLevel("S").getGroundCount());
     }
 }

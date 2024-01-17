@@ -20,10 +20,6 @@
 		<cim:BaseVoltage.nominalVoltage>67.5</cim:BaseVoltage.nominalVoltage>
 		<cim:IdentifiedObject.name>67.5</cim:IdentifiedObject.name>
 	</cim:BaseVoltage>
-	<cim:BaseVoltage rdf:ID="ACX">
-		<cim:BaseVoltage.nominalVoltage>1.0</cim:BaseVoltage.nominalVoltage>
-		<cim:IdentifiedObject.name>1.0</cim:IdentifiedObject.name>
-	</cim:BaseVoltage>
 	<cim:Bay rdf:ID="P">
 		<cim:Bay.VoltageLevel rdf:resource="#S"></cim:Bay.VoltageLevel>
 		<cim:IdentifiedObject.description>T</cim:IdentifiedObject.description>
@@ -148,16 +144,6 @@
 		<cim:IdentifiedObject.name>JN</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
 	</cim:Terminal>
-	<cim:ProtectionEquipment rdf:ID="JR">
-		<cim:ProtectionEquipment.powerDirectionFlag>false</cim:ProtectionEquipment.powerDirectionFlag>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#AS"></cim:Equipment.EquipmentContainer>
-		<cim:PowerSystemResource.PSRType rdf:resource="#JS"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.name>JT</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>PROT</entsoe:IdentifiedObject.shortName>
-		<cim:ProtectionEquipment.ConductingEquipments rdf:resource="#JU"></cim:ProtectionEquipment.ConductingEquipments>
-		<cim:IdentifiedObject.description>JV</cim:IdentifiedObject.description>
-	</cim:ProtectionEquipment>
 	<cim:Breaker rdf:ID="JY">
 		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
 		<cim:Switch.retained>false</cim:Switch.retained>
@@ -200,16 +186,6 @@
 		<cim:IdentifiedObject.name>LP</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>1.3</entsoe:IdentifiedObject.shortName>
 	</cim:BusbarSection>
-	<cim:ProtectionEquipment rdf:ID="LV">
-		<cim:ProtectionEquipment.powerDirectionFlag>false</cim:ProtectionEquipment.powerDirectionFlag>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#P"></cim:Equipment.EquipmentContainer>
-		<cim:PowerSystemResource.PSRType rdf:resource="#LW"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.name>LX</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>ARS</entsoe:IdentifiedObject.shortName>
-		<cim:ProtectionEquipment.ConductingEquipments rdf:resource="#LY"></cim:ProtectionEquipment.ConductingEquipments>
-		<cim:IdentifiedObject.description>JV</cim:IdentifiedObject.description>
-	</cim:ProtectionEquipment>
 	<cim:Breaker rdf:ID="FU">
 		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
 		<cim:Switch.retained>false</cim:Switch.retained>
@@ -224,16 +200,6 @@
 		<cim:IdentifiedObject.name>MG</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>N32390</entsoe:IdentifiedObject.shortName>
 	</cim:ConnectivityNode>
-	<cim:ProtectionEquipment rdf:ID="NO">
-		<cim:ProtectionEquipment.powerDirectionFlag>false</cim:ProtectionEquipment.powerDirectionFlag>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#DZ"></cim:Equipment.EquipmentContainer>
-		<cim:PowerSystemResource.PSRType rdf:resource="#JS"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.name>NP</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>PROT</entsoe:IdentifiedObject.shortName>
-		<cim:ProtectionEquipment.ConductingEquipments rdf:resource="#NQ"></cim:ProtectionEquipment.ConductingEquipments>
-		<cim:IdentifiedObject.description>JV</cim:IdentifiedObject.description>
-	</cim:ProtectionEquipment>
 	<cim:GroundDisconnector rdf:ID="CI">
 		<cim:Switch.normalOpen>true</cim:Switch.normalOpen>
 		<cim:Switch.retained>false</cim:Switch.retained>
@@ -365,21 +331,11 @@
 		<cim:IdentifiedObject.name>TK</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>N32387</entsoe:IdentifiedObject.shortName>
 	</cim:ConnectivityNode>
-	<cim:Bay rdf:ID="TW">
-		<cim:Bay.VoltageLevel rdf:resource="#S"></cim:Bay.VoltageLevel>
-		<cim:IdentifiedObject.name>TY</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>TS.SYST</entsoe:IdentifiedObject.shortName>
-	</cim:Bay>
 	<cim:ConnectivityNode rdf:ID="FT">
 		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"></cim:ConnectivityNode.ConnectivityNodeContainer>
 		<cim:IdentifiedObject.name>UT</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>N32391</entsoe:IdentifiedObject.shortName>
 	</cim:ConnectivityNode>
-	<cim:Bay rdf:ID="BK">
-		<cim:Bay.VoltageLevel rdf:resource="#VD"></cim:Bay.VoltageLevel>
-		<cim:IdentifiedObject.name>VE</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T.GENE</entsoe:IdentifiedObject.shortName>
-	</cim:Bay>
 	<cim:Terminal rdf:ID="VS">
 		<cim:Terminal.ConnectivityNode rdf:resource="#RT"></cim:Terminal.ConnectivityNode>
 		<cim:Terminal.ConductingEquipment rdf:resource="#RB"></cim:Terminal.ConductingEquipment>
@@ -408,21 +364,6 @@
 		<cim:IdentifiedObject.name>WO</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
 	</cim:Terminal>
-	<cim:ProtectionEquipment rdf:ID="DE">
-		<cim:ProtectionEquipment.powerDirectionFlag>false</cim:ProtectionEquipment.powerDirectionFlag>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#DZ"></cim:Equipment.EquipmentContainer>
-		<cim:PowerSystemResource.PSRType rdf:resource="#LW"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.name>WZ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>ARS</entsoe:IdentifiedObject.shortName>
-		<cim:ProtectionEquipment.ConductingEquipments rdf:resource="#NQ"></cim:ProtectionEquipment.ConductingEquipments>
-		<cim:IdentifiedObject.description>JV</cim:IdentifiedObject.description>
-	</cim:ProtectionEquipment>
-	<cim:Bay rdf:ID="MI">
-		<cim:Bay.VoltageLevel rdf:resource="#VD"></cim:Bay.VoltageLevel>
-		<cim:IdentifiedObject.name>XF</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>TS.SYST</entsoe:IdentifiedObject.shortName>
-	</cim:Bay>
 	<cim:Terminal rdf:ID="XN">
 		<cim:Terminal.ConnectivityNode rdf:resource="#QM"></cim:Terminal.ConnectivityNode>
 		<cim:Terminal.ConductingEquipment rdf:resource="#FY"></cim:Terminal.ConductingEquipment>
@@ -451,16 +392,6 @@
 		<cim:VoltageLevel.lowVoltageLimit>50.4</cim:VoltageLevel.lowVoltageLimit>
 		<cim:IdentifiedObject.description>YK</cim:IdentifiedObject.description>
 	</cim:VoltageLevel>
-	<cim:ProtectionEquipment rdf:ID="SB">
-		<cim:ProtectionEquipment.powerDirectionFlag>false</cim:ProtectionEquipment.powerDirectionFlag>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#P"></cim:Equipment.EquipmentContainer>
-		<cim:PowerSystemResource.PSRType rdf:resource="#JS"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.name>YP</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>PROT</entsoe:IdentifiedObject.shortName>
-		<cim:ProtectionEquipment.ConductingEquipments rdf:resource="#LY"></cim:ProtectionEquipment.ConductingEquipments>
-		<cim:IdentifiedObject.description>JV</cim:IdentifiedObject.description>
-	</cim:ProtectionEquipment>
 	<cim:Terminal rdf:ID="ZI">
 		<cim:Terminal.ConnectivityNode rdf:resource="#SV"></cim:Terminal.ConnectivityNode>
 		<cim:Terminal.ConductingEquipment rdf:resource="#JY"></cim:Terminal.ConductingEquipment>
@@ -501,15 +432,6 @@
 		<cim:IdentifiedObject.name>AAP</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>N118619</entsoe:IdentifiedObject.shortName>
 	</cim:ConnectivityNode>
-	<cim:ProtectionEquipment rdf:ID="LF">
-		<cim:ProtectionEquipment.powerDirectionFlag>false</cim:ProtectionEquipment.powerDirectionFlag>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#BK"></cim:Equipment.EquipmentContainer>
-		<cim:PowerSystemResource.PSRType rdf:resource="#JS"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.name>AAS</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>PROT</entsoe:IdentifiedObject.shortName>
-		<cim:IdentifiedObject.description>JV</cim:IdentifiedObject.description>
-	</cim:ProtectionEquipment>
 	<cim:Terminal rdf:ID="AAV">
 		<cim:Terminal.ConnectivityNode rdf:resource="#EK"></cim:Terminal.ConnectivityNode>
 		<cim:Terminal.ConductingEquipment rdf:resource="#CO"></cim:Terminal.ConductingEquipment>
@@ -526,32 +448,6 @@
 		<cim:IdentifiedObject.name>AAZ</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>SA.1_OC</entsoe:IdentifiedObject.shortName>
 	</cim:Disconnector>
-	<cim:ProtectionEquipment rdf:ID="AE">
-		<cim:ProtectionEquipment.powerDirectionFlag>false</cim:ProtectionEquipment.powerDirectionFlag>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#AS"></cim:Equipment.EquipmentContainer>
-		<cim:PowerSystemResource.PSRType rdf:resource="#LW"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.name>ABK</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>ARS</entsoe:IdentifiedObject.shortName>
-		<cim:ProtectionEquipment.ConductingEquipments rdf:resource="#JU"></cim:ProtectionEquipment.ConductingEquipments>
-		<cim:IdentifiedObject.description>JV</cim:IdentifiedObject.description>
-	</cim:ProtectionEquipment>
-	<cim:ProtectionEquipment rdf:ID="HP">
-		<cim:ProtectionEquipment.powerDirectionFlag>false</cim:ProtectionEquipment.powerDirectionFlag>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#BK"></cim:Equipment.EquipmentContainer>
-		<cim:PowerSystemResource.PSRType rdf:resource="#LW"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.name>ACQ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>ARS</entsoe:IdentifiedObject.shortName>
-		<cim:IdentifiedObject.description>JV</cim:IdentifiedObject.description>
-	</cim:ProtectionEquipment>
-	<cim:VoltageLevel rdf:ID="VD">
-		<cim:VoltageLevel.BaseVoltage rdf:resource="#ACX"></cim:VoltageLevel.BaseVoltage>
-		<cim:VoltageLevel.Substation rdf:resource="#PK"></cim:VoltageLevel.Substation>
-		<cim:IdentifiedObject.name>ACY</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>0</entsoe:IdentifiedObject.shortName>
-		<cim:IdentifiedObject.description>ACZ</cim:IdentifiedObject.description>
-	</cim:VoltageLevel>
 	<cim:ConnectivityNode rdf:ID="QM">
 		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#AS"></cim:ConnectivityNode.ConnectivityNodeContainer>
 		<cim:IdentifiedObject.name>QM</cim:IdentifiedObject.name>
