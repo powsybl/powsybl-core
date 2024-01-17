@@ -26,13 +26,13 @@
             <iidm:load id="B7-L1 " loadType="UNDEFINED" p0="1.0" q0="1.0" bus="B7" connectableBus="B7"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-1-4-1 " r="0.0" x="16.025" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4">
-            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupid="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="325240.65164348925"/>
                 </iidm:operationalLimitsGroup>
             </iidm:operationalLimitsGroups1>
-            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupid="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="11708.663459165611"/>
                 </iidm:operationalLimitsGroup>
             </iidm:operationalLimitsGroups2>
@@ -72,18 +72,18 @@
             <iidm:ratioTapChanger3 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0001250156269534"/>
             </iidm:ratioTapChanger3>
-            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupid="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="116.62475437630441"/>
                 </iidm:operationalLimitsGroup>
             </iidm:operationalLimitsGroups1>
-            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupid="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="6447.0780059508215"/>
                 </iidm:operationalLimitsGroup>
             </iidm:operationalLimitsGroups2>
-            <iidm:operationalLimitsGroups3 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups3 defaultOperationalLimitsGroupid="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="10861.401939129835"/>
                 </iidm:operationalLimitsGroup>
             </iidm:operationalLimitsGroups3>
@@ -106,13 +106,13 @@
             <iidm:load id="B5-L2 " loadType="UNDEFINED" p0="0.0" q0="50.0" connectableBus="B5"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-3-5-1 " r="0.0" x="28.0" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5">
-            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupid="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="320750.1495497921"/>
                 </iidm:operationalLimitsGroup>
             </iidm:operationalLimitsGroups1>
-            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupid="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="11547.005383792517"/>
                 </iidm:operationalLimitsGroup>
             </iidm:operationalLimitsGroups2>
@@ -131,25 +131,25 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="L-4-5-1 " r="0.0" x="90.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupid="DEFAULT">
+            <iidm:operationalLimitsGroup id="DEFAULT">
                 <iidm:currentLimits permanentLimit="12067.775326601559"/>
             </iidm:operationalLimitsGroup>
         </iidm:operationalLimitsGroups1>
-        <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
+        <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupid="DEFAULT">
+            <iidm:operationalLimitsGroup id="DEFAULT">
                 <iidm:currentLimits permanentLimit="12067.775326601559"/>
             </iidm:operationalLimitsGroup>
         </iidm:operationalLimitsGroups2>
     </iidm:line>
     <iidm:line id="L-5-6-1 " r="0.0" x="300.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B5" connectableBus1="B5" voltageLevelId1="VL5" bus2="B6" connectableBus2="B6" voltageLevelId2="VL6">
-        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
+        <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupid="DEFAULT">
+            <iidm:operationalLimitsGroup id="DEFAULT">
                 <iidm:currentLimits permanentLimit="12194.792385823277"/>
             </iidm:operationalLimitsGroup>
         </iidm:operationalLimitsGroups1>
-        <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
-            <iidm:operationalLimitsGroup id="">
+        <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupid="DEFAULT">
+            <iidm:operationalLimitsGroup id="DEFAULT">
                 <iidm:currentLimits permanentLimit="12194.792385823277"/>
             </iidm:operationalLimitsGroup>
         </iidm:operationalLimitsGroups2>

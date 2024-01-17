@@ -50,24 +50,24 @@
                 <iidm:step r="0.121" x="0.0121" g="0.8264462809917356" b="0.08264462809917356" rho="1.0"/>
                 <iidm:step r="0.1331" x="0.01331" g="0.9090909090909092" b="0.09090909090909093" rho="1.1"/>
             </iidm:ratioTapChanger3>
-            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups1 defaultOperationalLimitsGroupId="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="1000.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="1200.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="1400.0"/>
                     </iidm:currentLimits>
                 </iidm:operationalLimitsGroup>
             </iidm:operationalLimitsGroups1>
-            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups2 defaultOperationalLimitsGroupId="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="100.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="120.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="140.0"/>
                     </iidm:currentLimits>
                 </iidm:operationalLimitsGroup>
             </iidm:operationalLimitsGroups2>
-            <iidm:operationalLimitsGroups3 defaultOperationalLimitsGroupId="">
-                <iidm:operationalLimitsGroup id="">
+            <iidm:operationalLimitsGroups3 defaultOperationalLimitsGroupId="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="10.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="12.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="14.0"/>

@@ -33,8 +33,8 @@ class ApparentPowerLimitsAndGroupAdderImpl extends AbstractLoadingLimitsAdder<Ap
         Optional<OperationalLimitsGroup> optGroup = owner.getDefaultOperationalLimitsGroup();
         if (optGroup.isEmpty()) {
             // NB. owner.newOperationalLimitsGroup("") erase previous group with id "" if any and create a new one
-            group = (OperationalLimitsGroupImpl) owner.newOperationalLimitsGroup("");
-            owner.setDefaultTo("");
+            group = (OperationalLimitsGroupImpl) owner.newOperationalLimitsGroup(OPERATIONAL_LIMITS_GROUP_DEFAULT_ID);
+            owner.setDefaultTo(OPERATIONAL_LIMITS_GROUP_DEFAULT_ID);
         } else {
             group = (OperationalLimitsGroupImpl) optGroup.get();
         }

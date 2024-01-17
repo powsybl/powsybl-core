@@ -692,18 +692,18 @@
         } ]
       },
       "operationalLimitsGroups1" : {
-        "defaultOperationalLimitsGroupId" : "",
+        "defaultOperationalLimitsGroupId" : "DEFAULT",
         "operationalLimitsGroups" : [ {
-          "id" : "",
+          "id" : "DEFAULT",
           "currentLimits" : {
             "permanentLimit" : 931.0
           }
         } ]
       },
       "operationalLimitsGroups2" : {
-        "defaultOperationalLimitsGroupId" : "",
+        "defaultOperationalLimitsGroupId" : "DEFAULT",
         "operationalLimitsGroups" : [ {
-          "id" : "",
+          "id" : "DEFAULT",
           "currentLimits" : {
             "permanentLimit" : 931.0
           }
@@ -724,18 +724,18 @@
     "voltageLevelId2" : "N",
     "node2" : 5,
     "operationalLimitsGroups1" : {
-      "defaultOperationalLimitsGroupId" : "",
+      "defaultOperationalLimitsGroupId" : "DEFAULT",
       "operationalLimitsGroups" : [ {
-        "id" : "",
+        "id" : "DEFAULT",
         "currentLimits" : {
           "permanentLimit" : 931.0
         }
       } ]
     },
     "operationalLimitsGroups2" : {
-      "defaultOperationalLimitsGroupId" : "",
+      "defaultOperationalLimitsGroupId" : "DEFAULT",
       "operationalLimitsGroups" : [ {
-        "id" : "",
+        "id" : "DEFAULT",
         "currentLimits" : {
           "permanentLimit" : 931.0,
           "temporaryLimits" : [ {

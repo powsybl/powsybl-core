@@ -22,6 +22,8 @@ import static java.lang.Integer.MAX_VALUE;
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
+    static final String OPERATIONAL_LIMITS_GROUP_DEFAULT_ID = "DEFAULT";
+
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     protected final Validable validable;

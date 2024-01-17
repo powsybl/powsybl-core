@@ -20,8 +20,8 @@
                     <iidm:point p="0.0" minQ="-59.3" maxQ="60.0"/>
                     <iidm:point p="70.0" minQ="-54.55" maxQ="46.25"/>
                 </iidm:reactiveCapabilityCurve>
-                <iidm:operationalLimitsGroups defaultOperationalLimitsGroupId="">
-                    <iidm:operationalLimitsGroup id="">
+                <iidm:operationalLimitsGroups defaultOperationalLimitsGroupId="DEFAULT">
+                    <iidm:operationalLimitsGroup id="DEFAULT">
                         <iidm:currentLimits permanentLimit="100.0">
                             <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="120.0"/>
                             <iidm:temporaryLimit name="10'" acceptableDuration="600" value="140.0"/>
