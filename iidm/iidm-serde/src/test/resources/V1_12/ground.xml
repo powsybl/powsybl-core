@@ -14,7 +14,7 @@
                 <iidm:switch id="D_1_6" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="6"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="L" loadType="UNDEFINED" p0="1.0" q0="1.0" node="2"/>
-            <iidm:ground id="GroundNB" name="GroundNB" node="6"/>
+            <iidm:ground id="GroundNB" name="GroundNB1" node="6"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL2" nominalV="220.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -25,7 +25,7 @@
             <iidm:generator id="CB" energySource="HYDRO" minP="0.0" maxP="70.0" voltageRegulatorOn="false" targetP="0.0" targetV="0.0" targetQ="0.0" bus="BUS1" connectableBus="BUS1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
-            <iidm:ground id="GroundBB" name="GroundBB" bus="BUS2" connectableBus="BUS2"/>
+            <iidm:ground id="GroundBB" name="GroundBB1" bus="BUS2" connectableBus="BUS2"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" bus2="BUS1" connectableBus2="BUS1"/>
     </iidm:substation>
