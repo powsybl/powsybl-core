@@ -45,15 +45,6 @@ class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
         return newLimits;
     }
 
-    private OperationalLimitsGroup getDefault() {
-        Objects.requireNonNull(defaultLimitsId);
-        OperationalLimitsGroup defaultLimits = operationalLimitsGroupById.get(defaultLimitsId.get());
-        if (defaultLimits == null) {
-            throw new PowsyblException("Default id exist and is " + defaultLimitsId + " but associated operational limits group do not exist");
-        }
-        return defaultLimits;
-    }
-
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
         return Optional.ofNullable(operationalLimitsGroupById.get(id));
@@ -74,21 +65,20 @@ class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
         if (newDefaultLimits == null) {
             throw new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be the default one");
         }
-        OperationalLimitsGroup oldDefaultLimits = getDefault();
+        Optional<OperationalLimitsGroup> oldDefaultLimits = getDefaultOperationalLimitsGroup();
         defaultLimitsId.set(id);
-        notifyUpdate(oldDefaultLimits, newDefaultLimits);
+        oldDefaultLimits.ifPresent(olg -> notifyUpdate(olg, newDefaultLimits));
     }
 
     public void cancelDefault() {
-        if (defaultLimitsId.get() != null) {
-            OperationalLimitsGroup oldDefaultLimits = getDefault();
+        getDefaultOperationalLimitsGroup().ifPresent(oldDefaultLimits -> {
             defaultLimitsId.set(null);
             notifyUpdate(oldDefaultLimits, null);
-        }
+        });
     }
 
     public Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup() {
-        return defaultLimitsId.get() == null ? Optional.empty() : Optional.of(getDefault());
+        return Optional.ofNullable(defaultLimitsId.get()).map(operationalLimitsGroupById::get);
     }
 
     public Optional<String> getDefaultId() {
