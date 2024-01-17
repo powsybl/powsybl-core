@@ -21,7 +21,7 @@ public interface OperationalLimitsGroups {
 
     OperationalLimitsGroup newOperationalLimitsGroup(String id);
 
-    void setDefaultTo(String id);
+    void setDefault(String id);
 
     Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup();
 

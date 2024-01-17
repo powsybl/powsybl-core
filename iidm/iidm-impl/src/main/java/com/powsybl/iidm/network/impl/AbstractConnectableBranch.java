@@ -82,8 +82,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public void setDefaultOperationalLimitsGroup1To(String id) {
-        getOperationalLimitsHolder1().setDefaultTo(id);
+    public void setDefaultOperationalLimitsGroup1(String id) {
+        getOperationalLimitsHolder1().setDefault(id);
     }
 
     @Override
@@ -141,8 +141,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public void setDefaultOperationalLimitsGroup2To(String id) {
-        getOperationalLimitsHolder2().setDefaultTo(id);
+    public void setDefaultOperationalLimitsGroup2(String id) {
+        getOperationalLimitsHolder2().setDefault(id);
     }
 
     @Override

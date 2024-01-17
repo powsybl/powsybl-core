@@ -125,7 +125,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     OperationalLimitsGroup newOperationalLimitsGroup1(String id);
 
-    void setDefaultOperationalLimitsGroup1To(String id);
+    void setDefaultOperationalLimitsGroup1(String id);
 
     void removeOperationalLimitsGroup1(String id);
 
@@ -171,7 +171,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     OperationalLimitsGroup newOperationalLimitsGroup2(String id);
 
-    void setDefaultOperationalLimitsGroup2To(String id);
+    void setDefaultOperationalLimitsGroup2(String id);
 
     void removeOperationalLimitsGroup2(String id);
 

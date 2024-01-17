@@ -451,8 +451,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public void setDefaultOperationalLimitsGroupTo(String id) {
-        getOperationalLimitsHolder().setDefaultTo(id);
+    public void setDefaultOperationalLimitsGroup(String id) {
+        getOperationalLimitsHolder().setDefault(id);
     }
 
     @Override

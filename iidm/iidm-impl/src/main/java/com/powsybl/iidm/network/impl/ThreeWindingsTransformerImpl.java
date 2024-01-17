@@ -195,8 +195,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public void setDefaultOperationalLimitsGroupTo(String id) {
-            getOperationalLimitsHolder().setDefaultTo(id);
+        public void setDefaultOperationalLimitsGroup(String id) {
+            getOperationalLimitsHolder().setDefault(id);
         }
 
         @Override

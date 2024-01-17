@@ -24,7 +24,7 @@ public interface FlowsLimitsHolder {
 
     OperationalLimitsGroup newOperationalLimitsGroup(String id);
 
-    void setDefaultOperationalLimitsGroupTo(String id);
+    void setDefaultOperationalLimitsGroup(String id);
 
     void removeOperationalLimitsGroup(String id);
 

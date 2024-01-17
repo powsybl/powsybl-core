@@ -224,7 +224,7 @@ public final class ConnectableSerDeUtil {
             }
         });
         if (defaultId != null) {
-            b.setDefaultOperationalLimitsGroup1To(defaultId);
+            b.setDefaultOperationalLimitsGroup1(defaultId);
         }
     }
 
@@ -240,7 +240,7 @@ public final class ConnectableSerDeUtil {
             }
         });
         if (defaultId != null) {
-            b.setDefaultOperationalLimitsGroup2To(defaultId);
+            b.setDefaultOperationalLimitsGroup2(defaultId);
         }
     }
 
@@ -256,7 +256,7 @@ public final class ConnectableSerDeUtil {
             }
         });
         if (defaultId != null) {
-            h.setDefaultOperationalLimitsGroupTo(defaultId);
+            h.setDefaultOperationalLimitsGroup(defaultId);
         }
     }
 

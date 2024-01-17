@@ -122,7 +122,7 @@ class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
         }
     }
 
-    public void setDefaultTo(String id) {
+    public void setDefault(String id) {
         Objects.requireNonNull(id);
         OperationalLimitsGroup newDefaultLimits = operationalLimitsGroupById.get(id);
         if (newDefaultLimits == null) {
