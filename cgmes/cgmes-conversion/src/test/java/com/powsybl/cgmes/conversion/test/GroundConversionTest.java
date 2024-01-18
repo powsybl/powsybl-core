@@ -28,7 +28,6 @@ class GroundConversionTest {
 
         Ground groundOU = network.getGround("OU");
         assertNotNull(groundOU);
-        assertNotNull(groundOU);
         assertEquals("KD", groundOU.getNameOrId());
         assertNotNull(groundOU.getTerminal());
         assertFalse(groundOU.getTerminal().isConnected());
