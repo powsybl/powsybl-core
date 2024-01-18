@@ -11,10 +11,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.ControlUnit;
-import com.powsybl.iidm.network.extensions.ControlZone;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +54,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
     @Test
     void test() throws IOException {
         assertEquals(1, control.getControlZones().size());
+        assertTrue(control.getControlZone("z1").isPresent());
         ControlZone z1 = control.getControlZones().get(0);
         assertEquals("z1", z1.getName());
         assertNotNull(z1.getPilotPoint());
@@ -79,8 +77,8 @@ public abstract class AbstractSecondaryVoltageControlTest {
             public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
                 assertInstanceOf(SecondaryVoltageControl.class, extendable);
                 assertEquals("pilotPointTargetV", attribute);
-                assertEquals(15d, (double) oldValue, 0d);
-                assertEquals(16d, (double) newValue, 0d);
+                assertEquals(new PilotPoint.TargetVoltageEvent("z1", 15d), oldValue);
+                assertEquals(new PilotPoint.TargetVoltageEvent("z1", 16d), newValue);
                 updated[0] = true;
             }
         });
@@ -98,8 +96,8 @@ public abstract class AbstractSecondaryVoltageControlTest {
             public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
                 assertInstanceOf(SecondaryVoltageControl.class, extendable);
                 assertEquals("controlUnitParticipate", attribute);
-                assertFalse((boolean) oldValue);
-                assertTrue((boolean) newValue);
+                assertEquals(new ControlUnit.ParticipateEvent("z1", "GEN", false), oldValue);
+                assertEquals(new ControlUnit.ParticipateEvent("z1", "GEN", true), newValue);
                 updated[0] = true;
             }
         });

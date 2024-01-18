@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -20,6 +21,8 @@ public interface SecondaryVoltageControl extends Extension<Network> {
     String NAME = "secondaryVoltageControl";
 
     List<ControlZone> getControlZones();
+
+    Optional<ControlZone> getControlZone(String name);
 
     @Override
     default String getName() {
