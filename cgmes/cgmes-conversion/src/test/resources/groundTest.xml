@@ -178,4 +178,32 @@
 		<cim:IdentifiedObject.name>HI</cim:IdentifiedObject.name>
 	</cim:ConnectivityNode>
 
+	<!-- We need a generator to force the creation of a bus in IIDM -->
+
+	<cim:SynchronousMachine rdf:ID="ZX">
+		<cim:IdentifiedObject.name>ZY</cim:IdentifiedObject.name>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
+		<cim:RotatingMachine.GeneratingUnit rdf:resource="#ZW"/>
+		<cim:SynchronousMachine.maxQ>10</cim:SynchronousMachine.maxQ>
+		<cim:SynchronousMachine.minQ>0</cim:SynchronousMachine.minQ>
+		<cim:RotatingMachine.ratedS>100.000000</cim:RotatingMachine.ratedS>
+		<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+		<cim:RotatingMachine.ratedU>67.500000</cim:RotatingMachine.ratedU>
+		<cim:RotatingMachine.ratedPowerFactor>0.850000</cim:RotatingMachine.ratedPowerFactor>
+	</cim:SynchronousMachine>
+	<cim:Terminal rdf:ID="ZZ">
+		<cim:Terminal.ConnectivityNode rdf:resource="#AW"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#ZX"/>
+		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>ZZT</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:GeneratingUnit rdf:ID="ZW">
+		<cim:IdentifiedObject.name>ZU</cim:IdentifiedObject.name>
+		<cim:GeneratingUnit.initialP>20.000000</cim:GeneratingUnit.initialP>
+		<cim:GeneratingUnit.nominalP>100.000000</cim:GeneratingUnit.nominalP>
+		<cim:GeneratingUnit.maxOperatingP>120.000000</cim:GeneratingUnit.maxOperatingP>
+		<cim:GeneratingUnit.minOperatingP>10.000000</cim:GeneratingUnit.minOperatingP>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
+	</cim:GeneratingUnit>
+
 </rdf:RDF>
