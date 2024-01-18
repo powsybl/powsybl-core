@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -113,8 +114,8 @@ class NodeTerminal extends AbstractTerminal {
 
     };
 
-    NodeTerminal(Ref<? extends VariantManagerHolder> network, int node) {
-        super(network);
+    NodeTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, int node) {
+        super(network, side);
         this.node = node;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         v = new TDoubleArrayList(variantArraySize);

@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class XMLImporterTest extends AbstractSerDeTest {
+class XMLImporterTest extends AbstractIidmSerDeTest {
 
     private XMLImporter importer;
 
@@ -138,7 +137,7 @@ class XMLImporterTest extends AbstractSerDeTest {
 
     @Test
     void getParameters() {
-        assertEquals(2, importer.getParameters().size());
+        assertEquals(4, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
@@ -252,7 +251,7 @@ class XMLImporterTest extends AbstractSerDeTest {
     }
 
     private void importDataAndTestReporter(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet("/V1_11/", dataSourceFilename));
+        ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet(getVersionDir(CURRENT_IIDM_VERSION), dataSourceFilename));
         importDataAndTestReporter(expectedContentFilename, dataSource);
     }
 

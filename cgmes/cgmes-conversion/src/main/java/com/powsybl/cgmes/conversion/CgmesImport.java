@@ -9,11 +9,13 @@ package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
+import com.powsybl.cgmes.model.*;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.parameters.Parameter;
@@ -30,15 +32,21 @@ import com.powsybl.triplestore.api.TripleStoreOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static java.util.function.Predicate.not;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -46,10 +54,15 @@ import java.util.stream.Collectors;
 @AutoService(Importer.class)
 public class CgmesImport implements Importer {
 
-    enum FictitiousSwitchesCreationMode {
+    public enum FictitiousSwitchesCreationMode {
         ALWAYS,
         ALWAYS_EXCEPT_SWITCHES,
-        NEVER;
+        NEVER
+    }
+
+    public enum SubnetworkDefinedBy {
+        FILENAME,
+        MODELING_AUTHORITY
     }
 
     public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
@@ -134,9 +147,196 @@ public class CgmesImport implements Importer {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(reporter);
+        if (Parameter.readBoolean(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER, defaultValueConfig)) {
+            SubnetworkDefinedBy separatingBy = SubnetworkDefinedBy.valueOf(Parameter.readString(getFormat(),
+                            p, IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER, defaultValueConfig));
+            Set<ReadOnlyDataSource> dss = new MultipleGridModelChecker(ds).separate(separatingBy);
+            if (dss.size() > 1) {
+                return Network.merge(dss.stream()
+                        .map(ds1 -> importData1(ds1, networkFactory, p, reporter))
+                        .toArray(Network[]::new));
+            }
+        }
+        return importData1(ds, networkFactory, p, reporter);
+    }
+
+    private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
         CgmesModel cgmes = readCgmes(ds, p, reporter);
         Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
-        return new Conversion(cgmes, config(ds, p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+    }
+
+    static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
+        private final ReadOnlyDataSource ds;
+        private final Predicate<String> filter;
+
+        FilteredReadOnlyDataSource(ReadOnlyDataSource ds, Predicate<String> filter) {
+            this.ds = ds;
+            this.filter = filter;
+        }
+
+        @Override
+        public String getBaseName() {
+            return ds.getBaseName();
+        }
+
+        @Override
+        public boolean exists(String suffix, String ext) throws IOException {
+            return ds.exists(suffix, ext) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
+        }
+
+        @Override
+        public boolean exists(String fileName) throws IOException {
+            return ds.exists(fileName) && filter.test(fileName);
+        }
+
+        @Override
+        public InputStream newInputStream(String suffix, String ext) throws IOException {
+            if (filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext))) {
+                return ds.newInputStream(suffix, ext);
+            }
+            throw new IOException(DataSourceUtil.getFileName(getBaseName(), suffix, ext) + " not found");
+        }
+
+        @Override
+        public InputStream newInputStream(String fileName) throws IOException {
+            if (filter.test(fileName)) {
+                return ds.newInputStream(fileName);
+            }
+            throw new IOException(fileName + " not found");
+        }
+
+        @Override
+        public Set<String> listNames(String regex) throws IOException {
+            return ds.listNames(regex).stream().filter(filter).collect(Collectors.toSet());
+        }
+    }
+
+    static class MultipleGridModelChecker {
+        private final ReadOnlyDataSource dataSource;
+        private XMLInputFactory xmlInputFactory;
+
+        MultipleGridModelChecker(ReadOnlyDataSource dataSource) {
+            this.dataSource = dataSource;
+        }
+
+        Set<ReadOnlyDataSource> separate(SubnetworkDefinedBy separatingBy) {
+            // If it is a CGM, create a filtered dataset for each IGM.
+            // In the dataset for each IGM we must include:
+            // - Its own files.
+            // - The boundaries (we will read the boundaries multiple times, one for each IGM).
+            // - Any other shared instance files (files that do not contain the name of any IGMs identified).
+            // An example of shared file is the unique SV from a CGM solved case
+            // Shared files will be also loaded multiple times, one for each IGM
+            return switch (separatingBy) {
+                case MODELING_AUTHORITY -> separateByModelingAuthority();
+                case FILENAME -> separateByIgmName();
+            };
+        }
+
+        private Set<ReadOnlyDataSource> separateByModelingAuthority() {
+            xmlInputFactory = XMLInputFactory.newInstance();
+            Map<String, List<String>> igmNames = new CgmesOnDataSource(dataSource).names().stream()
+                    // We consider IGMs only the modeling authorities that have an EQ file
+                    // The CGM SV should have the MA of the merging agent
+                    .filter(CgmesSubset.EQUIPMENT::isValidName)
+                    .map(name -> readModelingAuthority(name).map(ma -> Map.entry(ma, name)))
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(List.of(e.getValue()))));
+            if (!igmNames.isEmpty()) {
+                LOGGER.info("IGM EQ files identified by Modeling Authority:");
+                igmNames.forEach((k, v) -> LOGGER.info("  {} {}", k, v.get(0)));
+            }
+            // If we only have found one IGM there is no need to partition
+            if (igmNames.size() == 1) {
+                return Set.of(dataSource);
+            }
+            Set<String> shared = new HashSet<>();
+            new CgmesOnDataSource(dataSource).names().stream()
+                    // We read the modeling authorities present in the rest of instance files
+                    // and mark the instance name as linked to an IGM or as shared
+                    .filter(not(CgmesSubset.EQUIPMENT::isValidName))
+                    .filter(not(MultipleGridModelChecker::isBoundary))
+                    .forEach(name -> {
+                        Optional<String> ma = readModelingAuthority(name);
+                        if (ma.isPresent() && igmNames.containsKey(ma.get())) {
+                            igmNames.get(ma.get()).add(name);
+                        } else {
+                            shared.add(name);
+                        }
+                    });
+            // Build one data source for each IGM found
+            if (!igmNames.isEmpty()) {
+                LOGGER.info("IGM files identified by Modeling Authority:");
+                igmNames.forEach((k, v) -> LOGGER.info("  {} {}", k, String.join(",", v)));
+                if (!shared.isEmpty()) {
+                    LOGGER.info("Shared files:");
+                    shared.forEach(name -> LOGGER.info("  {}", name));
+                }
+                LOGGER.info("Boundaries:");
+                try {
+                    dataSource.listNames(".*").stream().filter(MultipleGridModelChecker::isBoundary).forEach(name -> LOGGER.info("  {}", name));
+                } catch (IOException e) {
+                    throw new PowsyblException(e);
+                }
+            }
+            return igmNames.keySet().stream()
+                    .map(ma -> new FilteredReadOnlyDataSource(dataSource,
+                            name -> isBoundary(name) || igmNames.get(ma).contains(name) || shared.contains(name)))
+                    .collect(Collectors.toSet());
+        }
+
+        private Optional<String> readModelingAuthority(String name) {
+            String modellingAuthority = null;
+            try (InputStream is = dataSource.newInputStream(name)) {
+                XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(is);
+                boolean stopReading = false;
+                while (reader.hasNext() && !stopReading) {
+                    int token = reader.next();
+                    if (token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.MODELING_AUTHORITY_SET)) {
+                        modellingAuthority = reader.getElementText();
+                        stopReading = true;
+                    } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.FULL_MODEL)) {
+                        // Try to finish parsing the input file as soon as we can
+                        // If we do not have found a modelling authority set inside the FullModel object, exit with unknown
+                        stopReading = true;
+                    }
+                }
+                reader.close();
+            } catch (IOException | XMLStreamException e) {
+                throw new PowsyblException(e);
+            }
+            return Optional.ofNullable(modellingAuthority);
+        }
+
+        private Set<ReadOnlyDataSource> separateByIgmName() {
+            // Here we obtain the IGM name from the EQ filenames,
+            // and rely on it to find related SSH, TP files,
+            Set<String> igmNames = new CgmesOnDataSource(dataSource).names().stream()
+                    .filter(CgmesSubset.EQUIPMENT::isValidName)
+                    // We rely on the CIMXML pattern:
+                    // <effectiveDateTime>_<businessProcess>_<sourcingActor>_<modelPart>_<fileVersion>
+                    // we define igmName := sourcingActor
+                    .map(name -> name.split("_")[2])
+                    .collect(Collectors.toSet());
+            return igmNames.stream()
+                    .map(igmName -> new FilteredReadOnlyDataSource(dataSource, name -> name.contains(igmName)
+                            || isBoundary(name)
+                            || isShared(name, igmNames)))
+                    .collect(Collectors.toSet());
+        }
+
+        private static boolean isBoundary(String name) {
+            return CgmesSubset.EQUIPMENT_BOUNDARY.isValidName(name) || CgmesSubset.TOPOLOGY_BOUNDARY.isValidName(name);
+        }
+
+        private static boolean isShared(String name, Set<String> allIgmNames) {
+            // The name does not contain the name of one the IGMs
+            return allIgmNames.stream()
+                    .filter(name::contains)
+                    .findAny()
+                    .isEmpty();
+        }
     }
 
     public CgmesModel readCgmes(ReadOnlyDataSource ds, Properties p, Reporter reporter) {
@@ -158,10 +358,8 @@ public class CgmesImport implements Importer {
         Objects.requireNonNull(to);
         try {
             CgmesOnDataSource fromCgmes = new CgmesOnDataSource(from);
-            // TODO map "from names" to "to names" using base names of data sources
-            for (String fromName : fromCgmes.names()) {
-                String toName = fromName;
-                copyStream(from, to, fromName, toName);
+            for (String name : fromCgmes.names()) {
+                copyStream(from, to, name, name);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -198,7 +396,7 @@ public class CgmesImport implements Importer {
                 defaultValueConfig);
     }
 
-    private Conversion.Config config(ReadOnlyDataSource ds, Properties p) {
+    private Conversion.Config config(Properties p) {
         Conversion.Config config = new Conversion.Config()
                 .setAllowUnsupportedTapChangers(
                         Parameter.readBoolean(
@@ -283,14 +481,21 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+                                defaultValueConfig))
+                .setMissingPermanentLimitPercentage(
+                        Parameter.readDouble(
+                                getFormat(),
+                                p,
+                                MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
                                 defaultValueConfig));
+
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
-        String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
-        if (idMappingFilePath == null) {
-            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
-        } else {
-            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
-        }
+
+        // Build the naming strategy with the default uuid namespace for creating name-based uuids
+        // In fact, when using a naming strategy for CGMES import we should not need an uuid namespace,
+        // because we won't be creating new UUIDs
+        UUID uuidNamespace = CgmesExportContext.DEFAULT_UUID_NAMESPACE;
+        config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, uuidNamespace));
         return config;
     }
 
@@ -345,7 +550,6 @@ public class CgmesImport implements Importer {
     public static final String CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE = "iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode";
     public static final String DECODE_ESCAPED_IDENTIFIERS = "iidm.import.cgmes.decode-escaped-identifiers";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
-    public static final String ID_MAPPING_FILE_PATH = "iidm.import.cgmes.id-mapping-file-path";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String NAMING_STRATEGY = "iidm.import.cgmes.naming-strategy";
     public static final String PRE_PROCESSORS = "iidm.import.cgmes.pre-processors";
@@ -357,6 +561,9 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
     public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
+    public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.cgmes.missing-permanent-limit-percentage";
+    public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
+    public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -394,20 +601,12 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Ensure IDs and aliases are unique",
             Boolean.FALSE);
-    private static final Parameter ID_MAPPING_FILE_PATH_PARAMETER = new Parameter(
-            ID_MAPPING_FILE_PATH,
-            ParameterType.STRING,
-            "Path of ID mapping file",
-            null,
-            null,
-            ParameterScope.TECHNICAL);
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(
             NAMING_STRATEGY,
             ParameterType.STRING,
-            "Configure what type of naming strategy you want to use for the provided ID mapping file",
+            "Configure what type of naming strategy you want to use",
             NamingStrategyFactory.IDENTITY,
-            new ArrayList<>(NamingStrategyFactory.LIST))
-            .addAdditionalNames("iidm.import.cgmes.id-mapping-file-naming-strategy");
+            new ArrayList<>(NamingStrategyFactory.LIST));
     private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
             IMPORT_CONTROL_AREAS,
             ParameterType.BOOLEAN,
@@ -471,6 +670,23 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Force disconnection of dangling line network side if boundary side is disconnected",
             Boolean.TRUE);
+    private static final Parameter IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER = new Parameter(
+            IMPORT_CGM_WITH_SUBNETWORKS,
+            ParameterType.BOOLEAN,
+            "Import CGM with subnetworks",
+            Boolean.TRUE);
+    private static final Parameter IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER = new Parameter(
+            IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY,
+            ParameterType.STRING,
+            "Choose how subnetworks from CGM must be imported: defined by filenames or by modeling authority",
+            SubnetworkDefinedBy.MODELING_AUTHORITY.name(),
+            Arrays.stream(SubnetworkDefinedBy.values()).map(Enum::name).collect(Collectors.toList()));
+
+    public static final Parameter MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER = new Parameter(
+            MISSING_PERMANENT_LIMIT_PERCENTAGE,
+            ParameterType.DOUBLE,
+            "Percentage applied to lowest TATL limit to use as PATL when PATL is missing",
+            100.);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -479,7 +695,6 @@ public class CgmesImport implements Importer {
             CONVERT_SV_INJECTIONS_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
-            ID_MAPPING_FILE_PATH_PARAMETER,
             NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
@@ -491,7 +706,10 @@ public class CgmesImport implements Importer {
             DECODE_ESCAPED_IDENTIFIERS_PARAMETER,
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
-            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER);
+            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+            IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
+            IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
+            MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;

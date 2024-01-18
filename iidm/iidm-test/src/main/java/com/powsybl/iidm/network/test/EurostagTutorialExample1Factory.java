@@ -164,7 +164,8 @@ public final class EurostagTutorialExample1Factory {
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setTargetV(158.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(158.0)
                 .setTargetDeadband(0)
                 .setRegulationTerminal(nhv2Nload.getTerminal2())
             .add();

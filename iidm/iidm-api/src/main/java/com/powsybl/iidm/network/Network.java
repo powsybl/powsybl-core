@@ -828,6 +828,28 @@ public interface Network extends Container<Network> {
     ThreeWindingsTransformer getThreeWindingsTransformer(String id);
 
     /**
+     * Get all overload management systems.
+     */
+    Iterable<OverloadManagementSystem> getOverloadManagementSystems();
+
+    /**
+     * Get all overload management systems.
+     */
+    Stream<OverloadManagementSystem> getOverloadManagementSystemStream();
+
+    /**
+     * Get the overload management system count.
+     */
+    int getOverloadManagementSystemCount();
+
+    /**
+     * Get an overload management system.
+     *
+     * @param id the id or an alias of the overload management system
+     */
+    OverloadManagementSystem getOverloadManagementSystem(String id);
+
+    /**
      * Get all generators.
      */
     Iterable<Generator> getGenerators();
@@ -1139,11 +1161,32 @@ public interface Network extends Container<Network> {
      */
     HvdcLineAdder newHvdcLine();
 
+    /**
+     * Get all grounds.
+     */
+    Iterable<Ground> getGrounds();
 
     /**
-     * Get an equipment by its ID or alias
+     * Get all grounds.
+     */
+    Stream<Ground> getGroundStream();
+
+    /**
+     * Get the ground count.
+     */
+    int getGroundCount();
+
+    /**
+     * Get a ground.
      *
-     * @param id the id or an alias of the equipment
+     * @param id the id or an alias of the ground
+     */
+    Ground getGround(String id);
+
+    /**
+     * * Get an identifiable by its ID or alias
+     *
+     * @param id the id or an alias of the identifiable
      */
     Identifiable<?> getIdentifiable(String id);
 
@@ -1394,6 +1437,8 @@ public interface Network extends Container<Network> {
                 return getHvdcConverterStationStream().map(Function.identity());
             case STATIC_VAR_COMPENSATOR:
                 return getStaticVarCompensatorStream().map(Function.identity());
+            case GROUND:
+                return getGroundStream().map(Function.identity());
             default:
                 throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         }

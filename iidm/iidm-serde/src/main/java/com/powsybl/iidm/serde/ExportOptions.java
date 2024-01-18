@@ -62,6 +62,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     private boolean sorted = false;
 
+    private boolean withAutomationSystems = true;
+
     public ExportOptions() {
     }
 
@@ -231,6 +233,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setSorted(boolean sorted) {
         this.sorted = sorted;
+        return this;
+    }
+
+    public boolean isWithAutomationSystems() {
+        return withAutomationSystems;
+    }
+
+    public ExportOptions setWithAutomationSystems(boolean withAutomationSystems) {
+        this.withAutomationSystems = withAutomationSystems;
         return this;
     }
 }
