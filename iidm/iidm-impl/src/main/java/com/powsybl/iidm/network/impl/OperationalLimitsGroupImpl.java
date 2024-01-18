@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -24,9 +23,9 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
     private ApparentPowerLimits apparentPowerLimits;
     private final AbstractIdentifiable<?> identifiable;
     private final String attributeName;
-    private final Ref<String> selectedGroupId;
+    private String selectedGroupId;
 
-    OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, Ref<String> selectedGroupId) {
+    OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, String selectedGroupId) {
         this.id = Objects.requireNonNull(id);
         this.identifiable = Objects.requireNonNull(identifiable);
         this.attributeName = Objects.requireNonNull(attributeName);
@@ -86,43 +85,37 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
     public void setCurrentLimits(CurrentLimits limits) {
         OperationalLimits oldValue = this.currentLimits;
         this.currentLimits = limits;
-        notifyUpdateIfDefaultLimits(getId(), LimitType.CURRENT, oldValue, limits);
+        notifyUpdate(LimitType.CURRENT, oldValue, limits);
     }
 
     public void setActivePowerLimits(ActivePowerLimits limits) {
         OperationalLimits oldValue = this.activePowerLimits;
         this.activePowerLimits = limits;
-        notifyUpdateIfDefaultLimits(getId(), LimitType.ACTIVE_POWER, oldValue, limits);
+        notifyUpdate(LimitType.ACTIVE_POWER, oldValue, limits);
     }
 
     public void setApparentPowerLimits(ApparentPowerLimits limits) {
         OperationalLimits oldValue = this.apparentPowerLimits;
         this.apparentPowerLimits = limits;
-        notifyUpdateIfDefaultLimits(getId(), LimitType.APPARENT_POWER, oldValue, limits);
+        notifyUpdate(LimitType.APPARENT_POWER, oldValue, limits);
     }
 
     public Validable getValidable() {
         return identifiable;
     }
 
-    public void notifyUpdateIfDefaultLimits(LimitType limitType, String attribute, double oldValue, double newValue) {
-        notifyUpdateIfDefaultLimits(getId(), limitType, attribute, oldValue, newValue);
-    }
-
-    public void notifyUpdateIfDefaultLimits(String id, LimitType limitType, String attribute, double oldValue, double newValue) {
-        if (id.equals(selectedGroupId.get())) {
+    public void notifyUpdate(LimitType limitType, String attribute, double oldValue, double newValue) {
+        if (id.equals(selectedGroupId)) {
             identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType + "." + attribute, oldValue, newValue);
         }
+        identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + id + "_" + limitType + "." + attribute, oldValue, newValue);
     }
 
-    public void notifyUpdateIfDefaultLimits(String id, LimitType limitType, OperationalLimits oldValue, OperationalLimits newValue) {
-        if (id.equals(selectedGroupId.get())) {
-            if (newValue == null) {
-                Objects.requireNonNull(oldValue);
-
-            }
+    public void notifyUpdate(LimitType limitType, OperationalLimits oldValue, OperationalLimits newValue) {
+        if (id.equals(selectedGroupId)) {
             identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType, oldValue, newValue);
         }
+        identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + id + "_" + limitType, oldValue, newValue);
     }
 
     @Override
@@ -135,4 +128,7 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
         return currentLimits == null && apparentPowerLimits == null && activePowerLimits == null;
     }
 
+    public void setSelectedGroupId(String selectedGroupId) {
+        this.selectedGroupId = selectedGroupId;
+    }
 }

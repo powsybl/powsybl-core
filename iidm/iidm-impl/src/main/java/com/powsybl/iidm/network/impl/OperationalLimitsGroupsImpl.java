@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.RefObj;
 
 import java.util.*;
 import java.util.function.Function;
@@ -21,7 +20,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
 
     private final String attributeName;
-    private final RefObj<String> selectedLimitsId = new RefObj<>(null);
+    private String selectedLimitsId = null;
 
     private final Map<String, OperationalLimitsGroupImpl> operationalLimitsGroupById = new LinkedHashMap<>();
     private final AbstractIdentifiable<?> identifiable;
@@ -36,8 +35,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         Objects.requireNonNull(id);
         OperationalLimitsGroupImpl newLimits = new OperationalLimitsGroupImpl(id, identifiable, attributeName, selectedLimitsId);
         OperationalLimitsGroup oldLimits = operationalLimitsGroupById.put(id, newLimits);
-        if (id.equals(selectedLimitsId.get())) {
-            // Notify done only for default limits change
+        if (id.equals(selectedLimitsId)) {
             notifyUpdate(oldLimits, newLimits);
         }
         return newLimits;
@@ -45,6 +43,10 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     @Override
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
+        return getOperationalLimitsGroupImpl(id).map(Function.identity());
+    }
+
+    private Optional<OperationalLimitsGroupImpl> getOperationalLimitsGroupImpl(String id) {
         Objects.requireNonNull(id);
         return Optional.ofNullable(operationalLimitsGroupById.get(id));
     }
@@ -53,33 +55,32 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     public void removeOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
         OperationalLimitsGroup oldLimits = operationalLimitsGroupById.remove(id);
-        if (id.equals(selectedLimitsId.get())) {
-            selectedLimitsId.set(null);
+        if (id.equals(selectedLimitsId)) {
+            setSelectedOperationalLimitsGroup(null);
             notifyUpdate(oldLimits, null);
         }
     }
 
     @Override
     public void setSelectedOperationalLimitsGroup(String id) {
-        Objects.requireNonNull(id);
-        if (id.equals(selectedLimitsId.get())) {
+        if (Objects.equals(id, selectedLimitsId)) {
             return;
         }
-        OperationalLimitsGroup newDefaultLimits = operationalLimitsGroupById.get(id);
-        if (newDefaultLimits == null) {
-            throw new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be the default one");
-        }
+
+        // Update selected group id in the groups
+        operationalLimitsGroupById.values().forEach(o -> o.setSelectedGroupId(id));
+
+        OperationalLimitsGroup newDefaultLimits = id == null ? null :
+                getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be the default one"));
+
         Optional<OperationalLimitsGroup> oldDefaultLimits = getSelectedOperationalLimitsGroup();
-        selectedLimitsId.set(id);
+        selectedLimitsId = id;
         oldDefaultLimits.ifPresent(olg -> notifyUpdate(olg, newDefaultLimits));
     }
 
     @Override
     public void cancelSelectedOperationalLimitsGroup() {
-        getSelectedOperationalLimitsGroup().ifPresent(oldDefaultLimits -> {
-            selectedLimitsId.set(null);
-            notifyUpdate(oldDefaultLimits, null);
-        });
+        setSelectedOperationalLimitsGroup(null);
     }
 
     @Override
@@ -88,7 +89,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     }
 
     private Optional<OperationalLimitsGroupImpl> getSelectedOperationalLimitsGroupImpl() {
-        return Optional.ofNullable(selectedLimitsId.get()).map(operationalLimitsGroupById::get);
+        return Optional.ofNullable(selectedLimitsId).flatMap(this::getOperationalLimitsGroupImpl);
     }
 
     @Override
@@ -98,7 +99,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     @Override
     public Optional<String> getSelectedOperationalLimitsGroupId() {
-        return Optional.ofNullable(selectedLimitsId.get());
+        return Optional.ofNullable(selectedLimitsId);
     }
 
     private OperationalLimitsGroupImpl getOrCreateSelectedOperationalLimitsGroup() {
@@ -107,7 +108,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
             return opt.get();
         }
         String groupId = DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
-        OperationalLimitsGroupImpl group = Optional.ofNullable(operationalLimitsGroupById.get(groupId))
+        OperationalLimitsGroupImpl group = getOperationalLimitsGroupImpl(groupId)
             .orElseGet(() -> newOperationalLimitsGroup(groupId));
         setSelectedOperationalLimitsGroup(groupId);
         return group;
