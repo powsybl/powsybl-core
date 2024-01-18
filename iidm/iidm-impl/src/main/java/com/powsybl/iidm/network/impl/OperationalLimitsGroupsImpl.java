@@ -56,13 +56,17 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         Objects.requireNonNull(id);
         OperationalLimitsGroup oldLimits = operationalLimitsGroupById.remove(id);
         if (id.equals(selectedLimitsId)) {
-            setSelectedOperationalLimitsGroup(null);
+            setSelectedOperationalLimitsGroupNullableId(null);
             notifyUpdate(oldLimits, null);
         }
     }
 
     @Override
     public void setSelectedOperationalLimitsGroup(String id) {
+        setSelectedOperationalLimitsGroupNullableId(Objects.requireNonNull(id));
+    }
+
+    private void setSelectedOperationalLimitsGroupNullableId(String id) {
         if (Objects.equals(id, selectedLimitsId)) {
             return;
         }
@@ -80,7 +84,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     @Override
     public void cancelSelectedOperationalLimitsGroup() {
-        setSelectedOperationalLimitsGroup(null);
+        setSelectedOperationalLimitsGroupNullableId(null);
     }
 
     @Override
