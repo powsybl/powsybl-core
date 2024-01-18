@@ -107,15 +107,13 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     }
 
     private OperationalLimitsGroupImpl getOrCreateSelectedOperationalLimitsGroup() {
-        Optional<OperationalLimitsGroupImpl> opt = getSelectedOperationalLimitsGroupImpl();
-        if (opt.isPresent()) {
-            return opt.get();
-        }
-        String groupId = DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
-        OperationalLimitsGroupImpl group = getOperationalLimitsGroupImpl(groupId)
-            .orElseGet(() -> newOperationalLimitsGroup(groupId));
-        setSelectedOperationalLimitsGroup(groupId);
-        return group;
+        return getSelectedOperationalLimitsGroupImpl().orElseGet(() -> {
+            String groupId = DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+            OperationalLimitsGroupImpl group = Optional.ofNullable(operationalLimitsGroupById.get(groupId))
+                    .orElseGet(() -> newOperationalLimitsGroup(groupId));
+            setSelectedOperationalLimitsGroup(groupId);
+            return group;
+        });
     }
 
     @Override
