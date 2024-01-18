@@ -22,11 +22,11 @@ public interface OperationalLimitsGroups {
 
     OperationalLimitsGroup newOperationalLimitsGroup(String id);
 
-    void setDefaultOperationalLimitsGroup(String id);
+    void setSelectedOperationalLimitsGroup(String id);
 
-    Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup();
+    Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup();
 
-    Optional<String> getDefaultOperationalLimitsGroupId();
+    Optional<String> getSelectedOperationalLimitsGroupId();
 
     Collection<OperationalLimitsGroup> getAllOperationalLimitsGroup();
 
@@ -34,7 +34,7 @@ public interface OperationalLimitsGroups {
 
     void removeOperationalLimitsGroup(String id);
 
-    void cancelDefaultOperationalLimitsGroup();
+    void cancelSelectedOperationalLimitsGroup();
 
     CurrentLimitsAdder newCurrentLimits();
 

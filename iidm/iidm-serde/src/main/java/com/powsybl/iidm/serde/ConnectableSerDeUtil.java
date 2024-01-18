@@ -52,7 +52,7 @@ public final class ConnectableSerDeUtil {
     static final String LIMITS_GROUPS_1 = "operationalLimitsGroups1";
     static final String LIMITS_GROUPS_2 = "operationalLimitsGroups2";
     static final String LIMITS_GROUPS_3 = "operationalLimitsGroups3";
-    static final String DEFAULT_GROUP_ID = "defaultOperationalLimitsGroupId";
+    static final String SELECTED_GROUP_ID = "selectedOperationalLimitsGroupId";
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
@@ -270,16 +270,16 @@ public final class ConnectableSerDeUtil {
         }
     }
 
-    static void writeDefaultGroupId(Integer index, String defaultId, TreeDataWriter writer) {
+    static void writeSelectedGroupId(Integer index, String defaultId, TreeDataWriter writer) {
         String suffix = index == null ? "" : String.valueOf(index);
-        writer.writeStringAttribute(DEFAULT_GROUP_ID + suffix, defaultId);
+        writer.writeStringAttribute(SELECTED_GROUP_ID + suffix, defaultId);
     }
 
-    static void readDefaultGroupId(Integer index, Consumer<String> defaultGroupIdSetter, NetworkDeserializerContext context) {
+    static void readSelectedGroupId(Integer index, Consumer<String> selectedGroupIdSetter, NetworkDeserializerContext context) {
         String suffix = index == null ? "" : String.valueOf(index);
-        String defaultGroupId = context.getReader().readStringAttribute(DEFAULT_GROUP_ID + suffix);
-        if (defaultGroupId != null) {
-            context.getEndTasks().add(() -> defaultGroupIdSetter.accept(defaultGroupId));
+        String selectedGroupId = context.getReader().readStringAttribute(SELECTED_GROUP_ID + suffix);
+        if (selectedGroupId != null) {
+            context.getEndTasks().add(() -> selectedGroupIdSetter.accept(selectedGroupId));
         }
     }
 

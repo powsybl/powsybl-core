@@ -448,8 +448,8 @@
       "node1" : 2,
       "voltageLevelId2" : "N",
       "node2" : 10,
-      "defaultOperationalLimitsGroupId1" : "DEFAULT",
-      "defaultOperationalLimitsGroupId2" : "DEFAULT",
+      "selectedOperationalLimitsGroupId1" : "DEFAULT",
+      "selectedOperationalLimitsGroupId2" : "DEFAULT",
       "phaseTapChanger" : {
         "regulating" : false,
         "lowTapPosition" : 0,
@@ -719,8 +719,8 @@
     "node1" : 4,
     "voltageLevelId2" : "N",
     "node2" : 5,
-    "defaultOperationalLimitsGroupId1" : "DEFAULT",
-    "defaultOperationalLimitsGroupId2" : "DEFAULT",
+    "selectedOperationalLimitsGroupId1" : "DEFAULT",
+    "selectedOperationalLimitsGroupId2" : "DEFAULT",
     "operationalLimitsGroups1" : [ {
       "id" : "DEFAULT",
       "currentLimits" : {

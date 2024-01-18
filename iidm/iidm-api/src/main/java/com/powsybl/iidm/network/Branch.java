@@ -117,22 +117,22 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     Collection<OperationalLimitsGroup> getOperationalLimitsGroups1();
 
-    Optional<String> getDefaultOperationalLimitsGroupId1();
+    Optional<String> getSelectedOperationalLimitsGroupId1();
 
     Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id);
 
-    Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup1();
+    Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1();
 
     OperationalLimitsGroup newOperationalLimitsGroup1(String id);
 
-    void setDefaultOperationalLimitsGroup1(String id);
+    void setSelectedOperationalLimitsGroup1(String id);
 
     void removeOperationalLimitsGroup1(String id);
 
-    void cancelDefaultOperationalLimitsGroup1();
+    void cancelSelectedOperationalLimitsGroup1();
 
     default Optional<CurrentLimits> getCurrentLimits1() {
-        return getDefaultOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getCurrentLimits);
+        return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
     default CurrentLimits getNullableCurrentLimits1() {
@@ -140,7 +140,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     default Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return getDefaultOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getActivePowerLimits);
+        return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getActivePowerLimits);
     }
 
     default ActivePowerLimits getNullableActivePowerLimits1() {
@@ -148,7 +148,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     default Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return getDefaultOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
+        return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     default ApparentPowerLimits getNullableApparentPowerLimits1() {
@@ -163,22 +163,22 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     Collection<OperationalLimitsGroup> getOperationalLimitsGroups2();
 
-    Optional<String> getDefaultOperationalLimitsGroupId2();
+    Optional<String> getSelectedOperationalLimitsGroupId2();
 
     Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id);
 
-    Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup2();
+    Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2();
 
     OperationalLimitsGroup newOperationalLimitsGroup2(String id);
 
-    void setDefaultOperationalLimitsGroup2(String id);
+    void setSelectedOperationalLimitsGroup2(String id);
 
     void removeOperationalLimitsGroup2(String id);
 
-    void cancelDefaultOperationalLimitsGroup2();
+    void cancelSelectedOperationalLimitsGroup2();
 
     default Optional<CurrentLimits> getCurrentLimits2() {
-        return getDefaultOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getCurrentLimits);
+        return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
     default CurrentLimits getNullableCurrentLimits2() {
@@ -186,7 +186,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     default Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return getDefaultOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getActivePowerLimits);
+        return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getActivePowerLimits);
     }
 
     default ActivePowerLimits getNullableActivePowerLimits2() {
@@ -194,7 +194,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     default Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return getDefaultOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
+        return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     default ApparentPowerLimits getNullableApparentPowerLimits2() {

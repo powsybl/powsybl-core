@@ -91,7 +91,7 @@
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="CI" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0"
                                      node1="2" voltageLevelId1="C" node2="10" voltageLevelId2="N"
-                                     defaultOperationalLimitsGroupId1="DEFAULT" defaultOperationalLimitsGroupId2="DEFAULT">
+                                     selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="22" regulationMode="CURRENT_LIMITER"
                                   regulationValue="930.6667" regulating="false">
                 <iidm:terminalRef id="CI" side="ONE"/>
@@ -138,7 +138,7 @@
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:line id="CJ" r="0.009999999" x="0.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="4" voltageLevelId1="C"
-               node2="5" voltageLevelId2="N" defaultOperationalLimitsGroupId1="DEFAULT" defaultOperationalLimitsGroupId2="DEFAULT">
+               node2="5" voltageLevelId2="N" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="931.0"/>
         </iidm:operationalLimitsGroup1>

@@ -41,8 +41,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         writeOptionalPQ(1, twt.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, twt.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            writeDefaultGroupId(1, twt.getDefaultOperationalLimitsGroupId1().orElse(null), context.getWriter());
-            writeDefaultGroupId(2, twt.getDefaultOperationalLimitsGroupId2().orElse(null), context.getWriter());
+            writeSelectedGroupId(1, twt.getSelectedOperationalLimitsGroupId1().orElse(null), context.getWriter());
+            writeSelectedGroupId(2, twt.getSelectedOperationalLimitsGroupId2().orElse(null), context.getWriter());
         });
     }
 
@@ -56,8 +56,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         if (ptc != null) {
             writePhaseTapChanger("phaseTapChanger", ptc, context);
         }
-        writeLimits(context, 1, ROOT_ELEMENT_NAME, twt.getDefaultOperationalLimitsGroup1().orElse(null), twt.getOperationalLimitsGroups1());
-        writeLimits(context, 2, ROOT_ELEMENT_NAME, twt.getDefaultOperationalLimitsGroup2().orElse(null), twt.getOperationalLimitsGroups2());
+        writeLimits(context, 1, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup1().orElse(null), twt.getOperationalLimitsGroups1());
+        writeLimits(context, 2, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup2().orElse(null), twt.getOperationalLimitsGroups2());
     }
 
     @Override
@@ -85,8 +85,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         readOptionalPQ(1, twt.getTerminal1(), context.getReader());
         readOptionalPQ(2, twt.getTerminal2(), context.getReader());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            readDefaultGroupId(1, twt::setDefaultOperationalLimitsGroup1, context);
-            readDefaultGroupId(2, twt::setDefaultOperationalLimitsGroup2, context);
+            readSelectedGroupId(1, twt::setSelectedOperationalLimitsGroup1, context);
+            readSelectedGroupId(2, twt::setSelectedOperationalLimitsGroup2, context);
         });
         return twt;
     }

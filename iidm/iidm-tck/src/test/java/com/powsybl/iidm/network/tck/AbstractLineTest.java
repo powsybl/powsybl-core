@@ -555,7 +555,7 @@ public abstract class AbstractLineTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getLimitType")
-    void createDefaultOperationalLimitsGroupWhenMissing(LimitType limitType) {
+    void createSelectedOperationalLimitsGroupWhenMissing(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
                 .setName(LINE_NAME)
@@ -564,14 +564,14 @@ public abstract class AbstractLineTest {
                 .setBus1("busA")
                 .setBus2("busB")
                 .add();
-        assertTrue(line.getDefaultOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getDefaultOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
         assertTrue(line.getOperationalLimitsGroups1().isEmpty());
         LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
         adder.setPermanentLimit(1000.);
         adder.add();
         // The default group is automatically created
-        assertTrue(line.getDefaultOperationalLimitsGroup1().isPresent());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isPresent());
         Collection<OperationalLimitsGroup> operationalLimitsGroups1 = line.getOperationalLimitsGroups1();
         assertEquals(1, operationalLimitsGroups1.size());
         OperationalLimitsGroup group = operationalLimitsGroups1.iterator().next();
@@ -608,7 +608,7 @@ public abstract class AbstractLineTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getLimitType")
-    void dontChangeDefaultOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
+    void dontChangeSelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
                 .setName(LINE_NAME)
@@ -617,13 +617,13 @@ public abstract class AbstractLineTest {
                 .setBus1("busA")
                 .setBus2("busB")
                 .add();
-        assertTrue(line.getDefaultOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getDefaultOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
         assertTrue(line.getOperationalLimitsGroups1().isEmpty());
         LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
         adder.setPermanentLimit(1000.);
         // The adder is voluntarily NOT added. The default group should not be updated.
-        assertTrue(line.getDefaultOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
         assertTrue(line.getOperationalLimitsGroups1().isEmpty());
     }
 
@@ -638,15 +638,15 @@ public abstract class AbstractLineTest {
                 .setBus1("busA")
                 .setBus2("busB")
                 .add();
-        assertTrue(line.getDefaultOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getDefaultOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
         assertTrue(line.getOperationalLimitsGroups1().isEmpty());
         LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
         adder.setPermanentLimit(Double.NaN);
         adder.beginTemporaryLimit().setName("10'").setValue(500.).setAcceptableDuration(600).endTemporaryLimit();
         assertThrows(ValidationException.class, adder::add);
         // The limits' validation of the adder fails. The default group should not be updated.
-        assertTrue(line.getDefaultOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
         assertTrue(line.getOperationalLimitsGroups1().isEmpty());
     }
 }

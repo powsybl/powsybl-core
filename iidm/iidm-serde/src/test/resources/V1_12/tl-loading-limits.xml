@@ -18,7 +18,7 @@
             </iidm:busBreakerTopology>
             <iidm:danglingLine id="NHV1_NHV2_1.1" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X1"
                                bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"
-                               defaultOperationalLimitsGroupId="DEFAULT">
+                               selectedOperationalLimitsGroupId="DEFAULT">
                 <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:activePowerLimits permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
@@ -50,7 +50,7 @@
             </iidm:busBreakerTopology>
             <iidm:danglingLine id="NHV1_NHV2_1.2" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X1"
                                bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"
-                               defaultOperationalLimitsGroupId="DEFAULT">
+                               selectedOperationalLimitsGroupId="DEFAULT">
                 <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:activePowerLimits permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>

@@ -24,13 +24,13 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
     private ApparentPowerLimits apparentPowerLimits;
     private final AbstractIdentifiable<?> identifiable;
     private final String attributeName;
-    private final Ref<String> defaultGroupId;
+    private final Ref<String> selectedGroupId;
 
-    OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, Ref<String> defaultGroupId) {
+    OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, Ref<String> selectedGroupId) {
         this.id = Objects.requireNonNull(id);
         this.identifiable = Objects.requireNonNull(identifiable);
         this.attributeName = Objects.requireNonNull(attributeName);
-        this.defaultGroupId = defaultGroupId;
+        this.selectedGroupId = selectedGroupId;
     }
 
     @Override
@@ -110,13 +110,13 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
     }
 
     public void notifyUpdateIfDefaultLimits(String id, LimitType limitType, String attribute, double oldValue, double newValue) {
-        if (id.equals(defaultGroupId.get())) {
+        if (id.equals(selectedGroupId.get())) {
             identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType + "." + attribute, oldValue, newValue);
         }
     }
 
     public void notifyUpdateIfDefaultLimits(String id, LimitType limitType, OperationalLimits oldValue, OperationalLimits newValue) {
-        if (id.equals(defaultGroupId.get())) {
+        if (id.equals(selectedGroupId.get())) {
             if (newValue == null) {
                 Objects.requireNonNull(oldValue);
 

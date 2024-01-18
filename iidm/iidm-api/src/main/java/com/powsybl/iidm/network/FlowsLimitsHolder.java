@@ -16,22 +16,22 @@ public interface FlowsLimitsHolder {
 
     Collection<OperationalLimitsGroup> getOperationalLimitsGroups();
 
-    Optional<String> getDefaultOperationalLimitsGroupId();
+    Optional<String> getSelectedOperationalLimitsGroupId();
 
     Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id);
 
-    Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup();
+    Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup();
 
     OperationalLimitsGroup newOperationalLimitsGroup(String id);
 
-    void setDefaultOperationalLimitsGroup(String id);
+    void setSelectedOperationalLimitsGroup(String id);
 
     void removeOperationalLimitsGroup(String id);
 
-    void cancelDefaultOperationalLimitsGroup();
+    void cancelSelectedOperationalLimitsGroup();
 
     default Optional<CurrentLimits> getCurrentLimits() {
-        return getDefaultOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getCurrentLimits);
+        return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
     default CurrentLimits getNullableCurrentLimits() {
@@ -39,7 +39,7 @@ public interface FlowsLimitsHolder {
     }
 
     default Optional<ActivePowerLimits> getActivePowerLimits() {
-        return getDefaultOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getActivePowerLimits);
+        return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getActivePowerLimits);
     }
 
     default ActivePowerLimits getNullableActivePowerLimits() {
@@ -47,7 +47,7 @@ public interface FlowsLimitsHolder {
     }
 
     default Optional<ApparentPowerLimits> getApparentPowerLimits() {
-        return getDefaultOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
+        return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     default ApparentPowerLimits getNullableApparentPowerLimits() {

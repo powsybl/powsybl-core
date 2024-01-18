@@ -329,7 +329,7 @@ public class MatpowerExporter implements Exporter {
         }
 
         @Override
-        public Optional<String> getDefaultOperationalLimitsGroupId() {
+        public Optional<String> getSelectedOperationalLimitsGroupId() {
             throw new UnsupportedOperationException();
         }
 
@@ -339,7 +339,7 @@ public class MatpowerExporter implements Exporter {
         }
 
         @Override
-        public Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup() {
+        public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
             throw new UnsupportedOperationException();
         }
 
@@ -349,7 +349,7 @@ public class MatpowerExporter implements Exporter {
         }
 
         @Override
-        public void setDefaultOperationalLimitsGroup(String id) {
+        public void setSelectedOperationalLimitsGroup(String id) {
             throw new UnsupportedOperationException();
         }
 
@@ -359,7 +359,7 @@ public class MatpowerExporter implements Exporter {
         }
 
         @Override
-        public void cancelDefaultOperationalLimitsGroup() {
+        public void cancelSelectedOperationalLimitsGroup() {
             throw new UnsupportedOperationException();
         }
 

@@ -124,7 +124,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         l.getOperationalLimitsGroup2("1")
                 .flatMap(OperationalLimitsGroup::getCurrentLimits)
                 .ifPresent(cl -> cl.setPermanentLimit(800.0));
-        l.setDefaultOperationalLimitsGroup2("1");
+        l.setSelectedOperationalLimitsGroup2("1");
         l.getOperationalLimitsGroup2("1")
                 .ifPresent(olg -> olg.newApparentPowerLimits()
                         .setPermanentLimit(1100.0)
@@ -169,7 +169,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     private static void checkBehaveLikeNoLimitsWhenCancelDefaultLimits(Line l) {
         // cancel default limits, no group is the default limits, impact expected, no more limits
-        l.cancelDefaultOperationalLimitsGroup2();
+        l.cancelSelectedOperationalLimitsGroup2();
         assertFalse(l.checkPermanentLimit2(LimitType.CURRENT));
         assertFalse(l.checkPermanentLimit2(LimitType.ACTIVE_POWER));
         assertFalse(l.checkPermanentLimit2(LimitType.APPARENT_POWER));
@@ -215,7 +215,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     private static void checkChangeOfDefaultLimitsOnLine(Line l) {
         // Change default limits group, so active limits is changed, this one have no temporary limits
-        l.setDefaultOperationalLimitsGroup1("3");
+        l.setSelectedOperationalLimitsGroup1("3");
         assertTrue(l.isOverloaded());
         assertEquals(2147483647L, l.getOverloadDuration());
         assertTrue(l.checkPermanentLimit1(LimitType.CURRENT));
@@ -228,7 +228,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     private static void checkDefaultLimitsOnLine(Line l) {
         // Set a default limits group, so we have an active limits
-        l.setDefaultOperationalLimitsGroup1("2");
+        l.setSelectedOperationalLimitsGroup1("2");
         assertTrue(l.isOverloaded());
         assertEquals(5 * 60L, l.getOverloadDuration());
         assertTrue(l.checkPermanentLimit1(LimitType.CURRENT));
@@ -450,7 +450,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     private static void checkChangeOfDefaultLimitsOnTWT(ThreeWindingsTransformer.Leg l, ThreeWindingsTransformer t) {
         // Change default limits group, so active limits is changed, this one have no temporary limits
-        l.setDefaultOperationalLimitsGroup("3");
+        l.setSelectedOperationalLimitsGroup("3");
         assertTrue(t.isOverloaded());
         assertEquals(2147483647L, t.getOverloadDuration());
         assertTrue(t.checkPermanentLimit3(LimitType.CURRENT));
@@ -463,7 +463,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     private static void checkDefaultLimitsOnTWT(ThreeWindingsTransformer.Leg l, ThreeWindingsTransformer t) {
         // Set a default limits group, so we have an active limits
-        l.setDefaultOperationalLimitsGroup("2");
+        l.setSelectedOperationalLimitsGroup("2");
         assertTrue(t.isOverloaded());
         assertEquals(5 * 60L, t.getOverloadDuration());
         assertTrue(t.checkPermanentLimit3(LimitType.CURRENT));

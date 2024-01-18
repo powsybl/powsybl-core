@@ -67,9 +67,9 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         writeOptionalPQ(2, twt.getLeg2().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(3, twt.getLeg3().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            writeDefaultGroupId(1, twt.getLeg1().getDefaultOperationalLimitsGroupId().orElse(null), context.getWriter());
-            writeDefaultGroupId(2, twt.getLeg2().getDefaultOperationalLimitsGroupId().orElse(null), context.getWriter());
-            writeDefaultGroupId(3, twt.getLeg3().getDefaultOperationalLimitsGroupId().orElse(null), context.getWriter());
+            writeSelectedGroupId(1, twt.getLeg1().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
+            writeSelectedGroupId(2, twt.getLeg2().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
+            writeSelectedGroupId(3, twt.getLeg3().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
         });
     }
 
@@ -88,7 +88,7 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         int[] i = new int[1];
         i[0] = 1;
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getDefaultOperationalLimitsGroup().orElse(null), leg.getOperationalLimitsGroups());
+            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getSelectedOperationalLimitsGroup().orElse(null), leg.getOperationalLimitsGroups());
             i[0]++;
         }
     }
@@ -162,9 +162,9 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         readOptionalPQ(2, twt.getLeg2().getTerminal(), context.getReader());
         readOptionalPQ(3, twt.getLeg3().getTerminal(), context.getReader());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            readDefaultGroupId(1, twt.getLeg1()::setDefaultOperationalLimitsGroup, context);
-            readDefaultGroupId(2, twt.getLeg2()::setDefaultOperationalLimitsGroup, context);
-            readDefaultGroupId(3, twt.getLeg3()::setDefaultOperationalLimitsGroup, context);
+            readSelectedGroupId(1, twt.getLeg1()::setSelectedOperationalLimitsGroup, context);
+            readSelectedGroupId(2, twt.getLeg2()::setSelectedOperationalLimitsGroup, context);
+            readSelectedGroupId(3, twt.getLeg3()::setSelectedOperationalLimitsGroup, context);
         });
         return twt;
     }

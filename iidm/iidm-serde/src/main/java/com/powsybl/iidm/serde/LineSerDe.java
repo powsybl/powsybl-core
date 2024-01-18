@@ -42,15 +42,15 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
         writeOptionalPQ(1, l.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, l.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            writeDefaultGroupId(1, l.getDefaultOperationalLimitsGroupId1().orElse(null), context.getWriter());
-            writeDefaultGroupId(2, l.getDefaultOperationalLimitsGroupId2().orElse(null), context.getWriter());
+            writeSelectedGroupId(1, l.getSelectedOperationalLimitsGroupId1().orElse(null), context.getWriter());
+            writeSelectedGroupId(2, l.getSelectedOperationalLimitsGroupId2().orElse(null), context.getWriter());
         });
     }
 
     @Override
     protected void writeSubElements(Line l, Network n, NetworkSerializerContext context) {
-        writeLimits(context, 1, ROOT_ELEMENT_NAME, l.getDefaultOperationalLimitsGroup1().orElse(null), l.getOperationalLimitsGroups1());
-        writeLimits(context, 2, ROOT_ELEMENT_NAME, l.getDefaultOperationalLimitsGroup2().orElse(null), l.getOperationalLimitsGroups2());
+        writeLimits(context, 1, ROOT_ELEMENT_NAME, l.getSelectedOperationalLimitsGroup1().orElse(null), l.getOperationalLimitsGroups1());
+        writeLimits(context, 2, ROOT_ELEMENT_NAME, l.getSelectedOperationalLimitsGroup2().orElse(null), l.getOperationalLimitsGroups2());
     }
 
     @Override
@@ -77,8 +77,8 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
         readOptionalPQ(1, l.getTerminal1(), context.getReader());
         readOptionalPQ(2, l.getTerminal2(), context.getReader());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            readDefaultGroupId(1, l::setDefaultOperationalLimitsGroup1, context);
-            readDefaultGroupId(2, l::setDefaultOperationalLimitsGroup2, context);
+            readSelectedGroupId(1, l::setSelectedOperationalLimitsGroup1, context);
+            readSelectedGroupId(2, l::setSelectedOperationalLimitsGroup2, context);
         });
         return l;
     }

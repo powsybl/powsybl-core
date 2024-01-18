@@ -369,7 +369,7 @@
                     </xs:choice>
                     <xs:element name="operationalLimitsGroup" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
-                <xs:attribute name="defaultOperationalLimitsGroupId" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId" use="optional" type="xs:string"/>
                 <xs:attribute name="p0" use="required" type="xs:double"/>
                 <xs:attribute name="q0" use="required" type="xs:double"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
@@ -434,8 +434,8 @@
                     <xs:element name="operationalLimitsGroup1" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                     <xs:element name="operationalLimitsGroup2" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
-                <xs:attribute name="defaultOperationalLimitsGroupId1" use="optional" type="xs:string"/>
-                <xs:attribute name="defaultOperationalLimitsGroupId2" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId1" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId2" use="optional" type="xs:string"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
                 <xs:attribute name="g" use="required" type="xs:double"/>
@@ -460,9 +460,9 @@
                     <xs:element name="operationalLimitsGroup2" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                     <xs:element name="operationalLimitsGroup3" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
-                <xs:attribute name="defaultOperationalLimitsGroupId1" use="optional" type="xs:string"/>
-                <xs:attribute name="defaultOperationalLimitsGroupId2" use="optional" type="xs:string"/>
-                <xs:attribute name="defaultOperationalLimitsGroupId3" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId1" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId2" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId3" use="optional" type="xs:string"/>
                 <xs:attribute name="ratedU0" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:double"/>
@@ -617,8 +617,8 @@
                     <xs:element name="operationalLimitsGroup1" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                     <xs:element name="operationalLimitsGroup2" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
-                <xs:attribute name="defaultOperationalLimitsGroupId1" use="optional" type="xs:string"/>
-                <xs:attribute name="defaultOperationalLimitsGroupId2" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId1" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId2" use="optional" type="xs:string"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
                 <xs:attribute name="g1" use="required" type="xs:double"/>

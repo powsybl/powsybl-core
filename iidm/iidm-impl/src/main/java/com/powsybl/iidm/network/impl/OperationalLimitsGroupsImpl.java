@@ -18,10 +18,10 @@ import java.util.function.Function;
  */
 class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
 
-    private static final String DEFAULT_OPERATIONAL_LIMITS_GROUP_DEFAULT_ID = "DEFAULT";
+    private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
 
     private final String attributeName;
-    private final RefObj<String> defaultLimitsId = new RefObj<>(null);
+    private final RefObj<String> selectedLimitsId = new RefObj<>(null);
 
     private final Map<String, OperationalLimitsGroupImpl> operationalLimitsGroupById = new LinkedHashMap<>();
     private final AbstractIdentifiable<?> identifiable;
@@ -39,9 +39,9 @@ class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
     @Override
     public OperationalLimitsGroupImpl newOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
-        OperationalLimitsGroupImpl newLimits = new OperationalLimitsGroupImpl(id, identifiable, attributeName, defaultLimitsId);
+        OperationalLimitsGroupImpl newLimits = new OperationalLimitsGroupImpl(id, identifiable, attributeName, selectedLimitsId);
         OperationalLimitsGroup oldLimits = operationalLimitsGroupById.put(id, newLimits);
-        if (id.equals(defaultLimitsId.get())) {
+        if (id.equals(selectedLimitsId.get())) {
             // Notify done only for default limits change
             notifyUpdate(oldLimits, newLimits);
         }
@@ -58,76 +58,76 @@ class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
     public void removeOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
         OperationalLimitsGroup oldLimits = operationalLimitsGroupById.remove(id);
-        if (id.equals(defaultLimitsId.get())) {
-            defaultLimitsId.set(null);
+        if (id.equals(selectedLimitsId.get())) {
+            selectedLimitsId.set(null);
             notifyUpdate(oldLimits, null);
         }
     }
 
     @Override
-    public void setDefaultOperationalLimitsGroup(String id) {
+    public void setSelectedOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
-        if (id.equals(defaultLimitsId.get())) {
+        if (id.equals(selectedLimitsId.get())) {
             return;
         }
         OperationalLimitsGroup newDefaultLimits = operationalLimitsGroupById.get(id);
         if (newDefaultLimits == null) {
             throw new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be the default one");
         }
-        Optional<OperationalLimitsGroup> oldDefaultLimits = getDefaultOperationalLimitsGroup();
-        defaultLimitsId.set(id);
+        Optional<OperationalLimitsGroup> oldDefaultLimits = getSelectedOperationalLimitsGroup();
+        selectedLimitsId.set(id);
         oldDefaultLimits.ifPresent(olg -> notifyUpdate(olg, newDefaultLimits));
     }
 
     @Override
-    public void cancelDefaultOperationalLimitsGroup() {
-        getDefaultOperationalLimitsGroup().ifPresent(oldDefaultLimits -> {
-            defaultLimitsId.set(null);
+    public void cancelSelectedOperationalLimitsGroup() {
+        getSelectedOperationalLimitsGroup().ifPresent(oldDefaultLimits -> {
+            selectedLimitsId.set(null);
             notifyUpdate(oldDefaultLimits, null);
         });
     }
 
     @Override
-    public Optional<OperationalLimitsGroup> getDefaultOperationalLimitsGroup() {
-        return getDefaultOperationalLimitsGroupImpl().map(Function.identity());
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
+        return getSelectedOperationalLimitsGroupImpl().map(Function.identity());
     }
 
-    private Optional<OperationalLimitsGroupImpl> getDefaultOperationalLimitsGroupImpl() {
-        return Optional.ofNullable(defaultLimitsId.get()).map(operationalLimitsGroupById::get);
+    private Optional<OperationalLimitsGroupImpl> getSelectedOperationalLimitsGroupImpl() {
+        return Optional.ofNullable(selectedLimitsId.get()).map(operationalLimitsGroupById::get);
     }
 
     @Override
-    public Optional<String> getDefaultOperationalLimitsGroupId() {
-        return Optional.ofNullable(defaultLimitsId.get());
+    public Optional<String> getSelectedOperationalLimitsGroupId() {
+        return Optional.ofNullable(selectedLimitsId.get());
     }
 
-    private OperationalLimitsGroupImpl getOrCreateDefaultOperationalLimitsGroup() {
-        Optional<OperationalLimitsGroupImpl> opt = getDefaultOperationalLimitsGroupImpl();
+    private OperationalLimitsGroupImpl getOrCreateSelectedOperationalLimitsGroup() {
+        Optional<OperationalLimitsGroupImpl> opt = getSelectedOperationalLimitsGroupImpl();
         if (opt.isPresent()) {
             return opt.get();
         }
-        String groupId = DEFAULT_OPERATIONAL_LIMITS_GROUP_DEFAULT_ID;
+        String groupId = DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
         OperationalLimitsGroupImpl group = Optional.ofNullable(operationalLimitsGroupById.get(groupId))
             .orElseGet(() -> newOperationalLimitsGroup(groupId));
-        setDefaultOperationalLimitsGroup(groupId);
+        setSelectedOperationalLimitsGroup(groupId);
         return group;
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return new CurrentLimitsAdderImpl(this::getOrCreateDefaultOperationalLimitsGroup,
+        return new CurrentLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
                 identifiable, identifiable.getId());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return new ActivePowerLimitsAdderImpl(this::getOrCreateDefaultOperationalLimitsGroup,
+        return new ActivePowerLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
                 identifiable, identifiable.getId());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return new ApparentPowerLimitsAdderImpl(this::getOrCreateDefaultOperationalLimitsGroup,
+        return new ApparentPowerLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
                 identifiable, identifiable.getId());
     }
 
