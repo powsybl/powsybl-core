@@ -78,7 +78,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, getTemporaryLimits());
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
-        group.notifyUpdate(getLimitType(), "permanentLimit", oldValue, this.permanentLimit);
+        group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);
         return (L) this;
     }
 

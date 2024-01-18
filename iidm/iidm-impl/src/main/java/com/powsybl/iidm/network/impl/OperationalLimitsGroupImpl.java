@@ -104,18 +104,18 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
         return identifiable;
     }
 
-    public void notifyUpdate(LimitType limitType, String attribute, double oldValue, double newValue) {
-        if (id.equals(selectedGroupId)) {
-            identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType + "." + attribute, oldValue, newValue);
-        }
-        identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + id + "_" + limitType + "." + attribute, oldValue, newValue);
+    public void notifyPermanentLimitUpdate(LimitType limitType, double oldValue, double newValue) {
+        PermanentLimitInfo oldPermanentLimitInfo = new PermanentLimitInfo(oldValue, id, id.equals(selectedGroupId));
+        PermanentLimitInfo newPermanentLimitInfo = new PermanentLimitInfo(newValue, id, id.equals(selectedGroupId));
+        identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType + ".permanentLimit",
+                oldPermanentLimitInfo, newPermanentLimitInfo);
     }
 
-    public void notifyUpdate(LimitType limitType, OperationalLimits oldValue, OperationalLimits newValue) {
-        if (id.equals(selectedGroupId)) {
-            identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType, oldValue, newValue);
-        }
-        identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + id + "_" + limitType, oldValue, newValue);
+    private void notifyUpdate(LimitType limitType, OperationalLimits oldValue, OperationalLimits newValue) {
+        OperationalLimitsInfo oldOperationalLimitsInfo = new OperationalLimitsInfo(oldValue, id, id.equals(selectedGroupId));
+        OperationalLimitsInfo newOperationalLimitsInfo = new OperationalLimitsInfo(newValue, id, id.equals(selectedGroupId));
+        identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType,
+                oldOperationalLimitsInfo, newOperationalLimitsInfo);
     }
 
     @Override
@@ -130,5 +130,11 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
 
     public void setSelectedGroupId(String selectedGroupId) {
         this.selectedGroupId = selectedGroupId;
+    }
+
+    private record PermanentLimitInfo(double value, String groupId, boolean inSelectedGroup) {
+    }
+
+    private record OperationalLimitsInfo(OperationalLimits value, String groupId, boolean inSelectedGroup) {
     }
 }
