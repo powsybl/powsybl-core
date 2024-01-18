@@ -16,7 +16,7 @@ import java.util.function.Function;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
+class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
 
@@ -29,11 +29,6 @@ class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
     OperationalLimitsGroupsImpl(AbstractIdentifiable<?> identifiable, String attributeName) {
         this.identifiable = Objects.requireNonNull(identifiable);
         this.attributeName = attributeName;
-    }
-
-    @Override
-    public Collection<OperationalLimitsGroup> getAllOperationalLimitsGroup() {
-        return Collections.unmodifiableCollection(operationalLimitsGroupById.values());
     }
 
     @Override
@@ -94,6 +89,11 @@ class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
 
     private Optional<OperationalLimitsGroupImpl> getSelectedOperationalLimitsGroupImpl() {
         return Optional.ofNullable(selectedLimitsId.get()).map(operationalLimitsGroupById::get);
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
+        return Collections.unmodifiableCollection(operationalLimitsGroupById.values());
     }
 
     @Override

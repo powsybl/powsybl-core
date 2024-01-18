@@ -18,9 +18,9 @@ import java.util.Optional;
  */
 abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> extends AbstractConnectable<I> implements Branch<I> {
 
-    private final OperationalLimitsGroups operationalLimitsHolder1;
+    private final FlowsLimitsHolder operationalLimitsHolder1;
 
-    private final OperationalLimitsGroups operationalLimitsHolder2;
+    private final FlowsLimitsHolder operationalLimitsHolder2;
 
     AbstractConnectableBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
         super(network, id, name, fictitious);
@@ -52,7 +52,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
     }
 
-    private OperationalLimitsGroups getOperationalLimitsHolder1() {
+    private FlowsLimitsHolder getOperationalLimitsHolder1() {
         return operationalLimitsHolder1;
     }
 
@@ -63,7 +63,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
-        return getOperationalLimitsHolder1().getAllOperationalLimitsGroup();
+        return getOperationalLimitsHolder1().getOperationalLimitsGroups();
     }
 
     @Override
@@ -111,13 +111,13 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return getOperationalLimitsHolder1().newApparentPowerLimits();
     }
 
-    private OperationalLimitsGroups getOperationalLimitsHolder2() {
+    private FlowsLimitsHolder getOperationalLimitsHolder2() {
         return operationalLimitsHolder2;
     }
 
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
-        return getOperationalLimitsHolder2().getAllOperationalLimitsGroup();
+        return getOperationalLimitsHolder2().getOperationalLimitsGroups();
     }
 
     @Override

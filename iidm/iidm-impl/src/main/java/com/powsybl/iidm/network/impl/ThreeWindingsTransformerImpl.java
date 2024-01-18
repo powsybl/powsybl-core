@@ -165,63 +165,59 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
                     phaseTapChanger);
         }
 
-        private OperationalLimitsGroupsImpl getOperationalLimitsHolder() {
-            return operationalLimitsHolder;
-        }
-
         @Override
         public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
-            return getOperationalLimitsHolder().getAllOperationalLimitsGroup();
+            return operationalLimitsHolder.getOperationalLimitsGroups();
         }
 
         @Override
         public Optional<String> getSelectedOperationalLimitsGroupId() {
-            return getOperationalLimitsHolder().getSelectedOperationalLimitsGroupId();
+            return operationalLimitsHolder.getSelectedOperationalLimitsGroupId();
         }
 
         @Override
         public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
-            return getOperationalLimitsHolder().getOperationalLimitsGroup(id);
+            return operationalLimitsHolder.getOperationalLimitsGroup(id);
         }
 
         @Override
         public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
-            return getOperationalLimitsHolder().getSelectedOperationalLimitsGroup();
+            return operationalLimitsHolder.getSelectedOperationalLimitsGroup();
         }
 
         @Override
         public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
-            return getOperationalLimitsHolder().newOperationalLimitsGroup(id);
+            return operationalLimitsHolder.newOperationalLimitsGroup(id);
         }
 
         @Override
         public void setSelectedOperationalLimitsGroup(String id) {
-            getOperationalLimitsHolder().setSelectedOperationalLimitsGroup(id);
+            operationalLimitsHolder.setSelectedOperationalLimitsGroup(id);
         }
 
         @Override
         public void removeOperationalLimitsGroup(String id) {
-            getOperationalLimitsHolder().removeOperationalLimitsGroup(id);
+            operationalLimitsHolder.removeOperationalLimitsGroup(id);
         }
 
         @Override
         public void cancelSelectedOperationalLimitsGroup() {
-            getOperationalLimitsHolder().cancelSelectedOperationalLimitsGroup();
+            operationalLimitsHolder.cancelSelectedOperationalLimitsGroup();
         }
 
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
-            return getOperationalLimitsHolder().newCurrentLimits();
+            return operationalLimitsHolder.newCurrentLimits();
         }
 
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            return getOperationalLimitsHolder().newActivePowerLimits();
+            return operationalLimitsHolder.newActivePowerLimits();
         }
 
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            return getOperationalLimitsHolder().newApparentPowerLimits();
+            return operationalLimitsHolder.newApparentPowerLimits();
         }
 
         protected String getTypeDescription() {

@@ -250,7 +250,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final GenerationImpl generation;
 
-    private final OperationalLimitsGroupsImpl operationalLimitsHolder;
+    private final OperationalLimitsGroupsImpl operationalLimitsGroups;
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
@@ -274,7 +274,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.g = g;
         this.b = b;
         this.pairingKey = pairingKey;
-        this.operationalLimitsHolder = new OperationalLimitsGroupsImpl(this, "limits");
+        this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, "limits");
         this.boundary = new DanglingLineBoundaryImpl(this);
         this.generation = generation != null ? generation.attach(this) : null;
     }
@@ -421,63 +421,59 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         return generation;
     }
 
-    protected OperationalLimitsGroupsImpl getOperationalLimitsHolder() {
-        return operationalLimitsHolder;
-    }
-
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
-        return getOperationalLimitsHolder().getAllOperationalLimitsGroup();
+        return operationalLimitsGroups.getOperationalLimitsGroups();
     }
 
     @Override
     public Optional<String> getSelectedOperationalLimitsGroupId() {
-        return getOperationalLimitsHolder().getSelectedOperationalLimitsGroupId();
+        return operationalLimitsGroups.getSelectedOperationalLimitsGroupId();
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
-        return getOperationalLimitsHolder().getOperationalLimitsGroup(id);
+        return operationalLimitsGroups.getOperationalLimitsGroup(id);
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
-        return getOperationalLimitsHolder().getSelectedOperationalLimitsGroup();
+        return operationalLimitsGroups.getSelectedOperationalLimitsGroup();
     }
 
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
-        return getOperationalLimitsHolder().newOperationalLimitsGroup(id);
+        return operationalLimitsGroups.newOperationalLimitsGroup(id);
     }
 
     @Override
     public void setSelectedOperationalLimitsGroup(String id) {
-        getOperationalLimitsHolder().setSelectedOperationalLimitsGroup(id);
+        operationalLimitsGroups.setSelectedOperationalLimitsGroup(id);
     }
 
     @Override
     public void removeOperationalLimitsGroup(String id) {
-        getOperationalLimitsHolder().removeOperationalLimitsGroup(id);
+        operationalLimitsGroups.removeOperationalLimitsGroup(id);
     }
 
     @Override
     public void cancelSelectedOperationalLimitsGroup() {
-        getOperationalLimitsHolder().cancelSelectedOperationalLimitsGroup();
+        operationalLimitsGroups.cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return getOperationalLimitsHolder().newCurrentLimits();
+        return operationalLimitsGroups.newCurrentLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return getOperationalLimitsHolder().newActivePowerLimits();
+        return operationalLimitsGroups.newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return getOperationalLimitsHolder().newApparentPowerLimits();
+        return operationalLimitsGroups.newApparentPowerLimits();
     }
 
     @Override
