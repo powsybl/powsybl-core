@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.impl.util.RefObj;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}

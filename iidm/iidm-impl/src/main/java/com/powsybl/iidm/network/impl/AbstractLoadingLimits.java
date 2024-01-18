@@ -8,22 +8,16 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> implements LoadingLimits {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
 
     protected final OperationalLimitsGroupImpl group;
     private double permanentLimit;
@@ -71,7 +65,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         this.group = Objects.requireNonNull(owner);
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
-        checkLoadingLimits();
+        // The limits validation must be performed before calling this constructor (in the adders).
     }
 
     @Override
@@ -102,36 +96,5 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
     public double getTemporaryLimitValue(int acceptableDuration) {
         TemporaryLimit tl = getTemporaryLimit(acceptableDuration);
         return tl != null ? tl.getValue() : Double.NaN;
-    }
-
-    private void checkTemporaryLimits() {
-        // check temporary limits are consistent with permanent
-        if (LOGGER.isDebugEnabled()) {
-            double previousLimit = Double.NaN;
-            boolean wrongOrderMessageAlreadyLogged = false;
-            for (LoadingLimits.TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
-                if (tl.getValue() <= permanentLimit) {
-                    LOGGER.debug("{}, temporary limit should be greater than permanent limit", group.getValidable().getMessageHeader());
-                }
-                if (!wrongOrderMessageAlreadyLogged && !Double.isNaN(previousLimit) && tl.getValue() <= previousLimit) {
-                    LOGGER.debug("{} : temporary limits should be in ascending value order", group.getValidable().getMessageHeader());
-                    wrongOrderMessageAlreadyLogged = true;
-                }
-                previousLimit = tl.getValue();
-            }
-        }
-        // check name unicity
-        temporaryLimits.values().stream()
-                .collect(Collectors.groupingBy(LoadingLimits.TemporaryLimit::getName))
-                .forEach((name, temporaryLimits1) -> {
-                    if (temporaryLimits1.size() > 1) {
-                        throw new ValidationException(group.getValidable(), temporaryLimits1.size() + "temporary limits have the same name " + name);
-                    }
-                });
-    }
-
-    protected void checkLoadingLimits() {
-        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, temporaryLimits.values());
-        checkTemporaryLimits();
     }
 }

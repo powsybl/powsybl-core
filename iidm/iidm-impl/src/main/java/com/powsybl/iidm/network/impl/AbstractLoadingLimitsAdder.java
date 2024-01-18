@@ -8,11 +8,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
 
@@ -20,8 +17,6 @@ import static java.lang.Integer.MAX_VALUE;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
-
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     protected final Validable validable;
@@ -143,32 +138,8 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         return !temporaryLimits.isEmpty();
     }
 
-    private void checkTemporaryLimits() {
-        // check temporary limits are consistents with permanent
-        double previousLimit = Double.NaN;
-        for (LoadingLimits.TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
-            if (tl.getValue() <= permanentLimit) {
-                LOGGER.debug("{}, temporary limit should be greater than permanent limit", validable.getMessageHeader());
-            }
-            if (Double.isNaN(previousLimit)) {
-                previousLimit = tl.getValue();
-            } else if (tl.getValue() <= previousLimit) {
-                LOGGER.debug("{} : temporary limits should be in ascending value order", validable.getMessageHeader());
-            }
-        }
-        // check name unicity
-        temporaryLimits.values().stream()
-                .collect(Collectors.groupingBy(LoadingLimits.TemporaryLimit::getName))
-                .forEach((name, temporaryLimits1) -> {
-                    if (temporaryLimits1.size() > 1) {
-                        throw new ValidationException(validable, temporaryLimits1.size() + "temporary limits have the same name " + name);
-                    }
-                });
-    }
-
     protected void checkLoadingLimits() {
-        ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits.values());
-        checkTemporaryLimits();
+        ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values());
     }
 
     private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {

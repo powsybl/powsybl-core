@@ -25,6 +25,7 @@ class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ActivePowerL
 
     @Override
     public ActivePowerLimits add() {
+        checkLoadingLimits();
         OperationalLimitsGroupImpl group = groupSupplier.get();
         if (group == null) {
             throw new PowsyblException(String.format("Error adding ActivePowerLimits on %s: error getting or creating the group", getOwnerId()));

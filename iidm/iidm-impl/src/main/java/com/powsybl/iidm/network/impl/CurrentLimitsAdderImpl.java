@@ -29,6 +29,7 @@ class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLimits, C
 
     @Override
     public CurrentLimits add() {
+        checkLoadingLimits();
         OperationalLimitsGroupImpl group = groupSupplier.get();
         if (group == null) {
             throw new PowsyblException(String.format("Error adding CurrentLimits on %s: error getting or creating the group", getOwnerId()));
