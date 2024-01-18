@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:base="urn:uuid:" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:base="urn:uuid:" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
 	<md:FullModel rdf:about="urn:uuid:test">
 		<md:Model.scenarioTime>2023-01-01T00:00:00Z</md:Model.scenarioTime>
@@ -20,447 +21,189 @@
 		<cim:BaseVoltage.nominalVoltage>67.5</cim:BaseVoltage.nominalVoltage>
 		<cim:IdentifiedObject.name>67.5</cim:IdentifiedObject.name>
 	</cim:BaseVoltage>
-	<cim:Bay rdf:ID="P">
-		<cim:Bay.VoltageLevel rdf:resource="#S"></cim:Bay.VoltageLevel>
-		<cim:IdentifiedObject.description>T</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>U</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>SUBS2.1</entsoe:IdentifiedObject.shortName>
-	</cim:Bay>
-	<cim:ConformLoad rdf:ID="AH">
-		<cim:ConformLoad.LoadGroup rdf:resource="#AI"></cim:ConformLoad.LoadGroup>
-		<cim:EnergyConsumer.pfixedPct>100</cim:EnergyConsumer.pfixedPct>
-		<cim:EnergyConsumer.pfixed>0</cim:EnergyConsumer.pfixed>
-		<cim:EnergyConsumer.qfixedPct>100</cim:EnergyConsumer.qfixedPct>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#S"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.name>AJ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>TR312</entsoe:IdentifiedObject.shortName>
-		<cim:PowerSystemResource.PSRType rdf:resource="#AK"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.description>AL&lt;45kV 312 SUBS1AS</cim:IdentifiedObject.description>
-	</cim:ConformLoad>
-	<cim:Terminal rdf:ID="AV">
-		<cim:Terminal.ConnectivityNode rdf:resource="#AW"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#AX"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>AY</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Ground rdf:ID="CV">
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#P"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.name>CW</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>ST_OC</entsoe:IdentifiedObject.shortName>
-	</cim:Ground>
-	<cim:Breaker rdf:ID="DO">
-		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-		<cim:Switch.retained>false</cim:Switch.retained>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#AS"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.description>DP</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>DQ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>DJ_OC</entsoe:IdentifiedObject.shortName>
-	</cim:Breaker>
-	<cim:Disconnector rdf:ID="DR">
-		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-		<cim:Switch.retained>false</cim:Switch.retained>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#DS"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.description>DT</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>DU</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>SS.1.12_OC</entsoe:IdentifiedObject.shortName>
-	</cim:Disconnector>
+	<cim:Substation rdf:ID="PK">
+		<cim:Substation.Region rdf:resource="#PL"></cim:Substation.Region>
+		<cim:IdentifiedObject.name>PM</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>PN</cim:IdentifiedObject.description>
+	</cim:Substation>
+	<cim:VoltageLevel rdf:ID="S">
+		<cim:VoltageLevel.BaseVoltage rdf:resource="#YI"></cim:VoltageLevel.BaseVoltage>
+		<cim:VoltageLevel.Substation rdf:resource="#PK"></cim:VoltageLevel.Substation>
+		<cim:IdentifiedObject.name>YJ</cim:IdentifiedObject.name>
+		<cim:VoltageLevel.highVoltageLimit>75.6</cim:VoltageLevel.highVoltageLimit>
+		<cim:VoltageLevel.lowVoltageLimit>50.4</cim:VoltageLevel.lowVoltageLimit>
+		<cim:IdentifiedObject.description>YK</cim:IdentifiedObject.description>
+	</cim:VoltageLevel>
 	<cim:BusbarSection rdf:ID="AX">
 		<cim:BusbarSection.ipMax>20</cim:BusbarSection.ipMax>
 		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
 		<cim:Equipment.EquipmentContainer rdf:resource="#S"></cim:Equipment.EquipmentContainer>
 		<cim:IdentifiedObject.description>EE</cim:IdentifiedObject.description>
 		<cim:IdentifiedObject.name>EF</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>1.2</entsoe:IdentifiedObject.shortName>
 	</cim:BusbarSection>
-	<cim:Terminal rdf:ID="EJ">
-		<cim:Terminal.ConnectivityNode rdf:resource="#EK"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#EL"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>EM</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="FS">
-		<cim:Terminal.ConnectivityNode rdf:resource="#FT"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#FU"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>FV</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:ConnectivityNode rdf:ID="EK">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"></cim:ConnectivityNode.ConnectivityNodeContainer>
-		<cim:IdentifiedObject.name>FW</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N32384</entsoe:IdentifiedObject.shortName>
-	</cim:ConnectivityNode>
-	<cim:BusbarSection rdf:ID="CD">
-		<cim:BusbarSection.ipMax>20</cim:BusbarSection.ipMax>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#S"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.description>GH</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>GI</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>1.1</entsoe:IdentifiedObject.shortName>
-	</cim:BusbarSection>
-	<cim:Terminal rdf:ID="HE">
-		<cim:Terminal.ConnectivityNode rdf:resource="#HF"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#CV"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>HG</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="HH">
-		<cim:Terminal.ConnectivityNode rdf:resource="#HI"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#CI"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>HG</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="IA">
-		<cim:Terminal.ConnectivityNode rdf:resource="#HF"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#CI"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>IB</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="JB">
+	<cim:Terminal rdf:ID="AV">
 		<cim:Terminal.ConnectivityNode rdf:resource="#AW"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#FU"></cim:Terminal.ConductingEquipment>
+		<cim:Terminal.ConductingEquipment rdf:resource="#AX"></cim:Terminal.ConductingEquipment>
 		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>JC</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
+		<cim:IdentifiedObject.name>AY</cim:IdentifiedObject.name>
 	</cim:Terminal>
-	<cim:ConnectivityNode rdf:ID="HF">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#P"></cim:ConnectivityNode.ConnectivityNodeContainer>
-		<cim:IdentifiedObject.name>JF</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N118393</entsoe:IdentifiedObject.shortName>
+	<cim:ConnectivityNode rdf:ID="AW">
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"/>
+		<cim:IdentifiedObject.name>LI</cim:IdentifiedObject.name>
 	</cim:ConnectivityNode>
-	<cim:Terminal rdf:ID="JL">
-		<cim:Terminal.ConnectivityNode rdf:resource="#JM"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#CD"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>JN</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Breaker rdf:ID="JY">
-		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-		<cim:Switch.retained>false</cim:Switch.retained>
+
+	<!-- A ground with a ground disconnector normal open -->
+
+	<cim:Ground rdf:ID="OU">
 		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#P"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.description>DP</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>JZ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>DJ_OC</entsoe:IdentifiedObject.shortName>
-	</cim:Breaker>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
+		<cim:IdentifiedObject.name>KD</cim:IdentifiedObject.name>
+	</cim:Ground>
 	<cim:GroundDisconnector rdf:ID="CO">
 		<cim:Switch.normalOpen>true</cim:Switch.normalOpen>
 		<cim:Switch.retained>false</cim:Switch.retained>
 		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#DZ"></cim:Equipment.EquipmentContainer>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
 		<cim:IdentifiedObject.name>KD</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>ST_OC</entsoe:IdentifiedObject.shortName>
 	</cim:GroundDisconnector>
-	<cim:Bay rdf:ID="DS">
-		<cim:Bay.VoltageLevel rdf:resource="#S"></cim:Bay.VoltageLevel>
-		<cim:IdentifiedObject.description>KF</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>KG</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>CBO.1</entsoe:IdentifiedObject.shortName>
-	</cim:Bay>
-	<cim:Bay rdf:ID="DZ">
-		<cim:Bay.VoltageLevel rdf:resource="#S"></cim:Bay.VoltageLevel>
-		<cim:IdentifiedObject.description>LC</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>LD</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>SUBS4.1</entsoe:IdentifiedObject.shortName>
-	</cim:Bay>
-	<cim:ConnectivityNode rdf:ID="AW">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"></cim:ConnectivityNode.ConnectivityNodeContainer>
-		<cim:IdentifiedObject.name>LI</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N32386</entsoe:IdentifiedObject.shortName>
-	</cim:ConnectivityNode>
-	<cim:BusbarSection rdf:ID="LN">
-		<cim:BusbarSection.ipMax>20</cim:BusbarSection.ipMax>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#S"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.description>LO</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>LP</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>1.3</entsoe:IdentifiedObject.shortName>
-	</cim:BusbarSection>
-	<cim:Breaker rdf:ID="FU">
-		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-		<cim:Switch.retained>false</cim:Switch.retained>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#MC"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.description>MD</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>ME</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>DJ.HT_OC</entsoe:IdentifiedObject.shortName>
-	</cim:Breaker>
-	<cim:ConnectivityNode rdf:ID="MF">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"></cim:ConnectivityNode.ConnectivityNodeContainer>
-		<cim:IdentifiedObject.name>MG</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N32390</entsoe:IdentifiedObject.shortName>
-	</cim:ConnectivityNode>
-	<cim:GroundDisconnector rdf:ID="CI">
-		<cim:Switch.normalOpen>true</cim:Switch.normalOpen>
-		<cim:Switch.retained>false</cim:Switch.retained>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#P"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.name>CW</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>ST_OC</entsoe:IdentifiedObject.shortName>
-	</cim:GroundDisconnector>
-	<cim:Disconnector rdf:ID="NX">
-		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-		<cim:Switch.retained>false</cim:Switch.retained>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#DS"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.description>NY</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>NZ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>SS.1.23_OC</entsoe:IdentifiedObject.shortName>
-	</cim:Disconnector>
-	<cim:Terminal rdf:ID="OA">
-		<cim:Terminal.ConnectivityNode rdf:resource="#AW"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#NX"></cim:Terminal.ConductingEquipment>
+	<cim:Terminal rdf:ID="AAV">
+		<cim:Terminal.ConnectivityNode rdf:resource="#EK"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#CO"/>
 		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>OB</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
+		<cim:IdentifiedObject.name>RK</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:Terminal rdf:ID="EJ">
+		<cim:Terminal.ConnectivityNode rdf:resource="#EK"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#EL"/>
+		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>EM</cim:IdentifiedObject.name>
 	</cim:Terminal>
 	<cim:Breaker rdf:ID="EL">
 		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
 		<cim:Switch.retained>false</cim:Switch.retained>
 		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#DZ"></cim:Equipment.EquipmentContainer>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
 		<cim:IdentifiedObject.description>DP</cim:IdentifiedObject.description>
 		<cim:IdentifiedObject.name>OO</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>DJ_OC</entsoe:IdentifiedObject.shortName>
 	</cim:Breaker>
-	<cim:Ground rdf:ID="OU">
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#DZ"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.name>KD</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>ST_OC</entsoe:IdentifiedObject.shortName>
-	</cim:Ground>
-	<cim:Substation rdf:ID="PK">
-		<cim:Substation.Region rdf:resource="#PL"></cim:Substation.Region>
-		<cim:IdentifiedObject.name>PM</cim:IdentifiedObject.name>
-		<cim:IdentifiedObject.description>PN</cim:IdentifiedObject.description>
-		<entsoe:IdentifiedObject.shortName>SUBS1</entsoe:IdentifiedObject.shortName>
-	</cim:Substation>
-	<cim:Terminal rdf:ID="PO">
-		<cim:Terminal.ConnectivityNode rdf:resource="#JM"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#DR"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>PP</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Breaker rdf:ID="PQ">
-		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-		<cim:Switch.retained>false</cim:Switch.retained>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#PR"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.description>MD</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>PS</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>DJ.HT_OC</entsoe:IdentifiedObject.shortName>
-	</cim:Breaker>
-	<cim:Terminal rdf:ID="PT">
-		<cim:Terminal.ConnectivityNode rdf:resource="#JM"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#PQ"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>PU</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Bay rdf:ID="AS">
-		<cim:Bay.VoltageLevel rdf:resource="#S"></cim:Bay.VoltageLevel>
-		<cim:IdentifiedObject.description>QB</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>QC</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>SUBS3.1</entsoe:IdentifiedObject.shortName>
-	</cim:Bay>
-	<cim:Terminal rdf:ID="QL">
-		<cim:Terminal.ConnectivityNode rdf:resource="#QM"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#DO"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>QN</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:ConformLoad rdf:ID="RB">
-		<cim:ConformLoad.LoadGroup rdf:resource="#RC"></cim:ConformLoad.LoadGroup>
-		<cim:EnergyConsumer.pfixedPct>100</cim:EnergyConsumer.pfixedPct>
-		<cim:EnergyConsumer.pfixed>0</cim:EnergyConsumer.pfixed>
-		<cim:EnergyConsumer.qfixedPct>100</cim:EnergyConsumer.qfixedPct>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#S"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.name>RD</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>TR311</entsoe:IdentifiedObject.shortName>
-		<cim:PowerSystemResource.PSRType rdf:resource="#AK"></cim:PowerSystemResource.PSRType>
-		<cim:IdentifiedObject.description>AL&lt;45kV 311 SUBS1AS</cim:IdentifiedObject.description>
-	</cim:ConformLoad>
 	<cim:Terminal rdf:ID="RI">
-		<cim:Terminal.ConnectivityNode rdf:resource="#RJ"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#OU"></cim:Terminal.ConductingEquipment>
+		<cim:Terminal.ConnectivityNode rdf:resource="#RJ"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#OU"/>
 		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
 		<cim:IdentifiedObject.name>RK</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="RS">
-		<cim:Terminal.ConnectivityNode rdf:resource="#RT"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#PQ"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>RU</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="SP">
-		<cim:Terminal.ConnectivityNode rdf:resource="#FT"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#AH"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>SQ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:ConnectivityNode rdf:ID="RT">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"></cim:ConnectivityNode.ConnectivityNodeContainer>
-		<cim:IdentifiedObject.name>SR</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N32392</entsoe:IdentifiedObject.shortName>
-	</cim:ConnectivityNode>
-	<cim:Terminal rdf:ID="SU">
-		<cim:Terminal.ConnectivityNode rdf:resource="#SV"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#NX"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>SW</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:ConnectivityNode rdf:ID="SV">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"></cim:ConnectivityNode.ConnectivityNodeContainer>
-		<cim:IdentifiedObject.name>TK</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N32387</entsoe:IdentifiedObject.shortName>
-	</cim:ConnectivityNode>
-	<cim:ConnectivityNode rdf:ID="FT">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"></cim:ConnectivityNode.ConnectivityNodeContainer>
-		<cim:IdentifiedObject.name>UT</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N32391</entsoe:IdentifiedObject.shortName>
-	</cim:ConnectivityNode>
-	<cim:Terminal rdf:ID="VS">
-		<cim:Terminal.ConnectivityNode rdf:resource="#RT"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#RB"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>VT</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="WF">
-		<cim:Terminal.ConnectivityNode rdf:resource="#MF"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#DO"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>WG</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="WI">
-		<cim:Terminal.ConnectivityNode rdf:resource="#SV"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#LN"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>WJ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="WN">
-		<cim:Terminal.ConnectivityNode rdf:resource="#HI"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#JY"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>WO</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="XN">
-		<cim:Terminal.ConnectivityNode rdf:resource="#QM"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#FY"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>XO</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Bay rdf:ID="PR">
-		<cim:Bay.VoltageLevel rdf:resource="#S"></cim:Bay.VoltageLevel>
-		<cim:IdentifiedObject.description>XW&lt;45kV 311 POSTE SUBS1AS</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>RD</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>TR311</entsoe:IdentifiedObject.shortName>
-	</cim:Bay>
-	<cim:Bay rdf:ID="MC">
-		<cim:Bay.VoltageLevel rdf:resource="#S"></cim:Bay.VoltageLevel>
-		<cim:IdentifiedObject.description>XW&lt;45kV 312 POSTE SUBS1AS</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>AJ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>TR312</entsoe:IdentifiedObject.shortName>
-	</cim:Bay>
-	<cim:VoltageLevel rdf:ID="S">
-		<cim:VoltageLevel.BaseVoltage rdf:resource="#YI"></cim:VoltageLevel.BaseVoltage>
-		<cim:VoltageLevel.Substation rdf:resource="#PK"></cim:VoltageLevel.Substation>
-		<cim:IdentifiedObject.name>YJ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>3</entsoe:IdentifiedObject.shortName>
-		<cim:VoltageLevel.highVoltageLimit>75.6</cim:VoltageLevel.highVoltageLimit>
-		<cim:VoltageLevel.lowVoltageLimit>50.4</cim:VoltageLevel.lowVoltageLimit>
-		<cim:IdentifiedObject.description>YK</cim:IdentifiedObject.description>
-	</cim:VoltageLevel>
-	<cim:Terminal rdf:ID="ZI">
-		<cim:Terminal.ConnectivityNode rdf:resource="#SV"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#JY"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>ZJ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="ZM">
-		<cim:Terminal.ConnectivityNode rdf:resource="#RJ"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#CO"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>ZN</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="ZQ">
-		<cim:Terminal.ConnectivityNode rdf:resource="#AW"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#DR"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>ZR</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T2</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="ZY">
-		<cim:Terminal.ConnectivityNode rdf:resource="#AW"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#EL"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>ZZ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="AAG">
-		<cim:Terminal.ConnectivityNode rdf:resource="#JM"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#FY"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>AAH</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
 	</cim:Terminal>
 	<cim:ConnectivityNode rdf:ID="RJ">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#DZ"></cim:ConnectivityNode.ConnectivityNodeContainer>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"/>
 		<cim:IdentifiedObject.name>AAP</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N118619</entsoe:IdentifiedObject.shortName>
 	</cim:ConnectivityNode>
-	<cim:Terminal rdf:ID="AAV">
-		<cim:Terminal.ConnectivityNode rdf:resource="#EK"></cim:Terminal.ConnectivityNode>
-		<cim:Terminal.ConductingEquipment rdf:resource="#CO"></cim:Terminal.ConductingEquipment>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>RK</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>T1</entsoe:IdentifiedObject.shortName>
+	<cim:Terminal rdf:ID="ZM">
+		<cim:Terminal.ConnectivityNode rdf:resource="#RJ"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#CO"/>
+		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>ZN</cim:IdentifiedObject.name>
 	</cim:Terminal>
-	<cim:Disconnector rdf:ID="FY">
+	<cim:Terminal rdf:ID="ZY">
+		<cim:Terminal.ConnectivityNode rdf:resource="#AW"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#EL"/>
+		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>ZZ</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:ConnectivityNode rdf:ID="RJ">
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"/>
+		<cim:IdentifiedObject.name>AAP</cim:IdentifiedObject.name>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="EK">
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"/>
+		<cim:IdentifiedObject.name>FW</cim:IdentifiedObject.name>
+	</cim:ConnectivityNode>
+
+	<!-- A ground with a ground disconnector normal closed -->
+
+	<cim:Ground rdf:ID="CV">
+		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
+		<cim:IdentifiedObject.name>CW</cim:IdentifiedObject.name>
+	</cim:Ground>
+	<cim:GroundDisconnector rdf:ID="CI">
 		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
 		<cim:Switch.retained>false</cim:Switch.retained>
 		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#AS"></cim:Equipment.EquipmentContainer>
-		<cim:IdentifiedObject.description>NF</cim:IdentifiedObject.description>
-		<cim:IdentifiedObject.name>AAZ</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>SA.1_OC</entsoe:IdentifiedObject.shortName>
-	</cim:Disconnector>
-	<cim:ConnectivityNode rdf:ID="QM">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#AS"></cim:ConnectivityNode.ConnectivityNodeContainer>
-		<cim:IdentifiedObject.name>QM</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N32389</entsoe:IdentifiedObject.shortName>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
+		<cim:IdentifiedObject.name>CW</cim:IdentifiedObject.name>
+	</cim:GroundDisconnector>
+	<cim:Terminal rdf:ID="HE">
+		<cim:Terminal.ConnectivityNode rdf:resource="#HF"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#CV"/>
+		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>HG</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:ConnectivityNode rdf:ID="HF">
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"/>
+		<cim:IdentifiedObject.name>JF</cim:IdentifiedObject.name>
 	</cim:ConnectivityNode>
-	<cim:ConnectivityNode rdf:ID="JM">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"></cim:ConnectivityNode.ConnectivityNodeContainer>
-		<cim:IdentifiedObject.name>JM</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N32388</entsoe:IdentifiedObject.shortName>
-	</cim:ConnectivityNode>
+	<cim:Terminal rdf:ID="HH">
+		<cim:Terminal.ConnectivityNode rdf:resource="#HI"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#CI"/>
+		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>HG</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:Terminal rdf:ID="IA">
+		<cim:Terminal.ConnectivityNode rdf:resource="#HF"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#CI"/>
+		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>IB</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:Breaker rdf:ID="JY">
+		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+		<cim:Switch.retained>false</cim:Switch.retained>
+		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
+		<cim:IdentifiedObject.description>DP</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.name>JZ</cim:IdentifiedObject.name>
+	</cim:Breaker>
+	<cim:Terminal rdf:ID="WN">
+		<cim:Terminal.ConnectivityNode rdf:resource="#HI"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#JY"/>
+		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>WO</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:Terminal rdf:ID="ZI">
+		<cim:Terminal.ConnectivityNode rdf:resource="#AW"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#JY"/>
+		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>ZJ</cim:IdentifiedObject.name>
+	</cim:Terminal>
 	<cim:ConnectivityNode rdf:ID="HI">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"></cim:ConnectivityNode.ConnectivityNodeContainer>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"/>
 		<cim:IdentifiedObject.name>HI</cim:IdentifiedObject.name>
-		<entsoe:IdentifiedObject.shortName>N32385</entsoe:IdentifiedObject.shortName>
 	</cim:ConnectivityNode>
+
+	<!-- We need a generator to force the creation of a bus in IIDM -->
+
+	<cim:SynchronousMachine rdf:ID="ZX">
+		<cim:IdentifiedObject.name>ZY</cim:IdentifiedObject.name>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
+		<cim:RotatingMachine.GeneratingUnit rdf:resource="#ZW"/>
+		<cim:SynchronousMachine.maxQ>10</cim:SynchronousMachine.maxQ>
+		<cim:SynchronousMachine.minQ>0</cim:SynchronousMachine.minQ>
+		<cim:RotatingMachine.ratedS>100.000000</cim:RotatingMachine.ratedS>
+		<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+		<cim:RotatingMachine.ratedU>67.500000</cim:RotatingMachine.ratedU>
+		<cim:RotatingMachine.ratedPowerFactor>0.850000</cim:RotatingMachine.ratedPowerFactor>
+	</cim:SynchronousMachine>
+	<cim:Terminal rdf:ID="ZZ">
+		<cim:Terminal.ConnectivityNode rdf:resource="#AW"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#ZX"/>
+		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>ZZT</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:GeneratingUnit rdf:ID="ZW">
+		<cim:IdentifiedObject.name>ZU</cim:IdentifiedObject.name>
+		<cim:GeneratingUnit.initialP>20.000000</cim:GeneratingUnit.initialP>
+		<cim:GeneratingUnit.nominalP>100.000000</cim:GeneratingUnit.nominalP>
+		<cim:GeneratingUnit.maxOperatingP>120.000000</cim:GeneratingUnit.maxOperatingP>
+		<cim:GeneratingUnit.minOperatingP>10.000000</cim:GeneratingUnit.minOperatingP>
+		<cim:Equipment.EquipmentContainer rdf:resource="#S"/>
+	</cim:GeneratingUnit>
+
 </rdf:RDF>

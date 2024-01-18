@@ -26,13 +26,18 @@ class GroundConversionTest {
 
         assertEquals(2, network.getGroundCount());
 
-        assertNotNull(network.getGround("OU"));
+        Ground groundOU = network.getGround("OU");
+        assertNotNull(groundOU);
+        assertEquals("KD", groundOU.getNameOrId());
+        assertNotNull(groundOU.getTerminal());
+        assertFalse(groundOU.getTerminal().isConnected());
+        assertEquals("S", groundOU.getTerminal().getVoltageLevel().getId());
 
         Ground groundCV = network.getGround("CV");
         assertNotNull(groundCV);
         assertEquals("CW", groundCV.getNameOrId());
         assertNotNull(groundCV.getTerminal());
-        assertFalse(groundCV.getTerminal().isConnected());
+        assertTrue(groundCV.getTerminal().isConnected());
         assertEquals("S", groundCV.getTerminal().getVoltageLevel().getId());
     }
 }
