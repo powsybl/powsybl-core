@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.impl.util.RefObj;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -102,30 +103,33 @@ class OperationalLimitsGroupsImpl implements OperationalLimitsGroups {
     }
 
     private OperationalLimitsGroupImpl getOrCreateDefaultOperationalLimitsGroup() {
-        return getDefaultOperationalLimitsGroupImpl()
-                .or(() -> Optional.ofNullable(operationalLimitsGroupById.get(DEFAULT_OPERATIONAL_LIMITS_GROUP_DEFAULT_ID)))
-                .orElseGet(() -> newOperationalLimitsGroup(DEFAULT_OPERATIONAL_LIMITS_GROUP_DEFAULT_ID));
+        Optional<OperationalLimitsGroupImpl> opt = getDefaultOperationalLimitsGroupImpl();
+        if (opt.isPresent()) {
+            return opt.get();
+        }
+        String groupId = DEFAULT_OPERATIONAL_LIMITS_GROUP_DEFAULT_ID;
+        OperationalLimitsGroupImpl group = Optional.ofNullable(operationalLimitsGroupById.get(groupId))
+            .orElseGet(() -> newOperationalLimitsGroup(groupId));
+        setDefaultOperationalLimitsGroup(groupId);
+        return group;
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        OperationalLimitsGroupImpl group = getOrCreateDefaultOperationalLimitsGroup();
-        setDefaultOperationalLimitsGroup(group.getId());
-        return new CurrentLimitsAdderImpl(getOrCreateDefaultOperationalLimitsGroup(), identifiable, identifiable.getId());
+        return new CurrentLimitsAdderImpl(this::getOrCreateDefaultOperationalLimitsGroup,
+                identifiable, identifiable.getId());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        OperationalLimitsGroupImpl group = getOrCreateDefaultOperationalLimitsGroup();
-        setDefaultOperationalLimitsGroup(group.getId());
-        return new ActivePowerLimitsAdderImpl(group, identifiable, identifiable.getId());
+        return new ActivePowerLimitsAdderImpl(this::getOrCreateDefaultOperationalLimitsGroup,
+                identifiable, identifiable.getId());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        OperationalLimitsGroupImpl group = getOrCreateDefaultOperationalLimitsGroup();
-        setDefaultOperationalLimitsGroup(group.getId());
-        return new ApparentPowerLimitsAdderImpl(group, identifiable, identifiable.getId());
+        return new ApparentPowerLimitsAdderImpl(this::getOrCreateDefaultOperationalLimitsGroup,
+                identifiable, identifiable.getId());
     }
 
     private void notifyUpdate(OperationalLimitsGroup oldValue, OperationalLimitsGroup newValue) {

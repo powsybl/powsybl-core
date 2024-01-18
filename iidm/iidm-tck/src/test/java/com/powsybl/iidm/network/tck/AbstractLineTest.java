@@ -13,7 +13,14 @@ import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+
+import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
@@ -544,5 +551,79 @@ public abstract class AbstractLineTest {
                 .setConnectableBus1("busA")
                 .setConnectableBus2("busB")
                 .add();
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getLimitType")
+    void createDefaultOperationalLimitsGroupWhenMissing(LimitType limitType) {
+        Line line = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+        assertTrue(line.getDefaultOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getDefaultOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
+        adder.setPermanentLimit(1000.);
+        adder.add();
+        // The default group is automatically created
+        assertTrue(line.getDefaultOperationalLimitsGroup1().isPresent());
+        Collection<OperationalLimitsGroup> operationalLimitsGroups1 = line.getOperationalLimitsGroups1();
+        assertEquals(1, operationalLimitsGroups1.size());
+        OperationalLimitsGroup group = operationalLimitsGroups1.iterator().next();
+        assertEquals("DEFAULT", group.getId());
+        assertTrue(getLimits(group, limitType).isPresent());
+        assertEquals(1000., getLimits(group, limitType).get().getPermanentLimit());
+    }
+
+    static Stream<Arguments> getLimitType() {
+        return Stream.of(
+                Arguments.of(LimitType.CURRENT),
+                Arguments.of(LimitType.APPARENT_POWER),
+                Arguments.of(LimitType.ACTIVE_POWER)
+        );
+    }
+
+    private LoadingLimitsAdder<?, ?> getAdder(Line l, LimitType limitType) {
+        return switch (limitType) {
+            case CURRENT -> l.newCurrentLimits1();
+            case ACTIVE_POWER -> l.newActivePowerLimits1();
+            case APPARENT_POWER -> l.newApparentPowerLimits1();
+            default -> throw new IllegalArgumentException("Invalid type");
+        };
+    }
+
+    private Optional<LoadingLimits> getLimits(OperationalLimitsGroup group, LimitType limitType) {
+        return switch (limitType) {
+            case CURRENT -> group.getCurrentLimits().map(LoadingLimits.class::cast);
+            case ACTIVE_POWER -> group.getActivePowerLimits().map(LoadingLimits.class::cast);
+            case APPARENT_POWER -> group.getApparentPowerLimits().map(LoadingLimits.class::cast);
+            default -> throw new IllegalArgumentException("Invalid type");
+        };
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getLimitType")
+    void dontChangeDefaultOperationalLimitsGroupIfAdderNotUsedTest(LimitType limitType) {
+        Line line = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+        assertTrue(line.getDefaultOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getDefaultOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
+        adder.setPermanentLimit(1000.);
+        // The adder is voluntarily NOT added. The default group should not be updated.
+        assertTrue(line.getDefaultOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
     }
 }

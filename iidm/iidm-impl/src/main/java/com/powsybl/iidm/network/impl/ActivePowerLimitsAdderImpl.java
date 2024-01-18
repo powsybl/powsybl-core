@@ -7,21 +7,28 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+
+import java.util.function.Supplier;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ActivePowerLimits, ActivePowerLimitsAdder> implements ActivePowerLimitsAdder {
-    OperationalLimitsGroupImpl group;
+    Supplier<OperationalLimitsGroupImpl> groupSupplier;
 
-    public ActivePowerLimitsAdderImpl(OperationalLimitsGroupImpl group, Validable validable, String ownerId) {
+    public ActivePowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId) {
         super(validable, ownerId);
-        this.group = group;
+        this.groupSupplier = groupSupplier;
     }
 
     @Override
     public ActivePowerLimits add() {
+        OperationalLimitsGroupImpl group = groupSupplier.get();
+        if (group == null) {
+            throw new PowsyblException(String.format("Error adding ActivePowerLimits on %s: error getting or creating the group", getOwnerId()));
+        }
         ActivePowerLimits limits = new ActivePowerLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setActivePowerLimits(limits);
         return limits;
