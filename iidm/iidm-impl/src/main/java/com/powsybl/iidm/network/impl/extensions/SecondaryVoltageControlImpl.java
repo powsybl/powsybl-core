@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -31,5 +32,11 @@ public class SecondaryVoltageControlImpl extends AbstractExtension<Network> impl
     @Override
     public List<ControlZone> getControlZones() {
         return Collections.unmodifiableList(controlZones);
+    }
+
+    @Override
+    public Optional<ControlZone> getControlZone(String name) {
+        Objects.requireNonNull(name);
+        return controlZones.stream().filter(z -> z.getName().equals(name)).findFirst();
     }
 }

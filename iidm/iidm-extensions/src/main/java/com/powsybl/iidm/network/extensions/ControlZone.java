@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.extensions;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -19,4 +20,6 @@ public interface ControlZone {
     PilotPoint getPilotPoint();
 
     List<ControlUnit> getControlUnits();
+
+    Optional<ControlUnit> getControlUnit(String id);
 }

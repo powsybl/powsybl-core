@@ -181,6 +181,7 @@ public class Conversion {
             convert(cgmes.busBarSections(), bbs -> new BusbarSectionConversion(bbs, context));
         }
 
+        convert(cgmes.grounds(), g -> new GroundConversion(g, context));
         convert(cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
         convert(cgmes.energySources(), es -> new EnergySourceConversion(es, context));
         convf = eqi -> new EquivalentInjectionConversion(eqi, context);

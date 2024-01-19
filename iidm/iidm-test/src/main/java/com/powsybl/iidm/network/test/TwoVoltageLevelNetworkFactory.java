@@ -173,8 +173,10 @@ public final class TwoVoltageLevelNetworkFactory {
             .setNode1(1)
             .setNode2(6)
             .add();
+
         vl1.newGround()
             .setId("GroundNB")
+            .setName("GroundNB1")
             .setNode(6)
             .setEnsureIdUnicity(true)
             .add();
@@ -182,6 +184,7 @@ public final class TwoVoltageLevelNetworkFactory {
         // Create ground in bus-breaker view
         vl2.newGround()
             .setId("GroundBB")
+            .setName("GroundBB1")
             .setBus("BUS2")
             .setEnsureIdUnicity(true)
             .add();
