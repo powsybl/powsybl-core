@@ -101,11 +101,8 @@ class SparseMatrixSerializeTest {
     void testSerializeSparseMatrixToMatlabFormat() {
         SparseMatrix matrix = createSimpleSparseMatrix();
         Path file = fileSystem.getPath("/work/sparse-matrix-test.mat");
-        SparseMatrixSerializer sms = new SparseMatrixMatSerializer();
-        assertEquals("MAT", sms.getFormat());
-        assertEquals("MATLAB binary format", sms.getComment());
-        sms.save(matrix, file);
-        SparseMatrix m1 = sms.load(file);
+        SparseMatrixMatSerializer.save(matrix, file);
+        SparseMatrix m1 = SparseMatrixMatSerializer.load(file);
         assertEquals(matrix, m1);
     }
 
@@ -113,9 +110,8 @@ class SparseMatrixSerializeTest {
     void testSerializeToMatlabFormatExceptions() throws IOException {
         SparseMatrix matrix = createSimpleSparseMatrix();
         Path file = fileSystem.getPath("");
-        SparseMatrixSerializer ser = new SparseMatrixMatSerializer();
-        assertThrows(UncheckedIOException.class, () -> ser.save(matrix, file));
-        assertThrows(UncheckedIOException.class, () -> ser.load(file));
+        assertThrows(UncheckedIOException.class, () -> SparseMatrixMatSerializer.save(matrix, file));
+        assertThrows(UncheckedIOException.class, () -> SparseMatrixMatSerializer.load(file));
     }
 
     @Test
@@ -123,9 +119,8 @@ class SparseMatrixSerializeTest {
         //create a 100x100 sparse matrix with 30% (circa) non zero values
         SparseMatrix matrix = createRandomSparseMatrix(100, 100, 0.3);
         Path file = fileSystem.getPath("/work/sparse-large-matrix-test.mat");
-        SparseMatrixSerializer sms = new SparseMatrixMatSerializer();
-        sms.save(matrix, file);
-        SparseMatrix m1 = sms.load(file);
+        SparseMatrixMatSerializer.save(matrix, file);
+        SparseMatrix m1 = SparseMatrixMatSerializer.load(file);
         assertEquals(matrix, m1);
     }
 }
