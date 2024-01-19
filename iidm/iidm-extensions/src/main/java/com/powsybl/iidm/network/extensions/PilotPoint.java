@@ -14,6 +14,9 @@ import java.util.List;
  */
 public interface PilotPoint {
 
+    record TargetVoltageEvent(String controlZoneName, double value) {
+    }
+
     /**
      * Get pilot point busbar section ID or bus ID of the bus/breaker view.
      */
