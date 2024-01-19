@@ -77,6 +77,7 @@
                     <xs:choice minOccurs="0" maxOccurs="unbounded">
                         <xs:element name="twoWindingsTransformer" type="iidm:TwoWindingsTransformer" />
                         <xs:element name="threeWindingsTransformer" type="iidm:ThreeWindingsTransformer" />
+                        <xs:element name="overloadManagementSystem" type="iidm:OverloadManagementSystem" />
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="tso" use="optional" type="iidm:nonEmptyString"/>
@@ -345,6 +346,18 @@
         </xs:sequence>
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
+    <xs:complexType name="LoadingLimitGroup">
+        <xs:sequence>
+            <xs:element name="operationalLimitsGroups" type="iidm:LoadingLimitGroups" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" use="required" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="LoadingLimitGroups">
+        <xs:sequence>
+            <xs:element name="operationalLimitsGroup" type="iidm:LoadingLimitGroup" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="defaultOperationalLimitsGroupId" use="optional" type="xs:string"/>
+    </xs:complexType>
     <xs:complexType name="DanglingLine">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
@@ -353,9 +366,7 @@
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
-                    <xs:element name="activePowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroups" type="iidm:LoadingLimitGroups" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="p0" use="optional" type="xs:double"/>
                 <xs:attribute name="q0" use="optional" type="xs:double"/>
@@ -418,12 +429,8 @@
                 <xs:sequence>
                     <xs:element name="ratioTapChanger" type="iidm:RatioTapChanger" minOccurs="0"/>
                     <xs:element name="phaseTapChanger" type="iidm:PhaseTapChanger" minOccurs="0"/>
-                    <xs:element name="activePowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="activePowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroups1" type="iidm:LoadingLimitGroups" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroups2" type="iidm:LoadingLimitGroups" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
@@ -445,15 +452,9 @@
                     <xs:element name="phaseTapChanger2" type="iidm:PhaseTapChanger" minOccurs="0"/>
                     <xs:element name="ratioTapChanger3" type="iidm:RatioTapChanger" minOccurs="0"/>
                     <xs:element name="phaseTapChanger3" type="iidm:PhaseTapChanger" minOccurs="0"/>
-                    <xs:element name="activePowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="activePowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="activePowerLimits3" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits3" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits3" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroups1" type="iidm:LoadingLimitGroups" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroups2" type="iidm:LoadingLimitGroups" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroups3" type="iidm:LoadingLimitGroups" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="ratedU0" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
@@ -492,6 +493,49 @@
                 <xs:attribute name="q2" use="optional" type="xs:double"/>
                 <xs:attribute name="p3" use="optional" type="xs:double"/>
                 <xs:attribute name="q3" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="OverloadManagementSystem">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="branchTripping" type="iidm:BranchTripping"/>
+                    <xs:element name="switchTripping" type="iidm:SwitchTripping"/>
+                    <xs:element name="threeWindingsTransformerTripping" type="iidm:ThreeWindingsTransformerTripping"/>
+                </xs:choice>
+                <xs:attribute name="enabled" use="optional" type="xs:boolean"/>
+                <xs:attribute name="monitoredElementId" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="side" use="optional" type="iidm:Side"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Tripping">
+        <xs:attribute name="key" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="name" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="currentLimit" use="required" type="xs:double"/>
+        <xs:attribute name="openAction" use="required" type="xs:boolean"/>
+    </xs:complexType>
+    <xs:complexType name="BranchTripping">
+        <xs:complexContent>
+            <xs:extension base="iidm:Tripping">
+                <xs:attribute name="branchId" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="side" use="optional" type="iidm:Side"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="SwitchTripping">
+        <xs:complexContent>
+            <xs:extension base="iidm:Tripping">
+                <xs:attribute name="switchId" use="required" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ThreeWindingsTransformerTripping">
+        <xs:complexContent>
+            <xs:extension base="iidm:Tripping">
+                <xs:attribute name="threeWindingsTransformerId" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="side" use="optional" type="iidm:Side"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -563,12 +607,8 @@
         <xs:complexContent>
             <xs:extension base="iidm:Branch">
                 <xs:sequence>
-                    <xs:element name="activePowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="activePowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroups1" type="iidm:LoadingLimitGroups" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroups2" type="iidm:LoadingLimitGroups" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>

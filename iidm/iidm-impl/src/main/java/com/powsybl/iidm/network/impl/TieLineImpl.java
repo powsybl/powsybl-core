@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -187,18 +186,43 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits1() {
-        return danglingLine1.getOperationalLimits();
+    public Optional<String> getSelectedOperationalLimitsGroupId1() {
+        return danglingLine1.getSelectedOperationalLimitsGroupId();
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits1() {
-        return danglingLine1.getCurrentLimits();
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
+        return danglingLine1.getOperationalLimitsGroups();
     }
 
     @Override
-    public CurrentLimits getNullableCurrentLimits1() {
-        return getCurrentLimits1().orElse(null);
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id) {
+        return danglingLine1.getOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1() {
+        return danglingLine1.getSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
+        return danglingLine1.newOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void setSelectedOperationalLimitsGroup1(String id) {
+        danglingLine1.setSelectedOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup1(String id) {
+        danglingLine1.removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup1() {
+        danglingLine1.cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
@@ -207,13 +231,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return danglingLine1.getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits1() {
-        return getApparentPowerLimits1().orElse(null);
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return danglingLine1.newActivePowerLimits();
     }
 
     @Override
@@ -222,33 +241,43 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits2() {
-        return danglingLine2.getOperationalLimits();
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
+        return danglingLine2.getOperationalLimitsGroups();
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return danglingLine1.getActivePowerLimits();
+    public Optional<String> getSelectedOperationalLimitsGroupId2() {
+        return danglingLine2.getSelectedOperationalLimitsGroupId();
     }
 
     @Override
-    public ActivePowerLimits getNullableActivePowerLimits1() {
-        return getActivePowerLimits1().orElse(null);
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id) {
+        return danglingLine2.getOperationalLimitsGroup(id);
     }
 
     @Override
-    public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return danglingLine1.newActivePowerLimits();
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2() {
+        return danglingLine2.getSelectedOperationalLimitsGroup();
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits2() {
-        return danglingLine2.getCurrentLimits();
+    public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
+        return danglingLine2.newOperationalLimitsGroup(id);
     }
 
     @Override
-    public CurrentLimits getNullableCurrentLimits2() {
-        return getCurrentLimits2().orElse(null);
+    public void setSelectedOperationalLimitsGroup2(String id) {
+        danglingLine2.setSelectedOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup2(String id) {
+        danglingLine2.removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup2() {
+        danglingLine2.cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
@@ -257,33 +286,13 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return danglingLine2.getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits2() {
-        return getApparentPowerLimits2().orElse(null);
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return danglingLine2.newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         return danglingLine2.newApparentPowerLimits();
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return danglingLine2.getActivePowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getNullableActivePowerLimits2() {
-        return getActivePowerLimits2().orElse(null);
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return danglingLine2.newActivePowerLimits();
     }
 
     @Override

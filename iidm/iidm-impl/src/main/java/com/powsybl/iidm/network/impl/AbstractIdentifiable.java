@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.base.Strings;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.util.Identifiables;
@@ -254,5 +255,18 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
                 .filter(e -> e instanceof MultiVariantObject)
                 .map(e -> (MultiVariantObject) e)
                 .forEach(e -> e.allocateVariantArrayElement(indexes, sourceIndex));
+    }
+
+    @Override
+    public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
+        E extension = getExtension(type);
+        NetworkListenerList listeners = getNetwork().getListeners();
+        if (extension != null) {
+            listeners.notifyExtensionBeforeRemoval(extension);
+            removeExtension(type, extension);
+            listeners.notifyExtensionAfterRemoval(this, extension.getName());
+            return true;
+        }
+        return false;
     }
 }

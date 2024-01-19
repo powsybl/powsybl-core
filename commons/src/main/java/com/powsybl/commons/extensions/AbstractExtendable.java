@@ -43,15 +43,19 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         return (E) extensionsByName.get(name);
     }
 
+    protected <E extends Extension<T>> void removeExtension(Class<E> type, E extension) {
+        extensions.remove(type);
+        extensionsByName.remove(extension.getName());
+        extension.setExtendable(null);
+    }
+
     @Override
     public <E extends Extension<T>> boolean removeExtension(Class<E> type) {
         boolean removed = false;
 
         E extension = getExtension(type);
         if (extension != null) {
-            extensions.remove(type);
-            extensionsByName.remove(extension.getName());
-            extension.setExtendable(null);
+            removeExtension(type, extension);
             removed = true;
         }
 

@@ -18,8 +18,7 @@ import java.time.ZonedDateTime;
 import java.util.function.Supplier;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -158,6 +157,27 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
         testWriteXmlAllPreviousVersions(network, options, "t3w-loading-limits.xml", IidmVersion.V_1_5);
+    }
+
+    @Test
+    void testImportWithoutPermanentLimit() {
+        // Check that import succeed for versions prior to 1.12
+        // (the permanent limit is computed)
+        ImportOptions options = new ImportOptions()
+                .setMissingPermanentLimitPercentage(90.);
+        testForAllPreviousVersions(IidmVersion.V_1_12, version -> {
+            Network n = NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null);
+            Line line = n.getLine("NHV1_NHV2_1");
+            assertEquals(900., line.getCurrentLimits1().orElseThrow().getPermanentLimit());
+            assertEquals(300., line.getCurrentLimits2().orElseThrow().getPermanentLimit());
+        });
+
+        // The import should fail for versions after (or equals) 1.12
+        testForAllVersionsSince(IidmVersion.V_1_12, version -> {
+            PowsyblException e = assertThrows(PowsyblException.class,
+                    () -> NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null));
+            assertTrue(e.getMessage().contains("permanentLimit is absent"));
+        });
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier) {

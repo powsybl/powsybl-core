@@ -11,12 +11,11 @@ package com.powsybl.iidm.network;
  * @author Thibaut Vermeulen {@literal <thibaut.vermeulen at rte-france.com>}
  */
 public interface OperationalLimits {
+
     /**
      * Get the operational limits' type (can be APPARENT_POWER, CURRENT or VOLTAGE)
      */
     LimitType getLimitType();
 
-    default void remove() {
-        // do nothing
-    }
+    void remove();
 }

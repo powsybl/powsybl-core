@@ -35,7 +35,7 @@ import static com.powsybl.iidm.network.util.TieLineUtil.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, MultiVariantObject {
+public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, MultiVariantObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
@@ -183,7 +183,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return getRef();
     }
 
-    NetworkListenerList getListeners() {
+    public NetworkListenerList getListeners() {
         return listeners;
     }
 
@@ -717,6 +717,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public HvdcLineAdder newHvdcLine() {
         return newHvdcLine(null);
+    }
+
+    @Override
+    public Ground getGround(String id) {
+        return index.get(id, GroundImpl.class);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return Collections.unmodifiableCollection(index.getAll(GroundImpl.class));
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return index.getAll(GroundImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getGroundCount() {
+        return index.getAll(GroundImpl.class).size();
     }
 
     HvdcLineAdder newHvdcLine(String subnetwork) {
