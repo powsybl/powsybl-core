@@ -41,55 +41,55 @@ public final class SparseMatrixMatSerializer {
     }
 
     /**
-     * Save a SparseMatrix to a stream.
+     * Write a SparseMatrix to a stream, in MATLAB format
      *
-     * @param matrix The sparse matrix
-     * @param outputStream The output stream used by the serializer
+     * @param m The sparse matrix
+     * @param oStream The output stream used by the serializer
      */
-    public static void save(SparseMatrix matrix, OutputStream outputStream) {
-        Objects.requireNonNull(matrix);
-        Objects.requireNonNull(outputStream);
-        writeMatlab(toEjmlSparseMatrix(matrix), outputStream, ENTRY_NAME);
+    public static void exportMat(SparseMatrix m, OutputStream oStream) {
+        Objects.requireNonNull(m);
+        Objects.requireNonNull(oStream);
+        writeMatlab(toEjmlSparseMatrix(m), oStream, ENTRY_NAME);
     }
 
     /**
-     * Load a SparseMatrix from a stream.
+     * Read a SparseMatrix from a stream (MATLAB format).
      *
-     * @param inputStream The input stream used by the serializer
+     * @param iStream The input stream used by the serializer
      * @return The sparse matrix read from the input stream
      */
-    public static SparseMatrix load(InputStream inputStream) {
-        Objects.requireNonNull(inputStream);
-        DMatrixSparseCSC matrix = readMatlab(inputStream, null, ENTRY_NAME);
-        return fromEjmlSparseMatrix(matrix);
+    public static SparseMatrix importMat(InputStream iStream) {
+        Objects.requireNonNull(iStream);
+        DMatrixSparseCSC m = readMatlab(iStream, null, ENTRY_NAME);
+        return fromEjmlSparseMatrix(m);
     }
 
     /**
-     * Save a SparseMatrix to a file.
+     * Write a SparseMatrix to a MATLAB file.
      *
-     * @param matrix The sparse matrix
+     * @param m The sparse matrix
      * @param file The output file used by the serializer
      */
-    public static void save(SparseMatrix matrix, Path file) {
-        Objects.requireNonNull(matrix);
+    public static void exportMat(SparseMatrix m, Path file) {
+        Objects.requireNonNull(m);
         Objects.requireNonNull(file);
-        try (OutputStream outputStream = Files.newOutputStream(file)) {
-            save(matrix, outputStream);
+        try (OutputStream oStream = Files.newOutputStream(file)) {
+            exportMat(m, oStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     /**
-     * Load a SparseMatrix from a file.
+     * Read a SparseMatrix from a MATLAB file.
      *
      * @param file The input file used by the serializer
      * @return The sparse matrix read from the file
      */
-    public static SparseMatrix load(Path file) {
+    public static SparseMatrix importMat(Path file) {
         Objects.requireNonNull(file);
-        try (InputStream inputStream = Files.newInputStream(file)) {
-            return load(inputStream);
+        try (InputStream iStream = Files.newInputStream(file)) {
+            return importMat(iStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
