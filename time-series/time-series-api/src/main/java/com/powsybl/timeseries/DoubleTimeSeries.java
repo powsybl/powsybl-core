@@ -59,7 +59,7 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
             }
         }
 
-        Map<Integer, List<DoublePointExt>> points = new TreeMap<>();
+        Map<Integer, List<DoublePointExt>> points = new HashMap<>();
         for (int timeSeriesNum = 0; timeSeriesNum < timeSeriesList.size(); timeSeriesNum++) {
             DoubleTimeSeries timeSeries = timeSeriesList.get(timeSeriesNum);
             for (DoublePoint point : timeSeries) {
@@ -68,7 +68,12 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
             }
         }
 
-        Iterator<Map.Entry<Integer, List<DoublePointExt>>> it = points.entrySet().iterator();
+        List<Map.Entry<Integer, List<DoublePointExt>>> entrySet = new ArrayList<>();
+        List<Integer> sortedKeys = new ArrayList<>(points.keySet());
+        Collections.sort(sortedKeys);
+        sortedKeys.forEach(key -> entrySet.add(new AbstractMap.SimpleEntry<>(key, points.get(key))));
+
+        Iterator<Map.Entry<Integer, List<DoublePointExt>>> it = entrySet.iterator();
 
         return new Iterator<DoubleMultiPoint>() {
 
