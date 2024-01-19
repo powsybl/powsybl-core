@@ -7,23 +7,34 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ApparentPowerLimits;
 import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
-import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.Validable;
+
+import java.util.function.Supplier;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ApparentPowerLimits, ApparentPowerLimitsAdder> implements ApparentPowerLimitsAdder {
 
-    ApparentPowerLimitsAdderImpl(OperationalLimitsOwner owner) {
-        super(owner);
+    Supplier<OperationalLimitsGroupImpl> groupSupplier;
+
+    public ApparentPowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId) {
+        super(validable, ownerId);
+        this.groupSupplier = groupSupplier;
     }
 
     @Override
     public ApparentPowerLimits add() {
-        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(owner, permanentLimit, temporaryLimits);
-        owner.setOperationalLimits(LimitType.APPARENT_POWER, limits);
+        checkLoadingLimits();
+        OperationalLimitsGroupImpl group = groupSupplier.get();
+        if (group == null) {
+            throw new PowsyblException(String.format("Error adding ApparentPowerLimits on %s: error getting or creating the group", getOwnerId()));
+        }
+        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(group, permanentLimit, temporaryLimits);
+        group.setApparentPowerLimits(limits);
         return limits;
     }
 }

@@ -7,14 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.LoadingLimitsAdder;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
 import static java.lang.Integer.MAX_VALUE;
 
@@ -22,10 +17,10 @@ import static java.lang.Integer.MAX_VALUE;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
-
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
-    protected final OperationalLimitsOwner owner;
+    protected final Validable validable;
+    private final String ownerId;
 
     protected double permanentLimit = Double.NaN;
 
@@ -76,16 +71,16 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         @Override
         public B endTemporaryLimit() {
             if (Double.isNaN(value)) {
-                throw new ValidationException(owner, "temporary limit value is not set");
+                throw new ValidationException(validable, "temporary limit value is not set");
             }
             if (value <= 0) {
-                throw new ValidationException(owner, "temporary limit value must be > 0");
+                throw new ValidationException(validable, "temporary limit value must be > 0");
             }
             if (acceptableDuration == null) {
-                throw new ValidationException(owner, "acceptable duration is not set");
+                throw new ValidationException(validable, "acceptable duration is not set");
             }
             if (acceptableDuration < 0) {
-                throw new ValidationException(owner, "acceptable duration must be >= 0");
+                throw new ValidationException(validable, "acceptable duration must be >= 0");
             }
             checkAndGetUniqueName();
             temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
@@ -94,7 +89,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
         private void checkAndGetUniqueName() {
             if (name == null) {
-                throw new ValidationException(owner, "name is not set");
+                throw new ValidationException(validable, "name is not set");
             }
             if (ensureNameUnicity) {
                 int i = 0;
@@ -112,8 +107,9 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
     }
 
-    AbstractLoadingLimitsAdder(OperationalLimitsOwner owner) {
-        this.owner = owner;
+    AbstractLoadingLimitsAdder(Validable validable, String ownerId) {
+        this.validable = Objects.requireNonNull(validable);
+        this.ownerId = ownerId;
     }
 
     @Override
@@ -140,6 +136,10 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     @Override
     public boolean hasTemporaryLimits() {
         return !temporaryLimits.isEmpty();
+    }
+
+    protected void checkLoadingLimits() {
+        ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values());
     }
 
     private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {
@@ -174,6 +174,6 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
     @Override
     public String getOwnerId() {
-        return owner.getId();
+        return ownerId;
     }
 }
