@@ -67,6 +67,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
         assertTrue(z1.getControlUnits().get(1).isParticipate());
         z1.getPilotPoint().setTargetV(16);
         assertEquals(16d, z1.getPilotPoint().getTargetV(), 0d);
+        assertTrue(z1.getControlUnit("GEN").isPresent());
     }
 
     @Test

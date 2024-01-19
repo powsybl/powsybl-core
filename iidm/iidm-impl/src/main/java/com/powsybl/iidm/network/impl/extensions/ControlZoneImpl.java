@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.PilotPoint;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -55,5 +56,11 @@ class ControlZoneImpl implements ControlZone {
     @Override
     public List<ControlUnit> getControlUnits() {
         return Collections.unmodifiableList(controlUnits);
+    }
+
+    @Override
+    public Optional<ControlUnit> getControlUnit(String id) {
+        Objects.requireNonNull(id);
+        return controlUnits.stream().filter(u -> u.getId().equals(id)).findFirst();
     }
 }
