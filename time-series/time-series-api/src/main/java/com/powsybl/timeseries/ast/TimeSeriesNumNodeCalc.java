@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.util.Deque;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -30,7 +31,7 @@ public class TimeSeriesNumNodeCalc implements NodeCalc {
     }
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth, Map<Integer, R> cache) {
         return visitor.visit(this, arg);
     }
 

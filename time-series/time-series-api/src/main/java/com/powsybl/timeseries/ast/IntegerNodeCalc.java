@@ -13,6 +13,7 @@ import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
 import java.util.Deque;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -34,7 +35,7 @@ public class IntegerNodeCalc implements LiteralNodeCalc {
     }
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth, Map<Integer, R> cache) {
         return visitor.visit(this, arg);
     }
 

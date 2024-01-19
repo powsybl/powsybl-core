@@ -15,6 +15,7 @@ import com.powsybl.timeseries.TimeSeriesException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Deque;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -50,7 +51,9 @@ import java.util.Objects;
  */
 public interface NodeCalc {
 
-    <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth);
+    <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth, Map<Integer, R> cache);
+
+//    <R, A> R acceptWithCache(NodeCalcVisitor<R, A> visitor, A arg, int depth);
 
     <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> nodesStack);
 

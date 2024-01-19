@@ -10,6 +10,7 @@ package com.powsybl.timeseries.ast;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Deque;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -28,23 +29,37 @@ public abstract class AbstractBinaryNodeCalc implements NodeCalc {
     protected abstract <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, R leftValue, R rightValue);
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth, Map<Integer, R> cache) {
         if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
-            Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
-            R leftValue = null;
-            NodeCalc leftNode = p.getLeft();
-            if (leftNode != null) {
-                leftValue = leftNode.accept(visitor, arg, depth + 1);
+            if (visitor instanceof NodeCalcEvaluator) {
+                if (cache.containsKey(this.hashCode())) {
+                    return cache.get(this.hashCode());
+                } else {
+                    R result = acceptNotCached(visitor, arg, depth, cache);
+                    cache.put(this.hashCode(), result);
+                    return result;
+                }
+            } else {
+                return acceptNotCached(visitor, arg, depth, cache);
             }
-            R rightValue = null;
-            NodeCalc rightNode = p.getRight();
-            if (rightNode != null) {
-                rightValue = rightNode.accept(visitor, arg, depth + 1);
-            }
-            return accept(visitor, arg, leftValue, rightValue);
         } else {
             return NodeCalcVisitors.visit(this, arg, visitor);
         }
+    }
+
+    public <R, A> R acceptNotCached(NodeCalcVisitor<R, A> visitor, A arg, int depth, Map<Integer, R> cache) {
+        Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
+        R leftValue = null;
+        NodeCalc leftNode = p.getLeft();
+        if (leftNode != null) {
+            leftValue = leftNode.accept(visitor, arg, depth + 1, cache);
+        }
+        R rightValue = null;
+        NodeCalc rightNode = p.getRight();
+        if (rightNode != null) {
+            rightValue = rightNode.accept(visitor, arg, depth + 1, cache);
+        }
+        return accept(visitor, arg, leftValue, rightValue);
     }
 
     @Override

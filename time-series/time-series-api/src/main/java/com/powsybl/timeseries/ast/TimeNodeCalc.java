@@ -13,6 +13,7 @@ import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
 import java.util.Deque;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -29,17 +30,31 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
     }
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth, Map<Integer, R> cache) {
         if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
-            NodeCalc child = visitor.iterate(this, arg);
-            R childValue = null;
-            if (child != null) {
-                childValue = child.accept(visitor, arg, depth + 1);
+            if (visitor instanceof NodeCalcEvaluator) {
+                if (cache.containsKey(this.hashCode())) {
+                    return cache.get(this.hashCode());
+                } else {
+                    R result = acceptNotCached(visitor, arg, depth, cache);
+                    cache.put(this.hashCode(), result);
+                    return result;
+                }
+            } else {
+                return acceptNotCached(visitor, arg, depth, cache);
             }
-            return visitor.visit(this, arg, childValue);
         } else {
             return NodeCalcVisitors.visit(this, arg, visitor);
         }
+    }
+
+    public <R, A> R acceptNotCached(NodeCalcVisitor<R, A> visitor, A arg, int depth, Map<Integer, R> cache) {
+        NodeCalc child = visitor.iterate(this, arg);
+        R childValue = null;
+        if (child != null) {
+            childValue = child.accept(visitor, arg, depth + 1, cache);
+        }
+        return visitor.visit(this, arg, childValue);
     }
 
     @SuppressWarnings("unchecked")

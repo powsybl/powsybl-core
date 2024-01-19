@@ -14,7 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
 
     public static String print(NodeCalc nodeCalc) {
-        return nodeCalc.accept(new NodeCalcPrinter(), null, 0);
+        return nodeCalc.accept(new NodeCalcPrinter(), null, 0, null);
     }
 
     @Override

@@ -25,7 +25,7 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
 
     private double evaluateWithCache(NodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         CACHE.defaultReturnValue();
-        double result = nodeCalc.accept(this, multiPoint, 0);
+        double result = nodeCalc.accept(this, multiPoint, 0, CACHE);
         invalidateCache(); // Invalider le cache après l'évaluation du nœud racine
         return result;
     }
@@ -57,9 +57,9 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
 //        if (cachedValue != null) {
 //            return cachedValue;
 //        }
-        if (CACHE.containsKey(nodeCalc.hashCode())) {
-            return CACHE.get(nodeCalc.hashCode());
-        }
+//        if (CACHE.containsKey(nodeCalc.hashCode())) {
+//            return CACHE.get(nodeCalc.hashCode());
+//        }
 
         // Compute if not in cache
         double leftValue = left;
@@ -77,8 +77,8 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
             case NOT_EQUALS -> leftValue != rightValue ? 1d : 0d;
         };
 
-        // Put in the cache
-        CACHE.put(nodeCalc.hashCode(), result);
+//        // Put in the cache
+//        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -89,9 +89,9 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
 //        if (cachedValue != null) {
 //            return cachedValue;
 //        }
-        if (CACHE.containsKey(nodeCalc.hashCode())) {
-            return CACHE.get(nodeCalc.hashCode());
-        }
+//        if (CACHE.containsKey(nodeCalc.hashCode())) {
+//            return CACHE.get(nodeCalc.hashCode());
+//        }
 
         // Compute if not in cache
         double childValue = child;
@@ -101,8 +101,8 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
             case POSITIVE -> childValue;
         };
 
-        // Put in the cache
-        CACHE.put(nodeCalc.hashCode(), result);
+//        // Put in the cache
+//        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -123,8 +123,8 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         double childValue = child;
         double result = Math.min(childValue, nodeCalc.getMin());
 
-        // Put in the cache
-        CACHE.put(nodeCalc.hashCode(), result);
+//        // Put in the cache
+//        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -145,8 +145,8 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         double childValue = child;
         double result = Math.max(childValue, nodeCalc.getMax());
 
-        // Put in the cache
-        CACHE.put(nodeCalc.hashCode(), result);
+//        // Put in the cache
+//        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -166,8 +166,8 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         // Compute if not in cache
         double result = multiPoint.getTime();
 
-        // Put in the cache
-        CACHE.put(nodeCalc.hashCode(), result);
+//        // Put in the cache
+//        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -215,8 +215,8 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         double rightValue = right;
         double result = Math.min(leftValue, rightValue);
 
-        // Put in the cache
-        CACHE.put(nodeCalc.hashCode(), result);
+//        // Put in the cache
+//        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
@@ -233,8 +233,8 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
         double rightValue = right;
         double result = Math.max(leftValue, rightValue);
 
-        // Put in the cache
-        CACHE.put(nodeCalc.hashCode(), result);
+//        // Put in the cache
+//        CACHE.put(nodeCalc.hashCode(), result);
         return result;
     }
 
