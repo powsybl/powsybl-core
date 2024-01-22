@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:mock="http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_12" xmlns:mockns="http://www.powsybl.org/schema/iidm/ext/terminal_mock_no_serde/1_12" id="test" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="substation" country="FR" tso="RTE" geographicalTags="B">
+        <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BLOAD"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="BLOAD" connectableBus="BLOAD"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:extension id="LOAD">
+        <mock:terminalMock>
+            <mock:terminal id="LOAD"/>
+        </mock:terminalMock>
+        <mockns:terminalMockNoSerDe>
+            <mockns:terminal id="LOAD"/>
+        </mockns:terminalMockNoSerDe>
+    </iidm:extension>
+</iidm:network>

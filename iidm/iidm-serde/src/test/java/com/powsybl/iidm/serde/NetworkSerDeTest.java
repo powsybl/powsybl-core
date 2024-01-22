@@ -12,16 +12,14 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -48,6 +46,44 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
         // backward compatibility
         allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+    }
+
+    @Test
+    void testSkippedExtension() throws IOException {
+        // Read file with all extensions included (default ImportOptions)
+        ReporterModel reporter1 = new ReporterModel("root", "Root reporter");
+        Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
+                new ImportOptions(), null, NetworkFactory.findDefault(), reporter1);
+        Load load1 = networkReadExtensions.getLoad("LOAD");
+        assertNotNull(load1.getExtension(TerminalMockExt.class));
+
+        StringWriter sw1 = new StringWriter();
+        reporter1.export(sw1);
+        assertEquals("""
+                + Root reporter
+                  + Validation warnings
+                  + Imported extensions
+                     Extension terminalMock imported.
+                  + Not found extensions
+                     Extension terminalMockNoSerDe not found.
+                """, sw1.toString());
+
+        // Read file with only terminalMockNoSerDe extension included
+        ReporterModel reporter2 = new ReporterModel("root", "Root reporter");
+        ImportOptions noExtensions = new ImportOptions().addExtension("terminalMockNoSerDe");
+        Network networkSkippedExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
+                noExtensions, null, NetworkFactory.findDefault(), reporter2);
+        Load load2 = networkSkippedExtensions.getLoad("LOAD");
+        assertNull(load2.getExtension(TerminalMockExt.class));
+
+        StringWriter sw2 = new StringWriter();
+        reporter2.export(sw2);
+        assertEquals("""
+                + Root reporter
+                  + Validation warnings
+                  + Not found extensions
+                     Extension terminalMockNoSerDe not found.
+                """, sw2.toString());
     }
 
     @Test
