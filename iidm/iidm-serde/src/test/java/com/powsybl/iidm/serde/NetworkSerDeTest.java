@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
@@ -66,7 +67,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                      Extension terminalMock imported.
                   + Not found extensions
                      Extension terminalMockNoSerDe not found.
-                """, sw1.toString());
+                """, TestUtil.normalizeLineSeparator(sw1.toString()));
 
         // Read file with only terminalMockNoSerDe extension included
         ReporterModel reporter2 = new ReporterModel("root", "Root reporter");
@@ -83,7 +84,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                   + Validation warnings
                   + Not found extensions
                      Extension terminalMockNoSerDe not found.
-                """, sw2.toString());
+                """, TestUtil.normalizeLineSeparator(sw2.toString()));
     }
 
     @Test
