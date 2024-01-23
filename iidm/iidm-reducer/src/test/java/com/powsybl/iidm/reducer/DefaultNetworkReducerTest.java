@@ -7,6 +7,7 @@
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -287,6 +288,22 @@ class DefaultNetworkReducerTest {
         assertTrue(gen.isVoltageRegulatorOn());
         assertEquals(targetV, gen.getTargetV());
         assertEquals(200, gen.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ());
+        assertFalse(gen.getExtension(ActivePowerControl.class).isParticipate());
+
+        NetworkReducerObserverImpl observerVsc2 = new NetworkReducerObserverImpl();
+        Network networkVsc2 = HvdcTestNetwork.createVsc();
+        VscConverterStation station2 = networkVsc2.getVscConverterStation("C1");
+        station2.newReactiveCapabilityCurve()
+                .beginPoint().setP(0.0).setMinQ(-200).setMaxQ(200).endPoint()
+                .beginPoint().setP(100.0).setMinQ(-200).setMaxQ(200).endPoint()
+                .add();
+        NetworkReducer reducerVsc2 = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerVsc2)
+                .build();
+        reducerVsc2.reduce(networkVsc2);
+        Generator gen2 = networkVsc2.getGenerator("L");
+        assertEquals(2, gen2.getReactiveLimits(ReactiveCapabilityCurve.class).getPointCount());
     }
 
     @Test

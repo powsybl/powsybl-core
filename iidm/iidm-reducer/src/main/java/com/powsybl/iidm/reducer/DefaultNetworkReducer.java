@@ -7,6 +7,7 @@
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -269,25 +270,30 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         generator.getTerminal()
                 .setP(p)
                 .setQ(q);
-        if (stationLimits.getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
-            MinMaxReactiveLimits minMaxlimits = (MinMaxReactiveLimits) stationLimits;
-            generator.newMinMaxReactiveLimits()
-                    .setMinQ(minMaxlimits.getMinQ())
-                    .setMaxQ(minMaxlimits.getMaxQ())
-                    .add();
+
+        if (stationLimits != null) {
+            if (stationLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+                MinMaxReactiveLimits minMaxlimits = (MinMaxReactiveLimits) stationLimits;
+                generator.newMinMaxReactiveLimits()
+                        .setMinQ(minMaxlimits.getMinQ())
+                        .setMaxQ(minMaxlimits.getMaxQ())
+                        .add();
+            } else if (stationLimits.getKind() == ReactiveLimitsKind.CURVE) {
+                ReactiveCapabilityCurve reactiveCurve = (ReactiveCapabilityCurve) stationLimits;
+                ReactiveCapabilityCurveAdder curveAdder = generator.newReactiveCapabilityCurve();
+                reactiveCurve.getPoints().forEach(point -> {
+                    curveAdder.beginPoint()
+                            .setP(point.getP())
+                            .setMinQ(point.getMinQ())
+                            .setMaxQ(point.getMaxQ())
+                            .endPoint();
+                });
+                curveAdder.add();
+            }
         }
-        if (stationLimits.getKind().equals(ReactiveLimitsKind.CURVE)) {
-            ReactiveCapabilityCurve reactiveCurve = (ReactiveCapabilityCurve) stationLimits;
-            ReactiveCapabilityCurveAdder curveAdder = generator.newReactiveCapabilityCurve();
-            reactiveCurve.getPoints().forEach(point -> {
-                curveAdder.beginPoint()
-                        .setP(point.getP())
-                        .setMinQ(point.getMinQ())
-                        .setMaxQ(point.getMaxQ())
-                        .endPoint();
-            });
-            curveAdder.add();
-        }
+
+        generator.newExtension(ActivePowerControlAdder.class).withParticipate(false).add();
+
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
     }
 
