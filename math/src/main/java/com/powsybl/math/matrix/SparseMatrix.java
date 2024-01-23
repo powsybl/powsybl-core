@@ -462,17 +462,16 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         return false;
     }
 
-    public static void save(SparseMatrix matrix, OutputStream outputStream) {
-        Objects.requireNonNull(matrix);
+    public void write(OutputStream outputStream) {
         Objects.requireNonNull(outputStream);
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
-            objectOutputStream.writeObject(matrix);
+            objectOutputStream.writeObject(this);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static SparseMatrix load(InputStream inputStream) {
+    public static SparseMatrix read(InputStream inputStream) {
         Objects.requireNonNull(inputStream);
         try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
             return (SparseMatrix) objectInputStream.readObject();
@@ -483,20 +482,19 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         }
     }
 
-    public static void save(SparseMatrix matrix, Path file) {
-        Objects.requireNonNull(matrix);
+    public void write(Path file) {
         Objects.requireNonNull(file);
         try (OutputStream outputStream = Files.newOutputStream(file)) {
-            save(matrix, outputStream);
+            write(outputStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static SparseMatrix load(Path file) {
+    public static SparseMatrix read(Path file) {
         Objects.requireNonNull(file);
         try (InputStream inputStream = Files.newInputStream(file)) {
-            return load(inputStream);
+            return read(inputStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

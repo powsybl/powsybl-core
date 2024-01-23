@@ -69,8 +69,8 @@ class SparseMatrixSerializeTest {
     void testSerializeToFile() {
         SparseMatrix matrix = createSimpleSparseMatrix();
         Path file = fileSystem.getPath("/work/sparse-matrix-test.bin");
-        SparseMatrix.save(matrix, file);
-        SparseMatrix m1 = SparseMatrix.load(file);
+        matrix.write(file);
+        SparseMatrix m1 = SparseMatrix.read(file);
         assertEquals(matrix, m1);
     }
 
@@ -78,13 +78,13 @@ class SparseMatrixSerializeTest {
     void testSerializeToFileExceptions() throws IOException {
         SparseMatrix matrix = createSimpleSparseMatrix();
         Path file = fileSystem.getPath("");
-        assertThrows(UncheckedIOException.class, () -> SparseMatrix.save(matrix, file));
-        assertThrows(UncheckedIOException.class, () -> SparseMatrix.load(file));
+        assertThrows(UncheckedIOException.class, () -> matrix.write(file));
+        assertThrows(UncheckedIOException.class, () -> SparseMatrix.read(file));
         InputStream testInputStream = new ByteArrayInputStream(new byte[0]);
-        assertThrows(UncheckedIOException.class, () -> SparseMatrix.load(testInputStream));
+        assertThrows(UncheckedIOException.class, () -> SparseMatrix.read(testInputStream));
         OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
         Mockito.doThrow(new IOException()).when(mockOutputStream).close();
-        assertThrows(UncheckedIOException.class, () -> SparseMatrix.save(matrix, mockOutputStream));
+        assertThrows(UncheckedIOException.class, () -> matrix.write(mockOutputStream));
     }
 
     @Test
@@ -92,8 +92,8 @@ class SparseMatrixSerializeTest {
         //create a 100x100 sparse matrix with 20% (circa) non zero values
         SparseMatrix matrix = createRandomSparseMatrix(100, 100, 0.2);
         Path file = fileSystem.getPath("/work/sparse-large-matrix-test.bin");
-        SparseMatrix.save(matrix, file);
-        SparseMatrix m1 = SparseMatrix.load(file);
+        matrix.write(file);
+        SparseMatrix m1 = SparseMatrix.read(file);
         assertEquals(matrix, m1);
     }
 
