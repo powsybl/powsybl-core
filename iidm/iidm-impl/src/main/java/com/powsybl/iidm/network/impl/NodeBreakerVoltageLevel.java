@@ -464,29 +464,16 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     switch (connectable.getType()) {
-                        case LINE:
-                        case TWO_WINDINGS_TRANSFORMER:
-                        case THREE_WINDINGS_TRANSFORMER:
-                        case HVDC_CONVERTER_STATION:
-                        case DANGLING_LINE:
+                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, DANGLING_LINE -> {
                             branchCount++;
                             feederCount++;
-                            break;
-
-                        case LOAD:
-                        case GENERATOR:
-                        case BATTERY:
-                        case SHUNT_COMPENSATOR:
-                        case STATIC_VAR_COMPENSATOR:
-                            feederCount++;
-                            break;
-
-                        case BUSBAR_SECTION:
-                            busbarSectionCount++;
-                            break;
-
-                        default:
-                            throw new IllegalStateException();
+                        }
+                        case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR -> feederCount++;
+                        case BUSBAR_SECTION -> busbarSectionCount++;
+                        case GROUND -> {
+                            // Do nothing
+                        }
+                        default -> throw new IllegalStateException();
                     }
                 }
             }
@@ -1176,6 +1163,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return SwitchPredicates.IS_OPEN.test(sw) && isSwitchOperable.negate().test(sw);
     }
 
+    private void checkTopologyKind(TerminalExt terminal) {
+        if (!(terminal instanceof NodeTerminal)) {
+            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
+        }
+    }
 
     /**
      * Connect the terminal to a busbar section in its voltage level.
@@ -1197,13 +1189,30 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
      */
     @Override
     public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOperable) {
-        if (!(terminal instanceof NodeTerminal)) {
-            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
-        }
+        // Check the topology kind
+        checkTopologyKind(terminal);
+
         // already connected?
         if (terminal.isConnected()) {
             return false;
         }
+
+        // Initialisation of a list to open in case some terminals are in node-breaker view
+        Set<SwitchImpl> switchForConnection = new HashSet<>();
+
+        // Get the list of switches to close
+        if (getConnectingSwitches(terminal, isSwitchOperable, switchForConnection)) {
+            // Close the switches
+            switchForConnection.forEach(sw -> sw.setOpen(false));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    boolean getConnectingSwitches(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
+        // Check the topology kind
+        checkTopologyKind(terminal);
 
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a busbar section that does not contain an open switch
@@ -1212,7 +1221,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
             Comparator.comparing((TIntArrayList o) -> o.grep(idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
                 .thenComparing(TIntArrayList::size));
-        boolean connected = false;
         if (!paths.isEmpty()) {
             // the shortest path is the best
             TIntArrayList shortestPath = paths.get(0);
@@ -1223,13 +1231,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 SwitchImpl sw = graph.getEdgeObject(e);
                 if (SwitchPredicates.IS_OPEN.test(sw)) {
                     // Since the paths were constructed using the method checkNonClosableSwitches, only operable switches can be open
-                    sw.setOpen(false);
+                    switchForConnection.add(sw);
                 }
             }
-            // Check that the terminal is connected (it should always be true, given how the paths are found)
-            connected = terminal.isConnected();
+            return true;
         }
-        return connected;
+        return false;
     }
 
     @Override
@@ -1240,13 +1247,30 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
-        if (!(terminal instanceof NodeTerminal)) {
-            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
-        }
+        // Check the topology kind
+        checkTopologyKind(terminal);
+
         // already disconnected?
         if (!terminal.isConnected()) {
             return false;
         }
+
+        // Set of switches that are to be opened
+        Set<SwitchImpl> switchesToOpen = new HashSet<>();
+
+        // Get the list of switches to open
+        if (getDisconnectingSwitches(terminal, isSwitchOpenable, switchesToOpen)) {
+            // Open the switches
+            switchesToOpen.forEach(sw -> sw.setOpen(true));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    boolean getDisconnectingSwitches(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection) {
+        // Check the topology kind
+        checkTopologyKind(terminal);
 
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a busbar section that does not contain an open switch
@@ -1255,20 +1279,14 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return false;
         }
 
-        // Set of switches that are to be opened
-        Set<SwitchImpl> switchesToOpen = new HashSet<>(paths.size());
-
         // Each path is visited and for each, the first openable switch found is added in the set of switches to open
         for (TIntArrayList path : paths) {
             // Identify the first openable switch on the path
-            if (!identifySwitchToOpenPath(path, isSwitchOpenable, switchesToOpen)) {
+            if (!identifySwitchToOpenPath(path, isSwitchOpenable, switchForDisconnection)) {
                 // If no such switch was found, return false immediately
                 return false;
             }
         }
-
-        // The switches are now opened
-        switchesToOpen.forEach(sw -> sw.setOpen(true));
         return true;
     }
 
@@ -1277,7 +1295,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
      * @param path the path to open
      * @param isSwitchOpenable predicate used to know if a switch can be opened
      * @param switchesToOpen set of switches to be opened
-     * @return true if the path has been opened, else false
+     * @return true if the path can be opened, else false
      */
     boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
         for (int i = 0; i < path.size(); i++) {
@@ -1293,9 +1311,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     boolean isConnected(TerminalExt terminal) {
-        if (!(terminal instanceof NodeTerminal)) {
-            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
-        }
+        // Check the topology kind
+        checkTopologyKind(terminal);
+
         return terminal.getBusView().getBus() != null;
     }
 

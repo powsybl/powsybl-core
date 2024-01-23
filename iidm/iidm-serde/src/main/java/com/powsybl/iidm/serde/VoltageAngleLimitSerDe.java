@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.VoltageAngleLimit;
 import com.powsybl.iidm.network.VoltageAngleLimitAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.OptionalDouble;
+
 /**
  *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -34,8 +36,12 @@ public final class VoltageAngleLimitSerDe {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
             context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(voltageAngleLimit.getId()));
-            voltageAngleLimit.getLowLimit().ifPresent(low -> context.getWriter().writeDoubleAttribute(LOW_LIMIT, low));
-            voltageAngleLimit.getHighLimit().ifPresent(high -> context.getWriter().writeDoubleAttribute(HIGH_LIMIT, high));
+
+            OptionalDouble lowLimit = voltageAngleLimit.getLowLimit();
+            OptionalDouble highLimit = voltageAngleLimit.getHighLimit();
+            context.getWriter().writeOptionalDoubleAttribute(LOW_LIMIT, lowLimit.isPresent() ? lowLimit.getAsDouble() : null);
+            context.getWriter().writeOptionalDoubleAttribute(HIGH_LIMIT, highLimit.isPresent() ? highLimit.getAsDouble() : null);
+
             TerminalRefSerDe.writeTerminalRef(voltageAngleLimit.getTerminalFrom(), context, FROM);
             TerminalRefSerDe.writeTerminalRef(voltageAngleLimit.getTerminalTo(), context, TO);
             context.getWriter().writeEndNode();
@@ -46,17 +52,13 @@ public final class VoltageAngleLimitSerDe {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
 
             String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
-            double lowLimit = context.getReader().readDoubleAttribute(LOW_LIMIT);
-            double highLimit = context.getReader().readDoubleAttribute(HIGH_LIMIT);
+            OptionalDouble lowLimit = context.getReader().readOptionalDoubleAttribute(LOW_LIMIT);
+            OptionalDouble highLimit = context.getReader().readOptionalDoubleAttribute(HIGH_LIMIT);
 
             VoltageAngleLimitAdder adder = network.newVoltageAngleLimit();
             adder.setId(id);
-            if (!Double.isNaN(lowLimit)) {
-                adder.setLowLimit(lowLimit);
-            }
-            if (!Double.isNaN(highLimit)) {
-                adder.setHighLimit(highLimit);
-            }
+            lowLimit.ifPresent(adder::setLowLimit);
+            highLimit.ifPresent(adder::setHighLimit);
             context.getReader().readChildNodes(elementName -> {
                 Terminal terminal = TerminalRefSerDe.readTerminal(context, network);
                 switch (elementName) {

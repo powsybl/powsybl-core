@@ -31,7 +31,8 @@ class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractMultiVar
 
     ReferencePrioritiesImpl<C> add(ReferencePriority referencePriority) {
         if (!getExtendable().getTerminals().contains(referencePriority.getTerminal())) {
-            throw new PowsyblException("The provided terminal does not belong to this connectable");
+            throw new PowsyblException(String.format("The provided terminal does not belong to the connectable %s",
+                getExtendable().getId()));
         }
         referencePrioritiesPerVariant.get(getVariantIndex()).put(referencePriority.getTerminal(), referencePriority);
         return this;

@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -166,6 +168,34 @@ class MergeTest {
 
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(network1, network2));
         assertEquals("The following voltage angle limit(s) exist(s) in both networks: [LimitCollision]", e.getMessage());
+    }
+
+    @Test
+    void mergeNetworksWithDifferentCaseDates() {
+        ZonedDateTime zonedDateTime1 = ZonedDateTime.of(1999, 12, 1, 10, 30, 0, 0, ZoneId.of("UTC"));
+        ZonedDateTime zonedDateTime2 = ZonedDateTime.of(2021, 10, 31, 11, 30, 0, 0, ZoneId.of("UTC"));
+        Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
+        network1.setCaseDate(zonedDateTime1);
+        Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
+        network2.setCaseDate(zonedDateTime2);
+        Network network3 = createNodeBreakerWithVoltageAngleLimit("3");
+        network3.setCaseDate(zonedDateTime1);
+        Network networkMerged = Network.merge(network1, network2, network3);
+        assertNotEquals(zonedDateTime1, networkMerged.getCaseDate());
+        assertNotEquals(zonedDateTime2, networkMerged.getCaseDate());
+    }
+
+    @Test
+    void mergeNetworksWithSameCaseDates() {
+        ZonedDateTime zonedDateTime1 = ZonedDateTime.of(1999, 12, 1, 10, 30, 0, 0, ZoneId.of("UTC"));
+        Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
+        network1.setCaseDate(zonedDateTime1);
+        Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
+        network2.setCaseDate(zonedDateTime1);
+        Network network3 = createNodeBreakerWithVoltageAngleLimit("3");
+        network3.setCaseDate(zonedDateTime1);
+        Network networkMerged = Network.merge(network1, network2, network3);
+        assertEquals(zonedDateTime1, networkMerged.getCaseDate());
     }
 
     private static boolean voltageAngleLimitsAreEqual(List<VoltageAngleLimit> expected, List<VoltageAngleLimit> actual) {

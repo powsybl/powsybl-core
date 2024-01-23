@@ -41,6 +41,7 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
                         .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.0", "1.1"))
                         .build(),
                 new ImmutableMap.Builder<String, String>()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0")
@@ -74,7 +75,7 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
     @Override
     public ActivePowerControl<T> read(T identifiable, DeserializerContext context) {
         boolean participate = context.getReader().readBooleanAttribute("participate");
-        float droop = context.getReader().readFloatAttribute("droop");
+        double droop = context.getReader().readDoubleAttribute("droop");
         double participationFactor = Double.NaN;
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);

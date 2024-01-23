@@ -256,7 +256,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn ->
             dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn)
         );
-        context.namingStrategy().readIdMapping(dl, type);
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
@@ -670,7 +669,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
             i++;
         }
-        context.namingStrategy().readIdMapping(identifiable, type);
     }
 
     protected BoundaryLine createBoundaryLine(String boundaryNode) {

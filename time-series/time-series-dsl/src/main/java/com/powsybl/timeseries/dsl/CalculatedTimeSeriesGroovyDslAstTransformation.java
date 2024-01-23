@@ -37,20 +37,14 @@ public class CalculatedTimeSeriesGroovyDslAstTransformation extends AbstractPows
 
         private Expression transform(BinaryExpression binExpr) {
             String op = binExpr.getOperation().getText();
-            switch (op) {
-                case ">":
-                case ">=":
-                case "<":
-                case "<=":
-                case "==":
-                case "!=":
-                    return new MethodCallExpression(transform(binExpr.getLeftExpression()),
-                            "compareToNodeCalc",
-                            new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
-                default:
-                    break;
-            }
-            return null;
+            return switch (op) {
+                case ">", ">=", "<", "<=", "==", "!=" ->
+                    new MethodCallExpression(transform(binExpr.getLeftExpression()),
+                        "compareToNodeCalc",
+                        new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
+                default -> null;
+            };
+
         }
 
         @Override
