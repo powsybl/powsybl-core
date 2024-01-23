@@ -30,7 +30,7 @@ class TapChangerNeutralStepTest extends AbstractSerDeTest {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, "EQ,TP");
         network.write("CGMES", exportParams, tmpDir.resolve("neutral"));
-        assertEquals(Map.of("NGEN_NHV1_PT_PTC_1", 2, "NGEN_NHV1_PT_RTC_1", 2, "NHV2_NLOAD_PT_RTC_1", 2),
+        assertEquals(Map.of("NGEN_NHV1_PT_PTC_1", 2, "NGEN_NHV1_PT_RTC_1", 2, "NHV2_NLOAD_PT_RTC_1", 1),
                 readTapChangerNeutralSteps(tmpDir.resolve("neutral_EQ.xml")));
     }
 
@@ -82,6 +82,13 @@ class TapChangerNeutralStepTest extends AbstractSerDeTest {
                     .setB(0.0)
                 .endStep()
                 .beginStep()
+                    .setRho(0.95)
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
+                .endStep()
+                .beginStep()
                     .setRho(0.99)
                     .setR(0.0)
                     .setX(0.0)
@@ -89,7 +96,14 @@ class TapChangerNeutralStepTest extends AbstractSerDeTest {
                     .setB(0.0)
                 .endStep()
                 .beginStep()
-                .setRho(1.1)
+                    .setRho(1.05)
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
+                .endStep()
+                .beginStep()
+                    .setRho(1.1)
                     .setR(0.0)
                     .setX(0.0)
                     .setG(0.0)
@@ -124,7 +138,23 @@ class TapChangerNeutralStepTest extends AbstractSerDeTest {
                     .setX(0.0)
                     .setG(0.0)
                     .setB(0.0)
+                    .setAlpha(-5.0)
+                    .setRho(1.0)
+                .endStep()
+                .beginStep()
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
                     .setAlpha(0.01)
+                    .setRho(1.0)
+                .endStep()
+                .beginStep()
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
+                    .setAlpha(6.0)
                     .setRho(1.0)
                 .endStep()
                 .beginStep()
