@@ -285,7 +285,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                         .setMinQ(point.getMinQ())
                         .setMaxQ(point.getMaxQ())
                         .endPoint();
-                    });
+            });
             curveAdder.add();
         }
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
