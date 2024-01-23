@@ -273,21 +273,21 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
         if (stationLimits != null) {
             if (stationLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
-                MinMaxReactiveLimits minMaxlimits = (MinMaxReactiveLimits) stationLimits;
+                MinMaxReactiveLimits minMaxLimits = (MinMaxReactiveLimits) stationLimits;
                 generator.newMinMaxReactiveLimits()
-                        .setMinQ(minMaxlimits.getMinQ())
-                        .setMaxQ(minMaxlimits.getMaxQ())
+                        .setMinQ(minMaxLimits.getMinQ())
+                        .setMaxQ(minMaxLimits.getMaxQ())
                         .add();
             } else if (stationLimits.getKind() == ReactiveLimitsKind.CURVE) {
                 ReactiveCapabilityCurve reactiveCurve = (ReactiveCapabilityCurve) stationLimits;
                 ReactiveCapabilityCurveAdder curveAdder = generator.newReactiveCapabilityCurve();
-                reactiveCurve.getPoints().forEach(point -> {
+                reactiveCurve.getPoints().forEach(point ->
                     curveAdder.beginPoint()
                             .setP(point.getP())
                             .setMinQ(point.getMinQ())
                             .setMaxQ(point.getMaxQ())
-                            .endPoint();
-                });
+                            .endPoint()
+                );
                 curveAdder.add();
             }
         }
