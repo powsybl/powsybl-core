@@ -804,7 +804,7 @@ public final class EquipmentExport {
         int neutralStep = ptc.getLowTapPosition();
         double minAlpha = Math.abs(ptc.getStep(neutralStep).getAlpha());
         for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
-            double tempAlpha = Math.abs(1 - step.getValue().getAlpha());
+            double tempAlpha = Math.abs(step.getValue().getAlpha());
             if (tempAlpha < minAlpha) {
                 minAlpha = tempAlpha;
                 neutralStep = step.getKey();
