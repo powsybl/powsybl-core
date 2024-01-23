@@ -265,6 +265,7 @@ class DefaultNetworkReducerTest {
 
         NetworkReducerObserverImpl observerVsc = new NetworkReducerObserverImpl();
         Network networkVsc = HvdcTestNetwork.createVsc();
+        double targetV = networkVsc.getVscConverterStation("C1").getVoltageSetpoint();
         assertEquals(0, networkVsc.getGeneratorCount());
         assertEquals(2, networkVsc.getHvdcConverterStationCount());
         NetworkReducer reducerVsc = NetworkReducer.builder()
@@ -279,7 +280,8 @@ class DefaultNetworkReducerTest {
         Generator gen = networkVsc.getGenerator("L");
         assertEquals(300, gen.getMaxP());
         assertEquals(-300, gen.getMinP());
-
+        assertTrue(gen.isVoltageRegulatorOn());
+        assertEquals(targetV, gen.getTargetV());
     }
 
     @Test
