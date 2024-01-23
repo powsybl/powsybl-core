@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -181,6 +182,7 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         }
     }
 
+    protected boolean removed = false;
     private final SubstationImpl substation;
     private final String monitoredElementId;
     private final ThreeSides monitoredSide;
@@ -196,6 +198,16 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         this.trippings = new ArrayList<>();
     }
 
+    @Override
+    public void remove() {
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
+        network.getIndex().remove(this);
+        substation.remove(this);
+        network.getListeners().notifyAfterRemoval(id);
+        removed = true;
+    }
+
     private String checkMonitoredElementId(String monitoredElementId) {
         if (monitoredElementId == null) {
             throw new ValidationException(this, "monitoredElementId is not set");
@@ -209,17 +221,26 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
 
     @Override
     public Substation getSubstation() {
+        throwExceptionIfRemoved("substation");
         return this.substation;
     }
 
     @Override
     public NetworkImpl getNetwork() {
+        throwExceptionIfRemoved("network");
         return this.substation.getNetwork();
     }
 
     @Override
     public Network getParentNetwork() {
+        throwExceptionIfRemoved("parent network");
         return this.substation.getParentNetwork();
+    }
+
+    protected void throwExceptionIfRemoved(String accessedElement) {
+        if (removed) {
+            throw new PowsyblException(String.format("Cannot access %s of removed equipment %s", accessedElement, id));
+        }
     }
 
     @Override
