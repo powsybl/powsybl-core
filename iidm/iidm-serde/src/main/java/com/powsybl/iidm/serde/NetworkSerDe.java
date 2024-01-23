@@ -784,17 +784,17 @@ public final class NetworkSerDe {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore in case of
             // missing extension serializer, we must not check for an extension in sub elements.
-            if (!context.getOptions().withExtension(extensionName)) {
-                context.getReader().skipChildNodes();
-            }
-
-            ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-            if (extensionXmlSerializer != null) {
-                Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                extensionNamesImported.add(extensionName);
+            if (context.getOptions().withExtension(extensionName)) {
+                ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                if (extensionXmlSerializer != null) {
+                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                    extensionNamesImported.add(extensionName);
+                } else {
+                    extensionNamesNotFound.add(extensionName);
+                    context.getReader().skipChildNodes();
+                }
             } else {
-                extensionNamesNotFound.add(extensionName);
                 context.getReader().skipChildNodes();
             }
         });
