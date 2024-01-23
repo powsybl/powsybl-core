@@ -23,4 +23,9 @@ public interface AutomationSystem<I extends AutomationSystem<I>> extends Identif
      * @param enabled <code>true</code> to enable the automation system
      */
     void setEnabled(boolean enabled);
+
+    /**
+     * Remove the automation system from the network.
+     */
+    void remove();
 }

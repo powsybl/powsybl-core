@@ -240,11 +240,23 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             vl.remove();
         }
 
+        // Remove the overload management systems
+        removeOverloadManagementSystems();
+
         // Remove this substation from the network
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
         removed = true;
+    }
+
+    void removeOverloadManagementSystems() {
+        overloadManagementSystems.forEach(OverloadManagementSystem::remove);
+    }
+
+    void remove(OverloadManagementSystemImpl overloadManagementSystem) {
+        Objects.requireNonNull(overloadManagementSystem);
+        overloadManagementSystems.remove(overloadManagementSystem);
     }
 
     void remove(VoltageLevelExt voltageLevelExt) {
