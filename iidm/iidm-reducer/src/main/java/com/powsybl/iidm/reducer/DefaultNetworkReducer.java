@@ -251,12 +251,14 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setVoltageRegulatorOn(true)
                 .setMaxP(maxP)
                 .setMinP(-maxP)
-                .setTargetP(checkP(terminal))
+                .setTargetP(-checkP(terminal))
                 .setTargetV(station.getVoltageSetpoint());
         fillNodeOrBus(genAdder, terminal);
 
         double p = terminal.getP();
         double q = terminal.getQ();
+        ReactiveLimits stationLimits = station.getReactiveLimits();
+
         HvdcConverterStation<?> converter1 = hvdcLine.getConverterStation1();
         HvdcConverterStation<?> converter2 = hvdcLine.getConverterStation2();
         hvdcLine.remove();
@@ -265,8 +267,27 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
         Generator generator = genAdder.add();
         generator.getTerminal()
-                .setP(-p)
-                .setQ(-q);
+                .setP(p)
+                .setQ(q);
+        if (stationLimits.getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
+            MinMaxReactiveLimits minMaxlimits = (MinMaxReactiveLimits) stationLimits;
+            generator.newMinMaxReactiveLimits()
+                    .setMinQ(minMaxlimits.getMinQ())
+                    .setMaxQ(minMaxlimits.getMaxQ())
+                    .add();
+        }
+        if (stationLimits.getKind().equals(ReactiveLimitsKind.CURVE)) {
+            ReactiveCapabilityCurve reactiveCurve = (ReactiveCapabilityCurve) stationLimits;
+            ReactiveCapabilityCurveAdder curveAdder = generator.newReactiveCapabilityCurve();
+            reactiveCurve.getPoints().forEach(point -> {
+                curveAdder.beginPoint()
+                        .setP(point.getP())
+                        .setMinQ(point.getMinQ())
+                        .setMaxQ(point.getMaxQ())
+                        .endPoint();
+                    });
+            curveAdder.add();
+        }
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
     }
 
