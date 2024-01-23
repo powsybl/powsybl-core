@@ -802,10 +802,12 @@ public final class EquipmentExport {
 
     private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
         int neutralStep = ptc.getLowTapPosition();
-        while (ptc.getStep(neutralStep).getAlpha() != 0.0) {
-            neutralStep++;
-            if (neutralStep > ptc.getHighTapPosition()) {
-                return ptc.getHighTapPosition();
+        double minAlpha = Math.abs(ptc.getStep(neutralStep).getAlpha());
+        for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
+            double tempAlpha = Math.abs(step.getValue().getAlpha());
+            if (tempAlpha < minAlpha) {
+                minAlpha = tempAlpha;
+                neutralStep = step.getKey();
             }
         }
         return neutralStep;
@@ -851,10 +853,12 @@ public final class EquipmentExport {
 
     private static int getRatioTapChangerNeutralStep(RatioTapChanger rtc) {
         int neutralStep = rtc.getLowTapPosition();
-        while (rtc.getStep(neutralStep).getRho() != 1.0) {
-            neutralStep++;
-            if (neutralStep > rtc.getHighTapPosition()) {
-                return rtc.getHighTapPosition();
+        double minRatio = Math.abs(1 - rtc.getStep(neutralStep).getRho());
+        for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
+            double tempRatio = Math.abs(1 - step.getValue().getRho());
+            if (tempRatio < minRatio) {
+                minRatio = tempRatio;
+                neutralStep = step.getKey();
             }
         }
         return neutralStep;
