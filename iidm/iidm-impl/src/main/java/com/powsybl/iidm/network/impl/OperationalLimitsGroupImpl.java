@@ -21,24 +21,25 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
     private CurrentLimits currentLimits;
     private ActivePowerLimits activePowerLimits;
     private ApparentPowerLimits apparentPowerLimits;
-    private final Validable validable;
     private final Identifiable<?> identifiable;
+    private final NetworkListenerList listeners;
+    private final Validable validable;
     private final String attributeName;
     private String selectedGroupId;
 
-    public OperationalLimitsGroupImpl(String id, Identifiable<?> identifiable, Validable validable, String attributeName, String selectedGroupId) {
+    OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, String selectedGroupId) {
+        this(id, Objects.requireNonNull(identifiable), identifiable.getNetwork().getListeners(),
+                identifiable, attributeName, selectedGroupId);
+    }
+
+    public OperationalLimitsGroupImpl(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
+                                      Validable validable, String attributeName, String selectedGroupId) {
         this.id = Objects.requireNonNull(id);
         this.identifiable = Objects.requireNonNull(identifiable);
+        this.listeners = listeners;
+        this.validable = Objects.requireNonNull(validable);
         this.attributeName = Objects.requireNonNull(attributeName);
         this.selectedGroupId = selectedGroupId;
-
-        if (validable != null) {
-            this.validable = validable;
-        } else if (identifiable instanceof AbstractIdentifiable<?> ident) {
-            this.validable = ident;
-        } else {
-            throw new IllegalArgumentException("validable can be null only if identifiable is an AbstractIdentifiable");
-        }
     }
 
     @Override
@@ -125,13 +126,9 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
         doNotify(attributeName + "_" + limitType, oldOperationalLimitsInfo, newOperationalLimitsInfo);
     }
 
-    protected boolean notificationEnabled() {
-        return true;
-    }
-
     private void doNotify(String attribute, Object oldValue, Object newValue) {
-        if (notificationEnabled() && identifiable instanceof AbstractIdentifiable<?> ident) {
-            ident.getNetwork().getListeners().notifyUpdate(identifiable, attribute, oldValue, newValue);
+        if (listeners != null) {
+            listeners.notifyUpdate(identifiable, attribute, oldValue, newValue);
         }
     }
 
