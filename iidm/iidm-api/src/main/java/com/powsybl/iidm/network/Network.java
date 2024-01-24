@@ -1161,11 +1161,32 @@ public interface Network extends Container<Network> {
      */
     HvdcLineAdder newHvdcLine();
 
+    /**
+     * Get all grounds.
+     */
+    Iterable<Ground> getGrounds();
 
     /**
-     * Get an equipment by its ID or alias
+     * Get all grounds.
+     */
+    Stream<Ground> getGroundStream();
+
+    /**
+     * Get the ground count.
+     */
+    int getGroundCount();
+
+    /**
+     * Get a ground.
      *
-     * @param id the id or an alias of the equipment
+     * @param id the id or an alias of the ground
+     */
+    Ground getGround(String id);
+
+    /**
+     * * Get an identifiable by its ID or alias
+     *
+     * @param id the id or an alias of the identifiable
      */
     Identifiable<?> getIdentifiable(String id);
 
@@ -1416,6 +1437,8 @@ public interface Network extends Container<Network> {
                 return getHvdcConverterStationStream().map(Function.identity());
             case STATIC_VAR_COMPENSATOR:
                 return getStaticVarCompensatorStream().map(Function.identity());
+            case GROUND:
+                return getGroundStream().map(Function.identity());
             default:
                 throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         }

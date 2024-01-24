@@ -15,7 +15,11 @@ import java.util.OptionalInt;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep<S>> {
+public interface TapChanger<
+    C extends TapChanger<C, S, R, A>,
+    S extends TapChangerStep<S>,
+    R extends TapChangerStepsReplacer<R, A>,
+    A extends TapChangerStepAdder<A, R>> {
 
     /**
      * Get the lowest tap position corresponding to the first step of the tap changer.
@@ -83,6 +87,11 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * @return the step
      */
     S getStep(int tapPosition);
+
+    /**
+     * Return a replacer that allow to replace the whole step list.
+     */
+    R stepsReplacer();
 
     /**
      * Get the current step.

@@ -152,6 +152,10 @@ public interface CgmesModel {
         return new PropertyBags();
     }
 
+    default PropertyBags grounds() {
+        return new PropertyBags();
+    }
+
     CgmesDcTerminal dcTerminal(String dcTerminalId);
 
     void clear(CgmesSubset subset);

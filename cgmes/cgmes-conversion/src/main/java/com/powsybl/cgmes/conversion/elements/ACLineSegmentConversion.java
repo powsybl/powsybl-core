@@ -110,8 +110,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
         Optional.ofNullable(boundaryLine2.getEquivalentInjectionId()).ifPresent(eiId -> mline.getDanglingLine2().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", eiId));
         Optional.ofNullable(boundaryLine2.getEquivalentInjectionCgmesTerminalId()).ifPresent(teiId -> mline.getDanglingLine2().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", teiId));
-
-        context.namingStrategy().readIdMapping(mline, "TieLine"); // TODO: maybe this should be refined for merged line
     }
 
     private void convertLine() {

@@ -77,10 +77,7 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
                     writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
 
                     // TODO use TieLine Id and DanglingLine Id for reference instead of TieLine Id and Side
-                    TwoSides side = getSide(boundary);
-                    if (side != null) {
-                        writer.writeEnumAttribute("side", side);
-                    }
+                    writer.writeEnumAttribute("side", getSide(boundary));
                     writer.writeEndNode();
                 }
             }

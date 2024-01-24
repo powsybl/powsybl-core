@@ -12,6 +12,7 @@ import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
@@ -37,6 +38,7 @@ public final class SteadyStateHypothesisExport {
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
     private static final String ROTATING_MACHINE_P = "RotatingMachine.p";
     private static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
+    private static final String REGULATING_COND_EQ_CONTROL_ENABLED = "RegulatingCondEq.controlEnabled";
 
     private SteadyStateHypothesisExport() {
     }
@@ -49,7 +51,7 @@ public final class SteadyStateHypothesisExport {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);
+                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, writer, context.getSshModelDescription(), context);
             }
 
             writeLoads(network, cimNamespace, writer, context);
@@ -182,7 +184,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static <C extends Connectable<C>> void writeTapChanger(C eq, String tcId, TapChanger<?, ?> tc, String defaultType, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static <C extends Connectable<C>> void writeTapChanger(C eq, String tcId, TapChanger<?, ?, ?, ?> tc, String defaultType, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String type = CgmesExportUtil.cgmesTapChangerType(eq, tcId).orElse(defaultType);
         writeTapChanger(type, tcId, tc, cimNamespace, writer, context);
 
@@ -211,24 +213,18 @@ public final class SteadyStateHypothesisExport {
                 continue;
             }
 
-            String shuntType;
-            switch (s.getModelType()) {
-                case LINEAR:
-                    shuntType = "Linear";
-                    break;
-                case NON_LINEAR:
-                    shuntType = "Nonlinear";
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected shunt model type: " + s.getModelType());
-            }
+            String shuntType = switch (s.getModelType()) {
+                case LINEAR -> "Linear";
+                case NON_LINEAR -> "Nonlinear";
+                default -> throw new IllegalStateException("Unexpected shunt model type: " + s.getModelType());
+            };
             boolean controlEnabled = s.isVoltageRegulatorOn();
 
             CgmesExportUtil.writeStartAbout(shuntType + "ShuntCompensator", context.getNamingStrategy().getCgmesId(s), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+            writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeEndElement();
@@ -253,7 +249,7 @@ public final class SteadyStateHypothesisExport {
             boolean controlEnabled = g.isVoltageRegulatorOn();
 
             CgmesExportUtil.writeStartAbout("SynchronousMachine", context.getNamingStrategy().getCgmesId(g), cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+            writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
@@ -274,7 +270,7 @@ public final class SteadyStateHypothesisExport {
         }
         for (Battery b : network.getBatteries()) {
             CgmesExportUtil.writeStartAbout("SynchronousMachine", context.getNamingStrategy().getCgmesId(b), cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+            writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
             writer.writeCharacters("false"); // TODO handle battery regulation
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
@@ -338,7 +334,7 @@ public final class SteadyStateHypothesisExport {
             boolean controlEnabled = regulationMode != StaticVarCompensator.RegulationMode.OFF;
 
             CgmesExportUtil.writeStartAbout("StaticVarCompensator", context.getNamingStrategy().getCgmesId(svc), cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+            writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "StaticVarCompensator.q");
@@ -376,14 +372,12 @@ public final class SteadyStateHypothesisExport {
         SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
         if (slackTerminal != null) {
             Bus slackBus = slackTerminal.getTerminal().getBusBreakerView().getBus();
-            if (slackBus == g.getTerminal().getBusBreakerView().getBus()) {
-                return true;
-            }
+            return slackBus == g.getTerminal().getBusBreakerView().getBus();
         }
         return false;
     }
 
-    private static void writeTapChanger(String type, String id, TapChanger<?, ?> tc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeTapChanger(String type, String id, TapChanger<?, ?, ?, ?> tc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeTapChanger(type, id, tc.isRegulating(), tc.getTapPosition(), cimNamespace, writer, context);
     }
 
@@ -398,7 +392,7 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void addRegulatingControlView(TapChanger<?, ?> tc, CgmesTapChanger cgmesTc, Map<String, List<RegulatingControlView>> regulatingControlViews) {
+    private static void addRegulatingControlView(TapChanger<?, ?, ?, ?> tc, CgmesTapChanger cgmesTc, Map<String, List<RegulatingControlView>> regulatingControlViews) {
         // Multiple tap changers can be stored at the same equipment
         // We use the tap changer id as part of the key for storing the tap changer control id
         if (cgmesTc != null && cgmesTc.getControlId() != null) {
@@ -417,24 +411,22 @@ public final class SteadyStateHypothesisExport {
             } else if (tc instanceof PhaseTapChanger phaseTapChanger
                     && CgmesExportUtil.regulatingControlIsDefined(phaseTapChanger)) {
                 boolean valid;
-                String unitMultiplier;
-                switch (phaseTapChanger.getRegulationMode()) {
-                    case CURRENT_LIMITER:
+                String unitMultiplier = switch (phaseTapChanger.getRegulationMode()) {
+                    case CURRENT_LIMITER -> {
                         // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
                         valid = true;
-                        unitMultiplier = "none";
-                        break;
-                    case ACTIVE_POWER_CONTROL:
+                        yield "none";
+                    }
+                    case ACTIVE_POWER_CONTROL -> {
                         // Unit multiplier is M, regulation value is an active power flow in MW
                         valid = true;
-                        unitMultiplier = "M";
-                        break;
-                    case FIXED_TAP:
-                    default:
+                        yield "M";
+                    }
+                    default -> {
                         valid = false;
-                        unitMultiplier = "none";
-                        break;
-                }
+                        yield "none";
+                    }
+                };
                 if (valid) {
                     rcv = new RegulatingControlView(controlId,
                             RegulatingControlType.TAP_CHANGER_CONTROL,
@@ -465,7 +457,7 @@ public final class SteadyStateHypothesisExport {
 
     private static RegulatingControlView combineRegulatingControlViews(List<RegulatingControlView> rcs) {
         RegulatingControlView combined = rcs.get(0);
-        if (rcs.size() > 1) {
+        if (rcs.size() > 1 && LOG.isWarnEnabled()) {
             LOG.warn("Multiple views ({}) for regulating control {} are combined", rcs.size(), rcs.get(0).id);
         }
         for (int k = 1; k < rcs.size(); k++) {
@@ -745,7 +737,7 @@ public final class SteadyStateHypothesisExport {
             if (i.getExtension(ActivePowerControl.class) != null) {
                 gu.participationFactor = i.getExtension(ActivePowerControl.class).getParticipationFactor();
             } else {
-                gu.participationFactor = Double.valueOf(i.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"));
+                gu.participationFactor = Double.parseDouble(i.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"));
             }
             gu.className = generatingUnitClassname(i);
             return gu;

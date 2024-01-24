@@ -51,7 +51,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeDoubleAttribute("highVoltageLimit", vl.getHighVoltageLimit());
 
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        context.getWriter().writeStringAttribute("topologyKind", topologyLevel.getTopologyKind().name());
+        context.getWriter().writeEnumAttribute("topologyKind", topologyLevel.getTopologyKind());
     }
 
     @Override
@@ -82,6 +82,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         writeStaticVarCompensators(vl, context);
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
+        writeGrounds(vl, context);
     }
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkSerializerContext context) {
@@ -279,6 +280,17 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeEndNodes();
     }
 
+    private void writeGrounds(VoltageLevel vl, NetworkSerializerContext context) {
+        context.getWriter().writeStartNodes();
+        for (Ground g : IidmSerDeUtil.sorted(vl.getGrounds(), context.getOptions())) {
+            if (!context.getFilter().test(g)) {
+                continue;
+            }
+            GroundSerDe.INSTANCE.write(g, vl, context);
+        }
+        context.getWriter().writeEndNodes();
+    }
+
     @Override
     protected VoltageLevelAdder createAdder(Container<? extends Identifiable<?>> c) {
         if (c instanceof Network network) {
@@ -318,6 +330,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 case StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME -> StaticVarCompensatorSerDe.INSTANCE.read(vl, context);
                 case VscConverterStationSerDe.ROOT_ELEMENT_NAME -> VscConverterStationSerDe.INSTANCE.read(vl, context);
                 case LccConverterStationSerDe.ROOT_ELEMENT_NAME -> LccConverterStationSerDe.INSTANCE.read(vl, context);
+                case GroundSerDe.ROOT_ELEMENT_NAME -> GroundSerDe.INSTANCE.read(vl, context);
                 default -> readSubElement(elementName, vl, context);
             }
         });
@@ -325,7 +338,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkDeserializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> {
-            context.getReader().readStringAttribute(NODE_COUNT);
+            context.getReader().readIntAttribute(NODE_COUNT);
             LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored.");
         });
         context.getReader().readChildNodes(elementName -> {

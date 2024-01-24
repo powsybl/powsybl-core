@@ -145,7 +145,7 @@
     <cim:EnergyConsumer.p>1.000000</cim:EnergyConsumer.p>
     <cim:EnergyConsumer.q>0e+000</cim:EnergyConsumer.q>
   </cim:EnergyConsumer>
-  <cim:EnergyConsumer rdf:about="#_cb459405-cc14-4215-a45c-416789205904">
+  <cim:EnergyConsumer rdf:about="#_cb459405-cc14-4215-a45c-416789205904badidload">
     <cim:EnergyConsumer.p>200.000000</cim:EnergyConsumer.p>
     <cim:EnergyConsumer.q>90.000000</cim:EnergyConsumer.q>
   </cim:EnergyConsumer>
