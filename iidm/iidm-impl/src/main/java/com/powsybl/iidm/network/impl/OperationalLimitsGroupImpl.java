@@ -149,9 +149,9 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
         this.selectedGroupId = selectedGroupId;
     }
 
-    private record PermanentLimitInfo(double value, String groupId, boolean inSelectedGroup) {
+    public record PermanentLimitInfo(double value, String groupId, boolean inSelectedGroup) {
     }
 
-    private record OperationalLimitsInfo(OperationalLimits value, String groupId, boolean inSelectedGroup) {
+    public record OperationalLimitsInfo(OperationalLimits value, String groupId, boolean inSelectedGroup) {
     }
 }
