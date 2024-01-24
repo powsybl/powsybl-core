@@ -15,19 +15,29 @@ import java.util.Optional;
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
  */
-class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
+public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
 
     private final String id;
     private CurrentLimits currentLimits;
     private ActivePowerLimits activePowerLimits;
     private ApparentPowerLimits apparentPowerLimits;
-    private final AbstractIdentifiable<?> identifiable;
+    private final Identifiable<?> identifiable;
+    private final NetworkListenerList listeners;
+    private final Validable validable;
     private final String attributeName;
     private String selectedGroupId;
 
     OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, String selectedGroupId) {
+        this(id, Objects.requireNonNull(identifiable), identifiable.getNetwork().getListeners(),
+                identifiable, attributeName, selectedGroupId);
+    }
+
+    public OperationalLimitsGroupImpl(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
+                                      Validable validable, String attributeName, String selectedGroupId) {
         this.id = Objects.requireNonNull(id);
         this.identifiable = Objects.requireNonNull(identifiable);
+        this.listeners = listeners;
+        this.validable = Objects.requireNonNull(validable);
         this.attributeName = Objects.requireNonNull(attributeName);
         this.selectedGroupId = selectedGroupId;
     }
@@ -54,17 +64,17 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return new CurrentLimitsAdderImpl(() -> this, identifiable, identifiable.getId());
+        return new CurrentLimitsAdderImpl(() -> this, validable, identifiable.getId());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return new ActivePowerLimitsAdderImpl(() -> this, identifiable, identifiable.getId());
+        return new ActivePowerLimitsAdderImpl(() -> this, validable, identifiable.getId());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return new ApparentPowerLimitsAdderImpl(() -> this, identifiable, identifiable.getId());
+        return new ApparentPowerLimitsAdderImpl(() -> this, validable, identifiable.getId());
     }
 
     @Override
@@ -101,26 +111,30 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
     }
 
     public Validable getValidable() {
-        return identifiable;
+        return validable;
     }
 
     public void notifyPermanentLimitUpdate(LimitType limitType, double oldValue, double newValue) {
         PermanentLimitInfo oldPermanentLimitInfo = new PermanentLimitInfo(oldValue, id, id.equals(selectedGroupId));
         PermanentLimitInfo newPermanentLimitInfo = new PermanentLimitInfo(newValue, id, id.equals(selectedGroupId));
-        identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType + ".permanentLimit",
-                oldPermanentLimitInfo, newPermanentLimitInfo);
+        doNotify(attributeName + "_" + limitType + ".permanentLimit", oldPermanentLimitInfo, newPermanentLimitInfo);
     }
 
     private void notifyUpdate(LimitType limitType, OperationalLimits oldValue, OperationalLimits newValue) {
         OperationalLimitsInfo oldOperationalLimitsInfo = new OperationalLimitsInfo(oldValue, id, id.equals(selectedGroupId));
         OperationalLimitsInfo newOperationalLimitsInfo = new OperationalLimitsInfo(newValue, id, id.equals(selectedGroupId));
-        identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType,
-                oldOperationalLimitsInfo, newOperationalLimitsInfo);
+        doNotify(attributeName + "_" + limitType, oldOperationalLimitsInfo, newOperationalLimitsInfo);
+    }
+
+    private void doNotify(String attribute, Object oldValue, Object newValue) {
+        if (listeners != null) {
+            listeners.notifyUpdate(identifiable, attribute, oldValue, newValue);
+        }
     }
 
     @Override
     public String getMessageHeader() {
-        return identifiable.getMessageHeader();
+        return validable.getMessageHeader();
     }
 
     @Override
@@ -132,9 +146,9 @@ class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
         this.selectedGroupId = selectedGroupId;
     }
 
-    private record PermanentLimitInfo(double value, String groupId, boolean inSelectedGroup) {
+    public record PermanentLimitInfo(double value, String groupId, boolean inSelectedGroup) {
     }
 
-    private record OperationalLimitsInfo(OperationalLimits value, String groupId, boolean inSelectedGroup) {
+    public record OperationalLimitsInfo(OperationalLimits value, String groupId, boolean inSelectedGroup) {
     }
 }
