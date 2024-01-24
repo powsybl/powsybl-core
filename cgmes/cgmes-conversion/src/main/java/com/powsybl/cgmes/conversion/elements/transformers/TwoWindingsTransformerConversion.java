@@ -17,10 +17,11 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
-import com.powsybl.cgmes.conversion.elements.BoundaryLine;
 import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Optional;
 
 /**
  * TwoWindingsTransformer Cgmes Conversion
@@ -59,6 +60,8 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class TwoWindingsTransformerConversion extends AbstractTransformerConversion implements EquipmentAtBoundaryConversion {
 
+    private DanglingLine danglingLine;
+
     public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
     }
@@ -96,39 +99,22 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
             return;
         }
 
+        String eqInstance = ps.get(0).get("graph");
         if (isBoundary(1)) {
-            convertTwoWindingsTransformerAtBoundary(1);
+            convertTwoWindingsTransformerAtBoundary(eqInstance, 1);
         } else if (isBoundary(2)) {
-            convertTwoWindingsTransformerAtBoundary(2);
+            convertTwoWindingsTransformerAtBoundary(eqInstance, 2);
         } else {
             throw new ConversionException("Boundary must be at one end of the twoWindingsTransformer");
         }
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
-
-        CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
-        InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
-        ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
-
-        // The twoWindingsTransformer is converted to a BoundaryLine with different VoltageLevels at its ends
-        // and the tapChanger fixed to the current tap position.
-        // As the current TieLine only supports a Line at each half we can only map twoWindingsTransformers with
-        // ratioTapChanger and / or phaseTapChanger with zero angle.
-        // Since the angle has been fixed to 0.0, if the current angle of the transformer (getAngle(convertedT2xModel))
-        // is non-zero we will have differences in the LF computation.
-        // TODO support in the TieLine the complete twoWindingsTransformer model (transformer + tapChangers)
-
-        PiModel pm = piModel(getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel),
-            getB(convertedT2xModel), getRatio(convertedT2xModel), 0.0);
-        boundaryLine.setParameters(pm.r1, pm.x1, pm.g1, pm.b1, pm.g2, pm.b2);
-
-        return boundaryLine;
+    public Optional <DanglingLine> getDanglingLine() {
+        return Optional.ofNullable(danglingLine);
     }
 
-    private void convertTwoWindingsTransformerAtBoundary(int boundarySide) {
+    private void convertTwoWindingsTransformerAtBoundary(String eqInstance, int boundarySide) {
 
         CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
@@ -141,7 +127,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
         // we will have differences in the LF computation.
         // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
-        convertToDanglingLine(boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
+        danglingLine = convertToDanglingLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
