@@ -24,7 +24,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -344,7 +343,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         } else {
             // Select the EI thas is defined in the same EQ instance of the given line
             String eqInstancePropertyName = "graph";
-            List<PropertyBag> eisEqInstance = eis.stream().filter(eik -> eik.getId(eqInstancePropertyName).equals(eqInstance)).collect(Collectors.toList());
+            List<PropertyBag> eisEqInstance = eis.stream().filter(eik -> eik.getId(eqInstancePropertyName).equals(eqInstance)).toList();
 
             if (eisEqInstance.size() == 1) {
                 return Optional.of(new EquivalentInjectionConversion(eisEqInstance.get(0), context));
@@ -644,14 +643,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             }
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
             i++;
-        }
-    }
-
-    private static TwoSides getBoundarySide(int modelEnd) {
-        if (modelEnd == 1) {
-            return TwoSides.TWO;
-        } else {
-            return TwoSides.ONE;
         }
     }
 
