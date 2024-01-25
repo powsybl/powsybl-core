@@ -236,11 +236,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connect(dlAdder, modelSide);
-        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(context, boundaryNode, eqInstance);
+        Optional<EquivalentInjectionConversion> equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(context, boundaryNode, eqInstance);
         DanglingLine dl;
-        if (equivalentInjectionConversion != null) {
-            dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
-            Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion::convertReactiveLimits);
+        if (equivalentInjectionConversion.isPresent()) {
+            dl = equivalentInjectionConversion.get().convertOverDanglingLine(dlAdder, f);
+            Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion.get()::convertReactiveLimits);
         } else {
             dl = dlAdder
                     .setP0(f.p())
@@ -334,12 +334,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         dl.getTerminal().setQ(svmodel.getQ());
     }
 
-    protected static EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, String eqInstance) {
+    private static Optional<EquivalentInjectionConversion> getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, String eqInstance) {
         List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
         if (eis.isEmpty()) {
-            return null;
+            return Optional.empty();
         } else if (eis.size() == 1) {
-            return new EquivalentInjectionConversion(eis.get(0), context);
+            return Optional.of(new EquivalentInjectionConversion(eis.get(0), context));
         } else {
             // Select the EI thas is defined in the same EQ instance of the given line
             String eqInstancePropertyName = "graph";
@@ -349,9 +349,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             if (ei == null) {
                 context.invalid("Boundary node " + boundaryNode,
                         "Assembled model does not contain an equivalent injection in the same graph " + eqInstance);
-                return null;
+                return Optional.empty();
             }
-            return new EquivalentInjectionConversion(ei, context);
+            return Optional.of(new EquivalentInjectionConversion(ei, context));
         }
     }
 
