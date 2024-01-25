@@ -91,6 +91,8 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", tieLine.getNameOrId());
+        assertEquals("dl1", tieLine.getDanglingLine1().getId());
+        assertEquals("dl2", tieLine.getDanglingLine2().getId());
         assertEquals(0.0, tieLine.getDanglingLine1().getP0());
         assertEquals(0.0, tieLine.getDanglingLine1().getQ0());
         assertEquals(0.0, tieLine.getDanglingLine2().getP0());
@@ -622,6 +624,18 @@ public abstract class AbstractMergeNetworkTest {
         ld2.setP0(10);
         merge.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(0, ld2.getP0(), 0);
+    }
+
+    @Test
+    public void invertDanglingLinesWhenCreatingATieLine() {
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl2", "code", "dl1", "code");
+        Network merge = Network.merge(n1, n2);
+        assertEquals(1, merge.getTieLineCount());
+        TieLine tieLine = merge.getTieLine("dl1 + dl2");
+        assertNotNull(tieLine);
+        assertEquals("dl1", tieLine.getDanglingLine1().getId());
+        assertEquals("dl2", tieLine.getDanglingLine2().getId());
     }
 
     @Test
