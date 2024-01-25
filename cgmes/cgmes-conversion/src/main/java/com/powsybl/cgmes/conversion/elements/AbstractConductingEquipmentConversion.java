@@ -24,6 +24,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -343,15 +344,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         } else {
             // Select the EI thas is defined in the same EQ instance of the given line
             String eqInstancePropertyName = "graph";
-            PropertyBag ei = eis.stream()
-                    .filter(eik -> eik.getId(eqInstancePropertyName).equals(eqInstance))
-                    .findFirst().orElse(null);
-            if (ei == null) {
+            List<PropertyBag> eisEqInstance = eis.stream().filter(eik -> eik.getId(eqInstancePropertyName).equals(eqInstance)).collect(Collectors.toList());
+
+            if (eisEqInstance.size() == 1) {
+                return Optional.of(new EquivalentInjectionConversion(eisEqInstance.get(0), context));
+            } else {
                 context.invalid("Boundary node " + boundaryNode,
-                        "Assembled model does not contain an equivalent injection in the same graph " + eqInstance);
+                        "Assembled model does not contain only one equivalent injection in the same graph " + eqInstance);
                 return Optional.empty();
             }
-            return Optional.of(new EquivalentInjectionConversion(ei, context));
         }
     }
 
