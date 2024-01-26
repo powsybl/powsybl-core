@@ -71,7 +71,7 @@ public class BinReader implements TreeDataReader {
     private String readString() {
         try {
             int stringNbBytes = dis.readShort();
-            if (stringNbBytes == 0) {
+            if (stringNbBytes == -1) {
                 return null;
             }
             byte[] stringBytes = dis.readNBytes(stringNbBytes);
