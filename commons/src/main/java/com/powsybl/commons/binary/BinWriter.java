@@ -52,7 +52,7 @@ public class BinWriter implements TreeDataWriter {
     private static void writeString(String value, DataOutputStream dataOutputStream) {
         try {
             if (value == null) {
-                writeIndex(0, dataOutputStream);
+                writeIndex(-1, dataOutputStream);
             } else {
                 byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
                 writeIndex(bytes.length, dataOutputStream);
