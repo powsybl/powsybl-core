@@ -10,15 +10,11 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -41,7 +37,7 @@ class BinaryTest extends AbstractIidmSerDeTest {
         l0.newCurrentLimits1().add();
         l0.cancelSelectedOperationalLimitsGroup1(); // selected group id is now null on side 1
         l0.newOperationalLimitsGroup2("").newCurrentLimits().add();
-        l0.setSelectedOperationalLimitsGroup2(""); // selected group id is now "" on side 1
+        l0.setSelectedOperationalLimitsGroup2(""); // selected group id is now "" on side 2
 
         Path binFile = fileSystem.getPath("/work/test");
         NetworkSerDe.write(n0, new ExportOptions().setFormat(TreeDataFormat.BIN), binFile);
