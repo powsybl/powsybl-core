@@ -181,7 +181,7 @@ public final class CgmesExportUtil {
         // Only classes extending IdentifiedObject have an mRID
         // points of tables and curve data objects do not have mRID, although they have an RDF:ID
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id, context));
-        if (writeMasterResourceId) {
+        if (writeMasterResourceId && context.getCim().getVersion() >= 100) {
             writer.writeStartElement(cimNamespace, "IdentifiedObject.mRID");
             writer.writeCharacters(toMasterResourceId(id, context));
             writer.writeEndElement();
