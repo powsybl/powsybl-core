@@ -1068,6 +1068,11 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
+            } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
+                // Invert the ids to always have them in lexicographical order (to ensure reproducibility)
+                var tmp = l.dl1Id;
+                l.dl1Id = l.dl2Id;
+                l.dl2Id = tmp;
             }
         }
     }
