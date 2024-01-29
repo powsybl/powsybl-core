@@ -86,7 +86,7 @@ class MatpowerReaderWriterTest {
     }
 
     @Test
-    public void testCase9DcLine() throws IOException {
+    void testCase9DcLine() throws IOException {
         testMatpowerFile(MatpowerModelFactory.create9Dcline());
     }
 

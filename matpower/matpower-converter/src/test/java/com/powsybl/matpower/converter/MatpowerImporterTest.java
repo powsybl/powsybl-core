@@ -143,7 +143,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    public void testCase9DcLine() throws IOException {
+    void testCase9DcLine() throws IOException {
         testCase(MatpowerModelFactory.create9Dcline());
     }
 

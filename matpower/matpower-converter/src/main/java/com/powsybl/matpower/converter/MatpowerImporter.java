@@ -440,7 +440,7 @@ public class MatpowerImporter implements Importer {
         return shuntAdmittanceAtEnd * sBase / (nominalVoltageAtEnd * nominalVoltageAtEnd) - (1 - nominalVoltageAtOtherEnd / nominalVoltageAtEnd) * transmissionAdmittance;
     }
 
-    private static void createDcLines(MatpowerModel model, ContainersMapping containerMapping, Network network, Context context) {
+    private static void createDcLines(MatpowerModel model, ContainersMapping containerMapping, Network network) {
         for (MDcLine mDcLine : model.getDcLines()) {
             String id = getId(HVDC_LINE_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
             String bus1Id = getId(BUS_PREFIX, mDcLine.getFrom());
@@ -557,7 +557,7 @@ public class MatpowerImporter implements Importer {
 
                 createBranches(model, containerMapping, network, context);
 
-                createDcLines(model, containerMapping, network, context);
+                createDcLines(model, containerMapping, network);
 
                 for (Bus slackBus : context.getSlackBuses()) {
                     SlackTerminal.attach(slackBus);
