@@ -71,9 +71,10 @@ public final class MatpowerReader {
             model.setVersion(version);
             model.setBaseMva(baseMVA);
 
-            for (int row = 0; row < buses.getDimensions()[0]; row++) {
-                MBus bus = new MBus();
-                for (int col = 0; col < buses.getDimensions()[1]; col++) {
+            int busesExpectedColumns = 13;
+            if (buses.getDimensions()[1] >= busesExpectedColumns) {
+                for (int row = 0; row < buses.getDimensions()[0]; row++) {
+                    MBus bus = new MBus();
                     bus.setNumber(buses.getInt(row, 0));
                     if (busesNames != null) {
                         String name = busesNames.getChar(row).getString();
@@ -91,13 +92,17 @@ public final class MatpowerReader {
                     bus.setLossZone(buses.getInt(row, 10));
                     bus.setMaximumVoltageMagnitude(buses.getDouble(row, 11));
                     bus.setMinimumVoltageMagnitude(buses.getDouble(row, 12));
+
+                    model.addBus(bus);
                 }
-                model.addBus(bus);
+            } else {
+                throw new IllegalStateException("buses: unexpected number of columns. Expected: " + busesExpectedColumns + " Actual: " + buses.getDimensions()[1]);
             }
 
-            for (int row = 0; row < generators.getDimensions()[0]; row++) {
-                MGen gen = new MGen();
-                for (int col = 0; col < generators.getDimensions()[1]; col++) {
+            int generatorsExpectedColumns = 21;
+            if (generators.getDimensions()[1] >= generatorsExpectedColumns) {
+                for (int row = 0; row < generators.getDimensions()[0]; row++) {
+                    MGen gen = new MGen();
                     gen.setNumber(generators.getInt(row, 0));
                     gen.setRealPowerOutput(generators.getDouble(row, 1));
                     gen.setReactivePowerOutput(generators.getDouble(row, 2));
@@ -119,13 +124,17 @@ public final class MatpowerReader {
                     gen.setRampThirtyMinutes(generators.getDouble(row, 18));
                     gen.setRampQ(generators.getDouble(row, 19));
                     gen.setApf(generators.getDouble(row, 20));
+
+                    model.addGenerator(gen);
                 }
-                model.addGenerator(gen);
+            } else {
+                throw new IllegalStateException("generators: unexpected number of columns. Expected: " + generatorsExpectedColumns + " Actual: " + generators.getDimensions()[1]);
             }
 
-            for (int row = 0; row < branches.getDimensions()[0]; row++) {
-                MBranch branch = new MBranch();
-                for (int col = 0; col < branches.getDimensions()[1]; col++) {
+            int branchesExpectedColumns = 13;
+            if (branches.getDimensions()[1] >= branchesExpectedColumns) {
+                for (int row = 0; row < branches.getDimensions()[0]; row++) {
+                    MBranch branch = new MBranch();
                     branch.setFrom(branches.getInt(row, 0));
                     branch.setTo(branches.getInt(row, 1));
                     branch.setR(branches.getDouble(row, 2));
@@ -139,14 +148,18 @@ public final class MatpowerReader {
                     branch.setStatus(branches.getInt(row, 10));
                     branch.setAngMin(branches.getDouble(row, 11));
                     branch.setAngMax(branches.getDouble(row, 12));
+                    model.addBranch(branch);
                 }
-                model.addBranch(branch);
+            } else {
+                throw new IllegalStateException("branches: unexpected number of columns. Expected: " + branchesExpectedColumns + " Actual: " + branches.getDimensions()[1]);
             }
 
             if (dcLines != null) {
-                for (int row = 0; row < dcLines.getDimensions()[0]; row++) {
-                    MDcLine dcLine = new MDcLine();
-                    for (int col = 0; col < dcLines.getDimensions()[1]; col++) {
+                int dcLinesExpectedColumns = 17;
+                if (dcLines.getDimensions()[1] >= dcLinesExpectedColumns) {
+                    for (int row = 0; row < dcLines.getDimensions()[0]; row++) {
+                        MDcLine dcLine = new MDcLine();
+
                         dcLine.setFrom(dcLines.getInt(row, 0));
                         dcLine.setTo(dcLines.getInt(row, 1));
                         dcLine.setStatus(dcLines.getInt(row, 2));
@@ -164,8 +177,11 @@ public final class MatpowerReader {
                         dcLine.setQmaxt(dcLines.getDouble(row, 14));
                         dcLine.setLoss0(dcLines.getDouble(row, 15));
                         dcLine.setLoss1(dcLines.getDouble(row, 16));
+
+                        model.addDcLine(dcLine);
                     }
-                    model.addDcLine(dcLine);
+                } else {
+                    throw new IllegalStateException("dcLines: unexpected number of columns. Expected: " + dcLinesExpectedColumns + " Actual: " + dcLines.getDimensions()[1]);
                 }
             }
         }
