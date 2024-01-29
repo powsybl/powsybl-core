@@ -20,6 +20,8 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,6 +82,37 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
 
         CgmesModel cgmesModel100 = network100.getExtension(CgmesModelExtension.class).getCgmesModel();
         assertTrue(cgmesModel100.isNodeBreaker());
+    }
+
+    @Test
+    void testExportMasterResourceIdentifierOnlyForCim100OrGreater() throws IOException {
+        Network n = NetworkTest1Factory.create();
+
+        Properties params = new Properties();
+        params.put(CgmesExport.PROFILES, "EQ");
+        String basename = "network";
+        String eqFilename = basename + "_EQ.xml";
+        String version;
+        Path outputFolder;
+        String eqContent;
+        String mRIDTag = "<cim:IdentifiedObject.mRID>";
+
+        // The exported EQ for CGMES 2.4 (CIM 16) should not contain the mRID tag
+        version = "16";
+        outputFolder = tmpDir.resolve(version);
+        params.put(CgmesExport.CIM_VERSION, version);
+        Files.createDirectories(outputFolder);
+        n.write("CGMES", params, outputFolder.resolve(basename));
+        eqContent = Files.readString(outputFolder.resolve(eqFilename));
+        assertFalse(eqContent.contains(mRIDTag));
+
+        // The exported EQ for CGMES 3 (CIM 100) must contain the mRID tag
+        version = "100";
+        params.put(CgmesExport.CIM_VERSION, version);
+        Files.createDirectories(outputFolder);
+        n.write("CGMES", params, outputFolder.resolve(basename));
+        eqContent = Files.readString(outputFolder.resolve(eqFilename));
+        assertTrue(eqContent.contains("<cim:IdentifiedObject.mRID>"));
     }
 
     private static Network ieee14Cim14() {
