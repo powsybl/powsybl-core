@@ -1485,7 +1485,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private void exportEdges(GraphVizGraph gvGraph, GraphVizScope scope) {
-        for (int e = 0; e < graph.getEdgeCount(); e++) {
+        // Iterate over non-removed edges
+        for (int e : graph.getEdges()) {
             GraphVizEdge edge = gvGraph.edge(scope, graph.getEdgeVertex1(e), graph.getEdgeVertex2(e));
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (aSwitch != null) {
