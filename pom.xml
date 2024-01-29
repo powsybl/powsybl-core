@@ -15,12 +15,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>9</version>
+        <version>15</version>
         <relativePath/>
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>5.1.0-SNAPSHOT</version>
+    <version>6.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -38,19 +38,20 @@
             <name>Mathieu BAGUE</name>
             <email>mathieu.bague@rte-france.com</email>
             <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
         </developer>
         <developer>
             <name>Geoffroy JAMGOTCHIAN</name>
             <email>geoffroy.jamgotchian@rte-france.com</email>
             <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
         </developer>
     </developers>
 
     <modules>
         <module>action</module>
         <module>ampl-converter</module>
+        <module>ampl-executor</module>
         <module>cgmes</module>
         <module>cim-anonymiser</module>
         <module>commons</module>
@@ -86,7 +87,7 @@
     </modules>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
@@ -94,49 +95,50 @@
             ../../../distribution-core/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
 
-        <assertj.version>3.11.0</assertj.version>
-        <autoservice.version>1.0-rc2</autoservice.version>
-        <commonscli.version>1.3.1</commonscli.version>
-        <commonscompress.version>1.21</commonscompress.version>
-        <commonsio.version>2.7</commonsio.version>
-        <commonslang3.version>3.4</commonslang3.version>
+        <assertj.version>3.24.2</assertj.version>
+        <autoservice.version>1.1.1</autoservice.version>
+        <commonscli.version>1.5.0</commonscli.version>
+        <commonscompress.version>1.24.0</commonscompress.version>
+        <commons-configuration2.version>2.9.0</commons-configuration2.version>
+        <commonsio.version>2.13.0</commonsio.version>
+        <commonslang3.version>3.13.0</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>
         <commonstext.version>1.10.0</commonstext.version>
+        <ejml.version>0.43.1</ejml.version>
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
-        <gdata.version>1.41.1_1</gdata.version>
-        <graphviz-builder.version>1.0.11</graphviz-builder.version>
-        <groovy.version>3.0.9</groovy.version>
-        <guava.version>31.1-jre</guava.version>
-        <jackson.version>2.14.1</jackson.version>
-        <jackson-databind.version>2.14.1</jackson-databind.version>
+        <gdata.version>1.47.1_1</gdata.version>
+        <graphviz-builder.version>1.0.12</graphviz-builder.version>
+        <groovy.version>4.0.14</groovy.version>
+        <guava.version>32.1.2-jre</guava.version>
+        <jackson.version>2.15.2</jackson.version>
+        <jackson-databind.version>2.15.2</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
-        <jgrapht.version>1.5.1</jgrapht.version>
-        <jimfs.version>1.1</jimfs.version>
-        <jodatime.version>2.9.7</jodatime.version>
-        <junit.version>4.13.1</junit.version>
-        <logback.version>1.2.10</logback.version>
+        <jgrapht.version>1.5.2</jgrapht.version>
+        <jimfs.version>1.3.0</jimfs.version>
+        <junit-jupiter.version>5.10.0</junit-jupiter.version>
+        <logback.version>1.4.14</logback.version>
         <maven.core.version>3.8.5</maven.core.version>
-        <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
-        <mfl.version>0.5.9</mfl.version>
-        <mockito.version>4.4.0</mockito.version>
+        <maven.plugin.annotations.version>3.9.0</maven.plugin.annotations.version>
+        <mfl.version>0.5.15</mfl.version>
+        <mockito.version>5.5.0</mockito.version>
         <nativelibloader.version>2.4.0</nativelibloader.version>
         <poi.version>5.2.3</poi.version>
-        <rdf4j.version>4.2.2</rdf4j.version>
+        <rdf4j.version>4.3.2</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
-        <slf4j.version>1.7.22</slf4j.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
+        <slf4j.version>2.0.9</slf4j.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.3.4</stringtemplate.version>
-        <testcontainers.version>1.17.6</testcontainers.version>
-        <threeten.version>1.5.0</threeten.version>
+        <testcontainers.version>1.19.0</testcontainers.version>
+        <threeten.version>1.7.2</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
-        <univocity-parsers.version>2.8.3</univocity-parsers.version>
-        <xmlunit.version>2.3.0</xmlunit.version>
+        <univocity-parsers.version>2.9.0</univocity-parsers.version>
+        <xmlunit.version>2.9.1</xmlunit.version>
         <xz.version>1.9</xz.version>
-        <zstdjni.version>1.5.2-5</zstdjni.version>
+        <zstdjni.version>1.5.5-5</zstdjni.version>
 
-        <powsyblmathnative.version>1.2.1</powsyblmathnative.version>
+        <powsyblmathnative.version>1.3.0</powsyblmathnative.version>
     </properties>
 
     <profiles>
@@ -178,7 +180,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>com.powsybl.commons.test.DockerTests</excludedGroups>
+                            <excludedGroups>dockerTests</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -217,6 +219,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-ampl-converter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-ampl-executor</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -406,11 +413,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-iidm-mergingview</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-modification</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -442,7 +444,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-iidm-xml-converter</artifactId>
+                <artifactId>powsybl-iidm-serde</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -501,17 +503,17 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-powerfactory-model</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-powerfactory-dgs</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-powerfactory-converter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -668,7 +670,7 @@
                 <version>${jimfs.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-math-native</artifactId>
                 <version>${powsyblmathnative.version}</version>
             </dependency>
@@ -691,11 +693,6 @@
                 <groupId>gov.nist.math</groupId>
                 <artifactId>jama</artifactId>
                 <version>${jama.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${jodatime.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>
@@ -735,6 +732,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>${commons-configuration2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commonslang3.version}</version>
             </dependency>
@@ -759,22 +761,22 @@
                 <version>${gdata.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.groovy</groupId>
+                <groupId>org.apache.groovy</groupId>
                 <artifactId>groovy</artifactId>
                 <version>${groovy.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.groovy</groupId>
+                <groupId>org.apache.groovy</groupId>
                 <artifactId>groovy-console</artifactId>
                 <version>${groovy.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.groovy</groupId>
+                <groupId>org.apache.groovy</groupId>
                 <artifactId>groovy-groovysh</artifactId>
                 <version>${groovy.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.groovy</groupId>
+                <groupId>org.apache.groovy</groupId>
                 <artifactId>groovy-nio</artifactId>
                 <version>${groovy.version}</version>
             </dependency>
@@ -797,6 +799,11 @@
                 <groupId>org.eclipse.rdf4j</groupId>
                 <artifactId>rdf4j-common-transaction</artifactId>
                 <version>${rdf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ejml</groupId>
+                <artifactId>ejml-core</artifactId>
+                <version>${ejml.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jgrapht</groupId>
@@ -850,6 +857,11 @@
                 <version>${mfl.version}</version>
             </dependency>
             <dependency>
+                <groupId>us.hebi.matlab.mat</groupId>
+                <artifactId>mfl-ejml</artifactId>
+                <version>${mfl.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>ST4</artifactId>
                 <version>${stringtemplate.version}</version>
@@ -877,9 +889,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit-jupiter.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

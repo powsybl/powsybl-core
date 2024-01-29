@@ -11,15 +11,17 @@ import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Importer;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.iidm.network.Importer;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
-import com.powsybl.powerfactory.model.*;
+import com.powsybl.powerfactory.model.DataObject;
+import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
+import com.powsybl.powerfactory.model.PowerFactoryException;
+import com.powsybl.powerfactory.model.StudyCase;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.joda.time.DateTime;
-import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,12 +29,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(Importer.class)
 public class PowerFactoryImporter implements Importer {
@@ -120,10 +124,10 @@ public class PowerFactoryImporter implements Importer {
         if (elmNets.isEmpty()) {
             throw new PowerFactoryException("No ElmNet object found");
         }
-        LOGGER.info("Study case has {} network(s): {}", elmNets.size(), elmNets.stream().map(DataObject::getLocName).collect(Collectors.toList()));
+        LOGGER.info("Study case has {} network(s): {}", elmNets.size(), elmNets.stream().map(DataObject::getLocName).toList());
 
         // case date
-        DateTime caseDate = new Instant(studyCase.getTime().toEpochMilli()).toDateTime();
+        ZonedDateTime caseDate = ZonedDateTime.ofInstant(studyCase.getTime(), ZoneId.systemDefault());
         network.setCaseDate(caseDate);
 
         List<DataObject> elmTerms = studyCase.getElmNets().stream()
@@ -159,11 +163,33 @@ public class PowerFactoryImporter implements Importer {
             }
         }
 
-        LOGGER.info("Creating equipments...");
+        LOGGER.info("Creating equipment...");
 
+        List<DataObject> slackObjects = new ArrayList<>();
+
+        // Create main equipment
+        convertEquipment(studyCase, importContext, hvdcConverter, network, slackObjects);
+
+        // Create Hvdc Links
+        hvdcConverter.create();
+
+        // Attach a slack bus
+        new SlackConverter(importContext, network).create(slackObjects);
+
+        LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
+                network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
+                network.getThreeWindingsTransformerCount(), network.getGeneratorCount(), network.getLoadCount(), network.getShuntCompensatorCount());
+
+        setVoltagesAndAngles(network, importContext, elmTerms);
+
+        return network;
+    }
+
+    private static void convertEquipment(StudyCase studyCase, ImportContext importContext, HvdcConverter hvdcConverter,
+        Network network, List<DataObject> slackObjects) {
         var objs = studyCase.getElmNets().stream()
-                .flatMap(elmNet -> elmNet.search(".*").stream())
-                .collect(Collectors.toList());
+            .flatMap(elmNet -> elmNet.search(".*").stream())
+            .toList();
         for (DataObject obj : objs) {
             switch (obj.getDataClassName()) {
                 case "ElmCoup":
@@ -174,6 +200,9 @@ public class PowerFactoryImporter implements Importer {
                 case "ElmAsm":
                 case "ElmGenstat":
                     new GeneratorConverter(importContext, network).create(obj);
+                    if (GeneratorConverter.isSlack(obj)) {
+                        slackObjects.add(obj);
+                    }
                     break;
 
                 case "ElmLod":
@@ -310,17 +339,6 @@ public class PowerFactoryImporter implements Importer {
                     LOGGER.warn("Unexpected data class '{}' ('{}')", obj.getDataClassName(), obj);
             }
         }
-
-        // Create Hvdc Links
-        hvdcConverter.create();
-
-        LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
-                network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
-                network.getThreeWindingsTransformerCount(), network.getGeneratorCount(), network.getLoadCount(), network.getShuntCompensatorCount());
-
-        setVoltagesAndAngles(network, importContext, elmTerms);
-
-        return network;
     }
 
     private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {

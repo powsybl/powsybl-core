@@ -8,13 +8,15 @@
 package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.ImmutableMap;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.table.*;
+import com.powsybl.commons.io.table.AbstractTableFormatter;
+import com.powsybl.commons.io.table.AsciiTableFormatter;
+import com.powsybl.commons.io.table.Column;
+import com.powsybl.commons.io.table.HorizontalAlignment;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
 
-import javax.script.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,7 +28,7 @@ import java.util.stream.IntStream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class Networks {
 
@@ -52,21 +54,6 @@ public final class Networks {
         dumpVariantId(workingDir, network.getVariantManager().getWorkingVariantId());
     }
 
-    public static void runScript(Network network, Reader reader, Writer out) {
-        ScriptEngineManager mgr = new ScriptEngineManager();
-        ScriptEngine jsEngine = mgr.getEngineByName("js");
-        try {
-            ScriptContext context = new SimpleScriptContext();
-            context.setAttribute("network", network, ScriptContext.ENGINE_SCOPE);
-            if (out != null) {
-                context.setWriter(out);
-            }
-            jsEngine.eval(reader, context);
-        } catch (ScriptException e) {
-            throw new PowsyblException(e);
-        }
-    }
-
     static class ConnectedPower {
         private int busCount = 0;
 
@@ -88,20 +75,6 @@ public final class Networks {
         private double disconnectedShuntPositiveVolume = 0.0;
         private double connectedShuntNegativeVolume = 0.0;
         private double disconnectedShuntNegativeVolume = 0.0;
-    }
-
-    /**
-     * @deprecated Use {@link #printBalanceSummary(String, Network, Writer)} instead.
-     */
-    @Deprecated
-    public static void printBalanceSummary(String title, Network network, Logger logger) throws IOException {
-        Objects.requireNonNull(logger);
-        if (logger.isDebugEnabled()) {
-            try (Writer writer = new StringWriter()) {
-                printBalanceSummary(title, network, writer);
-                logger.debug(writer.toString());
-            }
-        }
     }
 
     public static void printBalanceSummary(String title, Network network, Writer writer) throws IOException {
@@ -155,7 +128,7 @@ public final class Networks {
     }
 
     private static void addDanglingLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal.BusBreakerView view = dl.getTerminal().getBusBreakerView();
             if (view.getBus() != null) {
                 if (view.getBus().isInMainConnectedComponent()) {
@@ -437,5 +410,44 @@ public final class Networks {
         if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
         }
+    }
+
+    /**
+     * Set a {@link Reporter} in the reporter context of the given network, execute a runnable then restore the reporter context.
+     *
+     * @param network a network
+     * @param reporter the reporter to use
+     * @param runnable the runnable to execute
+     */
+    public static void executeWithReporter(Network network, Reporter reporter, Runnable runnable) {
+        network.getReporterContext().pushReporter(reporter);
+        try {
+            runnable.run();
+        } finally {
+            network.getReporterContext().popReporter();
+        }
+    }
+
+    /**
+     * Returns a {@link ReporterContext} containing the same reporters as the given one,
+     * but reconfigured to allow it, or not, to be accessed simultaneously by different threads.
+     * When this option is activated, the reporter context can have a different content
+     * for each thread.
+     *
+     * @param reporterContext the ReporterContext to reconfigure
+     * @param allow allow multi-thread access to the ReporterContext
+     * @return the reconfigured ReporterContext
+     */
+    public static AbstractReporterContext allowReporterContextMultiThreadAccess(AbstractReporterContext reporterContext, boolean allow) {
+        AbstractReporterContext newReporterContext = null;
+        if (allow && !(reporterContext instanceof MultiThreadReporterContext)) {
+            newReporterContext = new MultiThreadReporterContext(reporterContext);
+        } else if (!allow && !(reporterContext instanceof SimpleReporterContext)) {
+            newReporterContext = new SimpleReporterContext(reporterContext);
+            if (reporterContext instanceof MultiThreadReporterContext multiThreadReporterContext) {
+                multiThreadReporterContext.close(); // to avoid memory leaks
+            }
+        }
+        return newReporterContext != null ? newReporterContext : reporterContext;
     }
 }

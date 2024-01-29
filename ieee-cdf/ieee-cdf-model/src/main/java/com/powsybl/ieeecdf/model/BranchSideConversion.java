@@ -9,7 +9,7 @@ package com.powsybl.ieeecdf.model;
 import com.univocity.parsers.conversions.ObjectConversion;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class BranchSideConversion extends ObjectConversion<IeeeCdfBranch.Side> {
 

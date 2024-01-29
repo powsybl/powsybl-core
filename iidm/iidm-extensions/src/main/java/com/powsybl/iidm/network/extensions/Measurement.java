@@ -6,24 +6,17 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import com.powsybl.iidm.network.ThreeSides;
+
 import java.util.Set;
 
 /**
  * A measurement with a continuous numeric value (double) such as: angle, voltage, active power and so on.
  * Can have properties in addition of explicit fields to add precisions about the measurement if necessary.
  *
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface Measurement {
-
-    /**
-     * Specify which side of the equipment the measurement is applied on.
-     */
-    enum Side {
-        ONE,
-        TWO,
-        THREE
-    }
 
     /**
      * Specify what is measured.
@@ -103,9 +96,9 @@ public interface Measurement {
     Measurement setValid(boolean valid);
 
     /**
-     * Get which side the measurement is applied on (see {@link Side}).
+     * Get which side the measurement is applied on (see {@link ThreeSides}).
      */
-    Side getSide();
+    ThreeSides getSide();
 
     /**
      * Remove the measurement from the equipment.

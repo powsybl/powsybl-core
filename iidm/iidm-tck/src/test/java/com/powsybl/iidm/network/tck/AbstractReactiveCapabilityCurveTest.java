@@ -12,22 +12,17 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractReactiveCapabilityCurveTest {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private Generator generator;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Network network = FictitiousSwitchFactory.create();
         generator = network.getGenerator("CB");
@@ -62,22 +57,19 @@ public abstract class AbstractReactiveCapabilityCurveTest {
 
     @Test
     public void invalidOnePointCurve() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("should have at least two points");
-        generator.newReactiveCapabilityCurve()
+        ValidationException e = assertThrows(ValidationException.class, () -> generator.newReactiveCapabilityCurve()
                     .beginPoint()
                         .setP(1.0)
                         .setMaxQ(5.0)
                         .setMinQ(1.0)
                     .endPoint()
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("should have at least two points"));
     }
 
     @Test
     public void duplicatePointsInCurve() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("a point already exists for active power");
-        generator.newReactiveCapabilityCurve()
+        ValidationException e = assertThrows(ValidationException.class, () -> generator.newReactiveCapabilityCurve()
                     .beginPoint()
                         .setP(1.0)
                         .setMaxQ(5.0)
@@ -88,60 +80,57 @@ public abstract class AbstractReactiveCapabilityCurveTest {
                         .setMaxQ(6.0)
                         .setMinQ(1.0)
                     .endPoint()
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("a point already exists for active power"));
     }
 
     @Test
     public void invalidPoint() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("P is not set");
-        generator.newReactiveCapabilityCurve()
+        ValidationException e = assertThrows(ValidationException.class, () -> generator.newReactiveCapabilityCurve()
                     .beginPoint()
                         .setP(Double.NaN)
                         .setMaxQ(5.0)
                         .setMinQ(1.0)
                     .endPoint()
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("P is not set"));
     }
 
     @Test
     public void invalidMaxQ() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("max Q is not set");
-        generator.newReactiveCapabilityCurve()
+        ValidationException e = assertThrows(ValidationException.class, () -> generator.newReactiveCapabilityCurve()
                     .beginPoint()
                         .setP(1.0)
                         .setMaxQ(Double.NaN)
                         .setMinQ(1.0)
                     .endPoint()
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("max Q is not set"));
     }
 
     @Test
     public void invalidMinQ() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("min Q is not set");
-        generator.newReactiveCapabilityCurve()
+        ValidationException e = assertThrows(ValidationException.class, () -> generator.newReactiveCapabilityCurve()
                     .beginPoint()
                         .setP(1.0)
                         .setMaxQ(5.0)
                         .setMinQ(Double.NaN)
                     .endPoint()
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("min Q is not set"));
     }
 
-    @Ignore(value = "To be reactivated in IIDM v1.1")
+    @Disabled(value = "To be reactivated in IIDM v1.1")
     @Test
     public void invalidMinQGreaterThanMaxQ() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("maximum reactive power is expected to be greater than or equal to minimum reactive power");
-        generator.newReactiveCapabilityCurve()
+        ValidationException e = assertThrows(ValidationException.class, () -> generator.newReactiveCapabilityCurve()
                     .beginPoint()
                         .setP(1.0)
                         .setMaxQ(5.0)
                         .setMinQ(50.0)
                     .endPoint()
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("maximum reactive power is expected to be greater than or equal to minimum reactive power"));
     }
 
 }

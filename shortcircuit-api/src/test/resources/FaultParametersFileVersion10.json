@@ -1,0 +1,20 @@
+[ {
+  "version" : "1.0",
+  "id" : "f00",
+  "withFeederResult" : true,
+  "studyType" : "STEADY_STATE",
+  "minVoltageDropProportionalThreshold" : 20.0
+}, {
+  "version" : "1.0",
+  "id" : "f01",
+  "withVoltageMap" : true
+}, {
+  "version" : "1.0",
+  "id" : "f10",
+  "withLimitViolations" : true
+}, {
+  "version" : "1.0",
+  "id" : "f11",
+  "withLimitViolations" : true,
+  "withVoltageMap" : true
+} ]

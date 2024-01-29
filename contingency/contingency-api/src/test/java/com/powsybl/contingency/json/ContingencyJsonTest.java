@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
@@ -22,8 +22,8 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,17 +34,17 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
-public class ContingencyJsonTest extends AbstractConverterTest {
+class ContingencyJsonTest extends AbstractSerDeTest {
 
-    @Before
-    public void setup() throws IOException {
+    @BeforeEach
+    void setup() throws IOException {
         super.setUp();
 
         Files.copy(getClass().getResourceAsStream("/contingencies.json"), fileSystem.getPath("/contingencies.json"));
@@ -111,12 +111,12 @@ public class ContingencyJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripTest(create(), ContingencyJsonTest::write, ContingencyJsonTest::readContingency, "/contingency.json");
     }
 
     @Test
-    public void readJsonList() throws IOException {
+    void readJsonList() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
 
         DefaultContingencyList contingencyList = (DefaultContingencyList) ContingencyList.load(fileSystem.getPath("/contingencies.json"));

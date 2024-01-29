@@ -10,11 +10,11 @@ import com.powsybl.iidm.network.BranchAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateBranchFeederBaysBuilder {
 
-    private BranchAdder<?> branchAdder = null;
+    private BranchAdder<?, ?> branchAdder = null;
     private String busOrBbs1 = null;
     private String busOrBbs2 = null;
     private Integer positionOrder1 = null;
@@ -28,7 +28,7 @@ public class CreateBranchFeederBaysBuilder {
         return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2);
     }
 
-    public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?> branchAdder) {
+    public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?, ?> branchAdder) {
         this.branchAdder = branchAdder;
         return this;
     }

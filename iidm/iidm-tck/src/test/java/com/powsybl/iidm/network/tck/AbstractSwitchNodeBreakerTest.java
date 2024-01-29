@@ -8,20 +8,18 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public abstract class AbstractSwitchNodeBreakerTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private Network network;
     private VoltageLevel voltageLevel;
 
-    @Before
+    @BeforeEach
     public void initNetwork() {
         network = FictitiousSwitchFactory.create();
         voltageLevel = network.getVoltageLevel("C");
@@ -29,27 +27,25 @@ public abstract class AbstractSwitchNodeBreakerTest {
 
     @Test
     public void addSwitchWithSameNodeAtBothEnds() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("Switch 'Sw1': same node at both ends");
         int newNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-        voltageLevel.getNodeBreakerView().newSwitch()
+        ValidationException e = assertThrows(ValidationException.class, () -> voltageLevel.getNodeBreakerView().newSwitch()
             .setId("Sw1")
             .setNode1(newNode)
             .setNode2(newNode)
             .setKind(SwitchKind.BREAKER)
-            .add();
+            .add());
+        assertEquals("Switch 'Sw1': same node at both ends", e.getMessage());
     }
 
     @Test
     public void addSwitchWithNullKind() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("Switch 'Sw1': kind is not set");
         int newNode1 = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int newNode2 = newNode1 + 1;
-        voltageLevel.getNodeBreakerView().newSwitch()
+        ValidationException e = assertThrows(ValidationException.class, () -> voltageLevel.getNodeBreakerView().newSwitch()
             .setId("Sw1")
             .setNode1(newNode1)
             .setNode2(newNode2)
-            .add();
+            .add());
+        assertEquals("Switch 'Sw1': kind is not set", e.getMessage());
     }
 }

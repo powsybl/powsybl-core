@@ -7,14 +7,14 @@
 package com.powsybl.tools;
 
 import org.apache.commons.cli.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class CommandLineUtilTest {
+class CommandLineUtilTest {
 
     private enum TestEnum {
         VALUE1,
@@ -22,7 +22,7 @@ public class CommandLineUtilTest {
     }
 
     @Test
-    public void test() throws ParseException {
+    void test() throws ParseException {
         CommandLineParser parser = new DefaultParser();
 
         Options options = new Options();

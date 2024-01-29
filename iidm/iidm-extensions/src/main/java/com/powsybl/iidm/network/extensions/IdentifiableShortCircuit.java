@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
- * @author Coline Piloquet <coline.piloquet@rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.com>}
  */
 public interface IdentifiableShortCircuit<I extends Identifiable<I>> extends Extension<I> {
 

@@ -7,13 +7,14 @@
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
@@ -56,9 +57,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
-        if (getPredicate().test(vl1)) {
+        if (test(vl1)) {
             reduce(line, vl1, terminal1);
-        } else if (getPredicate().test(vl2)) {
+        } else if (test(vl2)) {
             reduce(line, vl2, terminal2);
         } else {
             line.remove();
@@ -74,9 +75,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
-        if (getPredicate().test(vl1)) {
+        if (test(vl1)) {
             replaceTransformerByLoad(transformer, vl1, terminal1);
-        } else if (getPredicate().test(vl2)) {
+        } else if (test(vl2)) {
             replaceTransformerByLoad(transformer, vl2, terminal2);
         } else {
             transformer.remove();
@@ -88,28 +89,50 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     @Override
     protected void reduce(ThreeWindingsTransformer transformer) {
-        VoltageLevel vl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
-        VoltageLevel vl2 = transformer.getLeg2().getTerminal().getVoltageLevel();
-        VoltageLevel vl3 = transformer.getLeg3().getTerminal().getVoltageLevel();
-        if (getPredicate().test(vl1) || getPredicate().test(vl2) || getPredicate().test(vl3)) {
-            throw new UnsupportedOperationException("Reduction of three-windings transformers is not supported");
-        } else {
-            transformer.remove();
-        }
+        Terminal terminal1 = transformer.getLeg1().getTerminal();
+        Terminal terminal2 = transformer.getLeg2().getTerminal();
+        Terminal terminal3 = transformer.getLeg3().getTerminal();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+        VoltageLevel vl3 = terminal3.getVoltageLevel();
 
+        if (test(vl1) ^ test(vl2) ^ test(vl3)) {
+            VoltageLevel vlToKeep;
+            Terminal terminal;
+            if (test(vl1)) {
+                vlToKeep = vl1;
+                terminal = terminal1;
+            } else {
+                vlToKeep = test(vl2) ? vl2 : vl3;
+                terminal = test(vl2) ? terminal2 : terminal3;
+            }
+            replaceTransformerByLoad(transformer, vlToKeep, terminal);
+        } else if (!(test(vl1) || test(vl2) || test(vl3))) {
+            transformer.remove();
+        } else {
+            throw new UnsupportedOperationException("Keeping only 2 legs of the 3 windings transformer " + transformer.getId() +
+                    " is not possible : the third one should have also been kept by reduction.");
+        }
         observers.forEach(o -> o.transformerRemoved(transformer));
     }
 
     @Override
     protected void reduce(HvdcLine hvdcLine) {
-        VoltageLevel vl1 = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel();
-        VoltageLevel vl2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel();
-        if (getPredicate().test(vl1) || getPredicate().test(vl2)) {
-            throw new UnsupportedOperationException("Reduction of HVDC lines is not supported");
+        Terminal terminal1 = hvdcLine.getConverterStation1().getTerminal();
+        Terminal terminal2 = hvdcLine.getConverterStation2().getTerminal();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+        HvdcConverterStation<?> station1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> station2 = hvdcLine.getConverterStation2();
+        if (test(vl1)) {
+            replaceHvdcLine(hvdcLine, vl1, terminal1, station1);
+        } else if (test(vl2)) {
+            replaceHvdcLine(hvdcLine, vl2, terminal2, station2);
         } else {
             hvdcLine.remove();
+            station1.remove();
+            station2.remove();
         }
-
         observers.forEach(o -> o.hvdcLineRemoved(hvdcLine));
     }
 
@@ -122,20 +145,20 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceLineByLoad(Line line, VoltageLevel vl, Terminal terminal) {
-        Load load = replaceBranchByLoad(line, vl, terminal);
+        Load load = replaceConnectableByLoad(line, vl, terminal);
         observers.forEach(o -> o.lineReplaced(line, load));
     }
 
     private void replaceLineByDanglingLine(Line line, VoltageLevel vl, Terminal terminal) {
-        Branch.Side side = line.getSide(terminal);
+        TwoSides side = line.getSide(terminal);
 
         DanglingLineAdder dlAdder = vl.newDanglingLine()
                 .setId(line.getId())
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
                 .setX(line.getX() / 2)
-                .setB(side == Branch.Side.ONE ? line.getB1() : line.getB2())
-                .setG(side == Branch.Side.ONE ? line.getG1() : line.getG2())
+                .setB(side == TwoSides.ONE ? line.getB1() : line.getB2())
+                .setG(side == TwoSides.ONE ? line.getG1() : line.getG2())
                 .setP0(checkP(terminal))
                 .setQ0(checkQ(terminal));
         fillNodeOrBus(dlAdder, terminal);
@@ -153,14 +176,19 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceTransformerByLoad(TwoWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {
-        Load load = replaceBranchByLoad(transformer, vl, terminal);
+        Load load = replaceConnectableByLoad(transformer, vl, terminal);
         observers.forEach(o -> o.transformerReplaced(transformer, load));
     }
 
-    private Load replaceBranchByLoad(Branch<?> branch, VoltageLevel vl, Terminal terminal) {
+    private void replaceTransformerByLoad(ThreeWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {
+        Load load = replaceConnectableByLoad(transformer, vl, terminal);
+        observers.forEach(o -> o.transformerReplaced(transformer, load));
+    }
+
+    private Load replaceConnectableByLoad(Connectable<?> connectable, VoltageLevel vl, Terminal terminal) {
         LoadAdder loadAdder = vl.newLoad()
-                .setId(branch.getId())
-                .setName(branch.getOptionalName().orElse(null))
+                .setId(connectable.getId())
+                .setName(connectable.getOptionalName().orElse(null))
                 .setLoadType(LoadType.FICTITIOUS)
                 .setP0(checkP(terminal))
                 .setQ0(checkQ(terminal));
@@ -168,7 +196,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
         double p = terminal.getP();
         double q = terminal.getQ();
-        branch.remove();
+        connectable.remove();
 
         Load load = loadAdder.add();
         load.getTerminal()
@@ -178,7 +206,98 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         return load;
     }
 
-    private static void fillNodeOrBus(InjectionAdder<?> adder, Terminal terminal) {
+    private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation<?> station) {
+        if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
+            VscConverterStation vscStation = (VscConverterStation) station;
+            if (vscStation.isVoltageRegulatorOn()) {
+                replaceHvdcLineByGenerator(hvdcLine, vl, terminal, vscStation);
+            } else {
+                replaceHvdcLineByLoad(hvdcLine, vl, terminal);
+            }
+        } else {
+            replaceHvdcLineByLoad(hvdcLine, vl, terminal);
+        }
+    }
+
+    private void replaceHvdcLineByLoad(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal) {
+        LoadAdder loadAdder = vl.newLoad()
+                .setId(hvdcLine.getId())
+                .setName(hvdcLine.getOptionalName().orElse(null))
+                .setLoadType(LoadType.FICTITIOUS)
+                .setP0(checkP(terminal))
+                .setQ0(checkQ(terminal));
+        fillNodeOrBus(loadAdder, terminal);
+
+        double p = terminal.getP();
+        double q = terminal.getQ();
+        HvdcConverterStation<?> converter1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> converter2 = hvdcLine.getConverterStation2();
+        hvdcLine.remove();
+        converter1.remove();
+        converter2.remove();
+
+        Load load = loadAdder.add();
+        load.getTerminal()
+                .setP(p)
+                .setQ(q);
+        observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, load));
+    }
+
+    private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, VscConverterStation station) {
+        double maxP = hvdcLine.getMaxP();
+        GeneratorAdder genAdder = vl.newGenerator()
+                .setId(hvdcLine.getId())
+                .setName(hvdcLine.getOptionalName().orElse(null))
+                .setEnergySource(EnergySource.OTHER)
+                .setVoltageRegulatorOn(true)
+                .setMaxP(maxP)
+                .setMinP(-maxP)
+                .setTargetP(-checkP(terminal))
+                .setTargetV(station.getVoltageSetpoint());
+        fillNodeOrBus(genAdder, terminal);
+
+        double p = terminal.getP();
+        double q = terminal.getQ();
+        ReactiveLimits stationLimits = station.getReactiveLimits();
+
+        HvdcConverterStation<?> converter1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> converter2 = hvdcLine.getConverterStation2();
+        hvdcLine.remove();
+        converter1.remove();
+        converter2.remove();
+
+        Generator generator = genAdder.add();
+        generator.getTerminal()
+                .setP(p)
+                .setQ(q);
+
+        if (stationLimits != null) {
+            if (stationLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+                MinMaxReactiveLimits minMaxLimits = (MinMaxReactiveLimits) stationLimits;
+                generator.newMinMaxReactiveLimits()
+                        .setMinQ(minMaxLimits.getMinQ())
+                        .setMaxQ(minMaxLimits.getMaxQ())
+                        .add();
+            } else if (stationLimits.getKind() == ReactiveLimitsKind.CURVE) {
+                ReactiveCapabilityCurve reactiveCurve = (ReactiveCapabilityCurve) stationLimits;
+                ReactiveCapabilityCurveAdder curveAdder = generator.newReactiveCapabilityCurve();
+                reactiveCurve.getPoints().forEach(point ->
+                    curveAdder.beginPoint()
+                            .setP(point.getP())
+                            .setMinQ(point.getMinQ())
+                            .setMaxQ(point.getMaxQ())
+                            .endPoint()
+                );
+                curveAdder.add();
+            }
+        }
+
+        generator.newExtension(ActivePowerControlAdder.class).withParticipate(false).add();
+
+        observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
+    }
+
+    private static void fillNodeOrBus(InjectionAdder<?, ?> adder, Terminal terminal) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             adder.setNode(terminal.getNodeBreakerView().getNode());
         } else {

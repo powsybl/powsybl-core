@@ -11,11 +11,12 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
@@ -48,6 +49,11 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     }
 
     @Override
+    public Network getParentNetwork() {
+        return voltageLevel.getParentNetwork();
+    }
+
+    @Override
     public VoltageLevel getVoltageLevel() {
         return voltageLevel;
     }
@@ -76,6 +82,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                 case TWO_WINDINGS_TRANSFORMER:
                 case THREE_WINDINGS_TRANSFORMER:
                 case DANGLING_LINE:
+                case GROUND:
                     // skip
                     break;
                 case GENERATOR:
@@ -87,7 +94,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     }
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
         return p;
@@ -107,6 +114,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                 case TWO_WINDINGS_TRANSFORMER:
                 case THREE_WINDINGS_TRANSFORMER:
                 case DANGLING_LINE:
+                case GROUND:
                     // skip
                     break;
                 case GENERATOR:
@@ -120,7 +128,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     }
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
         return q;
@@ -217,13 +225,13 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getConnectables(DanglingLine.class);
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(DanglingLine.class);
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
     }
 
     @Override
@@ -278,9 +286,9 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     break;
 
                 case LINE:
-                    LineImpl line = (LineImpl) connectable;
-                    visitor.visitLine(line, line.getTerminal1() == terminal ? Branch.Side.ONE
-                                                                            : Branch.Side.TWO);
+                    Line line = (Line) connectable;
+                    visitor.visitLine(line, line.getTerminal1() == terminal ? TwoSides.ONE
+                                                                            : TwoSides.TWO);
                     break;
 
                 case GENERATOR:
@@ -299,19 +307,19 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     TwoWindingsTransformer twt = (TwoWindingsTransformer) connectable;
                     visitor.visitTwoWindingsTransformer(twt,
                             twt.getTerminal1() == terminal
-                            ? Branch.Side.ONE
-                            : Branch.Side.TWO);
+                            ? TwoSides.ONE
+                            : TwoSides.TWO);
                     break;
 
                 case THREE_WINDINGS_TRANSFORMER:
                     ThreeWindingsTransformer thwt = (ThreeWindingsTransformer) connectable;
-                    ThreeWindingsTransformer.Side side;
+                    ThreeSides side;
                     if (thwt.getLeg1().getTerminal() == terminal) {
-                        side = ThreeWindingsTransformer.Side.ONE;
+                        side = ThreeSides.ONE;
                     } else if (thwt.getLeg2().getTerminal() == terminal) {
-                        side = ThreeWindingsTransformer.Side.TWO;
+                        side = ThreeSides.TWO;
                     } else {
-                        side = ThreeWindingsTransformer.Side.THREE;
+                        side = ThreeSides.THREE;
                     }
                     visitor.visitThreeWindingsTransformer(thwt, side);
                     break;
@@ -332,8 +340,12 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
                     break;
 
+                case GROUND:
+                    visitor.visitGround((GroundImpl) connectable);
+                    break;
+
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
     }

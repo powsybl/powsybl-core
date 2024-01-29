@@ -10,16 +10,16 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.xml.ExportOptions;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.NetworkSerDe;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -30,40 +30,43 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-public class TopologyExportTest extends AbstractConverterTest {
+class TopologyExportTest extends AbstractSerDeTest {
 
     @Test
-    public void smallGridHVDC() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreakerHvdcEqTp().dataSource());
-    }
-
-    @Test
-    public void smallGridBusBranch() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallBusBranchEqTp().dataSource());
+    void smallGridHVDC() throws IOException, XMLStreamException {
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdcEqTp().dataSource()));
     }
 
     @Test
-    public void smallGridNodeBreaker() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreakerEqTp().dataSource());
+    void smallGridBusBranch() throws IOException, XMLStreamException {
+        assertTrue(test(CgmesConformity1Catalog.smallBusBranchEqTp().dataSource()));
     }
 
     @Test
-    public void smallGridNodeBreakerSsh() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreakerEqTpSsh().dataSource(), true);
+    void smallGridNodeBreaker() throws IOException, XMLStreamException {
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerEqTp().dataSource()));
     }
 
-    private void test(ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
-        test(dataSource, false);
+    @Test
+    void smallGridNodeBreakerSsh() throws IOException, XMLStreamException {
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerEqTpSsh().dataSource(), true));
     }
 
-    private void test(ReadOnlyDataSource dataSource, boolean importSsh) throws IOException, XMLStreamException {
+    private boolean test(ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
+        return test(dataSource, false);
+    }
+
+    private boolean test(ReadOnlyDataSource dataSource, boolean importSsh) throws IOException, XMLStreamException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
         // Import original
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
         // Export TP
         Path exportedTp = tmpDir.resolve("exportedTp.xml");
@@ -87,7 +90,7 @@ public class TopologyExportTest extends AbstractConverterTest {
 
         // Import with new TP
         Network actual = Network.read(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), importParams);
 
         prepareNetworkForComparison(expected);
         prepareNetworkForComparison(actual);
@@ -96,11 +99,14 @@ public class TopologyExportTest extends AbstractConverterTest {
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
-        NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expected, expectedPath);
+        NetworkSerDe.write(actual, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        return ExportXmlCompare.compareNetworks(expectedPath, actualPath);
     }
 
     private void prepareNetworkForComparison(Network network) {
@@ -113,8 +119,6 @@ public class TopologyExportTest extends AbstractConverterTest {
         // As the network does not have SSH or SV data, the buses are not exported to the IIDM file,
         // in order to verify that the nodes that make up each bus are correct, Nomianl V are copied from the voltage level
         // to the bus.
-        network.getBusView().getBuses().forEach(bus -> {
-            bus.setV(bus.getVoltageLevel().getNominalV());
-        });
+        network.getBusView().getBuses().forEach(bus -> bus.setV(bus.getVoltageLevel().getNominalV()));
     }
 }

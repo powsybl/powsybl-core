@@ -17,7 +17,7 @@ import java.util.function.Function;
  *  - on post-contingency states
  *  - on post-corrective actions states
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class NetworkResult {
 

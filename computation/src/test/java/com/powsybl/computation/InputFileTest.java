@@ -6,19 +6,19 @@
  */
 package com.powsybl.computation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class InputFileTest {
+class InputFileTest {
 
     @Test
-    public void test() {
+    void test() {
         InputFile file = new InputFile("test");
         assertEquals("test", file.getName(1));
         assertFalse(file.dependsOnExecutionNumber());
@@ -26,7 +26,7 @@ public class InputFileTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         InputFile file = new InputFile("test" + CommandConstants.EXECUTION_NUMBER_PATTERN);
         assertEquals("test1", file.getName(1));
         assertTrue(file.dependsOnExecutionNumber());
@@ -34,7 +34,7 @@ public class InputFileTest {
     }
 
     @Test
-    public void test3() {
+    void test3() {
         InputFile file = new InputFile(integer -> "test" + integer, null);
         assertEquals("test1", file.getName(1));
         assertTrue(file.dependsOnExecutionNumber());
@@ -42,29 +42,28 @@ public class InputFileTest {
     }
 
     @Test
-    public void test4() {
+    void test4() {
         InputFile file = new InputFile("test.zip", FilePreProcessor.ARCHIVE_UNZIP);
         assertEquals(FilePreProcessor.ARCHIVE_UNZIP, file.getPreProcessor());
     }
 
-    @Test(expected = RuntimeException.class)
-    public void test5() {
-        new InputFile("test", FilePreProcessor.ARCHIVE_UNZIP);
+    void test5() {
+        assertThrows(RuntimeException.class, () -> new InputFile("test", FilePreProcessor.ARCHIVE_UNZIP));
     }
 
     @Test
-    public void test6() {
+    void test6() {
         InputFile file = new InputFile("test.gz", FilePreProcessor.FILE_GUNZIP);
         assertEquals(FilePreProcessor.FILE_GUNZIP, file.getPreProcessor());
     }
 
-    @Test(expected = RuntimeException.class)
-    public void test7() {
-        new InputFile("test", FilePreProcessor.FILE_GUNZIP);
+    @Test
+    void test7() {
+        assertThrows(RuntimeException.class, () -> new InputFile("test", FilePreProcessor.FILE_GUNZIP));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void test8() {
-        new InputFile("test" + File.separator + "test", null);
+    @Test
+    void test8() {
+        assertThrows(RuntimeException.class, () -> new InputFile("test" + File.separator + "test", null));
     }
 }

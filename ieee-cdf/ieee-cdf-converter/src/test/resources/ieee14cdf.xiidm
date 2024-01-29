@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="ieee14cdf" caseDate="1993-08-19T00:00:00.000Z" forecastDistance="0" sourceFormat="IEEE-CDF" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="ieee14cdf" caseDate="1993-08-19T00:00:00.000Z" forecastDistance="0" sourceFormat="IEEE-CDF" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="135.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -126,20 +126,20 @@
     </iidm:substation>
     <iidm:line id="L1-2-1" r="3.5320050000000003" x="10.7837325" g1="0.0" b1="1.448559670781893E-4" g2="0.0" b2="1.448559670781893E-4" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2"/>
     <iidm:line id="L1-5-1" r="9.8469675" x="40.64904" g1="0.0" b1="1.3497942386831276E-4" g2="0.0" b2="1.3497942386831276E-4" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5"/>
-    <iidm:line id="L2-3-1" r="8.5639275" x="36.0800325" g1="0.0" b1="1.2016460905349794E-4" g2="0.0" b2="1.2016460905349794E-4" bus1="B2" connectableBus1="B2" voltageLevelId1="VL2" bus2="B3" connectableBus2="B3" voltageLevelId2="VL3"/>
+    <iidm:line id="L2-3-1" r="8.563927499999998" x="36.0800325" g1="0.0" b1="1.2016460905349794E-4" g2="0.0" b2="1.2016460905349794E-4" bus1="B2" connectableBus1="B2" voltageLevelId1="VL2" bus2="B3" connectableBus2="B3" voltageLevelId2="VL3"/>
     <iidm:line id="L2-4-1" r="10.5905475" x="32.13432" g1="0.0" b1="9.327846364883403E-5" g2="0.0" b2="9.327846364883403E-5" bus1="B2" connectableBus1="B2" voltageLevelId1="VL2" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4"/>
-    <iidm:line id="L2-5-1" r="10.3791375" x="31.68963" g1="0.0" b1="9.492455418381344E-5" g2="0.0" b2="9.492455418381344E-5" bus1="B2" connectableBus1="B2" voltageLevelId1="VL2" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5"/>
-    <iidm:line id="L3-4-1" r="12.2125725" x="31.170217499999996" g1="0.0" b1="3.511659807956104E-5" g2="0.0" b2="3.511659807956104E-5" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4"/>
+    <iidm:line id="L2-5-1" r="10.379137499999999" x="31.68963" g1="0.0" b1="9.492455418381344E-5" g2="0.0" b2="9.492455418381344E-5" bus1="B2" connectableBus1="B2" voltageLevelId1="VL2" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5"/>
+    <iidm:line id="L3-4-1" r="12.2125725" x="31.170217499999993" g1="0.0" b1="3.511659807956104E-5" g2="0.0" b2="3.511659807956104E-5" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4"/>
     <iidm:line id="L4-5-1" r="2.4330375" x="7.6745475" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5"/>
     <iidm:line id="L6-11-1" r="0.13677119999999998" x="0.286416" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B6" connectableBus1="B6" voltageLevelId1="VL6" bus2="B11" connectableBus2="B11" voltageLevelId2="VL11"/>
     <iidm:line id="L6-12-1" r="0.1769904" x="0.3683664" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B6" connectableBus1="B6" voltageLevelId1="VL6" bus2="B12" connectableBus2="B12" voltageLevelId2="VL12"/>
-    <iidm:line id="L6-13-1" r="0.095256" x="0.1875888" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B6" connectableBus1="B6" voltageLevelId1="VL6" bus2="B13" connectableBus2="B13" voltageLevelId2="VL13"/>
-    <iidm:line id="L7-8-1" r="0.0" x="0.7046" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B8" connectableBus2="B8" voltageLevelId2="VL8"/>
-    <iidm:line id="L7-9-1" r="0.0" x="0.15841439999999998" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9"/>
-    <iidm:line id="L9-10-1" r="0.0458064" x="0.12168000000000001" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10"/>
-    <iidm:line id="L9-14-1" r="0.1830384" x="0.3893472" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B14" connectableBus2="B14" voltageLevelId2="VL14"/>
+    <iidm:line id="L6-13-1" r="0.09525600000000001" x="0.18758879999999997" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B6" connectableBus1="B6" voltageLevelId1="VL6" bus2="B13" connectableBus2="B13" voltageLevelId2="VL13"/>
+    <iidm:line id="L7-8-1" r="0.0" x="0.49322000000000005" g1="0.0" b1="-0.8689254867430936" g2="0.0" b2="0.6082478407201655" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B8" connectableBus2="B8" voltageLevelId2="VL8"/>
+    <iidm:line id="L7-9-1" r="0.0" x="0.1848168" g1="0.0" b1="0.7729662176660504" g2="0.0" b2="-0.9017939206103922" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9"/>
+    <iidm:line id="L9-10-1" r="0.04580639999999999" x="0.12168" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10"/>
+    <iidm:line id="L9-14-1" r="0.18303840000000002" x="0.3893472" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B14" connectableBus2="B14" voltageLevelId2="VL14"/>
     <iidm:line id="L10-11-1" r="0.118152" x="0.27658079999999996" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B10" connectableBus1="B10" voltageLevelId1="VL10" bus2="B11" connectableBus2="B11" voltageLevelId2="VL11"/>
-    <iidm:line id="L12-13-1" r="0.3181248" x="0.2878272" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B12" connectableBus1="B12" voltageLevelId1="VL12" bus2="B13" connectableBus2="B13" voltageLevelId2="VL13"/>
+    <iidm:line id="L12-13-1" r="0.3181248" x="0.28782719999999995" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B12" connectableBus1="B12" voltageLevelId1="VL12" bus2="B13" connectableBus2="B13" voltageLevelId2="VL13"/>
     <iidm:line id="L13-14-1" r="0.2461392" x="0.5011488" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B13" connectableBus1="B13" voltageLevelId1="VL13" bus2="B14" connectableBus2="B14" voltageLevelId2="VL14"/>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G"/>

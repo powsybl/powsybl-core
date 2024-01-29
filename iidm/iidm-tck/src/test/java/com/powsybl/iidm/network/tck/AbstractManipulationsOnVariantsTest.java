@@ -13,32 +13,26 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @author Yichen Tang <yichen.tang at rte-france.com>
+ * @author Yichen Tang {@literal <yichen.tang at rte-france.com>}
  */
 public abstract class AbstractManipulationsOnVariantsTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private Network network;
     private VariantManager variantManager;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NoEquipmentNetworkFactory.create();
         variantManager = network.getVariantManager();
@@ -46,31 +40,27 @@ public abstract class AbstractManipulationsOnVariantsTest {
 
     @Test
     public void errorRemoveInitialVariant() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Removing initial variant is forbidden");
-        variantManager.removeVariant(INITIAL_VARIANT_ID);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> variantManager.removeVariant(INITIAL_VARIANT_ID));
+        assertEquals("Removing initial variant is forbidden", e.getMessage());
     }
 
     @Test
     public void errorNotExistingVariant() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("not found");
-        variantManager.removeVariant("not_exists");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> variantManager.removeVariant("not_exists"));
+        assertTrue(e.getMessage().contains("not found"));
     }
 
     @Test
     public void errorCloneToEmptyVariants() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Empty target variant id list");
-        variantManager.cloneVariant(INITIAL_VARIANT_ID, Collections.emptyList());
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> variantManager.cloneVariant(INITIAL_VARIANT_ID, Collections.emptyList()));
+        assertEquals("Empty target variant id list", e.getMessage());
     }
 
     @Test
     public void errorCloneToExistingVariant() {
         variantManager.cloneVariant(INITIAL_VARIANT_ID, "hello");
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("already exists");
-        variantManager.cloneVariant(INITIAL_VARIANT_ID, "hello");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> variantManager.cloneVariant(INITIAL_VARIANT_ID, "hello"));
+        assertTrue(e.getMessage().contains("already exists"));
     }
 
     @Test

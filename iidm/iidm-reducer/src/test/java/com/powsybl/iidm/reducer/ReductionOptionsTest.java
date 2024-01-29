@@ -6,18 +6,18 @@
  */
 package com.powsybl.iidm.reducer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ReductionOptionsTest {
+class ReductionOptionsTest {
 
     @Test
-    public void test() {
+    void test() {
         ReductionOptions options = new ReductionOptions();
         assertFalse(options.isWithDanglingLines());
 

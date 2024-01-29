@@ -11,20 +11,20 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Lucas Leblow <lucasleblow@mailbox.org>
+ * @author Lucas Leblow {@literal <lucasleblow@mailbox.org>}
  */
-public class TestAbstractVoltageLevel {
+class TestAbstractVoltageLevel {
 
     @Test
-    public void testLoadNodeIndexLimit() throws IOException {
+    void testLoadNodeIndexLimit() throws IOException {
         assertEquals(1000, AbstractVoltageLevel.NODE_INDEX_LIMIT);
         assertEquals(1000, AbstractVoltageLevel.loadNodeIndexLimit(PlatformConfig.defaultConfig()));
 

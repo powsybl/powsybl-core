@@ -11,16 +11,14 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.ieeecdf.model.*;
-import com.powsybl.iidm.network.Importer;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import com.powsybl.ieeecdf.model.*;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.util.ContainersMapping;
+import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(Importer.class)
 public class IeeeCdfImporter implements Importer {
@@ -301,8 +299,20 @@ public class IeeeCdfImporter implements Importer {
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
         String voltageLevel1Id = containerMapping.getVoltageLevelId(ieeeCdfBranch.getTapBusNumber());
         String voltageLevel2Id = containerMapping.getVoltageLevelId(ieeeCdfBranch.getzBusNumber());
+        VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
-        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+
+        double nominalV1 = voltageLevel1.getNominalV();
+        double nominalV2 = voltageLevel2.getNominalV();
+        double sBase = perUnitContext.getSb();
+        double r = impedanceToEngineeringUnitsForLine(ieeeCdfBranch.getResistance(), nominalV1, nominalV2, sBase);
+        double x = impedanceToEngineeringUnitsForLine(ieeeCdfBranch.getReactance(), nominalV1, nominalV2, sBase);
+        Complex ytr = impedanceToAdmittance(r, x);
+        double g1 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV1, nominalV2, sBase);
+        double b1 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), ieeeCdfBranch.getChargingSusceptance() * 0.5, nominalV1, nominalV2, sBase);
+        double g2 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV2, nominalV1, sBase);
+        double b2 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), ieeeCdfBranch.getChargingSusceptance() * 0.5, nominalV2, nominalV1, sBase);
+
         network.newLine()
                 .setId(id)
                 .setBus1(bus1Id)
@@ -311,13 +321,30 @@ public class IeeeCdfImporter implements Importer {
                 .setBus2(bus2Id)
                 .setConnectableBus2(bus2Id)
                 .setVoltageLevel2(voltageLevel2Id)
-                .setR(ieeeCdfBranch.getResistance() * zb)
-                .setX(ieeeCdfBranch.getReactance() * zb)
-                .setG1(0)
-                .setB1(ieeeCdfBranch.getChargingSusceptance() / zb / 2)
-                .setG2(0)
-                .setB2(ieeeCdfBranch.getChargingSusceptance() / zb / 2)
+                .setR(r)
+                .setX(x)
+                .setG1(g1)
+                .setB1(b1)
+                .setG2(g2)
+                .setB2(b2)
                 .add();
+    }
+
+    // avoid NaN when r and x, both are 0.0
+    private static Complex impedanceToAdmittance(double r, double x) {
+        return r == 0.0 && x == 0.0 ? new Complex(0.0, 0.0) : new Complex(r, x).reciprocal();
+    }
+
+    private static double impedanceToEngineeringUnitsForLine(double impedance, double nominalVoltageAtEnd, double nominalVoltageAtOtherEnd, double sBase) {
+        // this method handles also line with different nominal voltage at ends
+        return impedance * nominalVoltageAtEnd * nominalVoltageAtOtherEnd / sBase;
+    }
+
+    private static double admittanceEndToEngineeringUnitsForLine(double transmissionAdmittance, double shuntAdmittanceAtEnd,
+                                                                 double nominalVoltageAtEnd, double nominalVoltageAtOtherEnd, double sBase) {
+        // this method handles also line with different nominal voltage at ends
+        // note that ytr is already in engineering units
+        return shuntAdmittanceAtEnd * sBase / (nominalVoltageAtEnd * nominalVoltageAtEnd) - (1 - nominalVoltageAtOtherEnd / nominalVoltageAtEnd) * transmissionAdmittance;
     }
 
     private static TwoWindingsTransformer createTransformer(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
@@ -330,7 +357,7 @@ public class IeeeCdfImporter implements Importer {
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
         return voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer)
-                .orElseGet(network::newTwoWindingsTransformer)
+                .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                 .setId(id)
                 .setBus1(bus1Id)
                 .setConnectableBus1(bus1Id)
@@ -504,7 +531,7 @@ public class IeeeCdfImporter implements Importer {
         IeeeCdfTitle ieeeCdfTitle = ieeeCdfModel.getTitle();
         if (ieeeCdfTitle.getDate() != null) {
             ZonedDateTime caseDateTime = ieeeCdfTitle.getDate().atStartOfDay(ZoneOffset.UTC.normalized());
-            network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
+            network.setCaseDate(ZonedDateTime.ofInstant(caseDateTime.toInstant(), ZoneOffset.UTC));
         }
 
         // build container to fit IIDM requirements

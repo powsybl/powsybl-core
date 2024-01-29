@@ -6,12 +6,13 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -19,15 +20,15 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class ShortCircuitAnalysisTest {
+class ShortCircuitAnalysisTest {
 
     @Test
-    public void shortCircuitAnalysisWithDummyProvider() {
+    void shortCircuitAnalysisWithDummyProvider() {
 
         ShortCircuitAnalysisProvider provider = new ShortCircuitAnalysisProvider() {
             @Override
@@ -64,8 +65,8 @@ public class ShortCircuitAnalysisTest {
     private List<Fault> faults;
     private List<FaultParameters> faultParameters;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = Mockito.mock(Network.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
@@ -77,7 +78,7 @@ public class ShortCircuitAnalysisTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
         assertNotNull(result.getFaultResult("Fault_ID_1"));
         assertEquals(2, result.getFaultResults("BusId").size());
@@ -85,38 +86,38 @@ public class ShortCircuitAnalysisTest {
     }
 
     @Test
-    public void testDefaultProvider() {
+    void testDefaultProvider() {
         ShortCircuitAnalysis.Runner defaultShortCircuitAnalysisRunner = ShortCircuitAnalysis.find();
         assertEquals(DEFAULT_PROVIDER_NAME, defaultShortCircuitAnalysisRunner.getName());
         assertEquals("1.0", defaultShortCircuitAnalysisRunner.getVersion());
     }
 
     @Test
-    public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
+    void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
         CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, faults, shortCircuitParameters, computationManager, faultParameters);
         assertNotNull(result.get());
     }
 
     @Test
-    public void testSyncDefaultProvider() {
+    void testSyncDefaultProvider() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters);
         assertNotNull(result);
     }
 
     @Test
-    public void testSyncDefaultProviderWithoutComputationManager() {
+    void testSyncDefaultProviderWithoutComputationManager() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, faultParameters);
         assertNotNull(result);
     }
 
     @Test
-    public void testSyncDefaultProviderWithoutParameters() {
+    void testSyncDefaultProviderWithoutParameters() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults);
         assertNotNull(result);
     }
 
     @Test
-    public void testWithReporter() {
+    void testWithReporter() {
         ReporterModel reporter = new ReporterModel("testReportShortCircuit", "Test mock short circuit");
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reporter);
         assertNotNull(result);
@@ -129,14 +130,24 @@ public class ShortCircuitAnalysisTest {
     }
 
     @Test
-    public void testFortescueTransformation() {
+    void testFortescueTransformation() {
         // test based on a result given in degrees for both fortescue and phase
         double pi = Math.PI;
         FortescueValue fortescueValue = new FortescueValue(86.8086319, 0., 0., 1.83823431 * pi / 180, 0., 0.);
         FortescueValue.ThreePhaseValue threePhaseValue = fortescueValue.toThreePhaseValue();
-        assertEquals(50.118988, threePhaseValue.getMagnitude1(), 0.00001);
-        assertEquals(1.83823431 * pi / 180, threePhaseValue.getAngle1(), 0.00001);
-        assertEquals(-118.161751 * pi / 180, threePhaseValue.getAngle2(), 0.00001);
-        assertEquals(121.838219 * pi / 180, threePhaseValue.getAngle3(), 0.00001);
+        assertEquals(50.118988, threePhaseValue.getMagnitudeA(), 0.00001);
+        assertEquals(50.118988, threePhaseValue.getMagnitudeB(), 0.00001);
+        assertEquals(50.118988, threePhaseValue.getMagnitudeC(), 0.00001);
+        assertEquals(1.83823431 * pi / 180, threePhaseValue.getAngleA(), 0.00001);
+        assertEquals(-118.161751 * pi / 180, threePhaseValue.getAngleB(), 0.00001);
+        assertEquals(121.838219 * pi / 180, threePhaseValue.getAngleC(), 0.00001);
+    }
+
+    @Test
+    void testWithMissingVoltageRangesInParameters() {
+        ShortCircuitParameters invalidShortCircuitParameter = new ShortCircuitParameters()
+                .setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
+        Exception e0 = assertThrows(PowsyblException.class, () -> ShortCircuitAnalysis.run(network, faults, invalidShortCircuitParameter, computationManager, faultParameters));
+        assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
     }
 }

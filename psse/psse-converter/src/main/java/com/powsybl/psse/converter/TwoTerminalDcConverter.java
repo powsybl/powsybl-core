@@ -16,8 +16,8 @@ import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
 import java.util.Objects;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TwoTerminalDcConverter extends AbstractConverter {
 
@@ -70,7 +70,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         switch (psseTwoTerminalDc.getMdc()) {
             case 1:
                 // The desired real power demand
-                return psseTwoTerminalDc.getSetvl();
+                return Math.abs(psseTwoTerminalDc.getSetvl());
             case 2:
                 // It is the current in amps (should divide by 1000 to convert to MW)
                 return psseTwoTerminalDc.getSetvl() * psseTwoTerminalDc.getVschd() / 1000.0;
@@ -83,9 +83,9 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return getTwoTerminalDcActivePowerSetpoint(psseTwoTerminalDc) * DEFAULT_MAXP_FACTOR;
     }
 
-    // It is assumed that the maximum overlap angle is 60 degree (see Kimbark's book)
+    // power factor calculated under assumption that that the maximum overlap angle is 60 degree (see Kimbark's book)
     private static double getLccConverterPowerFactor(PsseTwoTerminalDcConverter converter) {
-        return Math.acos(0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0))));
+        return 0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0)));
     }
 
     private String getLccConverterId(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, PsseTwoTerminalDcConverter converter) {

@@ -10,20 +10,16 @@ import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlunit.builder.DiffBuilder;
-import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 
-import javax.xml.transform.Source;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Stanislao Fidanza <stanifidanza98@gmail.com>
+ * @author Stanislao Fidanza {@literal <stanifidanza98@gmail.com>}
  */
 public final class ComparisonUtils {
 
@@ -33,9 +29,7 @@ public final class ComparisonUtils {
     }
 
     public static void compareXml(InputStream expected, InputStream actual) {
-        Source control = Input.fromStream(expected).build();
-        Source test = Input.fromStream(actual).build();
-        Diff myDiff = DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();
+        Diff myDiff = DiffBuilder.compare(expected).withTest(actual).ignoreWhitespace().ignoreComments().build();
         boolean hasDiff = myDiff.hasDifferences();
         if (hasDiff) {
             LOGGER.error("{}", myDiff);
@@ -51,11 +45,19 @@ public final class ComparisonUtils {
         }
     }
 
+    public static void compareBytes(InputStream expected, InputStream actual) {
+        try {
+            assertArrayEquals(expected.readAllBytes(), actual.readAllBytes());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static void compareTxt(InputStream expected, InputStream actual, List<Integer> excludedLines) {
         BufferedReader expectedReader = new BufferedReader(new InputStreamReader(expected));
-        List<String> expectedLines = expectedReader.lines().collect(Collectors.toList());
+        List<String> expectedLines = expectedReader.lines().toList();
         BufferedReader actualReader = new BufferedReader(new InputStreamReader(actual));
-        List<String> actualLines = actualReader.lines().collect(Collectors.toList());
+        List<String> actualLines = actualReader.lines().toList();
 
         for (int i = 0; i < expectedLines.size(); i++) {
             if (!excludedLines.contains(i)) {
@@ -66,11 +68,23 @@ public final class ComparisonUtils {
 
     public static void compareTxt(InputStream expected, String actual) {
         try {
-            String expectedStr = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8));
-            String actualStr = TestUtil.normalizeLineSeparator(actual);
-            assertEquals(expectedStr, actualStr);
+            compareTxt(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8), actual);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static void compareTxt(String expected, InputStream actual) {
+        try {
+            compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void compareTxt(String expected, String actual) {
+        String expectedStr = TestUtil.normalizeLineSeparator(expected);
+        String actualStr = TestUtil.normalizeLineSeparator(actual);
+        assertEquals(expectedStr, actualStr);
     }
 }

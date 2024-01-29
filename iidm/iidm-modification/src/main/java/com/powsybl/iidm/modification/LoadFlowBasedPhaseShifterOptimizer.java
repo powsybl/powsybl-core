@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer {
 
@@ -117,7 +117,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 runLoadFlow(network, tmpStateId);
                 // check there phase shifter is not overloaded
                 if (getI(phaseShifter) >= limit) {
-                    throw new AssertionError("Phase shifter should not be overload");
+                    throw new IllegalStateException("Phase shifter should not be overload");
                 }
             }
         } finally {

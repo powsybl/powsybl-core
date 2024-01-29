@@ -19,14 +19,14 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
 public abstract class AbstractValidationFormatterWriter implements ValidationWriter {
 
@@ -223,11 +223,11 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     @Override
     public void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                      int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
+                      int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
                       boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(twtId);
         TransformerData emptyTwtData = new TransformerData(twtId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                                           Double.NaN, -1, -1, -1, Double.NaN, Side.ONE, Double.NaN, false, false, false);
+                                                           Double.NaN, -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = twtsData.containsKey(twtId);
@@ -246,7 +246,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     }
 
     protected abstract void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                                  int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
+                                  int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
                                   boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException;
 
     @Override
@@ -298,7 +298,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 writeTwts3wData();
                 break;
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + validationType);
+                throw new IllegalStateException("Unexpected ValidationType value: " + validationType);
         }
     }
 
@@ -364,7 +364,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         twtsData.values().forEach(twtData -> {
             try {
                 write(twtData.twtId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                      -1, -1, -1, Double.NaN, Side.ONE, Double.NaN, false, false, false, twtData, true, false);
+                      -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false, twtData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of twt {}: {}", twtData.twtId, e.getMessage());
             }
@@ -647,14 +647,14 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final int lowTapPosition;
         final int highTapPosition;
         final double targetV;
-        final Side regulatedSide;
+        final TwoSides regulatedSide;
         final double v;
         final boolean connected;
         final boolean mainComponent;
         final boolean validated;
 
         TransformerData(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep,
-                        double rhoNextStep, int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide,
+                        double rhoNextStep, int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide,
                         double v, boolean connected, boolean mainComponent, boolean validated) {
             this.twtId = Objects.requireNonNull(twtId);
             this.error = error;

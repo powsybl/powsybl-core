@@ -10,7 +10,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,12 +19,12 @@ import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class CimAnonymizerToolTest extends AbstractToolTest {
+class CimAnonymizerToolTest extends AbstractToolTest {
 
     private final CimAnonymizerTool tool = new CimAnonymizerTool();
 
@@ -43,7 +43,7 @@ public class CimAnonymizerToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void run() throws IOException {
+    void run() throws IOException {
         Path workDir = fileSystem.getPath("work");
         Path cimZipFile = workDir.resolve("sample.zip");
         Path anonymizedCimFileDir = workDir.resolve("result");

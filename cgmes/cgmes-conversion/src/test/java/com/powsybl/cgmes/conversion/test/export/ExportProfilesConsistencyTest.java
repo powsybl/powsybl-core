@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.NamingStrategyFactory;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
@@ -18,21 +18,21 @@ import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.ExportersServiceLoader;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class ExportProfilesConsistencyTest extends AbstractConverterTest {
+class ExportProfilesConsistencyTest extends AbstractSerDeTest {
 
     @Test
-    public void testSVSmallGridNodeBreaker() {
+    void testSVSmallGridNodeBreaker() {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
         ReporterModel reporterOnlySv = new ReporterModel("onlySV", "");
@@ -52,7 +52,8 @@ public class ExportProfilesConsistencyTest extends AbstractConverterTest {
 
     private Network importNetwork(ReadOnlyDataSource dataSource) {
         Properties params = new Properties();
-        params.put(CgmesImport.ID_MAPPING_FILE_NAMING_STRATEGY, NamingStrategyFactory.CGMES);
+        params.put(CgmesImport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         return Importers.importData("CGMES", dataSource, params);
     }
 

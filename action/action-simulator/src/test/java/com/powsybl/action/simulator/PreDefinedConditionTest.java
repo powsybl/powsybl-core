@@ -7,12 +7,12 @@
 package com.powsybl.action.simulator;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class PreDefinedConditionTest extends AbstractLoadFlowRulesEngineTest {
+class PreDefinedConditionTest extends AbstractLoadFlowRulesEngineTest {
     @Override
     protected Network createNetwork() {
         Network network = EurostagTutorialExample1WithTemporaryLimitFactory.create();
@@ -30,7 +30,7 @@ public class PreDefinedConditionTest extends AbstractLoadFlowRulesEngineTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         engine.start(actionDb);
     }
 }

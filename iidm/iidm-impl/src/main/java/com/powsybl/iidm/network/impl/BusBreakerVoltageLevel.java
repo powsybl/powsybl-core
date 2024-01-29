@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.math.graph.UndirectedGraphImpl;
 import com.powsybl.math.graph.UndirectedGraphListener;
@@ -34,12 +35,13 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
@@ -129,7 +131,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (v != null) {
             ConfiguredBus bus = graph.getVertexObject(v);
             if (!bus.getId().equals(busId)) {
-                throw new AssertionError("Invalid bus id (expected: " + busId + ", actual: " + bus.getId() + ")");
+                throw new IllegalStateException("Invalid bus id (expected: " + busId + ", actual: " + bus.getId() + ")");
             }
             return bus;
         }
@@ -152,7 +154,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (e != null) {
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (!aSwitch.getId().equals(switchId)) {
-                throw new AssertionError("Invalid switch id (expected: " + switchId + ", actual: " + aSwitch.getId() + ")");
+                throw new IllegalStateException("Invalid switch id (expected: " + switchId + ", actual: " + aSwitch.getId() + ")");
             }
             return aSwitch;
         }
@@ -211,10 +213,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case STATIC_VAR_COMPENSATOR:
                         feederCount++;
                         break;
+                    case GROUND:
+                        break;
 
                     case BUSBAR_SECTION: // must not happend in a bus/breaker topology
                     default:
-                        throw new AssertionError();
+                        throw new IllegalStateException();
                 }
             }
             return Networks.isBusValid(feederCount);
@@ -244,7 +248,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (!encountered[v]) {
                     final Set<ConfiguredBus> busSet = new LinkedHashSet<>(1);
                     busSet.add(graph.getVertexObject(v));
-                    graph.traverse(v, (v1, e, v2) -> {
+                    graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
                         SwitchImpl aSwitch = graph.getEdgeObject(e);
                         if (aSwitch.isOpen()) {
                             return TraverseResult.TERMINATE_PATH;
@@ -317,9 +321,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     protected final VariantArray<VariantImpl> variants;
 
     BusBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> ref,
-                           double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, ref, nominalV, lowVoltageLimit, highVoltageLimit);
-        variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
+                           Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+        super(id, name, fictitious, substation, ref, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+        // the ref object of the variant array is the same as the current object
+        variants = new VariantArray<>(ref, VariantImpl::new);
         // invalidate topology and connected components
         graph.addListener(new UndirectedGraphListener<>() {
             @Override
@@ -370,7 +375,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void invalidateCache() {
+    public void invalidateCache(boolean exceptBusBreakerView) {
         calculatedBusTopology.invalidateCache();
         getNetwork().getBusView().invalidateCache();
         getNetwork().getBusBreakerView().invalidateCache();
@@ -599,6 +604,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public int getBusCount() {
+            return graph.getVertexCount();
+        }
+
+        @Override
         public ConfiguredBus getBus(String id) {
             return BusBreakerVoltageLevel.this.getBus(id, false);
         }
@@ -686,7 +696,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void traverse(Bus bus, TopologyTraverser traverser) {
-            graph.traverse(getVertex(bus.getId(), true), adapt(traverser));
+            graph.traverse(getVertex(bus.getId(), true), TraversalType.DEPTH_FIRST, adapt(traverser));
         }
     };
 
@@ -902,7 +912,9 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean connect(TerminalExt terminal) {
-        assert terminal instanceof BusTerminal;
+        if (!(terminal instanceof BusTerminal)) {
+            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
+        }
 
         // already connected?
         if (terminal.isConnected()) {
@@ -918,9 +930,15 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal) {
-        assert terminal instanceof BusTerminal;
+    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
+        return connect(terminal);
+    }
 
+    @Override
+    public boolean disconnect(TerminalExt terminal) {
+        if (!(terminal instanceof BusTerminal)) {
+            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
+        }
         // already disconnected?
         if (!terminal.isConnected()) {
             return false;
@@ -934,8 +952,13 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         return true;
     }
 
-    void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser) {
-        traverse(terminal, traverser, new HashSet<>());
+    @Override
+    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
+        return disconnect(terminal);
+    }
+
+    void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, TraversalType traversalType) {
+        traverse(terminal, traverser, new HashSet<>(), traversalType);
     }
 
     /**
@@ -944,7 +967,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
      * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+    boolean traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> visitedTerminals, TraversalType traversalType) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(visitedTerminals);
@@ -970,7 +993,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             // then go through other buses of the voltage level
-            boolean traversalTerminated = !graph.traverse(v, (v1, e, v2) -> {
+            boolean traversalTerminated = !graph.traverse(v, traversalType, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 List<BusTerminal> otherBusTerminals = graph.getVertexObject(v2).getTerminals();
                 TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
@@ -989,7 +1012,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             for (TerminalExt t : nextTerminals) {
-                if (!t.traverse(traverser, visitedTerminals)) {
+                if (!t.traverse(traverser, visitedTerminals, traversalType)) {
                     return false;
                 }
             }

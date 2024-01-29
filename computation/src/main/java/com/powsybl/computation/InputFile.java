@@ -13,7 +13,7 @@ import java.util.function.Function;
 /**
  * Command input file.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class InputFile {
 
@@ -53,7 +53,7 @@ public class InputFile {
                     }
                     break;
                 default:
-                    throw new AssertionError("Unexpected FilePreProcessor value: " + preProcessor);
+                    throw new IllegalStateException("Unexpected FilePreProcessor value: " + preProcessor);
             }
         }
         return name;

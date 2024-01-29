@@ -1,38 +1,40 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ZipFileDataSource;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TopologyExportCornerCasesTest extends AbstractConverterTest {
+class TopologyExportCornerCasesTest extends AbstractSerDeTest {
 
     @Test
-    public void testExportSwitchesBusBreaker() {
+    void testExportSwitchesBusBreaker() {
         test(createSwitchesBBNetwork(), true, true,
                 new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_2", "voltageLevel1_3", "voltageLevel1_4"});
     }
 
     @Test
-    public void testExportParallelSwitchesNodeBreaker() {
+    void testExportParallelSwitchesNodeBreaker() {
         test(createParallelSwitchesNBNetwork(), true, true,
                 new String[] {"voltageLevel1_0"});
     }
 
     @Test
-    public void testExportSwitchesNodeBreaker() {
+    void testExportSwitchesNodeBreaker() {
         test(createSwitchesNBNetwork(), true, true,
                 new String[] {"voltageLevel1_0", "voltageLevel1_2", "voltageLevel1_8"});
     }
 
     @Test
-    public void testExportGeneratorDisconnectedTransformerBusBreaker() {
+    void testExportGeneratorDisconnectedTransformerBusBreaker() {
         // The calculated BusView from bus-breaker iidm and from node-breaker iidm is different
         // The condition for a valid bus in the BusView for bus-breaker and node-breaker is slightly different
         // So we end up with different bus-view buses
@@ -41,21 +43,21 @@ public class TopologyExportCornerCasesTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExportGeneratorTransformerNodeBreaker() {
+    void testExportGeneratorTransformerNodeBreaker() {
         test(createGeneratorTransformerNBNetwork(), true, true,
                 new String[] {"voltageLevel1_0", "voltageLevel2_0"});
     }
 
-    @Ignore("Mismatch in bus view bus definition from node/breaker and bus/breaker topologies")
+    @Disabled("Mismatch in bus view bus definition from node/breaker and bus/breaker topologies")
     // FIXME(Luma): consider adding busbar section to exported EQ when we save a bus/breaker topology as node/breaker
     @Test
-    public void testExportDisconnectedLoadBusBreaker() {
+    void testExportDisconnectedLoadBusBreaker() {
         test(createDisconnectedLoadBBNetwork(), false, true,
                 new String[] {"voltageLevel1_0", "voltageLevel1_1"});
     }
 
     @Test
-    public void testExportDisconnectedLoadNodeBreaker() {
+    void testExportDisconnectedLoadNodeBreaker() {
         test(createDisconnectedLoadNBNetwork(), false, true,
                 new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
     }
@@ -78,7 +80,9 @@ public class TopologyExportCornerCasesTest extends AbstractConverterTest {
         params.put(CgmesExport.CIM_VERSION, "100");
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
-        Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"));
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"), LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), importParams);
         if (checkAllTerminalsConnected) {
             checkAllTerminalsConnected(network, name + "_from_CGMES");
         }

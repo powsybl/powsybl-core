@@ -7,38 +7,38 @@
 package com.powsybl.loadflow.validation.util;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.TwtData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public class TwtDataTest {
+class TwtDataTest {
 
     @Test
-    public void test() {
+    void test() {
         TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false, false);
 
-        assertEquals(TwtTestData.P1, twtData.getComputedP(Side.ONE), .3);
-        assertEquals(TwtTestData.Q1, twtData.getComputedQ(Side.ONE), .3);
-        assertEquals(TwtTestData.P2, twtData.getComputedP(Side.TWO), .3);
-        assertEquals(TwtTestData.Q2, twtData.getComputedQ(Side.TWO), .3);
-        assertEquals(TwtTestData.P3, twtData.getComputedP(Side.THREE), .3);
-        assertEquals(TwtTestData.Q3, twtData.getComputedQ(Side.THREE), .3);
+        assertEquals(TwtTestData.P1, twtData.getComputedP(ThreeSides.ONE), .3);
+        assertEquals(TwtTestData.Q1, twtData.getComputedQ(ThreeSides.ONE), .3);
+        assertEquals(TwtTestData.P2, twtData.getComputedP(ThreeSides.TWO), .3);
+        assertEquals(TwtTestData.Q2, twtData.getComputedQ(ThreeSides.TWO), .3);
+        assertEquals(TwtTestData.P3, twtData.getComputedP(ThreeSides.THREE), .3);
+        assertEquals(TwtTestData.Q3, twtData.getComputedQ(ThreeSides.THREE), .3);
 
         assertEquals(TwtTestData.STAR_U, twtData.getStarU(), .0001);
         assertEquals(TwtTestData.STAR_ANGLE, Math.toDegrees(twtData.getStarTheta()), .0001);
     }
 
     @Test
-    public void testSplitShuntAdmittance() {
+    void testSplitShuntAdmittance() {
         ThreeWindingsTransformer twt = new TwtTestData().get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false, true);
         boolean ok = t3xCompareFlow(twtData, 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
@@ -46,7 +46,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1End2End3Connected() {
+    void testEnd1End2End3Connected() {
         ThreeWindingsTransformer twt = new TwtTestData().get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false);
         boolean ok = t3xCompareFlow(twtData, 99.227288294050, 2.747147185208, -216.195866533486, -85.490493190353, 117.988318295633, 92.500849015581);
@@ -57,7 +57,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd2End3Connected() {
+    void testEnd2End3Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg1Disconnected();
 
@@ -71,7 +71,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1End3Connected() {
+    void testEnd1End3Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg2Disconnected();
 
@@ -85,7 +85,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1End2Connected() {
+    void testEnd1End2Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg3Disconnected();
 
@@ -99,7 +99,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1Connected() {
+    void testEnd1Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg2Disconnected();
         twtTestData.setLeg3Disconnected();
@@ -114,7 +114,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd2Connected() {
+    void testEnd2Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg1Disconnected();
         twtTestData.setLeg3Disconnected();
@@ -129,7 +129,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd3Connected() {
+    void testEnd3Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg1Disconnected();
         twtTestData.setLeg2Disconnected();
@@ -144,7 +144,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1End2End3Disconnected() {
+    void testEnd1End2End3Disconnected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg1Disconnected();
         twtTestData.setLeg2Disconnected();
@@ -161,10 +161,10 @@ public class TwtDataTest {
 
     private static boolean t3xCompareStarBusVoltage(TwtData twtData, double starU, double starAngle) {
         double tol = 0.00001;
-        if ((Double.isNaN(twtData.getStarU()) && !Double.isNaN(starU)) ||
-            (Double.isNaN(twtData.getStarTheta()) && !Double.isNaN(starAngle)) ||
-            Math.abs(twtData.getStarU() - starU) > tol ||
-            Math.abs(Math.toDegrees(twtData.getStarTheta()) - starAngle) > tol) {
+        if (Double.isNaN(twtData.getStarU()) && !Double.isNaN(starU)
+                || Double.isNaN(twtData.getStarTheta()) && !Double.isNaN(starAngle)
+                || Math.abs(twtData.getStarU() - starU) > tol
+                || Math.abs(Math.toDegrees(twtData.getStarTheta()) - starAngle) > tol) {
             LOG.info("ThreeWindingsTransformer {} Expected {} {} Actual {} {}", twtData.getId(),
                 starU, starAngle, twtData.getStarU(), Math.toDegrees(twtData.getStarTheta()));
             return false;
@@ -174,12 +174,12 @@ public class TwtDataTest {
 
     private static boolean t3xCompareFlow(TwtData twtData, double p1, double q1, double p2, double q2, double p3, double q3) {
         T3xFlow actual = new T3xFlow();
-        actual.p1 = twtData.getComputedP(Side.ONE);
-        actual.q1 = twtData.getComputedQ(Side.ONE);
-        actual.p2 = twtData.getComputedP(Side.TWO);
-        actual.q2 = twtData.getComputedQ(Side.TWO);
-        actual.p3 = twtData.getComputedP(Side.THREE);
-        actual.q3 = twtData.getComputedQ(Side.THREE);
+        actual.p1 = twtData.getComputedP(ThreeSides.ONE);
+        actual.q1 = twtData.getComputedQ(ThreeSides.ONE);
+        actual.p2 = twtData.getComputedP(ThreeSides.TWO);
+        actual.q2 = twtData.getComputedQ(ThreeSides.TWO);
+        actual.p3 = twtData.getComputedP(ThreeSides.THREE);
+        actual.q3 = twtData.getComputedQ(ThreeSides.THREE);
 
         T3xFlow expected = new T3xFlow();
         expected.p1 = p1;
@@ -194,18 +194,18 @@ public class TwtDataTest {
 
     private static boolean sameFlow(T3xFlow expected, T3xFlow actual) {
         double tol = 0.00001;
-        if ((!Double.isNaN(expected.p1) && Double.isNaN(actual.p1)) ||
-            (!Double.isNaN(expected.q1) && Double.isNaN(actual.q1)) ||
-            (!Double.isNaN(expected.p2) && Double.isNaN(actual.p2)) ||
-            (!Double.isNaN(expected.q2) && Double.isNaN(actual.q2)) ||
-            (!Double.isNaN(expected.p3) && Double.isNaN(actual.p3)) ||
-            (!Double.isNaN(expected.q3) && Double.isNaN(actual.q3)) ||
-            Math.abs(expected.p1 - actual.p1) > tol ||
-            Math.abs(expected.q1 - actual.q1) > tol ||
-            Math.abs(expected.p2 - actual.p2) > tol ||
-            Math.abs(expected.q2 - actual.q2) > tol ||
-            Math.abs(expected.p3 - actual.p3) > tol ||
-            Math.abs(expected.q3 - actual.q3) > tol) {
+        if (!Double.isNaN(expected.p1) && Double.isNaN(actual.p1)
+                || !Double.isNaN(expected.q1) && Double.isNaN(actual.q1)
+                || !Double.isNaN(expected.p2) && Double.isNaN(actual.p2)
+                || !Double.isNaN(expected.q2) && Double.isNaN(actual.q2)
+                || !Double.isNaN(expected.p3) && Double.isNaN(actual.p3)
+                || !Double.isNaN(expected.q3) && Double.isNaN(actual.q3)
+                || Math.abs(expected.p1 - actual.p1) > tol
+                || Math.abs(expected.q1 - actual.q1) > tol
+                || Math.abs(expected.p2 - actual.p2) > tol
+                || Math.abs(expected.q2 - actual.q2) > tol
+                || Math.abs(expected.p3 - actual.p3) > tol
+                || Math.abs(expected.q3 - actual.q3) > tol) {
             return false;
         }
         return true;

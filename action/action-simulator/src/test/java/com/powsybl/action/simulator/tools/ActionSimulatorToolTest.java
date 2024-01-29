@@ -14,24 +14,21 @@ import com.powsybl.tools.ToolRunningContext;
 import com.powsybl.tools.test.AbstractToolTest;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.Collections;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ActionSimulatorToolTest extends AbstractToolTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+class ActionSimulatorToolTest extends AbstractToolTest {
 
     private ToolRunningContext runningContext;
 
@@ -69,8 +66,8 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "export-after-each-round", false, false);
     }
 
-    @Before
-    public void mockup() {
+    @BeforeEach
+    void mockup() {
         runningContext = mock(ToolRunningContext.class);
         when(runningContext.getFileSystem()).thenReturn(fileSystem);
 
@@ -80,31 +77,28 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void failedOutputCaseOptions() throws Exception {
+    void failedOutputCaseOptions() throws Exception {
         when(commandLine.hasOption("output-case-folder")).thenReturn(true);
         when(commandLine.getOptionValue("output-case-folder")).thenReturn("/outcasefolder");
         when(commandLine.hasOption("output-case-format")).thenReturn(false);
-        thrown.expect(ParseException.class);
-        thrown.expectMessage("Missing required option: output-case-format");
-        tool.run(commandLine, runningContext);
+        ParseException e = assertThrows(ParseException.class, () -> tool.run(commandLine, runningContext));
+        assertTrue(e.getMessage().contains("Missing required option: output-case-format"));
     }
 
     @Test
-    public void missingOutputFileInParallelMode() throws Exception {
+    void missingOutputFileInParallelMode() throws Exception {
         when(commandLine.hasOption("task-count")).thenReturn(true);
         when(commandLine.hasOption("output-file")).thenReturn(false);
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Missing required option: output-file in parallel mode");
-        tool.run(commandLine, runningContext);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> tool.run(commandLine, runningContext));
+        assertTrue(e.getMessage().contains("Missing required option: output-file in parallel mode"));
     }
 
     @Test
-    public void notsupportOptionsInParallelMode() throws Exception {
+    void notsupportOptionsInParallelMode() throws Exception {
         when(commandLine.hasOption("task-count")).thenReturn(true);
         when(commandLine.hasOption("output-file")).thenReturn(true);
         when(commandLine.hasOption("output-case-folder")).thenReturn(true);
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Not supported in parallel mode yet.");
-        tool.run(commandLine, runningContext);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> tool.run(commandLine, runningContext));
+        assertTrue(e.getMessage().contains("Not supported in parallel mode yet."));
     }
 }

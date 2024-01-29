@@ -12,13 +12,19 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.*;
 import org.apache.commons.lang3.EnumUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -31,7 +37,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.CGMES_EQ_3_OR_GREATER_PREFI
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesModelTripleStore extends AbstractCgmesModel {
 
@@ -270,19 +276,19 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public DateTime scenarioTime() {
-        DateTime defaultScenarioTime = DateTime.now();
+    public ZonedDateTime scenarioTime() {
+        ZonedDateTime defaultScenarioTime = ZonedDateTime.now();
         return queryDate("scenarioTime", defaultScenarioTime);
     }
 
     @Override
-    public DateTime created() {
-        DateTime defaultCreated = DateTime.now();
+    public ZonedDateTime created() {
+        ZonedDateTime defaultCreated = ZonedDateTime.now();
         return queryDate("created", defaultCreated);
     }
 
-    private DateTime queryDate(String propertyName, DateTime defaultValue) {
-        DateTime d = defaultValue;
+    private ZonedDateTime queryDate(String propertyName, ZonedDateTime defaultValue) {
+        ZonedDateTime d = defaultValue;
         if (queryCatalog.containsKey("modelDates")) {
             PropertyBags r = namedQuery("modelDates");
             if (r != null && !r.isEmpty()) {
@@ -293,8 +299,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 if (s != null && !s.isEmpty()) {
                     // Assume date time given as UTC if no explicit zone is specified
                     try {
-                        d = DateTime.parse(s, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
-                    } catch (IllegalArgumentException e) {
+                        d = parseDateTime(s);
+                    } catch (DateTimeParseException e) {
                         LOG.error("Invalid date: {}. The date has been fixed to {}.", s, defaultValue);
                         return defaultValue;
                     }
@@ -302,6 +308,32 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             }
         }
         return d;
+    }
+
+    /**
+     * Parse a date in ISO format. If the offset is not present at the end (ie. no "Z" nor "+xx:xx" or "+xxxx"), it is
+     * assumed that the date is given as UTC.
+     * @param dateAsString Date in ISO format
+     * @return the date as ZonedDateTime
+     */
+    private ZonedDateTime parseDateTime(String dateAsString) {
+        // Definition of the parser according to the expected date format
+        DateTimeFormatter dateTimeFormatterLocalised = new DateTimeFormatterBuilder()
+            // Fixed mandatory pattern
+            .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+            // Between 0 and 9 decimals (9 is the maximum)
+            .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
+            // Potentially a suffix for localisation (VV: zoneId, x: +HHmm, xx: +HHMM, xxx: +HH:MM)
+            .appendPattern("[VV][x][xx][xxx]")
+            .toFormatter();
+
+        // Parsing
+        TemporalAccessor dateParsed = dateTimeFormatterLocalised.parseBest(dateAsString, ZonedDateTime::from, LocalDateTime::from);
+        if (dateParsed instanceof ZonedDateTime zonedDateTime) {
+            return zonedDateTime;
+        } else {
+            return ZonedDateTime.of((LocalDateTime) dateParsed, ZoneOffset.UTC);
+        }
     }
 
     @Override
@@ -337,6 +369,16 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags baseVoltages() {
         return namedQuery("baseVoltages");
+    }
+
+    @Override
+    public PropertyBags countrySourcingActors(String countryName) {
+        return namedQuery("countrySourcingActors", countryName);
+    }
+
+    @Override
+    public PropertyBags sourcingActor(String sourcingActor) {
+        return namedQuery("sourcingActor", sourcingActor);
     }
 
     @Override
@@ -549,6 +591,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags grounds() {
+        return namedQuery("grounds");
+    }
+
+    @Override
     public PropertyBags modelProfiles() {
         return namedQuery(MODEL_PROFILES);
     }
@@ -685,8 +732,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             .findFirst().orElse(def).getNamespace();
     }
 
-    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16 = Pattern.compile("^.*CIM-schema-cim([0-9]+)#$");
-    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_FROM_100 = Pattern.compile("^.*/CIM([0-9]+)#$");
+    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16 = Pattern.compile("^.*CIM-schema-cim(\\d+)#$");
+    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_FROM_100 = Pattern.compile("^.*/CIM(\\d+)#$");
 
     private static int cimVersionFromCimNamespace(String cimNamespace) {
         Matcher m = CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16.matcher(cimNamespace);

@@ -6,19 +6,19 @@
  */
 package com.powsybl.timeseries;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class CompactStringBufferTest {
+class CompactStringBufferTest {
 
     @Test
-    public void test() {
+    void test() {
         CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, 4);
         buffer.putString(0, "aaa");
         buffer.putString(1, "aaa");

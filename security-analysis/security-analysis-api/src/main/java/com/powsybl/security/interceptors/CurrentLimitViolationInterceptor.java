@@ -15,7 +15,7 @@ import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.results.PreContingencyResult;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class CurrentLimitViolationInterceptor extends DefaultSecurityAnalysisInterceptor {
 
@@ -25,7 +25,7 @@ public class CurrentLimitViolationInterceptor extends DefaultSecurityAnalysisInt
             if (limitViolation.getLimitType() == LimitViolationType.CURRENT) {
                 Branch branch = context.getNetwork().getBranch(limitViolation.getSubjectId());
 
-                double preContingencyValue = branch.getTerminal(limitViolation.getSide()).getP();
+                double preContingencyValue = branch.getTerminal(limitViolation.getSideAsTwoSides()).getP();
                 limitViolation.addExtension(ActivePowerExtension.class, new ActivePowerExtension(preContingencyValue));
             }
         }
@@ -35,18 +35,17 @@ public class CurrentLimitViolationInterceptor extends DefaultSecurityAnalysisInt
     public void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
         String workingStateId = context.getNetwork().getVariantManager().getWorkingVariantId();
 
-        if (context instanceof RunningContext) {
-            RunningContext runningContext = (RunningContext) context;
+        if (context instanceof RunningContext runningContext) {
             for (LimitViolation limitViolation : postContingencyResult.getLimitViolationsResult().getLimitViolations()) {
                 if (limitViolation.getLimitType() == LimitViolationType.CURRENT) {
                     Branch branch = context.getNetwork().getBranch(limitViolation.getSubjectId());
 
                     context.getNetwork().getVariantManager().setWorkingVariant(runningContext.getInitialStateId());
-                    limitViolation.addExtension(CurrentExtension.class, new CurrentExtension(branch.getTerminal(limitViolation.getSide()).getI()));
-                    double preContingencyValue = branch.getTerminal(limitViolation.getSide()).getP();
+                    limitViolation.addExtension(CurrentExtension.class, new CurrentExtension(branch.getTerminal(limitViolation.getSideAsTwoSides()).getI()));
+                    double preContingencyValue = branch.getTerminal(limitViolation.getSideAsTwoSides()).getP();
 
                     context.getNetwork().getVariantManager().setWorkingVariant(workingStateId);
-                    double postContingencyValue = branch.getTerminal(limitViolation.getSide()).getP();
+                    double postContingencyValue = branch.getTerminal(limitViolation.getSideAsTwoSides()).getP();
 
                     limitViolation.addExtension(ActivePowerExtension.class, new ActivePowerExtension(preContingencyValue, postContingencyValue));
                 }

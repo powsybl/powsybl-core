@@ -15,13 +15,13 @@ import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -34,13 +34,13 @@ import java.util.List;
 
 import static com.powsybl.sensitivity.SensitivityFunctionType.*;
 import static com.powsybl.sensitivity.SensitivityVariableType.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class SensitivityAnalysisToolTest extends AbstractToolTest {
+class SensitivityAnalysisToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "sensitivity-analysis";
 
@@ -49,13 +49,13 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     private ObjectMapper objectMapper;
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
         // create network
         Network network = EurostagTutorialExample1Factory.create();
-        NetworkXml.write(network, fileSystem.getPath("network.xiidm"));
+        NetworkSerDe.write(network, fileSystem.getPath("network.xiidm"));
 
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new SensitivityJsonModule())
@@ -103,7 +103,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void runJsonOutput() throws IOException {
+    void runJsonOutput() throws IOException {
         String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
                 "Running analysis..." + System.lineSeparator();
         assertCommand(new String[] {COMMAND_NAME,
@@ -138,7 +138,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void runCsvOutput() throws IOException {
+    void runCsvOutput() throws IOException {
         String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
                 "Running analysis..." + System.lineSeparator();
         assertCommand(new String[] {COMMAND_NAME,
@@ -172,7 +172,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkFailsWhenNetworkFileNotFound() throws IOException {
+    void checkFailsWhenNetworkFileNotFound() throws IOException {
         assertCommand(new String[] {COMMAND_NAME,
             "--case-file", "wrongFile.xiidm",
             "--factors-file", "factors.json",
@@ -181,7 +181,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkFailsWhenFactorsFileNotFound() throws IOException {
+    void checkFailsWhenFactorsFileNotFound() throws IOException {
         assertCommand(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "wrongFile.json",
@@ -190,7 +190,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
+    void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
         assertCommand(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
@@ -199,7 +199,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkThrowsWhenOutputFileAndContingencyDiffFormat() throws IOException {
+    void checkThrowsWhenOutputFileAndContingencyDiffFormat() throws IOException {
         assertCommand(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
@@ -209,7 +209,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void runJsonOutputAutoContingencyOut() throws IOException {
+    void runJsonOutputAutoContingencyOut() throws IOException {
         String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
                 "Running analysis..." + System.lineSeparator();
         assertCommand(new String[] {COMMAND_NAME,
@@ -227,7 +227,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void runCommandWithSingleOutput() throws IOException {
+    void runCommandWithSingleOutput() throws IOException {
         String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
                 "Running analysis..." + System.lineSeparator();
         assertCommand(new String[] {COMMAND_NAME,
@@ -268,7 +268,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkThrowsSingleOutputCSV() throws IOException {
+    void checkThrowsSingleOutputCSV() throws IOException {
         assertCommand(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
@@ -281,7 +281,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkCommand() {
+    void checkCommand() {
         assertEquals("sensitivity-analysis", tool.getCommand().getName());
         assertEquals("Computation", tool.getCommand().getTheme());
         assertEquals("Run sensitivity analysis", tool.getCommand().getDescription());

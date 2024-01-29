@@ -7,32 +7,29 @@
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class DefaultNetworkReducerTest {
+class DefaultNetworkReducerTest {
 
     private static final String NHV1_NHV2_1 = "NHV1_NHV2_1";
 
     private static final String NHV1_NHV2_2 = "NHV1_NHV2_2";
 
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
-
     @Test
-    public void testLoad() {
+    void testLoad() {
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
 
         NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
@@ -80,7 +77,7 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testLoad2() {
+    void testLoad2() {
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
 
         NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
@@ -128,7 +125,7 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testDanglingLine() {
+    void testDanglingLine() {
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
 
         NetworkReducer reducer = NetworkReducer.builder()
@@ -170,7 +167,7 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testWithNoLoadflowResults() {
+    void testWithNoLoadflowResults() {
         Network network = EurostagTutorialExample1Factory.create();
 
         NetworkReducer reducer = NetworkReducer.builder()
@@ -192,7 +189,7 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testWithDisconnectedLines() {
+    void testWithDisconnectedLines() {
         Network network = EurostagTutorialExample1Factory.create();
 
         Line line1 = network.getLine(NHV1_NHV2_1);
@@ -222,7 +219,7 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testHvdc() {
+    void testHvdc() {
         Network network = HvdcTestNetwork.createLcc();
         assertEquals(1, network.getHvdcLineCount());
 
@@ -252,20 +249,112 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testHvdcFailure() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Reduction of HVDC lines is not supported");
+    void testHvdcReplacement() {
+        testHvdcReplacementLcc();
+        testHvdcReplacementVscWithMinMaxReactiveLimits();
+        tetHvdcReplacementVscWithReactiveCapabilityCurve();
+    }
 
-        Network network = HvdcTestNetwork.createLcc();
-        NetworkReducer reducer = NetworkReducer.builder()
-                    .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
-                    .withReductionOptions(new ReductionOptions())
-                    .build();
-        reducer.reduce(network);
+    private static void testHvdcReplacementLcc() {
+        NetworkReducerObserverImpl observerLcc = new NetworkReducerObserverImpl();
+        Network networkLcc = HvdcTestNetwork.createLcc();
+        assertEquals(0, networkLcc.getLoadCount());
+        assertEquals(2, networkLcc.getHvdcConverterStationCount());
+        NetworkReducer reducerLcc = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerLcc)
+                .build();
+        reducerLcc.reduce(networkLcc);
+        assertEquals(0, networkLcc.getHvdcLineCount());
+        assertEquals(1, observerLcc.getHvdcLineReplacedCount());
+        assertEquals(1, observerLcc.getHvdcLineRemovedCount());
+        assertEquals(1, networkLcc.getLoadCount());
+        assertEquals(0, networkLcc.getHvdcConverterStationCount());
+    }
+
+    private static void testHvdcReplacementVscWithMinMaxReactiveLimits() {
+        NetworkReducerObserverImpl observerVsc = new NetworkReducerObserverImpl();
+        Network networkVsc = HvdcTestNetwork.createVsc();
+        VscConverterStation station = networkVsc.getVscConverterStation("C1");
+        double targetV = station.getVoltageSetpoint();
+        station.newMinMaxReactiveLimits().setMaxQ(200).setMinQ(-200).add();
+        double p = station.getTerminal().getP();
+        assertEquals(0, networkVsc.getGeneratorCount());
+        assertEquals(2, networkVsc.getHvdcConverterStationCount());
+        NetworkReducer reducerVsc = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerVsc)
+                .build();
+        reducerVsc.reduce(networkVsc);
+        assertEquals(0, networkVsc.getHvdcLineCount());
+        assertEquals(1, observerVsc.getHvdcLineReplacedCount());
+        assertEquals(1, observerVsc.getHvdcLineRemovedCount());
+        assertEquals(1, networkVsc.getGeneratorCount());
+        Generator gen = networkVsc.getGenerator("L");
+        assertEquals(300, gen.getMaxP());
+        assertEquals(-300, gen.getMinP());
+        assertEquals(-p, gen.getTargetP());
+        assertTrue(gen.isVoltageRegulatorOn());
+        assertEquals(targetV, gen.getTargetV());
+        assertEquals(200, gen.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ());
+        assertFalse(gen.getExtension(ActivePowerControl.class).isParticipate());
+    }
+
+    private static void tetHvdcReplacementVscWithReactiveCapabilityCurve() {
+        NetworkReducerObserverImpl observerVsc2 = new NetworkReducerObserverImpl();
+        Network networkVsc2 = HvdcTestNetwork.createVsc();
+        VscConverterStation station2 = networkVsc2.getVscConverterStation("C1");
+        station2.newReactiveCapabilityCurve()
+                .beginPoint().setP(0.0).setMinQ(-200).setMaxQ(200).endPoint()
+                .beginPoint().setP(100.0).setMinQ(-200).setMaxQ(200).endPoint()
+                .add();
+        NetworkReducer reducerVsc2 = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerVsc2)
+                .build();
+        reducerVsc2.reduce(networkVsc2);
+        Generator gen2 = networkVsc2.getGenerator("L");
+        assertEquals(2, gen2.getReactiveLimits(ReactiveCapabilityCurve.class).getPointCount());
+        Iterator<ReactiveCapabilityCurve.Point> pointIt = gen2.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints().iterator();
+        ReactiveCapabilityCurve.Point point = pointIt.next();
+        assertEquals(0.0, point.getP(), 0.001);
+        assertEquals(-200.0, point.getMinQ(), 0.001);
+        assertEquals(200.0, point.getMaxQ(), 0.001);
+        point = pointIt.next();
+        assertEquals(100.0, point.getP(), 0.001);
+        assertEquals(-200.0, point.getMinQ(), 0.001);
+        assertEquals(200.0, point.getMaxQ(), 0.001);
     }
 
     @Test
-    public void test3WT() {
+    void testHvdcVoltageRegulatorOffReplacement() {
+        Network network = HvdcTestNetwork.createVsc();
+
+        // Set voltageRegulatorOn to false
+        HvdcLine hvdcLine = network.getHvdcLine("L");
+        HvdcConverterStation hvdcConverterStation = hvdcLine.getConverterStation1();
+        assertEquals("VSC", hvdcConverterStation.getHvdcType().name());
+        VscConverterStation vscConverterStation = (VscConverterStation) hvdcConverterStation;
+        vscConverterStation.setReactivePowerSetpoint(45.0);
+        vscConverterStation.setVoltageRegulatorOn(false);
+
+        assertEquals(1, network.getHvdcLineCount());
+        assertEquals(0, network.getLoadCount());
+
+        // Hvdc is replaced by a load
+        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observer)
+                .build();
+        reducer.reduce(network);
+
+        assertEquals(0, network.getHvdcLineCount());
+        assertEquals(1, network.getLoadCount());
+    }
+
+    @Test
+    void test3WT() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         assertEquals(1, network.getThreeWindingsTransformerCount());
 
@@ -295,20 +384,35 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void test3WTFailure() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Reduction of three-windings transformers is not supported");
-
+    void test3WTReplacement() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
+        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
         NetworkReducer reducer = NetworkReducer.builder()
-                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL_132", "VL_11"))
-                .withReductionOptions(new ReductionOptions())
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL_11"))
+                .withObservers(observer)
                 .build();
         reducer.reduce(network);
+
+        assertEquals(1, observer.getThreeWindingsTransformerRemovedCount());
+        assertEquals(1, observer.getThreeWindingsTransformerReplacedCount());
     }
 
     @Test
-    public void testNodeBreaker() {
+    void test3WTReductionVoltageLevelsModification() {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL_11", "VL_33"))
+                .withObservers(observer)
+                .build();
+        reducer.reduce(network);
+
+        assertEquals(0, observer.getThreeWindingsTransformerRemovedCount());
+        assertEquals(0, observer.getThreeWindingsTransformerReplacedCount());
+    }
+
+    @Test
+    void testNodeBreaker() {
         Network network = FictitiousSwitchFactory.create();
 
         NetworkReducer reducer = NetworkReducer.builder()

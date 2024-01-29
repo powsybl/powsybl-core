@@ -9,20 +9,23 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
 
     private static final String REGULATION_TARGET = "regulationTarget";
 
     public EquivalentInjectionConversion(PropertyBag ei, Context context) {
-        super("EquivalentInjection", ei, context);
+        super(CgmesNames.EQUIVALENT_INJECTION, ei, context);
     }
 
     @Override
@@ -84,7 +87,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", this.id);
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, this.id);
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
             dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
@@ -126,7 +129,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         boolean regulationCapability = p.asBoolean("regulationCapability", false);
         regulation.status = p.asBoolean("regulationStatus", false) && regulationCapability;
         if (!p.containsKey("regulationStatus") || !p.containsKey(REGULATION_TARGET)) {
-            context.missing(String.format("Missing regulationStatus or regulationTarget for EquivalentInjection %s. Voltage regulation is considered as off.", id));
+            LOG.trace("Attributes regulationStatus or regulationTarget not present for equivalent injection {}. Voltage regulation is considered as off.", id);
         }
 
         regulation.status = regulation.status && terminalConnected();
@@ -150,4 +153,6 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
         return regulation;
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(EquivalentInjectionConversion.class);
 }

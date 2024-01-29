@@ -20,7 +20,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.Comparator;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class ShuntConversion extends AbstractConductingEquipmentConversion {
 
@@ -73,7 +73,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
                     });
             modelAdder.add();
         } else {
-            throw new AssertionError("Unexpected shunt type: " + shuntType);
+            throw new IllegalStateException("Unexpected shunt type: " + shuntType);
         }
         identify(adder);
         connect(adder);

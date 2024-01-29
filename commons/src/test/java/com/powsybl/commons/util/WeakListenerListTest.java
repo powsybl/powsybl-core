@@ -6,14 +6,14 @@
  */
 package com.powsybl.commons.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class WeakListenerListTest {
+class WeakListenerListTest {
 
     interface TestListener {
 
@@ -21,7 +21,7 @@ public class WeakListenerListTest {
     }
 
     @Test
-    public void concurrencyIssueTest() {
+    void concurrencyIssueTest() {
         // 2 adds using a different target object
         WeakListenerList<TestListener> listeners = new WeakListenerList<>();
         TestListener l = () -> {
@@ -41,7 +41,7 @@ public class WeakListenerListTest {
     }
 
     @Test
-    public void sampleTest() {
+    void sampleTest() {
         // 2 adds using a different target object
         WeakListenerList<TestListener> listeners = new WeakListenerList<>();
         TestListener l1 = () -> { };

@@ -6,35 +6,35 @@
  */
 package com.powsybl.entsoe.util;
 
-import org.joda.time.DateTime;
-import org.junit.Test;
+import java.time.ZonedDateTime;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class EntsoeFileNameTest {
+class EntsoeFileNameTest {
 
     @Test
-    public void testValidName() {
+    void testValidName() {
         String fileName = "20140213_0830_SN4_D20";
         EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
-        assertTrue(ucteFileName.getDate().isEqual(DateTime.parse("2014-02-13T08:30:00.000+01:00")));
+        assertTrue(ucteFileName.getDate().isEqual(ZonedDateTime.parse("2014-02-13T08:30:00.000+01:00")));
         assertEquals(0, ucteFileName.getForecastDistance());
         assertEquals("DE", ucteFileName.getCountry());
         assertSame(EntsoeGeographicalCode.D2, ucteFileName.getGeographicalCode());
     }
 
     @Test
-    public void testForecast() {
+    void testForecast() {
         String fileName = "20140213_0830_FO4_DE0";
         EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
         assertEquals(870, ucteFileName.getForecastDistance());
     }
 
     @Test
-    public void testInvalidName() {
+    void testInvalidName() {
         String fileName = "???";
         EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
         assertEquals(0, ucteFileName.getForecastDistance());
@@ -42,14 +42,14 @@ public class EntsoeFileNameTest {
     }
 
     @Test
-    public void testIdcf() {
+    void testIdcf() {
         String fileName = "20200314_0030_026_FR0.uct";
         EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
-        assertTrue(ucteFileName.getDate().isEqual(DateTime.parse("2020-03-14T00:30:00.000+01:00")));
+        assertTrue(ucteFileName.getDate().isEqual(ZonedDateTime.parse("2020-03-14T00:30:00.000+01:00")));
     }
 
     @Test
-    public void testGetCountry() {
+    void testGetCountry() {
         String fileName = "20200608_0730_2D1_UX0.uct";
         EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
         assertNotNull(ucteFileName.getGeographicalCode());

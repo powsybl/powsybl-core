@@ -17,11 +17,11 @@ import com.powsybl.tools.ToolInitializationContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ComparisonFailure;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.opentest4j.AssertionFailedError;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -33,11 +33,11 @@ import java.nio.file.Files;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractToolTest {
 
@@ -47,7 +47,7 @@ public abstract class AbstractToolTest {
 
     private CommandLineTools tools;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -63,7 +63,7 @@ public abstract class AbstractToolTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws IOException {
         fileSystem.close();
     }
@@ -73,7 +73,7 @@ public abstract class AbstractToolTest {
     private void assertMatches(String expected, String actual) {
         //The empty string is matched exactly, other strings as regexs
         if (!actual.equals(expected) && ("".equals(expected) || !Pattern.compile(expected).matcher(actual).find())) {
-            throw new ComparisonFailure("", expected, actual);
+            throw new AssertionFailedError("", expected, actual);
         }
     }
 

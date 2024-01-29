@@ -9,7 +9,7 @@ package com.powsybl.timeseries.ast;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     @Override
@@ -35,11 +35,6 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     @Override
     public NodeCalc visit(BinaryOperation nodeCalc, A arg, NodeCalc left, NodeCalc right) {
         return new BinaryOperation(left, right, nodeCalc.getOperator());
-    }
-
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 
     @Override
@@ -90,5 +85,20 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     @Override
     public NodeCalc visit(TimeSeriesNumNodeCalc nodeCalc, A arg) {
         return new TimeSeriesNumNodeCalc(nodeCalc.getTimeSeriesNum());
+    }
+
+    @Override
+    public NodeCalc visit(BinaryMinCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return new BinaryMinCalc(left, right);
+    }
+
+    @Override
+    public NodeCalc visit(BinaryMaxCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return new BinaryMaxCalc(left, right);
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

@@ -10,9 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
@@ -23,18 +21,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class StoredDoubleTimeSeriesTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+class StoredDoubleTimeSeriesTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"),
                                                                      Duration.ofMinutes(15));
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
@@ -93,12 +88,12 @@ public class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    public void splitTest() {
+    void splitTest() {
         doSplitTest(3, 10);
     }
 
     @Test
-    public void splitTestHuge() {
+    void splitTestHuge() {
         doSplitTest(100000003, 100000010);
     }
 
@@ -137,7 +132,7 @@ public class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 2, 1);
         DoubleTimeSeries ts1 = TimeSeries.createDouble("ts1", index, 0d, 1d, 2d);
         assertEquals("ts1", ts1.getMetadata().getName());
@@ -146,7 +141,7 @@ public class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    public void splitMultiChunkTimeSeriesTest() {
+    void splitMultiChunkTimeSeriesTest() {
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(6);
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
@@ -188,9 +183,8 @@ public class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    public void testCreateError() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Bad number of values 2, expected 3");
-        TimeSeries.createDouble("ts1", new RegularTimeSeriesIndex(0, 2, 1), 0d, 1d);
+    void testCreateError() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createDouble("ts1", new RegularTimeSeriesIndex(0, 2, 1), 0d, 1d));
+        assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
     }
 }

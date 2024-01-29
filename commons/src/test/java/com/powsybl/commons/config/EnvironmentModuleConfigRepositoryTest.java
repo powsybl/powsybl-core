@@ -6,7 +6,7 @@
  */
 package com.powsybl.commons.config;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -16,15 +16,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.UPPER_UNDERSCORE_FORMATTER;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-public class EnvironmentModuleConfigRepositoryTest extends MapModuleConfigTest {
+class EnvironmentModuleConfigRepositoryTest extends MapModuleConfigTest {
 
     @Test
-    public void test() {
+    void test() {
         Map<String, String> fakeEnvMap = new HashMap<>();
         fakeEnvMap.put("MOD__S", "hello");
         fakeEnvMap.put("MOD__I", "3");
@@ -96,7 +96,7 @@ public class EnvironmentModuleConfigRepositoryTest extends MapModuleConfigTest {
     }
 
     @Test
-    public void testUpperUndersocreFormatter() {
+    void testUpperUndersocreFormatter() {
         assertEquals("NAME", UPPER_UNDERSCORE_FORMATTER.apply("name"));
         assertEquals("LOWER_HYPHEN", UPPER_UNDERSCORE_FORMATTER.apply("lower-hyphen"));
         assertEquals("LOWER_CAMEL", UPPER_UNDERSCORE_FORMATTER.apply("lowerCamel"));

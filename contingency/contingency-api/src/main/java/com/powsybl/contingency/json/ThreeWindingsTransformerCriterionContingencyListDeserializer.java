@@ -7,21 +7,17 @@
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.ThreeWindingsTransformerCriterionContingencyList;
 import com.powsybl.contingency.contingency.list.criterion.*;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class ThreeWindingsTransformerCriterionContingencyListDeserializer extends StdDeserializer<ThreeWindingsTransformerCriterionContingencyList> {
+public class ThreeWindingsTransformerCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<ThreeWindingsTransformerCriterionContingencyList> {
 
     public ThreeWindingsTransformerCriterionContingencyListDeserializer() {
         super(ThreeWindingsTransformerCriterionContingencyList.class);
@@ -29,52 +25,15 @@ public class ThreeWindingsTransformerCriterionContingencyListDeserializer extend
 
     @Override
     public ThreeWindingsTransformerCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String name = null;
-        SingleCountryCriterion countryCriterion = null;
-        ThreeNominalVoltageCriterion nominalVoltageCriterion = null;
-        List<PropertyCriterion> propertyCriteria = Collections.emptyList();
-        RegexCriterion regexCriterion = null;
+        AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
+        parser.nextToken();
+        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext,
+                parsingContext, name, ThreeWindingsTransformerCriterionContingencyList.TYPE));
 
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
-                    parser.nextToken();
-                    break;
-
-                case "countryCriterion":
-                    parser.nextToken();
-                    countryCriterion = parser.readValueAs(new TypeReference<Criterion>() {
-                    });
-                    break;
-                case "nominalVoltageCriterion":
-                    parser.nextToken();
-                    nominalVoltageCriterion = parser.readValueAs(new TypeReference<Criterion>() {
-                    });
-                    break;
-                case "propertyCriteria":
-                    parser.nextToken();
-                    propertyCriteria = parser.readValueAs(new TypeReference<List<Criterion>>() {
-                    });
-                    break;
-                case "regexCriterion":
-                    parser.nextToken();
-                    regexCriterion = parser.readValueAs(new TypeReference<Criterion>() {
-                    });
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
-            }
-        }
-        return new ThreeWindingsTransformerCriterionContingencyList(name, countryCriterion,
-                nominalVoltageCriterion, propertyCriteria, regexCriterion);
+        return new ThreeWindingsTransformerCriterionContingencyList(parsingContext.name,
+                (SingleCountryCriterion) parsingContext.countryCriterion,
+                (ThreeNominalVoltageCriterion) parsingContext.nominalVoltageCriterion,
+                parsingContext.propertyCriteria,
+                parsingContext.regexCriterion);
     }
 }

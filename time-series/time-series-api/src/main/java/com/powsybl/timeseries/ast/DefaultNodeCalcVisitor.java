@@ -9,7 +9,7 @@ package com.powsybl.timeseries.ast;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     @Override
@@ -35,11 +35,6 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     @Override
     public R visit(BinaryOperation nodeCalc, A arg, R left, R right) {
         return null;
-    }
-
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 
     @Override
@@ -90,5 +85,20 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     @Override
     public R visit(TimeSeriesNumNodeCalc nodeCalc, A arg) {
         return null;
+    }
+
+    @Override
+    public R visit(BinaryMinCalc nodeCalc, A arg, R left, R right) {
+        return null;
+    }
+
+    @Override
+    public R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right) {
+        return null;
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

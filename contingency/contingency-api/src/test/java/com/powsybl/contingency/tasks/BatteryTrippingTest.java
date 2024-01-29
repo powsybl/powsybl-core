@@ -11,18 +11,18 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class BatteryTrippingTest {
+class BatteryTrippingTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = BatteryNetworkFactory.create();
         assertTrue(network.getBattery("BAT").getTerminal().isConnected());
 

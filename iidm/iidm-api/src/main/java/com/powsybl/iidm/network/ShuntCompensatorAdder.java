@@ -20,11 +20,11 @@ package com.powsybl.iidm.network;
  *        .add();
  *</pre>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see ShuntCompensator
  * @see VoltageLevel
  */
-public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAdder> {
+public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, ShuntCompensatorAdder> {
 
     ShuntCompensatorLinearModelAdder newLinearModel();
 
@@ -48,6 +48,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAd
         throw new UnsupportedOperationException();
     }
 
+    @Override
     ShuntCompensator add();
 
 }

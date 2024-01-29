@@ -9,18 +9,17 @@ package com.powsybl.iidm.modification.tripping;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class LoadTrippingTest extends AbstractTrippingTest {
+class LoadTrippingTest extends AbstractTrippingTest {
 
     @Test
-    public void loadTrippingTest() {
+    void loadTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
         assertTrue(network.getLoad("LOAD").getTerminal().isConnected());
 
@@ -29,11 +28,11 @@ public class LoadTrippingTest extends AbstractTrippingTest {
         assertFalse(network.getLoad("LOAD").getTerminal().isConnected());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void unknownLoadTrippingTest() {
+    @Test
+    void unknownLoadTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
 
         LoadTripping tripping = new LoadTripping("generator");
-        tripping.apply(network);
+        assertThrows(PowsyblException.class, () -> tripping.apply(network));
     }
 }

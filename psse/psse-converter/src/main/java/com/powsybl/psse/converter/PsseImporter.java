@@ -39,7 +39,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
+ * @author JB Heyberger {@literal <jean-baptiste.heyberger at rte-france.com>}
  */
 @AutoService(Importer.class)
 public class PsseImporter implements Importer {
@@ -137,6 +137,7 @@ public class PsseImporter implements Importer {
             PssePowerFlowModel pssePowerFlowModel = PowerFlowDataFactory.create(ext, version).read(dataSource, ext, context);
             pssePowerFlowModel.getCaseIdentification().validate();
 
+            new PsseFixDuplicateIds(pssePowerFlowModel, context.getVersion()).fix();
             PsseValidation psseValidation = new PsseValidation(pssePowerFlowModel, context.getVersion());
             if (!psseValidation.isValidCase()) {
                 throw new PsseException("The PSS/E file is not a valid case");

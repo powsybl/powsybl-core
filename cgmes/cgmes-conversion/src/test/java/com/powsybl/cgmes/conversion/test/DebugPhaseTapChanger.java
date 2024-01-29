@@ -9,26 +9,26 @@ package com.powsybl.cgmes.conversion.test;
 
 import java.util.function.Consumer;
 
+import com.powsybl.iidm.network.TwoSides;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.util.BranchData;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class DebugPhaseTapChanger {
+class DebugPhaseTapChanger {
 
-    public DebugPhaseTapChanger(TwoWindingsTransformer tx, int side, PowerFlow expected) {
+    DebugPhaseTapChanger(TwoWindingsTransformer tx, int side, PowerFlow expected) {
         this.tx = tx;
         this.side = side;
         this.expected = expected;
     }
 
-    public void debug() {
+    void debug() {
         Consumer<TwoWindingsTransformer> nop = tx -> {
         };
         Consumer<TwoWindingsTransformer> minusAngle = tx -> {
@@ -72,7 +72,7 @@ public class DebugPhaseTapChanger {
     }
 
     private void debugTapPosition(String option, int tap, BranchData b) {
-        Branch.Side bside = Branch.Side.values()[side - 1];
+        TwoSides bside = TwoSides.values()[side - 1];
         PowerFlow actual = new PowerFlow(b.getComputedP(bside), b.getComputedQ(bside));
         double d = Math.abs(actual.p() - expected.p()) + Math.abs(actual.q() - expected.q());
         double alpha = tx.getPhaseTapChanger().getCurrentStep().getAlpha();

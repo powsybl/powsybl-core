@@ -8,11 +8,12 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseRates extends PsseVersioned {
 
@@ -28,50 +29,62 @@ public class PsseRates extends PsseVersioned {
     @Revision(until = 33)
     private double ratec = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate1", "wdgrate1"})
     @Revision(since = 35)
     private double rate1 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate2", "wdgrate2"})
     @Revision(since = 35)
     private double rate2 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate3", "wdgrate3"})
     @Revision(since = 35)
     private double rate3 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate4", "wdgrate4"})
     @Revision(since = 35)
     private double rate4 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate5", "wdgrate5"})
     @Revision(since = 35)
     private double rate5 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate6", "wdgrate6"})
     @Revision(since = 35)
     private double rate6 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate7", "wdgrate7"})
     @Revision(since = 35)
     private double rate7 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate8", "wdgrate8"})
     @Revision(since = 35)
     private double rate8 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate9", "wdgrate9"})
     @Revision(since = 35)
     private double rate9 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate10", "wdgrate10"})
     @Revision(since = 35)
     private double rate10 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate11", "wdgrate11"})
     @Revision(since = 35)
     private double rate11 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate12", "wdgrate12"})
     @Revision(since = 35)
     private double rate12 = 0;

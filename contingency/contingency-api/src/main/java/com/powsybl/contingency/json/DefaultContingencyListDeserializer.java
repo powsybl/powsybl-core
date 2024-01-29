@@ -9,19 +9,18 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultContingencyList> {
 
@@ -35,26 +34,18 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
+                case "version" -> parser.nextToken();
+                case "name" -> name = parser.nextTextValue();
+                case "type" -> {
+                    if (!parser.nextTextValue().equals(DefaultContingencyList.TYPE)) {
+                        throw new IllegalStateException("type should be: " + DefaultContingencyList.TYPE);
+                    }
+                }
+                case "contingencies" -> {
                     parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
-                    parser.nextToken();
-                    break;
-
-                case "contingencies":
-                    parser.nextToken();
-                    contingencies = parser.readValueAs(new TypeReference<ArrayList<Contingency>>() {
-                    });
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    contingencies = JsonUtil.readList(ctx, parser, Contingency.class);
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

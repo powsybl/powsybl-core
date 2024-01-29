@@ -10,12 +10,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> {
 
@@ -31,65 +32,33 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "id":
-                    id = parser.nextTextValue();
-                    break;
-
-                case "voltageLevelId":
-                    voltageLevelId = parser.nextTextValue();
-                    break;
-
-                case "type":
+                case "id" -> id = parser.nextTextValue();
+                case "voltageLevelId" -> voltageLevelId = parser.nextTextValue();
+                case "type" -> {
                     parser.nextToken();
-                    type = parser.readValueAs(ContingencyElementType.class);
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    type = JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
         if (type != null) {
-            switch (type) {
-                case BRANCH:
-                    return new BranchContingency(id, voltageLevelId);
-
-                case GENERATOR:
-                    return new GeneratorContingency(id);
-
-                case STATIC_VAR_COMPENSATOR:
-                    return new StaticVarCompensatorContingency(id);
-
-                case SHUNT_COMPENSATOR:
-                    return new ShuntCompensatorContingency(id);
-
-                case HVDC_LINE:
-                    return new HvdcLineContingency(id, voltageLevelId);
-
-                case BUSBAR_SECTION:
-                    return new BusbarSectionContingency(id);
-
-                case DANGLING_LINE:
-                    return new DanglingLineContingency(id);
-
-                case LINE:
-                    return new LineContingency(id, voltageLevelId);
-
-                case TWO_WINDINGS_TRANSFORMER:
-                    return new TwoWindingsTransformerContingency(id, voltageLevelId);
-
-                case THREE_WINDINGS_TRANSFORMER:
-                    return new ThreeWindingsTransformerContingency(id);
-
-                case LOAD:
-                    return new LoadContingency(id);
-
-                case BUS:
-                    return new BusContingency(id);
-
-                default:
-                    throw new AssertionError("Unexpected ContingencyElementType value: " + type);
-            }
+            return switch (type) {
+                case BRANCH -> new BranchContingency(id, voltageLevelId);
+                case GENERATOR -> new GeneratorContingency(id);
+                case STATIC_VAR_COMPENSATOR -> new StaticVarCompensatorContingency(id);
+                case SHUNT_COMPENSATOR -> new ShuntCompensatorContingency(id);
+                case HVDC_LINE -> new HvdcLineContingency(id, voltageLevelId);
+                case BUSBAR_SECTION -> new BusbarSectionContingency(id);
+                case DANGLING_LINE -> new DanglingLineContingency(id);
+                case LINE -> new LineContingency(id, voltageLevelId);
+                case TWO_WINDINGS_TRANSFORMER -> new TwoWindingsTransformerContingency(id, voltageLevelId);
+                case THREE_WINDINGS_TRANSFORMER -> new ThreeWindingsTransformerContingency(id);
+                case LOAD -> new LoadContingency(id);
+                case BUS -> new BusContingency(id);
+                case TIE_LINE -> new TieLineContingency(id, voltageLevelId);
+                default -> throw new IllegalStateException("Unexpected ContingencyElementType value: " + type);
+            };
         }
 
         return null;

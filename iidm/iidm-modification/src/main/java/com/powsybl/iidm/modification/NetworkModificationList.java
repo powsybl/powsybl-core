@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NetworkModificationList extends AbstractNetworkModification {
 
@@ -30,8 +31,8 @@ public class NetworkModificationList extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
-        modificationList.forEach(modification -> modification.apply(network, throwException, computationManager, reporter));
+        modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reporter));
     }
 }

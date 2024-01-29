@@ -16,7 +16,7 @@ import java.util.TreeMap;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
@@ -54,7 +54,9 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     private final TreeMap<Double, Point> points;
 
     ReactiveCapabilityCurveImpl(TreeMap<Double, Point> points) {
-        assert points.size() >= 2;
+        if (points.size() < 2) {
+            throw new IllegalStateException("Points size must be >= 2");
+        }
         this.points = points;
     }
 
@@ -85,8 +87,9 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public double getMinQ(double p) {
-        assert points.size() >= 2;
-
+        if (points.size() < 2) {
+            throw new IllegalStateException("points size should be >= 2");
+        }
         Point pt = points.get(p);
         if (pt != null) {
             return pt.getMinQ();
@@ -102,15 +105,16 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
                 Point p2 = e2.getValue();
                 return p1.getMinQ() + (p2.getMinQ() - p1.getMinQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         }
     }
 
     @Override
     public double getMaxQ(double p) {
-        assert points.size() >= 2;
-
+        if (points.size() < 2) {
+            throw new IllegalStateException("points size should be >= 2");
+        }
         Point pt = points.get(p);
         if (pt != null) {
             return pt.getMaxQ();
@@ -126,7 +130,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
                 Point p2 = e2.getValue();
                 return p1.getMaxQ() + (p2.getMaxQ() - p1.getMaxQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         }
     }

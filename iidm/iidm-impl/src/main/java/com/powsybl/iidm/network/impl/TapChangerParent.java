@@ -6,22 +6,24 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import java.util.Set;
-
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Validable;
 
+import java.util.Set;
+
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 interface TapChangerParent extends Validable {
 
     NetworkImpl getNetwork();
 
+    NetworkExt getParentNetwork();
+
     Identifiable getTransformer();
 
-    Set<TapChanger<?, ?>> getAllTapChangers();
+    Set<TapChanger<?, ?, ?, ?>> getAllTapChangers();
 
     boolean hasRatioTapChanger();
 

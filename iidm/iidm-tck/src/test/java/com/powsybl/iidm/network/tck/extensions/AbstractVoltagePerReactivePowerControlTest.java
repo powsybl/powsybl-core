@@ -12,24 +12,19 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 public abstract class AbstractVoltagePerReactivePowerControlTest {
 
     private StaticVarCompensator svc;
 
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() {
         Network network = SvcTestCaseFactory.create();
         svc = network.getStaticVarCompensator("SVC2");
@@ -48,10 +43,9 @@ public abstract class AbstractVoltagePerReactivePowerControlTest {
 
     @Test
     public void testUndefined() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Undefined value for slope");
-        svc.newExtension(VoltagePerReactivePowerControlAdder.class)
+        PowsyblException e = assertThrows(PowsyblException.class, () -> svc.newExtension(VoltagePerReactivePowerControlAdder.class)
                 .withSlope(Double.NaN)
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("Undefined value for slope"));
     }
 }

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public interface RemoteReactivePowerControl extends Extension<Generator> {
 

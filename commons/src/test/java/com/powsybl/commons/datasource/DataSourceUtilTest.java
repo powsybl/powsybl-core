@@ -6,17 +6,17 @@
  */
 package com.powsybl.commons.datasource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class DataSourceUtilTest {
+class DataSourceUtilTest {
 
     @Test
-    public void testGetBaseName() {
+    void testGetBaseName() {
         assertEquals("dummy", DataSourceUtil.getBaseName("dummy.xml.gz"));
         assertEquals("dummy", DataSourceUtil.getBaseName("dummy.gz"));
         assertEquals("dummy", DataSourceUtil.getBaseName("dummy"));

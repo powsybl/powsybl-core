@@ -16,13 +16,15 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 
 public class RegulatingControlMappingForGenerators {
@@ -70,7 +72,7 @@ public class RegulatingControlMappingForGenerators {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing("Regulating control Id not defined");
+            LOG.trace("Regulating control Id not present for generator {}", gen.getId());
             return;
         }
 
@@ -108,11 +110,8 @@ public class RegulatingControlMappingForGenerators {
             targetV = control.targetValue;
         }
 
-        boolean voltageRegulatorOn = false;
         // Regulating control is enabled AND this equipment participates in regulating control
-        if (control.enabled && eqControlEnabled) {
-            voltageRegulatorOn = true;
-        }
+        boolean voltageRegulatorOn = control.enabled && eqControlEnabled;
 
         gen.setRegulatingTerminal(regulatingTerminal)
             .setTargetV(targetV)
@@ -166,7 +165,7 @@ public class RegulatingControlMappingForGenerators {
         return true;
     }
 
-    private static class CgmesRegulatingControlForGenerator {
+    private static final class CgmesRegulatingControlForGenerator {
         String regulatingControlId;
         double qPercent;
         boolean controlEnabled;
@@ -175,4 +174,6 @@ public class RegulatingControlMappingForGenerators {
     private final RegulatingControlMapping parent;
     private final Map<String, CgmesRegulatingControlForGenerator> mapping;
     private final Context context;
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegulatingControlMappingForGenerators.class);
 }

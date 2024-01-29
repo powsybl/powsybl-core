@@ -24,22 +24,18 @@ public final class UcteAliasesCreation {
     private static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
 
     private UcteAliasesCreation() {
-        throw new AssertionError("Utility class should not be instantiated");
+        throw new IllegalStateException("Utility class should not be instantiated");
     }
 
     public static void createAliases(Network network) {
         Set<String> duplicatedAliases = new HashSet<>();
-        network.getBranchStream().forEach(branch -> {
-            if (branch instanceof TieLine) {
-                TieLine tieLine = (TieLine) branch;
-                tieLine.addAlias(tieLine.getHalf1().getId());
-                tieLine.addAlias(tieLine.getHalf2().getId());
-                addHalfElementNameAliases(tieLine, duplicatedAliases);
-            }
-            addElementNameAlias(branch, duplicatedAliases);
+        network.getBranchStream().forEach(branch -> addElementNameAlias(branch, duplicatedAliases));
+        network.getTieLineStream().forEach(tieLine -> {
+            addHalfElementNameAliases(tieLine, duplicatedAliases);
+            addElementNameAlias(tieLine, duplicatedAliases);
         });
         network.getSwitchStream().forEach(switchEl -> addElementNameAlias(switchEl, duplicatedAliases));
-        network.getDanglingLineStream().forEach(dl -> addElementNameAlias(dl, duplicatedAliases));
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).forEach(dl -> addElementNameAlias(dl, duplicatedAliases));
     }
 
     private static void addElementNameAlias(Identifiable<?> identifiable, Set<String> duplicatedAliases) {
@@ -54,17 +50,17 @@ public final class UcteAliasesCreation {
     }
 
     private static void addHalfElementNameAliases(TieLine tieLine, Set<String> duplicatedAliases) {
-        String elementName1Property = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1");
+        String elementName1Property = tieLine.getDanglingLine1().getProperty(ELEMENT_NAME_PROPERTY_KEY);
         if (elementName1Property != null && !elementName1Property.isEmpty()) {
-            Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getHalf1().getId());
+            Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getDanglingLine1().getId());
             if (ucteElementIdOptional.isPresent()) {
                 UcteElementId ucteElementId = ucteElementIdOptional.get();
                 safeAddAlias(tieLine, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementName1Property));
             }
         }
-        String elementName2Property = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2");
+        String elementName2Property = tieLine.getDanglingLine2().getProperty(ELEMENT_NAME_PROPERTY_KEY);
         if (elementName2Property != null && !elementName2Property.isEmpty()) {
-            Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getHalf2().getId());
+            Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getDanglingLine2().getId());
             if (ucteElementIdOptional.isPresent()) {
                 UcteElementId ucteElementId = ucteElementIdOptional.get();
                 safeAddAlias(tieLine, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementName2Property));

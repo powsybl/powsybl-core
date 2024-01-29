@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationHelper;
 import com.powsybl.shortcircuit.FaultResult;
+import com.powsybl.shortcircuit.FortescueFaultResult;
+import com.powsybl.shortcircuit.MagnitudeFaultResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.IOException;
@@ -51,8 +53,14 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
         try (TableFormatter formatter = formatterFactory.create(writer, "Short circuit analysis", formatterConfig,
                 new Column("ID"), new Column("Three Phase Fault Current"))) {
             for (FaultResult action : result.getFaultResults()) {
-                formatter.writeCell(action.getFault().getElementId())
-                        .writeCell(action.getThreePhaseFaultCurrent());
+                if (action instanceof FortescueFaultResult fortescueFaultResult) {
+                    formatter.writeCell(action.getFault().getElementId())
+                            .writeCell(fortescueFaultResult.getCurrent().getPositiveMagnitude());
+                } else {
+                    formatter.writeCell(action.getFault().getElementId())
+                            .writeCell(((MagnitudeFaultResult) action).getCurrent());
+                }
+
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -10,11 +10,11 @@ import com.powsybl.iidm.network.InjectionAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateFeederBayBuilder {
 
-    private InjectionAdder<?> injectionAdder = null;
+    private InjectionAdder<?, ?> injectionAdder = null;
     private String busOrBusbarSection = null;
     private Integer injectionPositionOrder = null;
     private String injectionFeederName = null;
@@ -24,7 +24,7 @@ public class CreateFeederBayBuilder {
         return new CreateFeederBay(injectionAdder, busOrBusbarSection, injectionPositionOrder, injectionFeederName, injectionDirection);
     }
 
-    public CreateFeederBayBuilder withInjectionAdder(InjectionAdder<?> injectionAdder) {
+    public CreateFeederBayBuilder withInjectionAdder(InjectionAdder<?, ?> injectionAdder) {
         this.injectionAdder = injectionAdder;
         return this;
     }

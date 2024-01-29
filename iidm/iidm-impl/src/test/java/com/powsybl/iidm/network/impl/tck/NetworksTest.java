@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractNetworksTest;
 
-public class NetworksTest extends AbstractNetworksTest { }
+class NetworksTest extends AbstractNetworksTest { }

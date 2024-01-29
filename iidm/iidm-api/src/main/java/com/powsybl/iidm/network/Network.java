@@ -11,18 +11,18 @@ import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -93,11 +93,19 @@ import java.util.stream.Stream;
  * depending of the variant (always specified in the javadoc) if
  * {@link VariantManager#allowVariantMultiThreadAccess(boolean)} is set to true.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see NetworkFactory
  * @see VariantManager
  */
 public interface Network extends Container<Network> {
+
+    default Collection<Network> getSubnetworks() {
+        return Collections.emptyList();
+    }
+
+    default Network getSubnetwork(String id) {
+        return null;
+    }
 
     /**
      * Read a network from the specified file, trying to guess its format.
@@ -113,7 +121,7 @@ public interface Network extends Container<Network> {
      */
     static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory,
                         ImportersLoader loader, Reporter reporter) {
-        ReadOnlyDataSource dataSource = Importers.createDataSource(file);
+        ReadOnlyDataSource dataSource = DataSource.fromPath(file);
         Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {
             return importer.importData(dataSource, networkFactory, parameters, reporter);
@@ -319,6 +327,28 @@ public interface Network extends Container<Network> {
         throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
 
+    static Network read(ReadOnlyDataSource... dataSources) {
+        return read(List.of(dataSources));
+    }
+
+    static Network read(Path... files) {
+        List<ReadOnlyDataSource> dataSources = Arrays.stream(Objects.requireNonNull(files)).map(DataSource::fromPath).collect(Collectors.toList());
+        return read(dataSources);
+    }
+
+    static Network read(List<ReadOnlyDataSource> dataSources) {
+        return read(dataSources, null);
+    }
+
+    static Network read(List<ReadOnlyDataSource> dataSources, Properties properties) {
+        return read(dataSources, properties, Reporter.NO_OP);
+    }
+
+    static Network read(List<ReadOnlyDataSource> dataSources, Properties properties, Reporter reporter) {
+        Objects.requireNonNull(dataSources);
+        return read(new MultipleReadOnlyDataSource(dataSources), properties, reporter);
+    }
+
     static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
         if (!Files.isDirectory(dir)) {
             throw new PowsyblException("Directory " + dir + " does not exist or is not a regular directory");
@@ -387,6 +417,14 @@ public interface Network extends Container<Network> {
          * @see VariantManager
          */
         Stream<Bus> getBusStream();
+
+        /**
+         * Get the bus count.
+         * <p>
+         * Depends on the working variant.
+         * @see VariantManager
+         */
+        int getBusCount();
 
         /**
          * Get all switches
@@ -468,6 +506,30 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Create a network (using default implementation) as the result of the merge of the given networks. Each given
+     * network is represented as a subnetwork in the resulting network. As a result of that merge, the given networks
+     * are empty at the end of the call.
+     * Note that, as no id is given, the id of the network created is generated.
+     *
+     * @return the merged network with subnetworks inside.
+     */
+    static Network merge(Network... networks) {
+        return NetworkFactory.findDefault().merge(networks);
+    }
+
+    /**
+     * Create a network (using default implementation) as the result of the merge of the given networks. Each given
+     * network is represented as a subnetwork in the resulting network. As a result of that merge, the given networks
+     * are empty at the end of the call.
+     *
+     * @param id id of the network to create
+     * @return the merged network with subnetworks inside.
+     */
+    static Network merge(String id, Network... networks) {
+        return NetworkFactory.findDefault().merge(id, networks);
+    }
+
+    /**
      * Just being able to name method create et not createNetwork. Create is not available in {@link NetworkFactory} for backward
      * compatibility reason. To cleanup when {@link NetworkFactory#create(String, String)} will be removed.
      */
@@ -489,13 +551,13 @@ public interface Network extends Container<Network> {
     /**
      * Get the date that the network represents.
      */
-    DateTime getCaseDate();
+    ZonedDateTime getCaseDate();
 
     /**
      * Set the date that the network represents.
      * @throws IllegalArgumentException if date is null.
      */
-    Network setCaseDate(DateTime date);
+    Network setCaseDate(ZonedDateTime date);
 
     /**
      * Get the forecast distance in minutes.
@@ -517,6 +579,35 @@ public interface Network extends Container<Network> {
     VariantManager getVariantManager();
 
     /**
+     * <p>Allows {@link ReporterContext} to be accessed simultaneously by different threads.</p>
+     * <p>When this option is activated, the reporter context can have a different content
+     * for each thread.</p>
+     * <p>Note that to avoid memory leaks when in multi-thread configuration: </p>
+     * <ul>
+     *     <li>each reporter pushed in the ReporterContext should be popped in a "finally" section:
+     * <pre>
+     * {@code
+     *     network.getReporterContext().pushReporter(reporter);
+     *     try {
+     *         // code that can throw an exception
+     *     } finally {
+     *         network.getReporterContext().popReporter();
+     *     }
+     * }
+     * </pre>
+     * </li>
+     * <li>the context should be set in mono-thread access when multi-threading policy is no more useful.</li>
+     * </ul>
+     * @param allow allow multi-thread access to the ReporterContext
+     */
+    void allowReporterContextMultiThreadAccess(boolean allow);
+
+    /**
+     * Get the {@link ReporterContext} of the network.
+     */
+    ReporterContext getReporterContext();
+
+    /**
      * Get all countries.
      */
     Set<Country> getCountries();
@@ -528,6 +619,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new substation.
+     * @return a builder to create a new substation
      */
     SubstationAdder newSubstation();
 
@@ -581,6 +673,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a builder to create a new voltage level (without substation).
      * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * @return a builder to create a new voltage level
      */
     default VoltageLevelAdder newVoltageLevel() {
         return newSubstation()
@@ -615,6 +708,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new AC line.
+     * @return a builder to create a new line
      */
     LineAdder newLine();
 
@@ -622,6 +716,11 @@ public interface Network extends Container<Network> {
      * Get all AC lines.
      */
     Iterable<Line> getLines();
+
+    /**
+     * Get all tie lines.
+     */
+    Iterable<TieLine> getTieLines();
 
     /**
      * Get a branch
@@ -650,9 +749,19 @@ public interface Network extends Container<Network> {
     Stream<Line> getLineStream();
 
     /**
+     * Get all tie lines.
+     */
+    Stream<TieLine> getTieLineStream();
+
+    /**
      * Get the AC line count.
      */
     int getLineCount();
+
+    /**
+     * Get the tie line count.
+     */
+    int getTieLineCount();
 
     /**
      * Get a AC line.
@@ -662,24 +771,17 @@ public interface Network extends Container<Network> {
     Line getLine(String id);
 
     /**
-     * Get a builder to create a new AC tie line.
+     * Get a tie line.
+     *
+     * @param id the id or an alias of the AC line
      */
-    TieLineAdder newTieLine();
+    TieLine getTieLine(String id);
 
     /**
-     * Get a builder to create a two windings transformer.
-     * Only use if at least one of the transformer's ends does not belong to any substation.
-     * Else use {@link Substation#newTwoWindingsTransformer()}.
-     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * Get a builder to create a new AC tie line.
+     * @return a builder to create a new AC tie line
      */
-    default TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return newSubstation()
-                .setId("FICTITIOUS_SUBSTATION")
-                .setEnsureIdUnicity(true)
-                .setFictitious(true)
-                .add()
-                .newTwoWindingsTransformer();
-    }
+    TieLineAdder newTieLine();
 
     /**
      * Get all two windings transformers.
@@ -704,21 +806,6 @@ public interface Network extends Container<Network> {
     TwoWindingsTransformer getTwoWindingsTransformer(String id);
 
     /**
-     * Get a builder to create a three windings transformer.
-     * Only use this builder if at least one of the transformer's ends does not belong to any substation.
-     * Else use {@link Substation#newThreeWindingsTransformer()}.
-     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
-     */
-    default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return newSubstation()
-                .setId("FICTITIOUS_SUBSTATION")
-                .setEnsureIdUnicity(true)
-                .setFictitious(true)
-                .add()
-                .newThreeWindingsTransformer();
-    }
-
-    /**
      * Get all 3 windings transformers.
      */
     Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers();
@@ -739,6 +826,28 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the 3 windings transformer
      */
     ThreeWindingsTransformer getThreeWindingsTransformer(String id);
+
+    /**
+     * Get all overload management systems.
+     */
+    Iterable<OverloadManagementSystem> getOverloadManagementSystems();
+
+    /**
+     * Get all overload management systems.
+     */
+    Stream<OverloadManagementSystem> getOverloadManagementSystemStream();
+
+    /**
+     * Get the overload management system count.
+     */
+    int getOverloadManagementSystemCount();
+
+    /**
+     * Get an overload management system.
+     *
+     * @param id the id or an alias of the overload management system
+     */
+    OverloadManagementSystem getOverloadManagementSystem(String id);
 
     /**
      * Get all generators.
@@ -829,14 +938,28 @@ public interface Network extends Container<Network> {
     ShuntCompensator getShuntCompensator(String id);
 
     /**
-     * Get all dangling lines.
+     * Get all dangling lines corresponding to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
 
     /**
      * Get all dangling lines.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLines(DanglingLineFilter.ALL);
+    }
+
+    /**
+     * Get the dangling lines corresponding to given filter.
+     */
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+
+    /**
+     * Get all the dangling lines.
+     */
+    default Stream<DanglingLine> getDanglingLineStream() {
+        return getDanglingLineStream(DanglingLineFilter.ALL);
+    }
 
     /**
      * Get the dangling line count.
@@ -1039,9 +1162,31 @@ public interface Network extends Container<Network> {
     HvdcLineAdder newHvdcLine();
 
     /**
-     * Get an equipment by its ID or alias
+     * Get all grounds.
+     */
+    Iterable<Ground> getGrounds();
+
+    /**
+     * Get all grounds.
+     */
+    Stream<Ground> getGroundStream();
+
+    /**
+     * Get the ground count.
+     */
+    int getGroundCount();
+
+    /**
+     * Get a ground.
      *
-     * @param id the id or an alias of the equipment
+     * @param id the id or an alias of the ground
+     */
+    Ground getGround(String id);
+
+    /**
+     * * Get an identifiable by its ID or alias
+     *
+     * @param id the id or an alias of the identifiable
      */
     Identifiable<?> getIdentifiable(String id);
 
@@ -1133,16 +1278,80 @@ public interface Network extends Container<Network> {
     BusView getBusView();
 
     /**
-     * Merge with an other network. At the end of the merge the other network
-     * is empty.
-     * @param other the other network
+     * Get a builder to create a new VoltageAngleLimit.
      */
-    void merge(Network other);
+    VoltageAngleLimitAdder newVoltageAngleLimit();
 
-    void merge(Network... others);
+    /**
+     * Get all voltageAngleLimits.
+     */
+    Iterable<VoltageAngleLimit> getVoltageAngleLimits();
 
+    /**
+     * Get all voltageAngleLimits.
+     */
+    Stream<VoltageAngleLimit> getVoltageAngleLimitsStream();
+
+    /**
+     * Get voltage angle limit with id
+     */
+    VoltageAngleLimit getVoltageAngleLimit(String id);
+
+    /**
+     * Create an empty subnetwork in the current network.
+     *
+     * @param subnetworkId id of the subnetwork
+     * @param name subnetwork's name
+     * @param sourceFormat source format
+     * @return the created subnetwork
+     */
+    Network createSubnetwork(String subnetworkId, String name, String sourceFormat);
+
+    /**
+     * <p>Detach the current network (including its subnetworks) from its parent network.</p>
+     * <p>Note that this operation is destructive: after it the current network's content
+     * couldn't be accessed from the parent network anymore.</p>
+     * <p>The boundary elements, i.e. linking this network to an external voltage level are split if possible.</br>
+     * A {@link PowsyblException} is thrown if some un-splittable boundary elements are detected. This detection is processed
+     * before any network modification. So if an un-splittable boundary element is detected, no destructive operation will be done.</p>
+     *
+     * @return a fully-independent network corresponding to the current network and its subnetworks.
+     */
+    Network detach();
+
+    /**
+     * <p>Check if the current network can be detached from its parent network (with {@link #detach()}).</p>
+     *
+     * @return True if the network can be detached from its parent network.
+     */
+    boolean isDetachable();
+
+    /**
+     * Return all the boundary elements of the current network, i.e. the elements which link or might link this network
+     * to an external voltage level.
+     *
+     * @return a set containing the boundary elements of the network.
+     */
+    Set<Identifiable<?>> getBoundaryElements();
+
+    /**
+     * Check if an identifiable is a boundary element for the current network.
+     *
+     * @param identifiable the identifiable to check
+     * @return True if the identifiable is a boundary element for the current network
+     */
+    boolean isBoundaryElement(Identifiable<?> identifiable);
+
+    /**
+     * <p>Add a listener on the network.</p>
+     * @param listener the listener to add
+     */
     void addListener(NetworkListener listener);
 
+    /**
+     * <p>Remove a listener from the network.</p>
+     * @param listener the listener to remove
+     */
     void removeListener(NetworkListener listener);
 
     @Override
@@ -1194,38 +1403,42 @@ public interface Network extends Container<Network> {
         return this;
     }
 
-    default <I extends Identifiable<I>> Stream<I> getIdentifiableStream(IdentifiableType identifiableType) {
+    default Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
         switch (identifiableType) {
             case SWITCH:
-                return (Stream<I>) getSwitchStream();
+                return getSwitchStream().map(Function.identity());
             case TWO_WINDINGS_TRANSFORMER:
-                return (Stream<I>) getTwoWindingsTransformerStream();
+                return getTwoWindingsTransformerStream().map(Function.identity());
             case THREE_WINDINGS_TRANSFORMER:
-                return (Stream<I>) getThreeWindingsTransformerStream();
+                return getThreeWindingsTransformerStream().map(Function.identity());
             case DANGLING_LINE:
-                return (Stream<I>) getDanglingLineStream();
+                return getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
             case LINE:
-                return (Stream<I>) getLineStream();
+                return getLineStream().map(Function.identity());
+            case TIE_LINE:
+                return getTieLineStream().map(Function.identity());
             case LOAD:
-                return (Stream<I>) getLoadStream();
+                return getLoadStream().map(Function.identity());
             case BATTERY:
-                return (Stream<I>) getBatteries();
+                return getBatteryStream().map(Function.identity());
             case GENERATOR:
-                return (Stream<I>) getGeneratorStream();
+                return getGeneratorStream().map(Function.identity());
             case HVDC_LINE:
-                return (Stream<I>) getHvdcLineStream();
+                return getHvdcLineStream().map(Function.identity());
             case SUBSTATION:
-                return (Stream<I>) getSubstationStream();
+                return getSubstationStream().map(Function.identity());
             case VOLTAGE_LEVEL:
-                return (Stream<I>) getVoltageLevelStream();
+                return getVoltageLevelStream().map(Function.identity());
             case BUSBAR_SECTION:
-                return (Stream<I>) getBusbarSectionStream();
+                return getBusbarSectionStream().map(Function.identity());
             case SHUNT_COMPENSATOR:
-                return (Stream<I>) getShuntCompensatorStream();
+                return getShuntCompensatorStream().map(Function.identity());
             case HVDC_CONVERTER_STATION:
-                return (Stream<I>) getHvdcConverterStationStream();
+                return getHvdcConverterStationStream().map(Function.identity());
             case STATIC_VAR_COMPENSATOR:
-                return (Stream<I>) getStaticVarCompensatorStream();
+                return getStaticVarCompensatorStream().map(Function.identity());
+            case GROUND:
+                return getGroundStream().map(Function.identity());
             default:
                 throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         }

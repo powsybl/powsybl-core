@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class CalculatedTimeSeries implements DoubleTimeSeries {
 
@@ -280,8 +280,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CalculatedTimeSeries) {
-            CalculatedTimeSeries other = (CalculatedTimeSeries) obj;
+        if (obj instanceof CalculatedTimeSeries other) {
             return name.equals(other.name) && nodeCalc.equals(other.nodeCalc);
         }
         return false;

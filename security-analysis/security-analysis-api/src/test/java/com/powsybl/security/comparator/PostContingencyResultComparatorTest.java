@@ -6,14 +6,14 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import com.powsybl.security.PostContingencyComputationStatus;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.contingency.Contingency;
@@ -21,12 +21,12 @@ import com.powsybl.security.results.PostContingencyResult;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public class PostContingencyResultComparatorTest {
+class PostContingencyResultComparatorTest {
 
     @Test
-    public void compare() {
+    void compare() {
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
         PostContingencyResult result1 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, Collections.emptyList());

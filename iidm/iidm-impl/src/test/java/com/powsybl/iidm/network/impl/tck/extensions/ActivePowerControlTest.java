@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl.tck.extensions;
 import com.powsybl.iidm.network.tck.extensions.AbstractActivePowerControlTest;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
-public class ActivePowerControlTest extends AbstractActivePowerControlTest {
+class ActivePowerControlTest extends AbstractActivePowerControlTest {
 }

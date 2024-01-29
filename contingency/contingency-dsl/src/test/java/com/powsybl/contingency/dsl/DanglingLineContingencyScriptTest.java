@@ -13,9 +13,9 @@ import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.DanglingLineContingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -25,13 +25,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DanglingLineContingencyScriptTest {
+class DanglingLineContingencyScriptTest {
 
     private FileSystem fileSystem;
 
@@ -39,15 +39,15 @@ public class DanglingLineContingencyScriptTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         dslFile = fileSystem.getPath("/test.dsl");
         network = DanglingLineNetworkFactory.create();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
@@ -58,7 +58,7 @@ public class DanglingLineContingencyScriptTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         writeToDslFile("contingency('DL_CONTINGENCY') {",
                 "    equipments 'DL'",
                 "}");

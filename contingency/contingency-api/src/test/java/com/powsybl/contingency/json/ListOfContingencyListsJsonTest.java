@@ -8,14 +8,18 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.contingency.list.*;
 import com.powsybl.contingency.contingency.list.criterion.*;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
+import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,9 +33,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
+class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
 
     private static ListOfContingencyLists create() {
         List<ContingencyList> contingencyLists = new ArrayList<>();
@@ -44,13 +48,15 @@ public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
                 .VoltageInterval(200.0, 230.0, true, true),
                 new SingleNominalVoltageCriterion
                 .VoltageInterval(100.0, 120.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion1 = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true), null);
 
         ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true), null,
                 new SingleNominalVoltageCriterion.VoltageInterval(380.0, 430.0,
                         true, true));
         RegexCriterion regexCriterion = new RegexCriterion("regex");
-        contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion,
+        contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, twoNominalVoltageCriterion1,
                 Collections.emptyList(), regexCriterion));
         contingencyLists.add(new DefaultContingencyList(new Contingency("contingency1", new GeneratorContingency("GEN"))));
         contingencyLists.add(new InjectionCriterionContingencyList("list3", IdentifiableType.LOAD, countryCriterion,
@@ -64,11 +70,18 @@ public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
         contingencyLists.add(new ListOfContingencyLists("listslist2",
                 Collections.singletonList(new DefaultContingencyList(new Contingency("contingency2",
                         new HvdcLineContingency("HVDC1"))))));
+        List<NetworkElementIdentifier> networkElementIdentifiers = new ArrayList<>();
+        networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("VL1",
+                "VL2", '1', "contingency1"));
+        networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier", "contingency2"));
+        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections
+                .singletonList(new IdBasedNetworkElementIdentifier("identifier2")), "contingency3"));
+        contingencyLists.add(new IdentifierContingencyList("identifierlist", networkElementIdentifiers));
         return new ListOfContingencyLists("listslist1", contingencyLists);
     }
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripTest(create(), ListOfContingencyListsJsonTest::write, ListOfContingencyListsJsonTest::readContingencyList,
                 "/contingencyListsList.json");
     }

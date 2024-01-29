@@ -15,7 +15,7 @@ import java.util.Objects;
  * sparse matrix implementations. In the case of sparse matrix additional usage constraint could be added and specified
  * in the javadoc for instance in the order a matrix has to be filled.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Matrix {
 
@@ -91,7 +91,7 @@ public interface Matrix {
         /**
          * @deprecated Use {@link #onElement(int, int, double)} instead.
          */
-        @Deprecated
+        @Deprecated(since = "2.5.0")
         default void onValue(int i, int j, double value) {
             onElement(i, j, value);
         }
@@ -107,7 +107,7 @@ public interface Matrix {
     /**
      * @deprecated Use {@link #getRowCount()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     default int getM() {
         return getRowCount();
     }
@@ -122,7 +122,7 @@ public interface Matrix {
     /**
      * @deprecated Use {@link #getColumnCount()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     default int getN() {
         return getColumnCount();
     }
@@ -139,7 +139,7 @@ public interface Matrix {
     /**
      * @deprecated Use {@link #set(int, int, double)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     default void setValue(int i, int j, double value) {
         set(i, j, value);
     }
@@ -208,7 +208,7 @@ public interface Matrix {
     /**
      * @deprecated Use {@link #add(int, int, double)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     default void addValue(int i, int j, double value) {
         add(i, j, value);
     }

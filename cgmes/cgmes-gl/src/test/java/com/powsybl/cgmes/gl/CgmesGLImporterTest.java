@@ -7,20 +7,20 @@
 package com.powsybl.cgmes.gl;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public class CgmesGLImporterTest extends AbstractCgmesGLTest {
+class CgmesGLImporterTest extends AbstractCgmesGLTest {
 
     private CgmesGLModel cgmesGLModel;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         super.setUp();
         cgmesGLModel = Mockito.mock(CgmesGLModel.class);
         Mockito.when(cgmesGLModel.getSubstationsPosition()).thenReturn(substationsPropertyBags);
@@ -28,7 +28,7 @@ public class CgmesGLImporterTest extends AbstractCgmesGLTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         Network network = GLTestUtils.getNetwork();
         CgmesGLImporter cgmesGLImporter = new CgmesGLImporter(network, cgmesGLModel);
         cgmesGLImporter.importGLData();

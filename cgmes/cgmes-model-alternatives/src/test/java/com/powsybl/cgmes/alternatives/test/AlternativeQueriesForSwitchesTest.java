@@ -9,8 +9,8 @@ package com.powsybl.cgmes.alternatives.test;
 
 import java.io.IOException;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
@@ -18,12 +18,12 @@ import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class AlternativeQueriesForSwitchesTest {
+class AlternativeQueriesForSwitchesTest {
 
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         // Expected number of results when querying switches
         // We expected two results for each switch, one result for each side
         Expected expected = new Expected().resultSize(738);
@@ -36,22 +36,22 @@ public class AlternativeQueriesForSwitchesTest {
     }
 
     @Test
-    public void optionals() throws IOException {
+    void optionals() throws IOException {
         tester.test("optionals");
     }
 
     @Test
-    public void subSelectUnion() throws IOException {
+    void subSelectUnion() throws IOException {
         tester.test("subSelectUnion");
     }
 
     @Test
-    public void groupUnion() throws IOException {
+    void groupUnion() throws IOException {
         tester.test("groupUnion");
     }
 
     @Test
-    public void assumeOnlyBays() throws IOException {
+    void assumeOnlyBays() throws IOException {
         tester.test("assumingOnlyBays");
     }
 

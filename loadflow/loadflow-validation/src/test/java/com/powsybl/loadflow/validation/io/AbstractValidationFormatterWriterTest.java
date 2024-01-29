@@ -7,24 +7,24 @@
 package com.powsybl.loadflow.validation.io;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.util.TwtTestData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public abstract class AbstractValidationFormatterWriterTest {
+abstract class AbstractValidationFormatterWriterTest {
 
     protected final String branchId = "branchId";
     protected final String otherBranchId = "otherBranchId";
@@ -130,7 +130,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final int lowTapPosition = 0;
     protected final int highTapPosition = 30;
     protected final double twtTargetV = 92.7781;
-    protected final Side regulatedSide = Side.ONE;
+    protected final TwoSides regulatedSide = TwoSides.ONE;
     protected final double twtV = 92.8007;
     protected final boolean mainComponent = true;
 
@@ -138,42 +138,42 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final String otherTwt3wId = "otherTwt3wId";
 
     @Test
-    public void testFlows() throws Exception {
+    void testFlows() throws Exception {
         testFlows(getFlowsContent(), false, false, branchId, null);
     }
 
     protected abstract String getFlowsContent();
 
     @Test
-    public void testFlowsVerbose() throws Exception {
+    void testFlowsVerbose() throws Exception {
         testFlows(getFlowsVerboseContent(), true, false, branchId, null);
     }
 
     protected abstract String getFlowsVerboseContent();
 
     @Test
-    public void testFlowsCompare() throws Exception {
+    void testFlowsCompare() throws Exception {
         testFlows(getFlowsCompareContent(), false, true, branchId, branchId);
     }
 
     protected abstract String getFlowsCompareContent();
 
     @Test
-    public void testFlowsCompareDifferentIds() throws Exception {
+    void testFlowsCompareDifferentIds() throws Exception {
         testFlows(getFlowsCompareDifferentIdsContent(), false, true, branchId, otherBranchId);
     }
 
     protected abstract String getFlowsCompareDifferentIdsContent();
 
     @Test
-    public void testFlowsCompareVerbose() throws Exception {
+    void testFlowsCompareVerbose() throws Exception {
         testFlows(getFlowsCompareVerboseContent(), true, true, branchId, branchId);
     }
 
     protected abstract String getFlowsCompareVerboseContent();
 
     @Test
-    public void testFlowsCompareDifferentIdsVerbose() throws Exception {
+    void testFlowsCompareDifferentIdsVerbose() throws Exception {
         testFlows(getFlowsCompareDifferentIdsVerboseContent(), true, true, branchId, otherBranchId);
     }
 
@@ -200,42 +200,42 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected abstract ValidationWriter getFlowsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
-    public void testGenerators() throws Exception {
+    void testGenerators() throws Exception {
         testGenerators(getGeneratorsContent(), false, false, generatorId, null);
     }
 
     protected abstract String getGeneratorsContent();
 
     @Test
-    public void testGeneratorsVerbose() throws Exception {
+    void testGeneratorsVerbose() throws Exception {
         testGenerators(getGeneratorsVerboseContent(), true, false, generatorId, null);
     }
 
     protected abstract String getGeneratorsVerboseContent();
 
     @Test
-    public void testGeneratorsCompare() throws Exception {
+    void testGeneratorsCompare() throws Exception {
         testGenerators(getGeneratorsCompareContent(), false, true, generatorId, generatorId);
     }
 
     protected abstract String getGeneratorsCompareContent();
 
     @Test
-    public void testGeneratorsCompareDifferentIds() throws Exception {
+    void testGeneratorsCompareDifferentIds() throws Exception {
         testGenerators(getGeneratorsCompareDifferentIdsContent(), false, true, generatorId, otherGeneratorId);
     }
 
     protected abstract String getGeneratorsCompareDifferentIdsContent();
 
     @Test
-    public void testGeneratorsCompareVerbose() throws Exception {
+    void testGeneratorsCompareVerbose() throws Exception {
         testGenerators(getGeneratorsCompareVerboseContent(), true, true, generatorId, generatorId);
     }
 
     protected abstract String getGeneratorsCompareVerboseContent();
 
     @Test
-    public void testGeneratorsCompareDifferentIdsVerbose() throws Exception {
+    void testGeneratorsCompareDifferentIdsVerbose() throws Exception {
         testGenerators(getGeneratorsCompareDifferentIdsVerboseContent(), true, true, generatorId, otherGeneratorId);
     }
 
@@ -258,42 +258,42 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected abstract ValidationWriter getGeneratorsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
-    public void testBuses() throws Exception {
+    void testBuses() throws Exception {
         testBuses(getBusesContent(), false, false, busId, null);
     }
 
     protected abstract String getBusesContent();
 
     @Test
-    public void testBusesVerbose() throws Exception {
+    void testBusesVerbose() throws Exception {
         testBuses(getBusesVerboseContent(), true, false, busId, null);
     }
 
     protected abstract String getBusesVerboseContent();
 
     @Test
-    public void testBusesCompare() throws Exception {
+    void testBusesCompare() throws Exception {
         testBuses(getBusesCompareContent(), false, true, busId, busId);
     }
 
     protected abstract String getBusesCompareContent();
 
     @Test
-    public void testBusesCompareDifferentIds() throws Exception {
+    void testBusesCompareDifferentIds() throws Exception {
         testBuses(getBusesCompareDifferentIdsContent(), false, true, busId, otherBusId);
     }
 
     protected abstract String getBusesCompareDifferentIdsContent();
 
     @Test
-    public void testBusesCompareVerbose() throws Exception {
+    void testBusesCompareVerbose() throws Exception {
         testBuses(getBusesCompareVerboseContent(), true, true, busId, busId);
     }
 
     protected abstract String getBusesCompareVerboseContent();
 
     @Test
-    public void testBusesCompareDifferentIdsVerbose() throws Exception {
+    void testBusesCompareDifferentIdsVerbose() throws Exception {
         testBuses(getBusesCompareDifferentIdsVerboseContent(), true, true, busId, otherBusId);
     }
 
@@ -318,42 +318,42 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected abstract ValidationWriter getBusesValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
-    public void testSvcs() throws Exception {
+    void testSvcs() throws Exception {
         testSvcs(getSvcsContent(), false, false, svcId, null);
     }
 
     protected abstract String getSvcsContent();
 
     @Test
-    public void testSvcsVerbose() throws Exception {
+    void testSvcsVerbose() throws Exception {
         testSvcs(getSvcsVerboseContent(), true, false, svcId, null);
     }
 
     protected abstract String getSvcsVerboseContent();
 
     @Test
-    public void testSvcsConpare() throws Exception {
+    void testSvcsConpare() throws Exception {
         testSvcs(getSvcsCompareContent(), false, true, svcId, svcId);
     }
 
     protected abstract String getSvcsCompareContent();
 
     @Test
-    public void testSvcsConpareDifferentIds() throws Exception {
+    void testSvcsConpareDifferentIds() throws Exception {
         testSvcs(getSvcsCompareDifferentIdsContent(), false, true, svcId, otherSvcId);
     }
 
     protected abstract String getSvcsCompareDifferentIdsContent();
 
     @Test
-    public void testSvcsConpareVerbose() throws Exception {
+    void testSvcsConpareVerbose() throws Exception {
         testSvcs(getSvcsCompareVerboseContent(), true, true, svcId, svcId);
     }
 
     protected abstract String getSvcsCompareVerboseContent();
 
     @Test
-    public void testSvcsConpareDifferentIdsVerbose() throws Exception {
+    void testSvcsConpareDifferentIdsVerbose() throws Exception {
         testSvcs(getSvcsCompareDifferentIdsVerboseContent(), true, true, svcId, otherSvcId);
     }
 
@@ -376,42 +376,42 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected abstract ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
-    public void testShunts() throws Exception {
+    void testShunts() throws Exception {
         testShunts(getShuntsContent(), false, false, shuntId, null);
     }
 
     protected abstract String getShuntsContent();
 
     @Test
-    public void testShuntsVerbose() throws Exception {
+    void testShuntsVerbose() throws Exception {
         testShunts(getShuntsVerboseContent(), true, false, shuntId, null);
     }
 
     protected abstract String getShuntsVerboseContent();
 
     @Test
-    public void testShuntsCompare() throws Exception {
+    void testShuntsCompare() throws Exception {
         testShunts(getShuntsCompareContent(), false, true, shuntId, shuntId);
     }
 
     protected abstract String getShuntsCompareContent();
 
     @Test
-    public void testShuntsCompareDifferentIds() throws Exception {
+    void testShuntsCompareDifferentIds() throws Exception {
         testShunts(getShuntsCompareDifferentIdsContent(), false, true, shuntId, otherShuntId);
     }
 
     protected abstract String getShuntsCompareDifferentIdsContent();
 
     @Test
-    public void testShuntsCompareVerbose() throws Exception {
+    void testShuntsCompareVerbose() throws Exception {
         testShunts(getShuntsCompareVerboseContent(), true, true, shuntId, shuntId);
     }
 
     protected abstract String getShuntsCompareVerboseContent();
 
     @Test
-    public void testShuntsCompareDifferentIdsVerbose() throws Exception {
+    void testShuntsCompareDifferentIdsVerbose() throws Exception {
         testShunts(getShuntsCompareDifferentIdsVerboseContent(), true, true, shuntId, otherShuntId);
     }
 
@@ -434,42 +434,42 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected abstract ValidationWriter getShuntsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
-    public void testTwts() throws Exception {
+    void testTwts() throws Exception {
         testTwts(getTwtsContent(), false, false, twtId, null);
     }
 
     protected abstract String getTwtsContent();
 
     @Test
-    public void testTwtsVerbose() throws Exception {
+    void testTwtsVerbose() throws Exception {
         testTwts(getTwtsVerboseContent(), true, false, twtId, null);
     }
 
     protected abstract String getTwtsVerboseContent();
 
     @Test
-    public void testTwtsCompare() throws Exception {
+    void testTwtsCompare() throws Exception {
         testTwts(getTwtsCompareContent(), false, true, twtId, twtId);
     }
 
     protected abstract String getTwtsCompareContent();
 
     @Test
-    public void testTwtsCompareDifferentIds() throws Exception {
+    void testTwtsCompareDifferentIds() throws Exception {
         testTwts(getTwtsCompareDifferentIdsContent(), false, true, twtId, otherTwtId);
     }
 
     protected abstract String getTwtsCompareDifferentIdsContent();
 
     @Test
-    public void testTwtsCompareVerbose() throws Exception {
+    void testTwtsCompareVerbose() throws Exception {
         testTwts(getTwtsCompareVerboseContent(), true, true, twtId, twtId);
     }
 
     protected abstract String getTwtsCompareVerboseContent();
 
     @Test
-    public void testTwtsCompareDifferentIdsVerbose() throws Exception {
+    void testTwtsCompareDifferentIdsVerbose() throws Exception {
         testTwts(getTwtsCompareDifferentIdsVerboseContent(), true, true, twtId, otherTwtId);
     }
 
@@ -494,7 +494,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected abstract ValidationWriter getTwtsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
     @Test
-    public void testTwtsMissingSide() throws Exception {
+    void testTwtsMissingSide() throws Exception {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter twtsWriter = getTwtsValidationFormatterCsvWriter(config, writer, true, false)) {
@@ -507,42 +507,42 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected abstract String getTwtsMissingSideContent();
 
     @Test
-    public void testTwts3w() throws Exception {
+    void testTwts3w() throws Exception {
         testTwts3w(getTwts3wContent(), false, false, twt3wId, null);
     }
 
     protected abstract String getTwts3wContent();
 
     @Test
-    public void testTwts3wVerbose() throws Exception {
+    void testTwts3wVerbose() throws Exception {
         testTwts3w(getTwts3wVerboseContent(), true, false, twt3wId, null);
     }
 
     protected abstract String getTwts3wVerboseContent();
 
     @Test
-    public void testTwts3wCompare() throws Exception {
+    void testTwts3wCompare() throws Exception {
         testTwts3w(getTwts3wCompareContent(), false, true, twt3wId, twt3wId);
     }
 
     protected abstract String getTwts3wCompareContent();
 
     @Test
-    public void testTwts3wCompareDifferentIds() throws Exception {
+    void testTwts3wCompareDifferentIds() throws Exception {
         testTwts3w(getTwts3wCompareDifferentIdsContent(), false, true, twt3wId, otherTwt3wId);
     }
 
     protected abstract String getTwts3wCompareDifferentIdsContent();
 
     @Test
-    public void testTwts3wCompareVerbose() throws Exception {
+    void testTwts3wCompareVerbose() throws Exception {
         testTwts3w(getTwts3wCompareVerboseContent(), true, true, twt3wId, twt3wId);
     }
 
     protected abstract String getTwts3wCompareVerboseContent();
 
     @Test
-    public void testTwts3wCompareDifferentIdsVerbose() throws Exception {
+    void testTwts3wCompareDifferentIdsVerbose() throws Exception {
         testTwts3w(getTwts3wCompareDifferentIdsVerboseContent(), true, true, twt3wId, otherTwt3wId);
     }
 

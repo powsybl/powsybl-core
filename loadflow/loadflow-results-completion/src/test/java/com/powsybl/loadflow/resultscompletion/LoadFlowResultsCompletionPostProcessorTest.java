@@ -6,13 +6,13 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.FileSystem;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -20,27 +20,27 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public class LoadFlowResultsCompletionPostProcessorTest extends AbstractLoadFlowResultsCompletionTest {
+class LoadFlowResultsCompletionPostProcessorTest extends AbstractLoadFlowResultsCompletionTest {
 
     private InMemoryPlatformConfig platformConfig;
     private FileSystem fileSystem;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         super.setUp();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
     @Test
-    public void process() throws Exception {
+    void process() throws Exception {
         setNanValues();
 
         LoadFlowResultsCompletionPostProcessor processor = new LoadFlowResultsCompletionPostProcessor(platformConfig);

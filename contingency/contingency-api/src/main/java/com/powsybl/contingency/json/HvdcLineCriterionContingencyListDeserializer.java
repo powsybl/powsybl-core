@@ -7,75 +7,33 @@
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.contingency.contingency.list.DefaultContingencyList;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.HvdcLineCriterionContingencyList;
 import com.powsybl.contingency.contingency.list.criterion.*;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class HvdcLineCriterionContingencyListDeserializer extends StdDeserializer<HvdcLineCriterionContingencyList> {
+public class HvdcLineCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<HvdcLineCriterionContingencyList> {
 
     public HvdcLineCriterionContingencyListDeserializer() {
-        super(DefaultContingencyList.class);
+        super(HvdcLineCriterionContingencyList.class);
     }
 
     @Override
     public HvdcLineCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String name = null;
-        TwoCountriesCriterion countryCriterion = null;
-        TwoNominalVoltageCriterion nominalVoltageCriterion = null;
-        List<PropertyCriterion> propertyCriteria = Collections.emptyList();
-        RegexCriterion regexCriterion = null;
+        AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
+        parser.nextToken();
+        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext,
+                parsingContext, name, HvdcLineCriterionContingencyList.TYPE));
 
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
-                    parser.nextToken();
-                    break;
-
-                case "countryCriterion":
-                    parser.nextToken();
-                    countryCriterion = parser.readValueAs(new TypeReference<Criterion>() {
-                    });
-                    break;
-                case "nominalVoltageCriterion":
-                    parser.nextToken();
-                    nominalVoltageCriterion = parser.readValueAs(new TypeReference<Criterion>() {
-                    });
-                    break;
-                case "propertyCriteria":
-                    parser.nextToken();
-                    propertyCriteria = parser.readValueAs(new TypeReference<List<Criterion>>() {
-                    });
-                    break;
-                case "regexCriterion":
-                    parser.nextToken();
-                    regexCriterion = parser.readValueAs(new TypeReference<Criterion>() {
-                    });
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
-            }
-        }
-        return new HvdcLineCriterionContingencyList(name, countryCriterion,
-                nominalVoltageCriterion, propertyCriteria, regexCriterion);
+        return new HvdcLineCriterionContingencyList(parsingContext.name,
+                (TwoCountriesCriterion) parsingContext.countryCriterion,
+                (TwoNominalVoltageCriterion) parsingContext.nominalVoltageCriterion,
+                parsingContext.propertyCriteria,
+                parsingContext.regexCriterion);
     }
 }

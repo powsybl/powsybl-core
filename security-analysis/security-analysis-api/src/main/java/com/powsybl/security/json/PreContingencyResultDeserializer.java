@@ -7,28 +7,26 @@
 package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyResult> {
+class PreContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PreContingencyResult> {
 
     private static final String CONTEXT_NAME = "PreContingencyResult";
+
+    private static class ParsingContext {
+        LoadFlowResult.ComponentResult.Status status = null;
+    }
 
     PreContingencyResultDeserializer() {
         super(PreContingencyResult.class);
@@ -36,70 +34,37 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
 
     @Override
     public PreContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        LimitViolationsResult preContingencyResult = null;
-        List<BranchResult> branchResults = Collections.emptyList();
-        List<BusResult> busResults = Collections.emptyList();
-        List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
-        NetworkResult networkResult = null;
-        LoadFlowResult.ComponentResult.Status status = null;
+
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
             version = SecurityAnalysisResultSerializer.VERSION;
         }
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "limitViolationsResult":
-                    parser.nextToken();
-                    preContingencyResult = parser.readValueAs(LimitViolationsResult.class);
-                    break;
-                case "networkResult":
-                    parser.nextToken();
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: networkResult",
-                            version, "1.2");
-                    networkResult = parser.readValueAs(NetworkResult.class);
-                    break;
-                case "busResults":
-                    parser.nextToken();
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: busResults",
-                            version, "1.1");
-                    busResults = parser.readValueAs(new TypeReference<List<BusResult>>() {
-                    });
-                    break;
-                case "branchResults":
-                    parser.nextToken();
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: branchResults",
-                            version, "1.1");
-                    branchResults = parser.readValueAs(new TypeReference<List<BranchResult>>() {
-                    });
-                    break;
-                case "threeWindingsTransformerResults":
-                    parser.nextToken();
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: threeWindingsTransformerResults",
-                            version, "1.1");
-                    threeWindingsTransformerResults = parser.readValueAs(new TypeReference<List<ThreeWindingsTransformerResult>>() {
-                    });
-                    break;
-                case "status":
-                    parser.nextToken();
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
-                            version, "1.3");
-                    status = parser.readValueAs(LoadFlowResult.ComponentResult.Status.class);
-                    break;
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+        final String finalVersion = version;
+        ParsingContext parsingContext = new ParsingContext();
+        AbstractContingencyResultDeserializer.ParsingContext commonParsingContext = new AbstractContingencyResultDeserializer.ParsingContext();
+        JsonUtil.parsePolymorphicObject(parser, name -> {
+            boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext, finalVersion, CONTEXT_NAME);
+            if (found) {
+                return true;
             }
+            if (parser.getCurrentName().equals("status")) {
+                parser.nextToken();
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
+                        finalVersion, "1.3");
+                parsingContext.status = JsonUtil.readValue(deserializationContext, parser, LoadFlowResult.ComponentResult.Status.class);
+                return true;
+            }
+            return false;
+        });
+        if (finalVersion.compareTo("1.3") < 0) {
+            Objects.requireNonNull(commonParsingContext.limitViolationsResult);
+            parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
         }
-        if (version.compareTo("1.3") < 0) {
-            Objects.requireNonNull(preContingencyResult);
-            status = preContingencyResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
-        }
-        if (networkResult != null) {
-            return new PreContingencyResult(status, preContingencyResult, networkResult);
+        if (commonParsingContext.networkResult != null) {
+            return new PreContingencyResult(parsingContext.status, commonParsingContext.limitViolationsResult, commonParsingContext.networkResult);
         } else {
-            return new PreContingencyResult(status, preContingencyResult,
-                    branchResults,
-                    busResults,
-                    threeWindingsTransformerResults);
+            return new PreContingencyResult(parsingContext.status, commonParsingContext.limitViolationsResult,
+                    commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults);
         }
     }
 }

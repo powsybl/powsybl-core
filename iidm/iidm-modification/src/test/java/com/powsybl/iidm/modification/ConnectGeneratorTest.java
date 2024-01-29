@@ -9,22 +9,22 @@ package com.powsybl.iidm.modification;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class ConnectGeneratorTest {
+class ConnectGeneratorTest {
     private Network network;
     private Generator g2;
     private Generator g3;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = FourSubstationsNodeBreakerFactory.create();
         Generator g1 = network.getGenerator("GH1");
         g2 = network.getGenerator("GH2");
@@ -38,7 +38,7 @@ public class ConnectGeneratorTest {
     }
 
     @Test
-    public void testConnectVoltageRegulatorOff() {
+    void testConnectVoltageRegulatorOff() {
         g2.setVoltageRegulatorOn(false);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
@@ -46,7 +46,7 @@ public class ConnectGeneratorTest {
     }
 
     @Test
-    public void testConnectVoltageRegulatorOnWithAlreadyConnectedGenerators() {
+    void testWithAlreadyConnectedGenerators() {
         g2.setVoltageRegulatorOn(true);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
@@ -54,11 +54,50 @@ public class ConnectGeneratorTest {
     }
 
     @Test
-    public void testConnectVoltageRegulatorOnWithoutAlreadyConnectedGenerators() {
+    void testWithoutAlreadyConnectedGenerators() {
         g3.getTerminal().disconnect();
         g2.setVoltageRegulatorOn(true);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(99., g2.getTargetV(), 0.01);
+        assertEquals(22.0, g2.getTargetV(), 0.01);
+    }
+
+    @Test
+    void testConnectGeneratorWithWrongTargetV() {
+        g2.setVoltageRegulatorOn(true);
+        g2.setRegulatingTerminal(g3.getTerminal());
+        new ConnectGenerator(g2.getId()).apply(network);
+        assertTrue(g2.getTerminal().isConnected());
+        assertEquals(33, g2.getTargetV(), 0.01);
+    }
+
+    @Test
+    void testConnectGeneratorWithWrongTargetV2() {
+        // heterogeneous controls not taken into account yet.
+        double shuntTargetV = 123;
+        network.getShuntCompensatorStream().forEach(sc -> {
+            sc.setTargetV(shuntTargetV);
+            sc.setTargetDeadband(1);
+            sc.setVoltageRegulatorOn(true);
+        });
+        g2.setVoltageRegulatorOn(true);
+        g2.setRegulatingTerminal(g3.getTerminal());
+        new ConnectGenerator(g2.getId()).apply(network);
+        assertTrue(g2.getTerminal().isConnected());
+        assertEquals(33.0, g2.getTargetV(), 0.01);
+    }
+
+    @Test
+    void testConnectGeneratorWithNoNetworkInformation() {
+        g3.setVoltageRegulatorOn(false);
+        g2.setVoltageRegulatorOn(false);
+        g2.setRegulatingTerminal(g3.getTerminal());
+        g2.setTargetV(Double.NaN);
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        modifs.setVoltageRegulatorOn(true); // no targetV provided!
+        modifs.setConnected(true);
+        new GeneratorModification(g2.getId(), modifs).apply(network);
+        assertTrue(g2.getTerminal().isConnected());
+        assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
     }
 }

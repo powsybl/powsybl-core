@@ -7,14 +7,20 @@
 package com.powsybl.contingency.contingency.list;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.contingency.contingency.list.criterion.*;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.contingency.list.criterion.Criterion;
+import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
+import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public abstract class AbstractEquipmentCriterionContingencyList implements ContingencyList {
     private final String name;
@@ -32,6 +38,17 @@ public abstract class AbstractEquipmentCriterionContingencyList implements Conti
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public List<Contingency> getContingencies(Network network) {
+        return network.getIdentifiableStream(getIdentifiableType())
+                .filter(identifiable -> getCountryCriterion() == null || getCountryCriterion().filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getNominalVoltageCriterion() == null || getNominalVoltageCriterion().filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getPropertyCriteria().stream().allMatch(propertyCriterion -> propertyCriterion.filter(identifiable, getIdentifiableType())))
+                .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
+                .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
+                .collect(Collectors.toList());
     }
 
     public IdentifiableType getIdentifiableType() {

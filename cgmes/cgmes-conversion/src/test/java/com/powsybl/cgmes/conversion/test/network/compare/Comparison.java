@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class Comparison {
 
@@ -104,8 +104,8 @@ public class Comparison {
                 actual.getThreeWindingsTransformerStream(),
                 this::compareThreeWindingsTransformers);
         compare(
-                expected.getDanglingLineStream(),
-                actual.getDanglingLineStream(),
+                expected.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
+                actual.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
                 this::compareDanglingLines);
         diff.end();
     }
@@ -381,7 +381,7 @@ public class Comparison {
                 }
                 break;
             default:
-                throw new AssertionError("Unexpected shunt model type: " + expected.getModelType());
+                throw new IllegalStateException("Unexpected shunt model type: " + expected.getModelType());
         }
     }
 
@@ -490,7 +490,7 @@ public class Comparison {
                 break;
 
             default:
-                throw new AssertionError("Unexpected ReactiveLimitsKing value: " + expected.getKind());
+                throw new IllegalStateException("Unexpected ReactiveLimitsKing value: " + expected.getKind());
         }
     }
 
@@ -572,7 +572,7 @@ public class Comparison {
         compare("b", expected.getB(), actual.getB());
         compare("p0", expected.getP0(), actual.getP0());
         compare("q0", expected.getQ0(), actual.getQ0());
-        compare("UcteXnodeCode", expected.getUcteXnodeCode(), actual.getUcteXnodeCode());
+        compare("pairingKey", expected.getPairingKey(), actual.getPairingKey());
         compareLoadingLimits(expected, actual,
                 expected.getActivePowerLimits().orElse(null),
                 actual.getActivePowerLimits().orElse(null));
@@ -733,9 +733,9 @@ public class Comparison {
                 actual.getRegulationValue());
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
-            TapChanger<TC, TCS> expected,
-            TapChanger<TC, TCS> actual,
+    private <TC extends TapChanger<TC, TCS, ?, ?>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
+            TapChanger<TC, TCS, ?, ?> expected,
+            TapChanger<TC, TCS, ?, ?> actual,
             BiConsumer<TCS, TCS> testTapChangerStep1) {
         if (expected == null) {
             if (actual != null) {
@@ -795,7 +795,7 @@ public class Comparison {
         }
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
+    private <TC extends TapChanger<TC, TCS, ?, ?>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
             TCS expected,
             TCS actual,
             BiConsumer<TCS, TCS> testTapChangerStep1) {

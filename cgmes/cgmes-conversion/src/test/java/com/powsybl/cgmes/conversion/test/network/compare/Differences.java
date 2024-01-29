@@ -10,9 +10,9 @@ package com.powsybl.cgmes.conversion.test.network.compare;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public interface Differences {
+interface Differences {
 
     // Every time we use context we must be aware of possible current
     void current(Identifiable i);

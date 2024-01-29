@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 
@@ -15,17 +16,17 @@ import javax.xml.stream.XMLStreamWriter;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class DCConverterUnitEq {
 
     private static final String MONOPOLAR_GROUND_RETURN = "DCConverterOperatingModeKind.monopolarGroundReturn";
 
-    public static void write(String id, String dcConverterUnitName, String substationId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("DCConverterUnit", id, dcConverterUnitName, cimNamespace, writer);
+    public static void write(String id, String dcConverterUnitName, String substationId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("DCConverterUnit", id, dcConverterUnitName, cimNamespace, writer, context);
         writer.writeEmptyElement(cimNamespace, "DCConverterUnit.operationMode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + MONOPOLAR_GROUND_RETURN);
-        CgmesExportUtil.writeReference("DCConverterUnit.Substation", substationId, cimNamespace, writer);
+        CgmesExportUtil.writeReference("DCConverterUnit.Substation", substationId, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 

@@ -12,24 +12,24 @@ import java.util.Objects;
 import com.powsybl.dynamicsimulation.DynamicModel;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-public class DummyDynamicModel implements DynamicModel {
+class DummyDynamicModel implements DynamicModel {
 
     private final String id;
 
     private final String parameterSetId;
 
-    public DummyDynamicModel(String id, String parameterSetId) {
+    DummyDynamicModel(String id, String parameterSetId) {
         this.id = Objects.requireNonNull(id);
         this.parameterSetId = Objects.requireNonNull(parameterSetId);
     }
 
-    public String getId() {
+    String getId() {
         return id;
     }
 
-    public String getParameterSetId() {
+    String getParameterSetId() {
         return parameterSetId;
     }
 

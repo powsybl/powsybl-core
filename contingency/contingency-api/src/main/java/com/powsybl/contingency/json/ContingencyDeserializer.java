@@ -8,7 +8,6 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Supplier;
@@ -21,14 +20,13 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class ContingencyDeserializer extends StdDeserializer<Contingency> {
 
@@ -48,23 +46,16 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "id":
-                    id = parser.nextTextValue();
-                    break;
-
-                case "elements":
+                case "id" -> id = parser.nextTextValue();
+                case "elements" -> {
                     parser.nextToken();
-                    elements = parser.readValueAs(new TypeReference<ArrayList<ContingencyElement>>() {
-                    });
-                    break;
-
-                case "extensions":
+                    elements = JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
+                }
+                case "extensions" -> {
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

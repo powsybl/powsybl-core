@@ -7,14 +7,12 @@
 package com.powsybl.computation.local.test;
 
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.test.DockerTests;
 import com.powsybl.computation.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,38 +21,37 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-@Category(DockerTests.class)
-public class DockerLocalCommandExecutorTest {
+@Tag("dockerTests")
+class DockerLocalCommandExecutorTest {
 
     private static final String COMMAND_ID = "test";
     private static final String COMMAND_ID_2 = "test2";
 
-    @Rule
-    public final TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    Path localDir;
 
     private ComputationManager computationManager;
 
-    @Before
-    public void setup() throws IOException {
-        Path localDir = tempFolder.getRoot().toPath();
+    @BeforeEach
+    void setup() throws IOException {
         Path dockerDir = Path.of("/tmp");
         ComputationDockerConfig config = ComputationDockerConfig.load(PlatformConfig.defaultConfig());
         computationManager = new DockerLocalComputationManager(localDir, dockerDir, config);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         computationManager.close();
     }
 
     @Test
-    public void test() {
+    void test() {
         List<String> lines = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<List<String>>() {
             @Override
             public List<CommandExecution> before(Path workingDir) {
@@ -74,7 +71,7 @@ public class DockerLocalCommandExecutorTest {
     }
 
     @Test
-    public void testInputFile() {
+    void testInputFile() {
         List<String> lines = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<List<String>>() {
             @Override
             public List<CommandExecution> before(Path workingDir) throws IOException {
@@ -96,7 +93,7 @@ public class DockerLocalCommandExecutorTest {
     }
 
     @Test
-    public void testOutputFile() {
+    void testOutputFile() {
         Boolean exists = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Boolean>() {
             @Override
             public List<CommandExecution> before(Path workingDir) {
@@ -117,7 +114,7 @@ public class DockerLocalCommandExecutorTest {
     }
 
     @Test
-    public void testOutputDir() {
+    void testOutputDir() {
         Boolean exists = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Boolean>() {
             @Override
             public List<CommandExecution> before(Path workingDir) {
@@ -144,7 +141,7 @@ public class DockerLocalCommandExecutorTest {
     }
 
     @Test
-    public void testEnvVar() {
+    void testEnvVar() {
         ExecutionEnvironment env = ExecutionEnvironment.createDefault()
                 .setVariables(Map.of("FOO", "BAR"));
         List<String> lines = computationManager.execute(env, new AbstractExecutionHandler<List<String>>() {

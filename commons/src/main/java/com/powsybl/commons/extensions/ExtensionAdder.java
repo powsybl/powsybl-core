@@ -10,7 +10,7 @@ package com.powsybl.commons.extensions;
  * An ExtensionAdder is a builder for an extension that is built and then added
  * to an extendable.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 // Can't use "T extends Extendable<T>" here because T is used in Extendable::newExtensionAdder
 // to ensure that ExtensionAdder::T is the same as Extendable::O and Extendable doesn't declare

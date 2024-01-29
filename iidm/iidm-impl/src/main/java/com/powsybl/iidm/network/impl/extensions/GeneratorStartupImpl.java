@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class GeneratorStartupImpl extends AbstractExtension<Generator> implements GeneratorStartup {
 

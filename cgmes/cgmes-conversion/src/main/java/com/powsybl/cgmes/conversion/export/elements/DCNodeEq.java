@@ -6,19 +6,20 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class DCNodeEq {
 
-    public static void write(String id, String dcNodeName, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("DCNode", id, dcNodeName, cimNamespace, writer);
-        CgmesExportUtil.writeReference("DCNode.DCEquipmentContainer", dcEquipmentContainerId, cimNamespace, writer);
+    public static void write(String id, String dcNodeName, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("DCNode", id, dcNodeName, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("DCNode.DCEquipmentContainer", dcEquipmentContainerId, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 

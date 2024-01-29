@@ -15,12 +15,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public class DefaultContingencyList implements ContingencyList {
 
+    public static final String TYPE = "default";
     private final String name;
-
     private final List<Contingency> contingencies;
 
     public DefaultContingencyList(Contingency... contingencies) {
@@ -43,7 +43,7 @@ public class DefaultContingencyList implements ContingencyList {
 
     @Override
     public String getType() {
-        return "default";
+        return TYPE;
     }
 
     public List<Contingency> getContingencies() {

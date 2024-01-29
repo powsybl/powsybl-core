@@ -10,19 +10,20 @@ package com.powsybl.loadflow;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class LoadFlowTest {
+class LoadFlowTest {
 
     private static final String DEFAULT_PROVIDER_NAME = "LoadFlowMock";
 
@@ -30,8 +31,8 @@ public class LoadFlowTest {
 
     private ComputationManager computationManager;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         network = Mockito.mock(Network.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
@@ -40,7 +41,7 @@ public class LoadFlowTest {
     }
 
     @Test
-    public void testDefaultProvider() {
+    void testDefaultProvider() {
         // case with only one provider, no need for config
         LoadFlow.Runner defaultLoadFlow = LoadFlow.find();
         assertEquals(DEFAULT_PROVIDER_NAME, defaultLoadFlow.getName());
@@ -50,7 +51,7 @@ public class LoadFlowTest {
     }
 
     @Test
-    public void testAsyncNamedProvider() throws InterruptedException, ExecutionException {
+    void testAsyncNamedProvider() throws InterruptedException, ExecutionException {
         // named provider
         LoadFlow.Runner defaultLoadFlow = LoadFlow.find(DEFAULT_PROVIDER_NAME);
         CompletableFuture<LoadFlowResult> result = defaultLoadFlow.runAsync(network,

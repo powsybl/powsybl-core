@@ -16,7 +16,7 @@ import com.powsybl.iidm.modification.NetworkModification
 import static com.powsybl.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(DslModificationExtension.class)
 class ScriptDslModificationExtension implements DslModificationExtension {

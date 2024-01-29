@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 /**
  * A utility class to work with IIDM importers.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class Importers {
 
@@ -177,18 +177,5 @@ public final class Importers {
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
         importAll(dir, importer, parallel, consumer, null);
-    }
-
-    public static DataSource createDataSource(Path file) {
-        Objects.requireNonNull(file);
-        if (!Files.isRegularFile(file)) {
-            throw new PowsyblException("File " + file + " does not exist or is not a regular file");
-        }
-        Path absFile = file.toAbsolutePath();
-        return createDataSource(absFile.getParent(), absFile.getFileName().toString());
-    }
-
-    public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
-        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
     }
 }

@@ -11,7 +11,7 @@ package com.powsybl.math.matrix;
  *
  * @see SparseMatrix
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SparseMatrixFactory implements MatrixFactory {
 
@@ -26,8 +26,8 @@ public class SparseMatrixFactory implements MatrixFactory {
     }
 
     @Override
-    public SparseMatrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
-        SparseMatrix m = new SparseMatrix(rowCount, columnCount, estimatedNonZeroValueCount);
+    public SparseMatrix create(int rowCount, int columnCount, int estimatedValueCount) {
+        SparseMatrix m = new SparseMatrix(rowCount, columnCount, estimatedValueCount);
         m.setRgrowthThreshold(rgrowthThreshold);
         return m;
     }

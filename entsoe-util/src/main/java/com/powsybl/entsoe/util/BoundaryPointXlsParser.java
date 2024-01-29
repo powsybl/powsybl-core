@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class BoundaryPointXlsParser {
 
@@ -70,7 +70,7 @@ public class BoundaryPointXlsParser {
             case "Morocco": return Country.MA;
             case "Republic of Moldova": return Country.MD;
             case "Cyprus": return Country.CY;
-            default: throw new AssertionError(border);
+            default: throw new IllegalStateException(border);
         }
     }
 

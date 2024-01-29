@@ -12,18 +12,18 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.NetworkModification;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class BusTrippingTest {
+class BusTrippingTest {
 
     @Test
-    public void busTrippingTest() {
+    void busTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
         for (Terminal t : network.getBusBreakerView().getBus("NGEN").getConnectedTerminals()) {
             assertTrue(t.isConnected());

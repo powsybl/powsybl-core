@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(CalculatedTimeSeriesDslLoader.class)
 class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoader {
@@ -106,6 +106,12 @@ class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoad
         binding.ts = ts
         binding.time = { String str ->
             ZonedDateTime.parse(str).toInstant().toEpochMilli().toDouble()
+        }
+        binding.min = { NodeCalc leftNode, NodeCalc rightNode ->
+            new BinaryMinCalc(leftNode, rightNode)
+        }
+        binding.max = { NodeCalc leftNode, NodeCalc rightNode ->
+            new BinaryMaxCalc(leftNode, rightNode)
         }
     }
 

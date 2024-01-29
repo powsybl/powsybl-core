@@ -10,12 +10,12 @@ import com.powsybl.timeseries.ast.*;
 
 import java.util.HashMap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NodeCalcTooManyRecursionExceptionTest {
+class NodeCalcTooManyRecursionExceptionTest {
 
     private void runAllVisitors(NodeCalc root) {
         //Should not throw
@@ -27,7 +27,7 @@ public class NodeCalcTooManyRecursionExceptionTest {
     }
 
     @Test
-    public void testLeft() {
+    void testLeft() {
         NodeCalc node = new IntegerNodeCalc(0);
         for (int i = 0; i < 10000; i++) {
             node = BinaryOperation.plus(node, new IntegerNodeCalc(0));
@@ -36,7 +36,7 @@ public class NodeCalcTooManyRecursionExceptionTest {
     }
 
     @Test
-    public void testRight() {
+    void testRight() {
         NodeCalc node = new IntegerNodeCalc(0);
         for (int i = 0; i < 10000; i++) {
             node = BinaryOperation.plus(new IntegerNodeCalc(0), node);

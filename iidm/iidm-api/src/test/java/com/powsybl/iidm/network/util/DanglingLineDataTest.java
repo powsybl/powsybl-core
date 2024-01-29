@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,13 +16,13 @@ import com.powsybl.iidm.network.DanglingLine;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class DanglingLineDataTest {
+class DanglingLineDataTest {
 
     @Test
-    public void test() {
+    void test() {
         DanglingLine danglingLine = new DanglingLineTestData().getDanglingLine();
         DanglingLineData dlData = new DanglingLineData(danglingLine);
 
@@ -31,7 +31,7 @@ public class DanglingLineDataTest {
     }
 
     @Test
-    public void testP0Q0zero() {
+    void testP0Q0zero() {
         DanglingLineTestData dlTestData = new DanglingLineTestData();
         dlTestData.setP0Zero();
         dlTestData.setQ0Zero();

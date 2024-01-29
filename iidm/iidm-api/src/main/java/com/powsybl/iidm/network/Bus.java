@@ -15,7 +15,7 @@ import java.util.stream.Stream;
  * It could be a configured object ot a result of a computation depending of the
  * context.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Bus extends Identifiable<Bus> {
 
@@ -116,26 +116,8 @@ public interface Bus extends Identifiable<Bus> {
 
     /**
      * Get 2 windings transformer connected to the bus.
-     * @deprecated Use {@link #getTwoWindingsTransformers()} instead.
-     */
-    @Deprecated
-    default Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
-        return getTwoWindingsTransformers();
-    }
-
-    /**
-     * Get 2 windings transformer connected to the bus.
      */
     Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream();
-
-    /**
-     * Get 2 windings transformer connected to the bus.
-     * @deprecated Use {@link #getTwoWindingsTransformerStream()} instead.
-     */
-    @Deprecated
-    default Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
-        return getTwoWindingsTransformerStream();
-    }
 
     /**
      * Get 3 windings transformers connected to the bus.
@@ -144,26 +126,8 @@ public interface Bus extends Identifiable<Bus> {
 
     /**
      * Get 3 windings transformers connected to the bus.
-     * @deprecated Use {@link #getThreeWindingsTransformers()} instead.
-     */
-    @Deprecated
-    default Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
-        return getThreeWindingsTransformers();
-    }
-
-    /**
-     * Get 3 windings transformers connected to the bus.
      */
     Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream();
-
-    /**
-     * Get 3 windings transformers connected to the bus.
-     * @deprecated Use {@link #getThreeWindingsTransformerStream()} instead.
-     */
-    @Deprecated
-    default Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
-        return getThreeWindingsTransformerStream();
-    }
 
     /**
      * Get generators connected to the bus.
@@ -206,14 +170,28 @@ public interface Bus extends Identifiable<Bus> {
     Stream<ShuntCompensator> getShuntCompensatorStream();
 
     /**
-     * Get dangling lines connected to the bus.
+     * Get dangling lines connected to the bus based on given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
 
     /**
-     * Get dangling lines connected to the bus.
+     * Get all dangling lines connected to the bus.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLines(DanglingLineFilter.ALL);
+    }
+
+    /**
+     * Get dangling lines connected to the bus based on given filter.
+     */
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+
+     /**
+     * Get all dangling lines connected to the bus.
+     */
+    default Stream<DanglingLine> getDanglingLineStream() {
+        return getDanglingLineStream(DanglingLineFilter.ALL);
+    }
 
     /**
      * Get static VAR compensators connected to the bus.

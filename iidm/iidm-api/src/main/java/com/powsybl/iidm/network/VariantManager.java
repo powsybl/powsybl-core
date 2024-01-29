@@ -19,7 +19,7 @@ import java.util.List;
  * threads (be carefull to only write concurrently attributes flagged as dependent to variant in the Javadoc) and then
  * remove variants from main thread once work is over.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface VariantManager {
 
@@ -100,8 +100,8 @@ public interface VariantManager {
     void removeVariant(String variantId);
 
     /**
-     * Allows variants to be accessed simulaneously by different threads. When
-     * this options is activated, the working variant can have a different value
+     * Allows variants to be accessed simultaneously by different threads. When
+     * this option is activated, the working variant can have a different value
      * for each thread.
      * @param allow
      */

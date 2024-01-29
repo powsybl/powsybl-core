@@ -9,7 +9,7 @@ package com.powsybl.commons.plugins;
 import java.util.Objects;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
 public class PluginInfo<T> {
 

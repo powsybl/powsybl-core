@@ -15,7 +15,7 @@ import com.powsybl.contingency.Contingency;
 import java.io.IOException;
 
 /**
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class ContingencySerializer extends StdSerializer<Contingency> {
 
@@ -28,7 +28,7 @@ public class ContingencySerializer extends StdSerializer<Contingency> {
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField("id", contingency.getId());
-        jsonGenerator.writeObjectField("elements", contingency.getElements());
+        serializerProvider.defaultSerializeField("elements", contingency.getElements(), jsonGenerator);
 
         JsonUtil.writeExtensions(contingency, jsonGenerator, serializerProvider);
 

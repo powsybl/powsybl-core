@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class QueryCatalog extends HashMap<String, String> {
 
@@ -92,7 +92,9 @@ public class QueryCatalog extends HashMap<String, String> {
 
     private static String includedResource(String line) {
         int p = line.indexOf(INCLUDE);
-        assert p > 0;
+        if (p <= 0) {
+            throw new IllegalStateException("p should be > 0");
+        }
         return line.substring(p + INCLUDE.length()).trim();
     }
 
@@ -105,7 +107,9 @@ public class QueryCatalog extends HashMap<String, String> {
         void enterQuery(String line) {
             leaveQuery();
             int p = line.indexOf(QUERY_DEFINITION);
-            assert p > 0;
+            if (p <= 0) {
+                throw new IllegalStateException("p should be > 0");
+            }
             queryName = line.substring(p + QUERY_DEFINITION.length()).trim();
         }
 

@@ -6,17 +6,16 @@
  */
 package com.powsybl.math.matrix;
 
-import com.powsybl.commons.PowsyblException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class SparseMatrixTest extends AbstractMatrixTest {
+class SparseMatrixTest extends AbstractMatrixTest {
 
     private final MatrixFactory matrixFactory = new SparseMatrixFactory();
 
@@ -28,12 +27,12 @@ public class SparseMatrixTest extends AbstractMatrixTest {
     }
 
     @Override
-    public MatrixFactory getOtherMatrixFactory() {
+    protected MatrixFactory getOtherMatrixFactory() {
         return otherMatrixFactory;
     }
 
     @Test
-    public void testSparsePrint() throws IOException {
+    void testSparsePrint() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
                 "rowCount=3",
@@ -47,32 +46,32 @@ public class SparseMatrixTest extends AbstractMatrixTest {
         assertEquals(expected, print(a));
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testWrongColumnOrder() {
+    @Test
+    void testWrongColumnOrder() {
         Matrix a = matrixFactory.create(2, 2, 2);
         a.set(0, 0, 1d);
         a.set(1, 0, 1d);
         a.set(0, 1, 1d);
-        a.set(1, 0, 1d);
+        assertThrows(MatrixException.class, () -> a.set(1, 0, 1d));
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testWrongColumnOrderWithAdd() {
+    @Test
+    void testWrongColumnOrderWithAdd() {
         Matrix a = matrixFactory.create(2, 2, 2);
         a.add(0, 0, 1d);
         a.add(1, 0, 1d);
         a.add(0, 1, 1d);
-        a.add(1, 0, 1d);
+        assertThrows(MatrixException.class, () -> a.add(1, 0, 1d));
     }
 
     @Test
-    public void testInitSparseMatrixFromCpp() {
+    void testInitSparseMatrixFromCpp() {
         SparseMatrix m = new SparseMatrix(2, 5, new int[] {0, -1, 2, -1, 3, 4}, new int[] {0, 1, 0, 1}, new double[] {1d, 2d, 3d, 4d});
         assertArrayEquals(new int[] {2, 0, 1, 0, 1}, m.getColumnValueCount());
     }
 
     @Test
-    public void testRedecompose() {
+    void testRedecompose() {
         Matrix matrix = getMatrixFactory().create(2, 2, 2);
         matrix.set(0, 0, 3);
         matrix.set(1, 0, 4);
@@ -86,5 +85,32 @@ public class SparseMatrixTest extends AbstractMatrixTest {
             matrix.set(1, 1, 2);
             assertThrows(MatrixException.class, decomposition::update);
         }
+    }
+
+    @Test
+    void initFromArrayIssue() {
+        SparseMatrix a = new SparseMatrix(2, 2, 2);
+        a.add(0, 0, 1d);
+        a.add(1, 0, 1d);
+        a.add(0, 1, 1d);
+        try (LUDecomposition decomposition = a.decomposeLU()) {
+            double[] x = new double[] {1, 0};
+            decomposition.solve(x);
+            assertArrayEquals(new double[] {0, 1}, x);
+        }
+        SparseMatrix m = new SparseMatrix(a.getRowCount(), a.getColumnCount(), a.getColumnStart(), a.getRowIndices(), a.getValues());
+        try (LUDecomposition decomposition = m.decomposeLU()) {
+            double[] x = new double[] {1, 0};
+            decomposition.solve(x);
+            assertArrayEquals(new double[] {0, 1}, x);
+        }
+    }
+
+    @Test
+    void testFromArrayConstructorErrors() {
+        MatrixException e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1}, new int[]{0, 1}, new double[]{0.5, 0.3}));
+        assertEquals("columnStart array length has to be columnCount + 1", e.getMessage());
+        e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1, 1}, new int[]{0, 1, 1}, new double[]{0.5, 0.3}));
+        assertEquals("rowIndices and values arrays must have the same length", e.getMessage());
     }
 }

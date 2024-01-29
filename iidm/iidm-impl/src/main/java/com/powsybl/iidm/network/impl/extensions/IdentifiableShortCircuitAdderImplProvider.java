@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 
 
 /**
- * @author Coline Piloquet <coline.piloquet@rte-france.fr>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class IdentifiableShortCircuitAdderImplProvider<I extends Identifiable<I>>

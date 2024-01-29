@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class BusbarSectionContingency implements ContingencyElement {
 
@@ -44,8 +44,7 @@ public class BusbarSectionContingency implements ContingencyElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BusbarSectionContingency) {
-            BusbarSectionContingency other = (BusbarSectionContingency) obj;
+        if (obj instanceof BusbarSectionContingency other) {
             return busbarSectionId.equals(other.busbarSectionId);
         }
         return false;

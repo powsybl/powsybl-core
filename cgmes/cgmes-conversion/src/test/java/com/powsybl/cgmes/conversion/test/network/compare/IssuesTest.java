@@ -6,10 +6,10 @@
  */
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
@@ -19,12 +19,12 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class IssuesTest {
+class IssuesTest {
 
     @Test
-    public void testFixIdentifiablesEquivalentIfBothNull() {
+    void testFixIdentifiablesEquivalentIfBothNull() {
         Network n = createNetwork();
         Comparison c = new Comparison(n, n, new ComparisonConfig());
 

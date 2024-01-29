@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class GeneratorEntsoeCategoryAdderImplProvider

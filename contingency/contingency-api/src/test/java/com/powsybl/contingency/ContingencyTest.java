@@ -17,24 +17,24 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ContingencyTest {
+class ContingencyTest {
 
     @Test
-    public void test() {
+    void test() {
         Contingency contingency = Contingency.builder("contingency")
                 .addBranch("line")
                 .addGenerator("generator")
@@ -64,7 +64,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTest() {
+    void validationTest() {
         Network network = EurostagTutorialExample1Factory.create();
         Contingency generatorContingency = Contingency.builder("GEN contingency").addGenerator("GEN").build();
         Contingency generatorInvalidContingency = Contingency.builder("GEN invalid contingency").addGenerator("GE").build();
@@ -86,7 +86,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTestForShunt() {
+    void validationTestForShunt() {
         Network network = HvdcTestNetwork.createLcc();
         Contingency shuntCompensatorContingency = Contingency.builder("Shunt contingency").addShuntCompensator("C1_Filter1").build();
         Contingency shuntCompensatorInvalidContingency = Contingency.builder("Shunt invalid contingency").addShuntCompensator("C_Filter").build();
@@ -107,7 +107,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTestForSVC() {
+    void validationTestForSVC() {
         Network network = SvcTestCaseFactory.create();
         Contingency staticVarCompensatorContingency = Contingency.builder("SVC contingency").addStaticVarCompensator("SVC2").build();
         Contingency staticVarCompensatorInvalidContingency = Contingency.builder("SVC invalid contingency").addStaticVarCompensator("SVC").build();
@@ -127,7 +127,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTestForDL() {
+    void validationTestForDL() {
         Network network = DanglingLineNetworkFactory.create();
         Contingency danglingLineContingency = Contingency.builder("DL contingency").addDanglingLine("DL").build();
         Contingency danglingLineInvalidContingency = Contingency.builder("DL invalid contingency").addDanglingLine("DL_THAT_DO_NOT_EXIST").build();
@@ -147,7 +147,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void validationTestForTwt3() {
+    void validationTestForTwt3() {
         var network = ThreeWindingsTransformerNetworkFactory.create();
         var twt3Contingency = Contingency.builder("Twt3 contingency").addThreeWindingsTransformer("3WT").build();
         var invalidContingency = Contingency.builder("Twt3 invalid contingency").addThreeWindingsTransformer("3WT_THAT_DO_NOT_EXIST").build();
@@ -163,7 +163,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void testIdentifiableBuilder() {
+    void testIdentifiableBuilder() {
         Network network = EurostagTutorialExample1Factory.create();
         Contingency generatorContingency = Contingency.builder("GEN contingency").addIdentifiable("GEN", network).build();
         Contingency loadContingency = Contingency.builder("LOAD contingency").addIdentifiable("LOAD", network).build();
@@ -186,7 +186,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void testIdentifiableBuilderOtherProposition() {
+    void testIdentifiableBuilderOtherProposition() {
         Network network = EurostagTutorialExample1Factory.create();
         Identifiable<?> generator = network.getIdentifiable("GEN");
         Contingency generatorContingency = Contingency.builder("GEN contingency").addIdentifiable(generator).build();
@@ -215,7 +215,7 @@ public class ContingencyTest {
     }
 
     @Test
-    public void testNotValidIdentifiableBuilder() {
+    void testNotValidIdentifiableBuilder() {
         Network network = EurostagTutorialExample1Factory.create();
         ContingencyBuilder contingencyBuilder = Contingency.builder("Invalid contingency");
         PowsyblException exception = assertThrows(PowsyblException.class, () -> contingencyBuilder.addIdentifiable("Unknown", network));

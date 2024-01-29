@@ -9,19 +9,19 @@ package com.powsybl.ucte.network.ext;
 import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class UcteVoltageLevelTest {
+class UcteVoltageLevelTest {
 
     @Test
-    public void test() {
+    void test() {
         UcteNodeCode node = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.VL_380, '1');
         UcteSubstation substation = new UcteSubstation("SUBST", Collections.emptyList());
         UcteVoltageLevel vl = new UcteVoltageLevel("VL", substation, Collections.singletonList(node));

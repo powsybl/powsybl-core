@@ -61,8 +61,8 @@ import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {
@@ -241,8 +241,7 @@ public class SecurityAnalysisTool implements Tool {
                 .ifPresent(logBytes -> uncheckedWriteBytes(logBytes, logPath));
             return report;
         } catch (CompletionException e) {
-            if (e.getCause() instanceof ComputationException) {
-                ComputationException computationException = (ComputationException) e.getCause();
+            if (e.getCause() instanceof ComputationException computationException) {
                 byte[] bytes = computationException.toZipBytes();
                 uncheckedWriteBytes(bytes, logPath);
             }
@@ -253,7 +252,7 @@ public class SecurityAnalysisTool implements Tool {
     static Network readNetwork(CommandLine line, ToolRunningContext context, ImportersLoader importersLoader) throws IOException {
         ToolOptions options = new ToolOptions(line, context);
         Path caseFile = options.getPath(CASE_FILE_OPTION)
-            .orElseThrow(AssertionError::new);
+            .orElseThrow(IllegalStateException::new);
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams, importersLoader);
@@ -301,7 +300,7 @@ public class SecurityAnalysisTool implements Tool {
             .setParameters(parametersLoader.get());
 
         options.getPath(MONITORING_FILE).ifPresent(monitorFilePath -> executionInput.setMonitors(StateMonitor.read(monitorFilePath)));
-        options.getPath(STRATEGIES_FILE).ifPresent(operatorStrategyFilePath -> executionInput.setOperatorStrategies(OperatorStrategyList.readFile(operatorStrategyFilePath).getOperatorStrategies()));
+        options.getPath(STRATEGIES_FILE).ifPresent(operatorStrategyFilePath -> executionInput.setOperatorStrategies(OperatorStrategyList.read(operatorStrategyFilePath).getOperatorStrategies()));
         options.getPath(ACTIONS_FILE).ifPresent(actionFilePath -> executionInput.setActions(ActionList.readJsonFile(actionFilePath).getActions()));
 
         updateInput(options, executionInput);

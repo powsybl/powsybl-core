@@ -20,11 +20,11 @@ package com.powsybl.iidm.network;
  *        .add();
  *</pre>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see Substation
  * @see Network
  */
-public interface SubstationAdder extends IdentifiableAdder<SubstationAdder> {
+public interface SubstationAdder extends IdentifiableAdder<Substation, SubstationAdder> {
 
     SubstationAdder setCountry(Country country);
 
@@ -32,5 +32,6 @@ public interface SubstationAdder extends IdentifiableAdder<SubstationAdder> {
 
     SubstationAdder setGeographicalTags(String... tags);
 
+    @Override
     Substation add();
 }

@@ -13,7 +13,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectConversion {
 
@@ -50,24 +50,24 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
     }
 
     public String iidmName() {
-        return context.namingStrategy().getName(type, name);
+        return context.namingStrategy().getIidmName(type, name);
     }
 
     // Identification
 
-    public void identify(IdentifiableAdder<?> adder) {
+    public void identify(IdentifiableAdder<?, ?> adder) {
         identify(adder, iidmId(), iidmName());
     }
 
-    public void identify(IdentifiableAdder<?> adder, String duplicatedTag) {
+    public void identify(IdentifiableAdder<?, ?> adder, String duplicatedTag) {
         identify(adder, iidmId() + duplicatedTag, iidmName() + duplicatedTag);
     }
 
-    public void identify(IdentifiableAdder<?> adder, String id, String name) {
+    public void identify(IdentifiableAdder<?, ?> adder, String id, String name) {
         identify(context, adder, id, name);
     }
 
-    public static void identify(Context context, IdentifiableAdder<?> adder, String id, String name) {
+    public static void identify(Context context, IdentifiableAdder<?, ?> adder, String id, String name) {
         adder
                 .setId(id)
                 .setName(name)

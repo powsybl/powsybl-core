@@ -7,37 +7,17 @@
 package com.powsybl.iidm.network;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompensatorAdder> {
+public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompensator, StaticVarCompensatorAdder> {
 
     StaticVarCompensatorAdder setBmin(double bMin);
 
     StaticVarCompensatorAdder setBmax(double bMax);
 
-    default StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint) {
-        return setVoltageSetPoint(voltageSetpoint);
-    }
+    StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint);
 
-    /**
-     * @deprecated use {@link #setVoltageSetpoint(double voltageSetPoint)} instead.
-     */
-    @Deprecated
-    default StaticVarCompensatorAdder setVoltageSetPoint(double voltageSetPoint) {
-        return setVoltageSetpoint(voltageSetPoint);
-    }
-
-    default StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        return setReactivePowerSetPoint(reactivePowerSetpoint);
-    }
-
-    /**
-     * @deprecated use {@link #setReactivePowerSetpoint(double reactivePowerSetPoint)} instead.
-     */
-    @Deprecated
-    default StaticVarCompensatorAdder setReactivePowerSetPoint(double reactivePowerSetPoint) {
-        return setReactivePowerSetpoint(reactivePowerSetPoint);
-    }
+    StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode);
 
@@ -45,5 +25,6 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @Override
     StaticVarCompensator add();
 }

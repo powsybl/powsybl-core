@@ -8,43 +8,41 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Interval;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-public class MapModuleConfigTest {
+class MapModuleConfigTest {
 
     protected FileSystem fileSystem;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void emptyTest() {
+    void emptyTest() {
         // sonar issue
     }
 
@@ -151,8 +149,7 @@ public class MapModuleConfigTest {
         assertFalse(modConfig.getOptionalPathListProperty("pf3").isPresent());
 
         // time
-        assertEquals(DateTime.parse("2009-01-03T18:15:05Z"), modConfig.getDateTimeProperty("dt").withZone(DateTimeZone.UTC));
-        assertEquals(Interval.parse("2009-01-03T18:15:05Z/2009-01-09T02:54:25Z"), modConfig.getIntervalProperty("it"));
+        assertEquals(ZonedDateTime.parse("2009-01-03T18:15:05Z"), modConfig.getDateTimeProperty("dt"));
 
         assertTrue(modConfig.hasProperty("p"));
     }

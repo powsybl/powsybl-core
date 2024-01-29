@@ -11,11 +11,16 @@ import com.powsybl.iidm.network.ActivePowerLimits;
 import java.util.TreeMap;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ActivePowerLimitsImpl extends AbstractLoadingLimits<ActivePowerLimitsImpl> implements ActivePowerLimits {
 
-    ActivePowerLimitsImpl(OperationalLimitsOwner owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        super(owner, permanentLimit, temporaryLimits);
+    ActivePowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, temporaryLimits);
+    }
+
+    @Override
+    public void remove() {
+        group.removeActivePowerLimits();
     }
 }

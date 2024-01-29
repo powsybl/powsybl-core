@@ -24,7 +24,7 @@ import static java.util.Objects.requireNonNull;
  * will consist to a separate call to {@literal itools security-analysis} through the specified
  * {@link ComputationManager}.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class DistributedSecurityAnalysisExecution implements SecurityAnalysisExecution {
 

@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface Boundary {
 
@@ -32,32 +32,14 @@ public interface Boundary {
     double getQ();
 
     /**
-     * A Boundary could be associated with one side of a branch to determine P and Q.
-     * Get the branch side the boundary refers to.
+     * Get the danglingLine the boundary is associated to.
      */
-    default Branch.Side getSide() {
-        return null;
-    }
-
-    /**
-     * Get the equipment the boundary is associated to.
-     */
-    default Connectable getConnectable() {
-        return null;
-    }
+    DanglingLine getDanglingLine();
 
     /**
      * Get the voltage level at network side.
      */
     default VoltageLevel getNetworkSideVoltageLevel() {
-        Connectable<?> c = getConnectable();
-        if (c == null) {
-            throw new AssertionError("Missing parent connectable");
-        } else if (c instanceof Injection) {
-            return ((Injection) c).getTerminal().getVoltageLevel();
-        } else if (c instanceof Branch) {
-            return ((Branch) c).getTerminal(getSide()).getVoltageLevel();
-        }
-        throw new AssertionError("Unexpected parent connectable: " + c.getId());
+        return getDanglingLine().getTerminal().getVoltageLevel();
     }
 }

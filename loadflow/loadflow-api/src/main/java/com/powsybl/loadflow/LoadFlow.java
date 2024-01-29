@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
  * LoadFlow main API. It is a utility class (so with only static methods) used as an entry point for running
  * a loadflow allowing to choose either a specific find implementation or just to rely on default one.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class LoadFlow {
 
@@ -45,9 +45,7 @@ public final class LoadFlow {
             Objects.requireNonNull(workingStateId);
             Objects.requireNonNull(parameters);
             Objects.requireNonNull(reporter);
-            return reporter == Reporter.NO_OP
-                ? provider.run(network, computationManager, workingStateId, parameters)
-                : provider.run(network, computationManager, workingStateId, parameters, reporter);
+            return provider.run(network, computationManager, workingStateId, parameters, reporter);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
@@ -70,9 +68,7 @@ public final class LoadFlow {
             Objects.requireNonNull(workingStateId);
             Objects.requireNonNull(parameters);
             Objects.requireNonNull(reporter);
-            return reporter == Reporter.NO_OP
-                ? provider.run(network, computationManager, workingStateId, parameters).join()
-                : provider.run(network, computationManager, workingStateId, parameters, reporter).join();
+            return provider.run(network, computationManager, workingStateId, parameters, reporter).join();
         }
 
         public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
@@ -143,6 +139,10 @@ public final class LoadFlow {
 
     public static CompletableFuture<LoadFlowResult> runAsync(Network network) {
         return find().runAsync(network);
+    }
+
+    public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, Reporter reporter) {
+        return find().run(network, workingStateId, computationManager, parameters, reporter);
     }
 
     public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {

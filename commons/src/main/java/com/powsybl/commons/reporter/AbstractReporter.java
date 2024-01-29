@@ -15,7 +15,7 @@ import java.util.Objects;
 
 /**
  * An abstract class providing some default method implementations for {@link Reporter} implementations.
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public abstract class AbstractReporter implements Reporter {
 
@@ -23,7 +23,7 @@ public abstract class AbstractReporter implements Reporter {
     protected final String defaultName;
     protected final Map<String, TypedValue> taskValues;
 
-    public AbstractReporter(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
+    protected AbstractReporter(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
         this.taskKey = Objects.requireNonNull(taskKey);
         this.defaultName = defaultName;
         this.taskValues = new HashMap<>();

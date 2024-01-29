@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 
 /**
- * @author Thomas ADAM <tadam at silicom.fr>
+ * @author Thomas ADAM {@literal <tadam at silicom.fr>}
  */
 public class CoordinatedReactiveControlAdderImpl
         extends AbstractExtensionAdder<Generator, CoordinatedReactiveControl>

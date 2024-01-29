@@ -6,19 +6,20 @@
  */
 package com.powsybl.commons.datasource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ZipFileDataSourceTest extends AbstractDataSourceTest {
+class ZipFileDataSourceTest extends AbstractDataSourceTest {
 
     private static final String WORK_DIR = "/work/";
     private static final String MAIN_EXT = "xml";
@@ -42,13 +43,13 @@ public class ZipFileDataSourceTest extends AbstractDataSourceTest {
     }
 
     @Test
-    public void fakeZipTest() throws IOException {
+    void fakeZipTest() throws IOException {
         Files.createFile(testDir.resolve("fake.zip"));
         assertFalse(new ZipFileDataSource(testDir, "fake").exists("e"));
     }
 
     @Test
-    public void createZipDataSourceWithMoreThanOneDot() throws IOException {
+    void createZipDataSourceWithMoreThanOneDot() throws IOException {
         try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(ZIP_PATH)));) {
             // create an entry
             ZipEntry e = new ZipEntry(UNRELATED_FILE);
@@ -76,7 +77,9 @@ public class ZipFileDataSourceTest extends AbstractDataSourceTest {
         assertTrue(dataSource.exists(null, MAIN_EXT));
         assertTrue(dataSource.exists(ADDITIONAL_SUFFIX, ADDITIONAL_EXT));
         assertFalse(dataSource.exists("-not", "there"));
-        assertEquals("Test String", new String(dataSource.newInputStream(UNRELATED_FILE).readAllBytes()));
+        try (InputStream is = dataSource.newInputStream(UNRELATED_FILE)) {
+            assertEquals("Test String", new String(is.readAllBytes()));
+        }
     }
 
 }

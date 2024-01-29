@@ -10,14 +10,14 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Damien Jeandemange <damien.jeandemange at artelys.com>
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class ComponentsTest {
+class ComponentsTest {
 
     /**
      *
@@ -32,7 +32,7 @@ public class ComponentsTest {
      */
 
     @Test
-    public void dcLineConnected() {
+    void dcLineConnected() {
         final var network = createSmallDcNetwork();
         final var connectedComponents = network.getBusView().getConnectedComponents();
         final var synchronousComponents = network.getBusView().getSynchronousComponents();
@@ -46,7 +46,7 @@ public class ComponentsTest {
     }
 
     @Test
-    public void dcLineDisconnected() {
+    void dcLineDisconnected() {
         final var network = createSmallDcNetwork();
         network.getLccConverterStation("Lcc1").getTerminal().disconnect();
         network.getLccConverterStation("Lcc2").getTerminal().disconnect();

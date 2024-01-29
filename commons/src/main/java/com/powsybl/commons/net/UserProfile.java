@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UserProfile {
 
@@ -43,8 +43,7 @@ public class UserProfile {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UserProfile) {
-            UserProfile profile = (UserProfile) obj;
+        if (obj instanceof UserProfile profile) {
             return profile.firstName.equals(firstName) && profile.lastName.equals(lastName);
         }
         return false;

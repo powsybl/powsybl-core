@@ -8,8 +8,8 @@
 package com.powsybl.contingency;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public enum ContingencyElementType {
     GENERATOR,
@@ -25,5 +25,6 @@ public enum ContingencyElementType {
     LOAD,
     SWITCH,
     BATTERY,
-    BUS
+    BUS,
+    TIE_LINE
 }

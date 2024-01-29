@@ -6,46 +6,39 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
-import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.powerfactory.model.StudyCase;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
-import org.joda.time.DateTime;
-import org.junit.Test;
+import com.powsybl.powerfactory.model.StudyCase;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
-import static org.junit.Assert.*;
+import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class PowerFactoryImporterTest extends AbstractConverterTest {
+class PowerFactoryImporterTest extends AbstractSerDeTest {
 
     @Test
-    public void testBase() {
+    void testBase() {
         PowerFactoryImporter importer = new PowerFactoryImporter();
         assertEquals("POWER-FACTORY", importer.getFormat());
         assertTrue(importer.getParameters().isEmpty());
@@ -53,7 +46,7 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExistsAndCopy() throws IOException {
+    void testExistsAndCopy() throws IOException {
         InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/ieee14.dgs"));
         Path dgsFile = fileSystem.getPath("/work/ieee14.dgs");
         Files.copy(is, dgsFile);
@@ -85,10 +78,10 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
                         null);
 
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
-        network.setCaseDate(DateTime.parse("2021-01-01T10:00:00.000+02:00"));
-        NetworkXml.write(network, file);
+        network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
+        NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
+            compareXml(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -97,173 +90,183 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void ieee14Test() {
+    void ieee14Test() {
         assertTrue(importAndCompareXiidm("ieee14"));
     }
 
     @Test
-    public void twoBusesLineWithBTest() {
+    void twoBusesLineWithBTest() {
         assertTrue(importAndCompareXiidm("TwoBusesLineWithB"));
     }
 
     @Test
-    public void twoBusesLineWithGandBTest() {
+    void twoBusesLineWithGandBTest() {
         assertTrue(importAndCompareXiidm("TwoBusesLineWithGandB"));
     }
 
     @Test
-    public void twoBusesLineWithTandBTest() {
+    void twoBusesLineWithTandBTest() {
         assertTrue(importAndCompareXiidm("TwoBusesLineWithTandB"));
     }
 
     @Test
-    public void twoBusesLineWithCTest() {
+    void twoBusesLineWithCTest() {
         assertTrue(importAndCompareXiidm("TwoBusesLineWithC"));
     }
 
     @Test
-    public void twoBusesLineWithNumberOfParallelLines() {
+    void twoBusesLineWithNumberOfParallelLines() {
         assertTrue(importAndCompareXiidm("TwoBusesLineWithNumberOfParallelLines"));
     }
 
     @Test
-    public void twoBusesGeneratorTest() {
+    void twoBusesGeneratorTest() {
         assertTrue(importAndCompareXiidm("TwoBusesGenerator"));
     }
 
     @Test
-    public void twoBusesGeneratorWithoutIvmodeTest() {
+    void twoBusesGeneratorWithoutIvmodeTest() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorWithoutIvmode"));
     }
 
     @Test
-    public void twoBusesGeneratorAvmodeTest() {
+    void twoBusesGeneratorAvmodeTest() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorAvmode"));
     }
 
     @Test
-    public void twoBusesGeneratorWithoutActiveLimitsTest() {
+    void twoBusesGeneratorWithoutActiveLimitsTest() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorWithoutActiveLimits"));
     }
 
     @Test
-    public void twoBusesGeneratorIqtypeTest() {
+    void twoBusesGeneratorIqtypeTest() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorIqtype"));
     }
 
     @Test
-    public void twoBusesGeneratorWithoutIqtypeTest() {
+    void twoBusesGeneratorWithoutIqtypeTest() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorWithoutIqtype"));
     }
 
     @Test
-    public void twoBusesGeneratorElmReactiveLimits() {
+    void twoBusesGeneratorElmReactiveLimits() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorElmReactiveLimits"));
     }
 
     @Test
-    public void twoBusesGeneratorTypReactiveLimits() {
+    void twoBusesGeneratorTypReactiveLimits() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorTypReactiveLimits"));
     }
 
     @Test
-    public void twoBusesGeneratorTypMvarReactiveLimits() {
+    void twoBusesGeneratorTypMvarReactiveLimits() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorTypMvarReactiveLimits"));
     }
 
     @Test
-    public void switches() {
+    void switches() {
         assertTrue(importAndCompareXiidm("Switches"));
     }
 
     @Test
-    public void switchesNegativeVoltage() {
+    void switchesNegativeVoltage() {
         assertTrue(importAndCompareXiidm("Switches-negative-voltage"));
     }
 
     @Test
-    public void switchesMissingVoltage() {
+    void switchesMissingVoltage() {
         assertTrue(importAndCompareXiidm("Switches-missing-voltage"));
     }
 
     @Test
-    public void switchesMissingAngle() {
+    void switchesMissingAngle() {
         assertTrue(importAndCompareXiidm("Switches-missing-angle"));
     }
 
     @Test
-    public void switchesWithoutBus() {
+    void switchesWithoutBus() {
         assertTrue(importAndCompareXiidm("Switches-without-bus"));
     }
 
     @Test
-    public void transformerPhaseGBComplete() {
+    void transformerPhaseGBComplete() {
         assertTrue(importJsonAndCompareXiidm("Transformer-Phase-GB-complete"));
     }
 
     @Test
-    public void threeMibPhaseWinding1Complete() {
+    void threeMibPhaseWinding1Complete() {
         assertTrue(importJsonAndCompareXiidm("ThreeMIB_T3W_phase_winding1_complete"));
     }
 
     @Test
-    public void commonImpedance() {
+    void commonImpedance() {
         assertTrue(importAndCompareXiidm("CommonImpedance"));
     }
 
     @Test
-    public void commonImpedanceOnlyImpedance12() {
+    void commonImpedanceOnlyImpedance12() {
         assertTrue(importAndCompareXiidm("CommonImpedanceOnlyImpedance12"));
     }
 
     @Test
-    public void commonImpedanceWithDifferentNominal() {
+    void commonImpedanceWithDifferentNominal() {
         assertTrue(importAndCompareXiidm("CommonImpedanceWithDifferentNominal"));
     }
 
     @Test
-    public void twoBusesGeneratorAndShuntRL() {
+    void twoBusesGeneratorAndShuntRL() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntRL"));
     }
 
     @Test
-    public void twoBusesGeneratorAndShuntRLrxrea() {
+    void twoBusesGeneratorAndShuntRLrxrea() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntRLrxrea"));
     }
 
     @Test
-    public void twoBusesGeneratorAndShuntC() {
+    void twoBusesGeneratorAndShuntC() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntC"));
     }
 
     @Test
-    public void tower() {
+    void tower() {
         assertTrue(importAndCompareXiidm("Tower"));
     }
 
     @Test
-    public void voltageLevelsAndSubstations() {
+    void voltageLevelsAndSubstations() {
         assertTrue(importAndCompareXiidm("VoltageLevelsAndSubstations"));
     }
 
     @Test
-    public void hvdc() {
+    void hvdc() {
         assertTrue(importAndCompareXiidm("Hvdc"));
     }
 
     @Test
-    public void capabilityCurve() {
+    void capabilityCurve() {
         assertTrue(importAndCompareXiidm("CapabilityCurve"));
     }
 
     @Test
-    public void transformersWithPhaseAngleClock() {
+    void transformersWithPhaseAngleClock() {
         assertTrue(importAndCompareXiidm("TransformersWithPhaseAngleClock"));
     }
 
     @Test
-    public void threeWindingsTransformerWinding1Ratio() {
+    void threeWindingsTransformerWinding1Ratio() {
         assertTrue(importAndCompareXiidm("ThreeWindingsTransformerWinding1Ratio"));
+    }
+
+    @Test
+    void slackBustp() {
+        assertTrue(importAndCompareXiidm("Slack_bustp"));
+    }
+
+    @Test
+    void slackIpctrl() {
+        assertTrue(importAndCompareXiidm("Slack_ip_ctrl"));
     }
 
     private boolean importAndCompareXiidm(String powerfactoryCase) {
@@ -277,52 +280,52 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void transformerVhVl() {
+    void transformerVhVl() {
         assertTrue(transformerBalance("Transformer-VhVl", 0.00009));
     }
 
     @Test
-    public void transformerVhVlNonNeutral() {
+    void transformerVhVlNonNeutral() {
         assertTrue(transformerBalance("Transformer-VhVl-Non-Neutral", 0.0001));
     }
 
     @Test
-    public void transformerVhVlGB() {
+    void transformerVhVlGB() {
         assertTrue(transformerBalance("Transformer-VhVl-GB", 0.09));
     }
 
     @Test
-    public void transformerVhVlGBNonNeutral() {
+    void transformerVhVlGBNonNeutral() {
         assertTrue(transformerBalance("Transformer-VhVl-GB-Non-Neutral", 0.09));
     }
 
     @Test
-    public void transformerVhVlGBNonNeutralProportion() {
+    void transformerVhVlGBNonNeutralProportion() {
         assertTrue(transformerBalance("Transformer-VhVl-GB-Non-Neutral-proportion", 0.000025));
     }
 
     @Test
-    public void transformerVlVh() {
+    void transformerVlVh() {
         assertTrue(transformerBalance("Transformer-VlVh", 0.0009));
     }
 
     @Test
-    public void transformerVlVhNonNeutral() {
+    void transformerVlVhNonNeutral() {
         assertTrue(transformerBalance("Transformer-VlVh-Non-Neutral", 0.0003));
     }
 
     @Test
-    public void transformerVlVhGB() {
+    void transformerVlVhGB() {
         assertTrue(transformerBalance("Transformer-VlVh-GB", 0.09));
     }
 
     @Test
-    public void transformerVlVhGBNonNeutral() {
+    void transformerVlVhGBNonNeutral() {
         assertTrue(transformerBalance("Transformer-VlVh-GB-Non-Neutral", 0.09));
     }
 
     @Test
-    public void transformerVlVhGBNonNeutralProportion() {
+    void transformerVlVhGBNonNeutralProportion() {
         assertTrue(transformerBalance("Transformer-VlVh-GB-Non-Neutral-proportion", 0.0003));
     }
 
@@ -356,42 +359,42 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void transformerPhase() {
+    void transformerPhase() {
         assertTrue(phaseShifterBalance("Transformer-Phase", 0.001));
     }
 
     @Test
-    public void transformerPhaseWithmTaps() {
+    void transformerPhaseWithmTaps() {
         assertTrue(phaseShifterBalance("Transformer-Phase-with-mTaps", 0.001));
     }
 
     @Test
-    public void transformerPhaseNeutral() {
+    void transformerPhaseNeutral() {
         assertTrue(phaseShifterBalance("Transformer-Phase-Neutral", 0.0009));
     }
 
     @Test
-    public void transformerPhaseNeutralWithmTaps() {
+    void transformerPhaseNeutralWithmTaps() {
         assertTrue(phaseShifterBalance("Transformer-Phase-Neutral-with-mTaps", 0.0009));
     }
 
     @Test
-    public void transformerPhaseGB() {
+    void transformerPhaseGB() {
         assertTrue(phaseShifterBalance("Transformer-Phase-GB", 0.9));
     }
 
     @Test
-    public void transformerPhaseGBWithmTaps() {
+    void transformerPhaseGBWithmTaps() {
         assertTrue(phaseShifterBalance("Transformer-Phase-GB-with-mTaps", 0.9));
     }
 
     @Test
-    public void transformerPhaseGBNeutral() {
+    void transformerPhaseGBNeutral() {
         assertTrue(phaseShifterBalance("Transformer-Phase-GB-Neutral", 0.9));
     }
 
     @Test
-    public void transformerPhaseGBNeutralWithmTaps() {
+    void transformerPhaseGBNeutralWithmTaps() {
         assertTrue(phaseShifterBalance("Transformer-Phase-GB-Neutral-with-mTaps", 0.9));
     }
 
@@ -428,7 +431,7 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void threeMibT3wPhaseTest() {
+    void threeMibT3wPhaseTest() {
         Network network = importAndCompareXml("ThreeMIB_T3W_phase_solved");
         threeMibT3wPhaseTestNetworkBalance(network, 435.876560, 0.09);
         assertTrue(true);
@@ -463,36 +466,36 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         // The case does not have the reactive of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
-        assertEquals(0.0, t3wtData427.getComputedP(Side.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.TWO) - generator2.getTargetP(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.TWO) - generator2.getTargetQ(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.THREE) + load7.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.THREE) + load7.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.TWO) - generator2.getTargetP(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.THREE) + load7.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.THREE) + load7.getQ0(), tol);
     }
 
     @Test
-    public void threeMibPhaseWinding1() {
+    void threeMibPhaseWinding1() {
         assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding1", 514.75293551, 0.09));
     }
 
     @Test
-    public void threeMibPhaseWinding1Ratio() {
+    void threeMibPhaseWinding1Ratio() {
         assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding1_ratio", 591.898015, 0.09));
     }
 
     @Test
-    public void threeMibPhaseWinding2() {
+    void threeMibPhaseWinding2() {
         assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding2", 658.367984, 0.09));
     }
 
     @Test
-    public void threeMibPhaseWinding3() {
+    void threeMibPhaseWinding3() {
         assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding3", 596.52371, 0.09));
     }
 
     @Test
-    public void threeMibPhaseWinding12() {
+    void threeMibPhaseWinding12() {
         assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding12", 575.835158, 0.09));
     }
 
@@ -537,12 +540,12 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         // The case does not have the reactive of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
-        assertEquals(0.0, t3wtData427.getComputedP(Side.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.TWO) + t2wtData62.getComputedP2() - generator2.getTargetP(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.TWO) + t2wtData62.getComputedQ2() - generator2.getTargetQ(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.THREE) + t2wtData57.getComputedP2() + load7.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.THREE) + t2wtData57.getComputedQ2() + load7.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.TWO) + t2wtData62.getComputedP2() - generator2.getTargetP(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) + t2wtData62.getComputedQ2() - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.THREE) + t2wtData57.getComputedP2() + load7.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.THREE) + t2wtData57.getComputedQ2() + load7.getQ0(), tol);
     }
 
 }

@@ -12,24 +12,20 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public abstract class AbstractThreeWindingsTransformerPhaseAngleClockTest {
 
     private ThreeWindingsTransformer transformer;
 
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         transformer = network.getThreeWindingsTransformer("3WT");
@@ -53,29 +49,25 @@ public abstract class AbstractThreeWindingsTransformerPhaseAngleClockTest {
 
     @Test
     public void testError1Leg2() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Unexpected value for phaseAngleClock: 12");
-        transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(12).withPhaseAngleClockLeg3(1).add();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(12).withPhaseAngleClockLeg3(1).add());
+        assertEquals("Unexpected value for phaseAngleClock: 12", e.getMessage());
     }
 
     @Test
     public void testError1Leg3() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Unexpected value for phaseAngleClock: 12");
-        transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(1).withPhaseAngleClockLeg3(12).add();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(1).withPhaseAngleClockLeg3(12).add());
+        assertEquals("Unexpected value for phaseAngleClock: 12", e.getMessage());
     }
 
     @Test
     public void testError2Leg2() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Unexpected value for phaseAngleClock: -1");
-        transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(-1).withPhaseAngleClockLeg3(0).add();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(-1).withPhaseAngleClockLeg3(0).add());
+        assertEquals("Unexpected value for phaseAngleClock: -1", e.getMessage());
     }
 
     @Test
     public void testError2Leg3() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Unexpected value for phaseAngleClock: -1");
-        transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(0).withPhaseAngleClockLeg3(-1).add();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(0).withPhaseAngleClockLeg3(-1).add());
+        assertEquals("Unexpected value for phaseAngleClock: -1", e.getMessage());
     }
 }

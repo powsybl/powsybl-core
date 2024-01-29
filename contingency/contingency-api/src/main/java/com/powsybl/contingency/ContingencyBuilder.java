@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public class ContingencyBuilder {
 
@@ -120,6 +120,16 @@ public class ContingencyBuilder {
 
     public ContingencyBuilder addBus(String id) {
         elements.add(new BusContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addTieLine(String id) {
+        elements.add(new TieLineContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addTieLine(String id, String voltageLevelId) {
+        elements.add(new TieLineContingency(id, voltageLevelId));
         return this;
     }
 

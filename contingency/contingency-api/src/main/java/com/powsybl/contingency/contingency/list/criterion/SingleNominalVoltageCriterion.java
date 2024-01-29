@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Objects;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class SingleNominalVoltageCriterion implements Criterion {
 
@@ -52,8 +52,8 @@ public class SingleNominalVoltageCriterion implements Criterion {
         if (voltageLevel == null) {
             return false;
         }
-        double injectionNomialVoltage = voltageLevel.getNominalV();
-        return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(injectionNomialVoltage);
+        double injectionNominalVoltage = voltageLevel.getNominalV();
+        return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(injectionNominalVoltage);
     }
 
     public VoltageInterval getVoltageInterval() {

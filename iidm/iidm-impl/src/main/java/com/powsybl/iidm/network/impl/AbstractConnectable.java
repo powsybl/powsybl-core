@@ -7,25 +7,29 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static com.powsybl.iidm.network.TopologyKind.BUS_BREAKER;
+import static com.powsybl.iidm.network.TopologyKind.NODE_BREAKER;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, MultiVariantObject {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
     private final Ref<NetworkImpl> networkRef;
-    private boolean removed = false;
+    protected boolean removed = false;
 
     AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
         super(id, name, fictitious);
@@ -39,6 +43,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     public List<TerminalExt> getTerminals() {
         return terminals;
+    }
+
+    @Override
+    public NetworkExt getParentNetwork() {
+        // the parent network is the network that contains all terminals of the connectable.
+        List<NetworkExt> subnetworks = terminals.stream().map(t -> t.getVoltageLevel().getParentNetwork()).distinct().toList();
+        if (subnetworks.size() == 1) {
+            return subnetworks.get(0);
+        }
+        return getNetwork();
     }
 
     @Override
@@ -57,6 +71,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
         network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
+            terminal.removeAsRegulationPoint();
             VoltageLevelExt vl = terminal.getVoltageLevel();
             vl.detach(terminal);
         }
@@ -118,14 +133,14 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
     }
 
-    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, int node, String voltageLevelId) {
+    protected void move(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, int node, String voltageLevelId) {
         VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             throw new PowsyblException("Voltage level '" + voltageLevelId + "' not found");
         }
 
         // check bus topology
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+        if (voltageLevel.getTopologyKind() != NODE_BREAKER) {
             String msg = String.format(
                     "Trying to move connectable %s to node %d of voltage level %s, which is a bus breaker voltage level",
                     getId(), node, voltageLevel.getId());
@@ -133,15 +148,15 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the given voltage level and to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(voltageLevel.getNetworkRef(), this, oldTerminal.getSide())
                 .setNode(node)
                 .build();
 
         // detach the terminal from its previous voltage level
-        attachTerminal(oldTerminal, oldConnectionInfo, voltageLevel, terminalExt);
+        attachTerminal(oldTerminal, oldTopologyPoint, voltageLevel, terminalExt);
     }
 
-    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, String busId, boolean connected) {
+    protected void move(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, String busId, boolean connected) {
         Bus bus = getNetwork().getBusBreakerView().getBus(busId);
         if (bus == null) {
             throw new PowsyblException("Bus '" + busId + "' not found");
@@ -155,16 +170,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(((VoltageLevelExt) bus.getVoltageLevel()).getNetworkRef(), this, oldTerminal.getSide())
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build();
 
         // detach the terminal from its previous voltage level
-        attachTerminal(oldTerminal, oldConnectionInfo, (VoltageLevelExt) bus.getVoltageLevel(), terminalExt);
+        attachTerminal(oldTerminal, oldTopologyPoint, (VoltageLevelExt) bus.getVoltageLevel(), terminalExt);
     }
 
-    private void attachTerminal(TerminalExt oldTerminal, String oldConnectionInfo, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
+    private void attachTerminal(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
         // first, attach new terminal to connectable and to voltage level of destination, to ensure that the new terminal is valid
         terminalExt.setConnectable(this);
         voltageLevel.attach(terminalExt, false);
@@ -176,6 +191,128 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         int iSide = terminals.indexOf(oldTerminal);
         terminals.set(iSide, terminalExt);
 
-        notifyUpdate("terminal" + (iSide + 1), oldConnectionInfo, terminalExt.getConnectionInfo());
+        notifyUpdate("terminal" + (iSide + 1), oldTopologyPoint, terminalExt.getTopologyPoint());
+    }
+
+    @Override
+    public boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        // Reporter
+        Reporter reporter = this.getNetwork().getReporterContext().getReporter();
+
+        // Booleans
+        boolean isAlreadyConnected = true;
+        boolean isNowConnected = true;
+
+        // Initialisation of a list to open in case some terminals are in node-breaker view
+        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+
+        // We try to connect each terminal
+        for (TerminalExt terminal : getTerminals()) {
+            // Check if the terminal is already connected
+            if (terminal.isConnected()) {
+                reporter.report(Report.builder()
+                    .withKey("alreadyConnectedTerminal")
+                    .withDefaultMessage("A terminal of connectable ${connectable} is already connected.")
+                    .withValue("connectable", this.getId())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
+                continue;
+            } else {
+                isAlreadyConnected = false;
+            }
+
+            // If it's a node-breaker terminal, the switches to connect are added to a set
+            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel) {
+                isNowConnected = nodeBreakerVoltageLevel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection);
+            }
+            // If it's a bus-breaker terminal, there is nothing to do
+
+            // Exit if the terminal cannot be connected
+            if (!isNowConnected) {
+                return false;
+            }
+        }
+
+        // Exit if the connectable is already fully connected
+        if (isAlreadyConnected) {
+            return false;
+        }
+
+        // Connect all bus-breaker terminals
+        for (TerminalExt terminal : getTerminals()) {
+            if (!terminal.isConnected()
+                && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
+                // At this point, isNowConnected should always stay true but let's be careful
+                isNowConnected = isNowConnected && terminal.connect(isTypeSwitchToOperate);
+            }
+        }
+
+        // Disconnect all switches on node-breaker terminals
+        switchForDisconnection.forEach(sw -> sw.setOpen(false));
+        return isNowConnected;
+    }
+
+    @Override
+    public boolean disconnect() {
+        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        // Reporter
+        Reporter reporter = this.getNetwork().getReporterContext().getReporter();
+
+        // Booleans
+        boolean isAlreadyDisconnected = true;
+        boolean isNowDisconnected = true;
+
+        // Initialisation of a list to open in case some terminals are in node-breaker view
+        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+
+        // We try to disconnect each terminal
+        for (TerminalExt terminal : getTerminals()) {
+            // Check if the terminal is already disconnected
+            if (!terminal.isConnected()) {
+                reporter.report(Report.builder()
+                    .withKey("alreadyDisconnectedTerminal")
+                    .withDefaultMessage("A terminal of connectable ${connectable} is already disconnected.")
+                    .withValue("connectable", this.getId())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
+                continue;
+            }
+            // The terminal is connected
+            isAlreadyDisconnected = false;
+
+            // If it's a node-breaker terminal, the switches to disconnect are added to a set
+            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel
+                && !nodeBreakerVoltageLevel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection)) {
+                // Exit if the terminal cannot be disconnected
+                return false;
+            }
+            // If it's a bus-breaker terminal, there is nothing to do
+        }
+
+        // Exit if the connectable is already fully disconnected
+        if (isAlreadyDisconnected) {
+            return false;
+        }
+
+        // Disconnect all bus-breaker terminals
+        for (TerminalExt terminal : getTerminals()) {
+            if (terminal.isConnected()
+                && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
+                // At this point, isNowDisconnected should always stay true but let's be careful
+                isNowDisconnected = isNowDisconnected && terminal.disconnect(isSwitchOpenable);
+            }
+        }
+        // Disconnect all switches on node-breaker terminals
+        switchForDisconnection.forEach(sw -> sw.setOpen(true));
+        return isNowDisconnected;
     }
 }

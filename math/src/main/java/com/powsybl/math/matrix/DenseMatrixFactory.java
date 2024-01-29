@@ -11,12 +11,12 @@ package com.powsybl.math.matrix;
  *
  * @see DenseMatrix
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DenseMatrixFactory implements MatrixFactory {
 
     @Override
-    public DenseMatrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
+    public DenseMatrix create(int rowCount, int columnCount, int estimatedValueCount) {
         return new DenseMatrix(rowCount, columnCount);
     }
 }

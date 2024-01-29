@@ -8,21 +8,23 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class IdentifierContingencyListDeserializer extends StdDeserializer<IdentifierContingencyList> {
+
+    private static final String CONTEXT_NAME = "identifierContingencyList";
+    public static final String IDENTIFIER_LIST_VERSION = "identifierListVersion";
 
     public IdentifierContingencyListDeserializer() {
         super(IdentifierContingencyList.class);
@@ -31,37 +33,33 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
     @Override
     public IdentifierContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
-        String identifiableType = null;
+        String version = null;
         List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
-
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version":
+            String test = parser.getCurrentName();
+            switch (test) {
+                case "version" -> {
+                    version = parser.nextTextValue();
+                    JsonUtil.setSourceVersion(deserializationContext, version, IDENTIFIER_LIST_VERSION);
+                }
+                case "identifiableType" -> {
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType",
+                            version, "1.0");
                     parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
+                }
+                case "name" -> name = parser.nextTextValue();
+                case "type" -> {
+                    if (!parser.nextTextValue().equals(IdentifierContingencyList.TYPE)) {
+                        throw new IllegalStateException("type should be: " + IdentifierContingencyList.TYPE);
+                    }
+                }
+                case "identifiers" -> {
                     parser.nextToken();
-                    break;
-
-                case "identifiableType":
-                    identifiableType = parser.nextTextValue();
-                    break;
-
-                case "identifiers":
-                    parser.nextToken();
-                    networkElementIdentifiers = parser.readValueAs(new TypeReference<ArrayList<NetworkElementIdentifier>>() {
-                    });
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new IdentifierContingencyList(name, identifiableType, networkElementIdentifiers);
+        return new IdentifierContingencyList(name, networkElementIdentifiers);
     }
 }

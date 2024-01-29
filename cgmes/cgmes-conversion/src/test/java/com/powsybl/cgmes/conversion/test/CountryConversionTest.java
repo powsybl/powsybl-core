@@ -7,22 +7,22 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.iidm.network.Country;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class CountryConversionTest {
+class CountryConversionTest {
     @Test
-    public void countryFromRegion() {
+    void countryFromRegion() {
         ImmutableMap.<String, Country> builder()
                 .put("D1", Country.DE)
                 .put("D4", Country.DE)
@@ -35,7 +35,7 @@ public class CountryConversionTest {
     }
 
     @Test
-    public void countryFromSubregion() {
+    void countryFromSubregion() {
         ImmutableMap.<String, Country> builder()
                 .put("NO1", Country.NO)
                 .put("NO2", Country.NO)

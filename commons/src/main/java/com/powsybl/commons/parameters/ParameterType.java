@@ -9,13 +9,14 @@ package com.powsybl.commons.parameters;
 import java.util.List;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum ParameterType {
     BOOLEAN(Boolean.class, Boolean.class),
     STRING(String.class, String.class),
     STRING_LIST(List.class, String.class),
-    DOUBLE(Double.class, Double.class);
+    DOUBLE(Double.class, Double.class),
+    INTEGER(Integer.class, Integer.class);
 
     private final Class<?> typeClass;
     private final Class<?> elementClass;

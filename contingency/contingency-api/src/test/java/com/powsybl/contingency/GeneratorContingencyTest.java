@@ -11,19 +11,19 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.tripping.GeneratorTripping;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class GeneratorContingencyTest {
+class GeneratorContingencyTest {
 
     @Test
-    public void test() {
+    void test() {
         Contingency contingency = Contingency.generator("id");
         assertEquals("id", contingency.getId());
         assertEquals(1, contingency.getElements().size());
@@ -43,7 +43,7 @@ public class GeneratorContingencyTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         Network network = EurostagTutorialExample1Factory.create();
         ContingencyList contingencyList = ContingencyList.of(Contingency.generator("GEN"), Contingency.generator("unknown"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);

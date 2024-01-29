@@ -6,20 +6,24 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class TieFlowEq {
 
-    public static void write(String id, String controlAreaId, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartId("TieFlow", id, false, cimNamespace, writer);
-        CgmesExportUtil.writeReference("TieFlow.ControlArea", controlAreaId, cimNamespace, writer);
-        CgmesExportUtil.writeReference("TieFlow.Terminal", terminalId, cimNamespace, writer);
+    public static void write(String id, String controlAreaId, String terminalId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartId("TieFlow", id, false, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("TieFlow.ControlArea", controlAreaId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("TieFlow.Terminal", terminalId, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "TieFlow.positiveFlowIn");
+        writer.writeCharacters("true"); // always true
+        writer.writeEndElement();
         writer.writeEndElement();
     }
 

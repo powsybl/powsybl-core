@@ -6,14 +6,15 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Before;
-import org.junit.Test;
+import com.powsybl.commons.reporter.Reporter;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.computation.ComputationManager;
@@ -21,16 +22,16 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-public class DynamicSimulationTest {
+class DynamicSimulationTest {
 
     private Network network;
 
     private ComputationManager computationManager;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = Mockito.mock(Network.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
@@ -39,7 +40,7 @@ public class DynamicSimulationTest {
     }
 
     @Test
-    public void testDefaultOneProvider() {
+    void testDefaultOneProvider() {
         // case with only one provider, no need for config
         DynamicSimulation.Runner defaultDynamicSimulation = DynamicSimulation.find();
         assertEquals("DynamicSimulationMock", defaultDynamicSimulation.getName());
@@ -49,7 +50,7 @@ public class DynamicSimulationTest {
     }
 
     @Test
-    public void testAsyncNamedProvider()
+    void testAsyncNamedProvider()
             throws InterruptedException, ExecutionException {
         // case with only one provider, no need for config
         DynamicSimulation.Runner defaultDynamicSimulation = DynamicSimulation
@@ -60,7 +61,7 @@ public class DynamicSimulationTest {
     }
 
     @Test
-    public void testProviderRunCombinations() {
+    void testProviderRunCombinations() {
         // case with only one provider, no need for config
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty()));
@@ -71,11 +72,11 @@ public class DynamicSimulationTest {
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), parameters));
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), parameters));
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), parameters));
-        assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), computationManager, parameters));
+        assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), computationManager, parameters, Reporter.NO_OP));
     }
 
     @Test
-    public void testProviderAsyncCombinations() {
+    void testProviderAsyncCombinations() {
         // case with only one provider, no need for config
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty()));
@@ -86,6 +87,6 @@ public class DynamicSimulationTest {
         assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), parameters));
         assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), parameters));
         assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), parameters));
-        assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), computationManager, parameters));
+        assertNotNull(DynamicSimulation.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), CurvesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), computationManager, parameters, Reporter.NO_OP));
     }
 }

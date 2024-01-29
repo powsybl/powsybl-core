@@ -6,16 +6,16 @@
  */
 package com.powsybl.commons.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class StringAnonymizerTest {
+class StringAnonymizerTest {
 
     private static String toCsv(StringAnonymizer anonymizer) throws IOException {
         StringWriter stringWriter = new StringWriter();
@@ -37,7 +37,7 @@ public class StringAnonymizerTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         StringAnonymizer anonymizer = new StringAnonymizer();
         String anonymizedFoo = anonymizer.anonymize("foo");
         String anonymizedBar = anonymizer.anonymize("bar");
@@ -63,7 +63,7 @@ public class StringAnonymizerTest {
     }
 
     @Test
-    public void invalidFileTest() throws IOException {
+    void invalidFileTest() throws IOException {
         String csv = String.join(System.lineSeparator(),
                 "",
                 "A;B");
@@ -71,15 +71,15 @@ public class StringAnonymizerTest {
         assertEquals(1, anonymizer.getStringCount());
     }
 
-    @Test(expected = RuntimeException.class)
-    public void invalidFileTest2() throws IOException {
+    @Test
+    void invalidFileTest2() throws IOException {
         String csv = String.join(System.lineSeparator(),
                 "C");
-        fromCsv(csv);
+        assertThrows(RuntimeException.class, () -> fromCsv(csv));
     }
 
     @Test
-    public void embeddedNewLineTest() throws IOException {
+    void embeddedNewLineTest() throws IOException {
         StringAnonymizer anonymizer = new StringAnonymizer();
         String anonymizedFoo = anonymizer.anonymize("foo\nbar");
         StringAnonymizer anonymizer2 = fromCsv(toCsv(anonymizer));
@@ -87,7 +87,7 @@ public class StringAnonymizerTest {
     }
 
     @Test
-    public void embeddedSeparatorTest() throws IOException {
+    void embeddedSeparatorTest() throws IOException {
         StringAnonymizer anonymizer = new StringAnonymizer();
         String anonymizedFoo = anonymizer.anonymize("foo;bar");
         StringAnonymizer anonymizer2 = fromCsv(toCsv(anonymizer));

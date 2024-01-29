@@ -10,7 +10,7 @@ package com.powsybl.iidm.comparator;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -19,9 +19,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,13 +29,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NetworkStateComparatorTest {
+class NetworkStateComparatorTest {
 
     private static final double EPS = Math.pow(10, -15);
 
@@ -43,8 +43,8 @@ public class NetworkStateComparatorTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         network = EurostagTutorialExample1Factory.create();
         network.getBusView().getBus("VLGEN_0").setV(24.5).setAngle(2.33);
@@ -63,13 +63,13 @@ public class NetworkStateComparatorTest {
         network.getLoad("LOAD").getTerminal().setP(600).setQ(200);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "other");
         network.getVariantManager().setWorkingVariant("other");
         network.getBusView().getBus("VLGEN_0").setV(25.5);
@@ -156,7 +156,7 @@ public class NetworkStateComparatorTest {
     }
 
     @Test
-    public void testThreeWindings() throws IOException {
+    void testThreeWindings() throws IOException {
         Network threeWindingsTransformersNetwork = ThreeWindingsTransformerNetworkFactory.create();
         var twt = threeWindingsTransformersNetwork.getThreeWindingsTransformer("3WT");
         twt.getLeg1().newPhaseTapChanger().setTapPosition(0)
@@ -178,18 +178,18 @@ public class NetworkStateComparatorTest {
                 .endStep()
                 .add();
         // values set below are only for test and do not reflect any physical reality
-        twt.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(1).setQ(2);
-        twt.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(3).setQ(4);
-        twt.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(5).setQ(6);
+        twt.getTerminal(ThreeSides.ONE).setP(1).setQ(2);
+        twt.getTerminal(ThreeSides.TWO).setP(3).setQ(4);
+        twt.getTerminal(ThreeSides.THREE).setP(5).setQ(6);
         twt.getLeg1().getPhaseTapChanger().setTapPosition(1);
         twt.getLeg2().getRatioTapChanger().setTapPosition(0);
         twt.getLeg3().getRatioTapChanger().setTapPosition(0);
 
         threeWindingsTransformersNetwork.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "other");
         threeWindingsTransformersNetwork.getVariantManager().setWorkingVariant("other");
-        twt.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(10).setQ(20);
-        twt.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(30).setQ(40);
-        twt.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(50).setQ(50);
+        twt.getTerminal(ThreeSides.ONE).setP(10).setQ(20);
+        twt.getTerminal(ThreeSides.TWO).setP(30).setQ(40);
+        twt.getTerminal(ThreeSides.THREE).setP(50).setQ(50);
         twt.getLeg1().getPhaseTapChanger().setTapPosition(0);
         twt.getLeg2().getRatioTapChanger().setTapPosition(1);
         twt.getLeg3().getRatioTapChanger().setTapPosition(2);

@@ -8,19 +8,19 @@ package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class DefaultNetworkPredicateTest {
+class DefaultNetworkPredicateTest {
 
     private final NetworkPredicate predicate = new DefaultNetworkPredicate();
 
     @Test
-    public void testDefault() {
+    void testDefault() {
         Network network = EurostagTutorialExample1Factory.create();
         assertTrue(network.getSubstationStream().allMatch(predicate::test));
         assertTrue(network.getVoltageLevelStream().allMatch(predicate::test));

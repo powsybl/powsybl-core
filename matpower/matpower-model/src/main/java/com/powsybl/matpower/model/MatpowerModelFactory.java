@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 public final class MatpowerModelFactory {
 

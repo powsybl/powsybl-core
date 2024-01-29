@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 
 /**
  *
- * @author Coline Piloquet <coline.piloquet@rte-france.fr>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extends AbstractExtensionAdder<I, IdentifiableShortCircuit<I>>
         implements IdentifiableShortCircuitAdder<I> {

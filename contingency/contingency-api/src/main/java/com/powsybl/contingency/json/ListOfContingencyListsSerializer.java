@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.ListOfContingencyLists;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ListOfContingencyListsSerializer extends StdSerializer<ListOfContingencyLists> {
 
@@ -29,7 +29,9 @@ public class ListOfContingencyListsSerializer extends StdSerializer<ListOfContin
         jsonGenerator.writeStringField("type", listOfContingencyLists.getType());
         jsonGenerator.writeStringField("version", ContingencyList.getVersion());
         jsonGenerator.writeStringField("name", listOfContingencyLists.getName());
-        jsonGenerator.writeObjectField("contingencyLists", listOfContingencyLists.getContingencyLists());
+        serializerProvider.defaultSerializeField("contingencyLists",
+                listOfContingencyLists.getContingencyLists(),
+                jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

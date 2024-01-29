@@ -8,11 +8,12 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
  *
- * @author Jean-Baptiste Heyberger <Jean-Baptiste.Heyberger at rte-france.com>
+ * @author Jean-Baptiste Heyberger {@literal <Jean-Baptiste.Heyberger at rte-france.com>}
  */
 public class PsseSwitchedShunt extends PsseVersioned {
 
@@ -53,45 +54,59 @@ public class PsseSwitchedShunt extends PsseVersioned {
     @Parsed
     private double b1 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n2 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b2 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n3 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b3 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n4 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b4 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n5 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b5 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n6 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b6 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n7 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b7 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n8 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b8 = 0.0;
 
@@ -111,30 +126,37 @@ public class PsseSwitchedShunt extends PsseVersioned {
     @Revision(since = 35)
     private int s1 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s2 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s3 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s4 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s5 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s6 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s7 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s8 = 1;

@@ -13,23 +13,23 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.ExportersLoader;
 import com.powsybl.iidm.network.ExportersLoaderList;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.XMLExporter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import com.powsybl.iidm.serde.XMLExporter;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class CaseExporterTest {
+class CaseExporterTest {
 
     private FileSystem fileSystem;
 
@@ -41,8 +41,8 @@ public class CaseExporterTest {
 
     private final ExportersLoader loader = new ExportersLoaderList(new XMLExporter());
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         tmpDir = Files.createDirectory(fileSystem.getPath("/tmp"));
 
@@ -50,13 +50,13 @@ public class CaseExporterTest {
         network = Network.create("id", "test");
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void testExportEachRound() throws IOException {
+    void testExportEachRound() throws IOException {
         CaseExporter exporter = new CaseExporter(tmpDir, "basename", "XIIDM", CompressionFormat.GZIP, true, loader);
 
         // Export N state
@@ -125,7 +125,7 @@ public class CaseExporterTest {
     }
 
     @Test
-    public void testExportOnlyLastRound() throws IOException {
+    void testExportOnlyLastRound() throws IOException {
         CaseExporter exporter = new CaseExporter(tmpDir, "basename", "XIIDM", CompressionFormat.GZIP, false, loader);
 
         // Export N state

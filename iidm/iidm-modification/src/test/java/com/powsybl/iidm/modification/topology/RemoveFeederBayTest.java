@@ -7,13 +7,13 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,18 +21,18 @@ import java.util.Set;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class RemoveFeederBayTest {
+class RemoveFeederBayTest {
 
     private final Set<String> removedObjects = new HashSet<>();
     private final Set<String> beforeRemovalObjects = new HashSet<>();
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         removedObjects.clear();
     }
 
@@ -51,7 +51,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testSimpleRemove() {
+    void testSimpleRemove() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         addListener(network);
 
@@ -62,7 +62,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testBbvRemove() {
+    void testBbvRemove() {
         Network network = EurostagTutorialExample1Factory.create();
         addListener(network);
 
@@ -73,7 +73,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testRemoveWithForkFeeder() {
+    void testRemoveWithForkFeeder() {
         Network network = createNetworkWithForkFeeder();
         addListener(network);
 
@@ -90,7 +90,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testRemoveWithShunt() {
+    void testRemoveWithShunt() {
         Network network = createNetwork2Feeders();
         addListener(network);
 
@@ -99,13 +99,13 @@ public class RemoveFeederBayTest {
 
         new RemoveFeederBay("load2").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("SW1", "load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        Set<String> removedIdentifiables = Set.of("SW1", "load2", "load2_DISCONNECTOR_6_0", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
         assertEquals(removedIdentifiables, removedObjects);
     }
 
     @Test
-    public void testRemoveWithInternalConnectionShunt() {
+    void testRemoveWithInternalConnectionShunt() {
         Network network = createNetwork2Feeders();
         addListener(network);
 
@@ -114,13 +114,13 @@ public class RemoveFeederBayTest {
 
         new RemoveFeederBay("load2").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR_6_0", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
         assertEquals(removedIdentifiables, removedObjects);
     }
 
     @Test
-    public void testRemoveWithDoubleShunt() {
+    void testRemoveWithDoubleShunt() {
         Network network = createNetwork3Feeders();
         addListener(network);
 
@@ -130,25 +130,27 @@ public class RemoveFeederBayTest {
 
         new RemoveFeederBay("load2").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR_6_0", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
         assertEquals(removedIdentifiables, removedObjects);
         assertNotNull(network.getSwitch("SW1")); // Not removed as connect load1 with load3
     }
 
     @Test
-    public void testRemoveBbs() {
+    void testRemoveBbs() {
         Network network = createNetwork2Feeders();
+        ReporterModel reporter = new ReporterModel("reportTestRemoveBbs", "Testing reporter when trying to remove a busbar section");
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, Reporter.NO_OP));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reporter));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
+        assertEquals("removeBayBusbarSectionConnectable", reporter.getReports().iterator().next().getReportKey());
     }
 
     private Network createNetwork2Feeders() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology createVlTopology = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
-                .withBusbarCount(3)
+                .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(1)
                 .withBusbarSectionPrefixId("BBS_TEST")
                 .withSwitchPrefixId("SW_TEST")
@@ -263,5 +265,76 @@ public class RemoveFeederBayTest {
                 .setNode2(3)
                 .add();
         return network;
+    }
+
+    /**
+     *  Network with direct shunt in voltage level VL1 between line LINE1 and generator G1 :
+     *
+     *
+     *             VOLTAGE LEVEL VL2
+     *             =================
+     *
+     *                 VL2_BBS (node 0)
+     *  ---------------------------------
+     *     |
+     *  disc. VL2_D1
+     *     |
+     *   node 1
+     *     |
+     *  break. VL2_B1
+     *     |
+     *  LINE1 (node 2)
+     *     |
+     *     |
+     *     |                    VOLTAGE LEVEL VL1
+     *     |                    =================
+     *     |
+     *  LINE1 (node 3)  ------------ disc. VL1_D3 ---------------- G1 (node 1)
+     *     |                                                       |
+     *  break. VL1_B2                                         break. VL1_B1
+     *     |                                                       |
+     *   node 4                                                 node 2
+     *     |                                                       |
+     *  disc. VL1_D2                                           disc. VL1_D1
+     *     |                                                       |
+     *     |                    VL1_BBS (node 0)                   |
+     *  ---------------------------------------------------------------------
+     *
+     */
+    private static Network createNetworkWithShuntRemoveLinePb() {
+        Network network = Network.create("test", "test");
+
+        VoltageLevel vl1 = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        vl1.getNodeBreakerView().newBusbarSection().setId("VL1_BBS").setNode(0).add();
+        vl1.newGenerator().setId("G1").setNode(1).setTargetP(0).setVoltageRegulatorOn(true).setTargetV(400).setMinP(0).setMaxP(10).add();
+        vl1.getNodeBreakerView().newBreaker().setId("VL1_B1").setNode1(1).setNode2(2).add();
+        vl1.getNodeBreakerView().newDisconnector().setId("VL1_D1").setNode1(0).setNode2(2).add();
+        vl1.getNodeBreakerView().newBreaker().setId("VL1_B2").setNode1(3).setNode2(4).add();
+        vl1.getNodeBreakerView().newDisconnector().setId("VL1_D2").setNode1(0).setNode2(4).add();
+        vl1.getNodeBreakerView().newDisconnector().setId("VL1_D3").setNode1(1).setNode2(3).add();
+
+        VoltageLevel vl2 = network.newVoltageLevel().setId("VL2").setNominalV(400.0).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        vl2.getNodeBreakerView().newBusbarSection().setId("VL2_BBS").setNode(0).add();
+        vl2.getNodeBreakerView().newBreaker().setId("VL2_B1").setNode1(1).setNode2(2).add();
+        vl2.getNodeBreakerView().newDisconnector().setId("VL2_D1").setNode1(0).setNode2(1).add();
+
+        network.newLine().setId("LINE1").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0)
+                .setNode1(3).setVoltageLevel1("VL1")
+                .setNode2(2).setVoltageLevel2("VL2")
+                .add();
+
+        return network;
+    }
+
+    @Test
+    void testNetworkWithShuntRemoveLinePb() {
+        Network network = createNetworkWithShuntRemoveLinePb();
+        addListener(network);
+
+        // removing line 'LINE1'
+        new RemoveFeederBay("LINE1").apply(network);
+
+        Set<String> removedIdentifiables = Set.of("VL2_B1", "VL2_D1", "LINE1", "VL1_B2", "VL1_D2", "VL1_D3");
+        assertEquals(removedIdentifiables, beforeRemovalObjects);
     }
 }

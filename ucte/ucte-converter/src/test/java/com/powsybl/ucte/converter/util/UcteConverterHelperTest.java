@@ -12,44 +12,81 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.ucte.converter.UcteImporter;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.apache.commons.math3.complex.Complex;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
  */
-public class UcteConverterHelperTest {
+class UcteConverterHelperTest {
 
     private static Network reference;
 
-    @BeforeClass
-    public static void setup() {
+    private static Network reference2;
+
+    @BeforeAll
+    static void setup() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("expectedExport", new ResourceSet("/", "expectedExport.uct"));
         reference = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+
+        ReadOnlyDataSource dataSource2 = new ResourceDataSource("expectedExport2", new ResourceSet("/", "expectedExport2.uct"));
+        reference2 = new UcteImporter().importData(dataSource2, NetworkFactory.findDefault(), null);
     }
 
     @Test
-    public void calculatePhaseDuTest() {
+    void calculatePhaseDuTest() {
         assertEquals(2.0000, calculatePhaseDu(reference.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")), 0.00001);
         assertNotEquals(2.0001, calculatePhaseDu(reference.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")), 0.00001);
     }
 
     @Test
-    public void calculateSymmAngleDuTest() {
+    void calculateSymmAngleDuTest() {
         assertEquals(1.573, calculateSymmAngleDu(reference.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.0001);
     }
 
     @Test
-    public void calculateAsymmAngleDuTest() {
-        assertEquals(1.000, calculateAsymmAngleDu(reference.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.0001);
+    void calculateAsymmAngleDuAndAngleTest() {
+        Complex du = calculateAsymmAngleDuAndAngle(reference.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false);
+        assertEquals(0.9, du.abs(), 0.0001);
+        assertEquals(60.0, Math.toDegrees(du.getArgument()), 0.0001);
     }
 
     @Test
-    public void calculateAsymmAngleThetaTest() {
-        assertEquals(60.0, calculateAsymmAngleTheta(reference.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.0001);
+    void calculatePhaseDuTest2() {
+        assertEquals(-2.000, calculatePhaseDu(reference2.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")), 0.00001);
+        assertEquals(-1.57, calculateSymmAngleDu(reference2.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.00001); // loss of one decimal with sign
+
+        Complex duRef2 = calculateAsymmAngleDuAndAngle(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false);
+
+        double angleExpected = Math.toRadians(-120.0);
+        double moduleExpected = -0.900;
+        Complex duExpected = new Complex(Math.cos(angleExpected), Math.sin(angleExpected)).multiply(moduleExpected);
+
+        assertEquals(duExpected.getReal(), duRef2.getReal(), 0.0001);
+        assertEquals(duExpected.getImaginary(), duRef2.getImaginary(), 0.0001);
+
+        ReadOnlyDataSource dataSource = new ResourceDataSource("expectedExport4", new ResourceSet("/", "expectedExport4.uct"));
+        Network reference4 = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+
+        Complex duRef4 = calculateAsymmAngleDuAndAngle(reference4.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false);
+
+        double angleExpected4 = Math.toRadians(-120.0);
+        double moduleExpected4 = 1.833;
+        Complex duExpected4 = new Complex(Math.cos(angleExpected4), Math.sin(angleExpected4)).multiply(moduleExpected4);
+
+        assertEquals(duExpected4.getReal(), duRef4.getReal(), 0.0001);
+        assertEquals(duExpected4.getImaginary(), duRef4.getImaginary(), 0.0001);
+
+        ReadOnlyDataSource dataSource6 = new ResourceDataSource("expectedExport5", new ResourceSet("/", "expectedExport5.uct"));
+        Network reference6 = new UcteImporter().importData(dataSource6, NetworkFactory.findDefault(), null);
+
+        Complex duRef6 = calculateAsymmAngleDuAndAngle(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false);
+        assertEquals(0.990, duRef6.abs(), 0.00001);
+        assertEquals(90.00, Math.toDegrees(duRef6.getArgument()), 0.00001); // loss of one decimal with sign
     }
 }

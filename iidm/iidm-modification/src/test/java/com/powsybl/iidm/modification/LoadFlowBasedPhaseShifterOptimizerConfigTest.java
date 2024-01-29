@@ -10,29 +10,29 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class LoadFlowBasedPhaseShifterOptimizerConfigTest {
+class LoadFlowBasedPhaseShifterOptimizerConfigTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-based-phase-shifter-optimizer");
             moduleConfig.setStringProperty("load-flow-name", "LoadFlowMock");
 
             LoadFlowBasedPhaseShifterOptimizerConfig config = LoadFlowBasedPhaseShifterOptimizerConfig.load(platformConfig);
-            assertEquals("LoadFlowMock", config.getLoadFlowName().orElseThrow(AssertionError::new));
+            assertEquals("LoadFlowMock", config.getLoadFlowName().orElseThrow(IllegalStateException::new));
             config.setLoadFlowName("LoadFlowMock2");
-            assertEquals("LoadFlowMock2", config.getLoadFlowName().orElseThrow(AssertionError::new));
+            assertEquals("LoadFlowMock2", config.getLoadFlowName().orElseThrow(IllegalStateException::new));
         }
     }
 

@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(Tool.class)
 public class CimAnonymizerTool implements Tool {
@@ -89,9 +89,9 @@ public class CimAnonymizerTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context.getFileSystem());
-        Path cimZipPath = options.getPath("cim-path").orElseThrow(AssertionError::new);
-        Path outputDir = options.getPath("output-dir").orElseThrow(AssertionError::new);
-        Path mappingFile = options.getPath("mapping-file").orElseThrow(AssertionError::new);
+        Path cimZipPath = options.getPath("cim-path").orElseThrow(IllegalStateException::new);
+        Path outputDir = options.getPath("output-dir").orElseThrow(IllegalStateException::new);
+        Path mappingFile = options.getPath("mapping-file").orElseThrow(IllegalStateException::new);
         boolean skipExternalRef = options.hasOption("skip-external-refs");
 
         CimAnonymizer anomymizer = new CimAnonymizer();

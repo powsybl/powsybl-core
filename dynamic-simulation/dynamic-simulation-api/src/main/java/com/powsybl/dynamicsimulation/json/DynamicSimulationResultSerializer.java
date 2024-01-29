@@ -22,10 +22,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
-import com.powsybl.timeseries.TimeSeries;
+import com.powsybl.dynamicsimulation.TimelineEvent;
+import com.powsybl.timeseries.DoubleTimeSeries;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimulationResult> {
 
@@ -39,16 +40,26 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
     public void serialize(DynamicSimulationResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeBooleanField("isOK", result.isOk());
-        jsonGenerator.writeStringField("logs", result.getLogs());
+        jsonGenerator.writeStringField("status", result.getStatus().name());
+        if (!result.getStatusText().isEmpty()) {
+            jsonGenerator.writeStringField("error", result.getStatusText());
+        }
         jsonGenerator.writeFieldName("curves");
         jsonGenerator.writeStartArray();
-        for (Entry<String, TimeSeries> entry : result.getCurves().entrySet()) {
+        for (Entry<String, DoubleTimeSeries> entry : result.getCurves().entrySet()) {
             entry.getValue().writeJson(jsonGenerator);
         }
         jsonGenerator.writeEndArray();
         jsonGenerator.writeFieldName("timeLine");
-        result.getTimeLine().writeJson(jsonGenerator);
+        jsonGenerator.writeStartArray();
+        for (TimelineEvent event : result.getTimeLine()) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeNumberField("time", event.time());
+            jsonGenerator.writeStringField("modelName", event.modelName());
+            jsonGenerator.writeStringField("message", event.message());
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
         jsonGenerator.writeEndObject();
     }
 

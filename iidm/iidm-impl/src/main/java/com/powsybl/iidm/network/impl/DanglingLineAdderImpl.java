@@ -11,74 +11,11 @@ import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  *
  */
 class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
-
-    class GenerationAdderImpl implements GenerationAdder {
-
-        private double minP = Double.NaN;
-        private double maxP = Double.NaN;
-        private double targetP = Double.NaN;
-        private double targetQ = Double.NaN;
-        private boolean voltageRegulationOn = false;
-        private double targetV = Double.NaN;
-
-        @Override
-        public GenerationAdder setTargetP(double targetP) {
-            this.targetP = targetP;
-            return this;
-        }
-
-        @Override
-        public GenerationAdder setMaxP(double maxP) {
-            this.maxP = maxP;
-            return this;
-        }
-
-        @Override
-        public GenerationAdder setMinP(double minP) {
-            this.minP = minP;
-            return this;
-        }
-
-        @Override
-        public GenerationAdder setTargetQ(double targetQ) {
-            this.targetQ = targetQ;
-            return this;
-        }
-
-        @Override
-        public GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn) {
-            this.voltageRegulationOn = voltageRegulationOn;
-            return this;
-        }
-
-        @Override
-        public GenerationAdder setTargetV(double targetV) {
-            this.targetV = targetV;
-            return this;
-        }
-
-        @Override
-        public DanglingLineAdder add() {
-            NetworkImpl network = getNetwork();
-            ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, network.getMinValidationLevel()));
-            network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, network.getMinValidationLevel()));
-
-            generationAdder = this;
-            return DanglingLineAdderImpl.this;
-        }
-
-        private DanglingLineImpl.GenerationImpl build() {
-            return new DanglingLineImpl.GenerationImpl(getNetwork(), minP, maxP, targetP, targetQ, targetV, voltageRegulationOn);
-        }
-    }
-
-    private final VoltageLevelExt voltageLevel;
 
     private double p0 = Double.NaN;
 
@@ -88,11 +25,11 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private double x = Double.NaN;
 
-    private double g = Double.NaN;
+    private double g = 0.0;
 
-    private double b = Double.NaN;
+    private double b = 0.0;
 
-    private String ucteXnodeCode;
+    private String pairingKey;
 
     private GenerationAdderImpl generationAdder;
 
@@ -100,9 +37,8 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         this.voltageLevel = voltageLevel;
     }
 
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
+    void setGenerationAdder(GenerationAdderImpl adder) {
+        generationAdder = adder;
     }
 
     @Override
@@ -147,14 +83,14 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode) {
-        this.ucteXnodeCode = ucteXnodeCode;
+    public DanglingLineAdder setPairingKey(String pairingKey) {
+        this.pairingKey = pairingKey;
         return this;
     }
 
     @Override
     public GenerationAdder newGeneration() {
-        return new GenerationAdderImpl();
+        return new GenerationAdderImpl(this);
     }
 
     @Override
@@ -175,7 +111,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             generation = generationAdder.build();
         }
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         network.getIndex().checkAndAdd(danglingLine);

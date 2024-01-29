@@ -20,11 +20,11 @@ package com.powsybl.iidm.network;
  *        .add();
  *</pre>
  *
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  * @see Battery
  * @see VoltageLevel
  */
-public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
+public interface BatteryAdder extends InjectionAdder<Battery, BatteryAdder> {
 
     /**
      * @deprecated Use {@link #setTargetP(double)} instead.
@@ -77,5 +77,6 @@ public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
      *      - minP <= p0 <= maxP
      * @return {@link Battery}
      */
+    @Override
     Battery add();
 }

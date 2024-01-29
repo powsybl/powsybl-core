@@ -6,21 +6,21 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public class LoadFlowResultsCompletionTest extends AbstractLoadFlowResultsCompletionTest {
+class LoadFlowResultsCompletionTest extends AbstractLoadFlowResultsCompletionTest {
 
     @Test
-    public void run() throws Exception {
+    void run() throws Exception {
         setNanValues();
 
         LoadFlowResultsCompletionParameters parameters = new LoadFlowResultsCompletionParameters();

@@ -22,7 +22,7 @@ import java.util.Objects;
  * trough shift keys, also called GLSK (for Generation and Load shift keys), see {@link com.powsybl.sensitivity.SensitivityVariableSet}
  * for more details.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class WeightedSensitivityVariable {
 
@@ -81,15 +81,14 @@ public class WeightedSensitivityVariable {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     switch (fieldName) {
-                        case "id":
-                            context.id = parser.nextTextValue();
-                            break;
-                        case "weight":
+                        case "id" -> context.id = parser.nextTextValue();
+                        case "weight" -> {
                             parser.nextToken();
                             context.weight = parser.getDoubleValue();
-                            break;
-                        default:
-                            break;
+                        }
+                        default -> {
+                            // Do nothing
+                        }
                     }
                 } else if (token == JsonToken.END_ARRAY) {
                     break;

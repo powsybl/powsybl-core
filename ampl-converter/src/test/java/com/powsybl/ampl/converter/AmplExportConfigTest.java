@@ -9,17 +9,17 @@ package com.powsybl.ampl.converter;
 import com.powsybl.ampl.converter.AmplExportConfig.ExportActionType;
 import com.powsybl.ampl.converter.AmplExportConfig.ExportScope;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class AmplExportConfigTest {
+class AmplExportConfigTest {
 
     @Test
-    public void test() {
+    void test() {
         AmplExportConfig config = new AmplExportConfig(ExportScope.ALL, true, ExportActionType.CURATIVE);
 
         assertEquals(ExportScope.ALL, config.getExportScope());

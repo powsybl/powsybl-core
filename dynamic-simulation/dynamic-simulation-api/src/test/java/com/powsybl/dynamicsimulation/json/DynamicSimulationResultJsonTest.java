@@ -6,63 +6,94 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.dynamicsimulation.TimelineEvent;
+import com.powsybl.timeseries.DoubleTimeSeries;
 import com.powsybl.timeseries.RegularTimeSeriesIndex;
-import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
+class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
 
     private static DynamicSimulationResult create() {
         return new DynamicSimulationResult() {
+
             @Override
-            public boolean isOk() {
-                return true;
+            public Status getStatus() {
+                return Status.SUCCESS;
             }
 
             @Override
-            public String getLogs() {
+            public String getStatusText() {
                 return "";
             }
 
             @Override
-            public Map<String, TimeSeries> getCurves() {
+            public Map<String, DoubleTimeSeries> getCurves() {
                 return Collections.singletonMap("curve1", TimeSeries.createDouble("curve1", new RegularTimeSeriesIndex(0, 5, 1), 0.0, 0.1, 0.1, 0.2, 0.1, 0.0));
             }
 
             @Override
-            public TimeSeries getCurve(String curve) {
-                return null;
+            public List<TimelineEvent> getTimeLine() {
+                return List.of(
+                        new TimelineEvent(0.1, "CLA_2_5", "order to change topology"),
+                        new TimelineEvent(1.2, "_BUS____2-BUS____5-1_AC", "opening both sides"),
+                        new TimelineEvent(2.4, "CLA_2_4", "arming by over-current constraint"));
+            }
+        };
+    }
+
+    private static DynamicSimulationResult createFailedDynamicSimulation() {
+        return new DynamicSimulationResult() {
+
+            @Override
+            public Status getStatus() {
+                return Status.FAILURE;
             }
 
             @Override
-            public StringTimeSeries getTimeLine() {
+            public String getStatusText() {
+                return "Error test";
+            }
+
+            @Override
+            public Map<String, DoubleTimeSeries> getCurves() {
+                return Collections.emptyMap();
+            }
+
+            @Override
+            public List<TimelineEvent> getTimeLine() {
                 return DynamicSimulationResult.emptyTimeLine();
             }
         };
     }
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripTest(create(), DynamicSimulationResultSerializer::write, DynamicSimulationResultDeserializer::read, "/DynamicSimulationResult.json");
     }
 
     @Test
-    public void handleErrorTest() throws IOException {
+    void roundTripFailedSimulationTest() throws IOException {
+        roundTripTest(createFailedDynamicSimulation(), DynamicSimulationResultSerializer::write, DynamicSimulationResultDeserializer::read, "/DynamicSimulationFailedResult.json");
+    }
+
+    @Test
+    void handleErrorTest() throws IOException {
         try (var is = getClass().getResourceAsStream("/DynamicSimulationResultError.json")) {
-            AssertionError e = assertThrows(AssertionError.class, () -> DynamicSimulationResultDeserializer.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> DynamicSimulationResultDeserializer.read(is));
             assertEquals("Unexpected field: metrics", e.getMessage());
         }
     }

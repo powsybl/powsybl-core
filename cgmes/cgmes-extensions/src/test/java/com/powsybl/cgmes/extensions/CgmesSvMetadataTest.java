@@ -9,19 +9,17 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class CgmesSvMetadataTest {
+class CgmesSvMetadataTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(CgmesSvMetadataAdder.class)
                 .setDescription("test description")
@@ -40,10 +38,10 @@ public class CgmesSvMetadataTest {
         assertTrue(extension.getDependencies().contains("http://dependency2"));
     }
 
-    @Test(expected = PowsyblException.class)
-    public void invalid() {
+    @Test
+    void invalid() {
         Network network = EurostagTutorialExample1Factory.create();
-        network.newExtension(CgmesSvMetadataAdder.class)
-                .add();
+        assertThrows(PowsyblException.class, () -> network.newExtension(CgmesSvMetadataAdder.class)
+                .add());
     }
 }

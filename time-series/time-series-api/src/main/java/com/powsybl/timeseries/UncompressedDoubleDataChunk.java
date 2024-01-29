@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk implements DoubleDataChunk {
 
@@ -171,8 +171,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UncompressedDoubleDataChunk) {
-            UncompressedDoubleDataChunk other = (UncompressedDoubleDataChunk) obj;
+        if (obj instanceof UncompressedDoubleDataChunk other) {
             return offset == other.offset &&
                     Arrays.equals(values, other.values);
         }

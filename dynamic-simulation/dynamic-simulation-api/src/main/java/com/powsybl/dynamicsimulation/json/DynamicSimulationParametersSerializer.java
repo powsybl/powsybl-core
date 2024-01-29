@@ -15,7 +15,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class DynamicSimulationParametersSerializer extends StdSerializer<DynamicSimulationParameters> {
 

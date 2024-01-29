@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 public final class MatpowerWriter {
 
     private MatpowerWriter() {
     }
 
-    private static Struct fillMatStruct(Struct struct, MatpowerModel model) {
+    private static Struct fillMatStruct(Struct struct, MatpowerModel model, boolean withBusNames) {
         List<MBus> buses = model.getBuses();
         Matrix busesM = Mat5.newMatrix(buses.size(), 13);
         Cell busesNames = null;
@@ -47,7 +47,7 @@ public final class MatpowerWriter {
             busesM.setInt(row, 10, bus.getLossZone());
             busesM.setDouble(row, 11, bus.getMaximumVoltageMagnitude());
             busesM.setDouble(row, 12, bus.getMinimumVoltageMagnitude());
-            if (bus.getName() != null) {
+            if (withBusNames && bus.getName() != null) {
                 if (busesNames == null) {
                     busesNames = Mat5.newCell(buses.size(), 1);
                 }
@@ -143,21 +143,22 @@ public final class MatpowerWriter {
         return struct;
     }
 
-    public static void write(MatpowerModel model, OutputStream oStream) throws IOException {
+    public static void write(MatpowerModel model, OutputStream oStream, boolean withBusNames) throws IOException {
         Objects.requireNonNull(model);
         Objects.requireNonNull(oStream);
         try (WritableByteChannel channel = Channels.newChannel(oStream)) {
-            try (Struct struct = fillMatStruct(Mat5.newStruct(), model)) {
-                try (MatFile matFile = Mat5.newMatFile().addArray(MatpowerReader.MATPOWER_STRUCT_NAME, struct)) {
+            try (Struct struct = fillMatStruct(Mat5.newStruct(), model, withBusNames)) {
+                try (MatFile matFile = Mat5.newMatFile()) {
+                    matFile.addArray(MatpowerReader.MATPOWER_STRUCT_NAME, struct);
                     channel.write(getByteBuffer(matFile));
                 }
             }
         }
     }
 
-    public static void write(MatpowerModel model, Path pFile) throws IOException {
+    public static void write(MatpowerModel model, Path pFile, boolean withBusNames) throws IOException {
         Objects.requireNonNull(pFile);
-        write(model, Files.newOutputStream(pFile));
+        write(model, Files.newOutputStream(pFile), withBusNames);
     }
 
     private static ByteBuffer getByteBuffer(MatFile matFile) throws IOException {

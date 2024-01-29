@@ -14,26 +14,26 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ConditionDslLoaderTest {
+class ConditionDslLoaderTest {
 
     private Network network;
     private Line line1;
     private Line line2;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         network = EurostagTutorialExample1Factory.create();
         network.getVoltageLevel("VLHV1").getBusBreakerView().getBus("NHV1").setV(380).setAngle(0);
         network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").setV(380).setAngle(0);
@@ -70,7 +70,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testCondition() throws IOException {
+    void testCondition() throws IOException {
         loadAndAssert("line('NHV1_NHV2_1')", "line('NHV1_NHV2_1')");
         loadAndAssert("line('NHV1_NHV2_1').terminal1.p", "line('NHV1_NHV2_1').terminal1.p");
         loadAndAssert("transformer('NGEN_NHV1')", "transformer('NGEN_NHV1')");
@@ -119,7 +119,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testExpressionEvaluator() throws IOException {
+    void testExpressionEvaluator() throws IOException {
 
         Terminal terminal = network.getLoad("LOAD").getTerminal();
         double old = terminal.getP();
@@ -154,7 +154,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testIsOverloadedNode() throws IOException {
+    void testIsOverloadedNode() throws IOException {
         line1.getTerminal1().setP(100.0).setQ(50.0);
         evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
 
@@ -186,7 +186,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testAllOverloadedNode() throws IOException {
+    void testAllOverloadedNode() throws IOException {
         // Both lines are not overloaded
         line1.getTerminal1().setP(100.0f).setQ(50.0f);
         line2.getTerminal1().setP(100.0f).setQ(50.0f);
@@ -239,7 +239,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testNetworkAccess() throws IOException {
+    void testNetworkAccess() throws IOException {
         // add temporary limits
         line1.newCurrentLimits1()
                 .setPermanentLimit(400)
@@ -259,7 +259,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testLoadingRank() throws IOException {
+    void testLoadingRank() throws IOException {
         // add temporary limits
         line1.newCurrentLimits1()
                 .setPermanentLimit(400)
@@ -304,7 +304,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testLoadingRankWithDifferentAcceptableDuration() throws IOException {
+    void testLoadingRankWithDifferentAcceptableDuration() throws IOException {
         // add temporary limits
         line1.newCurrentLimits1()
                 .setPermanentLimit(400)
@@ -336,7 +336,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testLoadingRankWithUndefinedCurrentLimitsForLine2() throws IOException {
+    void testLoadingRankWithUndefinedCurrentLimitsForLine2() throws IOException {
         // add temporary limits
         line1.newCurrentLimits1()
                 .setPermanentLimit(400)
@@ -355,7 +355,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testLoadingRankWithCurrentLimitsAtBothSides() throws IOException {
+    void testLoadingRankWithCurrentLimitsAtBothSides() throws IOException {
         // add temporary limits
         line1.newCurrentLimits1()
                 .setPermanentLimit(400)
@@ -405,7 +405,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testMostLoaded() throws IOException {
+    void testMostLoaded() throws IOException {
         // add temporary limits
         line1.newCurrentLimits1()
                 .setPermanentLimit(400)
@@ -448,7 +448,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testExpressionVariableLister() {
+    void testExpressionVariableLister() {
         String script = "line('NHV1_NHV2_1').terminal1.p > 0 || line('NHV1_NHV2_1').getTerminal2().getP() > 0 && actionTaken('action1')";
         ExpressionNode node = (ExpressionNode) new ConditionDslLoader(script).load(network);
         assertNotNull(node);
@@ -457,7 +457,7 @@ public class ConditionDslLoaderTest {
     }
 
     @Test
-    public void testActionTakenLister() {
+    void testActionTakenLister() {
         String script = "actionTaken('action1') && line('NHV1_NHV2_1').terminal1.p > 0 && actionTaken('action2')";
         ExpressionNode node = (ExpressionNode) new ConditionDslLoader(script).load(network);
         assertNotNull(node);

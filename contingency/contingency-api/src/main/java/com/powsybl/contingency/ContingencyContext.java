@@ -12,8 +12,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  * <p>
  * provide the context to get information of the network after a security analysis
  * it contains a contingency's id and a context type. Context type defines
@@ -26,6 +26,8 @@ public class ContingencyContext {
     private static final ContingencyContext ALL = new ContingencyContext(null, ContingencyContextType.ALL);
 
     private static final ContingencyContext NONE = new ContingencyContext(null, ContingencyContextType.NONE);
+
+    private static final ContingencyContext ONLY_CONTINGENCIES = new ContingencyContext(null, ContingencyContextType.ONLY_CONTINGENCIES);
 
     private final String contingencyId;
 
@@ -87,6 +89,8 @@ public class ContingencyContext {
                 return NONE;
             case SPECIFIC:
                 return specificContingency(contingencyId);
+            case ONLY_CONTINGENCIES:
+                return ONLY_CONTINGENCIES;
             default:
                 throw new IllegalStateException("Unknown contingency context type: " + contingencyContextType);
         }

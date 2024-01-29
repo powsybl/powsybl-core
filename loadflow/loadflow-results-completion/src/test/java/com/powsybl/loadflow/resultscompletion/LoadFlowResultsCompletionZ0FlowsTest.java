@@ -14,26 +14,26 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Marcos De Miguel <demiguelm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Marcos De Miguel {@literal <demiguelm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class LoadFlowResultsCompletionZ0FlowsTest {
+class LoadFlowResultsCompletionZ0FlowsTest {
 
     @Test
-    public void originalZ0FlowsCompletion() throws Exception {
+    void originalZ0FlowsCompletion() throws Exception {
         Network network = createNetwork();
 
         Line loop = network.getLine("L1-1");
@@ -50,7 +50,7 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
     }
 
     @Test
-    public void disconnectZ0FlowsCompletion() throws Exception {
+    void disconnectZ0FlowsCompletion() throws Exception {
         Network network = createNetwork();
         disconnectLine(network);
         completeResults(network);
@@ -58,20 +58,20 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
     }
 
     @Test
-    public void splitZ0FlowsCompletion() throws Exception {
+    void splitZ0FlowsCompletion() throws Exception {
         Network network = createNetwork();
         splitNetwork(network);
         completeResults(network);
         assertTrue(validateBuses(network));
     }
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 

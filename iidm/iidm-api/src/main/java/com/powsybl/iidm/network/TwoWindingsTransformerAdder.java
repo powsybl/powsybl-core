@@ -8,9 +8,9 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTransformerAdder> {
+public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTransformer, TwoWindingsTransformerAdder> {
 
     TwoWindingsTransformerAdder setR(double r);
 
@@ -28,6 +28,7 @@ public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTran
         throw new UnsupportedOperationException();
     }
 
+    @Override
     TwoWindingsTransformer add();
 
 }

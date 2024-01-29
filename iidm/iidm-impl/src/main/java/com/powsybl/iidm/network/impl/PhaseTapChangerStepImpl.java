@@ -7,10 +7,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.iidm.network.ValidationException;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class PhaseTapChangerStepImpl extends TapChangerStepImpl<PhaseTapChangerStepImpl>
                               implements PhaseTapChangerStep {
@@ -35,4 +36,11 @@ class PhaseTapChangerStepImpl extends TapChangerStepImpl<PhaseTapChangerStepImpl
         return this;
     }
 
+    @Override
+    public void validate(TapChangerParent parent) {
+        super.validate(parent);
+        if (Double.isNaN(this.getAlpha())) {
+            throw new ValidationException(parent, "step alpha is not set");
+        }
+    }
 }

@@ -15,88 +15,89 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class JsonOperatorStrategyExtensionTest extends AbstractConverterTest {
+class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
 
     @Test
-    public void testWrite() throws IOException {
-        OperatorStrategy operatorStrategy = new OperatorStrategy("id1", "contingencyId1",
+    void testWrite() throws IOException {
+        OperatorStrategy operatorStrategy = new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"),
                 new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3"));
         operatorStrategy.addExtension(DummyExtension.class, new DummyExtension());
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(Collections.singletonList(operatorStrategy));
-        writeTest(operatorStrategyList, OperatorStrategyList::writeFile, ComparisonUtils::compareTxt,
+        writeTest(operatorStrategyList, OperatorStrategyList::write, ComparisonUtils::compareTxt,
                 "/OperatorStrategyFileExtensionsTest.json");
     }
 
     @Test
-    public void testRoundTrip() throws IOException {
-        OperatorStrategy operatorStrategy = new OperatorStrategy("id1", "contingencyId1",
+    void testRoundTrip() throws IOException {
+        OperatorStrategy operatorStrategy = new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"),
                 new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3"));
         operatorStrategy.addExtension(DummyExtension.class, new DummyExtension());
-        OperatorStrategy operatorStrategy2 = new OperatorStrategy("id2", "contingencyId2",
+        OperatorStrategy operatorStrategy2 = new OperatorStrategy("id2", ContingencyContext.specificContingency("contingencyId2"),
                 new TrueCondition(), Collections.singletonList("actionId4"));
         operatorStrategy2.addExtension(DummyExtension.class, new DummyExtension());
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(Arrays.asList(operatorStrategy, operatorStrategy2));
-        roundTripTest(operatorStrategyList, OperatorStrategyList::writeFile, OperatorStrategyList::readFile,
+        roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read,
                 "/OperatorStrategyFileExtensionsTest2.json");
     }
 
-    public static class DummyExtension extends AbstractExtension<OperatorStrategy> {
-        public double parameterDouble;
-        public boolean parameterBoolean;
-        public String parameterString;
+    static class DummyExtension extends AbstractExtension<OperatorStrategy> {
+        double parameterDouble;
+        boolean parameterBoolean;
+        String parameterString;
 
-        public DummyExtension() {
+        DummyExtension() {
             super();
             this.parameterDouble = 20.0;
             this.parameterBoolean = true;
             this.parameterString = "Hello";
         }
 
-        public DummyExtension(DummyExtension another) {
+        DummyExtension(DummyExtension another) {
             this.parameterDouble = another.parameterDouble;
             this.parameterBoolean = another.parameterBoolean;
             this.parameterString = another.parameterString;
         }
 
-        public boolean isParameterBoolean() {
+        boolean isParameterBoolean() {
             return parameterBoolean;
         }
 
-        public double getParameterDouble() {
+        double getParameterDouble() {
             return parameterDouble;
         }
 
-        public String getParameterString() {
+        String getParameterString() {
             return parameterString;
         }
 
-        public void setParameterBoolean(boolean parameterBoolean) {
+        void setParameterBoolean(boolean parameterBoolean) {
             this.parameterBoolean = parameterBoolean;
         }
 
-        public void setParameterString(String parameterString) {
+        void setParameterString(String parameterString) {
             this.parameterString = parameterString;
         }
 
-        public void setParameterDouble(double parameterDouble) {
+        void setParameterDouble(double parameterDouble) {
             this.parameterDouble = parameterDouble;
         }
 

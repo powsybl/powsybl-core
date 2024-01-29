@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-cgmes</artifactId>
-        <version>5.1.0-SNAPSHOT</version>
+        <version>6.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-cgmes-conversion</artifactId>
@@ -38,6 +38,10 @@
         </plugins>
     </build>
 
+    <properties>
+        <jug.version>4.3.0</jug.version>
+    </properties>
+
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
@@ -57,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-xml-converter</artifactId>
+            <artifactId>powsybl-iidm-serde</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -78,6 +82,13 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
+        <!-- UUID generator for the naming strategy -->
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>${jug.version}</version>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -90,8 +101,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -128,7 +139,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        
+
         <!-- To validate bus balances on converted Network -->
         <dependency>
             <groupId>${project.groupId}</groupId>

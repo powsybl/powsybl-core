@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  *         <p>
  *         A ConductingEquipment has at least one Terminal. From the Terminal we
  *         get either its ConnectivityNode or its TopologicalNode, depending of
@@ -73,7 +73,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // It is assumed the property bags are already sorted
         this.numTerminals = ps.size();
         terminals = new TerminalData[] {null, null, null};
-        assert numTerminals <= 3;
+        if (numTerminals > 3) {
+            throw new IllegalStateException("numTerminals should be less or equal to 3 but is " + numTerminals);
+        }
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
@@ -81,11 +83,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
-    public String findUcteXnodeCode(String boundaryNode) {
-        return findUcteXnodeCode(context, boundaryNode);
+    public String findPairingKey(String boundaryNode) {
+        return findPairingKey(context, boundaryNode);
     }
 
-    public static String findUcteXnodeCode(Context context, String boundaryNode) {
+    public static String findPairingKey(Context context, String boundaryNode) {
         return context.boundary().nameAtBoundary(boundaryNode);
     }
 
@@ -230,12 +232,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                         .setX(x)
                         .setG(gch)
                         .setB(bch)
-                        .setUcteXnodeCode(findUcteXnodeCode(boundaryNode)))
+                        .setPairingKey(findPairingKey(boundaryNode)))
                 .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connect(dlAdder, modelSide);
-        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(
-            boundaryNode);
+        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(context, boundaryNode, null);
         DanglingLine dl;
         if (equivalentInjectionConversion != null) {
             dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
@@ -248,14 +249,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Boundary", terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
-        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Network", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
-        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
+        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
+        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
         Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn ->
-            dl.addAlias(cn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY)
+            dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn)
         );
-        context.namingStrategy().readIdMapping(dl, type);
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
@@ -322,7 +322,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
         double p = dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0);
         double q = dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0);
-        SV svboundary = new SV(-p, -q, v, angle, Branch.Side.ONE);
+        SV svboundary = new SV(-p, -q, v, angle, TwoSides.ONE);
         // The other side power flow must be computed taking into account
         // the same criteria used for ACLineSegment: total shunt admittance
         // is divided in 2 equal shunt admittance at each side of series impedance
@@ -333,19 +333,42 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         dl.getTerminal().setQ(svmodel.getQ());
     }
 
-    private EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String boundaryNode) {
+    protected static EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, BoundaryLine boundaryLine) {
         List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
         if (eis.isEmpty()) {
             return null;
-        } else if (eis.size() > 1) {
-            // This should not happen
-            // We have decided to create a dangling line,
-            // so only one MAS at this boundary point,
-            // so there must be only one equivalent injection
-            invalid("Multiple equivalent injections at boundary node");
-            return null;
+        } else if (eis.size() == 1) {
+            if (boundaryLine == null) {
+                return new EquivalentInjectionConversion(eis.get(0), context);
+            } else {
+                // This should not happen
+                // We have decided to assemble a dangling line,
+                // so we have the two MAS at this boundary point,
+                // so there must be more than one equivalent injection
+                context.invalid("Boundary node " + boundaryNode,
+                        "Expected multiple equivalent injections at boundary node in assembled model and found only one");
+                return null;
+            }
         } else {
-            return new EquivalentInjectionConversion(eis.get(0), context);
+            if (boundaryLine == null) {
+                // This should not happen
+                // We have decided to create a dangling line,
+                // so only one MAS at this boundary point,
+                // so there must be only one equivalent injection
+                context.invalid("Boundary node " + boundaryNode, "Multiple equivalent injections at boundary node");
+                return null;
+            } else {
+                // Select the EI thas is defined in the same EQ instance of the given line
+                String eqInstancePropertyName = "graph";
+                PropertyBag ei = eis.stream()
+                        .filter(eik -> eik.getId(eqInstancePropertyName).equals(boundaryLine.getEqInstance()))
+                        .findFirst().orElse(null);
+                if (ei == null) {
+                    context.invalid("Boundary node " + boundaryNode,
+                            "Assembled model does not contain an equivalent injection in the same graph of line " + boundaryLine.getId());
+                }
+                return new EquivalentInjectionConversion(ei, context);
+            }
         }
     }
 
@@ -363,7 +386,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         VoltageLevel vl = terminals[n - 1].voltageLevel;
         CgmesTerminal t = terminals[n - 1].t;
-        return context.nodeMapping().iidmNodeForTerminal(t, vl, equipmentIsConnected);
+        return context.nodeMapping().iidmNodeForTerminal(t, type.equals("Switch"), vl, equipmentIsConnected);
     }
 
     String busId() {
@@ -464,7 +487,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     // Terminals
 
     protected void convertedTerminals(Terminal... ts) {
-        assert ts.length == numTerminals;
+        if (ts.length != numTerminals) {
+            throw new IllegalStateException();
+        }
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
             Terminal t = ts[k];
@@ -502,7 +527,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 // its ID is composed by its connectivity node ID + '_VL' sufix
                 voltageLevel = context.network().getVoltageLevel(nodeId + "_VL");
                 if (voltageLevel != null) {
-                    iidmVoltageLevelId = t.connectivityNode() + "_VL";
+                    iidmVoltageLevelId = nodeId + "_VL";
                 } else {
                     iidmVoltageLevelId = null;
                 }
@@ -512,7 +537,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     // Connections
 
-    public void connect(InjectionAdder<?> adder) {
+    public void connect(InjectionAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode());
         } else {
@@ -520,7 +545,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(InjectionAdder<?> adder, int terminal) {
+    public void connect(InjectionAdder<?, ?> adder, int terminal) {
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode(terminal));
         } else {
@@ -528,7 +553,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder) {
+    public void connect(BranchAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))
@@ -548,13 +573,23 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder,
+    public static void connect(Context context, InjectionAdder<?, ?> adder, String busId, boolean connected, int node) {
+        if (context.nodeBreaker()) {
+            adder.setNode(node);
+        } else {
+            adder
+                    .setBus(connected ? busId : null)
+                    .setConnectableBus(busId);
+        }
+    }
+
+    public void connect(BranchAdder<?, ?> adder,
         String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
         String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
         connect(context, adder, iidmVoltageLevelId1, busId1, t1Connected, node1, iidmVoltageLevelId2, busId2, t2Connected, node2);
     }
 
-    public static void connect(Context context, BranchAdder<?> adder,
+    public static void connect(Context context, BranchAdder<?, ?> adder,
         String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
         String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
         if (context.nodeBreaker()) {
@@ -574,11 +609,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder, boolean t1Connected, boolean t2Connected) {
+    public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected) {
         connect(adder, t1Connected, t2Connected, true);
     }
 
-    public void connect(BranchAdder<?> adder, boolean t1Connected, boolean t2Connected, boolean branchIsClosed) {
+    public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected, boolean branchIsClosed) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))
@@ -634,10 +669,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
             i++;
         }
-        context.namingStrategy().readIdMapping(identifiable, type);
     }
 
     protected BoundaryLine createBoundaryLine(String boundaryNode) {
+        // Keep the EQ instance where this equipment at boundary has been defined
+        // The equipment may be a transformer,
+        // in that case we have a list property bags,
+        // one for each of transformer end
+        String eqInstance = (p != null ? p : ps.get(0)).getId("graph");
+
         int modelEnd = 1;
         if (nodeId(1).equals(boundaryNode)) {
             modelEnd = 2;
@@ -654,15 +694,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             modelNode = iidmNode(modelEnd);
         }
         PowerFlow modelPowerFlow = powerFlowSV(modelEnd);
-        return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
+        return new BoundaryLine(eqInstance, id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
             modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, modelPowerFlow);
     }
 
-    private static Branch.Side getBoundarySide(int modelEnd) {
+    private static TwoSides getBoundarySide(int modelEnd) {
         if (modelEnd == 1) {
-            return Branch.Side.TWO;
+            return TwoSides.TWO;
         } else {
-            return Branch.Side.ONE;
+            return TwoSides.ONE;
         }
     }
 

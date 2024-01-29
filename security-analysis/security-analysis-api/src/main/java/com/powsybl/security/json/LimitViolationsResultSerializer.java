@@ -14,7 +14,7 @@ import com.powsybl.security.LimitViolationsResult;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class LimitViolationsResultSerializer extends StdSerializer<LimitViolationsResult> {
 
@@ -25,8 +25,8 @@ public class LimitViolationsResultSerializer extends StdSerializer<LimitViolatio
     @Override
     public void serialize(LimitViolationsResult limitViolationsResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeObjectField("limitViolations", limitViolationsResult.getLimitViolations());
-        jsonGenerator.writeObjectField("actionsTaken", limitViolationsResult.getActionsTaken());
+        serializerProvider.defaultSerializeField("limitViolations", limitViolationsResult.getLimitViolations(), jsonGenerator);
+        serializerProvider.defaultSerializeField("actionsTaken", limitViolationsResult.getActionsTaken(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class PropertyCriterion implements Criterion {
     private final String propertyKey;
@@ -118,9 +118,9 @@ public class PropertyCriterion implements Criterion {
                 return filterSubstationOrVoltageLevel(voltageLevel1) || filterSubstationOrVoltageLevel(voltageLevel2) ||
                         filterSubstationOrVoltageLevel(voltageLevel3);
             case BOTH:
-                return (filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2)) ||
-                        (filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel3)) ||
-                        (filterSubstationOrVoltageLevel(voltageLevel2) && filterSubstationOrVoltageLevel(voltageLevel3));
+                return filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2)
+                        || filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel3)
+                        || filterSubstationOrVoltageLevel(voltageLevel2) && filterSubstationOrVoltageLevel(voltageLevel3);
             case ALL_THREE:
                 return filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2) &&
                         filterSubstationOrVoltageLevel(voltageLevel3);

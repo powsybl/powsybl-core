@@ -14,7 +14,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -383,7 +386,7 @@ import java.util.stream.Stream;
  *
  * <p>To create a voltage level, see {@link VoltageLevelAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see VoltageLevelAdder
  */
 public interface VoltageLevel extends Container<VoltageLevel> {
@@ -411,7 +414,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             return this;
         }
 
-        interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
+        interface SwitchAdder extends IdentifiableAdder<Switch, SwitchAdder> {
 
             SwitchAdder setNode1(int node1);
 
@@ -425,6 +428,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setRetained(boolean retained);
 
+            @Override
             Switch add();
         }
 
@@ -442,16 +446,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             int getNode1();
 
             int getNode2();
-        }
-
-        /**
-         * Get the count of used nodes (nodes attached to an equipment, a switch or an internal connection).
-         *
-         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
-         */
-        @Deprecated
-        default int getNodeCount() {
-            throw new UnsupportedOperationException();
         }
 
         /**
@@ -685,7 +679,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     interface BusBreakerView {
 
-        interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
+        interface SwitchAdder extends IdentifiableAdder<Switch, SwitchAdder> {
 
             SwitchAdder setBus1(String bus1);
 
@@ -693,6 +687,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setOpen(boolean open);
 
+            @Override
             Switch add();
 
         }
@@ -714,6 +709,15 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * @see VariantManager
          */
         Stream<Bus> getBusStream();
+
+        /**
+         * Get the bus count.
+         * <p>
+         * Depends on the working variant if topology kind is NODE_BREAKER.
+         *
+         * @see VariantManager
+         */
+        int getBusCount();
 
         /**
          * Get a bus.
@@ -826,7 +830,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Switch getSwitch(String switchId);
 
         /**
-         * Get a builer to create a new switch.
+         * Get a builder to create a new switch.
          *
          * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
          */
@@ -1081,14 +1085,28 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     DanglingLineAdder newDanglingLine();
 
     /**
-     * Get dangling lines.
+     * Get the dangling lines in this voltage level which correspond to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
 
     /**
-     * Get dangling lines.
+     * Get all dangling lines in this voltage level.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLines(DanglingLineFilter.ALL);
+    }
+
+    /**
+     * Get the dangling lines in this voltage level which correspond to given filter.
+     */
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+
+   /**
+     * Get all dangling lines in this voltage level.
+     */
+    default Stream<DanglingLine> getDanglingLineStream() {
+        return getDanglingLineStream(DanglingLineFilter.ALL);
+    }
 
     /**
      * Get dangling line count.
@@ -1233,6 +1251,26 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return three windings transformer count connected to this voltage level
      */
     int getThreeWindingsTransformerCount();
+
+    /**
+     * Get a builder to create a new ground.
+     */
+    GroundAdder newGround();
+
+    /**
+     * Get grounds.
+     */
+    Iterable<Ground> getGrounds();
+
+    /**
+     * Get grounds.
+     */
+    Stream<Ground> getGroundStream();
+
+    /**
+     * Get ground count.
+     */
+    int getGroundCount();
 
     /**
      * Remove this voltage level from the network.

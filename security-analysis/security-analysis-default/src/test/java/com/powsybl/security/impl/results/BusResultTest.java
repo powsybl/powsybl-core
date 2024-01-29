@@ -8,16 +8,16 @@ package com.powsybl.security.impl.results;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.security.results.BusResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class BusResultTest {
+class BusResultTest {
     @Test
-    public void test() {
+    void test() {
         BusResult busResult = new BusResult("vl_id", "bus_id", 400, 0.0003);
         assertEquals("vl_id", busResult.getVoltageLevelId());
         assertEquals("bus_id", busResult.getBusId());

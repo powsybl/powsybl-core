@@ -12,24 +12,24 @@ import com.powsybl.dynamicsimulation.Curve;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public class DummyCurve implements Curve {
+class DummyCurve implements Curve {
 
     private final String id;
 
     private final String variable;
 
-    public DummyCurve(String id, String variable) {
+    DummyCurve(String id, String variable) {
         this.id = Objects.requireNonNull(id);
         this.variable = Objects.requireNonNull(variable);
     }
 
-    public String getId() {
+    String getId() {
         return id;
     }
 
-    public String getVariable() {
+    String getVariable() {
         return variable;
     }
 

@@ -11,22 +11,24 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class GeneratorEntsoeCategoryImpl extends AbstractExtension<Generator> implements GeneratorEntsoeCategory {
 
     private int code;
 
-    private static int checkCode(int code) {
+    private static int checkCode(int code, Generator generator) {
         if (code < 1) {
-            throw new IllegalArgumentException("Bad generator ENTSO-E code " + code);
+            throw new IllegalArgumentException(String.format("Bad generator ENTSO-E code %s for generator %s",
+                code,
+                generator.getId()));
         }
         return code;
     }
 
     public GeneratorEntsoeCategoryImpl(Generator generator, int code) {
         super(generator);
-        this.code = checkCode(code);
+        this.code = checkCode(code, generator);
     }
 
     @Override
@@ -36,7 +38,7 @@ public class GeneratorEntsoeCategoryImpl extends AbstractExtension<Generator> im
 
     @Override
     public GeneratorEntsoeCategoryImpl setCode(int code) {
-        this.code = checkCode(code);
+        this.code = checkCode(code, this.getExtendable());
         return this;
     }
 }

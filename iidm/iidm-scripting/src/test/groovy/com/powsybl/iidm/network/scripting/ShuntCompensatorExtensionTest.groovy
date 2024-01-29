@@ -14,20 +14,17 @@ import com.powsybl.iidm.network.ShuntCompensatorAdder
 import com.powsybl.iidm.network.Substation
 import com.powsybl.iidm.network.TopologyKind
 import com.powsybl.iidm.network.VoltageLevel
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.ExpectedException
+import org.junit.jupiter.api.Test
 
-import static org.junit.Assert.assertEquals
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertThrows
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 /**
  *
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ShuntCompensatorExtensionTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none()
 
     @Test
     void linearShuntTest() {
@@ -53,26 +50,23 @@ class ShuntCompensatorExtensionTest {
 
     @Test
     void failGetbPerSectionTest() {
-        thrown.expect(PowsyblException.class)
-        thrown.expectMessage("shunt model is not linear")
         ShuntCompensator shunt = createNonLinearShuntCompensator()
-        double bPerSection = shunt.bPerSection
+        PowsyblException e = assertThrows(PowsyblException.class, () -> shunt.bPerSection)
+        assertTrue(e.getMessage().contains("shunt model is not linear"))
     }
 
     @Test
     void failSetbPerSectionTest() {
-        thrown.expect(PowsyblException.class)
-        thrown.expectMessage("shunt model is not linear")
         ShuntCompensator shunt = createNonLinearShuntCompensator()
-        shunt.bPerSection = 4.0
+        PowsyblException e = assertThrows(PowsyblException.class, () -> shunt.bPerSection = 4.0)
+        assertTrue(e.getMessage().contains("shunt model is not linear"))
     }
 
     @Test
     void failSetMaximumSectionCountTest() {
-        thrown.expect(PowsyblException.class)
-        thrown.expectMessage("shunt model is not linear")
         ShuntCompensator shunt = createNonLinearShuntCompensator()
-        shunt.maximumSectionCount = 11
+        PowsyblException e = assertThrows(PowsyblException.class, () -> shunt.maximumSectionCount = 11)
+        assertTrue(e.getMessage().contains("shunt model is not linear"))
     }
 
     static ShuntCompensator createLinearShuntCompensator() {

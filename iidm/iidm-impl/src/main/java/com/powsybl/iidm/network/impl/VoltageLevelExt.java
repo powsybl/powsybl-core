@@ -7,10 +7,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.impl.util.Ref;
+
+import java.util.function.Predicate;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
@@ -38,6 +41,9 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     NetworkImpl getNetwork();
 
+    @Override
+    NetworkExt getParentNetwork();
+
     /**
      * Attach an equipment to the topology.
      */
@@ -50,7 +56,19 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     boolean connect(TerminalExt terminal);
 
+    boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate);
+
     boolean disconnect(TerminalExt terminal);
 
-    void invalidateCache();
+    boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable);
+
+    default void invalidateCache() {
+        invalidateCache(false);
+    }
+
+    void invalidateCache(boolean exceptBusBreakerView);
+
+    String getSubnetworkId();
+
+    Ref<NetworkImpl> getNetworkRef();
 }

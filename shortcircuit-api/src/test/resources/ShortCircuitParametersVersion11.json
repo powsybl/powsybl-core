@@ -1,0 +1,9 @@
+{
+  "version" : "1.1",
+  "withLimitViolations" : false,
+  "withVoltageResult" : false,
+  "withFeederResult" : true,
+  "studyType" : "TRANSIENT",
+  "minVoltageDropProportionalThreshold" : 0.0,
+  "withFortescueResult" : true
+}

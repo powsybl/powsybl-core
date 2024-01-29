@@ -6,15 +6,13 @@
  */
 package com.powsybl.commons.config;
 
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface ModuleConfig {
 
@@ -118,13 +116,7 @@ public interface ModuleConfig {
 
     // DateTime
 
-    Optional<DateTime> getOptionalDateTimeProperty(String name);
+    Optional<ZonedDateTime> getOptionalDateTimeProperty(String name);
 
-    DateTime getDateTimeProperty(String name);
-
-    // Interval
-
-    Optional<Interval> getOptionalIntervalProperty(String name);
-
-    Interval getIntervalProperty(String name);
+    ZonedDateTime getDateTimeProperty(String name);
 }

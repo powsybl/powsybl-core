@@ -8,7 +8,6 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -26,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 class FaultResultDeserializer {
 
@@ -48,79 +47,83 @@ class FaultResultDeserializer {
             List<Extension<FaultResult>> extensions = Collections.emptyList();
             FortescueValue current = null;
             FortescueValue voltage = null;
+            double currentMagnitude = Double.NaN;
+            double voltageMagnitude = Double.NaN;
             List<ShortCircuitBusResults> shortCircuitBusResults = Collections.emptyList();
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
                 switch (parser.getCurrentName()) {
-                    case "fault":
+                    case "fault" -> {
                         parser.nextToken();
-                        fault = parser.readValueAs(Fault.class);
-                        break;
-
-                    case "shortCircuitPower":
+                        fault = JsonUtil.readValue(deserializationContext, parser, Fault.class);
+                    }
+                    case "shortCircuitPower" -> {
                         parser.nextToken();
                         shortCircuitPower = parser.readValueAs(Double.class);
-                        break;
-
-                    case "timeConstant":
+                    }
+                    case "timeConstant" -> {
                         parser.nextToken();
                         timeConstant = Duration.parse(parser.readValueAs(String.class));
-                        break;
-
-                    case "feederResult":
+                    }
+                    case "feederResult" -> {
                         parser.nextToken();
-                        feederResults = parser.readValueAs(new TypeReference<List<FeederResult>>() {
-                        });
-                        break;
-
-                    case "limitViolations":
+                        feederResults = JsonUtil.readList(deserializationContext, parser, FeederResult.class);
+                    }
+                    case "limitViolations" -> {
                         parser.nextToken();
-                        limitViolations = parser.readValueAs(new TypeReference<List<LimitViolation>>() {
-                        });
-                        break;
-
-                    case "current":
+                        limitViolations = JsonUtil.readList(deserializationContext, parser, LimitViolation.class);
+                    }
+                    case "current" -> {
                         parser.nextToken();
-                        current = parser.readValueAs(FortescueValue.class);
-                        break;
-
-                    case "voltage":
+                        current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
+                    }
+                    case "voltage" -> {
                         parser.nextToken();
-                        voltage = parser.readValueAs(FortescueValue.class);
-                        break;
-
-                    case "shortCircuitBusResults":
+                        voltage = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
+                    }
+                    case "currentMagnitude" -> {
                         parser.nextToken();
-                        shortCircuitBusResults = parser.readValueAs(new TypeReference<List<ShortCircuitBusResults>>() {
-                        });
-                        break;
-
-                    case "status":
+                        currentMagnitude = parser.readValueAs(Double.class);
+                    }
+                    case "voltageMagnitude" -> {
+                        parser.nextToken();
+                        voltageMagnitude = parser.readValueAs(Double.class);
+                    }
+                    case "shortCircuitBusResults" ->
+                            shortCircuitBusResults = new ShortCircuitBusResultsDeserializer().deserialize(parser, version);
+                    case "status" -> {
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.1");
                         parser.nextToken();
                         status = FaultResult.Status.valueOf(parser.getValueAsString());
-                        break;
-
-                    case "extensions":
+                    }
+                    case "extensions" -> {
                         parser.nextToken();
                         extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
-                        break;
-
-                    default:
-                        throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    }
+                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
 
             FaultResult faultResult;
             if (status == null) {
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "No status", version, "1.0");
-                if (current == null) {
-                    faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.FAILURE);
+                if (current == null && Double.isNaN(currentMagnitude)) {
+                    faultResult = new FailedFaultResult(fault, FaultResult.Status.FAILURE);
                 } else {
-                    faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
+                    if (!Double.isNaN(currentMagnitude)) {
+                        faultResult = new MagnitudeFaultResult(fault, shortCircuitPower, feederResults, limitViolations, currentMagnitude, voltageMagnitude, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
+                    } else {
+                        faultResult = new FortescueFaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
+                    }
                 }
             } else {
-                faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status);
+                if (status == FaultResult.Status.FAILURE) {
+                    faultResult = new FailedFaultResult(fault, status);
+                } else if (!Double.isNaN(currentMagnitude)) {
+                    faultResult = new MagnitudeFaultResult(fault, shortCircuitPower, feederResults, limitViolations, currentMagnitude, voltageMagnitude, shortCircuitBusResults, timeConstant, status);
+                } else {
+                    faultResult = new FortescueFaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status);
+                }
             }
 
             SUPPLIER.get().addExtensions(faultResult, extensions);

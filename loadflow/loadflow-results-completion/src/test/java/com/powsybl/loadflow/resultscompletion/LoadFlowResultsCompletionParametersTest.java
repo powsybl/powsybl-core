@@ -6,15 +6,15 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.FileSystem;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -23,33 +23,33 @@ import com.powsybl.commons.config.MapModuleConfig;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public class LoadFlowResultsCompletionParametersTest {
+class LoadFlowResultsCompletionParametersTest {
 
     private InMemoryPlatformConfig platformConfig;
     private FileSystem fileSystem;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
     @Test
-    public void testNoConfig() {
+    void testNoConfig() {
         LoadFlowResultsCompletionParameters parameters = LoadFlowResultsCompletionParameters.load(platformConfig);
         assertEquals(LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT, parameters.getEpsilonX(), 0f);
         assertFalse(parameters.isApplyReactanceCorrection());
     }
 
     @Test
-    public void testConfig() {
+    void testConfig() {
         float epsilonX = 0.5f;
         boolean applyReactanceCorrection = true;
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-results-completion-parameters");

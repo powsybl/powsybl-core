@@ -9,7 +9,7 @@ package com.powsybl.loadflow.resultscompletion.z0flows;
 import com.powsybl.iidm.network.Line;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface Z0LineChecker {
     public boolean isZ0(Line line);

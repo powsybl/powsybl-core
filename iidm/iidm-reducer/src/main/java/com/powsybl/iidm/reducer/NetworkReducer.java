@@ -9,7 +9,9 @@ package com.powsybl.iidm.reducer;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * Warning : a NetworkReducer must not be considered reusable nor thread-safe.
+ *
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface NetworkReducer {
 

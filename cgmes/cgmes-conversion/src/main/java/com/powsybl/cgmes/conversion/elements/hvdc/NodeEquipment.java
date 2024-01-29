@@ -7,10 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.model.CgmesDcTerminal;
@@ -22,8 +19,8 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class NodeEquipment {
 
@@ -143,6 +140,15 @@ class NodeEquipment {
         }
         return listEquipment.stream()
             .anyMatch(eq -> eq.type == EquipmentType.AC_DC_CONVERTER);
+    }
+
+    boolean containsAnyNotUsedAcDcConverter(String node, Set<String> usedAcDcConverters) {
+        List<EquipmentReference> listEquipment = nodeEquipment.get(node);
+        if (listEquipment == null) {
+            return false;
+        }
+        return listEquipment.stream()
+                .anyMatch(eq -> eq.type == EquipmentType.AC_DC_CONVERTER && !usedAcDcConverters.contains(eq.equipmentId));
     }
 
     boolean multiAcDcConverter(String node) {

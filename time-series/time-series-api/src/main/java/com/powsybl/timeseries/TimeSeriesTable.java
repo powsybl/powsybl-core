@@ -48,7 +48,7 @@ import java.util.zip.GZIPOutputStream;
  *     <li>Concurrency between data loading and other operations (CSV writing, statistics computation) is NOT supported</li>
  * </ul>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TimeSeriesTable {
 
@@ -182,14 +182,14 @@ public class TimeSeriesTable {
 
             for (DoubleTimeSeries timeSeries : doubleTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
-                                                               .collect(Collectors.toList())) {
+                                                               .toList()) {
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = doubleTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
             }
             for (StringTimeSeries timeSeries : stringTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
-                                                               .collect(Collectors.toList())) {
+                                                               .toList()) {
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = stringTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
@@ -319,12 +319,12 @@ public class TimeSeriesTable {
         List<StringTimeSeries> stringTimeSeries = new ArrayList<>();
         for (TimeSeries timeSeries : timeSeriesList) {
             Objects.requireNonNull(timeSeries);
-            if (timeSeries instanceof DoubleTimeSeries) {
-                doubleTimeSeries.add((DoubleTimeSeries) timeSeries);
-            } else if (timeSeries instanceof StringTimeSeries) {
-                stringTimeSeries.add((StringTimeSeries) timeSeries);
+            if (timeSeries instanceof DoubleTimeSeries dts) {
+                doubleTimeSeries.add(dts);
+            } else if (timeSeries instanceof StringTimeSeries sts) {
+                stringTimeSeries.add(sts);
             } else {
-                throw new AssertionError("Unsupported time series type " + timeSeries.getClass());
+                throw new IllegalStateException("Unsupported time series type " + timeSeries.getClass());
             }
         }
 
@@ -605,7 +605,7 @@ public class TimeSeriesTable {
                     cache.stringCache[cachedPoint * stringTimeSeriesNames.size() + timeSeriesNum] = stringBuffer.getString(timeSeriesOffset + point + cachedPoint);
                 }
             } else {
-                throw new AssertionError("Unexpected data type " + metadata.getDataType());
+                throw new IllegalStateException("Unexpected data type " + metadata.getDataType());
             }
         }
     }
@@ -640,7 +640,7 @@ public class TimeSeriesTable {
                     String value = cache.stringCache[cachedPoint * stringTimeSeriesNames.size() + timeSeriesNum];
                     writeString(writer, value);
                 } else {
-                    throw new AssertionError("Unexpected data type " + metadata.getDataType());
+                    throw new IllegalStateException("Unexpected data type " + metadata.getDataType());
                 }
             }
             writer.write(System.lineSeparator());
@@ -650,18 +650,13 @@ public class TimeSeriesTable {
     private void writeTime(Writer writer, TimeSeriesCsvConfig timeSeriesCsvConfig, int point, int cachedPoint) throws IOException {
         long time = tableIndex.getTimeAt(point + cachedPoint);
         switch (timeSeriesCsvConfig.timeFormat()) {
-            case DATE_TIME:
-                ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
-                writer.write(dateTime.format(timeSeriesCsvConfig.dateTimeFormatter()));
-                break;
-            case FRACTIONS_OF_SECOND:
-                writer.write(Double.toString(time / 1000.0));
-                break;
-            case MILLIS:
-                writer.write(Long.toString(time));
-                break;
-            default:
-                throw new AssertionError("Unknown time format " + timeSeriesCsvConfig.timeFormat());
+            case DATE_TIME -> {
+                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+                writer.write(zonedDateTime.format(timeSeriesCsvConfig.dateTimeFormatter()));
+            }
+            case FRACTIONS_OF_SECOND -> writer.write(Double.toString(time / 1000.0));
+            case MILLIS -> writer.write(Long.toString(time));
+            default -> throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
         }
     }
 

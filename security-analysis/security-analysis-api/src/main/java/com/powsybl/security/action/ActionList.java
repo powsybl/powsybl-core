@@ -25,11 +25,11 @@ import java.util.Objects;
  * A container for a list of actions.
  * The JSON representation of this object is versioned.
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ActionList {
     private final List<Action> actions;
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.1";
 
     public ActionList(List<Action> actions) {
         this.actions = ImmutableList.copyOf(Objects.requireNonNull(actions));

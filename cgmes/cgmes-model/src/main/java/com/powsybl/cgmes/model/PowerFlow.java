@@ -10,7 +10,7 @@ package com.powsybl.cgmes.model;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class PowerFlow {
     public static final PowerFlow UNDEFINED = new PowerFlow(false, Double.NaN, Double.NaN);

@@ -33,7 +33,7 @@ import java.util.List;
  * The files must be listed manually in a "filelist.txt" file. The "filelist.txt" and
  * the test files are read from the classpath relative to this class.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 @AutoService(PlatformConfigProvider.class)
 public class TestPlatformConfigProvider implements PlatformConfigProvider {
@@ -61,11 +61,7 @@ public class TestPlatformConfigProvider implements PlatformConfigProvider {
         InputStream resourceList = TestPlatformConfigProvider.class.getResourceAsStream(FILELIST_PATH);
         List<String> resources;
         if (resourceList != null) {
-            try {
-                resources = IOUtils.readLines(resourceList, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            resources = IOUtils.readLines(resourceList, StandardCharsets.UTF_8);
         } else {
             resources = Collections.emptyList();
         }

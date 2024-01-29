@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Connectable;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class CgmesTapChangersAdderImplProvider<C extends Connectable<C>>

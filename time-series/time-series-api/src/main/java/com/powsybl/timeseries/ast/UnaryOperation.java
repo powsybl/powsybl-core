@@ -16,7 +16,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
@@ -120,17 +120,18 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
         ParsingContext context = new ParsingContext();
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
-            if (token == JsonToken.START_OBJECT) {
-                // skip
-            } else if (token == JsonToken.END_OBJECT) {
-                if (context.child == null || context.operator == null) {
-                    throw new TimeSeriesException("Invalid unary operation node calc JSON");
+            switch (token) {
+                case START_OBJECT -> {
+                    // Do nothing
                 }
-                return new UnaryOperation(context.child, context.operator);
-            } else if (token == JsonToken.FIELD_NAME) {
-                parseFieldName(parser, token, context);
-            } else {
-                throw NodeCalc.createUnexpectedToken(token);
+                case END_OBJECT -> {
+                    if (context.child == null || context.operator == null) {
+                        throw new TimeSeriesException("Invalid unary operation node calc JSON");
+                    }
+                    return new UnaryOperation(context.child, context.operator);
+                }
+                case FIELD_NAME -> parseFieldName(parser, token, context);
+                default -> throw NodeCalc.createUnexpectedToken(token);
             }
         }
         throw NodeCalc.createUnexpectedToken(token);
@@ -143,8 +144,8 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UnaryOperation) {
-            return (((UnaryOperation) obj).child).equals(child) && ((UnaryOperation) obj).operator == operator;
+        if (obj instanceof UnaryOperation unaryOperation) {
+            return (unaryOperation.child).equals(child) && unaryOperation.operator == operator;
         }
         return false;
     }

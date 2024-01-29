@@ -8,24 +8,26 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface BranchAdder<T extends BranchAdder> extends IdentifiableAdder<T> {
+public interface BranchAdder<T extends Branch<? super T> & Connectable<? super T>, A extends BranchAdder> extends IdentifiableAdder<T, A> {
 
-    T setVoltageLevel1(String voltageLevelId1);
+    A setVoltageLevel1(String voltageLevelId1);
 
-    T setNode1(int node1);
+    A setNode1(int node1);
 
-    T setBus1(String bus1);
+    A setBus1(String bus1);
 
-    T setConnectableBus1(String connectableBus1);
+    A setConnectableBus1(String connectableBus1);
 
-    T setVoltageLevel2(String voltageLevelId2);
+    A setVoltageLevel2(String voltageLevelId2);
 
-    T setNode2(int node2);
+    A setNode2(int node2);
 
-    T setBus2(String bus2);
+    A setBus2(String bus2);
 
-    T setConnectableBus2(String connectableBus2);
+    A setConnectableBus2(String connectableBus2);
 
+    @Override
+    T add();
 }

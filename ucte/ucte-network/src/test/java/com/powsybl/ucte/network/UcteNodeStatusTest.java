@@ -6,19 +6,19 @@
  */
 package com.powsybl.ucte.network;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.network.UcteNodeStatus.*;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class UcteNodeStatusTest {
+class UcteNodeStatusTest {
 
     @Test
-    public void test() {
+    void test() {
         assertEquals(2, UcteNodeStatus.values().length);
         assertArrayEquals(new UcteNodeStatus[] {REAL, EQUIVALENT}, UcteNodeStatus.values());
     }

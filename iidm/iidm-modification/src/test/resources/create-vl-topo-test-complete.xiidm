@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:voltageLevel id="VLTEST" nominalV="380.0" topologyKind="NODE_BREAKER">
         <iidm:nodeBreakerTopology>
             <iidm:busbarSection id="BBS_TEST_1_1" node="0"/>
@@ -14,21 +14,21 @@
             <iidm:busbarSection id="BBS_TEST_1_4" node="9"/>
             <iidm:busbarSection id="BBS_TEST_2_4" node="10"/>
             <iidm:busbarSection id="BBS_TEST_3_4" node="11"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_1_1" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="12"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_0_12" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="12"/>
             <iidm:switch id="SW_TEST_BREAKER_1_1" kind="BREAKER" retained="true" open="false" node1="12" node2="13"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_1_1#0" kind="DISCONNECTOR" retained="false" open="false" node1="13" node2="3"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_2_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="14"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_13_3" kind="DISCONNECTOR" retained="false" open="false" node1="13" node2="3"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_1_14" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="14"/>
             <iidm:switch id="SW_TEST_BREAKER_2_1" kind="BREAKER" retained="true" open="false" node1="14" node2="15"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_2_1#0" kind="DISCONNECTOR" retained="false" open="false" node1="15" node2="4"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_3_1" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="16"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_15_4" kind="DISCONNECTOR" retained="false" open="false" node1="15" node2="4"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_2_16" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="16"/>
             <iidm:switch id="SW_TEST_BREAKER_3_1" kind="BREAKER" retained="true" open="false" node1="16" node2="17"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_3_1#0" kind="DISCONNECTOR" retained="false" open="false" node1="17" node2="5"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_1_2" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="6"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_2_2" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="7"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_3_2" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="8"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_1_3" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="9"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_2_3" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="10"/>
-            <iidm:switch id="SW_TEST_DISCONNECTOR_3_3" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="11"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_17_5" kind="DISCONNECTOR" retained="false" open="false" node1="17" node2="5"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_3_6" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="6"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_4_7" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="7"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_5_8" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="8"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_6_9" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="9"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_7_10" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="10"/>
+            <iidm:switch id="SW_TEST_DISCONNECTOR_8_11" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="11"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:substation id="A" country="FR">
@@ -102,7 +102,7 @@
             <iidm:load id="CG" loadType="UNDEFINED" p0="90.39911" q0="-51.96869" node="20" p="90.39911" q="-51.96869"/>
             <iidm:load id="CH" loadType="UNDEFINED" p0="-5.102249" q0="4.9081216" node="22" p="-5.102249" q="4.9081216"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="CI" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" node1="2" voltageLevelId1="C" node2="10" voltageLevelId2="N">
+        <iidm:twoWindingsTransformer id="CI" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" node1="2" voltageLevelId1="C" node2="10" voltageLevelId2="N" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="22" regulationMode="CURRENT_LIMITER" regulationValue="930.6667" regulating="false">
                 <iidm:terminalRef id="CI" side="ONE"/>
                 <iidm:step r="39.78473" x="39.784725" g="0.0" b="0.0" rho="1.0" alpha="-42.8"/>
@@ -139,16 +139,24 @@
                 <iidm:step r="31.720245" x="31.720242" g="0.0" b="0.0" rho="1.0" alpha="40.18"/>
                 <iidm:step r="39.78473" x="39.784725" g="0.0" b="0.0" rho="1.0" alpha="42.8"/>
             </iidm:phaseTapChanger>
-            <iidm:currentLimits1 permanentLimit="931.0"/>
-            <iidm:currentLimits2 permanentLimit="931.0"/>
+            <iidm:operationalLimitsGroup1 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="931.0"/>
+            </iidm:operationalLimitsGroup1>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="931.0"/>
+            </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:line id="CJ" r="0.009999999" x="0.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="4" voltageLevelId1="C" node2="5" voltageLevelId2="N">
-        <iidm:currentLimits1 permanentLimit="931.0"/>
-        <iidm:currentLimits2 permanentLimit="931.0">
-            <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
-            <iidm:temporaryLimit name="IT1" acceptableDuration="60"/>
-        </iidm:currentLimits2>
+    <iidm:line id="CJ" r="0.009999999" x="0.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="4" voltageLevelId1="C" node2="5" voltageLevelId2="N" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="931.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="931.0">
+                <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
+                <iidm:temporaryLimit name="IT1" acceptableDuration="60"/>
+            </iidm:currentLimits>
+        </iidm:operationalLimitsGroup2>
     </iidm:line>
     <iidm:extension id="BBS_TEST_2_4">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="4"/>

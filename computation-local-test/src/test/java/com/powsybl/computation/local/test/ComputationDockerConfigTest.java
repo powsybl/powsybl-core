@@ -10,33 +10,33 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ComputationDockerConfigTest {
+class ComputationDockerConfigTest {
 
     private FileSystem fileSystem;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
     @Test
-    public void test() {
+    void test() {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         ConfigurationException e = assertThrows(ConfigurationException.class, () -> ComputationDockerConfig.load(platformConfig));
         assertEquals("Module computation-docker is missing in your configuration file", e.getMessage());

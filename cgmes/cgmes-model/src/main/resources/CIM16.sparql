@@ -42,6 +42,19 @@ SELECT *
         && !regex(?profile, "TopologyBoundary", "i"))
 }}
 
+# query: boundaryModelIds
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    # All model identifiers related to boundaries
+    ?FullModel
+        a md:FullModel ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.profile ?profile .
+    FILTER (regex(?profile, "EquipmentBoundary", "i")
+        || regex(?profile, "TopologyBoundary", "i"))
+}}
+
 # query: modelDates
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
@@ -119,18 +132,66 @@ SELECT *
     ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
 }}
 
+# query: countrySourcingActors
+prefix cgmbp: <http://entsoe.eu/CIM/Extensions/CGM-BP/2020#>
+SELECT *
+WHERE {
+    ?GeographicalRegion
+        a cim:GeographicalRegion ;
+        cim:IdentifiedObject.name "{0}" ;
+        cgmbp:NetworkRegion.sourcingActor ?sourcingActorName .
+}
+
+# query: sourcingActor
+prefix cgmbp: <http://entsoe.eu/CIM/Extensions/CGM-BP/2020#>
+SELECT *
+WHERE {
+    ?ModelingAuthority
+        a cgmbp:ModelingAuthority ;
+        cim:IdentifiedObject.name ?name ;
+        cgmbp:Party.sourceName "{0}" ;
+        cgmbp:Party.uri ?uri .
+    ?GeographicalRegion
+        a cim:GeographicalRegion ;
+        cim:IdentifiedObject.name ?geographicalRegionName ;
+        entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic ;
+        cgmbp:MARegion.ModelingAuthority ?ModelingAuthority ;
+        cgmbp:NetworkRegion.sourcingActor "{0}" ;
+        cgmbp:NetworkRegion.masUri ?masUri .
+}
+
 # query: substations
-SELECT ?Substation ?name ?SubRegion ?subRegionName ?Region ?regionName
-{ GRAPH ?graph {
+SELECT *
+WHERE {
     ?Substation
         a cim:Substation ;
-        cim:IdentifiedObject.name ?name ;
-        cim:Substation.Region ?SubRegion .
-    ?SubRegion
-        cim:SubGeographicalRegion.Region ?Region ;
-        cim:IdentifiedObject.name ?subRegionName .
-    ?Region cim:IdentifiedObject.name ?regionName
-}}
+        cim:IdentifiedObject.name ?name .
+    # Optional is required to keep the ?Substation variable already bounded in the sub-queries ...
+    OPTIONAL {
+        {
+            SELECT ?SubRegion
+            WHERE {
+                ?Substation cim:Substation.Region ?SubRegion .
+                ?SubRegion a cim:SubGeographicalRegion .
+            }
+            LIMIT 1
+        }
+        ?SubRegion cim:IdentifiedObject.name ?subRegionName .
+        OPTIONAL {
+            {
+                SELECT ?Region
+                WHERE {
+                    ?SubRegion cim:SubGeographicalRegion.Region ?Region .
+                    ?Region a cim:GeographicalRegion .
+                }
+                LIMIT 1
+            }
+            ?Region cim:IdentifiedObject.name ?regionName .
+        }
+    }
+    # ... But we do not want results where the regions are missing
+    FILTER (bound(?SubRegion) && bound(?Region))
+}
 
 # query: voltageLevels
 SELECT *
@@ -262,7 +323,10 @@ SELECT *
 # query: connectivityNodeContainers
 SELECT *
 WHERE {
-{ GRAPH ?graphEQ {
+# Definition of containers are in EQ instance files.
+# A Bay may be in a different instance file of its containing Voltage Level,
+# and a Voltage Level in a different instance file of its containing Substation.
+# This is why we do not use a "restrictive" GRAPH clause here.
     ?ConnectivityNodeContainer a ?connectivityNodeContainerType .
     VALUES ?connectivityNodeContainerType { cim:VoltageLevel cim:Bay cim:Line } .
     OPTIONAL {
@@ -276,7 +340,6 @@ WHERE {
             cim:Bay.VoltageLevel ?VoltageLevel .
         ?VoltageLevel cim:VoltageLevel.Substation ?Substation
     }
-}}
 }
 
 # query: voltages
@@ -298,6 +361,7 @@ WHERE
         cim:IdentifiedObject.name ?name ;
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+    OPTIONAL { ?OperationalLimit entsoe:IdentifiedObject.shortName ?shortName }
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
@@ -332,9 +396,11 @@ WHERE {
 { GRAPH ?graph {
     ?Switch
         a ?type ;
-        cim:IdentifiedObject.name ?name ;
         cim:Equipment.EquipmentContainer ?EquipmentContainer .
     VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector } .
+    OPTIONAL {
+        ?Switch cim:IdentifiedObject.name ?name ;
+    }
     OPTIONAL {
         ?Switch cim:Switch.retained ?retained
     }
@@ -471,6 +537,7 @@ WHERE {
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.connectionKind ?connectionKind }
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.phaseAngleClock ?phaseAngleClock }
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.g ?g }
+    OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.ratedS ?ratedS }
     OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerEnd ?TransformerEnd }
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerEnd ?TransformerEnd }
 }}
@@ -563,8 +630,8 @@ WHERE {
     OPTIONAL {
         ?PhaseTapChanger
             cim:PhaseTapChangerLinear.xMax ?xMax ;
-            cim:PhaseTapChangerLinear.xMin ?xMin ;
-            cim:PhaseTapChangerLinear.stepPhaseShiftIncrement ?stepPhaseShiftIncrement
+            cim:PhaseTapChangerLinear.stepPhaseShiftIncrement ?stepPhaseShiftIncrement .
+        OPTIONAL { ?PhaseTapChanger cim:PhaseTapChangerLinear.xMin ?xMin ; }
     }
     OPTIONAL {
         ?PhaseTapChanger cim:PhaseTapChangerAsymmetrical.windingConnectionAngle ?windingConnectionAngle
@@ -572,8 +639,8 @@ WHERE {
     OPTIONAL {
         ?PhaseTapChanger
             cim:PhaseTapChangerNonLinear.xMax ?xMax ;
-            cim:PhaseTapChangerNonLinear.xMin ?xMin ;
-            cim:PhaseTapChangerNonLinear.voltageStepIncrement ?voltageStepIncrement
+            cim:PhaseTapChangerNonLinear.voltageStepIncrement ?voltageStepIncrement .
+        OPTIONAL { ?PhaseTapChanger cim:PhaseTapChangerNonLinear.xMin ?xMin ; }
     }
     OPTIONAL {
         ?PhaseTapChanger cim:PhaseTapChangerTabular.PhaseTapChangerTable ?PhaseTapChangerTable
@@ -661,6 +728,18 @@ WHERE {
     ?EnergyConsumer
         a ?type ;
         cim:IdentifiedObject.name ?name .
+    OPTIONAL {
+        ?EnergyConsumer cim:EnergyConsumer.LoadResponse ?LoadResponseCharacteristic .
+        ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.exponentModel ?exponentModel .
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pConstantCurrent ?pConstantCurrent }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pConstantImpedance ?pConstantImpedance }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pConstantPower ?pConstantPower }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qConstantCurrent ?qConstantCurrent }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qConstantImpedance ?qConstantImpedance }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qConstantPower ?qConstantPower }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pVoltageExponent ?pVoltageExponent }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qVoltageExponent ?qVoltageExponent }
+    }
     VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad cim:StationSupply }
     ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
@@ -1019,6 +1098,17 @@ WHERE {
         a cim:TieFlow ;
         cim:TieFlow.Terminal ?terminal ;
         cim:TieFlow.ControlArea ?ControlArea
+}}
+}
+
+# query: grounds
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?Ground
+        a cim:Ground ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?Ground .
 }}
 }
 

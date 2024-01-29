@@ -11,8 +11,8 @@ import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<LccConverterStationAdderImpl> implements LccConverterStationAdder {
 
@@ -40,7 +40,7 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
         TerminalExt terminal = checkAndGetTerminal();
         validate();
         LccConverterStationImpl converterStation
-                = new LccConverterStationImpl(getNetwork().getRef(), id, name, isFictitious(), getLossFactor(), powerFactor);
+                = new LccConverterStationImpl(getNetworkRef(), id, name, isFictitious(), getLossFactor(), powerFactor);
         converterStation.addTerminal(terminal);
         getVoltageLevel().attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(converterStation);

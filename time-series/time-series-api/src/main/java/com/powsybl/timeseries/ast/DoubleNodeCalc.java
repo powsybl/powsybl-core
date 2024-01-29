@@ -16,7 +16,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DoubleNodeCalc implements LiteralNodeCalc {
 
@@ -60,8 +60,8 @@ public class DoubleNodeCalc implements LiteralNodeCalc {
     }
 
     static NodeCalc parseJson(JsonParser parser) throws IOException {
-        JsonToken token;
-        while ((token = parser.nextToken()) != null) {
+        JsonToken token = parser.nextToken();
+        if (token != null) {
             if (token == JsonToken.VALUE_NUMBER_FLOAT) {
                 return new DoubleNodeCalc(parser.getDoubleValue());
             } else if (token == JsonToken.VALUE_NUMBER_INT) {
@@ -80,8 +80,8 @@ public class DoubleNodeCalc implements LiteralNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DoubleNodeCalc) {
-            return ((DoubleNodeCalc) obj).value == value;
+        if (obj instanceof DoubleNodeCalc doubleNodeCalc) {
+            return doubleNodeCalc.value == value;
         }
         return false;
     }

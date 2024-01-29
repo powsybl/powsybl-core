@@ -6,28 +6,28 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class BranchDataTest {
+class BranchDataTest {
 
     // Test BranchData
 
     @Test
-    public void testBranchDataFlow() {
+    void testBranchDataFlow() {
         Line line = new BranchTestData().getLine();
         BranchData branchData = new BranchData(line, 0, false);
         boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
@@ -35,7 +35,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio1() {
+    void testBranchDataFlowStructuralRatio1() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV1(395.0);
 
@@ -46,7 +46,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio1Vnominal2Zero() {
+    void testBranchDataFlowStructuralRatio1Vnominal2Zero() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV1(395.0);
         branchTestData.setNominalV2(0.0);
@@ -58,7 +58,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio1Vnominal2NaN() {
+    void testBranchDataFlowStructuralRatio1Vnominal2NaN() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV1(395.0);
         branchTestData.setNominalV2(Double.NaN);
@@ -70,7 +70,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio1VoltageLevel2Null() {
+    void testBranchDataFlowStructuralRatio1VoltageLevel2Null() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV1(395.0);
         branchTestData.setVoltageLevel2Null();
@@ -82,7 +82,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio2Vnominal1Zero() {
+    void testBranchDataFlowStructuralRatio2Vnominal1Zero() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV2(395.0);
         branchTestData.setNominalV1(0.0);
@@ -94,7 +94,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio2Vnominal1NaN() {
+    void testBranchDataFlowStructuralRatio2Vnominal1NaN() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV2(395.0);
         branchTestData.setNominalV1(Double.NaN);
@@ -106,7 +106,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio2VoltageLevel1Null() {
+    void testBranchDataFlowStructuralRatio2VoltageLevel1Null() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV2(395.0);
         branchTestData.setVoltageLevel1Null();
@@ -118,7 +118,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio2() {
+    void testBranchDataFlowStructuralRatio2() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV2(395.0);
 
@@ -165,7 +165,7 @@ public class BranchDataTest {
     // Some tests for a transmission line disconnected at one end
 
     @Test
-    public void testDanglingLine() {
+    void testDanglingLine() {
         BranchTestCase t = lineEnd2Disconnected();
 
         // First obtain results when end 2 is disconnected
@@ -186,7 +186,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testDanglingLineDifferentY() {
+    void testDanglingLineDifferentY() {
         BranchTestCase t = lineEnd2Disconnected();
         t.branch.id = "Dangling-Y1-Y2-different";
         // End 1 admittance to ground has different value of End 2
@@ -247,17 +247,17 @@ public class BranchDataTest {
     // a transmission line and a phase shift transformer
 
     @Test
-    public void testCAS2EntsoeLoadFlowExplicitLine() {
+    void testCAS2EntsoeLoadFlowExplicitLine() {
         checkTestCase("line", cas2EntsoeLoadFlowExplicitLine());
     }
 
     @Test
-    public void testCAS2EntsoeLoadFlowExplicitPhaseShiftTransformer() {
+    void testCAS2EntsoeLoadFlowExplicitPhaseShiftTransformer() {
         checkTestCase("pst", cas2EntsoeLoadFlowExplicitPhaseShiftTransformer());
     }
 
     @Test
-    public void testCAS2EntsoeLoadFlowExplicitLineAndPhaseShifter() {
+    void testCAS2EntsoeLoadFlowExplicitLineAndPhaseShifter() {
         BranchTestCase line = cas2EntsoeLoadFlowExplicitLine();
         BranchTestCase pst = cas2EntsoeLoadFlowExplicitPhaseShiftTransformer();
         Flow load = cas2EntsoeLoadFlowExplicitLoad();
@@ -277,16 +277,16 @@ public class BranchDataTest {
         // (P with 10e-2, Q with 10e-4)
         LOG.debug("");
         LOG.debug("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
-        Flow line1 = flow(pline, Side.ONE);
-        Flow line2 = flow(pline, Side.TWO);
-        Flow pst1 = flow(ppst, Side.ONE);
-        Flow pst2 = flow(ppst, Side.TWO);
+        Flow line1 = flow(pline, TwoSides.ONE);
+        Flow line2 = flow(pline, TwoSides.TWO);
+        Flow pst1 = flow(ppst, TwoSides.ONE);
+        Flow pst2 = flow(ppst, TwoSides.TWO);
         checkBusBalance("End 1", TOLERANCE_BALANCE_EXACT, TOLERANCE_BALANCE_EXACT, line1, pst1, load);
         checkBusBalance("End 2", 1e-2, 1e-4, line2, pst2, generator);
     }
 
     @Test
-    public void testCAS2EntsoeLoadFlowExplicitLineAndPhaseShifterMovedToEnd1() {
+    void testCAS2EntsoeLoadFlowExplicitLineAndPhaseShifterMovedToEnd1() {
         BranchTestCase line = cas2EntsoeLoadFlowExplicitLine();
         BranchTestCase pst = cas2EntsoeLoadFlowExplicitPhaseShiftTransformer();
         Flow load = cas2EntsoeLoadFlowExplicitLoad();
@@ -311,10 +311,10 @@ public class BranchDataTest {
         LOG.debug("");
         LOG.debug("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
         LOG.debug("After moving phase shifter to side 1");
-        Flow line1 = flow(pline, Side.ONE);
-        Flow line2 = flow(pline, Side.TWO);
-        Flow pst1 = flow(ppst, Side.ONE);
-        Flow pst2 = flow(ppst, Side.TWO);
+        Flow line1 = flow(pline, TwoSides.ONE);
+        Flow line2 = flow(pline, TwoSides.TWO);
+        Flow pst1 = flow(ppst, TwoSides.ONE);
+        Flow pst2 = flow(ppst, TwoSides.TWO);
         checkBusBalance("End 1", TOLERANCE_BALANCE_EXACT, TOLERANCE_BALANCE_EXACT, line1, pst1, load);
         checkBusBalance("End 2", 1e-2, 1e-4, line2, pst2, generator);
     }
@@ -395,37 +395,37 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxBC() {
+    void testCAS1EntsoeMicroGrid3wTxBC() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.BC);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxBCNoTxRegulation() {
+    void testCAS1EntsoeMicroGrid3wTxBCNoTxRegulation() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.BC_NO_TRANSFORMER_REGULATION);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxBCAreaControlOn() {
+    void testCAS1EntsoeMicroGrid3wTxBCAreaControlOn() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.BC_AREA_CONTROL_ON);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxT1() {
+    void testCAS1EntsoeMicroGrid3wTxT1() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T1);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxT2() {
+    void testCAS1EntsoeMicroGrid3wTxT2() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T2);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxT3() {
+    void testCAS1EntsoeMicroGrid3wTxT3() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T3);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxT4() {
+    void testCAS1EntsoeMicroGrid3wTxT4() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T4);
     }
 
@@ -811,9 +811,9 @@ public class BranchDataTest {
         BranchData r1 = checkTestCase(label, w1);
         BranchData r2 = checkTestCase(label, w2);
         BranchData r3 = checkTestCase(label, w3);
-        Flow f1 = flow(r1, Side.TWO);
-        Flow f2 = flow(r2, Side.TWO);
-        Flow f3 = flow(r3, Side.TWO);
+        Flow f1 = flow(r1, TwoSides.TWO);
+        Flow f2 = flow(r2, TwoSides.TWO);
+        Flow f3 = flow(r3, TwoSides.TWO);
         checkBusBalance(label, toleranceBalance, f1, f2, f3);
     }
 
@@ -954,7 +954,7 @@ public class BranchDataTest {
         return sum;
     }
 
-    private Flow flow(BranchData b, Side side) {
+    private Flow flow(BranchData b, TwoSides side) {
         Flow f = new Flow();
         f.id = b.getId();
         f.p = b.getComputedP(side);

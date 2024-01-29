@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.VoltageLevelAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
     public VoltageLevelConversion(PropertyBag vl, Context context) {
@@ -79,7 +79,6 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             index++;
             vl.addAlias(mergedVl, "MergedVoltageLevel" + index, context.config().isEnsureIdAliasUnicity());
         }
-        context.namingStrategy().readIdMapping(vl, "VoltageLevel");
     }
 
     private final String cgmesSubstationId;

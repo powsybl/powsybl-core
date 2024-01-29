@@ -10,20 +10,20 @@ import com.google.common.collect.Lists;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.apache.commons.cli.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class ToolOptionsTest {
+class ToolOptionsTest {
 
     private ToolRunningContext context;
     private FileSystem fileSystem;
@@ -32,20 +32,20 @@ public class ToolOptionsTest {
         VALUE
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         context = Mockito.mock(ToolRunningContext.class);
         Mockito.when(context.getFileSystem()).thenReturn(fileSystem);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() throws ParseException {
+    void test() throws ParseException {
         CommandLineParser parser = new DefaultParser();
 
         Options options = new Options();
@@ -68,12 +68,12 @@ public class ToolOptionsTest {
         CommandLine line = parser.parse(options, args);
         ToolOptions opts = new ToolOptions(line, context);
 
-        assertEquals("valueString", opts.getValue("value").orElseThrow(AssertionError::new));
-        assertEquals(5, (long) opts.getInt("int").orElseThrow(AssertionError::new));
-        assertEquals(3.2f, opts.getFloat("float").orElseThrow(AssertionError::new), 0f);
-        assertEquals(EnumOption.VALUE, opts.getEnum("enum", EnumOption.class).orElseThrow(AssertionError::new));
-        assertEquals(Lists.newArrayList("str1", "str2"), opts.getValues("list").orElseThrow(AssertionError::new));
-        assertEquals(fileSystem.getPath("/test/path"), opts.getPath("path").orElseThrow(AssertionError::new));
+        assertEquals("valueString", opts.getValue("value").orElseThrow(IllegalStateException::new));
+        assertEquals(5, (long) opts.getInt("int").orElseThrow(IllegalStateException::new));
+        assertEquals(3.2f, opts.getFloat("float").orElseThrow(IllegalStateException::new), 0f);
+        assertEquals(EnumOption.VALUE, opts.getEnum("enum", EnumOption.class).orElseThrow(IllegalStateException::new));
+        assertEquals(Lists.newArrayList("str1", "str2"), opts.getValues("list").orElseThrow(IllegalStateException::new));
+        assertEquals(fileSystem.getPath("/test/path"), opts.getPath("path").orElseThrow(IllegalStateException::new));
         assertTrue(opts.hasOption("flag"));
         assertFalse(opts.hasOption("flag2"));
     }

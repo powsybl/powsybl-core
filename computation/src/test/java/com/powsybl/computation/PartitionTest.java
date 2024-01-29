@@ -6,19 +6,19 @@
  */
 package com.powsybl.computation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.powsybl.commons.PowsyblException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Yichen Tang <yichen.tang at rte-france.com>
+ * @author Yichen Tang {@literal <yichen.tang at rte-france.com>}
  */
-public class PartitionTest {
+class PartitionTest {
 
     @Test
-    public void test() {
+    void test() {
         Partition p1of1 = Partition.parse("1/1");
         assertEquals(0, p1of1.startIndex(1));
         assertEquals(1, p1of1.endIndex(1));
@@ -54,7 +54,7 @@ public class PartitionTest {
     }
 
     @Test
-    public void testInvalid() {
+    void testInvalid() {
         //parsing
         assertPartitionInvalid("a");
         assertPartitionInvalid("/");

@@ -8,19 +8,19 @@ package com.powsybl.iidm.network.util;
 
 import java.util.Objects;
 
+import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.network.ThreeSides;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class TwtData {
 
@@ -383,7 +383,7 @@ public class TwtData {
         Complex ysh = LinkData.kronAntenna(openLeg.y11(), openLeg.y12(), openLeg.y21(), openLeg.y22(), true);
         LinkData.BranchAdmittanceMatrix secondCloseLegMod = new LinkData.BranchAdmittanceMatrix(secondCloseLeg.y11(),
             secondCloseLeg.y12(), secondCloseLeg.y21(), secondCloseLeg.y22().add(ysh));
-        return LinkData.kronChain(firstCloseLeg, Branch.Side.TWO, secondCloseLegMod, Branch.Side.TWO);
+        return LinkData.kronChain(firstCloseLeg, TwoSides.TWO, secondCloseLegMod, TwoSides.TWO);
     }
 
     private Complex calculateOneConnectedLegShunt(LinkData.BranchAdmittanceMatrix closeLeg,
@@ -474,7 +474,7 @@ public class TwtData {
         return id;
     }
 
-    public double getComputedP(Side side) {
+    public double getComputedP(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -484,11 +484,11 @@ public class TwtData {
             case THREE:
                 return computedP3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getComputedQ(Side side) {
+    public double getComputedQ(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -498,11 +498,11 @@ public class TwtData {
             case THREE:
                 return computedQ3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getP(Side side) {
+    public double getP(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -512,11 +512,11 @@ public class TwtData {
             case THREE:
                 return p3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getQ(Side side) {
+    public double getQ(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -526,11 +526,11 @@ public class TwtData {
             case THREE:
                 return q3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getU(Side side) {
+    public double getU(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -540,7 +540,7 @@ public class TwtData {
             case THREE:
                 return u3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -548,7 +548,7 @@ public class TwtData {
         return starU;
     }
 
-    public double getTheta(Side side) {
+    public double getTheta(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -558,7 +558,7 @@ public class TwtData {
             case THREE:
                 return theta3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -566,7 +566,7 @@ public class TwtData {
         return starTheta;
     }
 
-    public double getR(Side side) {
+    public double getR(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -576,11 +576,11 @@ public class TwtData {
             case THREE:
                 return r3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getX(Side side) {
+    public double getX(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -590,11 +590,11 @@ public class TwtData {
             case THREE:
                 return x3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getG1(Side side) {
+    public double getG1(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -604,11 +604,11 @@ public class TwtData {
             case THREE:
                 return g31;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getB1(Side side) {
+    public double getB1(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -618,11 +618,11 @@ public class TwtData {
             case THREE:
                 return b31;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getG2(Side side) {
+    public double getG2(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -632,11 +632,11 @@ public class TwtData {
             case THREE:
                 return g32;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getB2(Side side) {
+    public double getB2(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -646,11 +646,11 @@ public class TwtData {
             case THREE:
                 return b32;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public double getRatedU(Side side) {
+    public double getRatedU(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -660,11 +660,11 @@ public class TwtData {
             case THREE:
                 return ratedU3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public boolean isConnected(Side side) {
+    public boolean isConnected(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -674,11 +674,11 @@ public class TwtData {
             case THREE:
                 return connected3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
-    public boolean isMainComponent(Side side) {
+    public boolean isMainComponent(ThreeSides side) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -688,7 +688,7 @@ public class TwtData {
             case THREE:
                 return mainComponent3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 

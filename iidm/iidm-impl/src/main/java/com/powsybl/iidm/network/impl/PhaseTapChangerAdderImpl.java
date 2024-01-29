@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
@@ -42,77 +44,60 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private TerminalExt regulationTerminal;
 
-    class StepAdderImpl implements StepAdder {
+    class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 
-        private double rho = Double.NaN;
+        private double rho = 1.0;
 
-        private double r = Double.NaN;
+        private double r = 0.0;
 
-        private double x = Double.NaN;
+        private double x = 0.0;
 
-        private double g = Double.NaN;
+        private double g = 0.0;
 
-        private double b = Double.NaN;
+        private double b = 0.0;
 
         @Override
-        public StepAdder setAlpha(double alpha) {
+        public PhaseTapChangerAdder.StepAdder setAlpha(double alpha) {
             this.alpha = alpha;
             return this;
         }
 
         @Override
-        public StepAdder setRho(double rho) {
+        public PhaseTapChangerAdder.StepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public StepAdder setR(double r) {
+        public PhaseTapChangerAdder.StepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public StepAdder setX(double x) {
+        public PhaseTapChangerAdder.StepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public StepAdder setG(double g) {
+        public PhaseTapChangerAdder.StepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public StepAdder setB(double b) {
+        public PhaseTapChangerAdder.StepAdder setB(double b) {
             this.b = b;
             return this;
         }
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            if (Double.isNaN(alpha)) {
-                throw new ValidationException(parent, "step alpha is not set");
-            }
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(parent, "step rho is not set");
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(parent, "step r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(parent, "step x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(parent, "step g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(parent, "step b is not set");
-            }
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
+            step.validate(parent);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
         }
@@ -170,7 +155,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
-    public StepAdder beginStep() {
+    public PhaseTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 
@@ -200,13 +185,19 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         PhaseTapChangerImpl tapChanger
                 = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
+        Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers,
                 regulating, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
 
         if (parent.hasRatioTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
+            network.getReporterContext().getReporter().report(Report.builder()
+                    .withKey("validationWarning")
+                    .withDefaultMessage("${parent} has both Ratio and Phase Tap Changer.")
+                    .withValue("parent", parent.getMessageHeader())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
         }
 
         parent.setPhaseTapChanger(tapChanger);

@@ -7,13 +7,14 @@
 package com.powsybl.tools;
 
 import com.google.common.collect.ImmutableMap;
-import org.joda.time.DateTime;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractVersion implements Version {
 
@@ -65,7 +66,7 @@ public abstract class AbstractVersion implements Version {
                                "mavenProjectVersion", mavenProjectVersion,
                                "gitVersion", gitVersion,
                                "gitBranch", gitBranch,
-                               "buildTimestamp", new DateTime(buildTimestamp).toString());
+                               "buildTimestamp", Instant.ofEpochSecond(buildTimestamp).atZone(ZoneOffset.UTC).toString());
     }
 
     @Override

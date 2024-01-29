@@ -14,7 +14,7 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ContingencyListDeserializer extends StdDeserializer<ContingencyList> {
 
@@ -28,29 +28,39 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
         while (parser.getCurrentName() != null) {
             if ("type".equals(parser.getCurrentName())) {
                 switch (parser.nextTextValue()) {
-                    case "default":
+                    case "default" -> {
                         DefaultContingencyListDeserializer defaultContingencyListDeserializer = new DefaultContingencyListDeserializer();
                         return defaultContingencyListDeserializer.deserialize(parser, deserializationContext);
-                    case "injectionCriterion":
+                    }
+                    case "injectionCriterion" -> {
                         InjectionCriterionContingencyListDeserializer injectionCriterionContingencyListDeserializer = new InjectionCriterionContingencyListDeserializer();
                         return injectionCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
-                    case "hvdcCriterion":
+                    }
+                    case "hvdcCriterion" -> {
                         HvdcLineCriterionContingencyListDeserializer hvdcLineCriterionContingencyListDeserializer = new HvdcLineCriterionContingencyListDeserializer();
                         return hvdcLineCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
-                    case "lineCriterion":
+                    }
+                    case "lineCriterion" -> {
                         LineCriterionContingencyListDeserializer lineCriterionContingencyListDeserializer = new LineCriterionContingencyListDeserializer();
                         return lineCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
-                    case "twoWindingsTransformerCriterion":
+                    }
+                    case "twoWindingsTransformerCriterion" -> {
                         TwoWindingsTransformerCriterionContingencyListDeserializer twoWindingsTransformerCriterionContingencyListDeserializer = new TwoWindingsTransformerCriterionContingencyListDeserializer();
                         return twoWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
-                    case "threeWindingsTransformerCriterion":
+                    }
+                    case "threeWindingsTransformerCriterion" -> {
                         ThreeWindingsTransformerCriterionContingencyListDeserializer threeWindingsTransformerCriterionContingencyListDeserializer = new ThreeWindingsTransformerCriterionContingencyListDeserializer();
                         return threeWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
-                    case "list":
+                    }
+                    case "list" -> {
                         ListOfContingencyListsDeserializer listOfContingencyListsDeserializer = new ListOfContingencyListsDeserializer();
                         return listOfContingencyListsDeserializer.deserialize(parser, deserializationContext);
-                    default:
-                        throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    }
+                    case "identifier" -> {
+                        IdentifierContingencyListDeserializer identifierContingencyListDeserializer = new IdentifierContingencyListDeserializer();
+                        return identifierContingencyListDeserializer.deserialize(parser, deserializationContext);
+                    }
+                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
             parser.nextToken();

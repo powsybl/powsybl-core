@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class SubstationImpl extends AbstractIdentifiable<Substation> implements Substation {
 
@@ -28,18 +28,26 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     private String tso;
 
     private final Ref<NetworkImpl> networkRef;
+    private final Ref<SubnetworkImpl> subnetworkRef;
 
     private final Set<String> geographicalTags = new LinkedHashSet<>();
 
     private final Set<VoltageLevelExt> voltageLevels = new LinkedHashSet<>();
 
+    private final Set<OverloadManagementSystemImpl> overloadManagementSystems = new LinkedHashSet<>();
+
     private boolean removed = false;
 
-    SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef) {
+    SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef, Ref<SubnetworkImpl> subnetworkRef) {
         super(id, name, fictitious);
         this.country = country;
         this.tso = tso;
         this.networkRef = networkRef;
+        this.subnetworkRef = subnetworkRef;
+    }
+
+    Ref<SubnetworkImpl> getSubnetworkRef() {
+        return subnetworkRef;
     }
 
     @Override
@@ -84,6 +92,15 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             throw new PowsyblException("Cannot access network of removed substation " + id);
         }
         return networkRef.get();
+    }
+
+    protected Ref<NetworkImpl> getNetworkRef() {
+        return networkRef;
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
     void addVoltageLevel(VoltageLevelExt voltageLevel) {
@@ -151,6 +168,30 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
                 .count());
     }
 
+    void addOverloadManagementSystem(OverloadManagementSystemImpl overloadManagementSystem) {
+        overloadManagementSystems.add(overloadManagementSystem);
+    }
+
+    @Override
+    public OverloadManagementSystemAdderImpl newOverloadManagementSystem() {
+        return new OverloadManagementSystemAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return Collections.unmodifiableSet(overloadManagementSystems);
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return overloadManagementSystems.stream().map(Function.identity());
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return Ints.checkedCast(getOverloadManagementSystemStream().count());
+    }
+
     @Override
     public Set<String> getGeographicalTags() {
         return Collections.unmodifiableSet(geographicalTags);
@@ -199,11 +240,23 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             vl.remove();
         }
 
+        // Remove the overload management systems
+        removeOverloadManagementSystems();
+
         // Remove this substation from the network
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
         removed = true;
+    }
+
+    void removeOverloadManagementSystems() {
+        overloadManagementSystems.forEach(OverloadManagementSystem::remove);
+    }
+
+    void remove(OverloadManagementSystemImpl overloadManagementSystem) {
+        Objects.requireNonNull(overloadManagementSystem);
+        overloadManagementSystems.remove(overloadManagementSystem);
     }
 
     void remove(VoltageLevelExt voltageLevelExt) {

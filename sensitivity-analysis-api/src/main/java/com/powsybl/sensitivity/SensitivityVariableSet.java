@@ -21,7 +21,7 @@ import java.util.*;
  * through shift keys, also called GLSK (for Generation and Load shift keys).
  * Note that weights are not normalized.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SensitivityVariableSet {
 
@@ -96,14 +96,9 @@ public class SensitivityVariableSet {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     switch (fieldName) {
-                        case "id":
-                            id = parser.nextTextValue();
-                            break;
-                        case "variables":
-                            variables = WeightedSensitivityVariable.parseJson(parser);
-                            break;
-                        default:
-                            throw new PowsyblException("Unexpected field: " + fieldName);
+                        case "id" -> id = parser.nextTextValue();
+                        case "variables" -> variables = WeightedSensitivityVariable.parseJson(parser);
+                        default -> throw new PowsyblException("Unexpected field: " + fieldName);
                     }
                 } else if (token == JsonToken.END_OBJECT) {
                     return new SensitivityVariableSet(id, variables);

@@ -12,7 +12,7 @@ import com.powsybl.timeseries.ast.NodeCalc;
 import com.powsybl.timeseries.ast.NodeCalcEvaluator;
 import com.powsybl.timeseries.ast.NodeCalcResolver;
 import com.powsybl.timeseries.ast.NodeCalcVisitors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.time.Duration;
@@ -22,21 +22,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class CalculatedTimeSeriesGroovyDslTest {
+class CalculatedTimeSeriesGroovyDslTest {
 
-    private void evaluate1(String expr, double expectedValue) {
+    private void evaluate1(String expr, double[] expectedValue) {
         // create time series space mock
         TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
 
         String[] timeSeriesNames = {"foo", "bar", "baz"};
         double[] fooValues = new double[] {3d, 3d};
         double[] barValues = new double[] {2d, 2d};
-        double[] bazValues = new double[] {-1d, -1d};
+        double[] bazValues = new double[] {-1d, 4d};
 
         ReadOnlyTimeSeriesStore store = new ReadOnlyTimeSeriesStoreCache(
                 TimeSeries.createDouble(timeSeriesNames[0], index, fooValues),
@@ -55,33 +55,34 @@ public class CalculatedTimeSeriesGroovyDslTest {
         NodeCalc resolvedNode = NodeCalcResolver.resolve(node, ImmutableMap.of(timeSeriesNames[0], 0,
                 timeSeriesNames[1], 1,
                 timeSeriesNames[2], 2));
-        int point = 0;
-        double calculatedValue = NodeCalcEvaluator.eval(resolvedNode, new DoubleMultiPoint() {
-            @Override
-            public int getIndex() {
-                return point;
-            }
 
-            @Override
-            public long getTime() {
-                return index.getTimeAt(point);
-            }
-
-            @Override
-            public double getValue(int timeSeriesNum) {
-                switch (timeSeriesNum) {
-                    case 0:
-                        return fooValues[point];
-                    case 1:
-                        return barValues[point];
-                    case 2:
-                        return bazValues[point];
-                    default:
-                        throw new AssertionError();
+        // Compute the value for each point corresponding to the expected value
+        double[] calculatedValue = new double[expectedValue.length];
+        for (int point = 0; point < expectedValue.length; point++) {
+            int finalPoint = point;
+            calculatedValue[point] = NodeCalcEvaluator.eval(resolvedNode, new DoubleMultiPoint() {
+                @Override
+                public int getIndex() {
+                    return finalPoint;
                 }
-            }
-        });
-        assertEquals(expectedValue, calculatedValue, 0d);
+
+                @Override
+                public long getTime() {
+                    return index.getTimeAt(finalPoint);
+                }
+
+                @Override
+                public double getValue(int timeSeriesNum) {
+                    return switch (timeSeriesNum) {
+                        case 0 -> fooValues[finalPoint];
+                        case 1 -> barValues[finalPoint];
+                        case 2 -> bazValues[finalPoint];
+                        default -> throw new IllegalStateException();
+                    };
+                }
+            });
+        }
+        assertArrayEquals(expectedValue, calculatedValue, 0d);
     }
 
     //We want to test the expression directly as standalone tree, and in addition we want to test
@@ -98,27 +99,44 @@ public class CalculatedTimeSeriesGroovyDslTest {
     //      ...
     //      +
     //  expr 0        <- left most elements
-    private void evaluate(String expr, double expectedValue) {
+    private void evaluate(String expr, double[] expectedValue) {
         evaluate1(expr, expectedValue);
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         sb.append(expr);
         sb.append(")");
         int range = 2;
-        for (int i = 0; i < NodeCalcVisitors.RECURSION_THRESHOLD - range; i++) {
-            sb.append("+0");
-        }
+        sb.append("+0".repeat(Math.max(0, NodeCalcVisitors.RECURSION_THRESHOLD - range)));
         for (int i = NodeCalcVisitors.RECURSION_THRESHOLD - range; i <= NodeCalcVisitors.RECURSION_THRESHOLD + range; i++) {
             sb.append("+0");
             evaluate1(sb.toString(), expectedValue);
         }
     }
 
+    private void evaluate(String expr, double expectedValue) {
+        evaluate(expr, new double[]{expectedValue});
+    }
+
     @Test
-    public void evalTest() {
+    void evalTest() {
         evaluate("1", 1);
         evaluate("1f", 1f);
         evaluate("1d", 1d);
+        evaluate("(-1f).abs()", 1f);
+        evaluate("timeSeries['baz'].abs()", 1f);
+        evaluate("-(-2f)", 2f);
+        evaluate("+(-2f)", -2f);
+        evaluate("timeSeries['foo'].time()", ZonedDateTime.parse("2015-01-01T00:00:00Z").toInstant().toEpochMilli());
+        evaluate("timeSeries['foo'].time() == time('2015-01-01T00:00:00Z')", 1);
+        evaluate("timeSeries['foo'].time() <= time('2015-01-01T00:15:00Z')", 1);
+        evaluate("timeSeries['foo'].time() < time('2014-01-01T00:00:00Z')", 0);
+        evaluate("timeSeries['foo'] = 1", 1);
+        evaluate("timeSeries['foo'] = 1.5d", 1.5d);
+        evaluate("timeSeries['foo'] = 1.5", 1.5d);
+    }
+
+    @Test
+    void evalTestAddition() {
         evaluate("1f + timeSeries['foo']", 4);
         evaluate("1 + timeSeries['foo']", 4);
         evaluate("1.1 + timeSeries['foo']", 4.1);
@@ -128,6 +146,10 @@ public class CalculatedTimeSeriesGroovyDslTest {
         evaluate("timeSeries['foo'] + 1.1", 4.1);
         evaluate("timeSeries['foo'] + 1d", 4);
         evaluate("timeSeries['foo'] + timeSeries['bar']", 5f);
+    }
+
+    @Test
+    void evalTestSubtraction() {
         evaluate("1f - timeSeries['foo']", -2);
         evaluate("1 - timeSeries['foo']", -2);
         evaluate("1.1 - timeSeries['foo']", -1.9);
@@ -137,6 +159,10 @@ public class CalculatedTimeSeriesGroovyDslTest {
         evaluate("timeSeries['foo'] - 1.1", 1.9);
         evaluate("timeSeries['foo'] - 1d", 2);
         evaluate("timeSeries['foo'] - timeSeries['bar']", 1);
+    }
+
+    @Test
+    void evalTestMultiplication() {
         evaluate("1f * timeSeries['foo']", 3);
         evaluate("1 * timeSeries['foo']", 3);
         evaluate("1d * timeSeries['foo']", 3);
@@ -146,6 +172,10 @@ public class CalculatedTimeSeriesGroovyDslTest {
         evaluate("timeSeries['foo'] * 1.1", 3.3000000000000003);
         evaluate("timeSeries['foo'] * 1d", 3);
         evaluate("timeSeries['foo'] * timeSeries['bar']", 6);
+    }
+
+    @Test
+    void evalTestDivision() {
         evaluate("timeSeries['foo'] / 2f", 1.5);
         evaluate("timeSeries['foo'] / 2", 1.5);
         evaluate("timeSeries['foo'] / 2.1", 1.4285714285714286);
@@ -155,14 +185,10 @@ public class CalculatedTimeSeriesGroovyDslTest {
         evaluate("2.1 / timeSeries['foo']", 0.7000000000000001);
         evaluate("2d / timeSeries['foo']", 0.6666666666666666);
         evaluate("timeSeries['foo'] / timeSeries['bar']", 1.5);
-        evaluate("(-1f).abs()", 1f);
-        evaluate("timeSeries['baz'].abs()", 1f);
-        evaluate("-(-2f)", 2f);
-        evaluate("+(-2f)", -2f);
-        evaluate("timeSeries['foo'].min(1)", 1);
-        evaluate("timeSeries['foo'].min(5)", 3);
-        evaluate("timeSeries['foo'].max(1)", 3);
-        evaluate("timeSeries['foo'].max(5)", 5);
+    }
+
+    @Test
+    void evalTestComparison() {
         evaluate("1 < timeSeries['foo']", 1);
         evaluate("1f < timeSeries['foo']", 1);
         evaluate("1.0 < timeSeries['foo']", 1);
@@ -186,17 +212,22 @@ public class CalculatedTimeSeriesGroovyDslTest {
         evaluate("timeSeries['foo'] <= 3.0", 1);
         evaluate("timeSeries['foo'] < timeSeries['bar']", 0);
         evaluate("timeSeries['foo'] >= timeSeries['bar']", 1);
-        evaluate("timeSeries['foo'].time()", ZonedDateTime.parse("2015-01-01T00:00:00Z").toInstant().toEpochMilli());
-        evaluate("timeSeries['foo'].time() == time('2015-01-01T00:00:00Z')", 1);
-        evaluate("timeSeries['foo'].time() <= time('2015-01-01T00:15:00Z')", 1);
-        evaluate("timeSeries['foo'].time() < time('2014-01-01T00:00:00Z')", 0);
-        evaluate("timeSeries['foo'] = 1", 1);
-        evaluate("timeSeries['foo'] = 1.5d", 1.5d);
-        evaluate("timeSeries['foo'] = 1.5", 1.5d);
     }
 
     @Test
-    public void builderTest() {
+    void evalTestMinMax() {
+        evaluate("timeSeries['foo'].min(1)", 1);
+        evaluate("timeSeries['foo'].min(5)", 3);
+        evaluate("timeSeries['foo'].max(1)", 3);
+        evaluate("timeSeries['foo'].max(5)", 5);
+        evaluate("min(timeSeries['foo'], timeSeries['bar'])", 2f);
+        evaluate("min(timeSeries['foo'], timeSeries['baz'])", new double[]{-1f, 3f});
+        evaluate("max(timeSeries['foo'], timeSeries['bar'])", 3f);
+        evaluate("max(timeSeries['foo'], timeSeries['baz'])", new double[]{3f, 4f});
+    }
+
+    @Test
+    void builderTest() {
         DoubleTimeSeries a = TimeSeries.createDouble("a", IrregularTimeSeriesIndex.create(Instant.now()), 5d);
         DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a)
                 .build("ts['b'] = ts['a'] + 1")
@@ -205,7 +236,7 @@ public class CalculatedTimeSeriesGroovyDslTest {
     }
 
     @Test
-    public void splitWithCalcTest() {
+    void splitWithCalcTest() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10002, 1);
         DoubleTimeSeries a = TimeSeries.createDouble("a", index, 1d, 2d, 3d);
         DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a).build("ts['b'] = ts['a'] + 1").get(0);
@@ -226,9 +257,9 @@ public class CalculatedTimeSeriesGroovyDslTest {
         assertArrayEquals(new double[]{2d, 3d, 4d}, split.get(1).get(1).toArray(), 0d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void splitWithOnlyCalcTest() {
+    @Test
+    void splitWithOnlyCalcTest() {
         List<DoubleTimeSeries> timeSeriesList = DoubleTimeSeries.build("ts['a'] = 1", "ts['b'] = 2");
-        TimeSeries.split(timeSeriesList, 2);
+        assertThrows(IllegalArgumentException.class, () -> TimeSeries.split(timeSeriesList, 2));
     }
 }

@@ -7,29 +7,29 @@
 package com.powsybl.triplestore.api.test;
 
 import com.powsybl.triplestore.api.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class TripleStoreUtilsTest {
+class TripleStoreUtilsTest {
 
     private final TripleStore tripleStore = Mockito.mock(TripleStore.class);
     private final QueryCatalog queryCatalog = Mockito.mock(QueryCatalog.class);
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         Mockito.when(queryCatalog.get(Mockito.anyString())).thenReturn(null);
         Mockito.when(queryCatalog.get("test")).thenReturn("test");
         PropertyBags bags = new PropertyBags();
-        PropertyBag p = new PropertyBag(List.of("test"));
+        PropertyBag p = new PropertyBag(List.of("test"), true);
         p.put("test", "test");
         bags.add(p);
         Mockito.when(tripleStore.query("test")).thenReturn(bags);
@@ -37,7 +37,7 @@ public class TripleStoreUtilsTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         PropertyBags result = TripleStoreUtils.queryTripleStore("test", queryCatalog, tripleStore);
         assertEquals(1, result.size());
         PropertyBag p = result.get(0);
@@ -46,7 +46,7 @@ public class TripleStoreUtilsTest {
     }
 
     @Test
-    public void notExistingQueryTest() {
+    void notExistingQueryTest() {
         PropertyBags result = TripleStoreUtils.queryTripleStore("empty", queryCatalog, tripleStore);
         assertTrue(result.isEmpty());
     }

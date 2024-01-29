@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClo
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 
 /**
- * @author Jérémy LABOUS <jlabous at silicom.fr>
+ * @author Jérémy LABOUS {@literal <jlabous at silicom.fr>}
  */
 public class ThreeWindingsTransformerPhaseAngleClockAdderImpl
     extends AbstractExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerPhaseAngleClock>

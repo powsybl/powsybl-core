@@ -6,7 +6,7 @@
  */
 package com.powsybl.commons.io.table;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,12 +15,12 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class TableFormatterTest {
+class TableFormatterTest {
 
     private static final Column[] COLUMNS = {
         new Column("int"),
@@ -43,7 +43,7 @@ public class TableFormatterTest {
     }
 
     @Test
-    public void testCsv() throws IOException {
+    void testCsv() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TableFormatterConfig config = new TableFormatterConfig(Locale.US, ';', "inv", true, true);
         CsvTableFormatterFactory factory = new CsvTableFormatterFactory();
@@ -62,7 +62,7 @@ public class TableFormatterTest {
     }
 
     @Test
-    public void testAcsii() throws IOException {
+    void testAcsii() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TableFormatterConfig config = new TableFormatterConfig(Locale.US, "inv");
         AsciiTableFormatterFactory factory = new AsciiTableFormatterFactory();

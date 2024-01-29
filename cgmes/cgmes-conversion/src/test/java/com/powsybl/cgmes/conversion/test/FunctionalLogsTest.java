@@ -13,51 +13,56 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Importers;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class FunctionalLogsTest {
+class FunctionalLogsTest {
+
+    private Properties importParams;
+
+    @BeforeEach
+    void setUp() {
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+    }
 
     @Test
-    public void testImportMicroGridBaseCaseBE() throws IOException {
+    void testImportMicroGridBaseCaseBE() throws IOException {
         checkResult("/functional-logs/microGridBaseCaseBE.txt",
                 importReport(CgmesConformity1Catalog.microGridBaseCaseBE()));
     }
 
     @Test
-    public void testImportMicroGridBaseCaseBETargetDeadbandNegative() throws IOException {
+    void testImportMicroGridBaseCaseBETargetDeadbandNegative() throws IOException {
         checkResult("/functional-logs/microGridBaseCaseBE-target-deadband.txt",
                 importReport(CgmesConformity1ModifiedCatalog.microGridBaseBETargetDeadbandNegative()));
     }
 
     @Test
-    public void testImportMicroGridBaseCaseBEInvalidVoltageBus() throws IOException {
+    void testImportMicroGridBaseCaseBEInvalidVoltageBus() throws IOException {
         checkResult("/functional-logs/microGridBaseCaseBE-invalid-voltage-bus.txt",
                 importReport(CgmesConformity1ModifiedCatalog.microGridBaseBEInvalidVoltageBus()));
     }
 
     @Test
-    public void testImportMiniGridNodeBreaker() throws IOException {
-        Properties importParams = new Properties();
+    void testImportMiniGridNodeBreaker() throws IOException {
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         checkResult("/functional-logs/miniGridNodeBreaker.txt",
-                importReport(CgmesConformity1Catalog.miniNodeBreaker(), importParams));
+                importReport(CgmesConformity1Catalog.miniNodeBreaker()));
     }
 
     private ReporterModel importReport(GridModelReference testCase) {
-        return importReport(testCase, null);
-    }
-
-    private ReporterModel importReport(GridModelReference testCase, Properties importParams) {
         ReporterModel reporter = new ReporterModel("testFunctionalLogs",
                 "Test importing ${name}", Map.of("name", new TypedValue(testCase.name(), TypedValue.UNTYPED)));
         Importers.importData("CGMES", testCase.dataSource(), importParams, reporter);
@@ -67,7 +72,9 @@ public class FunctionalLogsTest {
     private void checkResult(String resourceName, ReporterModel reporter) throws IOException {
         StringWriter sw = new StringWriter();
         reporter.export(sw);
-        String expected = new String(getClass().getResourceAsStream(resourceName).readAllBytes());
-        assertEquals(expected, sw.toString());
+        try (InputStream is = getClass().getResourceAsStream(resourceName)) {
+            String expected = new String(is.readAllBytes());
+            assertEquals(expected, sw.toString());
+        }
     }
 }

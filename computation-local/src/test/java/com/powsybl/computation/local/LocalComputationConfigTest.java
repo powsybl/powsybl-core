@@ -10,40 +10,40 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class LocalComputationConfigTest {
+class LocalComputationConfigTest {
 
     private FileSystem fileSystem;
 
     private InMemoryPlatformConfig platformConfig;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         Files.createDirectories(fileSystem.getPath("/tmp"));
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
     @Test
-    public void test() {
+    void test() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringProperty("tmpDir", "/tmp");
         moduleConfig.setStringProperty("availableCore", "2");
@@ -53,14 +53,14 @@ public class LocalComputationConfigTest {
     }
 
     @Test
-    public void testDefaultConfig() {
+    void testDefaultConfig() {
         LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
         assertEquals(fileSystem.getPath(LocalComputationConfig.DEFAULT_LOCAL_DIR), config.getLocalDir());
         assertEquals(1, config.getAvailableCore());
     }
 
     @Test
-    public void testAvailableCoresNegative() {
+    void testAvailableCoresNegative() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringProperty("availableCore", "-1");
         LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
@@ -68,7 +68,7 @@ public class LocalComputationConfigTest {
     }
 
     @Test
-    public void testSnakeCase() {
+    void testSnakeCase() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringProperty("tmp-dir", "/tmp");
         moduleConfig.setStringProperty("available-core", "99");
@@ -78,7 +78,7 @@ public class LocalComputationConfigTest {
     }
 
     @Test
-    public void testSnakeOverCamelCase() throws IOException {
+    void testSnakeOverCamelCase() throws IOException {
         Files.createDirectories(fileSystem.getPath("/deprecated"));
         Files.createDirectories(fileSystem.getPath("/new"));
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
@@ -92,7 +92,7 @@ public class LocalComputationConfigTest {
     }
 
     @Test
-    public void testTmpDirAlternatives() throws IOException {
+    void testTmpDirAlternatives() throws IOException {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringListProperty("tmp-dir", Arrays.asList("/first", "/second"));
         Files.createDirectories(fileSystem.getPath("/second"));

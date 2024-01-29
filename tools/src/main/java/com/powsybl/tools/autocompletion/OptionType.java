@@ -7,7 +7,7 @@
 package com.powsybl.tools.autocompletion;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at gmail.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at gmail.com>}
  */
 public interface OptionType {
 

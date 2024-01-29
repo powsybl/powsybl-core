@@ -15,23 +15,23 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 public abstract class AbstractHvdcAngleDroopActivePowerTest {
 
     private Network network;
 
-    @Before
+    @BeforeEach
     public void initNetwork() {
         network = HvdcTestNetwork.createLcc();
     }
@@ -123,13 +123,13 @@ public abstract class AbstractHvdcAngleDroopActivePowerTest {
             hadpc.setP0(Float.NaN);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("p0 is not set", e.getMessage());
+            assertEquals("p0 value (NaN) is invalid for HVDC line L", e.getMessage());
         }
         try {
             hadpc.setDroop(Float.NaN);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("droop is not set", e.getMessage());
+            assertEquals("droop value (NaN) is invalid for HVDC line L", e.getMessage());
         }
     }
 }

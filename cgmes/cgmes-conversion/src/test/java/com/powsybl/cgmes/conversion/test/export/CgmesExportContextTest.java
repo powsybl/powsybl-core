@@ -14,29 +14,29 @@ import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.junit.Test;
+import java.time.ZonedDateTime;
+import java.time.Duration;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class CgmesExportContextTest {
+class CgmesExportContextTest {
 
     @Test
-    public void testExporter() {
+    void testExporter() {
         var exporter = new CgmesExport();
         assertEquals("ENTSO-E CGMES version 2.4.15", exporter.getComment());
-        assertEquals(8, exporter.getParameters().size());
+        assertEquals(17, exporter.getParameters().size());
     }
 
     @Test
-    public void networkConstructor() {
+    void networkConstructor() {
         Network network = EurostagTutorialExample1Factory.create();
 
         CgmesExportContext context1 = new CgmesExportContext(network);
@@ -77,12 +77,12 @@ public class CgmesExportContextTest {
     }
 
     @Test
-    public void emptyConstructor() {
+    void emptyConstructor() {
         CgmesExportContext context = new CgmesExportContext();
         assertEquals(16, context.getCimVersion());
         assertEquals(CgmesNamespace.CIM_16_NAMESPACE, context.getCim().getNamespace());
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context.getTopologyKind());
-        assertTrue(new Duration(DateTime.now(), context.getScenarioTime()).getStandardMinutes() < 1);
+        assertTrue(Duration.between(ZonedDateTime.now(), context.getScenarioTime()).toMinutes() < 1);
         assertEquals("SV Model", context.getSvModelDescription().getDescription());
         assertEquals(1, context.getSvModelDescription().getVersion());
         assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
@@ -91,11 +91,11 @@ public class CgmesExportContextTest {
     }
 
     @Test
-    public void getSet() {
+    void getSet() {
         CgmesExportContext context = new CgmesExportContext()
             .setCimVersion(14)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
-            .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
+            .setScenarioTime(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"))
             .setExportBoundaryPowerFlows(true)
             .setExportFlowsForSwitches(false);
         context.getSvModelDescription()
@@ -108,7 +108,7 @@ public class CgmesExportContextTest {
         assertEquals(14, context.getCimVersion());
         assertEquals(CgmesNamespace.CIM_14_NAMESPACE, context.getCim().getNamespace());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
-        assertEquals(DateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
+        assertEquals(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
         assertEquals("test", context.getSvModelDescription().getDescription());
         assertEquals(2, context.getSvModelDescription().getVersion());
         assertEquals(2, context.getSvModelDescription().getDependencies().size());

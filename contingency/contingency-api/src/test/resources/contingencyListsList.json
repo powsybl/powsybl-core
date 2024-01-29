@@ -12,15 +12,14 @@
       "countries2" : [ "BE" ]
     },
     "nominalVoltageCriterion" : {
-      "type" : "SINGLE_NOMINAL_VOLTAGE",
-      "voltageInterval" : {
+      "type" : "TWO_NOMINAL_VOLTAGE",
+      "voltageInterval1" : {
         "nominalVoltageLowBound" : 200.0,
         "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
         "highClosed" : true
       }
     },
-    "propertyCriteria" : [ ],
     "regexCriterion" : {
       "type" : "REGEX",
       "regex" : "regex"
@@ -53,9 +52,7 @@
         "lowClosed" : true,
         "highClosed" : true
       }
-    },
-    "propertyCriteria" : [ ],
-    "regexCriterion" : null
+    }
   }, {
     "type" : "hvdcCriterion",
     "version" : "1.0",
@@ -79,9 +76,7 @@
         "lowClosed" : true,
         "highClosed" : true
       }
-    },
-    "propertyCriteria" : [ ],
-    "regexCriterion" : null
+    }
   }, {
     "type" : "twoWindingsTransformerCriterion",
     "version" : "1.0",
@@ -104,9 +99,7 @@
         "lowClosed" : true,
         "highClosed" : true
       }
-    },
-    "propertyCriteria" : [ ],
-    "regexCriterion" : null
+    }
   }, {
     "type" : "threeWindingsTransformerCriterion",
     "version" : "1.0",
@@ -129,9 +122,7 @@
         "lowClosed" : true,
         "highClosed" : true
       }
-    },
-    "propertyCriteria" : [ ],
-    "regexCriterion" : null
+    }
   }, {
     "type" : "list",
     "version" : "1.0",
@@ -146,6 +137,28 @@
           "id" : "HVDC1",
           "type" : "HVDC_LINE"
         } ]
+      } ]
+    } ]
+  }, {
+    "type" : "identifier",
+    "version" : "1.2",
+    "name" : "identifierlist",
+    "identifiers" : [ {
+      "type" : "VOLTAGE_LEVELS_AND_ORDER",
+      "contingencyId" : "contingency1",
+      "voltageLevelId1" : "VL1",
+      "voltageLevelId2" : "VL2",
+      "order" : "1"
+    }, {
+      "type" : "ID_BASED",
+      "contingencyId" : "contingency2",
+      "identifier" : "identifier"
+    }, {
+      "type" : "LIST",
+      "contingencyId" : "contingency3",
+      "identifierList" : [ {
+        "type" : "ID_BASED",
+        "identifier" : "identifier2"
       } ]
     } ]
   } ]

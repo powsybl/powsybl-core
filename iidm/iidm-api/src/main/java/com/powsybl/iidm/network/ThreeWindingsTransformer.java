@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -104,18 +106,12 @@ import java.util.stream.Stream;
  * <p>
  * To create a three windings transformer, see {@link ThreeWindingsTransformerAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see RatioTapChanger
  * @see PhaseTapChanger
  * @see ThreeWindingsTransformerAdder
  */
 public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTransformer> {
-
-    enum Side {
-        ONE,
-        TWO,
-        THREE
-    }
 
     /**
      * Transformer leg
@@ -289,14 +285,21 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         default Leg setRatedS(double ratedS) {
             throw new UnsupportedOperationException();
         }
+
+        /**
+         * Get side of the leg on the three windings transformer
+         */
+        ThreeSides getSide();
+
+        Optional<? extends LoadingLimits> getLimits(LimitType type);
     }
 
-    Terminal getTerminal(Side side);
+    Terminal getTerminal(ThreeSides side);
 
     /**
      * Get the side the terminal is connected to.
      */
-    Side getSide(Terminal terminal);
+    ThreeSides getSide(Terminal terminal);
 
     Optional<Substation> getSubstation();
 
@@ -318,6 +321,19 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Get the leg at the tertiary side.
      */
     Leg getLeg3();
+
+    default Leg getLeg(ThreeSides side) {
+        switch (side) {
+            case ONE:
+                return getLeg1();
+            case TWO:
+                return getLeg2();
+            case THREE:
+                return getLeg3();
+            default:
+                throw new PowsyblException("Can't get leg from side. Unsupported Side \"" + side + "\"");
+        }
+    }
 
     /**
      * Return the legs of this transformer, in the natural order (leg1, leg2 and leg3)
@@ -342,4 +358,48 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     default IdentifiableType getType() {
         return IdentifiableType.THREE_WINDINGS_TRANSFORMER;
     }
+
+    /**
+     * Only checks overloading for LimitType.Current and permanent limits
+     */
+    boolean isOverloaded();
+
+    /**
+     * Only checks overloading for LimitType.Current and permanent limits
+     */
+    boolean isOverloaded(float limitReduction);
+
+    int getOverloadDuration();
+
+    boolean checkPermanentLimit(ThreeSides side, float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit(ThreeSides side, LimitType type);
+
+    boolean checkPermanentLimit1(float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit1(LimitType type);
+
+    boolean checkPermanentLimit2(float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit2(LimitType type);
+
+    boolean checkPermanentLimit3(float limitReduction, LimitType type);
+
+    boolean checkPermanentLimit3(LimitType type);
+
+    Overload checkTemporaryLimits(ThreeSides side, float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits(ThreeSides side, LimitType type);
+
+    Overload checkTemporaryLimits1(float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits1(LimitType type);
+
+    Overload checkTemporaryLimits2(float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits2(LimitType type);
+
+    Overload checkTemporaryLimits3(float limitReduction, LimitType type);
+
+    Overload checkTemporaryLimits3(LimitType type);
 }

@@ -8,7 +8,7 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum IdentifiableType {
     NETWORK,
@@ -19,6 +19,7 @@ public enum IdentifiableType {
     SWITCH,
     BUSBAR_SECTION,
     LINE,
+    TIE_LINE,
     TWO_WINDINGS_TRANSFORMER,
     THREE_WINDINGS_TRANSFORMER,
     GENERATOR,
@@ -27,5 +28,7 @@ public enum IdentifiableType {
     SHUNT_COMPENSATOR,
     DANGLING_LINE,
     STATIC_VAR_COMPENSATOR,
-    HVDC_CONVERTER_STATION
+    HVDC_CONVERTER_STATION,
+    OVERLOAD_MANAGEMENT_SYSTEM,
+    GROUND
 }

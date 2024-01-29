@@ -7,9 +7,9 @@
 package com.powsybl.commons.datasource;
 
 /**
- * @author Olivier Bretteville <olivier.bretteville at rte-france.com>
+ * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
  */
-public class ZstdFileDataSourceTest extends AbstractDataSourceTest {
+class ZstdFileDataSourceTest extends AbstractDataSourceTest {
 
     @Override
     protected DataSource createDataSource() {

@@ -7,11 +7,12 @@
 package com.powsybl.iidm.network;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * An equipment that is part of a substation topology.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
 
@@ -21,4 +22,12 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * Remove the connectable from the voltage level (dangling switches are kept).
      */
     void remove();
+
+    boolean connect();
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+
+    boolean disconnect();
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable);
 }
