@@ -87,20 +87,20 @@ public final class MatpowerReader {
     }
 
     private static void checkNumberOfColumns(Matrix buses, Matrix generators, Matrix branches, Matrix dcLines) {
-        if (buses.getDimensions()[1] != MATPOWER_BUSES_COLUMNS
-                || generators.getDimensions()[1] != MATPOWER_GENERATORS_COLUMNS
-                || branches.getDimensions()[1] != MATPOWER_BRANCHES_COLUMNS
-                || dcLines != null && dcLines.getDimensions()[1] != MATPOWER_BRANCHES_COLUMNS) {
+        if (buses.getDimensions()[1] < MATPOWER_BUSES_COLUMNS
+                || generators.getDimensions()[1] < MATPOWER_GENERATORS_COLUMNS
+                || branches.getDimensions()[1] < MATPOWER_BRANCHES_COLUMNS
+                || dcLines != null && dcLines.getDimensions()[1] < MATPOWER_DCLINES_COLUMNS) {
 
             String exceptionMessage;
-            if (dcLines != null) {
+            if (dcLines == null) {
+                exceptionMessage = String.format("Unexpected number of columns. Expected: Buses %d Generators %d Branches %d Received: Buses %d Generators %d Branches %d",
+                        MATPOWER_BUSES_COLUMNS, MATPOWER_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS,
+                        buses.getDimensions()[1], generators.getDimensions()[1], branches.getDimensions()[1]);
+            } else {
                 exceptionMessage = String.format("Unexpected number of columns. Expected: Buses %d Generators %d Branches %d DcLines %d Received: Buses %d Generators %d Branches %d DcLines %d",
                         MATPOWER_BUSES_COLUMNS, MATPOWER_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS,
                         buses.getDimensions()[1], generators.getDimensions()[1], branches.getDimensions()[1], dcLines.getDimensions()[1]);
-            } else {
-                exceptionMessage = String.format("Unexpected number of columns. Expected: Buses %d Generators %d Branches Received: Buses %d Generators %d Branches %d",
-                        MATPOWER_BUSES_COLUMNS, MATPOWER_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS,
-                        buses.getDimensions()[1], generators.getDimensions()[1], branches.getDimensions()[1]);
             }
             throw new IllegalStateException(exceptionMessage);
         }
