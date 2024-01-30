@@ -125,7 +125,6 @@ public final class MatpowerReader {
             bus.setBaseVoltage(buses.getDouble(row, 9));
             bus.setLossZone(buses.getInt(row, 10));
             bus.setMaximumVoltageMagnitude(buses.getDouble(row, 11));
-            System.err.printf("bus %d minimumVoltageMagnitude %f %n", buses.getInt(row, 0), buses.getDouble(row, 12));
             bus.setMinimumVoltageMagnitude(buses.getDouble(row, 12));
 
             model.addBus(bus);
