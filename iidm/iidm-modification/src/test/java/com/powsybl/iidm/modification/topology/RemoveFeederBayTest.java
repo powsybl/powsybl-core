@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -144,6 +146,17 @@ class RemoveFeederBayTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reporter));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
         assertEquals("removeBayBusbarSectionConnectable", reporter.getReports().iterator().next().getReportKey());
+    }
+
+    @Test
+    void testRemoveGroundWithSwitchInBusBreakerModel() {
+        Network network = createBusBreakerNetworkWithGround();
+        addListener(network);
+
+        new RemoveFeederBay("Ground3").apply(network);
+
+        assertEquals(0, network.getGroundCount());
+        assertEquals(2, network.getSwitchCount());
     }
 
     private Network createNetwork2Feeders() {
@@ -322,6 +335,27 @@ class RemoveFeederBayTest {
                 .setNode1(3).setVoltageLevel1("VL1")
                 .setNode2(2).setVoltageLevel2("VL2")
                 .add();
+
+        return network;
+    }
+
+    private Network createBusBreakerNetworkWithGround() {
+
+        Network network = Network.create("test", "test");
+
+        VoltageLevel vl = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl.getBusBreakerView().newBus().setId("Bus0").add();
+        vl.getBusBreakerView().newBus().setId("Bus1").add();
+        vl.getBusBreakerView().newBus().setId("Bus2").add();
+        vl.getBusBreakerView().newBus().setId("Bus3").add();
+
+        vl.newGenerator().setId("Generator1").setBus("Bus1").setTargetP(0).setVoltageRegulatorOn(true).setTargetV(400).setMinP(0).setMaxP(10).add();
+        vl.newLoad().setId("Load2").setBus("Bus2").setP0(0).setQ0(0).add();
+        vl.newGround().setId("Ground3").setBus("Bus3").add();
+
+        vl.getBusBreakerView().newSwitch().setBus1("Bus0").setBus2("Bus1").setId("BreakerGen").add();
+        vl.getBusBreakerView().newSwitch().setBus1("Bus0").setBus2("Bus2").setId("BreakerLoad").add();
+        vl.getBusBreakerView().newSwitch().setBus1("Bus0").setBus2("Bus3").setId("BreakerGround").add();
 
         return network;
     }
