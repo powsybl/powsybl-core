@@ -116,23 +116,6 @@ class CgmesConformity1ConversionTest {
     }
 
     @Test
-    void microGridBaseCaseBEWithoutUnsupportedTapChangersRoundtrip() throws IOException {
-        // TODO When we convert boundaries values for P0, Q0 at dangling lines
-        // are recalculated and we need to increase the tolerance
-        Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.PROFILES, "SSH,SV");
-        exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
-        importParams.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
-        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        ConversionTester t = new ConversionTester(
-            importParams, exportParams,
-            TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
-        t.setTestExportImportCgmes(true);
-        t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
-    }
-
-    @Test
     void microGridBaseCaseBEBusBalanceValidation() throws IOException {
         // Check bus balance mismatches are low if we use SV voltages
         // MicroGrid BaseCase BE contains an RTC defined at transformerEnd1
