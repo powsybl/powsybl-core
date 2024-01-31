@@ -460,7 +460,7 @@ public class MatpowerImporter implements Importer {
                     .setConnectableBus(bus1Id)
                     .setVoltageRegulatorOn(true)
                     .setVoltageSetpoint(mDcLine.getVf() * voltageLevel1.getNominalV())
-                    .setLossFactor(0)
+                    .setLossFactor((float) computeLossFactor1(mDcLine.getPf(), mDcLine.getLoss0()))
                     .add();
             voltageLevel2.newVscConverterStation()
                     .setId(csId2)
@@ -468,19 +468,32 @@ public class MatpowerImporter implements Importer {
                     .setConnectableBus(bus2Id)
                     .setVoltageRegulatorOn(true)
                     .setVoltageSetpoint(mDcLine.getVt() * voltageLevel2.getNominalV())
-                    .setLossFactor(0)
+                    .setLossFactor((float) computeLossFactor2(mDcLine.getPf(), mDcLine.getLoss0(), mDcLine.getLoss1() * mDcLine.getPf()))
                     .add();
             network.newHvdcLine()
                     .setId(id)
                     .setConverterStationId1(csId1)
                     .setConverterStationId2(csId2)
                     .setR(0)
-                    .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+                    .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
                     .setActivePowerSetpoint(mDcLine.getPf())
                     .setNominalV(voltageLevel1.getNominalV())
                     .setMaxP(mDcLine.getPmax())
                     .add();
         }
+    }
+
+    // IIDM Rectifier PDC/PAC1 = 1 - lossFactor1/100
+    // IIDM Inverter  PAC2/PDC = 1 - lossFactor2/100
+    // PAC1 = PDc + losses1
+    // PDc  = PAC2 + losses2
+    // Matpower Pf = Pt + l0 + l1*Pf
+    private static double computeLossFactor1(double pac1, double losses1) {
+        return pac1 != 0.0 ? losses1 * 100.0 / pac1 : 0.0;
+    }
+
+    private static double computeLossFactor2(double pac1, double losses1, double losses2) {
+        return (pac1 - losses1) != 0.0 ? losses2 * 100.0 / (pac1 - losses1) : 0.0;
     }
 
     @Override

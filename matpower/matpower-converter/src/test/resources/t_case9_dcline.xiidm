@@ -34,7 +34,7 @@
                     <iidm:point p="200.0" minQ="-15.0" maxQ="15.0"/>
                 </iidm:reactiveCapabilityCurve>
             </iidm:generator>
-            <iidm:vscConverterStation id="CS1-30-4" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="1.01" bus="BUS-30" connectableBus="BUS-30">
+            <iidm:vscConverterStation id="CS1-30-4" voltageRegulatorOn="true" lossFactor="10.0" voltageSetpoint="1.01" bus="BUS-30" connectableBus="BUS-30">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
@@ -44,7 +44,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-4" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:vscConverterStation id="CS2-30-4" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="1.0" bus="BUS-4" connectableBus="BUS-4">
+            <iidm:vscConverterStation id="CS2-30-4" voltageRegulatorOn="true" lossFactor="1.1111112" voltageSetpoint="1.0" bus="BUS-4" connectableBus="BUS-4">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
@@ -100,7 +100,7 @@
             <iidm:vscConverterStation id="CS2-7-9" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="1.0" bus="BUS-9" connectableBus="BUS-9">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:vscConverterStation>
-            <iidm:vscConverterStation id="CS2-5-9" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="0.98" bus="BUS-9" connectableBus="BUS-9">
+            <iidm:vscConverterStation id="CS2-5-9" voltageRegulatorOn="true" lossFactor="5.0" voltageSetpoint="0.98" bus="BUS-9" connectableBus="BUS-9">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
@@ -192,10 +192,10 @@
             </iidm:apparentPowerLimits>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:hvdcLine id="HL-30-4" r="0.0" nominalV="1.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="10.0" maxP="10.0" converterStation1="CS1-30-4" converterStation2="CS2-30-4"/>
-    <iidm:hvdcLine id="HL-7-9" r="0.0" nominalV="1.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="2.0" maxP="10.0" converterStation1="CS1-7-9" converterStation2="CS2-7-9"/>
-    <iidm:hvdcLine id="HL-5-8" r="0.0" nominalV="1.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="0.0" maxP="10.0" converterStation1="CS1-5-8" converterStation2="CS2-5-8"/>
-    <iidm:hvdcLine id="HL-5-9" r="0.0" nominalV="1.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="10.0" maxP="10.0" converterStation1="CS1-5-9" converterStation2="CS2-5-9"/>
+    <iidm:hvdcLine id="HL-30-4" r="0.0" nominalV="1.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="10.0" maxP="10.0" converterStation1="CS1-30-4" converterStation2="CS2-30-4"/>
+    <iidm:hvdcLine id="HL-7-9" r="0.0" nominalV="1.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="2.0" maxP="10.0" converterStation1="CS1-7-9" converterStation2="CS2-7-9"/>
+    <iidm:hvdcLine id="HL-5-8" r="0.0" nominalV="1.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0.0" maxP="10.0" converterStation1="CS1-5-8" converterStation2="CS2-5-8"/>
+    <iidm:hvdcLine id="HL-5-9" r="0.0" nominalV="1.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="10.0" maxP="10.0" converterStation1="CS1-5-9" converterStation2="CS2-5-9"/>
     <iidm:extension id="VL-1">
         <slt:slackTerminal id="GEN-1"/>
     </iidm:extension>
