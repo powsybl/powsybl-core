@@ -67,7 +67,7 @@ public class TimeSeriesNameNodeCalc implements NodeCalc {
 
     @Override
     public int hashCode() {
-        return timeSeriesName.hashCode();
+        return Objects.hash(timeSeriesName, NAME);
     }
 
     @Override

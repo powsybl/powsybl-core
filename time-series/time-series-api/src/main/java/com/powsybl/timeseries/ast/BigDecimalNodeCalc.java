@@ -75,7 +75,7 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Objects.hash(value, "BigDecimalNodeCalc");
     }
 
     @Override

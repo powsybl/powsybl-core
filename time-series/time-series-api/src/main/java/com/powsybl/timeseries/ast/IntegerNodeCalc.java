@@ -72,7 +72,7 @@ public class IntegerNodeCalc implements LiteralNodeCalc {
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return Objects.hash(value, "IntegerNodeCalc");
     }
 
     @Override

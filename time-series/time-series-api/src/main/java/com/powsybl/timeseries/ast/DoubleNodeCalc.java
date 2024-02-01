@@ -76,7 +76,7 @@ public class DoubleNodeCalc implements LiteralNodeCalc {
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return Objects.hash(value, "DoubleNodeCalc");
     }
 
     @Override

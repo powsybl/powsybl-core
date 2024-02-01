@@ -74,7 +74,7 @@ public class FloatNodeCalc implements LiteralNodeCalc {
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return Objects.hash(value, "FloatNodeCalc");
     }
 
     @Override
