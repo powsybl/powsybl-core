@@ -43,7 +43,7 @@ public final class TopologyExport {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.TOPOLOGY, writer, context.getTpModelDescription(), context);
+                CgmesExportUtil.writeModelDescription(CgmesSubset.TOPOLOGY, writer, context.getTpModelDescription(), context);
             }
 
             writeTopologicalNodes(network, cimNamespace, writer, context);

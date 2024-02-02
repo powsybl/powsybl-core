@@ -158,7 +158,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         try (ZipOutputStream zout = new ZipOutputStream(Files.newOutputStream(fixesFile))) {
             zout.putNextEntry(new ZipEntry(basename + "_EQ.xml"));
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", zout);
-            writeHeader(network, writer, context);
+            writeHeader(writer, context);
             RegionContainers regionContainers = writeRegionContainers(network, writer, context);
             for (String missingVoltageLevel : missingVoltageLevels) {
                 writeMissingVoltageLevel(missingVoltageLevel, writer, context, regionContainers);
@@ -215,12 +215,12 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         BaseVoltageEq.write(baseVoltageId, DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS, cimNamespace, writer, context);
     }
 
-    private static void writeHeader(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeHeader(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         String euNamespace = context.getCim().getEuNamespace();
         CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
         if (context.getCimVersion() >= 16) {
-            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, context.getEqModelDescription(), context);
+            CgmesExportUtil.writeModelDescription(CgmesSubset.EQUIPMENT, writer, context.getEqModelDescription(), context);
         }
     }
 
