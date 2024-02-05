@@ -119,11 +119,11 @@ public final class CgmesExportUtil {
         // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
         CgmesObjectReference[] modelRef = {
-                refTyped(network),
-                ref(subset),
-                ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
-                ref(format(modelDescription.getVersion())),
-                Part.FULL_MODEL};
+            refTyped(network),
+            ref(subset),
+            ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
+            ref(format(modelDescription.getVersion())),
+            Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
         modelDescription.setIds(modelId);
         context.updateDependencies();
