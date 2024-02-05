@@ -60,7 +60,10 @@ public final class TopologyExport {
         writeBoundaryTerminals(network, cimNamespace, writer, context);
         writeSwitchesTerminals(network, cimNamespace, writer, context);
         writeDcTerminals(network, cimNamespace, writer, context);
-        writeBusbarSectionTerminalsFromBusBranchCgmesModel(network, cimNamespace, writer, context);
+        // Only if it is an updated export
+        if (!context.isExportEquipment()) {
+            writeBusbarSectionTerminalsFromBusBranchCgmesModel(network, cimNamespace, writer, context);
+        }
     }
 
     private static void writeBusbarSectionTerminalsFromBusBranchCgmesModel(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
