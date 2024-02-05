@@ -224,5 +224,11 @@ class ContingencyTest {
 
         Contingency contingency2 = new Contingency("test2", "testName2");
         assertEquals("testName2", contingency2.getName().orElse(null));
+
+        Contingency contingency3 = Contingency.builder("test3").addName("testName3").build();
+        assertEquals("testName3", contingency3.getName().orElse(null));
+
+        Contingency contingency4 = Contingency.builder("test4").addGenerator("GEN").addName("testName4").build();
+        assertEquals("testName4", contingency4.getName().orElse(null));
     }
 }
