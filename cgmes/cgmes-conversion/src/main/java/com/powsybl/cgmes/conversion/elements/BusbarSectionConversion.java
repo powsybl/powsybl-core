@@ -26,7 +26,7 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
 
     @Override
     public boolean valid() {
-        // Always try to convert busbar sections, even if located at invalid o
+        // Always try to convert busbar sections, even if located at invalid nodes or voltage levels
         return true;
     }
 
