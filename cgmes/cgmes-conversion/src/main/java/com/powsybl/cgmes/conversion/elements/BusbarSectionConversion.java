@@ -25,6 +25,12 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
     }
 
     @Override
+    public boolean valid() {
+        // Always try to convert busbar sections, even if located at invalid o
+        return true;
+    }
+
+    @Override
     public void convert() {
         if (context.nodeBreaker()) {
             BusbarSectionAdder bbsAdder = voltageLevel().getNodeBreakerView().newBusbarSection()
