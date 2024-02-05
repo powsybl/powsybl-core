@@ -75,6 +75,8 @@ public class CgmesExportContext {
     public static final double MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final boolean EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE = true;
     public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate("powsybl.org");
+    public static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
+    public static final String DEFAULT_BUSINESS_PROCESS = "1D";
 
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
@@ -142,6 +144,7 @@ public class CgmesExportContext {
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
         private final Set<String> ids = new HashSet<>();
+        private String businessProcess = DEFAULT_BUSINESS_PROCESS;
 
         // TODO Each model may have a list of profiles, not only one
         private String profile;
@@ -235,6 +238,19 @@ public class CgmesExportContext {
         public void setSupersedes(String id) {
             this.supersedes = id;
         }
+
+        /**
+         * The business process related to the export, used to get a unique ID for EQ, TP, SSH and SV FullModel.
+         */
+        public String getBusinessProcess() {
+            return businessProcess;
+        }
+
+        public ModelDescription setBusinessProcess(String businessProcess) {
+            this.businessProcess = businessProcess;
+            return this;
+        }
+
     }
 
     public CgmesExportContext() {
