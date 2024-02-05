@@ -50,6 +50,7 @@ class CgmesExportContextTest {
         assertTrue(context1.getSvModelDescription().getDependencies().isEmpty());
         assertEquals("powsybl.org", context1.getSvModelDescription().getModelingAuthoritySet());
         assertEquals(1, context1.getEqModelDescription().getVersion());
+        assertEquals("1D", context1.getBusinessProcess());
 
         network.newExtension(CimCharacteristicsAdder.class)
             .setCimVersion(14)
@@ -89,6 +90,7 @@ class CgmesExportContextTest {
         assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
         assertEquals("powsybl.org", context.getSvModelDescription().getModelingAuthoritySet());
         assertTrue(context.exportBoundaryPowerFlows());
+        assertEquals("1D", context.getBusinessProcess());
     }
 
     @Test

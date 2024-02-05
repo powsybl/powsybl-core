@@ -57,6 +57,7 @@ public class CgmesExportContext {
     private Reporter reporter = Reporter.NO_OP;
     private String boundaryEqId; // may be null
     private String boundaryTpId; // may be null
+    private String businessProcess = DEFAULT_BUSINESS_PROCESS;
 
     private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfileUri("EQ"));
     private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfileUri("TP"));
@@ -144,7 +145,6 @@ public class CgmesExportContext {
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
         private final Set<String> ids = new HashSet<>();
-        private String businessProcess = DEFAULT_BUSINESS_PROCESS;
 
         // TODO Each model may have a list of profiles, not only one
         private String profile;
@@ -237,18 +237,6 @@ public class CgmesExportContext {
 
         public void setSupersedes(String id) {
             this.supersedes = id;
-        }
-
-        /**
-         * The business process related to the export, used to get a unique ID for EQ, TP, SSH and SV FullModel.
-         */
-        public String getBusinessProcess() {
-            return businessProcess;
-        }
-
-        public ModelDescription setBusinessProcess(String businessProcess) {
-            this.businessProcess = businessProcess;
-            return this;
         }
 
     }
@@ -852,6 +840,18 @@ public class CgmesExportContext {
             return network.getBusBreakerView().getBusStream().collect(Collectors.toMap(b -> namingStrategy.getCgmesId(b), b -> b));
         }
         return Collections.unmodifiableMap(topologicalNodes);
+    }
+
+    /**
+     * The business process related to the export, used to get a unique ID for EQ, TP, SSH and SV FullModel.
+     */
+    public String getBusinessProcess() {
+        return businessProcess;
+    }
+
+    public CgmesExportContext setBusinessProcess(String businessProcess) {
+        this.businessProcess = businessProcess;
+        return this;
     }
 }
 

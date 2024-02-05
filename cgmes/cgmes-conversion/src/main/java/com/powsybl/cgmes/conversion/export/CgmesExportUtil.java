@@ -123,7 +123,7 @@ public final class CgmesExportUtil {
             ref(subset),
             ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
             ref(format(modelDescription.getVersion())),
-            ref(modelDescription.getBusinessProcess()),
+            ref(context.getBusinessProcess()),
             Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
         modelDescription.setIds(modelId);

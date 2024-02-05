@@ -106,7 +106,8 @@ public class CgmesExport implements Exporter {
                 .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider))
-                .setReporter(reporter);
+                .setReporter(reporter)
+                .setBusinessProcess(Parameter.readString(getFormat(), params, BUSINESS_PROCESS_PARAMETER, defaultValueConfig));
 
         // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
         String masUri = Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig);
@@ -139,13 +140,6 @@ public class CgmesExport implements Exporter {
             context.getSvModelDescription().setVersion(Integer.parseInt(modelVersion));
         }
 
-        String businessProcess = Parameter.readString(getFormat(), params, BUSINESS_PROCESS_PARAMETER, defaultValueConfig);
-        if (businessProcess != null) {
-            context.getEqModelDescription().setBusinessProcess(businessProcess);
-            context.getTpModelDescription().setBusinessProcess(businessProcess);
-            context.getSshModelDescription().setBusinessProcess(businessProcess);
-            context.getSvModelDescription().setBusinessProcess(businessProcess);
-        }
         try {
             List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig);
             checkConsistency(profiles, network, context);
