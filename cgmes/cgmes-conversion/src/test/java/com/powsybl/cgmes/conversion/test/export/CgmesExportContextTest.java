@@ -100,7 +100,8 @@ class CgmesExportContextTest {
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .setScenarioTime(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"))
             .setExportBoundaryPowerFlows(true)
-            .setExportFlowsForSwitches(false);
+            .setExportFlowsForSwitches(false)
+            .setBusinessProcess("2D");
         context.getSvModelDescription()
             .setDescription("test")
             .setVersion(2)
@@ -119,6 +120,7 @@ class CgmesExportContextTest {
         assertTrue(context.getSvModelDescription().getDependencies().contains("cgmes"));
         assertEquals("cgmes.org", context.getSvModelDescription().getModelingAuthoritySet());
         assertTrue(context.exportBoundaryPowerFlows());
+        assertEquals("2D", context.getBusinessProcess());
 
         List<String> dependencies = Arrays.asList("test1", "test2", "test3");
         context.getSvModelDescription().addDependencies(dependencies);
