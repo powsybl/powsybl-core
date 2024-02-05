@@ -101,4 +101,14 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
+
+    @Override
+    public NodeCalc visit(CachedNodeCalc nodeCalc, A arg, NodeCalc child) {
+        return new CachedNodeCalc(child);
+    }
+
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
 }
