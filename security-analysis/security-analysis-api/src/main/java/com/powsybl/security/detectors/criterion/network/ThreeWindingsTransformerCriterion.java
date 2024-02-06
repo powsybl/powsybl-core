@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.security.detectors.criterion.network;
 
 import com.powsybl.iidm.network.util.criterion.SingleCountryCriterion;
@@ -7,8 +14,8 @@ import java.util.Set;
 
 public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementCriterion {
 
-    SingleCountryCriterion singleCountryCriterion;
-    ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(null, null, null);
+    private SingleCountryCriterion singleCountryCriterion;
+    private ThreeNominalVoltageCriterion threeNominalVoltageCriterion;
 
     public ThreeWindingsTransformerCriterion(Set<String> networkElementIds) {
         super(networkElementIds);
@@ -21,7 +28,7 @@ public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementCri
 
     @Override
     public boolean accept(NetworkElementVisitor networkElementVisitor) {
-        return networkElementVisitor.visitThreeWindingsTransformerCriterion(this);
+        return networkElementVisitor.visit(this);
     }
 
     public SingleCountryCriterion getSingleCountryCriterion() {
