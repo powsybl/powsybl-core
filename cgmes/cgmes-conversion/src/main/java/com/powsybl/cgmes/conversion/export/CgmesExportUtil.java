@@ -116,9 +116,14 @@ public final class CgmesExportUtil {
 
     public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         // The ref to build a unique model id must contain:
-        // the network, the subset (EQ, SSH, SV, ...), and the FULL_MODEL part
+        // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
-        CgmesObjectReference[] modelRef = {refTyped(network), ref(subset), Part.FULL_MODEL};
+        CgmesObjectReference[] modelRef = {
+            refTyped(network),
+            ref(subset),
+            ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
+            ref(format(modelDescription.getVersion())),
+            Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
         modelDescription.setIds(modelId);
         context.updateDependencies();
