@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public class ModelIdTest extends AbstractSerDeTest {
+class ModelIdTest extends AbstractSerDeTest {
 
     private static final Pattern REGEX_FULL_MODEL_ID = Pattern.compile("FullModel rdf:about=\"(.*?)\"");
 
