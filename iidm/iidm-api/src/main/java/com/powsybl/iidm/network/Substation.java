@@ -163,6 +163,26 @@ public interface Substation extends Container<Substation> {
     int getThreeWindingsTransformerCount();
 
     /**
+     * Get a builder to create a new overload management system in the substation.
+     */
+    OverloadManagementSystemAdder newOverloadManagementSystem();
+
+    /**
+     * Get the overload management systems relative to the substation.
+     */
+    Iterable<OverloadManagementSystem> getOverloadManagementSystems();
+
+    /**
+     * Get the overload management systems relative to the substation.
+     */
+    Stream<OverloadManagementSystem> getOverloadManagementSystemStream();
+
+    /**
+     * Get the overload management systems count
+     */
+    int getOverloadManagementSystemCount();
+
+    /**
      * Get geographical tags associated to the substation.
      */
     Set<String> getGeographicalTags();

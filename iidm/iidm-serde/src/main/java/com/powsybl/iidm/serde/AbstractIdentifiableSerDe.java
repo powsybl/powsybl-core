@@ -32,7 +32,7 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<? super T>, A ex
         }
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         context.getWriter().writeStringAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-        identifiable.getOptionalName().ifPresent(name -> context.getWriter().writeStringAttribute("name", context.getAnonymizer().anonymizeString(name)));
+        context.getWriter().writeStringAttribute("name", identifiable.getOptionalName().map(context.getAnonymizer()::anonymizeString).orElse(null));
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> context.getWriter().writeBooleanAttribute("fictitious", identifiable.isFictitious(), false));
 
@@ -56,11 +56,15 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<? super T>, A ex
     protected String readIdentifierAttributes(A adder, NetworkDeserializerContext context) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("name"));
-        adder.setId(id)
-                .setName(name);
+        if (adder != null) {
+            adder.setId(id)
+                    .setName(name);
+        }
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> {
             boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
-            adder.setFictitious(fictitious);
+            if (adder != null) {
+                adder.setFictitious(fictitious);
+            }
         });
         return id;
     }

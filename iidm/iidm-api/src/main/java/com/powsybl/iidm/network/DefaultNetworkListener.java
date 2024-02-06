@@ -6,17 +6,19 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.extensions.Extension;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DefaultNetworkListener implements NetworkListener {
     @Override
-    public void onCreation(Identifiable identifiable) {
+    public void onCreation(Identifiable<?> identifiable) {
         // empty default implementation
     }
 
     @Override
-    public void beforeRemoval(Identifiable identifiable) {
+    public void beforeRemoval(Identifiable<?> identifiable) {
         // empty default implementation
     }
 
@@ -26,7 +28,32 @@ public class DefaultNetworkListener implements NetworkListener {
     }
 
     @Override
-    public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+    public void onUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onExtensionCreation(Extension<?> extension) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onExtensionBeforeRemoval(Extension<?> extension) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
         // empty default implementation
     }
 }

@@ -9,6 +9,8 @@ package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.export.*;
+import com.powsybl.cgmes.conversion.naming.NamingStrategy;
+import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
@@ -88,10 +90,12 @@ public class CgmesExport implements Exporter {
         }
         ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, countryName, importer, params);
 
-        CgmesExportContext context = new CgmesExportContext(
-                network,
-                referenceDataProvider,
-                NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
+        // The UUID namespace parameter must be a valid UUID itself
+        UUID uuidNamespace = UUID.fromString(Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER, defaultValueConfig));
+        NamingStrategy namingStrategy = NamingStrategyFactory.create(
+                Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig),
+                uuidNamespace);
+        CgmesExportContext context = new CgmesExportContext(network, referenceDataProvider, namingStrategy)
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
@@ -160,7 +164,7 @@ public class CgmesExport implements Exporter {
                     StateVariablesExport.write(network, writer, context);
                 }
             }
-            context.getNamingStrategy().writeIdMapping(baseName + "_id_mapping.csv", ds);
+            context.getNamingStrategy().debug(baseName, ds);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (XMLStreamException e) {
@@ -240,6 +244,7 @@ public class CgmesExport implements Exporter {
     public static final String MAX_Q_MISMATCH_CONVERGED = "iidm.export.cgmes.max-q-mismatch-converged";
     public static final String EXPORT_SV_INJECTIONS_FOR_SLACKS = "iidm.export.cgmes.export-sv-injections-for-slacks";
     public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
+    public static final String UUID_NAMESPACE = "iidm.export.cgmes.uuid-namespace";
     private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
@@ -333,6 +338,12 @@ public class CgmesExport implements Exporter {
             "Export SvInjections with the mismatch of slack buses",
             CgmesExportContext.EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE);
 
+    private static final Parameter UUID_NAMESPACE_PARAMETER = new Parameter(
+            UUID_NAMESPACE,
+            ParameterType.STRING,
+            "Namespace to use for name-based UUID generation. It must be a valid UUID itself",
+            CgmesExportContext.DEFAULT_UUID_NAMESPACE.toString());
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
@@ -349,7 +360,8 @@ public class CgmesExport implements Exporter {
             EXPORT_LOAD_FLOW_STATUS_PARAMETER,
             MAX_P_MISMATCH_CONVERGED_PARAMETER,
             MAX_Q_MISMATCH_CONVERGED_PARAMETER,
-            EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER);
+            EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER,
+            UUID_NAMESPACE_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }
