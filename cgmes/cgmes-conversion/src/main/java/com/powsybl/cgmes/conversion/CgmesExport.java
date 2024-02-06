@@ -256,7 +256,6 @@ public class CgmesExport implements Exporter {
     public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
     public static final String UUID_NAMESPACE = "iidm.export.cgmes.uuid-namespace";
     public static final String MODEL_VERSION = "iidm.export.cgmes.model-version";
-    private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
     public static final String BUSINESS_PROCESS = "iidm.export.cgmes.business-process";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(

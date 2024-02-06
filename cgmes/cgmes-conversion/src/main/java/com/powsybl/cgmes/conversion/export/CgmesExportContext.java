@@ -143,7 +143,7 @@ public class CgmesExportContext {
         private int version = 1;
         private String supersedes;
         private final List<String> dependencies = new ArrayList<>();
-        private String modelingAuthoritySet = "powsybl.org";
+        private String modelingAuthoritySet = DEFAULT_MODELING_AUTHORITY_SET_VALUE;
         private final Set<String> ids = new HashSet<>();
 
         // TODO Each model may have a list of profiles, not only one
