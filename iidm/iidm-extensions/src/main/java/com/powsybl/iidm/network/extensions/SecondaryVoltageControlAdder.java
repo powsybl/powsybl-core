@@ -9,12 +9,11 @@ package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface SecondaryVoltageControlAdder extends ExtensionAdder<Network, SecondaryVoltageControl> {
 
-    SecondaryVoltageControlAdder addControlZone(ControlZone controlZone);
+    ControlZoneAdder newControlZone();
 }

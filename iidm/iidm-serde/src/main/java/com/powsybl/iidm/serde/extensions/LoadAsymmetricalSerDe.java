@@ -30,7 +30,7 @@ public class LoadAsymmetricalSerDe extends AbstractExtensionSerDe<Load, LoadAsym
 
     @Override
     public void write(LoadAsymmetrical loadAsym, SerializerContext context) {
-        context.getWriter().writeStringAttribute("connectionType", loadAsym.getConnectionType().name());
+        context.getWriter().writeEnumAttribute("connectionType", loadAsym.getConnectionType());
         context.getWriter().writeDoubleAttribute("deltaPa", loadAsym.getDeltaPa(), 0);
         context.getWriter().writeDoubleAttribute("deltaQa", loadAsym.getDeltaQa(), 0);
         context.getWriter().writeDoubleAttribute("deltaPb", loadAsym.getDeltaPb(), 0);

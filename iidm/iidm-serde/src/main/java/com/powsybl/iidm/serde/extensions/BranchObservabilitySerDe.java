@@ -54,14 +54,13 @@ public class BranchObservabilitySerDe<T extends Branch<T>> extends AbstractExten
     }
 
     private void writeOptionalQuality(SerializerContext context, ObservabilityQuality<T> quality, String type, TwoSides side) {
-        if (quality == null) {
-            return;
+        if (quality != null) {
+            context.getWriter().writeStartNode(getNamespaceUri(), type);
+            context.getWriter().writeEnumAttribute(SIDE, side);
+            context.getWriter().writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
+            context.getWriter().writeOptionalBooleanAttribute(REDUNDANT, quality.isRedundant().orElse(null));
+            context.getWriter().writeEndNode();
         }
-        context.getWriter().writeStartNode(getNamespaceUri(), type);
-        context.getWriter().writeEnumAttribute(SIDE, side);
-        context.getWriter().writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-        quality.isRedundant().ifPresent(redundant -> context.getWriter().writeBooleanAttribute(REDUNDANT, redundant));
-        context.getWriter().writeEndNode();
     }
 
     @Override
@@ -74,7 +73,7 @@ public class BranchObservabilitySerDe<T extends Branch<T>> extends AbstractExten
         context.getReader().readChildNodes(elementName -> {
             var side = context.getReader().readEnumAttribute(SIDE, TwoSides.class);
             var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-            var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
+            var redundant = context.getReader().readOptionalBooleanAttribute(REDUNDANT).orElse(null);
             context.getReader().readEndNode();
             switch (elementName) {
                 case QUALITY_P -> readQualityP(standardDeviation, redundant, side, adder);

@@ -10,6 +10,8 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.binary.BinReader;
+import com.powsybl.commons.binary.BinWriter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
@@ -18,6 +20,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.TreeDataFormat;
+import com.powsybl.commons.io.TreeDataHeader;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonReader;
@@ -76,6 +79,9 @@ public final class NetworkSerDe {
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
     private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
+
+    /** Magic number for binary iidm files ("Binary IIDM" in ASCII) */
+    static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
 
     private static final Supplier<ExtensionProviders<ExtensionSerDe>> EXTENSIONS_SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
@@ -263,6 +269,11 @@ public final class NetworkSerDe {
         }
     }
 
+    private static TreeDataWriter createBinWriter(OutputStream os, ExportOptions options) {
+        LOGGER.warn("BETA feature, the resulting binary file is not guaranteed to still be readable in the next releases");
+        return new BinWriter(os, BIIDM_MAGIC_NUMBER, options.getVersion().toString("."));
+    }
+
     private static void writeRootElement(Network n, NetworkSerializerContext context) {
         IidmSerDeUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL,
                 IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context.getVersion());
@@ -409,6 +420,7 @@ public final class NetworkSerDe {
         return switch (options.getFormat()) {
             case XML -> createXmlWriter(n, os, options);
             case JSON -> createJsonWriter(os, options);
+            case BIN -> createBinWriter(os, options);
         };
     }
 
@@ -508,6 +520,7 @@ public final class NetworkSerDe {
         return switch (config.getFormat()) {
             case XML -> createXmlReader(is, config);
             case JSON -> createJsonReader(is, config);
+            case BIN -> new BinReader(is, BIIDM_MAGIC_NUMBER);
         };
     }
 
@@ -553,6 +566,7 @@ public final class NetworkSerDe {
                 Map.entry(LineSerDe.ARRAY_ELEMENT_NAME, LineSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(LoadSerDe.ARRAY_ELEMENT_NAME, LoadSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(NodeBreakerViewInternalConnectionSerDe.ARRAY_ELEMENT_NAME, NodeBreakerViewInternalConnectionSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(OverloadManagementSystemSerDe.ARRAY_ELEMENT_NAME, OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(PropertiesSerDe.ARRAY_ELEMENT_NAME, PropertiesSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ReactiveLimitsSerDe.POINT_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.POINT_ROOT_ELEMENT_NAME),
                 Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME),
@@ -565,7 +579,13 @@ public final class NetworkSerDe {
                 Map.entry(VoltageAngleLimitSerDe.ARRAY_ELEMENT_NAME, VoltageAngleLimitSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(VoltageLevelSerDe.ARRAY_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(VoltageLevelSerDe.INJ_ARRAY_ELEMENT_NAME, VoltageLevelSerDe.INJ_ROOT_ELEMENT_NAME),
-                Map.entry(VscConverterStationSerDe.ARRAY_ELEMENT_NAME, VscConverterStationSerDe.ROOT_ELEMENT_NAME));
+                Map.entry(VscConverterStationSerDe.ARRAY_ELEMENT_NAME, VscConverterStationSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(GroundSerDe.ARRAY_ELEMENT_NAME, GroundSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS, ConnectableSerDeUtil.LIMITS_GROUP),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_1, ConnectableSerDeUtil.LIMITS_GROUP_1),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_2, ConnectableSerDeUtil.LIMITS_GROUP_2),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_3, ConnectableSerDeUtil.LIMITS_GROUP_3)
+        );
 
         Map<String, String> extensionsMap = new HashMap<>();
         if (withExtensions) {
@@ -682,10 +702,9 @@ public final class NetworkSerDe {
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(reporter);
 
-        IidmVersion iidmVersion = IidmVersion.of(reader.readRootVersion(), ".");
-        Map<String, String> extensionVersions = reader.readVersions();
-
-        NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, extensionVersions);
+        TreeDataHeader header = reader.readHeader();
+        IidmVersion iidmVersion = IidmVersion.of(header.rootVersion(), ".");
+        NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, header.extensionVersions());
 
         Network network = initNetwork(networkFactory, context, reader, null);
         network.getReporterContext().pushReporter(reporter);
@@ -765,17 +784,17 @@ public final class NetworkSerDe {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore in case of
             // missing extension serializer, we must not check for an extension in sub elements.
-            if (!context.getOptions().withExtension(extensionName)) {
-                context.getReader().skipChildNodes();
-            }
-
-            ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-            if (extensionXmlSerializer != null) {
-                Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                extensionNamesImported.add(extensionName);
+            if (context.getOptions().withExtension(extensionName)) {
+                ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                if (extensionXmlSerializer != null) {
+                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                    extensionNamesImported.add(extensionName);
+                } else {
+                    extensionNamesNotFound.add(extensionName);
+                    context.getReader().skipChildNodes();
+                }
             } else {
-                extensionNamesNotFound.add(extensionName);
                 context.getReader().skipChildNodes();
             }
         });

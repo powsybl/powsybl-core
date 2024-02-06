@@ -249,4 +249,6 @@ public interface Terminal {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }
     }
+
+    ThreeSides getSide();
 }

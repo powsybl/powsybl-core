@@ -12,10 +12,10 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
-import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -321,6 +321,27 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return getOverloadManagementSystemStream().toList();
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return getNetwork().getOverloadManagementSystemStream().filter(this::contains);
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return (int) getOverloadManagementSystemStream().count();
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        OverloadManagementSystem oms = getNetwork().getOverloadManagementSystem(id);
+        return contains(oms) ? oms : null;
+    }
+
+    @Override
     public Iterable<Generator> getGenerators() {
         return getGeneratorStream().toList();
     }
@@ -596,6 +617,27 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public HvdcLineAdder newHvdcLine() {
         return getNetwork().newHvdcLine(id);
+    }
+
+    @Override
+    public Ground getGround(String id) {
+        Ground s = getNetwork().getGround(id);
+        return contains(s) ? s : null;
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return getGroundStream().toList();
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return getNetwork().getGroundStream().filter(this::contains);
+    }
+
+    @Override
+    public int getGroundCount() {
+        return (int) getGroundStream().count();
     }
 
     @Override
