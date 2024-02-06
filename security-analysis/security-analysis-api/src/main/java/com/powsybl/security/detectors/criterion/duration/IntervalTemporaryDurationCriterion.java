@@ -15,65 +15,77 @@ import com.powsybl.iidm.network.LoadingLimits;
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 public class IntervalTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
-    private static final TemporaryDurationCriterionType COMPARISON_TYPE = TemporaryDurationCriterionType.INTERVAL;
-    private double lowBound;
-    private double highBound;
-    private boolean lowClosed;
-    private boolean highClosed;
+    private Integer lowBound = null;
+    private Integer highBound = null;
+    private boolean lowClosed = false;
+    private boolean highClosed = false;
+
+    public IntervalTemporaryDurationCriterion setLowBound(int value, boolean closed) {
+        checkValue(value);
+        checkBounds(value, highBound);
+        this.lowBound = value;
+        this.lowClosed = closed;
+        return this;
+    }
+
+    public void resetLowBound() {
+        this.lowBound = null;
+        this.lowClosed = false;
+    }
+
+    public IntervalTemporaryDurationCriterion setHighBound(int value, boolean closed) {
+        checkValue(value);
+        checkBounds(lowBound, value);
+        this.highBound = value;
+        this.highClosed = closed;
+        return this;
+    }
+
+    public void resetHighBound() {
+        this.highBound = null;
+        this.highClosed = false;
+    }
+
+    private void checkValue(int value) {
+        if (value <= 0) {
+            throw new IllegalArgumentException("Invalid bound value (must be > 0)");
+        }
+    }
+
+    private void checkBounds(Integer low, Integer high) {
+        if (low != null && high != null && low > high) {
+            throw new IllegalArgumentException("Invalid interval bounds values (low must be <= high)");
+        }
+    }
 
     @Override
     public TemporaryDurationCriterionType getComparisonType() {
-        return COMPARISON_TYPE;
+        return TemporaryDurationCriterionType.INTERVAL;
     }
 
     @Override
     public boolean isTemporaryLimitWithinCriterionBounds(LoadingLimits.TemporaryLimit temporaryLimit) {
         int temporaryLimitAcceptableDuration = temporaryLimit.getAcceptableDuration();
-        if (temporaryLimitAcceptableDuration < lowBound || temporaryLimitAcceptableDuration > highBound) {
-            return false;
-        }
-        if (!lowClosed && temporaryLimitAcceptableDuration == lowBound) {
-            return false;
-        }
-        if (!highClosed && temporaryLimitAcceptableDuration == highBound) {
-            return false;
-        }
-        return true;
+        boolean lowBoundOk = lowBound == null || temporaryLimitAcceptableDuration > lowBound
+                || lowClosed && temporaryLimitAcceptableDuration == lowBound;
+        boolean highBoundOk = highBound == null || temporaryLimitAcceptableDuration < highBound
+                || highClosed && temporaryLimitAcceptableDuration == highBound;
+        return lowBoundOk && highBoundOk;
     }
 
-    public double getLowBound() {
+    public Integer getLowBound() {
         return lowBound;
     }
 
-    public IntervalTemporaryDurationCriterion setLowBound(double lowBound) {
-        this.lowBound = lowBound;
-        return this;
-    }
-
-    public double getHighBound() {
+    public Integer getHighBound() {
         return highBound;
-    }
-
-    public IntervalTemporaryDurationCriterion setHighBound(double highBound) {
-        this.highBound = highBound;
-        return this;
     }
 
     public boolean isLowClosed() {
         return lowClosed;
     }
 
-    public IntervalTemporaryDurationCriterion setLowClosed(boolean lowClosed) {
-        this.lowClosed = lowClosed;
-        return this;
-    }
-
     public boolean isHighClosed() {
         return highClosed;
-    }
-
-    public IntervalTemporaryDurationCriterion setHighClosed(boolean highClosed) {
-        this.highClosed = highClosed;
-        return this;
     }
 }

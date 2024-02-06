@@ -15,8 +15,7 @@ import com.powsybl.iidm.network.LoadingLimits;
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 public class EqualityTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
-    private static final TemporaryDurationCriterionType COMPARISON_TYPE = TemporaryDurationCriterionType.EQUALITY;
-    private double durationEqualityValue;
+    private final double durationEqualityValue;
 
     public EqualityTemporaryDurationCriterion(double durationEqualityValue) {
         this.durationEqualityValue = durationEqualityValue;
@@ -24,7 +23,7 @@ public class EqualityTemporaryDurationCriterion extends AbstractTemporaryDuratio
 
     @Override
     public TemporaryDurationCriterionType getComparisonType() {
-        return COMPARISON_TYPE;
+        return TemporaryDurationCriterionType.EQUALITY;
     }
 
     public double getDurationEqualityValue() {

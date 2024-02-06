@@ -15,11 +15,9 @@ import com.powsybl.iidm.network.LoadingLimits;
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 public class AllTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
-    private static final TemporaryDurationCriterionType COMPARISON_TYPE = TemporaryDurationCriterionType.ALL;
-
     @Override
     public TemporaryDurationCriterionType getComparisonType() {
-        return COMPARISON_TYPE;
+        return TemporaryDurationCriterionType.ALL;
     }
 
     @Override

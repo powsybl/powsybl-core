@@ -13,11 +13,8 @@ package com.powsybl.security.detectors.criterion.duration;
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 public class PermanentDurationCriterion implements LimitDurationCriterion {
-
-    public static final LimitDurationType TYPE = LimitDurationType.PERMANENT;
-
     @Override
     public LimitDurationType getType() {
-        return TYPE;
+        return LimitDurationType.PERMANENT;
     }
 }

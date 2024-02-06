@@ -24,13 +24,11 @@ public abstract class AbstractTemporaryDurationCriterion implements LimitDuratio
         INTERVAL
     }
 
-    public static final LimitDurationType TYPE = TEMPORARY;
-
     public abstract TemporaryDurationCriterionType getComparisonType();
 
     @Override
     public LimitDurationType getType() {
-        return TYPE;
+        return TEMPORARY;
     }
 
     public abstract boolean isTemporaryLimitWithinCriterionBounds(LoadingLimits.TemporaryLimit temporaryLimit);
