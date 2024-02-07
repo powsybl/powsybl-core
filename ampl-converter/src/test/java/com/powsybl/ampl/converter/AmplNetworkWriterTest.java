@@ -6,6 +6,7 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
@@ -49,7 +50,8 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
 
         MemDataSource dataSource = new MemDataSource();
         AmplExporter exporter = new AmplExporter();
-        exporter.export(network, new Properties(), dataSource);
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.defaultVersion(), true);
+        exporter.export(network, amplExportConfig, dataSource);
 
         assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses.txt");
