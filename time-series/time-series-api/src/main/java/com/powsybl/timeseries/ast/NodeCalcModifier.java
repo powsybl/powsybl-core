@@ -18,7 +18,17 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(IntegerNodeCalc nodeCalc, A arg, int depth) {
+        return null;
+    }
+
+    @Override
     public NodeCalc visit(FloatNodeCalc nodeCalc, A arg) {
+        return null;
+    }
+
+    @Override
+    public NodeCalc visit(FloatNodeCalc nodeCalc, A arg, int depth) {
         return null;
     }
 
@@ -28,7 +38,17 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(DoubleNodeCalc nodeCalc, A arg, int depth) {
+        return null;
+    }
+
+    @Override
     public NodeCalc visit(BigDecimalNodeCalc nodeCalc, A arg) {
+        return null;
+    }
+
+    @Override
+    public NodeCalc visit(BigDecimalNodeCalc nodeCalc, A arg, int depth) {
         return null;
     }
 
@@ -38,11 +58,56 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(BinaryOperation nodeCalc, A arg, int depth) {
+        return visitBinaryNodeCalc(nodeCalc, arg, depth);
+    }
+
+    @Override
+    public NodeCalc visit(BinaryMinCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return visitBinaryNodeCalc(nodeCalc, left, right);
+    }
+
+    @Override
+    public NodeCalc visit(BinaryMinCalc nodeCalc, A arg, int depth) {
+        return visitBinaryNodeCalc(nodeCalc, arg, depth);
+    }
+
+    @Override
+    public NodeCalc visit(BinaryMaxCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return visitBinaryNodeCalc(nodeCalc, left, right);
+    }
+
+    @Override
+    public NodeCalc visit(BinaryMaxCalc nodeCalc, A arg, int depth) {
+        return visitBinaryNodeCalc(nodeCalc, arg, depth);
+    }
+
+    private NodeCalc visitBinaryNodeCalc(AbstractBinaryNodeCalc nodeCalc, NodeCalc left, NodeCalc right) {
+        if (left != null) {
+            nodeCalc.setLeft(left);
+        }
+        if (right != null) {
+            nodeCalc.setRight(right);
+        }
+        return null;
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
+
+    @Override
     public NodeCalc visit(UnaryOperation nodeCalc, A arg, NodeCalc child) {
         if (child != null) {
             nodeCalc.setChild(child);
         }
         return null;
+    }
+
+    @Override
+    public NodeCalc visit(UnaryOperation nodeCalc, A arg, int depth) {
+        return visitSingleChildNodeCalc(nodeCalc, arg, depth);
     }
 
     @Override
@@ -59,6 +124,11 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(MinNodeCalc nodeCalc, A arg, int depth) {
+        return visitSingleChildNodeCalc(nodeCalc, arg, depth);
+    }
+
+    @Override
     public NodeCalc iterate(MinNodeCalc nodeCalc, A arg) {
         return nodeCalc.getChild();
     }
@@ -69,6 +139,11 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
             nodeCalc.setChild(child);
         }
         return null;
+    }
+
+    @Override
+    public NodeCalc visit(MaxNodeCalc nodeCalc, A arg, int depth) {
+        return visitSingleChildNodeCalc(nodeCalc, arg, depth);
     }
 
     @Override
@@ -85,6 +160,11 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(TimeNodeCalc nodeCalc, A arg, int depth) {
+        return visitSingleChildNodeCalc(nodeCalc, arg, depth);
+    }
+
+    @Override
     public NodeCalc iterate(TimeNodeCalc nodeCalc, A arg) {
         return nodeCalc.getChild();
     }
@@ -95,32 +175,45 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(TimeSeriesNameNodeCalc nodeCalc, A arg, int depth) {
+        return null;
+    }
+
+    @Override
     public NodeCalc visit(TimeSeriesNumNodeCalc nodeCalc, A arg) {
         return null;
     }
 
     @Override
-    public NodeCalc visit(BinaryMinCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
-        return visitBinaryNodeCalc(nodeCalc, left, right);
-    }
-
-    @Override
-    public NodeCalc visit(BinaryMaxCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
-        return visitBinaryNodeCalc(nodeCalc, left, right);
-    }
-
-    private NodeCalc visitBinaryNodeCalc(AbstractBinaryNodeCalc nodeCalc, NodeCalc left, NodeCalc right) {
-        if (left != null) {
-            nodeCalc.setLeft(left);
-        }
-        if (right != null) {
-            nodeCalc.setRight(right);
-        }
+    public NodeCalc visit(TimeSeriesNumNodeCalc nodeCalc, A arg, int depth) {
         return null;
     }
 
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    private NodeCalc visitBinaryNodeCalc(AbstractBinaryNodeCalc nodeCalc, A arg, int depth) {
+        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
+            NodeCalc left = nodeCalc.getLeft().accept(this, arg, depth + 1);
+            NodeCalc right = nodeCalc.getRight().accept(this, arg, depth + 1);
+            if (left != null) {
+                nodeCalc.setLeft(left);
+            }
+            if (right != null) {
+                nodeCalc.setRight(right);
+            }
+            return null;
+        } else {
+            return NodeCalcVisitors.visit(nodeCalc, arg, this);
+        }
+    }
+
+    private NodeCalc visitSingleChildNodeCalc(AbstractSingleChildNodeCalc nodeCalc, A arg, int depth) {
+        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
+            NodeCalc child = nodeCalc.getChild().accept(this, arg, depth + 1);
+            if (child != null) {
+                nodeCalc.setChild(child);
+            }
+            return null;
+        } else {
+            return NodeCalcVisitors.visit(nodeCalc, arg, this);
+        }
     }
 }

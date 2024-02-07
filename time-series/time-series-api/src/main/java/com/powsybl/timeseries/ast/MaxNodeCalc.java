@@ -29,16 +29,7 @@ public class MaxNodeCalc extends AbstractMinMaxNodeCalc {
 
     @Override
     public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
-        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
-            NodeCalc child = visitor.iterate(this, arg);
-            R childValue = null;
-            if (child != null) {
-                childValue = child.accept(visitor, arg, depth + 1);
-            }
-            return visitor.visit(this, arg, childValue);
-        } else {
-            return NodeCalcVisitors.visit(this, arg, visitor);
-        }
+        return visitor.visit(this, arg, depth);
     }
 
     @SuppressWarnings("unchecked")
@@ -67,7 +58,7 @@ public class MaxNodeCalc extends AbstractMinMaxNodeCalc {
 
     @Override
     public int hashCode() {
-        return child.hashCode() + Objects.hash(value);
+        return Objects.hash(value, NAME, child);
     }
 
     @Override

@@ -34,7 +34,7 @@ public class TimeSeriesNameNodeCalc implements NodeCalc {
 
     @Override
     public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
-        return visitor.visit(this, arg);
+        return visitor.visit(this, arg, depth);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class TimeSeriesNameNodeCalc implements NodeCalc {
 
     @Override
     public int hashCode() {
-        return timeSeriesName.hashCode();
+        return Objects.hash(timeSeriesName, NAME);
     }
 
     @Override

@@ -10,11 +10,14 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.util.Deque;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TimeSeriesNumNodeCalc implements NodeCalc {
+
+    private static final String NAME = "timeSeriesNum";
 
     private final int timeSeriesNum;
 
@@ -51,7 +54,7 @@ public class TimeSeriesNumNodeCalc implements NodeCalc {
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(timeSeriesNum);
+        return Objects.hash(timeSeriesNum, NAME);
     }
 
     @Override

@@ -35,7 +35,7 @@ public class IntegerNodeCalc implements LiteralNodeCalc {
 
     @Override
     public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
-        return visitor.visit(this, arg);
+        return visitor.visit(this, arg, depth);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class IntegerNodeCalc implements LiteralNodeCalc {
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return Objects.hash(value, NAME);
     }
 
     @Override

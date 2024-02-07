@@ -23,37 +23,63 @@ public interface NodeCalcVisitor<R, A> {
 
     R visit(IntegerNodeCalc nodeCalc, A arg);
 
+    R visit(IntegerNodeCalc nodeCalc, A arg, int depth);
+
     R visit(FloatNodeCalc nodeCalc, A arg);
+
+    R visit(FloatNodeCalc nodeCalc, A arg, int depth);
 
     R visit(DoubleNodeCalc nodeCalc, A arg);
 
+    R visit(DoubleNodeCalc nodeCalc, A arg, int depth);
+
     R visit(BigDecimalNodeCalc nodeCalc, A arg);
+
+    R visit(BigDecimalNodeCalc nodeCalc, A arg, int depth);
 
     R visit(BinaryOperation nodeCalc, A arg, R left, R right);
 
+    R visit(BinaryOperation nodeCalc, A arg, int depth);
+
+    R visit(BinaryMinCalc nodeCalc, A arg, R left, R right);
+
+    R visit(BinaryMinCalc nodeCalc, A arg, int depth);
+
+    R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right);
+
+    R visit(BinaryMaxCalc nodeCalc, A arg, int depth);
+
+    Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg);
+
     R visit(TimeNodeCalc nodeCalc, A arg, R child);
+
+    R visit(TimeNodeCalc nodeCalc, A arg, int depth);
 
     NodeCalc iterate(TimeNodeCalc nodeCalc, A arg);
 
     R visit(UnaryOperation nodeCalc, A arg, R child);
 
+    R visit(UnaryOperation nodeCalc, A arg, int depth);
+
     NodeCalc iterate(UnaryOperation nodeCalc, A arg);
 
     R visit(MinNodeCalc nodeCalc, A arg, R child);
+
+    R visit(MinNodeCalc nodeCalc, A arg, int depth);
 
     NodeCalc iterate(MinNodeCalc nodeCalc, A arg);
 
     R visit(MaxNodeCalc nodeCalc, A arg, R child);
 
+    R visit(MaxNodeCalc nodeCalc, A arg, int depth);
+
     NodeCalc iterate(MaxNodeCalc nodeCalc, A arg);
 
     R visit(TimeSeriesNameNodeCalc nodeCalc, A arg);
 
+    R visit(TimeSeriesNameNodeCalc nodeCalc, A arg, int depth);
+
     R visit(TimeSeriesNumNodeCalc nodeCalc, A arg);
 
-    R visit(BinaryMinCalc nodeCalc, A arg, R left, R right);
-
-    R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right);
-
-    Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg);
+    R visit(TimeSeriesNumNodeCalc nodeCalc, A arg, int depth);
 }

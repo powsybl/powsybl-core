@@ -93,6 +93,11 @@ public class BinaryOperation extends AbstractBinaryNodeCalc {
     }
 
     @Override
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+        return visitor.visit(this, arg, depth);
+    }
+
+    @Override
     public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, R leftValue, R rightValue) {
         return visitor.visit(this, arg, leftValue, rightValue);
     }

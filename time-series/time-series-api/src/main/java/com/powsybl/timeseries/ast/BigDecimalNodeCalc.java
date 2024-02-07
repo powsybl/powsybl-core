@@ -36,7 +36,7 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
 
     @Override
     public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
-        return visitor.visit(this, arg);
+        return visitor.visit(this, arg, depth);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Objects.hash(NAME, value);
     }
 
     @Override

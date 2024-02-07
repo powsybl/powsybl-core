@@ -13,6 +13,7 @@ import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
 import java.util.Deque;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -27,16 +28,7 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
 
     @Override
     public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
-        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
-            NodeCalc child = visitor.iterate(this, arg);
-            R childValue = null;
-            if (child != null) {
-                childValue = child.accept(visitor, arg, depth + 1);
-            }
-            return visitor.visit(this, arg, childValue);
-        } else {
-            return NodeCalcVisitors.visit(this, arg, visitor);
-        }
+        return visitor.visit(this, arg, depth);
     }
 
     @SuppressWarnings("unchecked")
@@ -84,7 +76,7 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
 
     @Override
     public int hashCode() {
-        return child.hashCode();
+        return Objects.hash(child, NAME);
     }
 
     @Override

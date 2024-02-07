@@ -18,7 +18,17 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
+    public R visit(IntegerNodeCalc nodeCalc, A arg, int depth) {
+        return null;
+    }
+
+    @Override
     public R visit(FloatNodeCalc nodeCalc, A arg) {
+        return null;
+    }
+
+    @Override
+    public R visit(FloatNodeCalc nodeCalc, A arg, int depth) {
         return null;
     }
 
@@ -28,7 +38,17 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
+    public R visit(DoubleNodeCalc nodeCalc, A arg, int depth) {
+        return null;
+    }
+
+    @Override
     public R visit(BigDecimalNodeCalc nodeCalc, A arg) {
+        return null;
+    }
+
+    @Override
+    public R visit(BigDecimalNodeCalc nodeCalc, A arg, int depth) {
         return null;
     }
 
@@ -38,8 +58,43 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
+    public R visit(BinaryOperation nodeCalc, A arg, int depth) {
+        return visitBinaryNodeCalc(nodeCalc, arg, depth);
+    }
+
+    @Override
+    public R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right) {
+        return null;
+    }
+
+    @Override
+    public R visit(BinaryMaxCalc nodeCalc, A arg, int depth) {
+        return visitBinaryNodeCalc(nodeCalc, arg, depth);
+    }
+
+    @Override
+    public R visit(BinaryMinCalc nodeCalc, A arg, R left, R right) {
+        return null;
+    }
+
+    @Override
+    public R visit(BinaryMinCalc nodeCalc, A arg, int depth) {
+        return visitBinaryNodeCalc(nodeCalc, arg, depth);
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
+
+    @Override
     public R visit(UnaryOperation nodeCalc, A arg, R child) {
         return null;
+    }
+
+    @Override
+    public R visit(UnaryOperation nodeCalc, A arg, int depth) {
+        return visitSingleChildNodeCalc(nodeCalc, arg, depth);
     }
 
     @Override
@@ -53,6 +108,11 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
+    public R visit(MinNodeCalc nodeCalc, A arg, int depth) {
+        return visitSingleChildNodeCalc(nodeCalc, arg, depth);
+    }
+
+    @Override
     public NodeCalc iterate(MinNodeCalc nodeCalc, A arg) {
         return nodeCalc.getChild();
     }
@@ -60,6 +120,11 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     @Override
     public R visit(MaxNodeCalc nodeCalc, A arg, R child) {
         return null;
+    }
+
+    @Override
+    public R visit(MaxNodeCalc nodeCalc, A arg, int depth) {
+        return visitSingleChildNodeCalc(nodeCalc, arg, depth);
     }
 
     @Override
@@ -73,6 +138,11 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
+    public R visit(TimeNodeCalc nodeCalc, A arg, int depth) {
+        return visitSingleChildNodeCalc(nodeCalc, arg, depth);
+    }
+
+    @Override
     public NodeCalc iterate(TimeNodeCalc nodeCalc, A arg) {
         return nodeCalc.getChild();
     }
@@ -83,22 +153,36 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
+    public R visit(TimeSeriesNameNodeCalc nodeCalc, A arg, int depth) {
+        return null;
+    }
+
+    @Override
     public R visit(TimeSeriesNumNodeCalc nodeCalc, A arg) {
         return null;
     }
 
     @Override
-    public R visit(BinaryMinCalc nodeCalc, A arg, R left, R right) {
+    public R visit(TimeSeriesNumNodeCalc nodeCalc, A arg, int depth) {
         return null;
     }
 
-    @Override
-    public R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right) {
-        return null;
+    private R visitBinaryNodeCalc(AbstractBinaryNodeCalc nodeCalc, A arg, int depth) {
+        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
+            nodeCalc.getLeft().accept(this, arg, depth + 1);
+            nodeCalc.getRight().accept(this, arg, depth + 1);
+            return null;
+        } else {
+            return NodeCalcVisitors.visit(nodeCalc, arg, this);
+        }
     }
 
-    @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    private R visitSingleChildNodeCalc(AbstractSingleChildNodeCalc nodeCalc, A arg, int depth) {
+        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
+            nodeCalc.getChild().accept(this, arg, depth + 1);
+            return null;
+        } else {
+            return NodeCalcVisitors.visit(nodeCalc, arg, this);
+        }
     }
 }

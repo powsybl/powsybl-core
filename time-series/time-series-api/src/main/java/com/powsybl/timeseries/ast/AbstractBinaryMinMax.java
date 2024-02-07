@@ -23,12 +23,6 @@ public abstract class AbstractBinaryMinMax extends AbstractBinaryNodeCalc {
         super(left, right);
     }
 
-    @Override
-    public abstract int hashCode();
-
-    @Override
-    public abstract boolean equals(Object obj);
-
     protected abstract String getJsonName();
 
     @Override

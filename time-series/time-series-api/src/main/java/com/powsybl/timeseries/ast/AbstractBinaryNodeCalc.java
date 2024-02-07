@@ -28,26 +28,6 @@ public abstract class AbstractBinaryNodeCalc implements NodeCalc {
     protected abstract <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, R leftValue, R rightValue);
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
-        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
-            Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
-            R leftValue = null;
-            NodeCalc leftNode = p.getLeft();
-            if (leftNode != null) {
-                leftValue = leftNode.accept(visitor, arg, depth + 1);
-            }
-            R rightValue = null;
-            NodeCalc rightNode = p.getRight();
-            if (rightNode != null) {
-                rightValue = rightNode.accept(visitor, arg, depth + 1);
-            }
-            return accept(visitor, arg, leftValue, rightValue);
-        } else {
-            return NodeCalcVisitors.visit(this, arg, visitor);
-        }
-    }
-
-    @Override
     public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> nodesStack) {
         Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
         Object leftNode = p.getLeft();
@@ -69,12 +49,6 @@ public abstract class AbstractBinaryNodeCalc implements NodeCalc {
         leftResult = leftResult == NodeCalcVisitors.NULL ? null : leftResult;
         return acceptHandle(visitor, arg, (R) leftResult, (R) rightResult);
     }
-
-    @Override
-    public abstract int hashCode();
-
-    @Override
-    public abstract boolean equals(Object obj);
 
     public NodeCalc getLeft() {
         return left;

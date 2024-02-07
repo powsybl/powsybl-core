@@ -23,7 +23,7 @@ public class TimeSeriesNames extends DefaultNodeCalcVisitor<Void, Set<String>> {
     }
 
     @Override
-    public Void visit(TimeSeriesNameNodeCalc nodeCalc, Set<String> timeSeriesNames) {
+    public Void visit(TimeSeriesNameNodeCalc nodeCalc, Set<String> timeSeriesNames, int depth) {
         timeSeriesNames.add(nodeCalc.getTimeSeriesName());
         return null;
     }

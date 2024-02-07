@@ -10,6 +10,7 @@ package com.powsybl.timeseries.ast;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -20,6 +21,11 @@ public class BinaryMaxCalc extends AbstractBinaryMinMax {
 
     public BinaryMaxCalc(NodeCalc left, NodeCalc right) {
         super(left, right);
+    }
+
+    @Override
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+        return visitor.visit(this, arg, depth);
     }
 
     @Override
@@ -52,6 +58,6 @@ public class BinaryMaxCalc extends AbstractBinaryMinMax {
 
     @Override
     public int hashCode() {
-        return left.hashCode() + right.hashCode();
+        return Objects.hash(left, right, NAME);
     }
 }
