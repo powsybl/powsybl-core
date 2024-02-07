@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElement;
+import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,29 +32,21 @@ public class SingleCountryCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        switch (type) {
-            case DANGLING_LINE:
-            case GENERATOR:
-            case LOAD:
-            case SHUNT_COMPENSATOR:
-            case STATIC_VAR_COMPENSATOR:
-            case BUSBAR_SECTION:
-            case BATTERY:
-                return filterInjection(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH:
-                return filterInjection(((Switch) identifiable).getVoltageLevel());
-            case TWO_WINDINGS_TRANSFORMER:
-                return filterSubstation(((TwoWindingsTransformer) identifiable).getNullableSubstation());
-            case THREE_WINDINGS_TRANSFORMER:
-                return filterSubstation(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
-            default:
-                return false;
-        }
+        return switch (type) {
+            case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY ->
+                    filterVoltageLevel(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> filterVoltageLevel(((Switch) identifiable).getVoltageLevel());
+            case TWO_WINDINGS_TRANSFORMER ->
+                    filterSubstation(((TwoWindingsTransformer) identifiable).getNullableSubstation());
+            case THREE_WINDINGS_TRANSFORMER ->
+                    filterSubstation(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
+            default -> false;
+        };
     }
 
     @Override
     public boolean filter(NetworkElement networkElement) {
-        return filterInjectionWithCountry(networkElement.getCountry());
+        return filterWithCountry(networkElement.getCountry());
     }
 
     public List<Country> getCountries() {
@@ -65,26 +57,19 @@ public class SingleCountryCriterion implements Criterion {
         if (substation == null) {
             return false;
         }
-        Country injectionCountry = substation.getCountry().orElse(null);
-        if (injectionCountry == null && !countries.isEmpty()) {
-            return false;
-        }
-        return countries.isEmpty() || countries.contains(injectionCountry);
+        Country country = substation.getCountry().orElse(null);
+        return filterWithCountry(country);
     }
 
-    private boolean filterInjection(VoltageLevel voltageLevel) {
+    private boolean filterVoltageLevel(VoltageLevel voltageLevel) {
         Substation substation = voltageLevel.getSubstation().orElse(null);
-        if (substation == null) {
-            return false;
-        }
-        Country injectionCountry = substation.getCountry().orElse(null);
-        return filterInjectionWithCountry(injectionCountry);
+        return filterSubstation(substation);
     }
 
-    private boolean filterInjectionWithCountry(Country injectionCountry) {
-        if (injectionCountry == null && !countries.isEmpty()) {
+    private boolean filterWithCountry(Country country) {
+        if (country == null && !countries.isEmpty()) {
             return false;
         }
-        return countries.isEmpty() || countries.contains(injectionCountry);
+        return countries.isEmpty() || countries.contains(country);
     }
 }

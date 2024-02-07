@@ -8,7 +8,7 @@
 package com.powsybl.security.detectors.criterion.network;
 
 import com.powsybl.iidm.network.util.criterion.Criterion;
-import com.powsybl.iidm.network.util.translation.NetworkElement;
+import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 
 public class NetworkElementVisitor {
 

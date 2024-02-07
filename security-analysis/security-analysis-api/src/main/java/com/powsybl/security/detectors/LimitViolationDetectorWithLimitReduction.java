@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.security.detectors.criterion.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion;
 import com.powsybl.security.detectors.criterion.network.AbstractNetworkElementCriterion;
-import com.powsybl.iidm.network.util.translation.NetworkElement;
+import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 import com.powsybl.security.detectors.criterion.network.NetworkElementVisitor;
 
 import java.util.*;

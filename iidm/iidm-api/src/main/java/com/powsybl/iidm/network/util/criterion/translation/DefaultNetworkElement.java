@@ -5,18 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.impl.util.translation;
+package com.powsybl.iidm.network.util.criterion.translation;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElement;
 
 import java.util.Optional;
 
-public class NetworkElementImpl implements NetworkElement {
+public class DefaultNetworkElement implements NetworkElement {
 
     private final Identifiable<?> identifiable;
 
-    NetworkElementImpl(Identifiable<?> identifiable) {
+    public DefaultNetworkElement(Identifiable<?> identifiable) {
         this.identifiable = identifiable;
     }
 
@@ -68,32 +67,32 @@ public class NetworkElementImpl implements NetworkElement {
     }
 
     @Override
-    public VoltageLevel getVoltageLevel1() {
-        return getVoltageLevel(ThreeSides.ONE);
+    public Double getNominalVoltage1() {
+        return getNominalVoltage(ThreeSides.ONE);
     }
 
     @Override
-    public VoltageLevel getVoltageLevel2() {
-        return getVoltageLevel(ThreeSides.TWO);
+    public Double getNominalVoltage2() {
+        return getNominalVoltage(ThreeSides.TWO);
     }
 
     @Override
-    public VoltageLevel getVoltageLevel3() {
-        return getVoltageLevel(ThreeSides.THREE);
+    public Double getNominalVoltage3() {
+        return getNominalVoltage(ThreeSides.THREE);
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
-        return getVoltageLevel1();
+    public Double getNominalVoltage() {
+        return getNominalVoltage1();
     }
 
-    private VoltageLevel getVoltageLevel(ThreeSides side) {
+    private Double getNominalVoltage(ThreeSides side) {
         return switch (identifiable.getType()) {
-            case LINE -> ((Line) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel();
-            case TIE_LINE -> ((TieLine) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel();
-            case HVDC_LINE -> ((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel();
-            case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel();
-            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel();
+            case LINE -> ((Line) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
+            case TIE_LINE -> ((TieLine) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
+            case HVDC_LINE -> ((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV();
+            case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
+            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV();
             default -> null;
         };
     }
@@ -103,7 +102,6 @@ public class NetworkElementImpl implements NetworkElement {
         return switch (identifiable.getType()) {
             case LINE -> ((Line) identifiable).getLimits(limitType, side.toTwoSides());
             case TIE_LINE -> ((TieLine) identifiable).getLimits(limitType, side.toTwoSides());
-            //case HVDC_LINE -> ((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).;
             case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getLimits(limitType, side.toTwoSides());
             case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
             default -> Optional.empty();

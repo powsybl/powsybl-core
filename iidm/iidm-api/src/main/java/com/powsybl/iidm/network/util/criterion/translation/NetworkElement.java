@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.util.translation;
+package com.powsybl.iidm.network.util.criterion.translation;
 
 import com.powsybl.iidm.network.*;
 
@@ -21,13 +21,13 @@ public interface NetworkElement {
 
     Country getCountry();
 
-    VoltageLevel getVoltageLevel1();
+    Double getNominalVoltage1();
 
-    VoltageLevel getVoltageLevel2();
+    Double getNominalVoltage2();
 
-    VoltageLevel getVoltageLevel3();
+    Double getNominalVoltage3();
 
-    VoltageLevel getVoltageLevel();
+    Double getNominalVoltage();
 
     Optional<? extends LoadingLimits> getLoadingLimits(LimitType limitType, ThreeSides side);
 }

@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElement;
+import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 
 import java.util.Collections;
 import java.util.List;

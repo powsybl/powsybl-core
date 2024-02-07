@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElement;
+import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
         switch (type) {
             case LINE:
-                return filterInjection(((Line) identifiable).getTerminal1().getVoltageLevel());
+                return filter(((Line) identifiable).getTerminal1().getVoltageLevel());
             case DANGLING_LINE:
             case GENERATOR:
             case LOAD:
@@ -41,9 +41,9 @@ public class SingleNominalVoltageCriterion implements Criterion {
             case SHUNT_COMPENSATOR:
             case STATIC_VAR_COMPENSATOR:
             case BUSBAR_SECTION:
-                return filterInjection(((Injection) identifiable).getTerminal().getVoltageLevel());
+                return filter(((Injection) identifiable).getTerminal().getVoltageLevel());
             case SWITCH:
-                return filterInjection(((Switch) identifiable).getVoltageLevel());
+                return filter(((Switch) identifiable).getVoltageLevel());
             default:
                 return false;
         }
@@ -51,16 +51,23 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(NetworkElement networkElement) {
-        VoltageLevel voltageLevel = networkElement.getVoltageLevel();
-        return filterInjection(voltageLevel);
+        Double nominalVoltage = networkElement.getNominalVoltage();
+        if (nominalVoltage == null) {
+            return false;
+        }
+        return filterNominalVoltage(nominalVoltage);
     }
 
-    private boolean filterInjection(VoltageLevel voltageLevel) {
+    private boolean filter(VoltageLevel voltageLevel) {
         if (voltageLevel == null) {
             return false;
         }
         double injectionNominalVoltage = voltageLevel.getNominalV();
-        return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(injectionNominalVoltage);
+        return filterNominalVoltage(injectionNominalVoltage);
+    }
+
+    private boolean filterNominalVoltage(double nominalVoltage) {
+        return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(nominalVoltage);
     }
 
     public VoltageInterval getVoltageInterval() {

@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElement;
+import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,26 +66,27 @@ public class ThreeNominalVoltageCriterion implements Criterion {
     }
 
     private boolean filterThreeWindingsTransformer(Terminal terminal1, Terminal terminal2, Terminal terminal3) {
-        VoltageLevel voltageLevel1 = terminal1.getVoltageLevel();
-        VoltageLevel voltageLevel2 = terminal2.getVoltageLevel();
-        VoltageLevel voltageLevel3 = terminal3.getVoltageLevel();
-        return filterWithVoltageLevels(voltageLevel1, voltageLevel2, voltageLevel3);
+        double voltageLevel1 = terminal1.getVoltageLevel().getNominalV();
+        double voltageLevel2 = terminal2.getVoltageLevel().getNominalV();
+        double voltageLevel3 = terminal3.getVoltageLevel().getNominalV();
+        return filterWithNominalVoltages(voltageLevel1, voltageLevel2, voltageLevel3);
     }
 
     @Override
     public boolean filter(NetworkElement networkElement) {
-        VoltageLevel voltageLevel1 = networkElement.getVoltageLevel1();
-        VoltageLevel voltageLevel2 = networkElement.getVoltageLevel2();
-        VoltageLevel voltageLevel3 = networkElement.getVoltageLevel3();
-        return filterWithVoltageLevels(voltageLevel1, voltageLevel2, voltageLevel3);
+        Double nominalVoltage1 = networkElement.getNominalVoltage1();
+        Double nominalVoltage2 = networkElement.getNominalVoltage2();
+        Double nominalVoltage3 = networkElement.getNominalVoltage3();
+        return nominalVoltage1 != null && nominalVoltage2 != null && nominalVoltage3 != null
+                && filterWithNominalVoltages(nominalVoltage1, nominalVoltage2, nominalVoltage3);
     }
 
-    private boolean filterWithVoltageLevels(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, VoltageLevel voltageLevel3) {
+    private boolean filterWithNominalVoltages(double nominalVoltage1, double nominalVoltage2, double nominalVoltage3) {
         AtomicBoolean filter = new AtomicBoolean(true);
         voltageIntervals.forEach(voltageInterval -> {
-            if (!voltageInterval.checkIsBetweenBound(voltageLevel1.getNominalV()) &&
-                    !voltageInterval.checkIsBetweenBound(voltageLevel2.getNominalV()) &&
-                    !voltageInterval.checkIsBetweenBound(voltageLevel3.getNominalV())) {
+            if (!voltageInterval.checkIsBetweenBound(nominalVoltage1) &&
+                    !voltageInterval.checkIsBetweenBound(nominalVoltage2) &&
+                    !voltageInterval.checkIsBetweenBound(nominalVoltage3)) {
                 filter.set(false);
             }
         });

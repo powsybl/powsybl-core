@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElement;
+import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,21 +60,24 @@ public class TwoNominalVoltageCriterion implements Criterion {
     }
 
     private boolean filter(Terminal terminal1, Terminal terminal2) {
-        VoltageLevel voltageLevel1 = terminal1.getVoltageLevel();
-        VoltageLevel voltageLevel2 = terminal2.getVoltageLevel();
-        return filterWithVoltageLevels(voltageLevel1, voltageLevel2);
+        double nominalVoltage1 = terminal1.getVoltageLevel().getNominalV();
+        double nominalVoltage2 = terminal2.getVoltageLevel().getNominalV();
+        return filterWithNominalVoltages(nominalVoltage1, nominalVoltage2);
     }
 
     @Override
     public boolean filter(NetworkElement networkElement) {
-        return filterWithVoltageLevels(networkElement.getVoltageLevel1(), networkElement.getVoltageLevel2());
+        Double nominalVoltage1 = networkElement.getNominalVoltage1();
+        Double nominalVoltage2 = networkElement.getNominalVoltage2();
+        return nominalVoltage1 != null && nominalVoltage2 != null
+                && filterWithNominalVoltages(nominalVoltage1, nominalVoltage2);
     }
 
-    private boolean filterWithVoltageLevels(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2) {
+    private boolean filterWithNominalVoltages(double nominalVoltage1, double nominalVoltage2) {
         AtomicBoolean filter = new AtomicBoolean(true);
         voltageIntervals.forEach(voltageInterval -> {
-            if (!voltageInterval.checkIsBetweenBound(voltageLevel1.getNominalV()) &&
-                    !voltageInterval.checkIsBetweenBound(voltageLevel2.getNominalV())) {
+            if (!voltageInterval.checkIsBetweenBound(nominalVoltage1) &&
+                    !voltageInterval.checkIsBetweenBound(nominalVoltage2)) {
                 filter.set(false);
             }
         });
