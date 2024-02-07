@@ -22,15 +22,10 @@ import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
-import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.datasource.ZipFileDataSource;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -534,6 +529,41 @@ class CgmesExportTest {
             assertEquals(modelDescription, sshMetadata.getDescription());
         }
 
+    }
+
+    @Test
+    void testExportWithModelingAuthorityFromReferenceData() throws IOException {
+        // We want to test that information about sourcing actor read from reference data overrides
+        // the default value for the parameter MAS URI
+
+        // Minimal network with well-known country (BE)
+        // that can be resolved to a sourcing actor (ELIA) using the reference data.
+        // The reference data also contains a defined MAS URI (elia.be/OperationalPlanning) for this sourcing actor
+        Network network = NetworkTest1Factory.create("minimal-network");
+        network.getSubstations().iterator().next().setCountry(Country.BE);
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
+            // To export using reference data we must prepare first the boundaries that will be used
+            Path boundariesDir = Files.createDirectories(fileSystem.getPath("/boundaries"));
+            try (InputStream is = this.getClass().getResourceAsStream("/reference-data-provider/sample_EQBD.xml")) {
+                if (is != null) {
+                    Files.copy(is, boundariesDir.resolve("sample_EQBD.xml"), StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+            platformConfig.createModuleConfig("import-export-parameters-default-value")
+                    .setStringProperty(CgmesImport.BOUNDARY_LOCATION, boundariesDir.toString());
+
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            // It is enough to check that the MAS has been set correctly in the EQ instance file
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+            new CgmesExport(platformConfig).export(network, exportParams, new FileDataSource(tmpDir, network.getNameOrId()));
+
+            String eq = Files.readString(tmpDir.resolve(network.getNameOrId() + "_EQ.xml"));
+            assertTrue(eq.contains("modelingAuthoritySet>http://www.elia.be/OperationalPlanning"));
+        }
     }
 
     private static void checkDanglingLineParams(DanglingLine expected, DanglingLine actual) {
