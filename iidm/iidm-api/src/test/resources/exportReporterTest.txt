@@ -1,2 +1,2 @@
-+ Testing exporter reportNode
++ Testing exporter reporting
    Export mock

@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNodeModel;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -71,7 +71,7 @@ class RemoveSubstationTest extends AbstractModificationTest {
         RemoveSubstation removeUnknown = new RemoveSubstationBuilder()
                 .withSubstationId("UNKNOWN")
                 .build();
-        ReportNodeModel reporter = new ReportNodeModel("reportTestRemoveUnknownSubstation", "Testing reporter on removing unknown substation");
+        ReportNodeImpl reporter = new ReportNodeImpl("reportTestRemoveUnknownSubstation", "Testing reporter on removing unknown substation");
         Network network = EurostagTutorialExample1Factory.create();
         removeUnknown.apply(network, false, reporter);
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reporter));

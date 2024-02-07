@@ -8,7 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportMessage;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
@@ -649,7 +649,7 @@ public final class TopologyModificationUtils {
             // temporary limits on both sides : they are ignored, otherwise, we keep temporary limits on side where they are defined
             if (!temporaryLimits1.isEmpty() && !temporaryLimitsTeePointSide.isEmpty()) {
                 LOGGER.warn("Temporary limits on both sides for line {} : They are ignored", lineId);
-                reportNode.report(ReportMessage.builder()
+                reportNode.report(ReportNodeImpl.builder()
                         .withKey("limitsLost")
                         .withDefaultMessage("Temporary limits on both sides for line ${lineId} : They are ignored")
                         .withValue("lineId", lineId)

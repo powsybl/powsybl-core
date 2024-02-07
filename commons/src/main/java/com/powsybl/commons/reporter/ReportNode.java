@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * A <code>Reporter</code> allows building up functional reports with a hierarchy reflecting task/subtasks of processes.
- * The enclosed reports are based on {@link ReportMessage} class.
+ * The enclosed reports are based on {@link ReportNode} class.
  *
  * <p>A <code>Reporter</code> can create sub-reporters to separate from current reports the reports from that task.
  * Each sub-reporter is defined by a key identifying the corresponding task, a default <code>String</code> describing
@@ -31,7 +31,7 @@ import java.util.Map;
  * be passed on in methods through their arguments.
  *
  * <p>The <code>Reporter</code> can be used for multilingual support. Indeed, each <code>Reporter</code> name and
- * {@link ReportMessage} message can be translated based on their key and using the value keys in the desired order.
+ * {@link ReportNode} message can be translated based on their key and using the value keys in the desired order.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
@@ -43,113 +43,118 @@ public interface ReportNode {
     ReportNode NO_OP = new NoOpImpl();
 
     /**
-     * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with
-     * some associated values.
-     * @param reporterKey the key identifying that sub-reporter
-     * @param defaultTitle description of the corresponding task, which may contain references to the provided values
-     * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the defaultTitle
-     *               or within the reports message of the created sub-reporter
+     * Create a new child MessageNode with a message and its associated values
+     * @param key the key identifying that child MessageNode
+     * @param defaultMessage functional log, which may contain references to the provided values
+     * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the defaultMessage
+     *               or within children of the created child MessageNode.
      * @return the new sub-reporter
      */
-    ReportNode createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values);
+    ReportNode report(String key, String defaultMessage, Map<String, TypedValue> values);
 
     /**
-     * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with no
-     * associated value.
+     * Create a new child MessageNode with a message and no associated values
      * @param reporterKey the key identifying that sub-reporter
-     * @param defaultTitle description of the corresponding task
+     * @param defaultMessage description of the corresponding task
      * @return the new sub-reporter
      */
-    ReportNode createSubReporter(String reporterKey, String defaultTitle);
+    ReportNode report(String reporterKey, String defaultMessage);
 
     /**
-     * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with one
-     * associated value.
+     * Create a new child MessageNode with a message and one untyped associated value
      * @param reporterKey the key identifying that sub-reporter
-     * @param defaultTitle description of the corresponding task, which may contain references to the provided value
+     * @param defaultMessage description of the corresponding task, which may contain references to the provided value
      * @param valueKey the key for the value which follows
-     * @param value the value which may be referred to within the defaultTitle or within the reports message of the
+     * @param value the value which may be referred to within the defaultMessage or within the reports message of the
      *              created sub-reporter
      * @return the new sub-reporter
      */
-    ReportNode createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value);
+    ReportNode report(String reporterKey, String defaultMessage, String valueKey, Object value);
 
     /**
-     * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with one
-     * associated typed value.
+     * Create a new child MessageNode with a message and one associated typed value
      * @param reporterKey the key identifying that sub-reporter
-     * @param defaultTitle description of the corresponding task, which may contain references to the provided typed value
+     * @param defaultMessage description of the corresponding task, which may contain references to the provided typed value
      * @param valueKey the key for the value which follows
-     * @param value the value which may be referred to within the defaultTitle or within the reports message of the
+     * @param value the value which may be referred to within the defaultMessage or within the reports message of the
      *              created sub-reporter
      * @param type the string representing the type of the value provided
      * @return the new sub-reporter
      */
-    ReportNode createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value, String type);
+    ReportNode report(String reporterKey, String defaultMessage, String valueKey, Object value, String type);
 
     /**
-     * Add a new report message with its associated values.
-     * @param messageKey a key identifying the current report message
-     * @param defaultMessage the default report message, which may contain references to the provided values or to the
-     *                       values of current reporter
-     * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
-     *               defaultMessage provided
+     * Add a ReportNode as a child of current ReportNode.
+     * @param reportNode the ReportNode to add
      */
-    void report(String messageKey, String defaultMessage, Map<String, TypedValue> values);
+    void report(ReportNode reportNode);
 
     /**
-     * Add a new report with no associated value.
-     * @param messageKey a key identifying the current report
-     * @param defaultMessage the default report message, which may contain references to the values of current reporter
+     * Get the key of current node, each message template should have a unique key
+     * @return the key
      */
-    void report(String messageKey, String defaultMessage);
+    String getKey();
 
     /**
-     * Add a new report with one associated value.
-     * @param messageKey a key identifying the current report
-     * @param defaultMessage the default report message, which may contain references to the provided value or to the
-     *                       values of current reporter
-     * @param valueKey the key for the value which follows
-     * @param value the int, long, float, double, boolean or String value which may be referred to
-     *              within the defaultMessage provided
+     * Get the default text of current node
+     * @return the default text
      */
-    void report(String messageKey, String defaultMessage, String valueKey, Object value);
+    String getDefaultText();
 
     /**
-     * Add a new report with one associated typed value.
-     * @param messageKey a key identifying the current report
-     * @param defaultMessage the default report message, which may contain references to the provided typed value or to
-     *                       the values of current reporter
-     * @param valueKey the key for the typed value which follows
-     * @param value the int, long, float, double, boolean or String value which may be referred to within the
-     *              defaultMessage provided
-     * @param type the string representing the type of the value provided
+     * Get the values map of current node
+     * @return the values map
      */
-    void report(String messageKey, String defaultMessage, String valueKey, Object value, String type);
+    Map<String, TypedValue> getValues();
 
     /**
-     * Add a new report
-     * @param reportMessage the report to add
+     * Get the value corresponding to the given key in current node context
+     * @param valueKey the key to request
+     * @return the value
      */
-    void report(ReportMessage reportMessage);
+    TypedValue getValue(String valueKey);
 
+    /**
+     * Get the ReportNode children of current node
+     * @return the ReportNode children
+     */
+    Collection<ReportNode> getChildren();
+
+    /**
+     * Serialize the current report node and fills the dictionary map provided
+     * @param generator the jsonGenerator to use for serialization
+     * @param dictionary the dictionary to fill for the message templates
+     */
+    void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException;
+
+    /**
+     * Print to given writer the current report node and its lineage
+     * @param writer the writer to write to
+     * @param indent the indentation String to use
+     * @param inheritedValueMap the inherited value map
+     */
+    void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException;
+
+    /**
+     * A default no-op implementation
+     */
     class NoOpImpl extends AbstractReportNode {
         public NoOpImpl() {
             super("noOp", "NoOp", Collections.emptyMap());
         }
 
         @Override
-        public ReportNode createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values) {
+        public ReportNode report(String key, String defaultMessage, Map<String, TypedValue> values) {
             return new NoOpImpl();
         }
 
         @Override
-        public void report(ReportMessage reportMessage) {
+        public void report(ReportNode reportNode) {
             // No-op
         }
 
         @Override
-        public Collection<MessageNode> getChildren() {
+        public Collection<ReportNode> getChildren() {
             return Collections.emptyList();
         }
 

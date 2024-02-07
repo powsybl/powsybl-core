@@ -10,7 +10,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.commons.reporter.ReportNodeModel;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Importers;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,14 +62,14 @@ class FunctionalLogsTest {
                 importReport(CgmesConformity1Catalog.miniNodeBreaker()));
     }
 
-    private ReportNodeModel importReport(GridModelReference testCase) {
-        ReportNodeModel reporter = new ReportNodeModel("testFunctionalLogs",
+    private ReportNodeImpl importReport(GridModelReference testCase) {
+        ReportNodeImpl reporter = new ReportNodeImpl("testFunctionalLogs",
                 "Test importing ${name}", Map.of("name", new TypedValue(testCase.name(), TypedValue.UNTYPED)));
         Importers.importData("CGMES", testCase.dataSource(), importParams, reporter);
         return reporter;
     }
 
-    private void checkResult(String resourceName, ReportNodeModel reporter) throws IOException {
+    private void checkResult(String resourceName, ReportNodeImpl reporter) throws IOException {
         StringWriter sw = new StringWriter();
         reporter.export(sw);
         try (InputStream is = getClass().getResourceAsStream(resourceName)) {

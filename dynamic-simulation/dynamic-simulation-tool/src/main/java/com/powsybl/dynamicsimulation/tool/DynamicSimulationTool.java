@@ -9,7 +9,7 @@ package com.powsybl.dynamicsimulation.tool;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
-import com.powsybl.commons.reporter.ReportNodeModel;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.dynamicsimulation.*;
 import com.powsybl.dynamicsimulation.groovy.*;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
@@ -154,7 +154,7 @@ public class DynamicSimulationTool implements Tool {
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
-        ReportNodeModel reporter = new ReportNodeModel("dynamicSimulationTool", "Dynamic Simulation Tool");
+        ReportNodeImpl reporter = new ReportNodeImpl("dynamicSimulationTool", "Dynamic Simulation Tool");
         DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reporter);
 
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
@@ -205,7 +205,7 @@ public class DynamicSimulationTool implements Tool {
         printDynamicSimulationResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
     }
 
-    private void printLog(ReportNodeModel reporter, ToolRunningContext context) throws IOException {
+    private void printLog(ReportNodeImpl reporter, ToolRunningContext context) throws IOException {
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         reporter.export(writer);
         writer.flush();
@@ -229,7 +229,7 @@ public class DynamicSimulationTool implements Tool {
         DynamicSimulationResultSerializer.write(result, outputFile);
     }
 
-    private void exportLog(ReportNodeModel reporter, ToolRunningContext context, Path outputLogFile) {
+    private void exportLog(ReportNodeImpl reporter, ToolRunningContext context, Path outputLogFile) {
         context.getOutputStream().println("Writing logs to '" + outputLogFile + "'");
         reporter.export(outputLogFile);
     }

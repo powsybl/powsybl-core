@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.tools;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.ReportMessage;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -36,7 +36,7 @@ public class ExporterMockWithReporter implements Exporter {
 
     @Override
     public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
-        reportNode.report(ReportMessage.builder()
+        reportNode.report(ReportNodeImpl.builder()
             .withKey("export_test")
             .withDefaultMessage("Export mock")
             .build());

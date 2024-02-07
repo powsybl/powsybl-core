@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.reporter.ReportMessage;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 
@@ -199,7 +199,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
         if (parent.hasPhaseTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
-            network.getReporterContext().getReporter().report(ReportMessage.builder()
+            network.getReporterContext().getReporter().report(ReportNodeImpl.builder()
                     .withKey("validationWarning")
                     .withDefaultMessage("${parent} has both Ratio and Phase Tap Changer.")
                     .withValue("parent", parent.getMessageHeader())

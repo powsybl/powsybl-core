@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportMessage;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
@@ -215,7 +215,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         for (TerminalExt terminal : getTerminals()) {
             // Check if the terminal is already connected
             if (terminal.isConnected()) {
-                reportNode.report(ReportMessage.builder()
+                reportNode.report(ReportNodeImpl.builder()
                     .withKey("alreadyConnectedTerminal")
                     .withDefaultMessage("A terminal of connectable ${connectable} is already connected.")
                     .withValue("connectable", this.getId())
@@ -278,7 +278,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         for (TerminalExt terminal : getTerminals()) {
             // Check if the terminal is already disconnected
             if (!terminal.isConnected()) {
-                reportNode.report(ReportMessage.builder()
+                reportNode.report(ReportNodeImpl.builder()
                     .withKey("alreadyDisconnectedTerminal")
                     .withDefaultMessage("A terminal of connectable ${connectable} is already disconnected.")
                     .withValue("connectable", this.getId())

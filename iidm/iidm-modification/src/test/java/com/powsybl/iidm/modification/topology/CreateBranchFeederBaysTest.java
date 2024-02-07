@@ -8,7 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportNodeModel;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -208,7 +208,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setB2(0.0);
 
         //wrong network
-        ReportNodeModel reporter1 = new ReportNodeModel("reportTestWrongNetwork", "Testing creating line reporter with wrong network");
+        ReportNodeImpl reporter1 = new ReportNodeImpl("reportTestWrongNetwork", "Testing creating line reporter with wrong network");
         Network network1 = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         CreateBranchFeederBays modification0 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
@@ -224,7 +224,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
         assertEquals("networkMismatch", reporter1.getChildren().iterator().next().getKey());
 
         // not found id
-        ReportNodeModel reporter2 = new ReportNodeModel("reportTestUndefinedId", "Testing creating line reporter with wrong busbar section ID");
+        ReportNodeImpl reporter2 = new ReportNodeImpl("reportTestUndefinedId", "Testing creating line reporter with wrong busbar section ID");
         CreateBranchFeederBays modification1 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs")
@@ -239,7 +239,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
         assertEquals("notFoundBusOrBusbarSection", reporter2.getChildren().iterator().next().getKey());
 
         // wrong identifiable type
-        ReportNodeModel reporter3 = new ReportNodeModel("reportTestWrongBbsType", "Testing creating line reporter with wrong bbs type");
+        ReportNodeImpl reporter3 = new ReportNodeImpl("reportTestWrongBbsType", "Testing creating line reporter with wrong bbs type");
         CreateBranchFeederBays modification2 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("gen1")
@@ -341,7 +341,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        ReportNodeModel reporter = new ReportNodeModel("reportTestCreateLine", "Testing creating line reporter");
+        ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateLine", "Testing creating line reporter");
         new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs5")
@@ -367,7 +367,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        ReportNodeModel reporter = new ReportNodeModel("reportTestCreateLineWithoutExtensions", "Testing creating line reporter without extensions");
+        ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateLineWithoutExtensions", "Testing creating line reporter without extensions");
         new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs5")

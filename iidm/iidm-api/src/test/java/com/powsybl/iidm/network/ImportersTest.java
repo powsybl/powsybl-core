@@ -10,7 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.ReportNodeModel;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.computation.ComputationManager;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -89,7 +89,7 @@ class ImportersTest extends AbstractConvertersTest {
     @Test
     void getImporterWithImportConfigAndReporter() {
         Importer importer = Importer.find(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
-        ReportNodeModel reporter = new ReportNodeModel("testFunctionalLog", "testFunctionalLogs");
+        ReportNodeImpl reporter = new ReportNodeImpl("testFunctionalLog", "testFunctionalLogs");
         assertNotNull(importer);
         Network network = importer.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network);

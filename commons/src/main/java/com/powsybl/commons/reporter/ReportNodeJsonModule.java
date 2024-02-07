@@ -11,12 +11,12 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReporterModelJsonModule extends SimpleModule {
+public class ReportNodeJsonModule extends SimpleModule {
 
-    public ReporterModelJsonModule() {
-        addDeserializer(ReportNodeModel.class, new ReporterModelDeserializer());
-        addDeserializer(TypedValue.class, new ReporterModelDeserializer.TypedValueDeserializer());
-        addSerializer(ReportNodeModel.class, new ReporterModelSerializer());
-        addSerializer(TypedValue.class, new ReporterModelSerializer.TypedValueSerializer());
+    public ReportNodeJsonModule() {
+        addDeserializer(ReportNodeImpl.class, new ReportNodeDeserializer());
+        addDeserializer(TypedValue.class, new ReportNodeDeserializer.TypedValueDeserializer());
+        addSerializer(ReportNodeImpl.class, new ReportNodeSerializer());
+        addSerializer(TypedValue.class, new ReportNodeSerializer.TypedValueSerializer());
     }
 }

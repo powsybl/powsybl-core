@@ -20,29 +20,37 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReporterModelDeserializer extends StdDeserializer<ReportNodeModel> {
+public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReporterModelDeserializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportNodeDeserializer.class);
 
     public static final String DICTIONARY_VALUE_ID = "dictionary";
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
-    ReporterModelDeserializer() {
-        super(ReportNodeModel.class);
+    ReportNodeDeserializer() {
+        super(ReportNodeImpl.class);
     }
 
     @Override
-    public ReportNodeModel deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+    public ReportNodeImpl deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         ObjectCodec codec = p.getCodec();
         JsonNode root = codec.readTree(p);
+
+        JsonNode versionNode = root.get("version");
+        String versionStr = codec.readValue(versionNode.traverse(), String.class);
+        ReporterVersion version = ReporterVersion.of(versionStr);
+
+        Map<String, String> dictionary = readDictionary(root, ctx, codec);
+
+        return ReportNodeImpl.parseJsonNode(root.get("reportTree"), dictionary, codec, version);
+    }
+
+    private Map<String, String> readDictionary(JsonNode root, DeserializationContext ctx, ObjectCodec codec) throws IOException {
         Map<String, String> dictionary = Collections.emptyMap();
         JsonNode dicsNode = root.get("dics");
         if (dicsNode != null) {
@@ -62,7 +70,7 @@ public class ReporterModelDeserializer extends StdDeserializer<ReportNodeModel> 
         } else {
             LOGGER.warn("No dictionary found! `dics` root entry is missing");
         }
-        return ReportNodeModel.parseJsonNode(root.get("reportTree"), dictionary, codec);
+        return dictionary;
     }
 
     private String getDictionaryName(DeserializationContext ctx) {
@@ -77,15 +85,15 @@ public class ReporterModelDeserializer extends StdDeserializer<ReportNodeModel> 
         }
     }
 
-    public static ReportNodeModel read(Path jsonFile) {
+    public static ReportNodeImpl read(Path jsonFile) {
         return read(jsonFile, DICTIONARY_DEFAULT_NAME);
     }
 
-    public static ReportNodeModel read(InputStream jsonIs) {
+    public static ReportNodeImpl read(InputStream jsonIs) {
         return read(jsonIs, DICTIONARY_DEFAULT_NAME);
     }
 
-    public static ReportNodeModel read(Path jsonFile, String dictionary) {
+    public static ReportNodeImpl read(Path jsonFile, String dictionary) {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(dictionary);
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -95,11 +103,11 @@ public class ReporterModelDeserializer extends StdDeserializer<ReportNodeModel> 
         }
     }
 
-    public static ReportNodeModel read(InputStream jsonIs, String dictionary) {
+    public static ReportNodeImpl read(InputStream jsonIs, String dictionary) {
         Objects.requireNonNull(jsonIs);
         Objects.requireNonNull(dictionary);
         try {
-            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReportNodeModel.class);
+            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReportNodeImpl.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -107,7 +115,7 @@ public class ReporterModelDeserializer extends StdDeserializer<ReportNodeModel> 
 
     private static ObjectMapper getReporterModelObjectMapper(String dictionary) {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ReporterModelJsonModule());
+        mapper.registerModule(new ReportNodeJsonModule());
         mapper.setInjectableValues(new InjectableValues.Std().addValue(DICTIONARY_VALUE_ID, dictionary));
         return mapper;
     }

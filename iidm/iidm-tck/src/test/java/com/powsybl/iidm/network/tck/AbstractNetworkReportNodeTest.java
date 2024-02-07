@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.commons.reporter.ReportNodeModel;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReporterContext;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -31,12 +31,12 @@ public abstract class AbstractNetworkReportNodeTest {
     public void executeWithReporterTest() {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNodeModel reporter1 = new ReportNodeModel("key1", "name1");
+        ReportNodeImpl reporter1 = new ReportNodeImpl("key1", "name1");
         network.getReporterContext().pushReporter(reporter1);
         assertTrue(reporter1.getChildren().isEmpty());
 
         // Create another reporter (reporter2)
-        ReportNodeModel reporter2 = new ReportNodeModel("key2", "name2");
+        ReportNodeImpl reporter2 = new ReportNodeImpl("key2", "name2");
         assertTrue(reporter2.getChildren().isEmpty());
 
         // Execute a task using reporter2
@@ -58,13 +58,13 @@ public abstract class AbstractNetworkReportNodeTest {
     public void multiThreadTest() throws InterruptedException {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNodeModel reporter1 = new ReportNodeModel("key1", "name1");
+        ReportNodeImpl reporter1 = new ReportNodeImpl("key1", "name1");
         network.getReporterContext().pushReporter(reporter1);
         assertTrue(reporter1.getChildren().isEmpty());
 
         // Create 2 other reporters (reporter2 and reporter3)
-        ReportNodeModel reporter2 = new ReportNodeModel("key2", "name2");
-        ReportNodeModel reporter3 = new ReportNodeModel("key3", "name3");
+        ReportNodeImpl reporter2 = new ReportNodeImpl("key2", "name2");
+        ReportNodeImpl reporter3 = new ReportNodeImpl("key3", "name3");
         assertTrue(reporter2.getChildren().isEmpty());
         assertTrue(reporter3.getChildren().isEmpty());
 

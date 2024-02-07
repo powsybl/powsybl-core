@@ -8,11 +8,10 @@ package com.powsybl.iidm.network;
 
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNodeModel;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.ReportMessage;
-import com.powsybl.commons.reporter.MessageNode;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.tools.ExporterMockWithReporter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -121,11 +120,11 @@ class ExportersTest extends AbstractConvertersTest {
     void exportWithReporter() throws Exception {
         Exporter testExporter = new ExporterMockWithReporter();
         DataSource dataSource = Exporters.createDataSource(path);
-        ReportNodeModel reporter = new ReportNodeModel("reportTest", "Testing exporter reporter");
+        ReportNodeImpl reporter = new ReportNodeImpl("reportTest", "Testing exporter reporting");
         testExporter.export(null, null, dataSource, reporter);
-        Optional<MessageNode> reportNode = reporter.getChildren().stream().findFirst();
+        Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());
-        assertTrue(reportNode.get() instanceof ReportMessage);
+        assertTrue(reportNode.get() instanceof ReportNode);
 
         StringWriter sw = new StringWriter();
         reporter.export(sw);

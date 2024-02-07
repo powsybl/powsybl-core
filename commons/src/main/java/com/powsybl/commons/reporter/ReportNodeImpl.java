@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -31,53 +32,49 @@ import java.util.*;
  * </ol>
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeModel extends AbstractReportNode {
+public class ReportNodeImpl extends AbstractReportNode {
 
-    private final List<MessageNode> children = new ArrayList<>();
+    private final List<ReportNode> children = new ArrayList<>();
 
     /**
      * ReporterModel constructor, with no associated values.
      * @param key the key identifying the corresponding task
-     * @param defaultTitle the name or message describing the corresponding task
+     * @param defaultMessage the name or message describing the corresponding task
      */
-    public ReportNodeModel(String key, String defaultTitle) {
-        this(key, defaultTitle, Collections.emptyMap());
+    public ReportNodeImpl(String key, String defaultMessage) {
+        this(key, defaultMessage, Collections.emptyMap());
     }
 
     /**
      * ReporterModel constructor, with no associated values.
      * @param key the key identifying the corresponding task
-     * @param defaultTitle the name or message describing the corresponding task, which may contain references to the
+     * @param defaultMessage the name or message describing the corresponding task, which may contain references to the
      *                    provided values
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
-     *                   defaultTitle or within the reports message of created ReporterModel
+     *                   defaultMessage or within the reports message of created ReporterModel
      */
-    public ReportNodeModel(String key, String defaultTitle, Map<String, TypedValue> values) {
-        super(key, defaultTitle, values);
+    public ReportNodeImpl(String key, String defaultMessage, Map<String, TypedValue> values) {
+        super(key, defaultMessage, values);
+    }
+
+    public static ReportNodeBuilder builder() {
+        return new ReportNodeBuilder();
     }
 
     @Override
-    public ReportNodeModel createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values) {
-        ReportNodeModel subReporter = new ReportNodeModel(reporterKey, defaultTitle, values);
-        addSubReporter(subReporter);
+    public ReportNodeImpl report(String key, String defaultMessage, Map<String, TypedValue> values) {
+        ReportNodeImpl subReporter = new ReportNodeImpl(key, defaultMessage, values);
+        report(subReporter);
         return subReporter;
     }
 
-    /**
-     * Add a reporterModel to the sub-reporters of current reporterModel.
-     * @param reporterModel the reporterModel to add
-     */
-    public void addSubReporter(ReportNodeModel reporterModel) {
-        children.add(reporterModel);
+    @Override
+    public void report(ReportNode reportNode) {
+        children.add(reportNode);
     }
 
     @Override
-    public void report(ReportMessage reportMessage) {
-        children.add(reportMessage);
-    }
-
-    @Override
-    public Collection<MessageNode> getChildren() {
+    public Collection<ReportNode> getChildren() {
         return Collections.unmodifiableCollection(children);
     }
 
@@ -97,16 +94,14 @@ public class ReportNodeModel extends AbstractReportNode {
         }
     }
 
-    public void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException {
-        Map<String, TypedValue> valueMap = new HashMap<>(inheritedValueMap);
-        valueMap.putAll(getValues());
-        printDefaultText(writer, indent, "+ ", valueMap);
-        for (MessageNode child : children) {
-            child.print(writer, indent + "  ", valueMap);
-        }
+    public static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec, ReporterVersion version) throws IOException {
+        return switch (version) {
+            case V_1_0 -> throw new PowsyblException("No backward compatibility of version " + version);
+            case V_2_0 -> parseJsonNode(reportTree, dictionary, codec);
+        };
     }
 
-    public static ReportNodeModel parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
+    public static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
         JsonNode keyNode = reportTree.get("key");
         String key = codec.readValue(keyNode.traverse(), String.class);
 
@@ -115,27 +110,20 @@ public class ReportNodeModel extends AbstractReportNode {
         });
 
         String defaultTitle = dictionary.getOrDefault(key, "(missing task key in dictionary)");
-        ReportNodeModel reporter = new ReportNodeModel(key, defaultTitle, values);
+        ReportNodeImpl reportNode = new ReportNodeImpl(key, defaultTitle, values);
 
         JsonNode reportsNode = reportTree.get("children");
         if (reportsNode != null) {
             for (JsonNode jsonNode : reportsNode) {
-                JsonNode nodeTypeNode = jsonNode.get("nodeType");
-                String nodeType = codec.readValue(nodeTypeNode.traverse(), String.class);
-                if (nodeType.equals(REPORT_MESSAGE_NODE_TYPE)) {
-                    reporter.children.add(ReportMessage.parseJsonNode(jsonNode, dictionary, codec));
-                } else if (nodeType.equals(REPORTER_NODE_TYPE)) {
-                    reporter.addSubReporter(ReportNodeModel.parseJsonNode(jsonNode, dictionary, codec));
-                }
+                reportNode.report(ReportNodeImpl.parseJsonNode(jsonNode, dictionary, codec));
             }
         }
 
-        return reporter;
+        return reportNode;
     }
 
     public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
         generator.writeStartObject();
-        generator.writeStringField("nodeType", REPORTER_NODE_TYPE);
         generator.writeStringField("key", getKey());
         if (!getValues().isEmpty()) {
             generator.writeObjectField("values", getValues());
@@ -143,7 +131,7 @@ public class ReportNodeModel extends AbstractReportNode {
         if (!children.isEmpty()) {
             generator.writeFieldName("children");
             generator.writeStartArray();
-            for (MessageNode messageNode : children) {
+            for (ReportNode messageNode : children) {
                 messageNode.writeJson(generator, dictionary);
             }
             generator.writeEndArray();
@@ -151,5 +139,19 @@ public class ReportNodeModel extends AbstractReportNode {
         generator.writeEndObject();
 
         dictionary.put(getKey(), getDefaultText());
+    }
+
+    public void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException {
+        Map<String, TypedValue> valueMap = new HashMap<>(inheritedValueMap);
+        valueMap.putAll(getValues());
+        if (children.isEmpty()) {
+            printDefaultText(writer, indent, "", valueMap);
+        } else {
+            printDefaultText(writer, indent, "+ ", valueMap);
+            String childrenIndent = indent + "   ";
+            for (ReportNode child : children) {
+                child.print(writer, childrenIndent, valueMap);
+            }
+        }
     }
 }

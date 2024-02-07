@@ -121,22 +121,22 @@ public class UcteNetworkImpl implements UcteNetwork {
     @Override
     public void fix(ReportNode reportNode) {
 
-        ReportNode nodesReportNode = reportNode.createSubReporter("fixUcteNodes", "Fix UCTE nodes");
+        ReportNode nodesReportNode = reportNode.report("fixUcteNodes", "Fix UCTE nodes");
         for (UcteNode node : nodes.values()) {
             node.fix(nodesReportNode);
         }
 
-        ReportNode linesReportNode = reportNode.createSubReporter("fixUcteLines", "Fix UCTE lines");
+        ReportNode linesReportNode = reportNode.report("fixUcteLines", "Fix UCTE lines");
         for (UcteLine line : lines.values()) {
             line.fix(linesReportNode);
         }
 
-        ReportNode transfoReportNode = reportNode.createSubReporter("fixUcteTransformer", "Fix UCTE transformers");
+        ReportNode transfoReportNode = reportNode.report("fixUcteTransformer", "Fix UCTE transformers");
         for (UcteTransformer transfo : transformers.values()) {
             transfo.fix(transfoReportNode);
         }
 
-        ReportNode regulationsReportNode = reportNode.createSubReporter("fixUcteRegulations", "Fix UCTE regulations");
+        ReportNode regulationsReportNode = reportNode.report("fixUcteRegulations", "Fix UCTE regulations");
         for (UcteRegulation regulation : regulations.values()) {
             regulation.fix(regulationsReportNode);
         }

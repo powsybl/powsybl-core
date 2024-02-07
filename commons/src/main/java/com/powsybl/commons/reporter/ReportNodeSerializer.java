@@ -23,19 +23,17 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReporterModelSerializer extends StdSerializer<ReportNodeModel> {
+public class ReportNodeSerializer extends StdSerializer<ReportNodeImpl> {
 
-    private static final String VERSION = "1.0";
-
-    ReporterModelSerializer() {
-        super(ReportNodeModel.class);
+    ReportNodeSerializer() {
+        super(ReportNodeImpl.class);
     }
 
     @Override
-    public void serialize(ReportNodeModel reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ReportNodeImpl reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         Map<String, String> dictionary = new HashMap<>();
         generator.writeStartObject();
-        generator.writeStringField("version", VERSION);
+        generator.writeStringField("version", ReportConstants.CURRENT_VERSION.toString());
         generator.writeFieldName("reportTree");
         reporter.writeJson(generator, dictionary);
         writeDictionaryEntries(generator, dictionary);
@@ -49,7 +47,7 @@ public class ReporterModelSerializer extends StdSerializer<ReportNodeModel> {
         generator.writeEndObject();
     }
 
-    public static void write(ReportNodeModel reporter, Path jsonFile) {
+    public static void write(ReportNodeImpl reporter, Path jsonFile) {
         Objects.requireNonNull(reporter);
         Objects.requireNonNull(jsonFile);
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
@@ -60,7 +58,7 @@ public class ReporterModelSerializer extends StdSerializer<ReportNodeModel> {
     }
 
     private static ObjectMapper createObjectMapper() {
-        return new ObjectMapper().registerModule(new ReporterModelJsonModule());
+        return new ObjectMapper().registerModule(new ReportNodeJsonModule());
     }
 
     protected static final class TypedValueSerializer extends StdSerializer<TypedValue> {

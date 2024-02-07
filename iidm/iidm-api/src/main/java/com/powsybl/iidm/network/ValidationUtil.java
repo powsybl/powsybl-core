@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportMessage;
+import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 import java.time.ZonedDateTime;
@@ -58,7 +58,7 @@ public final class ValidationUtil {
     }
 
     private static void logError(Validable validable, String message, ReportNode reportNode) {
-        reportNode.report(ReportMessage.builder()
+        reportNode.report(ReportNodeImpl.builder()
                 .withKey(validable.getMessageHeader())
                 .withDefaultMessage(message)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -471,7 +471,7 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, message, throwException, reportNode);
             return ValidationLevel.EQUIPMENT;
         }
-        reportNode.report(ReportMessage.builder()
+        reportNode.report(ReportNodeImpl.builder()
                 .withKey(validable.getMessageHeader())
                 .withDefaultMessage(message)
                 .withSeverity(TypedValue.WARN_SEVERITY)
