@@ -6,7 +6,7 @@
  */
 
 /**
- * Reporter API for functional logs beta-feature and default in-memory implementation
+ * Reporter API for functional logs and default in-memory implementation
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
