@@ -136,4 +136,9 @@ public class AmplExportConfig {
         return exportSorted;
     }
 
+    public AmplExportConfig setExportSorted(boolean exportSorted) {
+        this.exportSorted = exportSorted;
+        return this;
+    }
+
 }
