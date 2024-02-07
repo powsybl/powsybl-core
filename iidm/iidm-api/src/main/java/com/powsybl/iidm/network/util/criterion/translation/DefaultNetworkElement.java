@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Optional;
 
-public class DefaultNetworkElement implements NetworkElement {
+public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
 
     private final Identifiable<?> identifiable;
 
@@ -98,12 +98,12 @@ public class DefaultNetworkElement implements NetworkElement {
     }
 
     @Override
-    public Optional<? extends LoadingLimits> getLoadingLimits(LimitType limitType, ThreeSides side) {
+    public Optional<LoadingLimits> getLimits(LimitType limitType, ThreeSides side) {
         return switch (identifiable.getType()) {
-            case LINE -> ((Line) identifiable).getLimits(limitType, side.toTwoSides());
-            case TIE_LINE -> ((TieLine) identifiable).getLimits(limitType, side.toTwoSides());
-            case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getLimits(limitType, side.toTwoSides());
-            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
+            case LINE -> (Optional<LoadingLimits>) ((Line) identifiable).getLimits(limitType, side.toTwoSides());
+            case TIE_LINE -> (Optional<LoadingLimits>) ((TieLine) identifiable).getLimits(limitType, side.toTwoSides());
+            case TWO_WINDINGS_TRANSFORMER -> (Optional<LoadingLimits>) ((TwoWindingsTransformer) identifiable).getLimits(limitType, side.toTwoSides());
+            case THREE_WINDINGS_TRANSFORMER -> (Optional<LoadingLimits>) ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
             default -> Optional.empty();
         };
     }

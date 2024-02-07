@@ -66,7 +66,7 @@ public class TwoNominalVoltageCriterion implements Criterion {
     }
 
     @Override
-    public boolean filter(NetworkElement networkElement) {
+    public boolean filter(NetworkElement<?> networkElement) {
         Double nominalVoltage1 = networkElement.getNominalVoltage1();
         Double nominalVoltage2 = networkElement.getNominalVoltage2();
         return nominalVoltage1 != null && nominalVoltage2 != null

@@ -12,9 +12,9 @@ import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 
 public class NetworkElementVisitor {
 
-    private final NetworkElement networkElement;
+    private final NetworkElement<?> networkElement;
 
-    public NetworkElementVisitor(NetworkElement networkElement) {
+    public NetworkElementVisitor(NetworkElement<?> networkElement) {
         this.networkElement = networkElement;
     }
 
@@ -36,7 +36,7 @@ public class NetworkElementVisitor {
                     && doRespectCriterion(networkElement, c.getThreeNominalVoltageCriterion());
     }
 
-    private boolean doRespectCriterion(NetworkElement networkElement, Criterion criterion) {
+    private boolean doRespectCriterion(NetworkElement<?> networkElement, Criterion criterion) {
         return criterion == null || criterion.filter(networkElement);
     }
 }

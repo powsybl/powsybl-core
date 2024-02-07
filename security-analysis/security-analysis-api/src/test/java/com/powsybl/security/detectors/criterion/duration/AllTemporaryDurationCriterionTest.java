@@ -7,13 +7,10 @@
  */
 package com.powsybl.security.detectors.criterion.duration;
 
-import com.powsybl.iidm.network.LoadingLimits;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -33,11 +30,8 @@ class AllTemporaryDurationCriterionTest {
 
     @Test
     void isTemporaryLimitWithinCriterionBoundsTest() {
-        LoadingLimits.TemporaryLimit tempLimit = Mockito.mock(LoadingLimits.TemporaryLimit.class);
-        when(tempLimit.getAcceptableDuration()).thenReturn(10);
         AllTemporaryDurationCriterion criterion = new AllTemporaryDurationCriterion();
-        assertTrue(criterion.isTemporaryLimitWithinCriterionBounds(tempLimit));
-        when(tempLimit.getAcceptableDuration()).thenReturn(10_000);
-        assertTrue(criterion.isTemporaryLimitWithinCriterionBounds(tempLimit));
+        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(10));
+        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(10_000));
     }
 }

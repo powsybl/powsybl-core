@@ -45,7 +45,7 @@ public class SingleCountryCriterion implements Criterion {
     }
 
     @Override
-    public boolean filter(NetworkElement networkElement) {
+    public boolean filter(NetworkElement<?> networkElement) {
         return filterWithCountry(networkElement.getCountry());
     }
 

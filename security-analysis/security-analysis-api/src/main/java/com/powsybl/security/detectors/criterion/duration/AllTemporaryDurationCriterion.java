@@ -7,8 +7,6 @@
  */
 package com.powsybl.security.detectors.criterion.duration;
 
-import com.powsybl.iidm.network.LoadingLimits;
-
 /**
  * Describes all temporary duration criterion
  *
@@ -21,7 +19,7 @@ public class AllTemporaryDurationCriterion extends AbstractTemporaryDurationCrit
     }
 
     @Override
-    public boolean isTemporaryLimitWithinCriterionBounds(LoadingLimits.TemporaryLimit temporaryLimit) {
+    public boolean isAcceptableDurationWithinCriterionBounds(int acceptableDuration) {
         return true;
     }
 }

@@ -50,7 +50,7 @@ class DefaultNetworkElementTest {
         Mockito.when(line.getLimits(LimitType.APPARENT_POWER, TwoSides.ONE)).thenAnswer(x -> createLimits(654.));
         Mockito.when(line.getLimits(LimitType.ACTIVE_POWER, TwoSides.TWO)).thenAnswer(x -> createLimits(987.));
 
-        NetworkElement networkElement = new DefaultNetworkElement(line);
+        DefaultNetworkElement networkElement = new DefaultNetworkElement(line);
         assertEquals("testLine", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry());
         assertEquals(Country.FR, networkElement.getCountry1());
@@ -77,8 +77,8 @@ class DefaultNetworkElementTest {
         return Optional.of(limits);
     }
 
-    private Double getPermanentLimit(NetworkElement networkElement, LimitType type, ThreeSides side) {
-        Optional<? extends LoadingLimits> limits = networkElement.getLoadingLimits(type, side);
+    private Double getPermanentLimit(DefaultNetworkElement networkElement, LimitType type, ThreeSides side) {
+        Optional<LoadingLimits> limits = networkElement.getLimits(type, side);
         return limits.map(LoadingLimits::getPermanentLimit).orElse(null);
     }
 }

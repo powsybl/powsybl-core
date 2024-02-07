@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Optional;
 
-public interface NetworkElement {
+public interface NetworkElement<T> {
 
     String getId();
 
@@ -29,5 +29,5 @@ public interface NetworkElement {
 
     Double getNominalVoltage();
 
-    Optional<? extends LoadingLimits> getLoadingLimits(LimitType limitType, ThreeSides side);
+    Optional<T> getLimits(LimitType limitType, ThreeSides side);
 }

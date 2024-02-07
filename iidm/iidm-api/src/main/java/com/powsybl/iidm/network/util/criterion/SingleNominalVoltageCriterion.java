@@ -50,7 +50,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
     }
 
     @Override
-    public boolean filter(NetworkElement networkElement) {
+    public boolean filter(NetworkElement<?> networkElement) {
         Double nominalVoltage = networkElement.getNominalVoltage();
         if (nominalVoltage == null) {
             return false;

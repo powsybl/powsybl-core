@@ -7,8 +7,6 @@
  */
 package com.powsybl.security.detectors.criterion.duration;
 
-import com.powsybl.iidm.network.LoadingLimits;
-
 import static com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion.LimitDurationType.TEMPORARY;
 
 /**
@@ -31,6 +29,6 @@ public abstract class AbstractTemporaryDurationCriterion implements LimitDuratio
         return TEMPORARY;
     }
 
-    public abstract boolean isTemporaryLimitWithinCriterionBounds(LoadingLimits.TemporaryLimit temporaryLimit);
+    public abstract boolean isAcceptableDurationWithinCriterionBounds(int acceptableDuration);
 
 }

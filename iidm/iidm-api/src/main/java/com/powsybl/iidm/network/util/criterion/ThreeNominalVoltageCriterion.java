@@ -73,7 +73,7 @@ public class ThreeNominalVoltageCriterion implements Criterion {
     }
 
     @Override
-    public boolean filter(NetworkElement networkElement) {
+    public boolean filter(NetworkElement<?> networkElement) {
         Double nominalVoltage1 = networkElement.getNominalVoltage1();
         Double nominalVoltage2 = networkElement.getNominalVoltage2();
         Double nominalVoltage3 = networkElement.getNominalVoltage3();
