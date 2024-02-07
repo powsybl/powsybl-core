@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Optional;
 
-public interface NetworkElementInterface {
+public interface NetworkElement {
 
     String getId();
 

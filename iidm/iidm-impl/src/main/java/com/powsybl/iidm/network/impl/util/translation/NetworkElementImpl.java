@@ -8,11 +8,11 @@
 package com.powsybl.iidm.network.impl.util.translation;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
+import com.powsybl.iidm.network.util.translation.NetworkElement;
 
 import java.util.Optional;
 
-public class NetworkElementImpl implements NetworkElementInterface {
+public class NetworkElementImpl implements NetworkElement {
 
     private final Identifiable<?> identifiable;
 

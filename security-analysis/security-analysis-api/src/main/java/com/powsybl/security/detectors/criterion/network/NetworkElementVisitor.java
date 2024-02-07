@@ -8,13 +8,13 @@
 package com.powsybl.security.detectors.criterion.network;
 
 import com.powsybl.iidm.network.util.criterion.Criterion;
-import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
+import com.powsybl.iidm.network.util.translation.NetworkElement;
 
 public class NetworkElementVisitor {
 
-    private final NetworkElementInterface networkElement;
+    private final NetworkElement networkElement;
 
-    public NetworkElementVisitor(NetworkElementInterface networkElement) {
+    public NetworkElementVisitor(NetworkElement networkElement) {
         this.networkElement = networkElement;
     }
 
@@ -36,7 +36,7 @@ public class NetworkElementVisitor {
                     && doRespectCriterion(networkElement, c.getThreeNominalVoltageCriterion());
     }
 
-    private boolean doRespectCriterion(NetworkElementInterface networkElement, Criterion criterion) {
+    private boolean doRespectCriterion(NetworkElement networkElement, Criterion criterion) {
         return criterion == null || criterion.filter(networkElement);
     }
 }

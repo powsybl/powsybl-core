@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.security.detectors.criterion.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion;
 import com.powsybl.security.detectors.criterion.network.AbstractNetworkElementCriterion;
-import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
+import com.powsybl.iidm.network.util.translation.NetworkElement;
 import com.powsybl.security.detectors.criterion.network.NetworkElementVisitor;
 
 import java.util.*;
@@ -32,7 +32,7 @@ public class LimitViolationDetectorWithLimitReduction {
         this.limitReductionDefinitionList = limitReductionDefinitionList;
     }
 
-    public HashMap<LimitType, HashMap<LoadingLimitType, Double>> getLimitsWithAppliedReduction(String contingencyId, NetworkElementInterface networkElement, ThreeSides side, LimitType limitType) {
+    public HashMap<LimitType, HashMap<LoadingLimitType, Double>> getLimitsWithAppliedReduction(String contingencyId, NetworkElement networkElement, ThreeSides side, LimitType limitType) {
 
         for (LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition : limitReductionDefinitionList.getLimitReductionDefinitions()) {
             if (limitReductionDefinition.getLimitType() == limitType &&
@@ -80,7 +80,7 @@ public class LimitViolationDetectorWithLimitReduction {
         return false;
     }
 
-    private boolean isEquipmentAffectedByLimitReduction(NetworkElementInterface networkElement, List<AbstractNetworkElementCriterion> networkElementCriteria) {
+    private boolean isEquipmentAffectedByLimitReduction(NetworkElement networkElement, List<AbstractNetworkElementCriterion> networkElementCriteria) {
 
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
 

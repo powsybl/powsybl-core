@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
+import com.powsybl.iidm.network.util.translation.NetworkElement;
 
 import java.util.Objects;
 
@@ -50,7 +50,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
     }
 
     @Override
-    public boolean filter(NetworkElementInterface networkElement) {
+    public boolean filter(NetworkElement networkElement) {
         VoltageLevel voltageLevel = networkElement.getVoltageLevel();
         return filterInjection(voltageLevel);
     }

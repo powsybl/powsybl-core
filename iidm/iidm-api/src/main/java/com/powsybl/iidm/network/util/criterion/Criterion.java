@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
+import com.powsybl.iidm.network.util.translation.NetworkElement;
 
 /**
  * the purpose of these class is to filter contingencies in a criterion contingency list
@@ -39,7 +39,7 @@ public interface Criterion {
         return false;
     }
 
-    default boolean filter(NetworkElementInterface networkElement) {
+    default boolean filter(NetworkElement networkElement) {
         return false;
     }
 }

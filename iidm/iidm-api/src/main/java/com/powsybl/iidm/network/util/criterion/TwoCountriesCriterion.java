@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
+import com.powsybl.iidm.network.util.translation.NetworkElement;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +52,7 @@ public class TwoCountriesCriterion implements Criterion {
     }
 
     @Override
-    public boolean filter(NetworkElementInterface networkElement) {
+    public boolean filter(NetworkElement networkElement) {
         Country countrySide1 = networkElement.getCountry1();
         Country countrySide2 = networkElement.getCountry2();
         return filterWithCountries(countrySide1, countrySide2);

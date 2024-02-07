@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.translation.NetworkElementInterface;
+import com.powsybl.iidm.network.util.translation.NetworkElement;
 
 import java.util.List;
 import java.util.Objects;
@@ -53,7 +53,7 @@ public class SingleCountryCriterion implements Criterion {
     }
 
     @Override
-    public boolean filter(NetworkElementInterface networkElement) {
+    public boolean filter(NetworkElement networkElement) {
         return filterInjectionWithCountry(networkElement.getCountry());
     }
 
