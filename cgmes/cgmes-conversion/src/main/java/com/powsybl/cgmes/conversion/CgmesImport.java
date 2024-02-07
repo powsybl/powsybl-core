@@ -40,6 +40,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -66,6 +68,7 @@ public class CgmesImport implements Importer {
     }
 
     public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
+        this.platformConfig = platformConfig;
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.preProcessors = Objects.requireNonNull(preProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPreProcessor::getName, e -> e));
@@ -367,25 +370,46 @@ public class CgmesImport implements Importer {
     }
 
     private ReadOnlyDataSource boundary(Properties p) {
-        String loc = Parameter.readString(
+        String location = Parameter.readString(
                 getFormat(),
                 p,
                 boundaryLocationParameter,
                 defaultValueConfig);
-        if (loc == null) {
+        if (location == null) {
             return null;
         }
-        Path ploc = Path.of(loc);
-        if (!Files.exists(ploc)) {
-            LOGGER.warn("Location of boundaries does not exist {}. No attempt to load boundaries will be made", loc);
+        Path path = boundaryPath(location);
+        if (path == null) {
             return null;
         }
         // Check that the Data Source has valid CGMES names
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(ploc);
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(path);
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }
         return ds;
+    }
+
+    Path boundaryPath(String location) {
+        Path path = null;
+        // Check first if the location is present in the file system defined from the platform configuration
+        if (this.platformConfig.getConfigDir().isPresent()) {
+            FileSystem configFileSystem = this.platformConfig.getConfigDir().get().getFileSystem();
+            if (configFileSystem != FileSystems.getDefault()) {
+                path = configFileSystem.getPath(location);
+                if (!Files.exists(path)) {
+                    LOGGER.warn("Location of boundaries ({}) not found in config file system. An attempt to load boundaries from the default file system will be made", location);
+                    path = null;
+                }
+            }
+        }
+        if (path == null) {
+            path = Path.of(location);
+            if (!Files.exists(path)) {
+                LOGGER.warn("Location of boundaries ({}) not found in default file system. No attempt to load boundaries will be made", location);
+            }
+        }
+        return path;
     }
 
     private String tripleStore(Properties p) {
@@ -717,6 +741,8 @@ public class CgmesImport implements Importer {
     private final Map<String, CgmesImportPostProcessor> postProcessors;
     private final Map<String, CgmesImportPreProcessor> preProcessors;
     private final ParameterDefaultValueConfig defaultValueConfig;
+
+    private final PlatformConfig platformConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CgmesImport.class);
 
