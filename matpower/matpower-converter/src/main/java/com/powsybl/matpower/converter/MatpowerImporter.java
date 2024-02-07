@@ -454,13 +454,14 @@ public class MatpowerImporter implements Importer {
             String connectedBus2Id = isInService ? bus2Id : null;
             String csId1 = getId(CONVERTER_STATION_1_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
             String csId2 = getId(CONVERTER_STATION_2_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
+            double losses = mDcLine.getLoss0() + mDcLine.getLoss1() * mDcLine.getPf();
             voltageLevel1.newVscConverterStation()
                     .setId(csId1)
                     .setBus(connectedBus1Id)
                     .setConnectableBus(bus1Id)
                     .setVoltageRegulatorOn(true)
                     .setVoltageSetpoint(mDcLine.getVf() * voltageLevel1.getNominalV())
-                    .setLossFactor((float) computeLossFactor1(mDcLine.getPf(), mDcLine.getLoss0()))
+                    .setLossFactor((float) computeLossFactor1(mDcLine.getPf(), losses * 0.5))
                     .add();
             voltageLevel2.newVscConverterStation()
                     .setId(csId2)
@@ -468,7 +469,7 @@ public class MatpowerImporter implements Importer {
                     .setConnectableBus(bus2Id)
                     .setVoltageRegulatorOn(true)
                     .setVoltageSetpoint(mDcLine.getVt() * voltageLevel2.getNominalV())
-                    .setLossFactor((float) computeLossFactor2(mDcLine.getPf(), mDcLine.getLoss0(), mDcLine.getLoss1() * mDcLine.getPf()))
+                    .setLossFactor((float) computeLossFactor2(mDcLine.getPf(), losses * 0.5, losses * 0.5))
                     .add();
             network.newHvdcLine()
                     .setId(id)
