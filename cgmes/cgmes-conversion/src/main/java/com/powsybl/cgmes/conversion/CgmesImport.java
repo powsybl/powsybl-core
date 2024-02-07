@@ -393,8 +393,9 @@ public class CgmesImport implements Importer {
     Path boundaryPath(String location) {
         Path path = null;
         // Check first if the location is present in the file system defined from the platform configuration
-        if (this.platformConfig.getConfigDir().isPresent()) {
-            FileSystem configFileSystem = this.platformConfig.getConfigDir().get().getFileSystem();
+        Optional<Path> configDir = this.platformConfig.getConfigDir();
+        if (configDir.isPresent()) {
+            FileSystem configFileSystem = configDir.get().getFileSystem();
             if (configFileSystem != FileSystems.getDefault()) {
                 path = configFileSystem.getPath(location);
                 if (!Files.exists(path)) {
