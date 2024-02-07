@@ -32,7 +32,7 @@ class CgmesExportContextTest {
     void testExporter() {
         var exporter = new CgmesExport();
         assertEquals("ENTSO-E CGMES version 2.4.15", exporter.getComment());
-        assertEquals(17, exporter.getParameters().size());
+        assertEquals(18, exporter.getParameters().size());
     }
 
     @Test
@@ -49,6 +49,7 @@ class CgmesExportContextTest {
         assertEquals(1, context1.getSvModelDescription().getVersion());
         assertTrue(context1.getSvModelDescription().getDependencies().isEmpty());
         assertEquals("powsybl.org", context1.getSvModelDescription().getModelingAuthoritySet());
+        assertEquals(1, context1.getEqModelDescription().getVersion());
 
         network.newExtension(CimCharacteristicsAdder.class)
             .setCimVersion(14)
