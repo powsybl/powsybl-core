@@ -153,8 +153,8 @@ public interface NodeCalc {
     }
 
     @Override
-    public abstract int hashCode();
+    int hashCode();
 
     @Override
-    public abstract boolean equals(Object obj);
+    boolean equals(Object obj);
 }
