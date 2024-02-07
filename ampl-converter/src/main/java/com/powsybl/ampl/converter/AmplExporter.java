@@ -60,7 +60,6 @@ public class AmplExporter implements Exporter {
 
     private static final Parameter EXPORT_SORTED_PARAMETER = new Parameter(EXPORT_SORTED, ParameterType.BOOLEAN, "Export alphabetically sorted by equipment id", Boolean.FALSE);
 
-
     private static final List<Parameter> STATIC_PARAMETERS = List.of(EXPORT_SCOPE_PARAMETER, EXPORT_XNODES_PARAMETER,
         EXPORT_ACTION_TYPE_PARAMETER, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER,
         EXPORT_VERSION_PARAMETER, EXPORT_SORTED_PARAMETER);
