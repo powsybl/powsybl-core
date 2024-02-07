@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -32,9 +32,9 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         this.openableSwitches = openableSwitches;
     }
 
-    public void applyModification(Network network, boolean isPlanned, Reporter reporter) {
+    public void applyModification(Network network, boolean isPlanned, ReportNode reportNode) {
         // Add the reporter to the network reporter context
-        network.getReporterContext().pushReporter(reporter);
+        network.getReporterContext().pushReporter(reportNode);
 
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
@@ -52,6 +52,6 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         } else {
             LOG.info("Connectable {} has NOT been disconnected ({} disconnection).", connectableId, isPlanned ? "planned" : "unplanned");
         }
-        connectableDisconnectionReport(reporter, connectable, hasBeenDisconnected, isPlanned);
+        connectableDisconnectionReport(reportNode, connectable, hasBeenDisconnected, isPlanned);
     }
 }

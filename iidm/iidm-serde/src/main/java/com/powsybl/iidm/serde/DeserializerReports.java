@@ -8,7 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.reporter.ReportMessage;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 
 import java.util.Set;
@@ -22,9 +22,9 @@ public final class DeserializerReports {
     }
 
     // INFO
-    public static void importedNetworkReport(Reporter reporter, String networkId, String format) {
-        if (reporter != null) {
-            reporter.report(ReportMessage.builder()
+    public static void importedNetworkReport(ReportNode reportNode, String networkId, String format) {
+        if (reportNode != null) {
+            reportNode.report(ReportMessage.builder()
                     .withKey("importedNetwork")
                     .withDefaultMessage("Network \"${networkId}\" is imported from ${format} format.")
                     .withValue("networkId", networkId)
@@ -35,10 +35,10 @@ public final class DeserializerReports {
     }
 
     // INFO
-    public static void importedExtension(Reporter reporter, Set<String> extensionsNameImported) {
-        if (reporter != null) {
+    public static void importedExtension(ReportNode reportNode, Set<String> extensionsNameImported) {
+        if (reportNode != null) {
             extensionsNameImported.forEach(extensionName ->
-                reporter.report(ReportMessage.builder()
+                reportNode.report(ReportMessage.builder()
                         .withKey("importedExtension")
                         .withDefaultMessage("Extension ${extensionName} imported.")
                         .withValue("extensionName", extensionName)
@@ -48,10 +48,10 @@ public final class DeserializerReports {
         }
     }
 
-    public static void extensionNotFound(Reporter reporter, Set<String> extensionsNotFoundName) {
-        if (reporter != null) {
+    public static void extensionNotFound(ReportNode reportNode, Set<String> extensionsNotFoundName) {
+        if (reportNode != null) {
             extensionsNotFoundName.forEach(extensionName ->
-                reporter.report(ReportMessage.builder()
+                reportNode.report(ReportMessage.builder()
                         .withKey("extensionNotFound")
                         .withDefaultMessage("Extension ${extensionName} not found.")
                         .withValue("extensionName", extensionName)

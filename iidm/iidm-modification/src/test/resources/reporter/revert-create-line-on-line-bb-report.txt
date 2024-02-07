@@ -1,4 +1,4 @@
-+ Testing reporter for reverting create line on line in bus/breaker network
++ Testing reportNode for reverting create line on line in bus/breaker network
    Line NHV1_NHV2_1_1 removed
    Line NHV1_NHV2_1_2 removed
    Line testLine removed

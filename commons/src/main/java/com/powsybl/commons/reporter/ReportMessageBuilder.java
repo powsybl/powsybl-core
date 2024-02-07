@@ -41,7 +41,7 @@ public class ReportMessageBuilder {
     /**
      * Provide the default message to build the {@link ReportMessage} with.
      * @param defaultMessage the default report message of the report to build, which may contain references to its
-     *                       values or to the values of corresponding {@link Reporter}.
+     *                       values or to the values of corresponding {@link ReportNode}.
      * @return a reference to this object
      */
     public ReportMessageBuilder withDefaultMessage(String defaultMessage) {

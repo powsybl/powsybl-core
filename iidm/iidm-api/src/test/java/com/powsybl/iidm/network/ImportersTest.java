@@ -7,10 +7,10 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.computation.ComputationManager;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -89,7 +89,7 @@ class ImportersTest extends AbstractConvertersTest {
     @Test
     void getImporterWithImportConfigAndReporter() {
         Importer importer = Importer.find(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
-        ReporterModel reporter = new ReporterModel("testFunctionalLog", "testFunctionalLogs");
+        ReportNodeModel reporter = new ReportNodeModel("testFunctionalLog", "testFunctionalLogs");
         assertNotNull(importer);
         Network network = importer.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network);
@@ -150,7 +150,7 @@ class ImportersTest extends AbstractConvertersTest {
     @Test
     void importAll() throws InterruptedException, ExecutionException, IOException {
         List<Boolean> isLoadPresent = new ArrayList<>();
-        Importers.importAll(fileSystem.getPath(WORK_DIR), testImporter, false, null, n -> isLoadPresent.add(n.getLoad("LOAD") != null), null, new NetworkFactoryMock(), Reporter.NO_OP);
+        Importers.importAll(fileSystem.getPath(WORK_DIR), testImporter, false, null, n -> isLoadPresent.add(n.getLoad("LOAD") != null), null, new NetworkFactoryMock(), ReportNode.NO_OP);
         assertEquals(2, isLoadPresent.size());
         isLoadPresent.forEach(Assertions::assertTrue);
     }
@@ -158,7 +158,7 @@ class ImportersTest extends AbstractConvertersTest {
     @Test
     void importAllParallel() throws InterruptedException, ExecutionException, IOException {
         List<Boolean> isLoadPresent = Collections.synchronizedList(new ArrayList<>());
-        Importers.importAll(fileSystem.getPath(WORK_DIR), testImporter, true, null, n -> isLoadPresent.add(n.getLoad("LOAD") != null), null, new NetworkFactoryMock(), Reporter.NO_OP);
+        Importers.importAll(fileSystem.getPath(WORK_DIR), testImporter, true, null, n -> isLoadPresent.add(n.getLoad("LOAD") != null), null, new NetworkFactoryMock(), ReportNode.NO_OP);
         assertEquals(2, isLoadPresent.size());
         isLoadPresent.forEach(Assertions::assertTrue);
     }
@@ -190,21 +190,21 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void loadNetwork1() {
-        Network network = Network.read(path, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
+        Network network = Network.read(path, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, ReportNode.NO_OP);
         assertNotNull(network);
         assertNotNull(network.getLoad("LOAD"));
     }
 
     @Test
     void loadNullNetwork1() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.read(badPath, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.read(badPath, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, ReportNode.NO_OP));
         assertEquals("Unsupported file format or invalid file.", e.getMessage());
     }
 
     @Test
     void loadNetwork2() throws IOException {
         try (var is = DataSource.fromPath(path).newInputStream(null, EXTENSION)) {
-            Network network = Network.read(FOO_TST, is, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
+            Network network = Network.read(FOO_TST, is, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, ReportNode.NO_OP);
             assertNotNull(network);
             assertNotNull(network.getLoad("LOAD"));
         }
@@ -212,14 +212,14 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void loadNullNetwork2() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.read("baz.txt", DataSource.fromPath(badPath).newInputStream(null, "txt"), computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.read("baz.txt", DataSource.fromPath(badPath).newInputStream(null, "txt"), computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, ReportNode.NO_OP));
         assertEquals("Unsupported file format or invalid file.", e.getMessage());
     }
 
     @Test
     void loadNetworks() throws InterruptedException, ExecutionException, IOException {
         List<Boolean> isLoadPresent = new ArrayList<>();
-        Network.readAll(fileSystem.getPath(WORK_DIR), false, loader, computationManager, importConfigMock, null, n -> isLoadPresent.add(n.getLoad("LOAD") != null), null, new NetworkFactoryMock(), Reporter.NO_OP);
+        Network.readAll(fileSystem.getPath(WORK_DIR), false, loader, computationManager, importConfigMock, null, n -> isLoadPresent.add(n.getLoad("LOAD") != null), null, new NetworkFactoryMock(), ReportNode.NO_OP);
         assertEquals(2, isLoadPresent.size());
         isLoadPresent.forEach(Assertions::assertTrue);
     }

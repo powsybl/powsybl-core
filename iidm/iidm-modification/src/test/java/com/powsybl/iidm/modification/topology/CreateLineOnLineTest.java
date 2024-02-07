@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
@@ -135,7 +135,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Network network1 = createNbNetworkWithBusbarSection();
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
-        ReporterModel reporter1 = new ReporterModel("reportTestBbsNotExistingNB", "Testing reporter if busbar section does not exist in node/breaker");
+        ReportNodeModel reporter1 = new ReportNodeModel("reportTestBbsNotExistingNB", "Testing reporter if busbar section does not exist in node/breaker");
         NetworkModification modification1 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line1)
@@ -148,7 +148,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Network network2 = createBbNetwork();
         Line line2 = network2.getLine("NHV1_NHV2_1");
         LineAdder adder2 = createLineAdder(line2, network2);
-        ReporterModel reporter2 = new ReporterModel("reportTestBbsNotExistingBB", "Testing reporter if busbar section does not exist in bus/breaker");
+        ReportNodeModel reporter2 = new ReportNodeModel("reportTestBbsNotExistingBB", "Testing reporter if busbar section does not exist in bus/breaker");
         NetworkModification modification2 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line2)
@@ -158,7 +158,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reporter2.getChildren().iterator().next().getKey());
 
-        ReporterModel reporter3 = new ReporterModel("reportTestWrongTypeBbs", "Testing reporter if type of busbar section is wrong");
+        ReportNodeModel reporter3 = new ReportNodeModel("reportTestWrongTypeBbs", "Testing reporter if type of busbar section is wrong");
         NetworkModification modification3 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
                 .withLine(line2)
@@ -168,7 +168,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
         assertEquals("unexpectedIdentifiableType", reporter3.getChildren().iterator().next().getKey());
 
-        ReporterModel reporter4 = new ReporterModel("reportTestNullFictitiousSubstationID", "Testing reporter with null fictitious substation ID");
+        ReportNodeModel reporter4 = new ReportNodeModel("reportTestNullFictitiousSubstationID", "Testing reporter with null fictitious substation ID");
         NetworkModification modification4 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network1.getLine("CJ"))
@@ -180,7 +180,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("Fictitious substation ID must be defined if a fictitious substation is to be created", exception4.getMessage());
         assertEquals("undefinedFictitiousSubstationId", reporter4.getChildren().iterator().next().getKey());
 
-        ReporterModel reporter5 = new ReporterModel("reportTestUndefinedPositionPercent", "Testing reporter with undefined position percent");
+        ReportNodeModel reporter5 = new ReportNodeModel("reportTestUndefinedPositionPercent", "Testing reporter with undefined position percent");
         NetworkModification modification5 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network1.getLine("CJ"))
@@ -196,7 +196,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
     @Test
     void testWithReporter() {
         Network network = createNbNetworkWithBusbarSection();
-        ReporterModel reporter = new ReporterModel("reportTestCreateLineOnLine", "Testing reporter for creation of a line on line");
+        ReportNodeModel reporter = new ReportNodeModel("reportTestCreateLineOnLine", "Testing reporter for creation of a line on line");
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();

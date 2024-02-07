@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.commons.reporter.ReportMessage;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 
 /**
@@ -20,8 +20,8 @@ final class TieLineReports {
     private static final String DANGLING_LINE_ID_2 = "danglingLineId2";
 
     // DEBUG
-    static void inconsistentPropertyValues(Reporter reporter, String propertyName, String propertyValue1, String propertyValue2, String danglingLineId1, String danglingLineId2) {
-        reporter.report(ReportMessage.builder()
+    static void inconsistentPropertyValues(ReportNode reportNode, String propertyName, String propertyValue1, String propertyValue2, String danglingLineId1, String danglingLineId2) {
+        reportNode.report(ReportMessage.builder()
                 .withKey("InconsistentPropertyValues")
                 .withDefaultMessage("Inconsistencies of property ${propertyName} between ${danglingLineId1} (value=${propertyValue1}) and ${danglingLineId2} (value=${propertyValue2}). Property is not added to merged line")
                 .withValue("propertyName", propertyName)
@@ -33,8 +33,8 @@ final class TieLineReports {
                 .build());
     }
 
-    static void moveCommonAliases(Reporter reporter, String alias, String danglingLineId1, String danglingLineId2) {
-        reporter.report(ReportMessage.builder()
+    static void moveCommonAliases(ReportNode reportNode, String alias, String danglingLineId1, String danglingLineId2) {
+        reportNode.report(ReportMessage.builder()
                 .withKey("MoveCommonAlias")
                 .withDefaultMessage("Alias ${alias} found in dangling lines ${danglingLineId1} and ${danglingLineId2} is moved to their merged line.")
                 .withValue("alias", alias)
@@ -44,8 +44,8 @@ final class TieLineReports {
                 .build());
     }
 
-    static void propertyOnlyOnOneSide(Reporter reporter, String propertyName, String propertyValue, int emptySide, String danglingLineId1, String danglingLineId2) {
-        reporter.report(ReportMessage.builder()
+    static void propertyOnlyOnOneSide(ReportNode reportNode, String propertyName, String propertyValue, int emptySide, String danglingLineId1, String danglingLineId2) {
+        reportNode.report(ReportMessage.builder()
                 .withKey("PropertyOnlyOnOneSide")
                 .withDefaultMessage("Inconsistencies of property ${propertyName} between both sides (${danglingLineId1) on side 1 and ${danglingLineId2} on side2) of merged line. " +
                         "Side ${side} has no value. Value on other side is kept.")
@@ -59,8 +59,8 @@ final class TieLineReports {
     }
 
     // WARN
-    static void inconsistentAliasTypes(Reporter reporter, String alias, String type1, String type2, String danglingLineId1, String danglingLineId2) {
-        reporter.report(ReportMessage.builder()
+    static void inconsistentAliasTypes(ReportNode reportNode, String alias, String type1, String type2, String danglingLineId1, String danglingLineId2) {
+        reportNode.report(ReportMessage.builder()
                 .withKey("InconsistentAliasTypes")
                 .withDefaultMessage("Inconsistencies of types for alias ${alias} type in dangling lines ${danglingLineId1} (type=${type1}) and ${danglingLineId2} (type=${type2}). Type is lost.")
                 .withValue("alias", alias)
@@ -72,8 +72,8 @@ final class TieLineReports {
                 .build());
     }
 
-    static void inconsistentAliasValues(Reporter reporter, String alias1, String alias2, String type, String danglingLineId1, String danglingLineId2) {
-        reporter.report(ReportMessage.builder()
+    static void inconsistentAliasValues(ReportNode reportNode, String alias1, String alias2, String type, String danglingLineId1, String danglingLineId2) {
+        reportNode.report(ReportMessage.builder()
                 .withKey("InconsistentAliasValues")
                 .withDefaultMessage("Inconsistencies found for alias type '${type}'('${alias1}' for '${danglingLineId1}' and '${alias2}' for '${danglingLineId2}'). " +
                         "Types are respectively renamed as '${type}_1' and '${type}_2'.")

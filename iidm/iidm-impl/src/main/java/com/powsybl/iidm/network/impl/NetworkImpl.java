@@ -12,7 +12,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
@@ -1165,21 +1165,21 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public ValidationLevel runValidationChecks(boolean throwsException) {
-        return runValidationChecks(throwsException, Reporter.NO_OP);
+        return runValidationChecks(throwsException, ReportNode.NO_OP);
     }
 
     @Override
-    public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
-        Reporter readReporter = Objects.requireNonNull(reporter).createSubReporter("IIDMValidation", "Running validation checks on IIDM network " + id);
+    public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
+        ReportNode readReportNode = Objects.requireNonNull(reportNode).createSubReporter("IIDMValidation", "Running validation checks on IIDM network " + id);
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReporter);
+                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
         return validationLevel;
     }
 
     @Override
     public ValidationLevel getValidationLevel() {
         if (validationLevel == null) {
-            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, Reporter.NO_OP);
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, ReportNode.NO_OP);
         }
         return validationLevel;
     }
@@ -1188,7 +1188,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
         Objects.requireNonNull(validationLevel);
         if (this.validationLevel == null) {
-            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, Reporter.NO_OP);
+            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, ReportNode.NO_OP);
         }
         if (this.validationLevel.compareTo(validationLevel) < 0) {
             throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);

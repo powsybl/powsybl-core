@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractNetworkReporterTest;
+import com.powsybl.iidm.network.tck.AbstractNetworkReportNodeTest;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class NetworkReporterContextTest extends AbstractNetworkReporterTest {
+public class NetworkReportNodeContextTest extends AbstractNetworkReportNodeTest {
 }

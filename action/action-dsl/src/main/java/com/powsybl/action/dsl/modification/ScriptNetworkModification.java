@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.dsl.modification;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
@@ -32,7 +32,7 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager, ReportNode reportNode) {
         script.call(network, computationManager);
     }
 }

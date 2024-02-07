@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 
 import java.util.Iterator;
 
@@ -20,12 +20,12 @@ public abstract class AbstractReporterContext implements ReporterContext {
     }
 
     @Override
-    public Reporter peekReporter() {
+    public ReportNode peekReporter() {
         return getReporter();
     }
 
     protected void copyReporters(AbstractReporterContext reporterContext) {
-        Iterator<Reporter> it = reporterContext.descendingIterator();
+        Iterator<ReportNode> it = reporterContext.descendingIterator();
         // Since we don't want to copy the always present NO_OP, we skip the 1st item
         it.next();
         while (it.hasNext()) {
@@ -38,5 +38,5 @@ public abstract class AbstractReporterContext implements ReporterContext {
      *
      * @return an Iterator on the elements
      */
-    protected abstract Iterator<Reporter> descendingIterator();
+    protected abstract Iterator<ReportNode> descendingIterator();
 }

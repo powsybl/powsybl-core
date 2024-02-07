@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.tck;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.MessageNode;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
@@ -600,7 +600,7 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
-        ReporterModel reporter = new ReporterModel("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
+        ReportNodeModel reporter = new ReportNodeModel("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
 
         Collection<MessageNode> children = reporter.getChildren();
@@ -609,8 +609,8 @@ public abstract class AbstractNetworkTest {
         assertEquals("IIDMValidation", node.getKey());
         assertEquals("Running validation checks on IIDM network scada", node.getDefaultText());
 
-        assertTrue(node instanceof ReporterModel);
-        ReporterModel subReporter = (ReporterModel) node;
+        assertTrue(node instanceof ReportNodeModel);
+        ReportNodeModel subReporter = (ReportNodeModel) node;
         Collection<MessageNode> messageNodes = subReporter.getChildren();
         assertFalse(messageNodes.isEmpty());
 

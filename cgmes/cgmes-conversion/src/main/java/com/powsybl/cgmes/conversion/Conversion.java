@@ -15,7 +15,7 @@ import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -135,11 +135,11 @@ public class Conversion {
     }
 
     public Network convert() {
-        return convert(Reporter.NO_OP);
+        return convert(ReportNode.NO_OP);
     }
 
-    public Network convert(Reporter reporter) {
-        Objects.requireNonNull(reporter);
+    public Network convert(ReportNode reportNode) {
+        Objects.requireNonNull(reportNode);
 
         // apply pre-processors before starting the conversion
         for (CgmesImportPreProcessor preProcessor : preProcessors) {
@@ -154,7 +154,7 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
-        Context context = createContext(network, reporter);
+        Context context = createContext(network, reportNode);
         assignNetworkProperties(context);
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
@@ -395,8 +395,8 @@ public class Conversion {
         return networkFactory.createNetwork(networkId, sourceFormat);
     }
 
-    private Context createContext(Network network, Reporter reporter) {
-        Context context = new Context(cgmes, config, network, reporter);
+    private Context createContext(Network network, ReportNode reportNode) {
+        Context context = new Context(cgmes, config, network, reportNode);
         context.substationIdMapping().build();
         context.dc().initialize();
         context.loadRatioTapChangers();

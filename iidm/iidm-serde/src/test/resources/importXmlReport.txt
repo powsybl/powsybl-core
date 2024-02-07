@@ -1,4 +1,4 @@
-+ test reporter
++ test reportNode
   + Validation warnings
   + Imported extensions
      Extension substationPosition imported.

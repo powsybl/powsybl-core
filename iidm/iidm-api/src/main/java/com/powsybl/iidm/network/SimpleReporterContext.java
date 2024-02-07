@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 
 import java.util.Deque;
 import java.util.Iterator;
@@ -20,11 +20,11 @@ import java.util.LinkedList;
  */
 public class SimpleReporterContext extends AbstractReporterContext {
 
-    private final Deque<Reporter> reporters;
+    private final Deque<ReportNode> reportNodes;
 
     public SimpleReporterContext() {
-        this.reporters = new LinkedList<>();
-        this.reporters.push(Reporter.NO_OP);
+        this.reportNodes = new LinkedList<>();
+        this.reportNodes.push(ReportNode.NO_OP);
     }
 
     public SimpleReporterContext(AbstractReporterContext reporterContext) {
@@ -33,26 +33,26 @@ public class SimpleReporterContext extends AbstractReporterContext {
     }
 
     @Override
-    public Reporter getReporter() {
-        return this.reporters.peekFirst();
+    public ReportNode getReporter() {
+        return this.reportNodes.peekFirst();
     }
 
     @Override
-    public void pushReporter(Reporter reporter) {
-        this.reporters.push(reporter);
+    public void pushReporter(ReportNode reportNode) {
+        this.reportNodes.push(reportNode);
     }
 
     @Override
-    public Reporter popReporter() {
-        Reporter popped = this.reporters.pop();
-        if (reporters.isEmpty()) {
-            this.reporters.push(Reporter.NO_OP);
+    public ReportNode popReporter() {
+        ReportNode popped = this.reportNodes.pop();
+        if (reportNodes.isEmpty()) {
+            this.reportNodes.push(ReportNode.NO_OP);
         }
         return popped;
     }
 
     @Override
-    protected Iterator<Reporter> descendingIterator() {
-        return reporters.descendingIterator();
+    protected Iterator<ReportNode> descendingIterator() {
+        return reportNodes.descendingIterator();
     }
 }

@@ -1,4 +1,4 @@
-+ Testing reporter when replacing tee point by voltage level on line in bus/breaker network
++ Testing reportNode when replacing tee point by voltage level on line in bus/breaker network
    Line NHV1_NHV2_1_1 removed
    Line NHV1_NHV2_1_2 removed
    Internal connection between 3 and 1 removed

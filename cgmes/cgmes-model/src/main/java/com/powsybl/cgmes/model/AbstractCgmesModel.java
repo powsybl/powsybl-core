@@ -9,7 +9,7 @@ package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.ReportMessage;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -243,29 +243,29 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter) {
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, ReportNode reportNode) {
         setBasename(CgmesModel.baseName(mainDataSource));
-        read(mainDataSource, reporter);
+        read(mainDataSource, reportNode);
         if (!hasBoundary() && alternativeDataSourceForBoundary != null) {
-            read(alternativeDataSourceForBoundary, reporter);
+            read(alternativeDataSourceForBoundary, reportNode);
         }
     }
 
     @Override
-    public void read(ReadOnlyDataSource ds, Reporter reporter) {
-        Objects.requireNonNull(reporter);
+    public void read(ReadOnlyDataSource ds, ReportNode reportNode) {
+        Objects.requireNonNull(reportNode);
         invalidateCaches();
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
-            reporter.report(ReportMessage.builder()
+            reportNode.report(ReportMessage.builder()
                     .withKey("CGMESFileRead")
                     .withDefaultMessage("Instance file ${instanceFile}")
                     .withTypedValue("instanceFile", name, TypedValue.FILENAME)
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
             try (InputStream is = cds.dataSource().newInputStream(name)) {
-                read(is, baseName, name, reporter);
+                read(is, baseName, name, reportNode);
             } catch (IOException e) {
                 String msg = String.format("Reading [%s]", name);
                 LOG.warn(msg);

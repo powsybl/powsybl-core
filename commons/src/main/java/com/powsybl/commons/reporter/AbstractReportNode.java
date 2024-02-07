@@ -10,27 +10,27 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * An abstract class providing some default method implementations for {@link Reporter} implementations.
+ * An abstract class providing some default method implementations for {@link ReportNode} implementations.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public abstract class AbstractReporter extends AbstractMessageNode implements Reporter {
+public abstract class AbstractReportNode extends AbstractMessageNode implements ReportNode {
 
-    protected AbstractReporter(String key, String defaultTitle, Map<String, TypedValue> values) {
+    protected AbstractReportNode(String key, String defaultTitle, Map<String, TypedValue> values) {
         super(key, defaultTitle, values);
     }
 
     @Override
-    public Reporter createSubReporter(String key, String defaultTitle) {
+    public ReportNode createSubReporter(String key, String defaultTitle) {
         return createSubReporter(key, defaultTitle, Collections.emptyMap());
     }
 
     @Override
-    public Reporter createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value) {
+    public ReportNode createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value) {
         return createSubReporter(reporterKey, defaultTitle, valueKey, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public Reporter createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value, String type) {
+    public ReportNode createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value, String type) {
         return createSubReporter(reporterKey, defaultTitle, Map.of(valueKey, new TypedValue(value, type)));
     }
 

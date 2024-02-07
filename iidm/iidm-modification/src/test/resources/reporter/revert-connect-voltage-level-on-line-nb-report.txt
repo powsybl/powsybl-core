@@ -1,4 +1,4 @@
-+ Testing reporter to revert connecting a voltage level on a line in node/breaker network
++ Testing reportNode to revert connecting a voltage level on a line in node/breaker network
    Line CJ_1 removed
    Line CJ_2 removed
    Temporary limits on both sides for line CJ_2 : They are ignored

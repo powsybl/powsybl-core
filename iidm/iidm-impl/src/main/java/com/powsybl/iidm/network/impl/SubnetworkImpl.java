@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
@@ -926,8 +926,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
-        return getNetwork().runValidationChecks(throwsException, reporter);
+    public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
+        return getNetwork().runValidationChecks(throwsException, reportNode);
     }
 
     @Override

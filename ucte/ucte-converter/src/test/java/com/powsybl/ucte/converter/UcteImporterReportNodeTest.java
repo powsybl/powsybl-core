@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-class UcteImporterReporterTest extends AbstractSerDeTest {
+class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
     private static final String WORK_DIR = "/tmp";
 
@@ -43,7 +43,7 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
     void testReportElementName() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
-        ReporterModel reporter = new ReporterModel("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}",
+        ReportNodeModel reporter = new ReportNodeModel("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}",
             Map.of("file", new TypedValue("elementName.uct", TypedValue.FILENAME)));
 
         PowsyblException e = assertThrows(PowsyblException.class, () -> reporter.report("ObjectReport", "Object ${object} report", "object", dataSource));
@@ -70,13 +70,13 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
     @Test
     void roundTripReporterJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
-        ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct");
+        ReportNodeModel reporter = new ReportNodeModel("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct");
         reporter.report("novalueReport", "No value report");
         Network.read(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
 
         // Testing deserializing with unknown specified dictionary
-        ReporterModel rm = ReporterModelDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
+        ReportNodeModel rm = ReporterModelDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
         assertEquals(2, rm.getChildren().size());
 
         Iterator<MessageNode> childrenIt = rm.getChildren().iterator();
@@ -85,7 +85,7 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         assertEquals("No value report", node1.getDefaultText());
 
         MessageNode node2 = childrenIt.next();
-        assertTrue(node2 instanceof ReporterModel);
+        assertTrue(node2 instanceof ReportNodeModel);
         assertEquals("Reading UCTE network file", node2.getDefaultText());
     }
 
@@ -93,7 +93,7 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
     void jsonDeserializeNoSpecifiedDictionary() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ReporterModelJsonModule());
-        ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
+        ReportNodeModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNodeModel.class);
         assertEquals(2, rm.getChildren().size());
 
         Iterator<MessageNode> childrenIt = rm.getChildren().iterator();
@@ -101,18 +101,18 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         assertTrue(node1 instanceof ReportMessage);
         assertEquals("No value report", node1.getDefaultText());
         MessageNode node2 = childrenIt.next();
-        assertTrue(node2 instanceof ReporterModel);
+        assertTrue(node2 instanceof ReportNodeModel);
         assertEquals("Reading UCTE network file", node2.getDefaultText());
 
         mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
-        rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
+        rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNodeModel.class);
         assertEquals(2, rm.getChildren().size());
 
         childrenIt = rm.getChildren().iterator();
         node1 = childrenIt.next();
         assertTrue(node1 instanceof ReportMessage);
         node2 = childrenIt.next();
-        assertTrue(node2 instanceof ReporterModel);
+        assertTrue(node2 instanceof ReportNodeModel);
         assertEquals("Reading UCTE network file", node2.getDefaultText());
         assertEquals("No value report", node1.getDefaultText());
     }
@@ -125,7 +125,7 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         Files.copy(getClass().getResourceAsStream("/germanTsos.uct"), fileSystem.getPath(WORK_DIR, "germanTsos.uct"));
 
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
-        ReporterModel reporter = new ReporterModel("importAllParallel", "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}",
+        ReportNodeModel reporter = new ReportNodeModel("importAllParallel", "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}",
             Map.of("file1", new TypedValue("frVoltageRegulatingXnode.uct", TypedValue.FILENAME),
                 "file2", new TypedValue("frTestGridForMerging.uct", TypedValue.FILENAME),
                 "file3", new TypedValue("germanTsos.uct", TypedValue.FILENAME)));

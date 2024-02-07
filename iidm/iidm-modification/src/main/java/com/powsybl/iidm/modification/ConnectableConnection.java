@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Connectable;
@@ -52,12 +52,12 @@ public class ConnectableConnection extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
 
         // Add the reporter to the network reporter context
-        network.getReporterContext().pushReporter(reporter);
+        network.getReporterContext().pushReporter(reportNode);
 
         // Disconnect the connectable
         boolean hasBeenConnected;
@@ -72,6 +72,6 @@ public class ConnectableConnection extends AbstractNetworkModification {
         } else {
             LOG.info("Connectable {} has NOT been connected.", connectableId);
         }
-        connectableConnectionReport(reporter, connectable, hasBeenConnected);
+        connectableConnectionReport(reportNode, connectable, hasBeenConnected);
     }
 }

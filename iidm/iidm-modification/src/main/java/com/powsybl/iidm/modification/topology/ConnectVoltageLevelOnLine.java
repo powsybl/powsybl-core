@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.reporter.ReportMessage;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;
@@ -53,9 +53,9 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager, ReportNode reportNode) {
         // Checks
-        if (failChecks(network, throwException, reporter, LOG)) {
+        if (failChecks(network, throwException, reportNode, LOG)) {
             return;
         }
 
@@ -99,7 +99,7 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
                 createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, line1Id, bbs);
                 createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, line2Id, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
-                noBusbarSectionPositionExtensionReport(reporter, bbs);
+                noBusbarSectionPositionExtensionReport(reportNode, bbs);
             } else {
                 List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
                 createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, line1Id, bbsList, bbs);
@@ -119,7 +119,7 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         addLoadingLimits(line1, limits1, TwoSides.ONE);
         addLoadingLimits(line2, limits2, TwoSides.TWO);
         LOG.info("Voltage level {} connected to lines {} and {} replacing line {}.", voltageLevel.getId(), line1Id, line2Id, originalLineId);
-        reporter.report(ReportMessage.builder()
+        reportNode.report(ReportMessage.builder()
                 .withKey("voltageConnectedOnLine")
                 .withDefaultMessage("Voltage level ${voltageLevelId} connected to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
                 .withValue("voltageLevelId", voltageLevel.getId())

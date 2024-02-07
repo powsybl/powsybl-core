@@ -12,7 +12,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.HvdcUtils;
@@ -792,10 +792,10 @@ public class MatpowerExporter implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties parameters, DataSource dataSource, Reporter reporter) {
+    public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(dataSource);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
 
         boolean withBusNames = Parameter.readBoolean(getFormat(), parameters, WITH_BUS_NAMES_PARAMETER, defaultValueConfig);
         double maxGeneratorActivePower = Parameter.readDouble(getFormat(), parameters, MAX_GENERATOR_ACTIVE_POWER_LIMIT_PARAMETER, defaultValueConfig);

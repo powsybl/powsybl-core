@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class ReporterContextTest {
+class ReportNodeContextTest {
 
     private static SimpleReporterContext simpleContext;
     private static MultiThreadReporterContext multiThreadContext;
@@ -44,20 +44,20 @@ class ReporterContextTest {
     @MethodSource("getReporterContextStream")
     void getReporterOnEmptyContextTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
-        assertEquals(Reporter.NO_OP, reporterContext.getReporter());
-        assertEquals(Reporter.NO_OP, reporterContext.peekReporter());
+        assertEquals(ReportNode.NO_OP, reporterContext.getReporter());
+        assertEquals(ReportNode.NO_OP, reporterContext.peekReporter());
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getReporterContextStream")
     void pushAndGetReporterTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
-        ReporterModel reporter0 = new ReporterModel("task0", "name0");
+        ReportNodeModel reporter0 = new ReportNodeModel("task0", "name0");
         reporterContext.pushReporter(reporter0);
         assertEquals(reporter0, reporterContext.getReporter());
         assertEquals(reporter0, reporterContext.peekReporter());
 
-        ReporterModel reporter1 = new ReporterModel("task1", "name1");
+        ReportNodeModel reporter1 = new ReportNodeModel("task1", "name1");
         reporterContext.pushReporter(reporter1);
         assertEquals(reporter1, reporterContext.getReporter());
         assertEquals(reporter1, reporterContext.peekReporter());
@@ -72,14 +72,14 @@ class ReporterContextTest {
     void popReporterTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
 
-        ReporterModel reporter0 = new ReporterModel("task0", "name0");
-        ReporterModel reporter1 = new ReporterModel("task1", "name1");
+        ReportNodeModel reporter0 = new ReportNodeModel("task0", "name0");
+        ReportNodeModel reporter1 = new ReportNodeModel("task1", "name1");
         reporterContext.pushReporter(reporter0);
         reporterContext.pushReporter(reporter1);
         assertEquals(reporter1, reporterContext.getReporter());
         // Pop
-        Reporter poppedReporter = reporterContext.popReporter();
-        assertEquals(reporter1, poppedReporter);
+        ReportNode poppedReportNode = reporterContext.popReporter();
+        assertEquals(reporter1, poppedReportNode);
         assertEquals(reporter0, reporterContext.getReporter());
     }
 
@@ -88,32 +88,32 @@ class ReporterContextTest {
     void popOnEmptyReporterContextTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
 
-        assert Reporter.NO_OP.equals(reporterContext.getReporter());
-        Reporter poppedReporter = reporterContext.popReporter();
-        assertEquals(Reporter.NO_OP, poppedReporter);
-        assertEquals(Reporter.NO_OP, reporterContext.getReporter());
+        assert ReportNode.NO_OP.equals(reporterContext.getReporter());
+        ReportNode poppedReportNode = reporterContext.popReporter();
+        assertEquals(ReportNode.NO_OP, poppedReportNode);
+        assertEquals(ReportNode.NO_OP, reporterContext.getReporter());
 
         // Empty context can be popped several times
-        poppedReporter = reporterContext.popReporter();
-        assertEquals(Reporter.NO_OP, poppedReporter);
-        assertEquals(Reporter.NO_OP, reporterContext.getReporter());
+        poppedReportNode = reporterContext.popReporter();
+        assertEquals(ReportNode.NO_OP, poppedReportNode);
+        assertEquals(ReportNode.NO_OP, reporterContext.getReporter());
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getReporterContextStream")
     void copyEmptyReporterContextTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
-        assert Reporter.NO_OP.equals(reporterContext.getReporter());
+        assert ReportNode.NO_OP.equals(reporterContext.getReporter());
 
         // Simple
         ReporterContext copy = new SimpleReporterContext((AbstractReporterContext) reporterContext);
         Assertions.assertEquals(SimpleReporterContext.class, copy.getClass());
-        Assertions.assertEquals(Reporter.NO_OP, copy.getReporter());
+        Assertions.assertEquals(ReportNode.NO_OP, copy.getReporter());
 
         // Multi-thread
         copy = new MultiThreadReporterContext((AbstractReporterContext) reporterContext);
         Assertions.assertEquals(MultiThreadReporterContext.class, copy.getClass());
-        Assertions.assertEquals(Reporter.NO_OP, copy.getReporter());
+        Assertions.assertEquals(ReportNode.NO_OP, copy.getReporter());
 
         // Clean
         ((MultiThreadReporterContext) copy).close();
@@ -123,15 +123,15 @@ class ReporterContextTest {
     @MethodSource("getReporterContextStream")
     void copyNonEmptyReporterContextTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
-        assert Reporter.NO_OP.equals(reporterContext.getReporter());
+        assert ReportNode.NO_OP.equals(reporterContext.getReporter());
 
         // Push reporters in the context
-        Reporter reporter1 = new ReporterModel("1", "1");
-        reporterContext.pushReporter(reporter1);
-        Reporter reporter2 = new ReporterModel("2", "2");
-        reporterContext.pushReporter(reporter2);
-        Reporter reporter3 = new ReporterModel("3", "3");
-        reporterContext.pushReporter(reporter3);
+        ReportNode reportNode1 = new ReportNodeModel("1", "1");
+        reporterContext.pushReporter(reportNode1);
+        ReportNode reportNode2 = new ReportNodeModel("2", "2");
+        reporterContext.pushReporter(reportNode2);
+        ReportNode reportNode3 = new ReportNodeModel("3", "3");
+        reporterContext.pushReporter(reportNode3);
 
         // Create copies
         SimpleReporterContext simpleCopy = new SimpleReporterContext((AbstractReporterContext) reporterContext);
@@ -140,23 +140,23 @@ class ReporterContextTest {
         Assertions.assertEquals(MultiThreadReporterContext.class, multiThreadCopy.getClass());
 
         // Test copies' reporters (pop and test all of them)
-        Assertions.assertEquals(reporter3, simpleCopy.getReporter());
-        Assertions.assertEquals(reporter3, multiThreadCopy.getReporter());
+        Assertions.assertEquals(reportNode3, simpleCopy.getReporter());
+        Assertions.assertEquals(reportNode3, multiThreadCopy.getReporter());
 
         simpleCopy.popReporter();
         multiThreadCopy.popReporter();
-        Assertions.assertEquals(reporter2, simpleCopy.getReporter());
-        Assertions.assertEquals(reporter2, multiThreadCopy.getReporter());
+        Assertions.assertEquals(reportNode2, simpleCopy.getReporter());
+        Assertions.assertEquals(reportNode2, multiThreadCopy.getReporter());
 
         simpleCopy.popReporter();
         multiThreadCopy.popReporter();
-        Assertions.assertEquals(reporter1, simpleCopy.getReporter());
-        Assertions.assertEquals(reporter1, multiThreadCopy.getReporter());
+        Assertions.assertEquals(reportNode1, simpleCopy.getReporter());
+        Assertions.assertEquals(reportNode1, multiThreadCopy.getReporter());
 
         simpleCopy.popReporter();
         multiThreadCopy.popReporter();
-        Assertions.assertEquals(Reporter.NO_OP, simpleCopy.getReporter());
-        Assertions.assertEquals(Reporter.NO_OP, multiThreadCopy.getReporter());
+        Assertions.assertEquals(ReportNode.NO_OP, simpleCopy.getReporter());
+        Assertions.assertEquals(ReportNode.NO_OP, multiThreadCopy.getReporter());
 
         // Clean
         multiThreadCopy.close();

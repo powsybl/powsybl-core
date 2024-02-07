@@ -35,12 +35,12 @@ import java.util.Map;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface Reporter {
+public interface ReportNode {
 
     /**
      * A No-op implementation of <code>Reporter</code>
      */
-    Reporter NO_OP = new NoOpImpl();
+    ReportNode NO_OP = new NoOpImpl();
 
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with
@@ -51,7 +51,7 @@ public interface Reporter {
      *               or within the reports message of the created sub-reporter
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values);
+    ReportNode createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values);
 
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with no
@@ -60,7 +60,7 @@ public interface Reporter {
      * @param defaultTitle description of the corresponding task
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String reporterKey, String defaultTitle);
+    ReportNode createSubReporter(String reporterKey, String defaultTitle);
 
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with one
@@ -72,7 +72,7 @@ public interface Reporter {
      *              created sub-reporter
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value);
+    ReportNode createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value);
 
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with one
@@ -85,7 +85,7 @@ public interface Reporter {
      * @param type the string representing the type of the value provided
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value, String type);
+    ReportNode createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value, String type);
 
     /**
      * Add a new report message with its associated values.
@@ -133,13 +133,13 @@ public interface Reporter {
      */
     void report(ReportMessage reportMessage);
 
-    class NoOpImpl extends AbstractReporter {
+    class NoOpImpl extends AbstractReportNode {
         public NoOpImpl() {
             super("noOp", "NoOp", Collections.emptyMap());
         }
 
         @Override
-        public Reporter createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values) {
+        public ReportNode createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values) {
             return new NoOpImpl();
         }
 

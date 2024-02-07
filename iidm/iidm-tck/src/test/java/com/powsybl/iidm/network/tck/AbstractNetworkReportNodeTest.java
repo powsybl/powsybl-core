@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReporterContext;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -25,18 +25,18 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractNetworkReporterTest {
+public abstract class AbstractNetworkReportNodeTest {
 
     @Test
     public void executeWithReporterTest() {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReporterModel reporter1 = new ReporterModel("key1", "name1");
+        ReportNodeModel reporter1 = new ReportNodeModel("key1", "name1");
         network.getReporterContext().pushReporter(reporter1);
         assertTrue(reporter1.getChildren().isEmpty());
 
         // Create another reporter (reporter2)
-        ReporterModel reporter2 = new ReporterModel("key2", "name2");
+        ReportNodeModel reporter2 = new ReportNodeModel("key2", "name2");
         assertTrue(reporter2.getChildren().isEmpty());
 
         // Execute a task using reporter2
@@ -58,13 +58,13 @@ public abstract class AbstractNetworkReporterTest {
     public void multiThreadTest() throws InterruptedException {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReporterModel reporter1 = new ReporterModel("key1", "name1");
+        ReportNodeModel reporter1 = new ReportNodeModel("key1", "name1");
         network.getReporterContext().pushReporter(reporter1);
         assertTrue(reporter1.getChildren().isEmpty());
 
         // Create 2 other reporters (reporter2 and reporter3)
-        ReporterModel reporter2 = new ReporterModel("key2", "name2");
-        ReporterModel reporter3 = new ReporterModel("key3", "name3");
+        ReportNodeModel reporter2 = new ReportNodeModel("key2", "name2");
+        ReportNodeModel reporter3 = new ReportNodeModel("key3", "name3");
         assertTrue(reporter2.getChildren().isEmpty());
         assertTrue(reporter3.getChildren().isEmpty());
 

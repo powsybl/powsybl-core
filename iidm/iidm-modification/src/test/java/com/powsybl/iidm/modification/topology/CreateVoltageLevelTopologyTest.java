@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
@@ -60,7 +60,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNullSwitchKind() {
         Network network = createNbNetwork();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReportNodeModel reporter = new ReportNodeModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -79,7 +79,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithUnsupportedSwitchKind() {
         Network network = createNbNetwork();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReportNodeModel reporter = new ReportNodeModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -98,7 +98,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNegativeCount() {
         Network network = createNbNetwork();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReportNodeModel reporter = new ReportNodeModel("reportTest", "Testing reporter");
         NetworkModification modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(-1)
@@ -144,7 +144,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithUnexpectedSwitchKindsSize() {
         Network network = createNbNetwork();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReportNodeModel reporter = new ReportNodeModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -163,7 +163,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNotExistingVoltageLevel() {
         Network network = createNbNetwork();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReportNodeModel reporter = new ReportNodeModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId("NOT_EXISTING")
                 .withAlignedBusesOrBusbarCount(3)
@@ -195,7 +195,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
         Network network = createNbNetwork();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReportNodeModel reporter = new ReportNodeModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -209,7 +209,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithReporter() {
         Network network = createNbNetwork();
-        ReporterModel reporter = new ReporterModel("reportTestCreateVoltageLevelTopology", "Testing reporter for voltage level topology creation");
+        ReportNodeModel reporter = new ReportNodeModel("reportTestCreateVoltageLevelTopology", "Testing reporter for voltage level topology creation");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)

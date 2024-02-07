@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 
 import java.util.Deque;
 import java.util.Iterator;
@@ -21,12 +21,12 @@ import java.util.LinkedList;
  */
 public class MultiThreadReporterContext extends AbstractReporterContext {
 
-    private final ThreadLocal<Deque<Reporter>> reporters;
+    private final ThreadLocal<Deque<ReportNode>> reporters;
 
     public MultiThreadReporterContext() {
         this.reporters = ThreadLocal.withInitial(() -> {
-            Deque<Reporter> deque = new LinkedList<>();
-            deque.push(Reporter.NO_OP);
+            Deque<ReportNode> deque = new LinkedList<>();
+            deque.push(ReportNode.NO_OP);
             return deque;
         });
     }
@@ -37,20 +37,20 @@ public class MultiThreadReporterContext extends AbstractReporterContext {
     }
 
     @Override
-    public Reporter getReporter() {
+    public ReportNode getReporter() {
         return this.reporters.get().peek();
     }
 
     @Override
-    public void pushReporter(Reporter reporter) {
-        this.reporters.get().push(reporter);
+    public void pushReporter(ReportNode reportNode) {
+        this.reporters.get().push(reportNode);
     }
 
     @Override
-    public Reporter popReporter() {
-        Reporter popped = this.reporters.get().pop();
+    public ReportNode popReporter() {
+        ReportNode popped = this.reporters.get().pop();
         if (reporters.get().isEmpty()) {
-            this.reporters.get().push(Reporter.NO_OP);
+            this.reporters.get().push(ReportNode.NO_OP);
         }
         return popped;
     }
@@ -60,7 +60,7 @@ public class MultiThreadReporterContext extends AbstractReporterContext {
     }
 
     @Override
-    protected Iterator<Reporter> descendingIterator() {
+    protected Iterator<ReportNode> descendingIterator() {
         return reporters.get().descendingIterator();
     }
 }

@@ -1,4 +1,4 @@
-+ test reporter
++ test reportNode
   + Validation warnings
   + Not found extensions
      Extension foo not found.

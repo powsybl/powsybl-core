@@ -8,11 +8,11 @@ package com.powsybl.iidm.network;
 
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.reporter.ReportMessage;
 import com.powsybl.commons.reporter.MessageNode;
-import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.tools.ExporterMockWithReporter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -121,7 +121,7 @@ class ExportersTest extends AbstractConvertersTest {
     void exportWithReporter() throws Exception {
         Exporter testExporter = new ExporterMockWithReporter();
         DataSource dataSource = Exporters.createDataSource(path);
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing exporter reporter");
+        ReportNodeModel reporter = new ReportNodeModel("reportTest", "Testing exporter reporter");
         testExporter.export(null, null, dataSource, reporter);
         Optional<MessageNode> reportNode = reporter.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());

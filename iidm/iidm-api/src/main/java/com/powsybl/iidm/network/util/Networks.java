@@ -12,7 +12,7 @@ import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.HorizontalAlignment;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
@@ -413,14 +413,14 @@ public final class Networks {
     }
 
     /**
-     * Set a {@link Reporter} in the reporter context of the given network, execute a runnable then restore the reporter context.
+     * Set a {@link ReportNode} in the reporter context of the given network, execute a runnable then restore the reporter context.
      *
      * @param network a network
-     * @param reporter the reporter to use
+     * @param reportNode the reporter to use
      * @param runnable the runnable to execute
      */
-    public static void executeWithReporter(Network network, Reporter reporter, Runnable runnable) {
-        network.getReporterContext().pushReporter(reporter);
+    public static void executeWithReporter(Network network, ReportNode reportNode, Runnable runnable) {
+        network.getReporterContext().pushReporter(reportNode);
         try {
             runnable.run();
         } finally {

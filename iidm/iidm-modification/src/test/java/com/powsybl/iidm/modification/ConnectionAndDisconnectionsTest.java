@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.iidm.modification.topology.AbstractModificationTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
@@ -310,7 +310,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReporterModel reporter = new ReporterModel("reportPlannedDisconnectionComplete", "Testing reporter for connectable disconnection");
+        ReportNodeModel reporter = new ReportNodeModel("reportPlannedDisconnectionComplete", "Testing reporter for connectable disconnection");
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(true)
@@ -329,7 +329,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         network.getSwitch("D1").setFictitious(true);
 
         // Network modification
-        ReporterModel reporter = new ReporterModel("reportTestConnectionNoDisconnection", "Testing reporter for connectable disconnection");
+        ReportNodeModel reporter = new ReportNodeModel("reportTestConnectionNoDisconnection", "Testing reporter for connectable disconnection");
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(false)
@@ -345,7 +345,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReporterModel reporter = new ReporterModel("reportTestConnectionDisconnection", "Testing reporter for connectable disconnection");
+        ReportNodeModel reporter = new ReportNodeModel("reportTestConnectionDisconnection", "Testing reporter for connectable disconnection");
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(true)
@@ -361,7 +361,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReporterModel reporter = new ReporterModel("reportTestConnectionNoDisconnection", "Testing reporter for connectable disconnection");
+        ReportNodeModel reporter = new ReportNodeModel("reportTestConnectionNoDisconnection", "Testing reporter for connectable disconnection");
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(false)
@@ -377,7 +377,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReporterModel reporter = new ReporterModel("reportTestConnection", "Testing reporter for connectable connection");
+        ReportNodeModel reporter = new ReportNodeModel("reportTestConnection", "Testing reporter for connectable connection");
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withConnectableId("L2")
             .withFictitiousSwitchesOperable(true)
@@ -394,7 +394,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReporterModel reporter = new ReporterModel("reportTestConnectionNoConnection", "Testing reporter for connectable connection");
+        ReportNodeModel reporter = new ReportNodeModel("reportTestConnectionNoConnection", "Testing reporter for connectable connection");
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withConnectableId("L2")
             .withFictitiousSwitchesOperable(false)

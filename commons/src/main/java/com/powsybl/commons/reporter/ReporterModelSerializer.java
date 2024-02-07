@@ -23,16 +23,16 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
+public class ReporterModelSerializer extends StdSerializer<ReportNodeModel> {
 
     private static final String VERSION = "1.0";
 
     ReporterModelSerializer() {
-        super(ReporterModel.class);
+        super(ReportNodeModel.class);
     }
 
     @Override
-    public void serialize(ReporterModel reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ReportNodeModel reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         Map<String, String> dictionary = new HashMap<>();
         generator.writeStartObject();
         generator.writeStringField("version", VERSION);
@@ -49,7 +49,7 @@ public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
         generator.writeEndObject();
     }
 
-    public static void write(ReporterModel reporter, Path jsonFile) {
+    public static void write(ReportNodeModel reporter, Path jsonFile) {
         Objects.requireNonNull(reporter);
         Objects.requireNonNull(jsonFile);
         try (OutputStream os = Files.newOutputStream(jsonFile)) {

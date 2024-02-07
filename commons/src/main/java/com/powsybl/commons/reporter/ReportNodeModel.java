@@ -20,9 +20,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * An in-memory implementation of {@link Reporter}.
+ * An in-memory implementation of {@link ReportNode}.
  *
- * <p>Being an implementation of {@link Reporter}, instances of <code>ReporterModel</code> are not thread-safe.
+ * <p>Being an implementation of {@link ReportNode}, instances of <code>ReporterModel</code> are not thread-safe.
  * A reporterModel is not meant to be shared with other threads nor to be saved as a class parameter, but should instead
  * be passed on in methods through their arguments. Respecting this ensures that
  * <ol>
@@ -31,7 +31,7 @@ import java.util.*;
  * </ol>
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReporterModel extends AbstractReporter {
+public class ReportNodeModel extends AbstractReportNode {
 
     private final List<MessageNode> children = new ArrayList<>();
 
@@ -40,7 +40,7 @@ public class ReporterModel extends AbstractReporter {
      * @param key the key identifying the corresponding task
      * @param defaultTitle the name or message describing the corresponding task
      */
-    public ReporterModel(String key, String defaultTitle) {
+    public ReportNodeModel(String key, String defaultTitle) {
         this(key, defaultTitle, Collections.emptyMap());
     }
 
@@ -52,13 +52,13 @@ public class ReporterModel extends AbstractReporter {
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
      *                   defaultTitle or within the reports message of created ReporterModel
      */
-    public ReporterModel(String key, String defaultTitle, Map<String, TypedValue> values) {
+    public ReportNodeModel(String key, String defaultTitle, Map<String, TypedValue> values) {
         super(key, defaultTitle, values);
     }
 
     @Override
-    public ReporterModel createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values) {
-        ReporterModel subReporter = new ReporterModel(reporterKey, defaultTitle, values);
+    public ReportNodeModel createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values) {
+        ReportNodeModel subReporter = new ReportNodeModel(reporterKey, defaultTitle, values);
         addSubReporter(subReporter);
         return subReporter;
     }
@@ -67,7 +67,7 @@ public class ReporterModel extends AbstractReporter {
      * Add a reporterModel to the sub-reporters of current reporterModel.
      * @param reporterModel the reporterModel to add
      */
-    public void addSubReporter(ReporterModel reporterModel) {
+    public void addSubReporter(ReportNodeModel reporterModel) {
         children.add(reporterModel);
     }
 
@@ -106,7 +106,7 @@ public class ReporterModel extends AbstractReporter {
         }
     }
 
-    public static ReporterModel parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
+    public static ReportNodeModel parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
         JsonNode keyNode = reportTree.get("key");
         String key = codec.readValue(keyNode.traverse(), String.class);
 
@@ -115,7 +115,7 @@ public class ReporterModel extends AbstractReporter {
         });
 
         String defaultTitle = dictionary.getOrDefault(key, "(missing task key in dictionary)");
-        ReporterModel reporter = new ReporterModel(key, defaultTitle, values);
+        ReportNodeModel reporter = new ReportNodeModel(key, defaultTitle, values);
 
         JsonNode reportsNode = reportTree.get("children");
         if (reportsNode != null) {
@@ -125,7 +125,7 @@ public class ReporterModel extends AbstractReporter {
                 if (nodeType.equals(REPORT_MESSAGE_NODE_TYPE)) {
                     reporter.children.add(ReportMessage.parseJsonNode(jsonNode, dictionary, codec));
                 } else if (nodeType.equals(REPORTER_NODE_TYPE)) {
-                    reporter.addSubReporter(ReporterModel.parseJsonNode(jsonNode, dictionary, codec));
+                    reporter.addSubReporter(ReportNodeModel.parseJsonNode(jsonNode, dictionary, codec));
                 }
             }
         }

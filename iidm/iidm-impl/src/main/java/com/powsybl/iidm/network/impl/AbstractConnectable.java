@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReportMessage;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -202,7 +202,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
         // Reporter
-        Reporter reporter = this.getNetwork().getReporterContext().getReporter();
+        ReportNode reportNode = this.getNetwork().getReporterContext().getReporter();
 
         // Booleans
         boolean isAlreadyConnected = true;
@@ -215,7 +215,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         for (TerminalExt terminal : getTerminals()) {
             // Check if the terminal is already connected
             if (terminal.isConnected()) {
-                reporter.report(ReportMessage.builder()
+                reportNode.report(ReportMessage.builder()
                     .withKey("alreadyConnectedTerminal")
                     .withDefaultMessage("A terminal of connectable ${connectable} is already connected.")
                     .withValue("connectable", this.getId())
@@ -265,7 +265,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         // Reporter
-        Reporter reporter = this.getNetwork().getReporterContext().getReporter();
+        ReportNode reportNode = this.getNetwork().getReporterContext().getReporter();
 
         // Booleans
         boolean isAlreadyDisconnected = true;
@@ -278,7 +278,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         for (TerminalExt terminal : getTerminals()) {
             // Check if the terminal is already disconnected
             if (!terminal.isConnected()) {
-                reporter.report(ReportMessage.builder()
+                reportNode.report(ReportMessage.builder()
                     .withKey("alreadyDisconnectedTerminal")
                     .withDefaultMessage("A terminal of connectable ${connectable} is already disconnected.")
                     .withValue("connectable", this.getId())

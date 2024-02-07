@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * A class representing a functional log, consisting of a key identifying the report, a map of {@link TypedValue} indexed
  * by their keys, and a default report message string, which may contain references to those values or to the values
- * of corresponding {@link Reporter}.
+ * of corresponding {@link ReportNode}.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class ReportMessage extends AbstractMessageNode {
@@ -32,7 +32,7 @@ public class ReportMessage extends AbstractMessageNode {
      * Constructor
      * @param key a key identifying the current report
      * @param defaultMessage the default report message, which may contain references to the provided values or to the
-     *                       values of corresponding {@link Reporter}.
+     *                       values of corresponding {@link ReportNode}.
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
      *               defaultMessage provided
      */

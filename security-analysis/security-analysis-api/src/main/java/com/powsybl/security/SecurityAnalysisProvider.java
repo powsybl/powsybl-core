@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.computation.ComputationManager;
@@ -80,7 +80,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @param contingenciesProvider provides list of contingencies
      * @param interceptors
      * @param monitors stateMonitor that defines the branch bus and threeWindingsTransformer about which informations will be written after security analysis
-     * @param reporter the reporter used for functional logs
+     * @param reportNode the reporter used for functional logs
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
     CompletableFuture<SecurityAnalysisReport> run(Network network,
@@ -94,7 +94,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                   List<OperatorStrategy> operatorStrategies,
                                                   List<Action> actions,
                                                   List<StateMonitor> monitors,
-                                                  Reporter reporter);
+                                                  ReportNode reportNode);
 
     /**
      * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation

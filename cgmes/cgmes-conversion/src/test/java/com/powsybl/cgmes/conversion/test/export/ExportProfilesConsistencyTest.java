@@ -12,8 +12,8 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.MessageNode;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.ExportersServiceLoader;
 import com.powsybl.iidm.network.Importers;
@@ -35,16 +35,16 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     void testSVSmallGridNodeBreaker() {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
-        ReporterModel reporterOnlySv = new ReporterModel("onlySV", "");
+        ReportNodeModel reporterOnlySv = new ReportNodeModel("onlySV", "");
         exportProfiles(List.of("SV"), network, reporterOnlySv);
         assertTrue(inconsistentProfilesReported(reporterOnlySv));
 
-        ReporterModel reporterSvAndTp = new ReporterModel("SVandTP", "");
+        ReportNodeModel reporterSvAndTp = new ReportNodeModel("SVandTP", "");
         exportProfiles(List.of("SV", "TP"), network, reporterSvAndTp);
         assertFalse(inconsistentProfilesReported(reporterSvAndTp));
     }
 
-    private boolean inconsistentProfilesReported(ReporterModel reporter) {
+    private boolean inconsistentProfilesReported(ReportNodeModel reporter) {
         return reporter.getChildren().stream()
                 .map(MessageNode::getKey)
                 .anyMatch(key -> key.equals("inconsistentProfilesTPRequired"));
@@ -57,9 +57,9 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
         return Importers.importData("CGMES", dataSource, params);
     }
 
-    private void exportProfiles(List<String> profiles, Network network, Reporter reporter) {
+    private void exportProfiles(List<String> profiles, Network network, ReportNode reportNode) {
         Properties params = new Properties();
         params.put(CgmesExport.PROFILES, profiles);
-        network.write(new ExportersServiceLoader(), "CGMES", params, tmpDir.resolve("exported"), reporter);
+        network.write(new ExportersServiceLoader(), "CGMES", params, tmpDir.resolve("exported"), reportNode);
     }
 }

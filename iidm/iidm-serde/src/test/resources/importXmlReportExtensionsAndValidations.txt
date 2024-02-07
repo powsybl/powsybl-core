@@ -1,4 +1,4 @@
-+ test reporter
++ test reportNode
   + Validation warnings
      2 windings transformer 'NHV2_NLOAD':  has both Ratio and Phase Tap Changer.
      2 windings transformer 'NHV2_NLOAD_2':  has both Ratio and Phase Tap Changer.

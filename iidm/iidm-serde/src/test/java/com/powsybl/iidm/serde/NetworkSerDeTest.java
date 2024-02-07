@@ -12,7 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
@@ -52,7 +52,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testSkippedExtension() {
         // Read file with all extensions included (default ImportOptions)
-        ReporterModel reporter1 = new ReporterModel("root", "Root reporter");
+        ReportNodeModel reporter1 = new ReportNodeModel("root", "Root reportNode");
         Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
                 new ImportOptions(), null, NetworkFactory.findDefault(), reporter1);
         Load load1 = networkReadExtensions.getLoad("LOAD");
@@ -62,7 +62,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         StringWriter sw1 = new StringWriter();
         reporter1.export(sw1);
         assertEquals("""
-                + Root reporter
+                + Root reportNode
                   + Validation warnings
                   + Imported extensions
                      Extension loadBar imported.
@@ -72,7 +72,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
 
         // Read file with only terminalMockNoSerDe and loadZipModel extensions included
-        ReporterModel reporter2 = new ReporterModel("root", "Root reporter");
+        ReportNodeModel reporter2 = new ReportNodeModel("root", "Root reportNode");
         ImportOptions notAllExtensions = new ImportOptions().addExtension("terminalMockNoSerDe").addExtension("loadZipModel");
         Network networkSkippedExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
                 notAllExtensions, null, NetworkFactory.findDefault(), reporter2);
@@ -85,7 +85,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         StringWriter sw2 = new StringWriter();
         reporter2.export(sw2);
         assertEquals("""
-                + Root reporter
+                + Root reportNode
                   + Validation warnings
                   + Imported extensions
                      Extension loadZipModel imported.

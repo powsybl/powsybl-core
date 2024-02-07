@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.reporter.MessageNode;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.commons.reporter.ReporterModelDeserializer;
 import com.powsybl.commons.reporter.ReporterModelSerializer;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-class PostProcessorReporterTest extends AbstractSerDeTest {
+class PostProcessorReportNodeTest extends AbstractSerDeTest {
     private final Importer testImporter = new TestImporter();
     private final ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
     private final ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
@@ -36,7 +36,7 @@ class PostProcessorReporterTest extends AbstractSerDeTest {
     @Test
     void postProcessorWithReporter() throws IOException {
 
-        ReporterModel reporter = new ReporterModel("testPostProcessor", "Test importer post processor");
+        ReportNodeModel reporter = new ReportNodeModel("testPostProcessor", "Test importer post processor");
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network1);
 

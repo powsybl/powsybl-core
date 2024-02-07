@@ -8,7 +8,7 @@ package com.powsybl.iidm.network;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReportNode;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -40,9 +40,9 @@ public class TestImporter implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
-        if (reporter != null) {
-            reporter.report("test", "Import model ${model}", "model", "eurostagTutorialExample1");
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
+        if (reportNode != null) {
+            reportNode.report("test", "Import model ${model}", "model", "eurostagTutorialExample1");
         }
         return networkFactory.createNetwork("mock", "test");
     }

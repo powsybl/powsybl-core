@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
+public class ReporterModelDeserializer extends StdDeserializer<ReportNodeModel> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReporterModelDeserializer.class);
 
@@ -36,11 +36,11 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
     ReporterModelDeserializer() {
-        super(ReporterModel.class);
+        super(ReportNodeModel.class);
     }
 
     @Override
-    public ReporterModel deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+    public ReportNodeModel deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         ObjectCodec codec = p.getCodec();
         JsonNode root = codec.readTree(p);
         Map<String, String> dictionary = Collections.emptyMap();
@@ -62,7 +62,7 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
         } else {
             LOGGER.warn("No dictionary found! `dics` root entry is missing");
         }
-        return ReporterModel.parseJsonNode(root.get("reportTree"), dictionary, codec);
+        return ReportNodeModel.parseJsonNode(root.get("reportTree"), dictionary, codec);
     }
 
     private String getDictionaryName(DeserializationContext ctx) {
@@ -77,15 +77,15 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
         }
     }
 
-    public static ReporterModel read(Path jsonFile) {
+    public static ReportNodeModel read(Path jsonFile) {
         return read(jsonFile, DICTIONARY_DEFAULT_NAME);
     }
 
-    public static ReporterModel read(InputStream jsonIs) {
+    public static ReportNodeModel read(InputStream jsonIs) {
         return read(jsonIs, DICTIONARY_DEFAULT_NAME);
     }
 
-    public static ReporterModel read(Path jsonFile, String dictionary) {
+    public static ReportNodeModel read(Path jsonFile, String dictionary) {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(dictionary);
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -95,11 +95,11 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
         }
     }
 
-    public static ReporterModel read(InputStream jsonIs, String dictionary) {
+    public static ReportNodeModel read(InputStream jsonIs, String dictionary) {
         Objects.requireNonNull(jsonIs);
         Objects.requireNonNull(dictionary);
         try {
-            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReporterModel.class);
+            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReportNodeModel.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

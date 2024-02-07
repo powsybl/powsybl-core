@@ -9,7 +9,7 @@
 package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReportNodeModel;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -73,7 +73,7 @@ class ProportionalScalableTest {
 
     @Test
     void testOnInjections() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
@@ -113,7 +113,7 @@ class ProportionalScalableTest {
 
     @Test
     void testOnGenerator() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -179,7 +179,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsUsedPower() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -203,7 +203,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsWithTargetPScalingType() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, TARGET_P);
@@ -227,7 +227,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnLoadsWithTargetPScalingType() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Load> loadList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getLoad("l3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, false, RESPECT_OF_VOLUME_ASKED, true, TARGET_P);
@@ -251,7 +251,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsVentilationPriority() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_DISTRIBUTION, true, DELTA_P);
@@ -368,7 +368,7 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(0.0);
         network.getGenerator("g3").setTargetP(0.0);
 
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -397,7 +397,7 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(network.getGenerator("g2").getMinP());
         network.getGenerator("g3").setTargetP(network.getGenerator("g3").getMinP());
 
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -426,7 +426,7 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(network.getGenerator("g2").getMaxP());
         network.getGenerator("g3").setTargetP(network.getGenerator("g3").getMaxP());
 
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -513,7 +513,7 @@ class ProportionalScalableTest {
 
     @Test
     void testMaxValueBoundsScalingUpGenConvention() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
@@ -550,7 +550,7 @@ class ProportionalScalableTest {
 
     @Test
     void testMaxValueBoundsScalingDownLoadConvention() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
@@ -587,7 +587,7 @@ class ProportionalScalableTest {
 
     @Test
     void testMinValueBoundsScalingDownGenConvention() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
@@ -624,7 +624,7 @@ class ProportionalScalableTest {
 
     @Test
     void testMinValueBoundsScalingUpLoadConvention() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        ReportNodeModel reporterModel = new ReportNodeModel("scaling", "default");
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
