@@ -73,6 +73,18 @@ class ModelIdTest extends AbstractSerDeTest {
         // We only have added previous version for SSH data, so only SSH id must have changed
         assertNotEquals(ids1.get("SSH"), ids1v.get("SSH"));
         assertEquals(ids1.get("SV"), ids1v.get("SV"));
+
+        // Check that we get different ids when business process changes
+        exportParams.put(CgmesExport.BUSINESS_PROCESS, "2D");
+        Map<String, String> ids1BP = exportedIds(network, exportParams);
+        assertNotEquals(ids1v.get("SSH"), ids1BP.get("SSH"));
+        assertNotEquals(ids1v.get("SV"), ids1BP.get("SV"));
+
+        // Check that we get different ids when version is set as a parameter
+        exportParams.put(CgmesExport.MODEL_VERSION, "24");
+        Map<String, String> ids1vparam = exportedIds(network, exportParams);
+        assertNotEquals(ids1BP.get("SSH"), ids1vparam.get("SSH"));
+        assertNotEquals(ids1BP.get("SV"), ids1vparam.get("SV"));
     }
 
     String modelId(String xml) {
