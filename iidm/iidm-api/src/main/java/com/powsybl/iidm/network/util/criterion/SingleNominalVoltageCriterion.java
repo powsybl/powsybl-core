@@ -34,13 +34,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
         switch (type) {
             case LINE:
                 return filter(((Line) identifiable).getTerminal1().getVoltageLevel());
-            case DANGLING_LINE:
-            case GENERATOR:
-            case LOAD:
-            case BATTERY:
-            case SHUNT_COMPENSATOR:
-            case STATIC_VAR_COMPENSATOR:
-            case BUSBAR_SECTION:
+            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION:
                 return filter(((Injection) identifiable).getTerminal().getVoltageLevel());
             case SWITCH:
                 return filter(((Switch) identifiable).getVoltageLevel());
