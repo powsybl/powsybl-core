@@ -344,7 +344,7 @@ class TransformerConverter extends AbstractConverter {
         static Complex createImpedanceFromMeasures(double shortCircuitVoltage, double copperLosses,
             double ratedApparentPower, double nominalVoltage) {
 
-            // calculate leakage impedance from short-circuit measures
+            // calculate leakage impedance from short-circuit measurements
             double zpu = shortCircuitVoltage / 100;
             double rpu = copperLosses / (1000 * ratedApparentPower);
             double xpu = Math.sqrt(zpu * zpu - rpu * rpu) * Math.signum(shortCircuitVoltage);
