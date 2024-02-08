@@ -116,9 +116,15 @@ public final class CgmesExportUtil {
 
     public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         // The ref to build a unique model id must contain:
-        // the network, the subset (EQ, SSH, SV, ...), and the FULL_MODEL part
+        // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
-        CgmesObjectReference[] modelRef = {refTyped(network), ref(subset), Part.FULL_MODEL};
+        CgmesObjectReference[] modelRef = {
+            refTyped(network),
+            ref(subset),
+            ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
+            ref(format(modelDescription.getVersion())),
+            ref(context.getBusinessProcess()),
+            Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
         modelDescription.setIds(modelId);
         context.updateDependencies();
@@ -181,7 +187,7 @@ public final class CgmesExportUtil {
         // Only classes extending IdentifiedObject have an mRID
         // points of tables and curve data objects do not have mRID, although they have an RDF:ID
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id, context));
-        if (writeMasterResourceId) {
+        if (writeMasterResourceId && context.getCim().getVersion() >= 100) {
             writer.writeStartElement(cimNamespace, "IdentifiedObject.mRID");
             writer.writeCharacters(toMasterResourceId(id, context));
             writer.writeEndElement();

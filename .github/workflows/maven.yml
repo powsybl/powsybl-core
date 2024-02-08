@@ -8,6 +8,8 @@ on:
       - 'full-sonar-analysis-**'
   pull_request:
 
+permissions: {}
+
 jobs:
   build:
     name: Build OS ${{ matrix.os }}
@@ -47,5 +49,4 @@ jobs:
           -Dsonar.organization=powsybl-ci-github
           -Dsonar.projectKey=com.powsybl:powsybl-core
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
