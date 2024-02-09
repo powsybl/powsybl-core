@@ -7,13 +7,11 @@
 package com.powsybl.commons.reporter;
 
 import org.apache.commons.text.StringSubstitutor;
+import org.apache.commons.text.lookup.StringLookup;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * An abstract class providing some default method implementations for {@link ReportNode} implementations.
@@ -72,8 +70,8 @@ public abstract class AbstractReportNode implements ReportNode {
         return values.get(valueKey);
     }
 
-    protected void printDefaultText(Writer writer, String indent, String prefix, Map<String, TypedValue> valueMap) throws IOException {
-        String formattedText = formatMessage(getDefaultText(), valueMap);
+    protected void printDefaultText(Writer writer, String indent, String prefix, Deque<Map<String, TypedValue>> valueMaps) throws IOException {
+        String formattedText = formatMessage(getDefaultText(), valueMaps);
         writer.append(indent).append(prefix).append(formattedText).append(System.lineSeparator());
     }
 
@@ -85,7 +83,19 @@ public abstract class AbstractReportNode implements ReportNode {
      * @param values the key-value map used to look for the values
      * @return the resulting formatted string
      */
-    protected static String formatMessage(String message, Map<String, TypedValue> values) {
-        return new StringSubstitutor(values).replace(message);
+    protected static String formatMessage(String message, Deque<Map<String, TypedValue>> values) {
+        return new StringSubstitutor(new MapsLookup(values)).replace(message);
+    }
+
+    private record MapsLookup(Deque<Map<String, TypedValue>> values) implements StringLookup {
+        @Override
+        public String lookup(String s) {
+            return values.stream()
+                    .map(m -> m.get(s))
+                    .filter(Objects::nonNull)
+                    .map(TypedValue::getValue)
+                    .map(Object::toString)
+                    .findFirst().orElse(null);
+        }
     }
 }

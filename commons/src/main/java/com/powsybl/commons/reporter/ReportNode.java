@@ -10,9 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A <code>Reporter</code> allows building up functional reports with a hierarchy reflecting task/subtasks of processes.
@@ -133,7 +131,7 @@ public interface ReportNode {
      * @param indent the indentation String to use
      * @param inheritedValueMap the inherited value map
      */
-    void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException;
+    void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValueMap) throws IOException;
 
     /**
      * A default no-op implementation
@@ -164,7 +162,7 @@ public interface ReportNode {
         }
 
         @Override
-        public void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException {
+        public void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValueMap) throws IOException {
             // No-op
         }
     }

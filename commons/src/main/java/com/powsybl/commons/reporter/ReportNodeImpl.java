@@ -88,7 +88,7 @@ public class ReportNodeImpl extends AbstractReportNode {
 
     public void export(Writer writer) {
         try {
-            print(writer, "", new HashMap<>());
+            print(writer, "", new ArrayDeque<>());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -141,16 +141,15 @@ public class ReportNodeImpl extends AbstractReportNode {
         dictionary.put(getKey(), getDefaultText());
     }
 
-    public void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException {
-        Map<String, TypedValue> valueMap = new HashMap<>(inheritedValueMap);
-        valueMap.putAll(getValues());
+    public void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValueMaps) throws IOException {
+        inheritedValueMaps.addFirst(getValues());
         if (children.isEmpty()) {
-            printDefaultText(writer, indent, "", valueMap);
+            printDefaultText(writer, indent, "", inheritedValueMaps);
         } else {
-            printDefaultText(writer, indent, "+ ", valueMap);
+            printDefaultText(writer, indent, "+ ", inheritedValueMaps);
             String childrenIndent = indent + "   ";
             for (ReportNode child : children) {
-                child.print(writer, childrenIndent, valueMap);
+                child.print(writer, childrenIndent, inheritedValueMaps);
             }
         }
     }
