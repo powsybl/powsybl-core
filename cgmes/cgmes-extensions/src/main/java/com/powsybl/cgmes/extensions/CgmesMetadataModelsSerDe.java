@@ -119,7 +119,7 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
                 .setVersion(reader.readIntAttribute("version"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
         reader.readChildNodes(elementName -> {
-            switch(elementName) {
+            switch (elementName) {
                 case PROFILE -> adder.addProfile(reader.readContent());
                 case DEPENDENT_ON -> adder.addDependentOn(reader.readContent());
                 case SUPERSEDES -> adder.addSupersedes(reader.readContent());
