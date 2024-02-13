@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.security.monitor.StateMonitor;
@@ -18,9 +18,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-class JsonMonitorTest extends AbstractConverterTest {
+class JsonMonitorTest extends AbstractSerDeTest {
     @Test
     void roundTrip() throws IOException {
         List<StateMonitor> monitors = new ArrayList<>();

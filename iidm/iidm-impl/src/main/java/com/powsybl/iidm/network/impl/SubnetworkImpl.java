@@ -12,10 +12,10 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class SubnetworkImpl extends AbstractNetwork {
 
@@ -48,7 +48,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         this.ref = new RefChain<>(new RefObj<>(this));
     }
 
-    SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, RefChain<SubnetworkImpl> subnetworkRef, String id, String name, String sourceFormat, DateTime caseDate) {
+    SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, RefChain<SubnetworkImpl> subnetworkRef, String id, String name, String sourceFormat, ZonedDateTime caseDate) {
         super(id, name, sourceFormat);
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
         this.ref = Objects.requireNonNull(subnetworkRef);
@@ -81,6 +81,16 @@ public class SubnetworkImpl extends AbstractNetwork {
         return getNetwork().getVariantManager();
     }
 
+    @Override
+    public void allowReporterContextMultiThreadAccess(boolean allow) {
+        getNetwork().allowReporterContextMultiThreadAccess(allow);
+    }
+
+    @Override
+    public ReporterContext getReporterContext() {
+        return getNetwork().getReporterContext();
+    }
+
     private boolean contains(Identifiable<?> identifiable) {
         return identifiable == this ||
                 identifiable != null && identifiable.getParentNetwork() == this;
@@ -100,7 +110,8 @@ public class SubnetworkImpl extends AbstractNetwork {
         return getNetwork().getSubstationStream()
                 .filter(this::contains)
                 .map(s -> s.getCountry().orElse(null))
-                .filter(Objects::nonNull);
+                .filter(Objects::nonNull)
+                .distinct();
     }
 
     @Override
@@ -218,7 +229,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
-        return new VoltageAngleLimitAdderImpl(rootNetworkRef, id);
+        return getNetwork().newVoltageAngleLimit(id);
     }
 
     @Override
@@ -236,8 +247,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     public VoltageAngleLimit getVoltageAngleLimit(String id) {
         VoltageAngleLimitImpl val = (VoltageAngleLimitImpl) getNetwork().getVoltageAngleLimit(id);
         boolean valInSubnetwork = val != null
-                && id.equals(val.getTerminalFrom().getVoltageLevel().getParentNetwork().getId())
-                && id.equals(val.getTerminalTo().getVoltageLevel().getParentNetwork().getId());
+                && contains(val.getTerminalFrom().getVoltageLevel())
+                && contains(val.getTerminalTo().getVoltageLevel());
         return valInSubnetwork ? val : null;
     }
 
@@ -307,6 +318,27 @@ public class SubnetworkImpl extends AbstractNetwork {
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
         ThreeWindingsTransformer twt = getNetwork().getThreeWindingsTransformer(id);
         return contains(twt) ? twt : null;
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return getOverloadManagementSystemStream().toList();
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return getNetwork().getOverloadManagementSystemStream().filter(this::contains);
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return (int) getOverloadManagementSystemStream().count();
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        OverloadManagementSystem oms = getNetwork().getOverloadManagementSystem(id);
+        return contains(oms) ? oms : null;
     }
 
     @Override
@@ -585,6 +617,27 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public HvdcLineAdder newHvdcLine() {
         return getNetwork().newHvdcLine(id);
+    }
+
+    @Override
+    public Ground getGround(String id) {
+        Ground s = getNetwork().getGround(id);
+        return contains(s) ? s : null;
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return getGroundStream().toList();
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return getNetwork().getGroundStream().filter(this::contains);
+    }
+
+    @Override
+    public int getGroundCount() {
+        return (int) getGroundStream().count();
     }
 
     @Override

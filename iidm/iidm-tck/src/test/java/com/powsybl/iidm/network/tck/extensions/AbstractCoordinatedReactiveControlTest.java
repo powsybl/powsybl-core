@@ -23,7 +23,7 @@ import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_I
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractCoordinatedReactiveControlTest {
 
@@ -51,7 +51,7 @@ public abstract class AbstractCoordinatedReactiveControlTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> generator.newExtension(CoordinatedReactiveControlAdder.class)
                 .withQPercent(Double.NaN)
                 .add());
-        assertTrue(e.getMessage().contains("Undefined value for qPercent"));
+        assertTrue(e.getMessage().contains("Undefined value (NaN) for qPercent for generator GEN"));
     }
 
     @Test

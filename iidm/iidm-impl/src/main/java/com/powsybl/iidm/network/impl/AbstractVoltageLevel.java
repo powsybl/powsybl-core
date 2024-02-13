@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
 
@@ -422,6 +422,26 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
         return getConnectableStream(ThreeWindingsTransformer.class);
+    }
+
+    @Override
+    public GroundAdder newGround() {
+        return new GroundAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return getConnectables(Ground.class);
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return getConnectableStream(Ground.class);
+    }
+
+    @Override
+    public int getGroundCount() {
+        return getConnectableCount(Ground.class);
     }
 
     @Override

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * @author Anis Touri <anis-1.touri@rte-france.com>
+ * @author Anis Touri {@literal <anis-1.touri@rte-france.com>}
  */
 public class RemoveHvdcLine extends AbstractNetworkModification {
 
@@ -39,7 +39,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
         if (hvdcLine != null) {
             HvdcConverterStation<?> hvdcConverterStation1 = hvdcLine.getConverterStation1();

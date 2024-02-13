@@ -20,8 +20,8 @@ import java.nio.file.Path;
  *  - a list of violation types of interest
  *  - an optional task count
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class SecurityAnalysisCommandOptions extends AbstractSecurityAnalysisCommandOptions<SecurityAnalysisCommandOptions> {
 

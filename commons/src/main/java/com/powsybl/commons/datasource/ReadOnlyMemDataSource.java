@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * @author Giovanni Ferrari <giovanni.ferrari@techrain.it>
+ * @author Giovanni Ferrari {@literal <giovanni.ferrari@techrain.it>}
  */
 public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
 

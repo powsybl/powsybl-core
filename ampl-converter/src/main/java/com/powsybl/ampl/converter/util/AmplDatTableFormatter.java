@@ -13,6 +13,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -21,18 +22,25 @@ import java.util.Locale;
  *   - separator is white space
  *   - comments are allowed and start with # (header is also a comment)
  *   - strings are quoted because of the white space separator
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class AmplDatTableFormatter extends CsvTableFormatter {
 
-    public AmplDatTableFormatter(Writer writer, String title, float invalidFloatValue, boolean writeHeader, Locale locale, Column... columns) {
+    public AmplDatTableFormatter(Writer writer, String title, float invalidFloatValue, boolean writeHeader,
+                                 Locale locale, Column... columns) {
         super(writer, title, ' ', Float.toString(invalidFloatValue), writeHeader, locale, columns);
+    }
+
+    public AmplDatTableFormatter(Writer writer, String title, float invalidFloatValue, boolean writeHeader,
+                                 Locale locale, List<Column> columns) {
+        super(writer, title, ' ', Float.toString(invalidFloatValue), writeHeader, locale,
+            columns.toArray(new Column[0]));
     }
 
     @Override
     protected void writeHeader() throws IOException {
         writer.append("#").append(title).append(System.lineSeparator())
-              .append("#");
+            .append("#");
         for (int i = 0; i < columns.length; i++) {
             writer.append("\"").append(columns[i].getName()).append("\"");
             if (i < columns.length - 1) {

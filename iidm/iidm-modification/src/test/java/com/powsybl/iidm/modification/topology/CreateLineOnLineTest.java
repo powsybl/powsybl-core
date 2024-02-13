@@ -8,12 +8,12 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Create a new Line from a given Line Adder and attach it on an existing Line by cutting the latter.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CreateLineOnLineTest extends AbstractConverterTest {
+class CreateLineOnLineTest extends AbstractModificationTest {
 
     @Test
     void createLineOnLineNbTest() throws IOException {
@@ -35,8 +35,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-line-split-l.xml");
+        writeXmlTest(network, "/fictitious-line-split-l.xml");
     }
 
     @Test
@@ -46,8 +45,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-line-split-nb-l.xml");
+        writeXmlTest(network, "/eurostag-line-split-nb-l.xml");
     }
 
     @Test
@@ -57,8 +55,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-line-split-bb-l.xml");
+        writeXmlTest(network, "/eurostag-line-split-bb-l.xml");
     }
 
     @Test
@@ -92,6 +89,11 @@ class CreateLineOnLineTest extends AbstractConverterTest {
     @Test
     void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
+            .add();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder()
@@ -110,8 +112,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLine2Name("FICT2LName")
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-line-split-l-complete.xml");
+        writeXmlTest(network, "/fictitious-line-split-l-complete.xml");
     }
 
     @Test
@@ -125,8 +126,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLineAdder(adder)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-line-split-l.xml");
+        writeXmlTest(network, "/fictitious-line-split-l.xml");
 
     }
 

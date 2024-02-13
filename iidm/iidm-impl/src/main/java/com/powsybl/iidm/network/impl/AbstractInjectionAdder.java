@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> extends AbstractIdentifiableAdder<T> {
 
@@ -19,6 +19,8 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
     private String bus;
 
     private String connectableBus;
+
+    protected VoltageLevelExt voltageLevel;
 
     public T setNode(int node) {
         this.node = node;
@@ -35,10 +37,17 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
         return (T) this;
     }
 
-    protected abstract Ref<? extends VariantManagerHolder> getVariantManagerHolder();
+    @Override
+    protected NetworkImpl getNetwork() {
+        return voltageLevel.getNetwork();
+    }
+
+    protected Ref<NetworkImpl> getNetworkRef() {
+        return voltageLevel.getNetworkRef();
+    }
 
     protected TerminalExt checkAndGetTerminal() {
-        return new TerminalBuilder(getVariantManagerHolder(), this)
+        return new TerminalBuilder(getNetworkRef(), this, null)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)

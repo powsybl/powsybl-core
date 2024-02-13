@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * An action consisting in an ordered list of actions.
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class MultipleActionsAction extends AbstractAction {
 

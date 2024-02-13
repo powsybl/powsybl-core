@@ -7,6 +7,7 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.dynamicsimulation.DynamicSimulationProvider;
 import groovy.lang.Binding;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public interface GroovyExtension<T> {
 
@@ -36,8 +37,9 @@ public interface GroovyExtension<T> {
      * Load the extension into the binding object. Each time an object is created, the consumer is notified.
      * @param binding The binding where to register the extension
      * @param consumer The consumer to notify on objects creation
+     * @param reporter the reporter used for functional logs
      */
-    void load(Binding binding, Consumer<T> consumer);
+    void load(Binding binding, Consumer<T> consumer, Reporter reporter);
 
     /**
      * Return the list of available GroovyExtension of type clazz, compatible with the provider which the name is given

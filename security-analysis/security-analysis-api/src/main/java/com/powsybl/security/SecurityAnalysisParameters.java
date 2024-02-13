@@ -18,8 +18,8 @@ import java.util.Objects;
  * Parameters for security analysis computation.
  * Extensions may be added, for instance for implementation-specific parameters.
  *
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
- * @author Sylvain LECLERC <sylvain.leclerc at rte-france.com>
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
+ * @author Sylvain LECLERC {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisParameters extends AbstractSecurityAnalysisParameters<SecurityAnalysisParameters> {
 

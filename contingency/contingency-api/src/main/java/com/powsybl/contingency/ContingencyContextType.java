@@ -8,11 +8,11 @@
 package com.powsybl.contingency;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  *
  * Define for a contingencyContext the type of information asked.
- * It can be a pre-contingency state, a post-contingency state on a specific contingency (SPECIFIC) or both (ALL)
+ * It can be a pre-contingency state, a post-contingency state (on a specific contingency (SPECIFIC) or on every contingency (ONLY_CONTINGENCIES)) or both (ALL)
  */
 
 public enum ContingencyContextType {
@@ -25,7 +25,11 @@ public enum ContingencyContextType {
      */
     NONE,
     /**
-     *  Corresponds to one contingency his id is specified in the contingencyContext
+     *  Corresponds to one contingency whose id is specified in the contingencyContext
      */
     SPECIFIC,
+    /**
+     *  Corresponds to all contingencies, without the pre-contingency situation
+     */
+    ONLY_CONTINGENCIES
 }

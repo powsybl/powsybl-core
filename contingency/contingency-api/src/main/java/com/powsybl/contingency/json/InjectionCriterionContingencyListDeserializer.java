@@ -16,7 +16,7 @@ import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCr
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class InjectionCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<InjectionCriterionContingencyList> {
 
@@ -31,7 +31,8 @@ public class InjectionCriterionContingencyListDeserializer extends AbstractEquip
         AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
         parser.nextToken();
         JsonUtil.parsePolymorphicObject(parser, name -> {
-            boolean found = deserializeCommonAttributes(parser, deserializationContext, parsingContext, name);
+            boolean found = deserializeCommonAttributes(parser, deserializationContext, parsingContext,
+                    name, InjectionCriterionContingencyList.TYPE);
             if (found) {
                 return true;
             }

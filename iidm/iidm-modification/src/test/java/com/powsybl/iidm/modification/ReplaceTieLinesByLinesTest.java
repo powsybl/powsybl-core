@@ -8,45 +8,42 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.topology.AbstractModificationTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Properties;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
+class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
 
     @Test
     void roundTripBusBreaker() throws IOException {
         Network network = createBusBreakerNetworkWithAliasesPropertiesExtensions();
         new ReplaceTieLinesByLines().apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-replace-tl.xml");
+        writeXmlTest(network, "/eurostag-replace-tl.xml");
     }
 
     @Test
     void roundTripNodeBreaker() throws IOException {
         Network network = createDummyNodeBreakerNetwork();
         new ReplaceTieLinesByLines().apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/replace-tl-nb.xml");
+        writeXmlTest(network, "/replace-tl-nb.xml");
     }
 
     @Test
     void postProcessor() throws IOException {
-        NetworkXml.write(createBusBreakerNetworkWithAliasesPropertiesExtensions(), tmpDir.resolve("tl-test.xml"));
+        NetworkSerDe.write(createBusBreakerNetworkWithAliasesPropertiesExtensions(), tmpDir.resolve("tl-test.xml"));
         Network read = Network.read(tmpDir.resolve("tl-test.xml"), LocalComputationManager.getDefault(),
                 new ImportConfig("replaceTieLinesByLines"), new Properties());
-        roundTripXmlTest(read, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-replace-tl.xml");
+        writeXmlTest(read, "/eurostag-replace-tl.xml");
     }
 
     private static Network createBusBreakerNetworkWithAliasesPropertiesExtensions() {
@@ -74,7 +71,7 @@ class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
 
     private static Network createDummyNodeBreakerNetwork() {
         Network network = Network.create("test", "test");
-        network.setCaseDate(DateTime.parse("2023-04-29T14:52:01.427+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2023-04-29T14:52:01.427+02:00"));
         Substation s1 = network.newSubstation().setId("S1").add();
         Substation s2 = network.newSubstation().setId("S2").add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();

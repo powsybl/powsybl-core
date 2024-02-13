@@ -9,7 +9,7 @@ package com.powsybl.ampl.converter;
 import java.io.IOException;
 
 /**
- * @author Nicolas Pierre < nicolas.pierre@artelys.com >
+ * @author Nicolas Pierre {@literal < nicolas.pierre@artelys.com >}
  */
 @FunctionalInterface
 public interface AmplElementReader {

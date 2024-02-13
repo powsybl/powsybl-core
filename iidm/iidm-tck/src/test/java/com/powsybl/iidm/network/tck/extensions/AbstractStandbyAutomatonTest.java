@@ -22,7 +22,7 @@ import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_I
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractStandbyAutomatonTest {
 
@@ -152,5 +152,4 @@ public abstract class AbstractStandbyAutomatonTest {
             assertEquals("Variant index not set", e.getMessage());
         }
     }
-
 }

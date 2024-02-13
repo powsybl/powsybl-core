@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class MagnitudeFeederResult extends AbstractFeederResult {
 
@@ -19,7 +19,7 @@ public class MagnitudeFeederResult extends AbstractFeederResult {
     }
 
     /**
-     * The three-phase current magnitude (in kA).
+     * The three-phase current magnitude [in A].
      */
     public double getCurrent() {
         return current;

@@ -15,7 +15,7 @@ import java.util.Set;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 interface TerminalExt extends Terminal, MultiVariantObject {
 
@@ -43,8 +43,6 @@ interface TerminalExt extends Terminal, MultiVariantObject {
     @Override BusBreakerViewExt getBusBreakerView();
 
     @Override BusViewExt getBusView();
-
-    void setNum(int num);
 
     /**
      * Traverse from this terminal using the given topology traverser, knowing that the terminals in the given

@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class TopologyModificationUtils {
 
@@ -170,8 +170,8 @@ public final class TopologyModificationUtils {
         }
     }
 
-    public static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
-        if (side == Branch.Side.ONE) {
+    public static void addLoadingLimits(Line created, LoadingLimitsBags limits, TwoSides side) {
+        if (side == TwoSides.ONE) {
             limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
             limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
             limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits1(), lim));
@@ -217,22 +217,9 @@ public final class TopologyModificationUtils {
         });
     }
 
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String prefix, VoltageLevel.NodeBreakerView view) {
-        createNodeBreakerSwitches(node1, middleNode, node2, "", prefix, view);
-    }
-
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view) {
-        createNodeBreakerSwitches(node1, middleNode, node2, suffix, prefix, view, false);
-    }
-
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
-        createNBBreaker(node1, middleNode, suffix, prefix, view, open);
-        createNBDisconnector(middleNode, node2, suffix, prefix, view, open);
-    }
-
-    static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
+    static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
-                .setId(prefix + "_BREAKER" + suffix)
+                .setId(id)
                 .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(open)
@@ -242,9 +229,9 @@ public final class TopologyModificationUtils {
                 .add();
     }
 
-    static void createNBDisconnector(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
+    static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
-                .setId(prefix + "_DISCONNECTOR" + suffix)
+                .setId(id)
                 .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.DISCONNECTOR)
                 .setOpen(open)
@@ -253,14 +240,9 @@ public final class TopologyModificationUtils {
                 .add();
     }
 
-    static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String prefix, VoltageLevel.BusBreakerView view) {
-        createBusBreakerSwitch(busId1, middleBusId, prefix, "_1", view);
-        createBusBreakerSwitch(middleBusId, busId2, prefix, "_2", view);
-    }
-
-    static void createBusBreakerSwitch(String busId1, String busId2, String prefix, String suffix, VoltageLevel.BusBreakerView view) {
+    static void createBusBreakerSwitch(String busId1, String busId2, String id, VoltageLevel.BusBreakerView view) {
         view.newSwitch()
-                .setId(prefix + "_SW" + suffix)
+                .setId(id)
                 .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(busId1)
@@ -340,12 +322,52 @@ public final class TopologyModificationUtils {
     }
 
     /**
+     * Get the list of parallel busbar sections on a given busbar section position
+     *
+     * @param voltageLevel Voltage level in which to find the busbar sections
+     * @param position busbar section position according to which busbar sections are found
+     * @return the list of busbar sections in the voltage level that have the same section position as the given position
+     */
+    static List<BusbarSection> getParallelBusbarSections(VoltageLevel voltageLevel, BusbarSectionPosition position) {
+        // List of the bars for the second section
+        return voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+            .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
+            .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).toList();
+    }
+
+    /**
+     * Creates a breaker and a disconnector between the connectable and the specified busbar
+     */
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
+        createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, List.of(bbs), bbs);
+    }
+
+    /**
      * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
      */
-    static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+        // Closed breaker
+        createNBBreaker(connectableNode, forkNode, namingStrategy.getBreakerId(baseId), voltageLevel.getNodeBreakerView(), false);
+
+        // Disconnectors - only the one on the chosen busbarsection is closed
+        createDisconnectorTopology(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs);
+    }
+
+    /**
+     * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
+     */
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+        createDisconnectorTopology(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs, 0);
+    }
+
+    /**
+     * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
+     */
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, int side) {
+        // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), true);
+            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(b, baseId, forkNode, bbsNode, side), voltageLevel.getNodeBreakerView(), b != bbs);
         });
     }
 
@@ -369,7 +391,7 @@ public final class TopologyModificationUtils {
         Optional<Integer> sliceMin = allOrders.get(sectionIndex).stream().min(Comparator.naturalOrder());
         int min = previousSliceMax.map(o -> o + 1).orElse(0);
         int max = sliceMin.or(() -> getMinOrderUsedAfter(allOrders, sectionIndex)).map(o -> o - 1).orElse(Integer.MAX_VALUE);
-        return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+        return Optional.ofNullable(min <= max ? Range.of(min, max) : null);
     }
 
     /**
@@ -392,7 +414,7 @@ public final class TopologyModificationUtils {
         Optional<Integer> sliceMax = allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
         int min = sliceMax.or(() -> getMaxOrderUsedBefore(allOrders, sectionIndex)).map(o -> o + 1).orElse(0);
         int max = nextSliceMin.map(o -> o - 1).orElse(Integer.MAX_VALUE);
-        return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+        return Optional.ofNullable(min <= max ? Range.of(min, max) : null);
     }
 
     /**
@@ -410,9 +432,9 @@ public final class TopologyModificationUtils {
             int max = getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE);
             int min = getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(0);
 
-            return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+            return Optional.ofNullable(min <= max ? Range.of(min, max) : null);
         }
-        return Optional.of(Range.between(0, Integer.MAX_VALUE));
+        return Optional.of(Range.of(0, Integer.MAX_VALUE));
     }
 
     /**

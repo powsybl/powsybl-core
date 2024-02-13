@@ -104,7 +104,7 @@ import java.util.OptionalInt;
  *
  * To create a shunt compensator, see {@link ShuntCompensatorAdder}
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see ShuntCompensatorAdder
  */
 public interface ShuntCompensator extends Injection<ShuntCompensator> {

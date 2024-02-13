@@ -16,10 +16,9 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
@@ -85,7 +84,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine(Side side) {
+    public DanglingLineImpl getDanglingLine(TwoSides side) {
         return BranchUtil.getFromSide(side, this::getDanglingLine1, this::getDanglingLine2);
     }
 
@@ -173,7 +172,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Terminal getTerminal(Side side) {
+    public Terminal getTerminal(TwoSides side) {
         return BranchUtil.getFromSide(side, this::getTerminal1, this::getTerminal2);
     }
 
@@ -182,23 +181,48 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return BranchUtil.getTerminal(voltageLevelId, getTerminal1(), getTerminal2());
     }
 
-    public Side getSide(Terminal terminal) {
+    public TwoSides getSide(Terminal terminal) {
         return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits1() {
-        return danglingLine1.getOperationalLimits();
+    public Optional<String> getSelectedOperationalLimitsGroupId1() {
+        return danglingLine1.getSelectedOperationalLimitsGroupId();
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits1() {
-        return danglingLine1.getCurrentLimits();
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
+        return danglingLine1.getOperationalLimitsGroups();
     }
 
     @Override
-    public CurrentLimits getNullableCurrentLimits1() {
-        return getCurrentLimits1().orElse(null);
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id) {
+        return danglingLine1.getOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1() {
+        return danglingLine1.getSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
+        return danglingLine1.newOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void setSelectedOperationalLimitsGroup1(String id) {
+        danglingLine1.setSelectedOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup1(String id) {
+        danglingLine1.removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup1() {
+        danglingLine1.cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
@@ -207,13 +231,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return danglingLine1.getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits1() {
-        return getApparentPowerLimits1().orElse(null);
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return danglingLine1.newActivePowerLimits();
     }
 
     @Override
@@ -222,33 +241,43 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits2() {
-        return danglingLine2.getOperationalLimits();
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
+        return danglingLine2.getOperationalLimitsGroups();
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return danglingLine1.getActivePowerLimits();
+    public Optional<String> getSelectedOperationalLimitsGroupId2() {
+        return danglingLine2.getSelectedOperationalLimitsGroupId();
     }
 
     @Override
-    public ActivePowerLimits getNullableActivePowerLimits1() {
-        return getActivePowerLimits1().orElse(null);
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id) {
+        return danglingLine2.getOperationalLimitsGroup(id);
     }
 
     @Override
-    public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return danglingLine1.newActivePowerLimits();
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2() {
+        return danglingLine2.getSelectedOperationalLimitsGroup();
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits2() {
-        return danglingLine2.getCurrentLimits();
+    public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
+        return danglingLine2.newOperationalLimitsGroup(id);
     }
 
     @Override
-    public CurrentLimits getNullableCurrentLimits2() {
-        return getCurrentLimits2().orElse(null);
+    public void setSelectedOperationalLimitsGroup2(String id) {
+        danglingLine2.setSelectedOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup2(String id) {
+        danglingLine2.removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup2() {
+        danglingLine2.cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
@@ -257,13 +286,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return danglingLine2.getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits2() {
-        return getApparentPowerLimits2().orElse(null);
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return danglingLine2.newActivePowerLimits();
     }
 
     @Override
@@ -272,32 +296,17 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return danglingLine2.getActivePowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getNullableActivePowerLimits2() {
-        return getActivePowerLimits2().orElse(null);
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return danglingLine2.newActivePowerLimits();
-    }
-
-    @Override
-    public Optional<CurrentLimits> getCurrentLimits(Side side) {
+    public Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
         return BranchUtil.getFromSide(side, this::getCurrentLimits1, this::getCurrentLimits2);
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits(Side side) {
+    public Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
         return BranchUtil.getFromSide(side, this::getActivePowerLimits1, this::getActivePowerLimits2);
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits(Side side) {
+    public Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
         return BranchUtil.getFromSide(side, this::getApparentPowerLimits1, this::getApparentPowerLimits2);
     }
 
@@ -317,20 +326,20 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, float limitReduction, LimitType type) {
         return BranchUtil.getFromSide(side,
             () -> checkPermanentLimit1(limitReduction, type),
             () -> checkPermanentLimit2(limitReduction, type));
     }
 
     @Override
-    public boolean checkPermanentLimit(Side side, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, LimitType type) {
         return checkPermanentLimit(side, 1f, type);
     }
 
     @Override
     public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -340,7 +349,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
@@ -349,34 +358,34 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, float limitReduction, LimitType type) {
         return BranchUtil.getFromSide(side,
             () -> checkTemporaryLimits1(limitReduction, type),
             () -> checkTemporaryLimits2(limitReduction, type));
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits(Side side, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, LimitType type) {
         return checkTemporaryLimits(side, 1f, type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits1(LimitType type) {
+    public Overload checkTemporaryLimits1(LimitType type) {
         return checkTemporaryLimits1(1f, type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits2(LimitType type) {
+    public Overload checkTemporaryLimits2(LimitType type) {
         return checkTemporaryLimits2(1f, type);
     }
 

@@ -12,13 +12,14 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class ACLineSegmentConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 
@@ -65,7 +66,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         double g = p.asDouble("gch", 0);
         double b = p.asDouble("bch", 0);
         // Assign all (g, b) to the network side
-        if (boundaryLine.getBoundarySide().equals(Branch.Side.TWO)) {
+        if (boundaryLine.getBoundarySide().equals(TwoSides.TWO)) {
             boundaryLine.setParameters(r, x, g, b, 0, 0);
         } else {
             boundaryLine.setParameters(r, x, 0, 0, g, b);
@@ -97,8 +98,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
         context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), mline.getDanglingLine1().getBoundary(), 2);
         context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), mline.getDanglingLine2().getBoundary(), 1);
-
-        context.namingStrategy().readIdMapping(mline, "TieLine"); // TODO: maybe this should be refined for merged line
     }
 
     private void convertLine() {
@@ -124,6 +123,17 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         }
     }
 
+    private static void addEquivalentInjectionReference(Context context, DanglingLine dl1, BoundaryLine boundaryLine, String boundaryNode) {
+        EquivalentInjectionConversion eqic = getEquivalentInjectionConversionForDanglingLine(context, boundaryNode, boundaryLine);
+        if (eqic != null) {
+            dl1.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, eqic.id);
+            CgmesTerminal cgmesTerminal = context.cgmes().terminal(eqic.terminalId());
+            if (cgmesTerminal != null) {
+                dl1.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
+            }
+        }
+    }
+
     private static TieLine createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
         DanglingLineAdder adder1 = getDanglingLineAdder(context, boundaryNode, boundaryLine1);
         DanglingLineAdder adder2 = getDanglingLineAdder(context, boundaryNode, boundaryLine2);
@@ -131,6 +141,11 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         connect(context, adder2, boundaryLine2.getModelBus(), boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
         DanglingLine dl1 = adder1.add();
         DanglingLine dl2 = adder2.add();
+
+        // Keep equivalent injection information of dangling lines inside the tie line
+        addEquivalentInjectionReference(context, dl1, boundaryLine1, boundaryNode);
+        addEquivalentInjectionReference(context, dl2, boundaryLine2, boundaryNode);
+
         TieLineAdder adder = context.network().newTieLine()
                 .setDanglingLine1(dl1.getId())
                 .setDanglingLine2(dl2.getId());

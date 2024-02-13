@@ -14,7 +14,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
-import org.joda.time.DateTime;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -26,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractNetworkTest {
 
@@ -532,7 +534,7 @@ public abstract class AbstractNetworkTest {
     public void testSetterGetter() {
         String sourceFormat = "test_sourceFormat";
         Network network = Network.create("test", sourceFormat);
-        DateTime caseDate = new DateTime();
+        ZonedDateTime caseDate = ZonedDateTime.now(ZoneOffset.UTC);
         network.setCaseDate(caseDate);
         assertEquals(caseDate, network.getCaseDate());
         network.setForecastDistance(3);

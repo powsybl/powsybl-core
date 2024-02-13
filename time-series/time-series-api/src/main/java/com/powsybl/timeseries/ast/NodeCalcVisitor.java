@@ -15,8 +15,8 @@ import org.apache.commons.lang3.tuple.Pair;
  * traversed and their order. The visit methods compute results for
  * nodes from the node and all the results of the children.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  * @see NodeCalcVisitors
  */
 public interface NodeCalcVisitor<R, A> {
@@ -29,13 +29,11 @@ public interface NodeCalcVisitor<R, A> {
 
     R visit(BigDecimalNodeCalc nodeCalc, A arg);
 
+    R visit(BinaryOperation nodeCalc, A arg, R left, R right);
+
     R visit(TimeNodeCalc nodeCalc, A arg, R child);
 
     NodeCalc iterate(TimeNodeCalc nodeCalc, A arg);
-
-    R visit(BinaryOperation nodeCalc, A arg, R left, R right);
-
-    Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg);
 
     R visit(UnaryOperation nodeCalc, A arg, R child);
 
@@ -52,4 +50,10 @@ public interface NodeCalcVisitor<R, A> {
     R visit(TimeSeriesNameNodeCalc nodeCalc, A arg);
 
     R visit(TimeSeriesNumNodeCalc nodeCalc, A arg);
+
+    R visit(BinaryMinCalc nodeCalc, A arg, R left, R right);
+
+    R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right);
+
+    Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg);
 }

@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
 
@@ -119,8 +119,6 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                 (SubstationImpl) voltageLevel1.getSubstation().orElse(null),
                 r, x, g, b,
                 ratedU1, ratedU2, ratedS);
-        terminal1.setNum(1);
-        terminal2.setNum(2);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
 

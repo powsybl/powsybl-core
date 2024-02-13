@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 /**
  * Observer which executes a list of handlers of {@link SecurityAnalysisResult} once the simulation is finished.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisResultHandler extends AbstractSecurityAnalysisResultBuilder {
 

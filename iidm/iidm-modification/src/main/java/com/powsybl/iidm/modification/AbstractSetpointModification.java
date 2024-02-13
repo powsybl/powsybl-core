@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ import java.util.OptionalDouble;
  * converter stations. Note that a VSC converter station follows a generator
  * convention but SVCs follow a load convention.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public abstract class AbstractSetpointModification<T> extends AbstractNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSetpointModification.class);
@@ -41,7 +42,7 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       Reporter reporter) {
         T networkElement = getNetworkElement(network, elementId);
 

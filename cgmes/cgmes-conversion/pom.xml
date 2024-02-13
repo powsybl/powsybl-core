@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-cgmes</artifactId>
-        <version>6.1.0-SNAPSHOT</version>
+        <version>6.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-cgmes-conversion</artifactId>
@@ -38,6 +38,10 @@
         </plugins>
     </build>
 
+    <properties>
+        <jug.version>4.3.0</jug.version>
+    </properties>
+
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
@@ -57,12 +61,17 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-xml-converter</artifactId>
+            <artifactId>powsybl-iidm-serde</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-extensions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-modification</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -76,6 +85,13 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- UUID generator for the naming strategy -->
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>${jug.version}</version>
         </dependency>
 
         <!-- Test dependencies -->

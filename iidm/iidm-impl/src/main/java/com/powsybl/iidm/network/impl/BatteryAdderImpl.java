@@ -8,18 +8,15 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 
 /**
  * {@inheritDoc}
  *
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> implements BatteryAdder {
-
-    private final VoltageLevelExt voltageLevel;
 
     private double targetP = Double.NaN;
 
@@ -31,14 +28,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     /**
@@ -83,15 +72,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     public BatteryAdderImpl setMaxP(double maxP) {
         this.maxP = maxP;
         return this;
-    }
-
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
     }
 
     /**

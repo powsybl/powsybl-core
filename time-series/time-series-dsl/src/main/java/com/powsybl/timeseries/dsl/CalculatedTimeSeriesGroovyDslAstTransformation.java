@@ -13,7 +13,7 @@ import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @GroovyASTTransformation
 public class CalculatedTimeSeriesGroovyDslAstTransformation extends AbstractPowsyblDslAstTransformation {
@@ -37,20 +37,14 @@ public class CalculatedTimeSeriesGroovyDslAstTransformation extends AbstractPows
 
         private Expression transform(BinaryExpression binExpr) {
             String op = binExpr.getOperation().getText();
-            switch (op) {
-                case ">":
-                case ">=":
-                case "<":
-                case "<=":
-                case "==":
-                case "!=":
-                    return new MethodCallExpression(transform(binExpr.getLeftExpression()),
-                            "compareToNodeCalc",
-                            new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
-                default:
-                    break;
-            }
-            return null;
+            return switch (op) {
+                case ">", ">=", "<", "<=", "==", "!=" ->
+                    new MethodCallExpression(transform(binExpr.getLeftExpression()),
+                        "compareToNodeCalc",
+                        new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
+                default -> null;
+            };
+
         }
 
         @Override

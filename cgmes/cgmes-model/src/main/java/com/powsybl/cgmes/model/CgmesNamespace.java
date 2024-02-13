@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class CgmesNamespace {
 

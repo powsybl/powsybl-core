@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
 
@@ -106,8 +106,6 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         Ref<NetworkImpl> networkRef = computeNetworkRef(getNetwork(), voltageLevel1, voltageLevel2);
 
         LineImpl line = new LineImpl(networkRef, id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
-        terminal1.setNum(1);
-        terminal2.setNum(2);
         line.addTerminal(terminal1);
         line.addTerminal(terminal2);
 

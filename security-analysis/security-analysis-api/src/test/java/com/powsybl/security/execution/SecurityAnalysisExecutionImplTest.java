@@ -28,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class SecurityAnalysisExecutionImplTest {
 

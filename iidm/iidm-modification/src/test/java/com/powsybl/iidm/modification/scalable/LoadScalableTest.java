@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * @author Ameni Walha <ameni.walha at rte-france.com>
+ * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
 class LoadScalableTest {
 
@@ -184,6 +184,13 @@ class LoadScalableTest {
         assertEquals(10.0, load.getQ0(), 1e-3);
         ls1.scale(network, 20, parameters);
         assertEquals(60, load.getP0(), 1e-3);
+        assertEquals(7.5, load.getQ0(), 1e-3);
+
+        ls1.reset(network);
+        assertEquals(0.0, load.getP0(), 1e-3);
+        assertEquals(7.5, load.getQ0(), 1e-3);
+        ls1.scale(network, -20, parameters);
+        assertEquals(20.0, load.getP0(), 1e-3);
         assertEquals(7.5, load.getQ0(), 1e-3);
     }
 

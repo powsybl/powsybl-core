@@ -22,8 +22,8 @@ import static java.util.Objects.requireNonNull;
  * security analysis inputs are built from the so-called execution inputs using a specified strategy,
  * including possible user defined transformation or preprocessing.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution {
 

@@ -6,21 +6,23 @@
  */
 package com.powsybl.math.matrix;
 
+import com.powsybl.math.AbstractMathNative;
+
 import java.util.Objects;
 
 /**
  * Abstract class for matrix that provides an implementation for common methods.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractMatrix implements Matrix {
+public abstract class AbstractMatrix extends AbstractMathNative implements Matrix {
 
     /**
-     * Get an estimation of non zero value count.
+     * Get value count.
      *
-     * @return an estimation of non zero value count
+     * @return the value count
      */
-    protected abstract int getEstimatedNonZeroValueCount();
+    public abstract int getValueCount();
 
     /**
      * Check that row {@code i} and column {@code j} are in matrix bounds.
@@ -43,7 +45,7 @@ public abstract class AbstractMatrix implements Matrix {
     @Override
     public Matrix copy(MatrixFactory factory) {
         Objects.requireNonNull(factory);
-        Matrix matrix = factory.create(getRowCount(), getColumnCount(), getEstimatedNonZeroValueCount());
+        Matrix matrix = factory.create(getRowCount(), getColumnCount(), getValueCount());
         iterateNonZeroValue(matrix::set);
         return matrix;
     }

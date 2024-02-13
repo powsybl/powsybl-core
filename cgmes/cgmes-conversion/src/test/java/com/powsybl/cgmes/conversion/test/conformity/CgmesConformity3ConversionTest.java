@@ -8,9 +8,11 @@
 package com.powsybl.cgmes.conversion.test.conformity;
 
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.xml.XmlUtil;
@@ -20,21 +22,27 @@ import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
 import java.io.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class CgmesConformity3ConversionTest {
 
     @Test
     void microGridBaseCaseBEMergedWithNL() {
-        Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
+        Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
         assertNotEquals("unknown", be.getId());
         int nSubBE = be.getSubstationCount();
         int nDlBE = be.getDanglingLineCount();
-        Network nl = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource());
+        Network nl = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource(), importParams);
         assertNotEquals("unknown", nl.getId());
         int nSubNL = nl.getSubstationCount();
         int nDlNL = nl.getDanglingLineCount();
@@ -60,6 +68,42 @@ class CgmesConformity3ConversionTest {
         checkExportSvTerminals(merge);
     }
 
+    @Test
+    void microGridBaseCaseAssembled() {
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource());
+        checkExportSvTerminals(n);
+    }
+
+    @Test
+    void microGridBaseCaseAssembledSeparatingByFilename() {
+        Properties params = new Properties();
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "true");
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.FILENAME.name());
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
+        assertEquals(2, n.getSubnetworks().size());
+        assertEquals(List.of("BE", "NL"),
+                n.getSubnetworks().stream()
+                        .map(n1 -> n1.getSubstations().iterator().next().getCountry().map(Objects::toString).orElse(""))
+                        .sorted()
+                        .toList());
+        checkExportSvTerminals(n);
+    }
+
+    @Test
+    void microGridBaseCaseAssembledSeparatingByModelingAuthority() {
+        Properties params = new Properties();
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "true");
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.MODELING_AUTHORITY.name());
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
+        assertEquals(2, n.getSubnetworks().size());
+        assertEquals(List.of("BE", "NL"),
+                n.getSubnetworks().stream()
+                        .map(n1 -> n1.getSubstations().iterator().next().getCountry().map(Objects::toString).orElse(""))
+                        .sorted()
+                        .toList());
+        checkExportSvTerminals(n);
+    }
+
     private void checkExportSvTerminals(Network network) {
         CgmesExportContext context = new CgmesExportContext(network);
         context.getSvModelDescription().setVersion(2);
@@ -74,8 +118,15 @@ class CgmesConformity3ConversionTest {
             String terminal2 = tieLine.getDanglingLine2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
             String terminal1Resource = "#_" + terminal1;
             String terminal2Resource = "#_" + terminal2;
-            assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
-            assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
+
+            String eiTerminal1 = tieLine.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            String eiTerminal2 = tieLine.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            String eiTerminal1Resource = "#_" + eiTerminal1;
+            String eiTerminal2Resource = "#_" + eiTerminal2;
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", eiTerminal1Resource));
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", eiTerminal2Resource));
         }
     }
 
@@ -89,24 +140,4 @@ class CgmesConformity3ConversionTest {
         }
         return baos.toByteArray();
     }
-
-    private static boolean xmlContains(byte[] xml, String clazz, String ns, String attr, String expectedValue) {
-        try (InputStream is = new ByteArrayInputStream(xml)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
-            while (reader.hasNext()) {
-                if (reader.next() == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(clazz)) {
-                    String actualValue = reader.getAttributeValue(ns, attr);
-                    if (expectedValue.equals(actualValue)) {
-                        reader.close();
-                        return true;
-                    }
-                }
-            }
-            reader.close();
-        } catch (XMLStreamException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        return false;
-    }
-
 }

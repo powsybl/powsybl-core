@@ -15,7 +15,7 @@ import com.powsybl.security.action.AbstractTapChangerRegulationAction;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public abstract class AbstractTapChangerRegulationActionSerializer<T extends AbstractTapChangerRegulationAction> extends StdSerializer<T> {
 

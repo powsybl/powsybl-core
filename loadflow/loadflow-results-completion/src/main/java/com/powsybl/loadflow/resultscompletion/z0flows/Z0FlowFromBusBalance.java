@@ -6,16 +6,14 @@
  */
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
-import java.util.Objects;
-
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Branch.Side;
+import java.util.Objects;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class Z0FlowFromBusBalance implements TopologyVisitor {
 
@@ -91,7 +89,7 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     }
 
     @Override
-    public void visitLine(Line line, Side side) {
+    public void visitLine(Line line, TwoSides side) {
         if (line.equals(this.line)) {
             return;
         }
@@ -102,13 +100,13 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
         addFlow(transformer.getTerminal(side));
     }
 
     @Override
     public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer,
-            ThreeWindingsTransformer.Side side) {
+            ThreeSides side) {
         addFlow(transformer.getTerminal(side));
     }
 
@@ -140,6 +138,11 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     @Override
     public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
         addFlowQ(staticVarCompensator.getTerminal());
+    }
+
+    @Override
+    public void visitGround(Ground ground) {
+        addFlow(ground.getTerminal());
     }
 
     private final Bus bus;

@@ -9,9 +9,11 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ReactiveLimits;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 interface ReactiveLimitsOwner {
+
+    NetworkImpl getNetwork();
 
     void setReactiveLimits(ReactiveLimits reactiveLimits);
 }

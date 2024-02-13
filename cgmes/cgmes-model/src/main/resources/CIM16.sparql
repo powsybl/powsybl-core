@@ -1101,6 +1101,17 @@ WHERE {
 }}
 }
 
+# query: grounds
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?Ground
+        a cim:Ground ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?Ground .
+}}
+}
+
 # query: update
 DELETE { GRAPH <{0}>
     { ?subject ?predicate ?value }

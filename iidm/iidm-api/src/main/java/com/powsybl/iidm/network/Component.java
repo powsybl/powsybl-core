@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 /**
  * A set of connected bus in the network.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Component {
 

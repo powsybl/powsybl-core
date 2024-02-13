@@ -7,13 +7,14 @@
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
@@ -129,6 +130,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
             replaceHvdcLine(hvdcLine, vl2, terminal2, station2);
         } else {
             hvdcLine.remove();
+            station1.remove();
+            station2.remove();
         }
         observers.forEach(o -> o.hvdcLineRemoved(hvdcLine));
     }
@@ -147,15 +150,15 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceLineByDanglingLine(Line line, VoltageLevel vl, Terminal terminal) {
-        Branch.Side side = line.getSide(terminal);
+        TwoSides side = line.getSide(terminal);
 
         DanglingLineAdder dlAdder = vl.newDanglingLine()
                 .setId(line.getId())
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
                 .setX(line.getX() / 2)
-                .setB(side == Branch.Side.ONE ? line.getB1() : line.getB2())
-                .setG(side == Branch.Side.ONE ? line.getG1() : line.getG2())
+                .setB(side == TwoSides.ONE ? line.getB1() : line.getB2())
+                .setG(side == TwoSides.ONE ? line.getG1() : line.getG2())
                 .setP0(checkP(terminal))
                 .setQ0(checkQ(terminal));
         fillNodeOrBus(dlAdder, terminal);
@@ -207,7 +210,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
             VscConverterStation vscStation = (VscConverterStation) station;
             if (vscStation.isVoltageRegulatorOn()) {
-                replaceHvdcLineByGenerator(hvdcLine, vl, terminal);
+                replaceHvdcLineByGenerator(hvdcLine, vl, terminal, vscStation);
+            } else {
+                replaceHvdcLineByLoad(hvdcLine, vl, terminal);
             }
         } else {
             replaceHvdcLineByLoad(hvdcLine, vl, terminal);
@@ -238,21 +243,23 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, load));
     }
 
-    private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal) {
+    private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, VscConverterStation station) {
         double maxP = hvdcLine.getMaxP();
         GeneratorAdder genAdder = vl.newGenerator()
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))
                 .setEnergySource(EnergySource.OTHER)
-                .setVoltageRegulatorOn(false)
+                .setVoltageRegulatorOn(true)
                 .setMaxP(maxP)
                 .setMinP(-maxP)
-                .setTargetP(checkP(terminal))
-                .setTargetQ(checkQ(terminal));
+                .setTargetP(-checkP(terminal))
+                .setTargetV(station.getVoltageSetpoint());
         fillNodeOrBus(genAdder, terminal);
 
         double p = terminal.getP();
         double q = terminal.getQ();
+        ReactiveLimits stationLimits = station.getReactiveLimits();
+
         HvdcConverterStation<?> converter1 = hvdcLine.getConverterStation1();
         HvdcConverterStation<?> converter2 = hvdcLine.getConverterStation2();
         hvdcLine.remove();
@@ -263,6 +270,30 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         generator.getTerminal()
                 .setP(p)
                 .setQ(q);
+
+        if (stationLimits != null) {
+            if (stationLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+                MinMaxReactiveLimits minMaxLimits = (MinMaxReactiveLimits) stationLimits;
+                generator.newMinMaxReactiveLimits()
+                        .setMinQ(minMaxLimits.getMinQ())
+                        .setMaxQ(minMaxLimits.getMaxQ())
+                        .add();
+            } else if (stationLimits.getKind() == ReactiveLimitsKind.CURVE) {
+                ReactiveCapabilityCurve reactiveCurve = (ReactiveCapabilityCurve) stationLimits;
+                ReactiveCapabilityCurveAdder curveAdder = generator.newReactiveCapabilityCurve();
+                reactiveCurve.getPoints().forEach(point ->
+                    curveAdder.beginPoint()
+                            .setP(point.getP())
+                            .setMinQ(point.getMinQ())
+                            .setMaxQ(point.getMaxQ())
+                            .endPoint()
+                );
+                curveAdder.add();
+            }
+        }
+
+        generator.newExtension(ActivePowerControlAdder.class).withParticipate(false).add();
+
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
     }
 

@@ -12,13 +12,12 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 
-import org.joda.time.DateTime;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -94,7 +93,7 @@ import java.util.stream.Stream;
  * depending of the variant (always specified in the javadoc) if
  * {@link VariantManager#allowVariantMultiThreadAccess(boolean)} is set to true.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see NetworkFactory
  * @see VariantManager
  */
@@ -552,13 +551,13 @@ public interface Network extends Container<Network> {
     /**
      * Get the date that the network represents.
      */
-    DateTime getCaseDate();
+    ZonedDateTime getCaseDate();
 
     /**
      * Set the date that the network represents.
      * @throws IllegalArgumentException if date is null.
      */
-    Network setCaseDate(DateTime date);
+    Network setCaseDate(ZonedDateTime date);
 
     /**
      * Get the forecast distance in minutes.
@@ -578,6 +577,35 @@ public interface Network extends Container<Network> {
      * Get the variant manager of the network.
      */
     VariantManager getVariantManager();
+
+    /**
+     * <p>Allows {@link ReporterContext} to be accessed simultaneously by different threads.</p>
+     * <p>When this option is activated, the reporter context can have a different content
+     * for each thread.</p>
+     * <p>Note that to avoid memory leaks when in multi-thread configuration: </p>
+     * <ul>
+     *     <li>each reporter pushed in the ReporterContext should be popped in a "finally" section:
+     * <pre>
+     * {@code
+     *     network.getReporterContext().pushReporter(reporter);
+     *     try {
+     *         // code that can throw an exception
+     *     } finally {
+     *         network.getReporterContext().popReporter();
+     *     }
+     * }
+     * </pre>
+     * </li>
+     * <li>the context should be set in mono-thread access when multi-threading policy is no more useful.</li>
+     * </ul>
+     * @param allow allow multi-thread access to the ReporterContext
+     */
+    void allowReporterContextMultiThreadAccess(boolean allow);
+
+    /**
+     * Get the {@link ReporterContext} of the network.
+     */
+    ReporterContext getReporterContext();
 
     /**
      * Get all countries.
@@ -798,6 +826,28 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the 3 windings transformer
      */
     ThreeWindingsTransformer getThreeWindingsTransformer(String id);
+
+    /**
+     * Get all overload management systems.
+     */
+    Iterable<OverloadManagementSystem> getOverloadManagementSystems();
+
+    /**
+     * Get all overload management systems.
+     */
+    Stream<OverloadManagementSystem> getOverloadManagementSystemStream();
+
+    /**
+     * Get the overload management system count.
+     */
+    int getOverloadManagementSystemCount();
+
+    /**
+     * Get an overload management system.
+     *
+     * @param id the id or an alias of the overload management system
+     */
+    OverloadManagementSystem getOverloadManagementSystem(String id);
 
     /**
      * Get all generators.
@@ -1111,11 +1161,32 @@ public interface Network extends Container<Network> {
      */
     HvdcLineAdder newHvdcLine();
 
+    /**
+     * Get all grounds.
+     */
+    Iterable<Ground> getGrounds();
 
     /**
-     * Get an equipment by its ID or alias
+     * Get all grounds.
+     */
+    Stream<Ground> getGroundStream();
+
+    /**
+     * Get the ground count.
+     */
+    int getGroundCount();
+
+    /**
+     * Get a ground.
      *
-     * @param id the id or an alias of the equipment
+     * @param id the id or an alias of the ground
+     */
+    Ground getGround(String id);
+
+    /**
+     * * Get an identifiable by its ID or alias
+     *
+     * @param id the id or an alias of the identifiable
      */
     Identifiable<?> getIdentifiable(String id);
 
@@ -1366,6 +1437,8 @@ public interface Network extends Container<Network> {
                 return getHvdcConverterStationStream().map(Function.identity());
             case STATIC_VAR_COMPENSATOR:
                 return getStaticVarCompensatorStream().map(Function.identity());
+            case GROUND:
+                return getGroundStream().map(Function.identity());
             default:
                 throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         }

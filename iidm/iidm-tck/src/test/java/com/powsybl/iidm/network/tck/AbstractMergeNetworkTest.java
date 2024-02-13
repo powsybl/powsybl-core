@@ -8,13 +8,10 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.LoadDetailAdder;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -94,6 +91,8 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", tieLine.getNameOrId());
+        assertEquals("dl1", tieLine.getDanglingLine1().getId());
+        assertEquals("dl2", tieLine.getDanglingLine2().getId());
         assertEquals(0.0, tieLine.getDanglingLine1().getP0());
         assertEquals(0.0, tieLine.getDanglingLine1().getQ0());
         assertEquals(0.0, tieLine.getDanglingLine2().getP0());
@@ -151,10 +150,20 @@ public abstract class AbstractMergeNetworkTest {
 
         // Add extension at network level
         n1.newExtension(SecondaryVoltageControlAdder.class)
-                .addControlZone(new SecondaryVoltageControl.ControlZone("z1",
-                        new SecondaryVoltageControl.PilotPoint(List.of("NLOAD"), 15d),
-                        List.of(new SecondaryVoltageControl.ControlUnit("GEN", false),
-                                new SecondaryVoltageControl.ControlUnit("GEN2"))))
+                .newControlZone()
+                    .withName("z1")
+                    .newPilotPoint()
+                        .withBusbarSectionsOrBusesIds(List.of("NLOAD"))
+                        .withTargetV(15d)
+                    .add()
+                    .newControlUnit()
+                        .withId("GEN")
+                        .withParticipate(false)
+                    .add()
+                    .newControlUnit()
+                        .withId("GEN2")
+                        .add()
+                    .add()
                 .add();
         // Add extension at inner element level
         n1.getLoad("LOAD").newExtension(LoadDetailAdder.class)
@@ -342,13 +351,13 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeOnlyOneNetwork() {
+    public void failMergeOnlyOneNetwork() {
         Exception e = assertThrows(IllegalArgumentException.class, () -> Network.merge(MERGE, n1));
         assertTrue(e.getMessage().contains("At least 2 networks are expected"));
     }
 
     @Test
-    void failMergeOnSubnetworks() {
+    public void failMergeOnSubnetworks() {
         Network merge = Network.merge(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network other1 = Network.create("other1", "format");
@@ -362,7 +371,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeSubnetworks() {
+    public void failMergeSubnetworks() {
         Network merge = Network.merge(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network other = Network.create("other", "format");
@@ -373,7 +382,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeContainingSubnetworks() {
+    public void failMergeContainingSubnetworks() {
         Network merge = Network.merge(MERGE, n1, n2);
         Network other = Network.create("other", "format");
 
@@ -383,7 +392,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    void testNoEmptyAdditionalSubnetworkIsCreated() {
+    public void testNoEmptyAdditionalSubnetworkIsCreated() {
         Network merge = Network.merge(MERGE, n1, n2);
         assertEquals(2, merge.getSubnetworks().size());
         assertNull(merge.getSubnetwork(MERGE));
@@ -504,8 +513,8 @@ public abstract class AbstractMergeNetworkTest {
 
     @Test
     public void test() {
-        DateTime d1 = n1.getCaseDate();
-        DateTime d2 = n2.getCaseDate();
+        ZonedDateTime d1 = n1.getCaseDate();
+        ZonedDateTime d2 = n2.getCaseDate();
         addCommonSubstationsAndVoltageLevels();
         addLoad(n1, 1);
         addLoad(n2, 2);
@@ -554,7 +563,7 @@ public abstract class AbstractMergeNetworkTest {
                 .add();
     }
 
-    private static void checks(Network merge, int num, String sourceFormat, DateTime d) {
+    private static void checks(Network merge, int num, String sourceFormat, ZonedDateTime d) {
         Network n = merge.getSubnetwork("n" + num);
         assertNotNull(n);
         assertEquals(sourceFormat, n.getSourceFormat());
@@ -618,24 +627,116 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    public void invertDanglingLinesWhenCreatingATieLine() {
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl2", "code", "dl1", "code");
+        Network merge = Network.merge(n1, n2);
+        assertEquals(1, merge.getTieLineCount());
+        TieLine tieLine = merge.getTieLine("dl1 + dl2");
+        assertNotNull(tieLine);
+        assertEquals("dl1", tieLine.getDanglingLine1().getId());
+        assertEquals("dl2", tieLine.getDanglingLine2().getId());
+    }
+
+    @Test
+    public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergedNetwork() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the CURRENT network.
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addDanglingLine(n1, "vl1", "dl3", "code", "b1", "b1");
+        n1.newTieLine()
+                .setId("dl1 + dl3")
+                .setDanglingLine1("dl1")
+                .setDanglingLine2("dl3")
+                .add();
+        Network merge = Network.merge(n1, n2);
+        assertNotNull(merge.getTieLine("dl1 + dl3"));
+        assertNull(merge.getTieLine("dl1 + dl2"));
+        assertNull(merge.getTieLine("dl2 + dl3"));
+        assertEquals(1, merge.getTieLineCount());
+    }
+
+    @Test
+    public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergingNetwork() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the ADDED network.
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addDanglingLine(n2, "vl2", "dl3", "code", "b2", "b2");
+        n2.newTieLine()
+                .setId("dl2 + dl3")
+                .setDanglingLine1("dl2")
+                .setDanglingLine2("dl3")
+                .add();
+        Network merge = Network.merge(n1, n2);
+        assertNotNull(merge.getTieLine("dl2 + dl3"));
+        assertNull(merge.getTieLine("dl1 + dl2"));
+        assertNull(merge.getTieLine("dl1 + dl3"));
+        assertEquals(1, merge.getTieLineCount());
+    }
+
+    @Test
     public void multipleDanglingLinesInMergedNetwork() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the CURRENT network.
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n2, "vl2", "dl3", "code", "b2", null);
         Network merge = Network.merge(n1, n2);
+        // Since n2 has ONLY ONE connected dangling line with the pairing key, the tie line is created
         assertNotNull(merge.getTieLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
     }
 
     @Test
+    public void multipleConnectedDanglingLinesInMergedNetwork() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the CURRENT network.
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addDanglingLine(n2, "vl2", "dl3", "code", "b2", "b2");
+        Network merge = Network.merge(n1, n2);
+        // Since n2 has SEVERAL connected dangling lines with the pairing key, we don't create the tie line
+        assertEquals(0, merge.getTieLineCount());
+    }
+
+    @Test
     public void multipleDanglingLinesInMergingNetwork() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the ADDED network.
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n1, "vl1", "dl3", "code", "b1", null);
         Network merge = Network.merge(n1, n2);
+        // Since n1 has ONLY ONE connected dangling line with the pairing key, the tie line is created
         assertNotNull(merge.getTieLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
+    }
+
+    @Test
+    public void multipleConnectedDanglingLinesWithSamePairingKey() {
+        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate dangling lines.
+        //
+        // This test covers the case where the duplicate pairing key is in the ADDED network.
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addDanglingLine(n1, "vl1", "dl3", "code", "b1", "b1");
+        Network merge = Network.merge(n1, n2);
+        // Since n1 has SEVERAL connected dangling lines with the pairing key, we don't create the tie line
+        assertEquals(0, merge.getTieLineCount());
     }
 }

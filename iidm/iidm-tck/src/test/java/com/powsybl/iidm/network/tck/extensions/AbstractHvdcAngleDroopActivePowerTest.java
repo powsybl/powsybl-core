@@ -25,7 +25,7 @@ import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_I
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 public abstract class AbstractHvdcAngleDroopActivePowerTest {
 
@@ -123,13 +123,13 @@ public abstract class AbstractHvdcAngleDroopActivePowerTest {
             hadpc.setP0(Float.NaN);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("p0 is not set", e.getMessage());
+            assertEquals("p0 value (NaN) is invalid for HVDC line L", e.getMessage());
         }
         try {
             hadpc.setDroop(Float.NaN);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("droop is not set", e.getMessage());
+            assertEquals("droop value (NaN) is invalid for HVDC line L", e.getMessage());
         }
     }
 }

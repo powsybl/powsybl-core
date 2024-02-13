@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class ImportExportPerformanceTest {
     // TODO We should build tests that check that re-imported exported models
@@ -72,6 +72,7 @@ class ImportExportPerformanceTest {
         Properties importParameters = new Properties();
         importParameters.put("powsyblTripleStore", ts);
         importParameters.put("storeCgmesModelAsNetworkExtension", "true");
+        importParameters.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network n = i.importData(ds, NetworkFactory.findDefault(), importParameters);
         CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         cgmes.print(LOG::info);

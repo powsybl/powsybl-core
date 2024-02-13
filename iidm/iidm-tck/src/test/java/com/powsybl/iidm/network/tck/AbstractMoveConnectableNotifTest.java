@@ -17,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractMoveConnectableNotifTest {
 
     @Test
-    void nodeBreakerTest() {
+    public void nodeBreakerTest() {
         var network = FictitiousSwitchFactory.create();
         MutableObject<Object> obj = new MutableObject<>();
         network.addListener(new DefaultNetworkListener() {
@@ -42,7 +42,7 @@ public abstract class AbstractMoveConnectableNotifTest {
     }
 
     @Test
-    void busBreakerTest() {
+    public void busBreakerTest() {
         var network = EurostagTutorialExample1Factory.create();
         MutableObject<Object> obj = new MutableObject<>();
         network.addListener(new DefaultNetworkListener() {

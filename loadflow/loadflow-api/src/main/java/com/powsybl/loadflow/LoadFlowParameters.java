@@ -23,7 +23,7 @@ import java.util.*;
  * Parameters for loadflow computation.
  * Extensions may be added, for instance for implementation-specific parameters.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
@@ -432,8 +432,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private void loadExtensions(PlatformConfig platformConfig) {
         for (LoadFlowProvider provider : new ServiceLoaderCache<>(LoadFlowProvider.class).getServices()) {
-            provider.loadSpecificParameters(platformConfig).ifPresent(loadFlowParametersExtension ->
-                    addExtension((Class) loadFlowParametersExtension.getClass(), loadFlowParametersExtension));
+            provider.loadSpecificParameters(platformConfig).ifPresent(extension ->
+                    addExtension((Class) extension.getClass(), extension));
         }
     }
 }

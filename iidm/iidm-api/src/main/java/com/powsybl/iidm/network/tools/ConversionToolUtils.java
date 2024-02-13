@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class ConversionToolUtils {
 
@@ -73,7 +73,7 @@ public final class ConversionToolUtils {
 
     public static Option createImportParametersFileOption() {
         return Option.builder().longOpt(IMPORT_PARAMETERS)
-                .desc("the importer configuation file")
+                .desc("the importer configuration file")
                 .hasArg()
                 .argName("IMPORT_PARAMETERS")
                 .build();

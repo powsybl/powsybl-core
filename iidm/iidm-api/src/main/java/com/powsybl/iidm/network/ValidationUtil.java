@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -10,16 +11,17 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class ValidationUtil {
 
@@ -346,7 +348,7 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkCaseDate(Validable validable, DateTime caseDate) {
+    public static void checkCaseDate(Validable validable, ZonedDateTime caseDate) {
         if (caseDate == null) {
             throw new ValidationException(validable, "case date is invalid");
         }
@@ -479,25 +481,31 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                                 Terminal regulationTerminal, double targetV, Network network, ValidationLevel validationLevel) {
-        return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, validationLevel, Reporter.NO_OP);
+                                                                 Terminal regulationTerminal, RatioTapChanger.RegulationMode regulationMode,
+                                                                 double regulationValue, Network network, ValidationLevel validationLevel) {
+        return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, regulationMode, regulationValue, network, validationLevel, Reporter.NO_OP);
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                                 Terminal regulationTerminal, double targetV, Network network, ValidationLevel validationLevel, Reporter reporter) {
-        return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, validationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS, reporter);
+                                                                 Terminal regulationTerminal, RatioTapChanger.RegulationMode regulationMode,
+                                                                 double regulationValue, Network network, ValidationLevel validationLevel, Reporter reporter) {
+        return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, regulationMode, regulationValue, network, validationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS, reporter);
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                                 Terminal regulationTerminal, double targetV, Network network, boolean throwException,
+                                                                 Terminal regulationTerminal, RatioTapChanger.RegulationMode regulationMode,
+                                                                 double regulationValue, Network network, boolean throwException,
                                                                  Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (regulating) {
-            if (Double.isNaN(targetV)) {
-                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a target voltage has to be set for a regulating ratio tap changer", throwException, reporter));
+            if (Objects.isNull(regulationMode)) {
+                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "regulation mode of regulating ratio tap changer must be given", throwException, reporter));
             }
-            if (targetV <= 0) {
-                throw new ValidationException(validable, "bad target voltage " + targetV);
+            if (Double.isNaN(regulationValue)) {
+                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation value has to be set for a regulating ratio tap changer", throwException, reporter));
+            }
+            if (regulationMode == RatioTapChanger.RegulationMode.VOLTAGE && regulationValue <= 0) {
+                throw new ValidationException(validable, "bad target voltage " + regulationValue);
             }
             if (regulationTerminal == null) {
                 validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation terminal has to be set for a regulating ratio tap changer", throwException, reporter));
@@ -544,11 +552,11 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                                          Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
+                                                                          Set<TapChanger<?, ?, ?, ?>> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
         return checkOnlyOneTapChangerRegulatingEnabled(validable, tapChangersNotIncludingTheModified, regulating, throwException, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified,
+    public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger<?, ?, ?, ?>> tapChangersNotIncludingTheModified,
                                                                           boolean regulating, boolean throwException, Reporter reporter) {
         if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
@@ -584,11 +592,41 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkPermanentLimit(Validable validable, double permanentLimit) {
-        // TODO: if (Double.isNaN(permanentLimit) || permanentLimit <= 0) {
-        if (permanentLimit <= 0) {
+    public static void checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
+        ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits);
+        ValidationUtil.checkTemporaryLimits(validable, permanentLimit, temporaryLimits);
+    }
+
+    public static void checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
+        if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty() || permanentLimit <= 0) {
             throw new ValidationException(validable, "permanent limit must be defined and be > 0");
         }
+    }
+
+    public static void checkTemporaryLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
+        // check temporary limits are consistent with permanent
+        if (LOGGER.isDebugEnabled()) {
+            double previousLimit = Double.NaN;
+            boolean wrongOrderMessageAlreadyLogged = false;
+            for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
+                if (tl.getValue() <= permanentLimit) {
+                    LOGGER.debug("{}, temporary limit should be greater than permanent limit", validable.getMessageHeader());
+                }
+                if (!wrongOrderMessageAlreadyLogged && !Double.isNaN(previousLimit) && tl.getValue() <= previousLimit) {
+                    LOGGER.debug("{} : temporary limits should be in ascending value order", validable.getMessageHeader());
+                    wrongOrderMessageAlreadyLogged = true;
+                }
+                previousLimit = tl.getValue();
+            }
+        }
+        // check name unicity
+        temporaryLimits.stream()
+                .collect(Collectors.groupingBy(LoadingLimits.TemporaryLimit::getName))
+                .forEach((name, temporaryLimits1) -> {
+                    if (temporaryLimits1.size() > 1) {
+                        throw new ValidationException(validable, temporaryLimits1.size() + "temporary limits have the same name " + name);
+                    }
+                });
     }
 
     public static void checkLossFactor(Validable validable, float lossFactor) {
@@ -605,7 +643,7 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
-        validationLevel = ValidationLevel.min(validationLevel, checkRatioTapChangerRegulation(validable, rtc.isRegulating(), rtc.hasLoadTapChangingCapabilities(), rtc.getRegulationTerminal(), rtc.getTargetV(), network, throwException, reporter));
+        validationLevel = ValidationLevel.min(validationLevel, checkRatioTapChangerRegulation(validable, rtc.isRegulating(), rtc.hasLoadTapChangingCapabilities(), rtc.getRegulationTerminal(), rtc.getRegulationMode(), rtc.getRegulationValue(), network, throwException, reporter));
         validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "ratio tap changer", rtc.isRegulating(), rtc.getTargetDeadband(), throwException, reporter));
         return validationLevel;
     }

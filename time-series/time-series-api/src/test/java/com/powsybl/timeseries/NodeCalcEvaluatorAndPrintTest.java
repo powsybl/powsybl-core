@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeCalcEvaluatorAndPrintTest {
 
@@ -125,5 +125,31 @@ class NodeCalcEvaluatorAndPrintTest {
     void testMax() {
         NodeCalc node = new MaxNodeCalc(new TimeSeriesNameNodeCalc("foo"), 2);
         assertEquals("timeSeries['foo'].max(2.0)", NodeCalcPrinter.print(node));
+    }
+
+    @Test
+    void testBinaryMin() {
+        BinaryMinCalc node = new BinaryMinCalc(new FloatNodeCalc(1f), new FloatNodeCalc(2f));
+        assertEquals(1f, NodeCalcEvaluator.eval(node, null), 0f);
+        assertEquals("min(1.0, 2.0)", NodeCalcPrinter.print(node));
+
+        node.setLeft(new TimeSeriesNameNodeCalc("foo"));
+        assertEquals("min(timeSeries['foo'], 2.0)", NodeCalcPrinter.print(node));
+
+        node.setRight(new TimeSeriesNameNodeCalc("bar"));
+        assertEquals("min(timeSeries['foo'], timeSeries['bar'])", NodeCalcPrinter.print(node));
+    }
+
+    @Test
+    void testBinaryMax() {
+        BinaryMaxCalc node = new BinaryMaxCalc(new FloatNodeCalc(1f), new FloatNodeCalc(2f));
+        assertEquals(2f, NodeCalcEvaluator.eval(node, null), 0f);
+        assertEquals("max(1.0, 2.0)", NodeCalcPrinter.print(node));
+
+        node.setLeft(new TimeSeriesNameNodeCalc("foo"));
+        assertEquals("max(timeSeries['foo'], 2.0)", NodeCalcPrinter.print(node));
+
+        node.setRight(new TimeSeriesNameNodeCalc("bar"));
+        assertEquals("max(timeSeries['foo'], timeSeries['bar'])", NodeCalcPrinter.print(node));
     }
 }

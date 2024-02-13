@@ -10,20 +10,24 @@ import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class MultipleDataSourceTest {
 
@@ -44,8 +48,13 @@ class MultipleDataSourceTest {
             }
 
             // create a multiple data source with all zipped profiles
-            Path[] files = profiles.stream().map(profile -> workDir.resolve(profile + ".zip")).toArray(Path[]::new);
-            Network network = Network.read(files);
+            List<ReadOnlyDataSource> files = profiles.stream()
+                    .map(profile -> workDir.resolve(profile + ".zip"))
+                    .map(DataSource::fromPath)
+                    .collect(Collectors.toList());
+            Properties importParams = new Properties();
+            importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+            Network network = Network.read(files, importParams);
             assertNotNull(network);
         }
     }

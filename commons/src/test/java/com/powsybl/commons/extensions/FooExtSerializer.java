@@ -21,7 +21,7 @@ import com.powsybl.commons.json.JsonUtil;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 @AutoService(ExtensionJsonSerializer.class)
 public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {

@@ -84,9 +84,9 @@ package com.powsybl.iidm.network;
 </ul>
  * </p>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public interface TieLine extends Branch<TieLine>, LineCharacteristics {
 
@@ -109,7 +109,7 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     /**
      * Get the dangling line of this tie line corresponding to the given side
      */
-    DanglingLine getDanglingLine(Side side);
+    DanglingLine getDanglingLine(TwoSides side);
 
     /**
      * Get the dangling line of this tie line corresponding to the given voltage level

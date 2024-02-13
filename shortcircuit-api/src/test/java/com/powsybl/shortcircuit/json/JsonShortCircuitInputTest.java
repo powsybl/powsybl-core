@@ -6,7 +6,7 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.shortcircuit.BranchFault;
 import com.powsybl.shortcircuit.BusFault;
 import com.powsybl.shortcircuit.Fault;
@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class JsonShortCircuitInputTest extends AbstractConverterTest {
+class JsonShortCircuitInputTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Objects;
 
 /**
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class RatioTapPositionModification extends AbstractTapPositionModification {
 
@@ -32,7 +32,7 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
      * @param tapPosition   the new tap position
      * @param leg           defines on which leg of the three winding transformer the modification will be done.
      */
-    public RatioTapPositionModification(String transformerId, int tapPosition, ThreeWindingsTransformer.Side leg) {
+    public RatioTapPositionModification(String transformerId, int tapPosition, ThreeSides leg) {
         super(transformerId, tapPosition, Objects.requireNonNull(leg));
     }
 

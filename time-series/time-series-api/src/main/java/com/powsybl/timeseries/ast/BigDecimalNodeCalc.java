@@ -17,7 +17,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class BigDecimalNodeCalc implements LiteralNodeCalc {
 
@@ -59,8 +59,8 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
     }
 
     static NodeCalc parseJson(JsonParser parser) throws IOException {
-        JsonToken token;
-        while ((token = parser.nextToken()) != null) {
+        JsonToken token = parser.nextToken();
+        if (token != null) {
             if (token == JsonToken.VALUE_NUMBER_INT) {
                 return new BigDecimalNodeCalc(BigDecimal.valueOf(parser.getLongValue()));
             } else if (token == JsonToken.VALUE_NUMBER_FLOAT) {

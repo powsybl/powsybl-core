@@ -56,8 +56,8 @@ import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {

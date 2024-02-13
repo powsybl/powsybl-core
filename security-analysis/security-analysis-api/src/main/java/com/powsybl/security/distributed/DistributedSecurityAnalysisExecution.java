@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
  * will consist to a separate call to {@literal itools security-analysis} through the specified
  * {@link ComputationManager}.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class DistributedSecurityAnalysisExecution extends AbstractDistributedSecurityAnalysisExecution implements SecurityAnalysisExecution {
 

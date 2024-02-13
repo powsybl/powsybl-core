@@ -13,7 +13,7 @@ import com.powsybl.security.SecurityAnalysisInputInterface;
  * in order to customize its {@link SecurityAnalysisInputInterface}, in particular
  * contingencies and limit violations detection.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public interface SecurityAnalysisPreprocessor {
 

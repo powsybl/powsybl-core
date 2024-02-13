@@ -6,9 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.ValidationException;
+
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
@@ -98,4 +100,21 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
         return (S) this;
     }
 
+    public void validate(TapChangerParent parent) {
+        if (Double.isNaN(this.getRho())) {
+            throw new ValidationException(parent, "step rho is not set");
+        }
+        if (Double.isNaN(this.getR())) {
+            throw new ValidationException(parent, "step r is not set");
+        }
+        if (Double.isNaN(this.getX())) {
+            throw new ValidationException(parent, "step x is not set");
+        }
+        if (Double.isNaN(this.getG())) {
+            throw new ValidationException(parent, "step g is not set");
+        }
+        if (Double.isNaN(this.getB())) {
+            throw new ValidationException(parent, "step b is not set");
+        }
+    }
 }

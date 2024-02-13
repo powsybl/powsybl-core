@@ -26,8 +26,8 @@ import java.util.Objects;
  * therefore some fields are fully serializable business objects
  * while others are more in their "source" format as they do not support serialization out of the box.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class SecurityAnalysisExecutionInput extends AbstractSecurityAnalysisExecutionInput<SecurityAnalysisExecutionInput, SecurityAnalysisParameters> {
 

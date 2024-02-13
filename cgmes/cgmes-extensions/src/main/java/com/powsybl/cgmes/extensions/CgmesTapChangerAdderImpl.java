@@ -9,7 +9,7 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.PowsyblException;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
 

@@ -13,7 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.Optional;
 
 /**
- * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ * @author Nicolas Pierre {@literal <nicolas.pierre@artelys.com>}
  */
 public class AmplConfig {
     private static final String AMPL_CONFIG_NAME = "ampl";

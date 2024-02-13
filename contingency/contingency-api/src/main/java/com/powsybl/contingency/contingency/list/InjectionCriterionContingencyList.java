@@ -15,10 +15,11 @@ import com.powsybl.iidm.network.IdentifiableType;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class InjectionCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
 
+    public static final String TYPE = "injectionCriterion";
     private final SingleCountryCriterion singleCountryCriterion;
     private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
@@ -38,7 +39,7 @@ public class InjectionCriterionContingencyList extends AbstractEquipmentCriterio
 
     @Override
     public String getType() {
-        return "injectionCriterion";
+        return TYPE;
     }
 
     @Override

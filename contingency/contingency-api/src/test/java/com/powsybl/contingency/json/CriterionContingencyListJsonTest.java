@@ -8,7 +8,7 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.*;
 import com.powsybl.contingency.contingency.list.criterion.*;
@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.Objects;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-class CriterionContingencyListJsonTest extends AbstractConverterTest {
+class CriterionContingencyListJsonTest extends AbstractSerDeTest {
 
     private static HvdcLineCriterionContingencyList createHvdcLineCriterionContingencyList() {
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.ES),

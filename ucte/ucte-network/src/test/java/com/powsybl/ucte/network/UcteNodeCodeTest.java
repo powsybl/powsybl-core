@@ -13,7 +13,7 @@ import static com.powsybl.ucte.network.UcteNodeCode.isUcteNodeId;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class UcteNodeCodeTest {
 

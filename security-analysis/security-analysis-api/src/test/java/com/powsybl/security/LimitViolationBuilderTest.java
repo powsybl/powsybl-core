@@ -6,7 +6,7 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 class LimitViolationBuilderTest {
 
@@ -49,7 +49,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.CURRENT, violation.getLimitType());
-        assertEquals(Branch.Side.ONE, violation.getSide());
+        assertEquals(TwoSides.ONE, violation.getSideAsTwoSides());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -63,7 +63,7 @@ class LimitViolationBuilderTest {
                 .side2()
                 .duration(60)
                 .build();
-        assertEquals(Branch.Side.TWO, violation2.getSide());
+        assertEquals(TwoSides.TWO, violation2.getSideAsTwoSides());
         assertEquals("name", violation2.getSubjectName());
         assertEquals("limitName", violation2.getLimitName());
         assertEquals(0.9f, violation2.getLimitReduction(), 0);
@@ -176,12 +176,12 @@ class LimitViolationBuilderTest {
                                                        .limit(1500)
                                                        .value(2000)
                                                        .duration(20, TimeUnit.MINUTES)
-                                                       .side(Branch.Side.ONE);
+                                                       .side(TwoSides.ONE);
 
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.ACTIVE_POWER, violation.getLimitType());
-        assertSame(Branch.Side.ONE, violation.getSide());
+        assertSame(TwoSides.ONE, violation.getSideAsTwoSides());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -195,12 +195,12 @@ class LimitViolationBuilderTest {
                                                        .limit(1500)
                                                        .value(2000)
                                                        .duration(20, TimeUnit.MINUTES)
-                                                       .side(Branch.Side.TWO);
+                                                       .side(TwoSides.TWO);
 
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.APPARENT_POWER, violation.getLimitType());
-        assertSame(Branch.Side.TWO, violation.getSide());
+        assertSame(TwoSides.TWO, violation.getSideAsTwoSides());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);

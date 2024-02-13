@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public abstract class AbstractContingencyResultDeserializer<T extends AbstractContingencyResult> extends StdDeserializer<T> {
     protected AbstractContingencyResultDeserializer(Class<T> vc) {

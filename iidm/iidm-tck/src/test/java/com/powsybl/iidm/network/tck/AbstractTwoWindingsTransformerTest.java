@@ -82,12 +82,12 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertSame(twoWindingsTransformer, vl1.getTwoWindingsTransformerStream().findFirst().get());
 
         RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(twoWindingsTransformer,
-                twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE));
+                twoWindingsTransformer.getTerminal(TwoSides.ONE));
         assertTrue(twoWindingsTransformer.getOptionalRatioTapChanger().isPresent());
         assertSame(ratioTapChangerInLeg1, twoWindingsTransformer.getRatioTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(twoWindingsTransformer,
-                twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO));
+                twoWindingsTransformer.getTerminal(TwoSides.TWO));
         assertTrue(twoWindingsTransformer.getOptionalPhaseTapChanger().isPresent());
         assertSame(phaseTapChangerInLeg1, twoWindingsTransformer.getPhaseTapChanger());
     }
@@ -234,7 +234,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
 
     private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating) {
         return transformer.newRatioTapChanger()
-                .setTargetV(200.0)
+                .setRegulationValue(200.0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(0)
                 .setTapPosition(0)

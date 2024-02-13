@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.topology.TopologyModificationUtils;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -26,14 +27,14 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.network.util.TieLineUtil.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ReplaceTieLinesByLines extends AbstractNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReplaceTieLinesByLines.class);
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         for (TieLine tl : network.getTieLineStream().toList()) {
             DanglingLine dl1 = tl.getDanglingLine1();
             DanglingLine dl2 = tl.getDanglingLine2();
@@ -96,8 +97,8 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             });
             line.getTerminal1().setP(p1).setQ(q1);
             line.getTerminal2().setP(p2).setQ(q2);
-            addLoadingLimits(line, limits1, Branch.Side.ONE);
-            addLoadingLimits(line, limits2, Branch.Side.TWO);
+            addLoadingLimits(line, limits1, TwoSides.ONE);
+            addLoadingLimits(line, limits2, TwoSides.TWO);
             // Add previous dangling lines ID and pairing key
             line.addAlias(dl1Id, "danglingLine1Id");
             line.addAlias(dl2Id, "danglingLine2Id");

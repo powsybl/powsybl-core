@@ -7,19 +7,19 @@
  */
 package com.powsybl.security.action;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 
 /**
  * An action modifying the regulation of a two or three windings transformer
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
- * @author Anne Tilloy <anne.tilloy@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public abstract class AbstractTapChangerRegulationAction extends AbstractTapChangerAction {
 
     private final boolean regulating;
 
-    protected AbstractTapChangerRegulationAction(String id, String transformerId, ThreeWindingsTransformer.Side side, boolean regulating) {
+    protected AbstractTapChangerRegulationAction(String id, String transformerId, ThreeSides side, boolean regulating) {
         super(id, transformerId, side);
         this.regulating = regulating;
     }

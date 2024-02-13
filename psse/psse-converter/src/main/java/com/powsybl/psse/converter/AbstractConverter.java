@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.util.ContainersMapping;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public abstract class AbstractConverter {
 

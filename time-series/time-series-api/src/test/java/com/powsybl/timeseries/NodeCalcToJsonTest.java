@@ -13,23 +13,33 @@ import java.math.BigDecimal;
 
 import static com.powsybl.timeseries.ast.BinaryOperation.*;
 import static com.powsybl.timeseries.ast.LiteralNodeCalc.*;
+import static com.powsybl.timeseries.ast.LiteralNodeCalc.createBigDecimal;
 import static com.powsybl.timeseries.ast.UnaryOperation.abs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeCalcToJsonTest {
 
     @Test
     void test() {
-        NodeCalc node = abs(div(plus(new TimeNodeCalc(createInteger(11)),
-                                     createFloat(3.14f)),
-                                multiply(createDouble(2.4566),
-                                         greaterThan(createBigDecimal(BigDecimal.TEN),
-                                                     new MinNodeCalc(new MaxNodeCalc(new TimeSeriesNameNodeCalc("ts"),
-                                                                                     10),
-                                                                     20)))));
+        NodeCalc node = minus(
+            abs(
+                div(
+                    plus(
+                        new TimeNodeCalc(createInteger(11)),
+                        createFloat(3.14f)),
+                    multiply(
+                        createDouble(2.4566),
+                        greaterThan(
+                            createBigDecimal(BigDecimal.TEN),
+                            new MinNodeCalc(
+                                new MaxNodeCalc(
+                                    new TimeSeriesNameNodeCalc("ts"),
+                                    10),
+                                20))))),
+            createBigDecimal(BigDecimal.valueOf(2.5)));
 
         String json = NodeCalc.toJson(node);
         NodeCalc node2 = NodeCalc.parseJson(json);

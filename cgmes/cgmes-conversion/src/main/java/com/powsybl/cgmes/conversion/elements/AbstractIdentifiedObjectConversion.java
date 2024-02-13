@@ -13,7 +13,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectConversion {
 
@@ -50,7 +50,7 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
     }
 
     public String iidmName() {
-        return context.namingStrategy().getName(type, name);
+        return context.namingStrategy().getIidmName(type, name);
     }
 
     // Identification

@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.shortcircuit.json.JsonShortCircuitParameters.getExtensionSerializers;
+import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.*;
 
 /**
  * @author Boubakeur Brahimi
@@ -46,6 +47,8 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 case "version" -> {
                     parser.nextToken();
                     version = parser.getValueAsString();
+                    JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE);
+                    deserializationContext.setAttribute(SOURCE_PARAMETER_TYPE_ATTRIBUTE, ParametersType.SHORT_CIRCUIT);
                 }
                 case "withLimitViolations" -> {
                     parser.nextToken();
@@ -112,6 +115,11 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setVoltageRanges(JsonUtil.readList(deserializationContext, parser, VoltageRange.class));
+                }
+                case "detailedReport" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.3");
+                    parser.nextToken();
+                    parameters.setDetailedReport(parser.readValueAs(Boolean.class));
                 }
                 case "extensions" -> {
                     parser.nextToken();

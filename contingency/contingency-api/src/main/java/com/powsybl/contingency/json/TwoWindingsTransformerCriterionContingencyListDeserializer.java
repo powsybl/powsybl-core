@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.criterion.*;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class TwoWindingsTransformerCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<TwoWindingsTransformerCriterionContingencyList> {
 
@@ -27,8 +27,8 @@ public class TwoWindingsTransformerCriterionContingencyListDeserializer extends 
     public TwoWindingsTransformerCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
         parser.nextToken();
-        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext, parsingContext, name));
-
+        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext,
+                    parsingContext, name, TwoWindingsTransformerCriterionContingencyList.TYPE));
         return new TwoWindingsTransformerCriterionContingencyList(parsingContext.name,
                 (SingleCountryCriterion) parsingContext.countryCriterion,
                 (TwoNominalVoltageCriterion) parsingContext.nominalVoltageCriterion,

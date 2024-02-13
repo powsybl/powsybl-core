@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
@@ -19,7 +20,7 @@ import java.util.Objects;
 /**
  * Simple {@link NetworkModification} to (dis)connect a shunt compensator and/or change its section.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class ShuntCompensatorModification extends AbstractNetworkModification {
 
@@ -34,7 +35,7 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       Reporter reporter) {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
 

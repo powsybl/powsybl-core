@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl.util;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.EnergySource;
@@ -27,8 +27,8 @@ import com.powsybl.iidm.network.util.SwitchesFlow;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class SwitchesFlowTest {
 
@@ -77,7 +77,7 @@ class SwitchesFlowTest {
     private static Network createNodeBreaker(NetworkFactory networkFactory) {
 
         Network network = networkFactory.createNetwork("SwitchesFlow-NodeBreaker", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         // First substation
@@ -329,7 +329,7 @@ class SwitchesFlowTest {
     private static Network createBusBreaker(NetworkFactory networkFactory) {
 
         Network network = networkFactory.createNetwork("SwitchesFlow-BusBreaker", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         // First substation

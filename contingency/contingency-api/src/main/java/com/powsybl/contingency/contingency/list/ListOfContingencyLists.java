@@ -15,9 +15,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ListOfContingencyLists implements ContingencyList {
+
+    public static final String TYPE = "list";
     private final String name;
     private final List<ContingencyList> contingencyLists;
 
@@ -33,7 +35,7 @@ public class ListOfContingencyLists implements ContingencyList {
 
     @Override
     public String getType() {
-        return "list";
+        return TYPE;
     }
 
     @Override

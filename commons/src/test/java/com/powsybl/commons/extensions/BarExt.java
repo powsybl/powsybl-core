@@ -7,7 +7,7 @@
 package com.powsybl.commons.extensions;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class BarExt extends AbstractExtension<Foo> {
 

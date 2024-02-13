@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
@@ -20,9 +19,11 @@ import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -32,9 +33,9 @@ import java.util.stream.Stream;
 import static com.powsybl.iidm.network.util.TieLineUtil.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, MultiVariantObject {
+public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, MultiVariantObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
@@ -58,6 +59,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     private final Map<String, VoltageAngleLimit> voltageAngleLimitsIndex = new LinkedHashMap<>();
 
     private final VariantManagerImpl variantManager;
+
+    private AbstractReporterContext reporterContext;
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
@@ -122,6 +125,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     NetworkImpl(String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         ref.setRef(new RefObj<>(this));
+        this.reporterContext = new SimpleReporterContext();
         variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
@@ -137,6 +141,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         NetworkImpl mergedNetwork = new NetworkImpl(id, name, networks[0].getSourceFormat());
         setValidationLevels(mergedNetwork, networks);
+        setCommonCaseDate(mergedNetwork, networks);
         for (Network other : networks) {
             mergedNetwork.merge(other);
         }
@@ -158,6 +163,17 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         mergedNetwork.setValidationLevelIfGreaterThan(validationLevel);
     }
 
+    private static void setCommonCaseDate(NetworkImpl mergedNetwork, Network[] networks) {
+        //if all subnetworks have same case date then apply it to merged network
+        ZonedDateTime caseDate = networks[0].getCaseDate();
+        for (Network n : networks) {
+            if (!Objects.equals(caseDate, n.getCaseDate())) {
+                return;
+            }
+        }
+        mergedNetwork.setCaseDate(caseDate);
+    }
+
     RefChain<NetworkImpl> getRef() {
         return ref;
     }
@@ -167,7 +183,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return getRef();
     }
 
-    NetworkListenerList getListeners() {
+    public NetworkListenerList getListeners() {
         return listeners;
     }
 
@@ -207,6 +223,16 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public VariantManagerImpl getVariantManager() {
         return variantManager;
+    }
+
+    @Override
+    public void allowReporterContextMultiThreadAccess(boolean allow) {
+        this.reporterContext = Networks.allowReporterContextMultiThreadAccess(this.reporterContext, allow);
+    }
+
+    @Override
+    public ReporterContext getReporterContext() {
+        return this.reporterContext;
     }
 
     @Override
@@ -414,6 +440,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
         return index.get(id, ThreeWindingsTransformerImpl.class);
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return Collections.unmodifiableCollection(index.getAll(OverloadManagementSystemImpl.class));
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return index.getAll(OverloadManagementSystemImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return index.getAll(OverloadManagementSystemImpl.class).size();
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        return index.get(id, OverloadManagementSystemImpl.class);
     }
 
     @Override
@@ -673,6 +719,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newHvdcLine(null);
     }
 
+    @Override
+    public Ground getGround(String id) {
+        return index.get(id, GroundImpl.class);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return Collections.unmodifiableCollection(index.getAll(GroundImpl.class));
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return index.getAll(GroundImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getGroundCount() {
+        return index.getAll(GroundImpl.class).size();
+    }
+
     HvdcLineAdder newHvdcLine(String subnetwork) {
         return new HvdcLineAdderImpl(this, subnetwork);
     }
@@ -724,7 +790,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
-        return new VoltageAngleLimitAdderImpl(ref);
+        return newVoltageAngleLimit(null);
+    }
+
+    VoltageAngleLimitAdder newVoltageAngleLimit(String subnetwork) {
+        return new VoltageAngleLimitAdderImpl(this, subnetwork);
     }
 
     @Override
@@ -916,7 +986,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
                 dl1byPairingKey.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
             }
         }
-        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
+        for (DanglingLine dl2 : findCandidateDanglingLines(other, dl1byPairingKey::containsKey)) {
             findAndAssociateDanglingLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
         }
 
@@ -998,6 +1068,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
                 ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
+            } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
+                // Invert the ids to always have them in lexicographical order (to ensure reproducibility)
+                var tmp = l.dl1Id;
+                l.dl1Id = l.dl2Id;
+                l.dl2Id = tmp;
             }
         }
     }

@@ -35,12 +35,13 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
@@ -211,6 +212,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case SHUNT_COMPENSATOR:
                     case STATIC_VAR_COMPENSATOR:
                         feederCount++;
+                        break;
+                    case GROUND:
                         break;
 
                     case BUSBAR_SECTION: // must not happend in a bus/breaker topology
@@ -927,6 +930,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
+    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
+        return connect(terminal);
+    }
+
+    @Override
     public boolean disconnect(TerminalExt terminal) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
@@ -942,7 +950,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         invalidateCache();
 
         return true;
+    }
 
+    @Override
+    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
+        return disconnect(terminal);
     }
 
     void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, TraversalType traversalType) {

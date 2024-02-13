@@ -19,7 +19,7 @@ import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimulationParameters> {
 

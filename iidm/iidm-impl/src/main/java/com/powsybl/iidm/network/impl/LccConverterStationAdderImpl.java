@@ -9,11 +9,10 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<LccConverterStationAdderImpl> implements LccConverterStationAdder {
 
@@ -32,15 +31,6 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
     public LccConverterStationAdder setPowerFactor(float powerFactor) {
         this.powerFactor = powerFactor;
         return this;
-    }
-
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return getVoltageLevel().getNetworkRef();
     }
 
     @Override

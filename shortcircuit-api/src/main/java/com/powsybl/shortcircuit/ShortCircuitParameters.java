@@ -40,8 +40,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
     // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition,
-    //                initialVoltageProfileMode, voltageRanges
-    public static final String VERSION = "1.2";
+    //                initialVoltageProfileMode, voltageRange
+    // VERSION = 1.3 detailedLog, voltage in voltageRange
+    public static final String VERSION = "1.3";
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
     private boolean withFortescueResult = DEFAULT_WITH_FORTESCUE_RESULT;
@@ -56,6 +57,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withNeutralPosition = DEFAULT_WITH_NEUTRAL_POSITION;
     private InitialVoltageProfileMode initialVoltageProfileMode = DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE;
     private List<VoltageRange> voltageRanges;
+    private boolean detailedReport = DEFAULT_DETAILED_REPORT;
 
     /**
      * Load parameters from platform default config.
@@ -82,7 +84,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
                         .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
                         .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile-mode", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
-                        .setVoltageRanges(getVoltageRangesFromConfig(config)));
+                        .setVoltageRanges(getVoltageRangesFromConfig(config))
+                        .setDetailedReport(config.getBooleanProperty("detailed-report", DEFAULT_DETAILED_REPORT)));
 
         parameters.validate();
         parameters.readExtensions(platformConfig);
@@ -285,6 +288,18 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     public ShortCircuitParameters setVoltageRanges(List<VoltageRange> voltageRanges) {
         checkVoltageRange(voltageRanges);
         this.voltageRanges = voltageRanges;
+        return this;
+    }
+
+    /**
+     * A boolean indicating if the functional logs in reporter should be detailed or aggregated.
+     */
+    public boolean isDetailedReport() {
+        return detailedReport;
+    }
+
+    public ShortCircuitParameters setDetailedReport(boolean detailedReport) {
+        this.detailedReport = detailedReport;
         return this;
     }
 

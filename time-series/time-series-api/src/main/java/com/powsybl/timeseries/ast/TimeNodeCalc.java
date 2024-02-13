@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Deque;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
 
@@ -65,17 +65,18 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
         NodeCalc child = null;
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
-            if (token == JsonToken.START_OBJECT) {
-                // skip
-            } else if (token == JsonToken.END_OBJECT) {
-                if (child == null) {
-                    throw new TimeSeriesException("Invalid time node calc JSON");
+            switch (token) {
+                case START_OBJECT -> {
+                    // Do nothing
                 }
-                return new TimeNodeCalc(child);
-            } else if (token == JsonToken.FIELD_NAME) {
-                child = NodeCalc.parseJson(parser, token);
-            } else {
-                throw NodeCalc.createUnexpectedToken(token);
+                case END_OBJECT -> {
+                    if (child == null) {
+                        throw new TimeSeriesException("Invalid time node calc JSON");
+                    }
+                    return new TimeNodeCalc(child);
+                }
+                case FIELD_NAME -> child = NodeCalc.parseJson(parser, token);
+                default -> throw NodeCalc.createUnexpectedToken(token);
             }
         }
         throw NodeCalc.createUnexpectedToken(token);

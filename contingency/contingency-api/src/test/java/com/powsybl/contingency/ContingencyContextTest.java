@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ContingencyContextTest {
 
@@ -19,5 +19,11 @@ class ContingencyContextTest {
     void test() {
         ContingencyContext context = new ContingencyContext("c1", ContingencyContextType.SPECIFIC);
         assertEquals("ContingencyContext(contingencyId='c1', contextType=SPECIFIC)", context.toString());
+    }
+
+    @Test
+    void testOnlyContingencies() {
+        ContingencyContext context = ContingencyContext.create(null, ContingencyContextType.ONLY_CONTINGENCIES);
+        assertEquals("ContingencyContext(contingencyId='', contextType=ONLY_CONTINGENCIES)", context.toString());
     }
 }

@@ -9,7 +9,7 @@ package com.powsybl.psse.model;
 import com.powsybl.commons.PowsyblException;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class PsseException extends PowsyblException {
 

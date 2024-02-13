@@ -19,7 +19,7 @@ import java.nio.file.FileSystem;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Lucas Leblow <lucasleblow@mailbox.org>
+ * @author Lucas Leblow {@literal <lucasleblow@mailbox.org>}
  */
 class TestAbstractVoltageLevel {
 

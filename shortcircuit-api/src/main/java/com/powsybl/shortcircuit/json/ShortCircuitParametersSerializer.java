@@ -46,6 +46,7 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
         if (parameters.getInitialVoltageProfileMode() == InitialVoltageProfileMode.CONFIGURED) {
             serializerProvider.defaultSerializeField("voltageRanges", parameters.getVoltageRanges(), jsonGenerator);
         }
+        jsonGenerator.writeBooleanField("detailedReport", parameters.isDetailedReport());
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonShortCircuitParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();
     }

@@ -21,7 +21,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.notFoundVol
 import static com.powsybl.iidm.modification.util.ModificationReports.removedVoltageLevelReport;
 
 /**
- * @author Etienne Homer <etienne.homer at rte-france.com>
+ * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
 public class RemoveVoltageLevel extends AbstractNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveVoltageLevel.class);
@@ -33,7 +33,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             LOGGER.error("Voltage level {} not found", voltageLevelId);

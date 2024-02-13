@@ -6,20 +6,23 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
+import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class SensitivityValueTest extends AbstractConverterTest {
+class SensitivityValueTest extends AbstractSerDeTest {
 
     @Test
     void test() {
@@ -37,5 +40,20 @@ class SensitivityValueTest extends AbstractConverterTest {
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityValue.class, objectMapper), "/valueRef.json");
+    }
+
+    @Test
+    void testJsonWhenContingencyIndexIsMinus1() throws JsonProcessingException {
+        SensitivityValue value = new SensitivityValue(0, -1, 1d, 2d);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new SensitivityJsonModule());
+        String sensitivityValueString = objectMapper.writeValueAsString(value);
+
+        // When the contingency index is -1 it should not be present in the json
+        assertFalse(sensitivityValueString.contains("contingencyIndex"));
+
+        SensitivityValue value2 = objectMapper.readValue(sensitivityValueString, SensitivityValue.class);
+        assertEquals(value.getContingencyIndex(), value2.getContingencyIndex());
+
     }
 }

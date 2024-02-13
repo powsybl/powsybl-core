@@ -12,7 +12,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface CgmesModel {
 
@@ -39,9 +39,9 @@ public interface CgmesModel {
 
     String version();
 
-    DateTime scenarioTime();
+    ZonedDateTime scenarioTime();
 
-    DateTime created();
+    ZonedDateTime created();
 
     boolean isNodeBreaker();
 
@@ -149,6 +149,10 @@ public interface CgmesModel {
     }
 
     default PropertyBags graph() {
+        return new PropertyBags();
+    }
+
+    default PropertyBags grounds() {
         return new PropertyBags();
     }
 

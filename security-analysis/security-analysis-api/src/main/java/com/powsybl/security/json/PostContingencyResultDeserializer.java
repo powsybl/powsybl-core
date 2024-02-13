@@ -20,7 +20,7 @@ import java.util.Objects;
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class PostContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PostContingencyResult> {
 

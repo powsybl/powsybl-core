@@ -6,11 +6,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationException;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends AbstractIdentifiableAdder<T> {
 
@@ -52,7 +53,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected TerminalExt checkAndGetTerminal1() {
         VoltageLevelExt voltageLevel = checkAndGetVoltageLevel1();
-        return new TerminalBuilder(voltageLevel.getNetworkRef(), this)
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, ThreeSides.ONE)
                 .setNode(node1)
                 .setBus(bus1)
                 .setConnectableBus(connectableBus1)
@@ -97,7 +98,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected TerminalExt checkAndGetTerminal2() {
         VoltageLevelExt voltageLevel = checkAndGetVoltageLevel2();
-        return new TerminalBuilder(voltageLevel.getNetworkRef(), this)
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, ThreeSides.TWO)
                 .setNode(node2)
                 .setBus(bus2)
                 .setConnectableBus(connectableBus2)

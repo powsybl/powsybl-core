@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 @AutoService(SecurityAnalysisProvider.class)
 public class DefaultSecurityAnalysisProvider implements SecurityAnalysisProvider {

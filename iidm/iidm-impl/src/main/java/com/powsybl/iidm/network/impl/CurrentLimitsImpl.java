@@ -7,15 +7,21 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.CurrentLimits;
+
 import java.util.TreeMap;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> implements CurrentLimits {
 
-    CurrentLimitsImpl(OperationalLimitsOwner owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        super(owner, permanentLimit, temporaryLimits);
+    CurrentLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, temporaryLimits);
+    }
+
+    @Override
+    public void remove() {
+        group.removeCurrentLimits();
     }
 }

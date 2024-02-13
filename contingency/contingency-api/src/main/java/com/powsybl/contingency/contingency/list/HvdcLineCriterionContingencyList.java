@@ -15,9 +15,11 @@ import com.powsybl.iidm.network.IdentifiableType;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class HvdcLineCriterionContingencyList extends AbstractLineCriterionContingencyList {
+
+    public static final String TYPE = "hvdcCriterion";
 
     public HvdcLineCriterionContingencyList(String name, TwoCountriesCriterion twoCountriesCriterion,
                                             TwoNominalVoltageCriterion twoNominalVoltageCriterion,
@@ -27,6 +29,6 @@ public class HvdcLineCriterionContingencyList extends AbstractLineCriterionConti
 
     @Override
     public String getType() {
-        return "hvdcCriterion";
+        return TYPE;
     }
 }

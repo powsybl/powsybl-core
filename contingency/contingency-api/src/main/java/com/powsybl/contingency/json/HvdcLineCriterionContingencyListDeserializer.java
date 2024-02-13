@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.criterion.*;
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class HvdcLineCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<HvdcLineCriterionContingencyList> {
 
@@ -27,7 +27,8 @@ public class HvdcLineCriterionContingencyListDeserializer extends AbstractEquipm
     public HvdcLineCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
         parser.nextToken();
-        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext, parsingContext, name));
+        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext,
+                parsingContext, name, HvdcLineCriterionContingencyList.TYPE));
 
         return new HvdcLineCriterionContingencyList(parsingContext.name,
                 (TwoCountriesCriterion) parsingContext.countryCriterion,

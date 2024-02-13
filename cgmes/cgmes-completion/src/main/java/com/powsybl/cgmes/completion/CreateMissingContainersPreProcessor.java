@@ -16,6 +16,7 @@ import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
@@ -45,6 +46,9 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
+
 /**
  * <p>
  *     A CGMES pre-processor that defines missing containers in input data.
@@ -64,14 +68,14 @@ import java.util.zip.ZipOutputStream;
  *     The user may edit the generated files and reuse them in successive imports.
  * </p>
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 @AutoService(CgmesImportPreProcessor.class)
 public class CreateMissingContainersPreProcessor implements CgmesImportPreProcessor {
 
     public static final String NAME = "createMissingContainers";
     public static final String FIXES_FOLDER_NAME = "iidm.import.cgmes.fixes-for-missing-containers-folder";
-    public static final double DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS = 100.0;
+    public static final double DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS = 1.2345;
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateMissingContainersPreProcessor.class);
     private static final Parameter FIXES_FOLDER_NAME_PARAMETER = new Parameter(FIXES_FOLDER_NAME,
@@ -154,8 +158,8 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         try (ZipOutputStream zout = new ZipOutputStream(Files.newOutputStream(fixesFile))) {
             zout.putNextEntry(new ZipEntry(basename + "_EQ.xml"));
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", zout);
-            writeHeader(writer, context);
-            RegionContainers regionContainers = writeRegionContainers(writer, context);
+            writeHeader(network, writer, context);
+            RegionContainers regionContainers = writeRegionContainers(network, writer, context);
             for (String missingVoltageLevel : missingVoltageLevels) {
                 writeMissingVoltageLevel(missingVoltageLevel, writer, context, regionContainers);
             }
@@ -179,16 +183,16 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         return network;
     }
 
-    private static RegionContainers writeRegionContainers(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static RegionContainers writeRegionContainers(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
 
         // An alternative to replicate this code would be to make public the method
         // EquipmentExport::writeFictitiousSubstationFor and use it here.
         // We could group all missing voltage levels in the same (fictitious) substation
         RegionContainers regionContainers = new RegionContainers();
-        regionContainers.subGeographicalRegionId = CgmesExportUtil.getUniqueId();
+        regionContainers.subGeographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(network), ref("SubgeographicalRegionId"));
         String subGeographicalRegionName = "SGR fix for missing data";
-        regionContainers.geographicalRegionId = CgmesExportUtil.getUniqueId();
+        regionContainers.geographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(network), ref("GeographicalRegionId"));
         String geographicalRegionName = "GR fix for missing data";
         SubGeographicalRegionEq.write(regionContainers.subGeographicalRegionId, subGeographicalRegionName, regionContainers.geographicalRegionId, cimNamespace, writer, context);
         GeographicalRegionEq.write(regionContainers.geographicalRegionId, geographicalRegionName, cimNamespace, writer, context);
@@ -202,21 +206,21 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         // we do not have additional information about the voltage level,
         // we create a different substation and base voltage for every missing voltage level
         String voltageLevelName = voltageLevelId + " VL";
-        String substationId = CgmesExportUtil.getUniqueId();
+        String substationId = context.getNamingStrategy().getCgmesId(ref(voltageLevelId), ref("Substation"));
         String substationName = voltageLevelId + "SUB for missing VL " + voltageLevelId;
-        String baseVoltageId = CgmesExportUtil.getUniqueId();
+        String baseVoltageId = context.getNamingStrategy().getCgmesId(ref(voltageLevelId), ref("BaseVoltage"));
 
         VoltageLevelEq.write(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, writer, context);
         SubstationEq.write(substationId, substationName, regionContainers.subGeographicalRegionId, cimNamespace, writer, context);
         BaseVoltageEq.write(baseVoltageId, DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS, cimNamespace, writer, context);
     }
 
-    private static void writeHeader(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeHeader(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         String euNamespace = context.getCim().getEuNamespace();
         CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
         if (context.getCimVersion() >= 16) {
-            ModelDescriptionEq.write(writer, context.getEqModelDescription(), context);
+            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, context.getEqModelDescription(), context);
         }
     }
 
@@ -256,7 +260,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         }
     }
 
-    private static class RegionContainers {
+    private static final class RegionContainers {
         String subGeographicalRegionId;
         String geographicalRegionId;
     }

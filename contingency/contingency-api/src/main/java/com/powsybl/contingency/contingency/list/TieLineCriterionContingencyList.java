@@ -16,9 +16,11 @@ import com.powsybl.iidm.network.IdentifiableType;
 import java.util.List;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class TieLineCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
+
+    public static final String TYPE = "tieLineCriterion";
     private final TwoCountriesCriterion twoCountriesCriterion;
     private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
@@ -33,7 +35,7 @@ public class TieLineCriterionContingencyList extends AbstractEquipmentCriterionC
 
     @Override
     public String getType() {
-        return "tieLineCriterion";
+        return TYPE;
     }
 
     @Override

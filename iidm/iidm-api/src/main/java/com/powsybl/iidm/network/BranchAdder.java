@@ -8,7 +8,7 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface BranchAdder<T extends Branch<? super T> & Connectable<? super T>, A extends BranchAdder> extends IdentifiableAdder<T, A> {
 

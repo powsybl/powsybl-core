@@ -8,17 +8,14 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  *
  */
 class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
-
-    private final VoltageLevelExt voltageLevel;
 
     private double p0 = Double.NaN;
 
@@ -38,11 +35,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    public NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     void setGenerationAdder(GenerationAdderImpl adder) {
@@ -94,15 +86,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     public DanglingLineAdder setPairingKey(String pairingKey) {
         this.pairingKey = pairingKey;
         return this;
-    }
-
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
     }
 
     @Override

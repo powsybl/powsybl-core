@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractExtendable<T> implements Extendable<T> {
 
@@ -24,6 +24,8 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     public <E extends Extension<T>> void addExtension(Class<? super E> type, E extension) {
         Objects.requireNonNull(type);
         Objects.requireNonNull(extension);
+        // remove any existing, which will trigger extension own cleanup if any
+        this.removeExtension((Class<E>) type);
         extension.setExtendable((T) this);
         extensions.put(type, extension);
         extensionsByName.put(extension.getName(), extension);
@@ -41,15 +43,19 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         return (E) extensionsByName.get(name);
     }
 
+    protected <E extends Extension<T>> void removeExtension(Class<E> type, E extension) {
+        extensions.remove(type);
+        extensionsByName.remove(extension.getName());
+        extension.setExtendable(null);
+    }
+
     @Override
     public <E extends Extension<T>> boolean removeExtension(Class<E> type) {
         boolean removed = false;
 
         E extension = getExtension(type);
         if (extension != null) {
-            extensions.remove(type);
-            extensionsByName.remove(extension.getName());
-            extension.setExtendable(null);
+            removeExtension(type, extension);
             removed = true;
         }
 
@@ -65,5 +71,4 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     public String getImplementationName() {
         return "Default";
     }
-
 }

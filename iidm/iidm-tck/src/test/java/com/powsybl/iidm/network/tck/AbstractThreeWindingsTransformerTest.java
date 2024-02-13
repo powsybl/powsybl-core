@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
@@ -63,12 +62,13 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         // leg1 adder
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+        assertEquals(ThreeSides.ONE, leg1.getSide());
         assertEquals(1.3, leg1.getR(), 0.0);
         assertEquals(1.4, leg1.getX(), 0.0);
         assertEquals(1.1, leg1.getRatedU(), 0.0);
         assertEquals(1.6, leg1.getG(), 0.0);
         assertEquals(1.7, leg1.getB(), 0.0);
-        assertSame(transformer.getTerminal(ThreeWindingsTransformer.Side.ONE), leg1.getTerminal());
+        assertSame(transformer.getTerminal(ThreeSides.ONE), leg1.getTerminal());
         // leg1 setter getter
         leg1.setR(2.0);
         assertEquals(2.0, leg1.getR(), 0.0);
@@ -83,7 +83,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         // leg2/3 adder
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+        assertEquals(ThreeSides.TWO, leg2.getSide());
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+        assertEquals(ThreeSides.THREE, leg3.getSide());
         assertEquals(2.03, leg2.getR(), 0.0);
         assertEquals(2.04, leg2.getX(), 0.0);
         assertEquals(2.05, leg2.getRatedU(), 0.0);
@@ -92,8 +94,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(3.4, leg3.getX(), 0.0);
         assertEquals(3.5, leg3.getRatedU(), 0.0);
         assertEquals(3.6, leg3.getRatedS(), 0.0);
-        assertSame(transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), leg2.getTerminal());
-        assertSame(transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), leg3.getTerminal());
+        assertSame(transformer.getTerminal(ThreeSides.TWO), leg2.getTerminal());
+        assertSame(transformer.getTerminal(ThreeSides.THREE), leg3.getTerminal());
         // leg2/3 setter getter
         leg2.setR(1.0);
         assertEquals(1.0, leg2.getR(), 0.0);
@@ -113,7 +115,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(1.3, leg3.getRatedS(), 0.0);
 
         RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(leg1,
-            transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
+            transformer.getTerminal(ThreeSides.ONE));
 
         assertTrue(leg1.getOptionalRatioTapChanger().isPresent());
         assertSame(ratioTapChangerInLeg1, leg1.getRatioTapChanger());
@@ -134,10 +136,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .setPermanentLimit(2.4)
                 .add();
         assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
-        assertEquals(3, leg1.getOperationalLimits().size());
 
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
-            transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
+            transformer.getTerminal(ThreeSides.TWO));
 
         assertTrue(leg2.hasRatioTapChanger());
         assertSame(ratioTapChangerInLeg2, leg2.getRatioTapChanger());
@@ -152,7 +153,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertSame(currentLimitsInLeg2, leg2.getCurrentLimits().orElse(null));
 
         RatioTapChanger ratioTapChangerInLeg3 = createRatioTapChanger(leg3,
-            transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
+            transformer.getTerminal(ThreeSides.THREE));
 
         assertTrue(leg3.getOptionalRatioTapChanger().isPresent());
         assertSame(ratioTapChangerInLeg3, leg3.getRatioTapChanger());
@@ -167,17 +168,17 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertSame(currentLimitsInLeg3, leg3.getCurrentLimits().orElse(null));
 
         PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(leg1,
-            transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
+            transformer.getTerminal(ThreeSides.ONE));
         assertTrue(leg1.getOptionalPhaseTapChanger().isPresent());
         assertSame(phaseTapChangerInLeg1, leg1.getPhaseTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg2 = createPhaseTapChanger(leg2,
-            transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
+            transformer.getTerminal(ThreeSides.TWO));
         assertTrue(leg2.hasPhaseTapChanger());
         assertSame(phaseTapChangerInLeg2, leg2.getPhaseTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg3 = createPhaseTapChanger(leg3,
-            transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
+            transformer.getTerminal(ThreeSides.THREE));
         assertTrue(leg3.getOptionalPhaseTapChanger().isPresent());
         assertSame(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
 
@@ -292,8 +293,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void leg1SetTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
-        createRatioTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
-        createPhaseTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
+        createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
+        createPhaseTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
 
         leg1.getRatioTapChanger().setRegulating(true);
         ValidationException e = assertThrows(ValidationException.class, () -> leg1.getPhaseTapChanger().setRegulating(true));
@@ -304,8 +305,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void leg2SetTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
-        createRatioTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
-        createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
+        createRatioTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
+        createPhaseTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
 
         leg2.getRatioTapChanger().setRegulating(true);
         ValidationException e = assertThrows(ValidationException.class, () -> leg2.getPhaseTapChanger().setRegulating(true));
@@ -317,8 +318,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
         // First create phase
-        createPhaseTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
-        createRatioTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
+        createPhaseTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
+        createRatioTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
 
         leg3.getRatioTapChanger().setRegulating(true);
         ValidationException e = assertThrows(ValidationException.class, () -> leg3.getPhaseTapChanger().setRegulating(true));
@@ -329,9 +330,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void ratioSetTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
-        createRatioTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
+        createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
-        createRatioTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
+        createRatioTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
 
         leg1.getRatioTapChanger().setRegulating(true);
         ValidationException e = assertThrows(ValidationException.class, () -> leg3.getRatioTapChanger().setRegulating(true));
@@ -342,9 +343,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void phaseSetTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
-        createPhaseTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
+        createPhaseTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
-        createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
+        createPhaseTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
 
         leg1.getPhaseTapChanger().setRegulating(true);
         ValidationException e = assertThrows(ValidationException.class, () -> leg2.getPhaseTapChanger().setRegulating(true));
@@ -355,10 +356,10 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void ratioAddTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
-        createRatioTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE), true);
+        createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE), true);
 
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), true));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE), true));
         assertTrue(e.getMessage().contains(ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
 
@@ -366,10 +367,10 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void phaseAddTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
-        createPhaseTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE), true);
+        createPhaseTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE), true);
 
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), true));
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO), true));
         assertTrue(e.getMessage().contains(ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
 
@@ -377,10 +378,10 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void phaseRatioAddTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
-        createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), true);
+        createPhaseTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO), true);
 
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE), true));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE), true));
         assertTrue(e.getMessage().contains(ERROR_LEG1_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
 
@@ -388,7 +389,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void ratioIncorrectTapPosition() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
-        RatioTapChanger rtc = createRatioTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
+        RatioTapChanger rtc = createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
 
         ValidationException e = assertThrows(ValidationException.class, () -> rtc.setTapPosition(1000));
         assertTrue(e.getMessage().contains("3 windings transformer leg1 'twt': incorrect tap position 1000 [0, 2]"));
@@ -398,7 +399,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void phaseIncorrectTapPosition() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
-        PhaseTapChanger ptc = createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
+        PhaseTapChanger ptc = createPhaseTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
 
         ValidationException e = assertThrows(ValidationException.class, () -> ptc.setTapPosition(100));
         assertTrue(e.getMessage().contains("3 windings transformer leg2 'twt': incorrect tap position 100 [0, 2]"));
@@ -409,7 +410,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), Double.NaN, 0.0, 0.0, 0.0, 0.0));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), Double.NaN, 0.0, 0.0, 0.0, 0.0));
         assertTrue(e.getMessage().contains("rho is not set"));
     }
 
@@ -418,7 +419,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, Double.NaN, 0.0, 0.0, 0.0));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, Double.NaN, 0.0, 0.0, 0.0));
         assertTrue(e.getMessage().contains(ERROR_R_IS_NOT_SET));
     }
 
@@ -427,7 +428,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, Double.NaN, 0.0, 0.0));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, Double.NaN, 0.0, 0.0));
         assertTrue(e.getMessage().contains(ERROR_X_IS_NOT_SET));
     }
 
@@ -436,7 +437,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, 0.0, Double.NaN, 0.0));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, 0.0, Double.NaN, 0.0));
         assertTrue(e.getMessage().contains(ERROR_G_IS_NOT_SET));
     }
 
@@ -445,7 +446,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, 0.0, 0.0, Double.NaN));
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, 0.0, 0.0, Double.NaN));
         assertTrue(e.getMessage().contains(ERROR_B_IS_NOT_SET));
     }
 
@@ -454,7 +455,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         // Verify that other invalidPhaseStepArgument* tests are not throwing when arguments are ok
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
-        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, 0.0,
+        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, 0.0,
                 0.0, 0.0);
     }
 
@@ -463,7 +464,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), Double.NaN, 0.0, 0.0, 0.0, 0.0, 0.0));
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), Double.NaN, 0.0, 0.0, 0.0, 0.0, 0.0));
         assertTrue(e.getMessage().contains("rho is not set"));
     }
 
@@ -472,7 +473,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, Double.NaN, 0.0, 0.0, 0.0, 0.0));
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, Double.NaN, 0.0, 0.0, 0.0, 0.0));
         assertTrue(e.getMessage().contains("alpha is not set"));
     }
 
@@ -481,7 +482,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, Double.NaN, 0.0, 0.0, 0.0));
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, Double.NaN, 0.0, 0.0, 0.0));
         assertTrue(e.getMessage().contains(ERROR_R_IS_NOT_SET));
     }
 
@@ -490,7 +491,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
             Double.NaN, 0.0, 0.0));
         assertTrue(e.getMessage().contains(ERROR_X_IS_NOT_SET));
     }
@@ -500,7 +501,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
             0.0, Double.NaN, 0.0));
         assertTrue(e.getMessage().contains(ERROR_G_IS_NOT_SET));
     }
@@ -510,7 +511,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         // Verify that other invalidPhaseStepArgument* tests are not throwing when arguments are ok
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
-        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
+        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0);
     }
 
@@ -519,7 +520,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
             0.0, 0.0, Double.NaN));
         assertTrue(e.getMessage().contains(ERROR_B_IS_NOT_SET));
     }
@@ -708,7 +709,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChanger(Leg leg, Terminal terminal, boolean regulating) {
         return leg.newRatioTapChanger()
-            .setTargetV(200.0)
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
             .setTapPosition(0)
@@ -741,7 +743,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChangerOneStep(Leg leg, Terminal terminal, double rho, double r, double x, double g, double b) {
         return leg.newRatioTapChanger()
-            .setTargetV(200.0)
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
             .setTapPosition(0)
@@ -989,16 +992,12 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     }
 
     @Test
-    public void threeSidesTest() {
-        assertEquals(ThreeSides.ONE, ThreeSides.valueOf(1));
-        assertEquals(ThreeSides.TWO, ThreeSides.valueOf(2));
-        assertEquals(ThreeSides.THREE, ThreeSides.valueOf(3));
-
-        assertEquals(1, ThreeSides.ONE.getNum());
-        assertEquals(2, ThreeSides.TWO.getNum());
-        assertEquals(3, ThreeSides.THREE.getNum());
-
-        assertThrows(PowsyblException.class, () -> ThreeSides.valueOf(4));
+    public void getSideFromLeg() {
+        ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
+        ThreeWindingsTransformer transformer = transformerAdder.add();
+        assertSame(ThreeSides.ONE, transformer.getLeg1().getSide());
+        assertSame(ThreeSides.TWO, transformer.getLeg2().getSide());
+        assertSame(ThreeSides.THREE, transformer.getLeg3().getSide());
     }
 
     private void createThreeWindingsTransformerWithLeg3(double r, double x, double g, double b, double ratedU) {

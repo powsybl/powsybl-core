@@ -15,7 +15,7 @@ import static com.powsybl.cgmes.conformity.CgmesCatalogsConstants.*;
 import static com.powsybl.cgmes.conformity.CgmesConformity1Catalog.microGridBaseCaseBoundaries;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class CgmesConformity1ModifiedCatalog {
 
@@ -744,6 +744,22 @@ public final class CgmesConformity1ModifiedCatalog {
                 + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_off_svc_control/";
         return new GridModelReferenceResources(
                 "MicroGrid-T4-Off-SVC",
+                null,
+                new ResourceSet(baseModified,
+                        MICRO_GRID_T4_EQ,
+                        MICRO_GRID_T4_SSH),
+                new ResourceSet(MICRO_GRID_T4_BASE,
+                        MICRO_GRID_T4_SV,
+                        MICRO_GRID_T4_TP),
+                new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
+                        MICRO_GRID_BD_TP));
+    }
+
+    public static GridModelReferenceResources microT4BeBbOffSvcControlV() {
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_off_svc_control_v/";
+        return new GridModelReferenceResources(
+                "MicroGrid-T4-Off-SVC-V",
                 null,
                 new ResourceSet(baseModified,
                         MICRO_GRID_T4_EQ,

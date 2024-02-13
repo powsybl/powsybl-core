@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.ValidationException;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@gmail.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@gmail.com>}
  */
 class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
 
@@ -39,6 +39,11 @@ class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
             throw new ValidationException(connectable, "incorrect reactive limits type "
                     + type.getName() + ", expected " + reactiveLimits.getClass());
         }
+    }
+
+    @Override
+    public NetworkImpl getNetwork() {
+        return connectable.getNetwork();
     }
 
     @Override

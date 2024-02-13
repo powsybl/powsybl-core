@@ -9,21 +9,14 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ValidationUtil;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcConverterStationAdder<T>> extends AbstractInjectionAdder<T> {
-
-    private final VoltageLevelExt voltageLevel;
 
     private float lossFactor = Float.NaN;
 
     AbstractHvdcConverterStationAdder(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     protected VoltageLevelExt getVoltageLevel() {

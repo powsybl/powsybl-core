@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * Quality information.
  *
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public interface ObservabilityQuality<T> {
 

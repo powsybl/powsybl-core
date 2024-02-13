@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
 
@@ -70,17 +70,18 @@ public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
         ParsingContext context = new ParsingContext();
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
-            if (token == JsonToken.START_OBJECT) {
-                // skip
-            } else if (token == JsonToken.END_OBJECT) {
-                if (context.child == null || Double.isNaN(context.value)) {
-                    throw new TimeSeriesException("Invalid min/max node calc JSON");
+            switch (token) {
+                case START_OBJECT -> {
+                    // Do nothing
                 }
-                return context;
-            } else if (token == JsonToken.FIELD_NAME) {
-                parseFieldName(parser, token, context);
-            } else {
-                throw NodeCalc.createUnexpectedToken(token);
+                case END_OBJECT -> {
+                    if (context.child == null || Double.isNaN(context.value)) {
+                        throw new TimeSeriesException("Invalid min/max node calc JSON");
+                    }
+                    return context;
+                }
+                case FIELD_NAME -> parseFieldName(parser, token, context);
+                default -> throw NodeCalc.createUnexpectedToken(token);
             }
         }
         throw NodeCalc.createUnexpectedToken(token);

@@ -6,17 +6,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
@@ -168,8 +165,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public AbstractHvdcConverterStation<?> getConverterStation(Side side) {
-        return (side == Side.ONE) ? getConverterStation1() : getConverterStation2();
+    public AbstractHvdcConverterStation<?> getConverterStation(TwoSides side) {
+        return (side == TwoSides.ONE) ? getConverterStation1() : getConverterStation2();
     }
 
     @Override

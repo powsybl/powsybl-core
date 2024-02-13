@@ -19,7 +19,7 @@ import com.powsybl.commons.config.YamlModuleConfigRepository;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
 import org.apache.commons.lang3.Range;
@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -35,9 +36,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-class ShortCircuitParametersTest extends AbstractConverterTest {
+class ShortCircuitParametersTest extends AbstractSerDeTest {
 
     private static final String DUMMY_EXTENSION_NAME = "dummy-extension";
 
@@ -120,8 +121,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
             ObjectMapper objectMapper = createMapper();
             ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-            DummyExtension updatedParameters = objectReader.readValue(jsonParser, DummyExtension.class);
-            return updatedParameters;
+            return objectReader.readValue(jsonParser, DummyExtension.class);
         }
 
         @Override
@@ -211,11 +211,12 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         List<VoltageRange> voltageRanges = parameters.getVoltageRanges();
         assertEquals(3, voltageRanges.size());
         assertEquals(1, voltageRanges.get(0).getRangeCoefficient());
-        assertEquals(Range.between(380., 420.), voltageRanges.get(0).getRange());
+        assertEquals(Range.of(380., 420.), voltageRanges.get(0).getRange());
         assertEquals(1.2, voltageRanges.get(1).getRangeCoefficient());
-        assertEquals(Range.between(215., 235.), voltageRanges.get(1).getRange());
+        assertEquals(Range.of(215., 235.), voltageRanges.get(1).getRange());
         assertEquals(1.05, voltageRanges.get(2).getRangeCoefficient());
-        assertEquals(Range.between(80., 100.), voltageRanges.get(2).getRange());
+        assertEquals(Range.of(80., 100.), voltageRanges.get(2).getRange());
+        assertFalse(parameters.isDetailedReport());
     }
 
     @Test
@@ -278,7 +279,47 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFeederResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
-        assertEquals(0.8, parameters.getSubTransientCoefficient(), 0);
+        assertEquals(0.7, parameters.getSubTransientCoefficient(), 0);
+        assertFalse(parameters.isWithLoads());
+        assertFalse(parameters.isWithShuntCompensators());
+        assertFalse(parameters.isWithVSCConverterStations());
+        assertTrue(parameters.isWithNeutralPosition());
+        assertEquals(InitialVoltageProfileMode.CONFIGURED, parameters.getInitialVoltageProfileMode());
+        List<VoltageRange> voltageRanges = parameters.getVoltageRanges();
+        assertEquals(3, voltageRanges.size());
+        assertEquals(1.05, voltageRanges.get(0).getRangeCoefficient());
+        assertEquals(Range.of(380., 410.), voltageRanges.get(0).getRange());
+        assertEquals(1.1, voltageRanges.get(1).getRangeCoefficient());
+        assertEquals(Range.of(0., 225.), voltageRanges.get(1).getRange());
+        assertEquals(1.09, voltageRanges.get(2).getRangeCoefficient());
+        assertEquals(Range.of(230., 375.), voltageRanges.get(2).getRange());
+    }
+
+    @Test
+    void testInvalidVersion12VoltageNotSupportedInVoltageRange() {
+        InputStream is = getClass().getResourceAsStream("/ShortCircuitParametersVersion12Invalid.json");
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonShortCircuitParameters.read(is));
+        assertTrue(e.getMessage().contains("VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3"));
+    }
+
+    @Test
+    void readVersion13() {
+        ShortCircuitParameters parameters = JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion13.json"));
+        assertNotNull(parameters);
+        assertFalse(parameters.isWithLimitViolations());
+        assertFalse(parameters.isWithVoltageResult());
+        assertTrue(parameters.isWithFeederResult());
+        assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
+        assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(0.7, parameters.getSubTransientCoefficient(), 0);
+        assertFalse(parameters.isDetailedReport());
+        assertEquals(InitialVoltageProfileMode.CONFIGURED, parameters.getInitialVoltageProfileMode());
+        assertEquals(1, parameters.getVoltageRanges().size());
+        VoltageRange voltageRange = parameters.getVoltageRanges().get(0);
+        assertEquals(Range.of(380., 410.), voltageRange.getRange());
+        assertEquals(1.05, voltageRange.getRangeCoefficient());
+        assertEquals(380., voltageRange.getVoltage());
     }
 
     @Test
@@ -382,5 +423,42 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
                 .read(stream));
         assertEquals("Voltage ranges for configured initial voltage profile are overlapping", e0.getMessage());
+    }
+
+    @Test
+    void testVoltageRangeWithSpecificVoltage() {
+        VoltageRange range = new VoltageRange(100, 200, 0.9, 150);
+        assertEquals(100, range.getMinimumNominalVoltage());
+        assertEquals(200, range.getMaximumNominalVoltage());
+        assertEquals(0.9, range.getRangeCoefficient());
+        assertEquals(150, range.getVoltage());
+    }
+
+    @Test
+    void testVoltageRangeWithSpecificVoltageOutOfBounds() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> new VoltageRange(100, 150, 0.9, 200));
+        assertEquals("Range voltage should be in voltageRange [100.0..150.0] but it is 200.0", e.getMessage());
+    }
+
+    @Test
+    void roundTripWithVoltageInVoltageRange() throws IOException {
+        List<VoltageRange> voltageRanges = new ArrayList<>();
+        voltageRanges.add(new VoltageRange(0, 100, 0.95, 100));
+        voltageRanges.add(new VoltageRange(101, 150, 1.1, 140));
+        ShortCircuitParameters parameters = new ShortCircuitParameters()
+                .setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED)
+                .setVoltageRanges(voltageRanges);
+        roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
+                "/ShortCircuitParametersWithRangeVoltage.json");
+    }
+
+    @Test
+    void testVoltageRange() {
+        VoltageRange voltageRange0 = new VoltageRange(350.0, 400.0, 1.05, 380.0);
+        VoltageRange voltageRange1 = new VoltageRange(350.0, 400.0, 1.05, 380.0);
+        assertEquals(voltageRange1, voltageRange0);
+        assertNotNull(voltageRange0);
+        assertNotEquals(new VoltageRange(350.0, 400.0, 1.05), voltageRange0);
+        assertEquals(voltageRange0.hashCode(), voltageRange1.hashCode());
     }
 }

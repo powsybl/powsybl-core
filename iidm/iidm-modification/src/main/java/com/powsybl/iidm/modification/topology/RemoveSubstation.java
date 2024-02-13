@@ -24,7 +24,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.notFoundSub
 import static com.powsybl.iidm.modification.util.ModificationReports.removedSubstationReport;
 
 /**
- * @author Maissa Souissi <maissa.souissi at rte-france.com>
+ * @author Maissa Souissi {@literal <maissa.souissi at rte-france.com>}
  */
 public class RemoveSubstation extends AbstractNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveSubstation.class);
@@ -36,7 +36,7 @@ public class RemoveSubstation extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             LOGGER.error("Substation {} not found", substationId);

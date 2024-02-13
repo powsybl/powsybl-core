@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CoordinatedReactiveControlImpl extends AbstractMultiVariantIdentifiableExtension<Generator> implements CoordinatedReactiveControl {
 
@@ -43,7 +43,8 @@ public class CoordinatedReactiveControlImpl extends AbstractMultiVariantIdentifi
 
     private static double checkQPercent(Generator generator, double qPercent) {
         if (Double.isNaN(qPercent)) {
-            throw new PowsyblException("Undefined value for qPercent");
+            throw new PowsyblException(String.format("Undefined value (%s) for qPercent for generator %s",
+                qPercent, generator.getId()));
         }
         if (qPercent < 0 || qPercent > 100) {
             LOGGER.debug("qPercent value of generator {} does not seem to be a valid percent: {}", generator.getId(), qPercent);

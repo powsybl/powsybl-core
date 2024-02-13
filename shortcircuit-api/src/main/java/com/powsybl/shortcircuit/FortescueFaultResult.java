@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Results for one fault computation with currents and voltage on the three phases.
  *
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public final class FortescueFaultResult extends AbstractFaultResult {
 
@@ -46,7 +46,7 @@ public final class FortescueFaultResult extends AbstractFaultResult {
     }
 
     /**
-     * The results on three phases for current [in kA]
+     * The results on three phases for current [in A]
      */
     public FortescueValue getCurrent() {
         return current;

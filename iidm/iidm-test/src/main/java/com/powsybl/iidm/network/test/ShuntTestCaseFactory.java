@@ -7,12 +7,12 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class ShuntTestCaseFactory {
 
@@ -103,7 +103,7 @@ public final class ShuntTestCaseFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("shuntTestCase", "test")
-                .setCaseDate(DateTime.parse("2019-09-30T16:29:18.263+02:00"));
+                .setCaseDate(ZonedDateTime.parse("2019-09-30T16:29:18.263+02:00"));
 
         Substation s1 = network.newSubstation()
                 .setId("S1")

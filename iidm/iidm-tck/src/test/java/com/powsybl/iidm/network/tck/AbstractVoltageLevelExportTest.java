@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractVoltageLevelExportTest extends AbstractConverterTest {
+public abstract class AbstractVoltageLevelExportTest extends AbstractSerDeTest {
 
     @Test
     public void nodeBreakerTest() throws IOException {

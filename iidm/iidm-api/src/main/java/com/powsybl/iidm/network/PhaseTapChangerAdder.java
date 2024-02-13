@@ -7,45 +7,23 @@
 package com.powsybl.iidm.network;
 
 /**
- *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface PhaseTapChangerAdder {
+public interface PhaseTapChangerAdder extends TapChangerAdder<
+    PhaseTapChangerAdder,
+    PhaseTapChangerStep,
+    PhaseTapChangerAdder.StepAdder,
+    PhaseTapChangerStepsReplacer.StepAdder,
+    PhaseTapChangerStepsReplacer,
+    PhaseTapChanger> {
 
-    interface StepAdder {
-
-        StepAdder setAlpha(double alpha);
-
-        StepAdder setRho(double rho);
-
-        StepAdder setR(double r);
-
-        StepAdder setX(double x);
-
-        StepAdder setG(double g);
-
-        StepAdder setB(double b);
-
-        PhaseTapChangerAdder endStep();
+    /**
+     * Interface for classes responsible for building a single step when using {@link PhaseTapChangerAdder}.
+     */
+    interface StepAdder extends PhaseTapChangerStepAdder<StepAdder, PhaseTapChangerAdder> {
     }
-
-    PhaseTapChangerAdder setLowTapPosition(int lowTapPosition);
-
-    PhaseTapChangerAdder setTapPosition(int tapPosition);
-
-    PhaseTapChangerAdder setRegulating(boolean regulating);
 
     PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode);
 
     PhaseTapChangerAdder setRegulationValue(double regulationValue);
-
-    PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
-
-    default PhaseTapChangerAdder setTargetDeadband(double targetDeadband) {
-        throw new UnsupportedOperationException();
-    }
-
-    StepAdder beginStep();
-
-    PhaseTapChanger add();
 }

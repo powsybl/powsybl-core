@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.powsybl.commons.reporter.Reporter;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
 import com.powsybl.dsl.ExpressionDslLoader;
@@ -27,7 +28,7 @@ import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class GroovyEventModelsSupplier implements EventModelsSupplier {
 
@@ -50,19 +51,15 @@ public class GroovyEventModelsSupplier implements EventModelsSupplier {
     }
 
     @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
-    public List<EventModel> get(Network network) {
+    public List<EventModel> get(Network network, Reporter reporter) {
         List<EventModel> eventModels = new ArrayList<>();
+        Reporter groovyReporter = reporter.createSubReporter("groovyEventModels", "Groovy Event Models Supplier");
 
         Binding binding = new Binding();
         binding.setVariable("network", network);
 
         ExpressionDslLoader.prepareClosures(binding);
-        extensions.forEach(e -> e.load(binding, eventModels::add));
+        extensions.forEach(e -> e.load(binding, eventModels::add, groovyReporter));
 
         GroovyShell shell = new GroovyShell(binding, new CompilerConfiguration());
         shell.evaluate(codeSource);

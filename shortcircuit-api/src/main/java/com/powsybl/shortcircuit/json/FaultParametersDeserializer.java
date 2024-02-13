@@ -19,8 +19,10 @@ import com.powsybl.shortcircuit.VoltageRange;
 import java.io.IOException;
 import java.util.List;
 
+import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.*;
+
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 
@@ -54,6 +56,8 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                 case "version" -> {
                     parser.nextToken();
                     version = parser.getValueAsString();
+                    JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE);
+                    deserializationContext.setAttribute(SOURCE_PARAMETER_TYPE_ATTRIBUTE, ParametersType.FAULT);
                 }
                 case "id" -> {
                     parser.nextToken();

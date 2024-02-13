@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> implements BusbarSectionPosition {
 
@@ -19,17 +19,20 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     private int sectionIndex;
 
-    private static int checkIndex(int index) {
+    private static int checkIndex(int index, BusbarSection busbarSection) {
         if (index < 0) {
-            throw new IllegalArgumentException("Busbar index has to be greater or equals to zero");
+            throw new IllegalArgumentException(
+                String.format("Busbar index (%s) has to be greater or equals to zero for busbar section %s",
+                    index,
+                    busbarSection.getId()));
         }
         return index;
     }
 
     public BusbarSectionPositionImpl(BusbarSection busbarSection, int busbarIndex, int sectionIndex) {
         super(busbarSection);
-        this.busbarIndex = checkIndex(busbarIndex);
-        this.sectionIndex = checkIndex(sectionIndex);
+        this.busbarIndex = checkIndex(busbarIndex, busbarSection);
+        this.sectionIndex = checkIndex(sectionIndex, busbarSection);
     }
 
     public int getBusbarIndex() {
@@ -37,7 +40,7 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
     }
 
     public BusbarSectionPositionImpl setBusbarIndex(int busbarIndex) {
-        this.busbarIndex = checkIndex(busbarIndex);
+        this.busbarIndex = checkIndex(busbarIndex, this.getExtendable());
         return this;
     }
 
@@ -46,7 +49,7 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
     }
 
     public BusbarSectionPositionImpl setSectionIndex(int sectionIndex) {
-        this.sectionIndex = checkIndex(sectionIndex);
+        this.sectionIndex = checkIndex(sectionIndex, this.getExtendable());
         return this;
     }
 }

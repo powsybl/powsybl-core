@@ -8,17 +8,17 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface TopologyVisitor {
 
     void visitBusbarSection(BusbarSection section);
 
-    void visitLine(Line line, Branch.Side side);
+    void visitLine(Line line, TwoSides side);
 
-    void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side);
+    void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side);
 
-    void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side);
+    void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side);
 
     void visitGenerator(Generator generator);
 
@@ -36,4 +36,6 @@ public interface TopologyVisitor {
 
     default void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
     }
+
+    void visitGround(Ground connectable);
 }

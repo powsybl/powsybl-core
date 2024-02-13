@@ -17,7 +17,7 @@ import com.powsybl.contingency.contingency.list.criterion.TwoCountriesCriterion;
 import java.io.IOException;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class TieLineCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<TieLineCriterionContingencyList> {
 
@@ -29,7 +29,8 @@ public class TieLineCriterionContingencyListDeserializer extends AbstractEquipme
     public TieLineCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext parsingContext = new ParsingContext();
         parser.nextToken();
-        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext, parsingContext, name));
+        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext,
+                parsingContext, name, TieLineCriterionContingencyList.TYPE));
 
         return new TieLineCriterionContingencyList(parsingContext.name,
                 (TwoCountriesCriterion) parsingContext.countryCriterion,

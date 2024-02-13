@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Network;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class TerminalMapping {
 
@@ -59,11 +60,15 @@ public class TerminalMapping {
         return cgmesTerminalsMapping.get(cgmesTerminalId);
     }
 
-    public Terminal find(String cgmesTerminalId) {
+    public Terminal find(String cgmesTerminalId, boolean loadingLimits) {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
         }
-        return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
+        if (loadingLimits) {
+            return findFromTopologicalNodeForLoadingLimits(cgmesTerminalsMapping.get(cgmesTerminalId));
+        } else {
+            return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
+        }
     }
 
     /**
@@ -80,7 +85,7 @@ public class TerminalMapping {
 
     public Boundary findBoundary(String cgmesTerminalId, CgmesModel cgmesModel) {
         CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
-        if (cgmesTerminal.conductingEquipmentType().equals("EquivalentInjection")) {
+        if (cgmesTerminal.conductingEquipmentType().equals(CgmesNames.EQUIVALENT_INJECTION)) {
             String acLineSegmentCgmesTerminalId = findAssociatedAcLineSegmentCgmesTerminalId(cgmesModel, cgmesTerminal);
             if (acLineSegmentCgmesTerminalId != null) {
                 return findBoundary(acLineSegmentCgmesTerminalId);
@@ -147,6 +152,13 @@ public class TerminalMapping {
         // returns a disconnected terminal associated with the given topological node
         // if no terminal found, returns null
         return disconnectedTerminal;
+    }
+
+    public Terminal findFromTopologicalNodeForLoadingLimits(String topologicalNode) {
+        if (topologicalNodesMapping.containsKey(topologicalNode) && topologicalNodesMapping.get(topologicalNode).size() == 1) {
+            return terminals.get(topologicalNodesMapping.get(topologicalNode).get(0));
+        }
+        return null;
     }
 
     public String findCgmesTerminalFromTopologicalNode(String topologicalNode) {

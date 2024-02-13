@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 
@@ -17,7 +18,7 @@ import java.util.Objects;
 /**
  * Simple {@link NetworkModification} for a battery.
  *
- * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class BatteryModification extends AbstractNetworkModification {
 
@@ -32,7 +33,7 @@ public class BatteryModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       Reporter reporter) {
         Battery battery = network.getBattery(batteryId);
         if (battery == null) {

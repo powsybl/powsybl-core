@@ -7,12 +7,12 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class ScadaNetworkFactory {
 
@@ -23,7 +23,7 @@ public final class ScadaNetworkFactory {
     public static Network create(NetworkFactory networkFactory) {
         Objects.requireNonNull(networkFactory);
         Network network = Network.create("scada", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Substation sub = network.newSubstation()
                 .setId("sub")

@@ -10,6 +10,7 @@ import com.powsybl.computation.CommandExecution;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ExecutionHandler;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 
@@ -22,7 +23,8 @@ import java.nio.file.Path;
  *
  * <p>Specified {@link Network} variant is serialized as an XIIDM file.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class SecurityAnalysisExecutionHandler<R> extends AbstractSecurityAnalysisExecutionHandler<R,
         SecurityAnalysisExecutionInput,

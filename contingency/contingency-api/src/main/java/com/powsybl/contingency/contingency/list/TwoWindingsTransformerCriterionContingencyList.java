@@ -15,9 +15,11 @@ import com.powsybl.iidm.network.IdentifiableType;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class TwoWindingsTransformerCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
+
+    public static final String TYPE = "twoWindingsTransformerCriterion";
     private final SingleCountryCriterion singleCountryCriterion;
     private final TwoNominalVoltageCriterion twoNominalVoltageCriterion;
 
@@ -32,7 +34,7 @@ public class TwoWindingsTransformerCriterionContingencyList extends AbstractEqui
 
     @Override
     public String getType() {
-        return "twoWindingsTransformerCriterion";
+        return TYPE;
     }
 
     @Override

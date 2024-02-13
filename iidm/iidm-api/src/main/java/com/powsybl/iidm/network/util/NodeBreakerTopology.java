@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * Provides higher level methods to manipulate node-breaker topology graph.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public final class NodeBreakerTopology {
 

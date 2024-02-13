@@ -8,10 +8,11 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface NetworkModification {
 
@@ -36,4 +37,26 @@ public interface NetworkModification {
      * in case of error.
      */
     void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter);
+
+    void apply(Network network, NamingStrategy namingStrategy);
+
+    void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager);
+
+    void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, Reporter reporter);
+
+    void apply(Network network, NamingStrategy namingStrategy, Reporter reporter);
+
+    /**
+     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
+     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
+     * in case of error.
+     */
+    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, Reporter reporter);
+
+    /**
+     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
+     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
+     * in case of error.
+     */
+    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter);
 }

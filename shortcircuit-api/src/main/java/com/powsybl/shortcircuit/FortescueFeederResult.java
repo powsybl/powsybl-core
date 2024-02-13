@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class FortescueFeederResult extends AbstractFeederResult {
 
@@ -20,7 +20,7 @@ public class FortescueFeederResult extends AbstractFeederResult {
     }
 
     /**
-     * The current on the three phases [in kA].
+     * The current on the three phases [in A].
      */
     public FortescueValue getCurrent() {
         return current;
