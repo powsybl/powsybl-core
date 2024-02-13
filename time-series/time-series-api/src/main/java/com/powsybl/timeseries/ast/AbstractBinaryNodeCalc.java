@@ -8,6 +8,8 @@
 package com.powsybl.timeseries.ast;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Deque;
 import java.util.Objects;
@@ -16,6 +18,7 @@ import java.util.Objects;
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public abstract class AbstractBinaryNodeCalc implements NodeCalc {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBinaryNodeCalc.class);
 
     protected NodeCalc left;
     protected NodeCalc right;

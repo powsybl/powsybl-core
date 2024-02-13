@@ -9,13 +9,23 @@ package com.powsybl.timeseries.ast;
 import com.powsybl.timeseries.DoubleMultiPoint;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoint> {
 
+    private Map<NodeCalc, Double> cache;
+
     public static double eval(NodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
-        return nodeCalc.accept(new NodeCalcEvaluator(), multiPoint, 0);
+        return new NodeCalcEvaluator().evaluateWithCache(nodeCalc, multiPoint);
+    }
+
+    private double evaluateWithCache(NodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
+        cache = new IdentityHashMap<>();
+        return nodeCalc.accept(this, multiPoint, 0);
     }
 
     @Override
@@ -91,6 +101,23 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     @Override
     public NodeCalc iterate(MaxNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         return nodeCalc.getChild();
+    }
+
+    @Override
+    public Double visit(CachedNodeCalc nodeCalc, DoubleMultiPoint arg, Double child) {
+        double childValue;
+        if (child == null) {
+            childValue = cache.get(nodeCalc);
+        } else {
+            childValue = child;
+            cache.put(nodeCalc, childValue);
+        }
+        return childValue;
+    }
+
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, DoubleMultiPoint arg) {
+        return cache.containsKey(nodeCalc) ? null : nodeCalc.getChild();
     }
 
     @Override

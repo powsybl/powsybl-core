@@ -68,6 +68,16 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
+    public R visit(CachedNodeCalc nodeCalc, A arg, R child) {
+        return null;
+    }
+
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
     public R visit(TimeNodeCalc nodeCalc, A arg, R child) {
         return null;
     }
