@@ -18,12 +18,14 @@ public abstract class AbstractLimitsReducer<T> {
     private T originalLimits;
     private double permanentLimitReduction = 1.0;
     private final Map<Integer, Double> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
+    private String networkElementId;
 
     abstract T generateReducedLimits();
 
     abstract IntStream getTemporaryLimitsAcceptableDurationStream();
 
-    void initializeLimits(T originalLimits) {
+    void initialize(String networkElementId, T originalLimits) {
+        this.networkElementId = networkElementId;
         this.originalLimits = originalLimits;
         permanentLimitReduction = 1.0;
         temporaryLimitReductionByAcceptableDuration.clear();
@@ -45,7 +47,11 @@ public abstract class AbstractLimitsReducer<T> {
         temporaryLimitReductionByAcceptableDuration.put(acceptableDuration, limitReduction);
     }
 
-    public Double getTemporaryLimitReduction(int acceptableDuration) {
+    public double getTemporaryLimitReduction(int acceptableDuration) {
         return temporaryLimitReductionByAcceptableDuration.getOrDefault(acceptableDuration, 1.);
+    }
+
+    public String getNetworkElementId() {
+        return networkElementId;
     }
 }

@@ -19,7 +19,6 @@ import com.powsybl.security.detectors.criterion.network.NetworkElementVisitor;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static com.powsybl.contingency.ContingencyContextType.*;
 
@@ -41,13 +40,12 @@ public class LimitViolationDetectorWithLimitReduction {
     }
 
     public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElement<T> networkElement, LimitType limitType,
-                                                         ThreeSides side, Supplier<AbstractLimitsReducer<T>> limitsReducerSupplier) {
+                                                         ThreeSides side, AbstractLimitsReducer<T> limitsReducer) {
         Optional<T> originalLimits = networkElement.getLimits(limitType, side);
         if (originalLimits.isEmpty()) {
             return Optional.empty();
         }
-        AbstractLimitsReducer<T> limitsReducer = limitsReducerSupplier.get();
-        limitsReducer.initializeLimits(originalLimits.get());
+        limitsReducer.initialize(networkElement.getId(), originalLimits.get());
         updateLimitReducer(limitsReducer, networkElement, limitType);
         return Optional.of(limitsReducer.generateReducedLimits());
     }

@@ -10,10 +10,11 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
- * Helper methods for checking the occurence of overloads.
+ * Helper methods for checking the occurrence of overloads.
  *
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
@@ -27,7 +28,7 @@ public final class LimitViolationUtils {
     public static Overload checkTemporaryLimits(Branch<?> branch, TwoSides side, float limitReduction, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
-        return branch.getLimits(type, side)
+        return getLimits(branch, side, type)
                 .map(limits -> getOverload(limits, i, limitReduction))
                 .orElse(null);
     }
@@ -35,7 +36,7 @@ public final class LimitViolationUtils {
     public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, float limitReduction, double i, LimitType type) {
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
-        return transformer.getLeg(side).getLimits(type)
+        return getLimits(transformer, side, type)
                 .map(limits -> getOverload(limits, i, limitReduction))
                 .orElse(null);
     }
@@ -67,13 +68,13 @@ public final class LimitViolationUtils {
     }
 
     public static boolean checkPermanentLimit(Branch<?> branch, TwoSides side, float limitReduction, double i, LimitType type) {
-        return branch.getLimits(type, side)
+        return getLimits(branch, side, type)
                 .map(l -> checkPermanentLimitIfAny(l, i, limitReduction))
                 .orElse(false);
     }
 
     public static boolean checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, float limitReduction, double i, LimitType type) {
-        return transformer.getLeg(side).getLimits(type)
+        return getLimits(transformer, side, type)
                 .map(l -> checkPermanentLimitIfAny(l, i, limitReduction))
                 .orElse(false);
     }
@@ -94,5 +95,13 @@ public final class LimitViolationUtils {
 
     public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, float limitReduction, LimitType type) {
         return checkTemporaryLimits(transformer, side, limitReduction, getValueForLimit(transformer.getTerminal(side), type), type);
+    }
+
+    private static Optional<? extends LoadingLimits> getLimits(Branch<?> branch, TwoSides side, LimitType type) {
+        return branch.getLimits(type, side);
+    }
+
+    private static Optional<? extends LoadingLimits> getLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitType type) {
+        return transformer.getLeg(side).getLimits(type);
     }
 }
