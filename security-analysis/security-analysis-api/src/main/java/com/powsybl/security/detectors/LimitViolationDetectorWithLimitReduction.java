@@ -8,8 +8,11 @@
 package com.powsybl.security.detectors;
 
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.util.criterion.translation.DefaultNetworkElement;
 import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 import com.powsybl.security.detectors.criterion.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion;
@@ -32,20 +35,24 @@ public class LimitViolationDetectorWithLimitReduction {
     private final LimitReductionDefinitionList limitReductionDefinitionList;
     private String currentContingencyId = null;
     private List<LimitReductionDefinitionList.LimitReductionDefinition> definitionsForCurrentContingencyId = Collections.emptyList();
-    private List<LimitReductionDefinitionList.LimitReductionDefinition> definitionsForPreviousContingencyId = Collections.emptyList();
+    boolean sameDefinitionsAsForPreviousContingencyId = false;
 
     public LimitViolationDetectorWithLimitReduction(LimitReductionDefinitionList limitReductionDefinitionList) {
         this.limitReductionDefinitionList = limitReductionDefinitionList;
         computeDefinitionsForCurrentContingencyId();
     }
 
-    public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElement<T> networkElement, LimitType limitType,
-                                                         ThreeSides side, AbstractLimitsReducer<T> limitsReducer) {
+    public Optional<LoadingLimits> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
+        return getLimitsWithAppliedReduction(new DefaultNetworkElement(identifiable), limitType, side, new DefaultLimitsReducerCreator());
+    }
+
+    public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElement<T> networkElement, LimitType limitType, ThreeSides side,
+                                                         AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         Optional<T> originalLimits = networkElement.getLimits(limitType, side);
         if (originalLimits.isEmpty()) {
             return Optional.empty();
         }
-        limitsReducer.initialize(networkElement.getId(), originalLimits.get());
+        AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
         updateLimitReducer(limitsReducer, networkElement, limitType);
         return Optional.of(limitsReducer.generateReducedLimits());
     }
@@ -60,20 +67,21 @@ public class LimitViolationDetectorWithLimitReduction {
     }
 
     public boolean changeContingencyId(String contingencyId) {
-        definitionsForPreviousContingencyId = definitionsForCurrentContingencyId;
+        var definitionsForPreviousContingencyId = definitionsForCurrentContingencyId;
         currentContingencyId = contingencyId;
         computeDefinitionsForCurrentContingencyId();
-        return sameDefinitionsAsForPreviousContingencyId();
-    }
-
-    public boolean sameDefinitionsAsForPreviousContingencyId() {
-        return definitionsForCurrentContingencyId.equals(definitionsForPreviousContingencyId);
+        sameDefinitionsAsForPreviousContingencyId = definitionsForCurrentContingencyId.equals(definitionsForPreviousContingencyId);
+        return isSameDefinitionsAsForPreviousContingencyId();
     }
 
     private void computeDefinitionsForCurrentContingencyId() {
         definitionsForCurrentContingencyId = limitReductionDefinitionList.getLimitReductionDefinitions().stream()
                 .filter(l -> isContingencyContextApplicable(l.getContingencyContexts(), currentContingencyId))
                 .toList();
+    }
+
+    public boolean isSameDefinitionsAsForPreviousContingencyId() {
+        return sameDefinitionsAsForPreviousContingencyId;
     }
 
     //TODO to rename

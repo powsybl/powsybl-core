@@ -15,21 +15,17 @@ import java.util.stream.IntStream;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractLimitsReducer<T> {
-    private T originalLimits;
+    private final T originalLimits;
     private double permanentLimitReduction = 1.0;
     private final Map<Integer, Double> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
-    private String networkElementId;
+
+    AbstractLimitsReducer(T originalLimits) {
+        this.originalLimits = originalLimits;
+    }
 
     abstract T generateReducedLimits();
 
     abstract IntStream getTemporaryLimitsAcceptableDurationStream();
-
-    void initialize(String networkElementId, T originalLimits) {
-        this.networkElementId = networkElementId;
-        this.originalLimits = originalLimits;
-        permanentLimitReduction = 1.0;
-        temporaryLimitReductionByAcceptableDuration.clear();
-    }
 
     public T getOriginalLimits() {
         return originalLimits;
@@ -49,9 +45,5 @@ public abstract class AbstractLimitsReducer<T> {
 
     public double getTemporaryLimitReduction(int acceptableDuration) {
         return temporaryLimitReductionByAcceptableDuration.getOrDefault(acceptableDuration, 1.);
-    }
-
-    public String getNetworkElementId() {
-        return networkElementId;
     }
 }

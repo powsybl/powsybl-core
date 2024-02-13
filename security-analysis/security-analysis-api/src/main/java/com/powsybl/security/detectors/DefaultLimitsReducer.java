@@ -17,16 +17,11 @@ import java.util.stream.IntStream;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
+    private final OperationalLimitsGroup operationalLimitsGroup;
 
-    private final VoltageLevel voltageLevel;
-    private DanglingLine danglingLine;
-    private OperationalLimitsGroup operationalLimitsGroup;
-
-    public DefaultLimitsReducer() {
-        //TODO Find a better way to create LoadingLimits not linked to an element of the real network with the API.
-        Network n = Network.create("Tmp", "Manual");
-        voltageLevel = n.newVoltageLevel().setId("vl").setNominalV(225.).setTopologyKind(TopologyKind.BUS_BREAKER).add();
-        voltageLevel.getBusBreakerView().newBus().setId("bus").add();
+    DefaultLimitsReducer(LoadingLimits originalLimits, OperationalLimitsGroup operationalLimitsGroup) {
+        super(originalLimits);
+        this.operationalLimitsGroup = operationalLimitsGroup;
     }
 
     @Override
@@ -61,12 +56,6 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
         return getOriginalLimits().getTemporaryLimits().stream().mapToInt(LoadingLimits.TemporaryLimit::getAcceptableDuration);
     }
 
-    @Override
-    void initialize(String networkElementId, LoadingLimits originalLimits) {
-        super.initialize(networkElementId, originalLimits);
-        operationalLimitsGroup = createOperationalLimitsGroup(networkElementId);
-    }
-
     private LoadingLimitsAdder<?, ?> getLoadingLimitsAdder(LoadingLimits originalLimits) {
         return switch (originalLimits.getLimitType()) {
             case ACTIVE_POWER -> newActivePowerLimitsAdder();
@@ -75,16 +64,6 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
             default -> throw new IllegalArgumentException(
                     String.format("Unsupported limits type for reductions (%s)", originalLimits.getLimitType()));
         };
-    }
-
-    private OperationalLimitsGroup createOperationalLimitsGroup(String networkElementId) {
-        //TODO Find a better way to create LoadingLimits not linked to an element of the real network with the API.
-        if (danglingLine != null) {
-            danglingLine.remove();
-        }
-        danglingLine = voltageLevel.newDanglingLine().setId(networkElementId).setConnectableBus("bus")
-                .setR(0.).setX(0).setG(0.).setB(0.).setP0(0.).setQ0(0.).add();
-        return danglingLine.newOperationalLimitsGroup("Reduced limits");
     }
 
     private CurrentLimitsAdder newCurrentLimitsAdder() {
