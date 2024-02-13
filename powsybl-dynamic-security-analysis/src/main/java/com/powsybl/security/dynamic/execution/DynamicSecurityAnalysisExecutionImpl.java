@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import static java.util.Objects.requireNonNull;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSecurityAnalysisExecutionImpl implements DynamicSecurityAnalysisExecution {
 

@@ -17,7 +17,7 @@ import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import java.io.IOException;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSecurityAnalysisParametersSerializer extends StdSerializer<DynamicSecurityAnalysisParameters> {
 

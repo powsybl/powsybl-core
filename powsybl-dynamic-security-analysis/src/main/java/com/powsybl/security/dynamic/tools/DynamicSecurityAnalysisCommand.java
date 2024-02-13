@@ -16,7 +16,7 @@ import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolCons
 import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSecurityAnalysisCommand extends SecurityAnalysisCommand implements Command {
 

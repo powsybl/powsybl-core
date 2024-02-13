@@ -10,7 +10,6 @@ import com.powsybl.computation.CommandExecution;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ExecutionHandler;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 

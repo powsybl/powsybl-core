@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public abstract class AbstractSecurityAnalysisExecutionBuilder<T extends AbstractSecurityAnalysisExecutionBuilder<T, R, S>, R, S> {
 

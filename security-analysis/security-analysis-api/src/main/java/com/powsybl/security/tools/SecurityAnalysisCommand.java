@@ -24,7 +24,7 @@ import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class SecurityAnalysisCommand implements Command {
 

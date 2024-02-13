@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public final class DynamicSimulationSupplierFactory {
 

@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * Helper class to build a {@link DynamicSecurityAnalysisExecution},
  * based on specified options, in particular distribution options.
  *
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSecurityAnalysisExecutionBuilder extends AbstractSecurityAnalysisExecutionBuilder<DynamicSecurityAnalysisExecutionBuilder,
         DynamicSecurityAnalysisExecution,

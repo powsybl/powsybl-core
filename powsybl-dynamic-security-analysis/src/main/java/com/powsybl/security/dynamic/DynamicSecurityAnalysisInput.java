@@ -21,7 +21,7 @@ import java.util.Objects;
  * It is designed to be mutable, as it may be customized by {@link SecurityAnalysisPreprocessor}s.
  * However, all fields must always be non {@literal null}.
  *
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSecurityAnalysisInput extends AbstractSecurityAnalysisInput<DynamicSecurityAnalysisInput> {
 

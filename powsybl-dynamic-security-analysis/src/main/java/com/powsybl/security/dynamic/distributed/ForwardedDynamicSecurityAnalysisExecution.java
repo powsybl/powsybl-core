@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * The {@link #forwardedTaskCount} parameter will be forward to that process, so if it is greater than one,
  * it will spawn multiple "slave" processes.
  *
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class ForwardedDynamicSecurityAnalysisExecution extends AbstractForwardedSecurityAnalysisExecution implements DynamicSecurityAnalysisExecution {
 

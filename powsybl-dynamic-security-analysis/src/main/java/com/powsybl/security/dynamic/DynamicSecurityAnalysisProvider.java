@@ -31,7 +31,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
 

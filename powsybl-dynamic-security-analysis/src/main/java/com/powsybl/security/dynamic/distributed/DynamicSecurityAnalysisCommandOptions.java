@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Utility class to programmatically generate an {@literal itools dynamic-security-analysis} command with its various options.
  *
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSecurityAnalysisCommandOptions extends AbstractSecurityAnalysisCommandOptions<DynamicSecurityAnalysisCommandOptions> {
 

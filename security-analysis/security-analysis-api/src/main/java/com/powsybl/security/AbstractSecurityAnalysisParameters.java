@@ -20,7 +20,7 @@ import java.util.Objects;
  *
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  * @author Sylvain LECLERC <sylvain.leclerc at rte-france.com>
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public abstract class AbstractSecurityAnalysisParameters<T extends AbstractSecurityAnalysisParameters<T>> extends AbstractExtendable<T> {
 

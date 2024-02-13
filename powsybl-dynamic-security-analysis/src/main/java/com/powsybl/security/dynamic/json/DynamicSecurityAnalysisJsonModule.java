@@ -29,6 +29,7 @@ import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}0
  */
 public class DynamicSecurityAnalysisJsonModule extends ContingencyJsonModule {
 
@@ -94,8 +95,8 @@ public class DynamicSecurityAnalysisJsonModule extends ContingencyJsonModule {
         setMixInAnnotation(Action.class, ActionMixIn.class);
         registerActionType(SwitchAction.class, SwitchAction.NAME,
                 new SwitchActionSerializer(), new SwitchActionDeserializer());
-        registerActionType(LineConnectionAction.class, LineConnectionAction.NAME,
-                new LineConnectionActionSerializer(), new LineConnectionActionDeserializer());
+        registerActionType(TerminalsConnectionAction.class, TerminalsConnectionAction.NAME,
+                new TerminalsConnectionActionSerializer(), new TerminalsConnectionActionDeserializer());
         registerActionType(MultipleActionsAction.class, MultipleActionsAction.NAME,
                 new MultipleActionsActionSerializer(), new MultipleActionsActionDeserializer());
         registerActionType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME,

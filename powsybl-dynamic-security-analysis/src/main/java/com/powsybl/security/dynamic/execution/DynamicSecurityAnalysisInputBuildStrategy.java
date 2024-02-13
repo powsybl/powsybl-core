@@ -13,7 +13,7 @@ import com.powsybl.security.dynamic.DynamicSecurityAnalysisInput;
  * In charge of transforming an execution input to an actual
  * dynamic security analysis input. Will typically be defined as a lambda.
  *
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 @FunctionalInterface
 public interface DynamicSecurityAnalysisInputBuildStrategy {

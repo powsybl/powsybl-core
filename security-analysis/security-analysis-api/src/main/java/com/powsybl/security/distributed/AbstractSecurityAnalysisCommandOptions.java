@@ -28,7 +28,7 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 import static java.util.Objects.requireNonNull;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractSecurityAnalysisCommandOptions<T>> {
 

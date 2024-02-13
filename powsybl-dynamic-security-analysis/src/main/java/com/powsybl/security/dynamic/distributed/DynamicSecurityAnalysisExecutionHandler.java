@@ -26,7 +26,7 @@ import java.nio.file.Path;
  *
  * <p>Specified {@link Network} variant is serialized as an XIIDM file.
  *
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSecurityAnalysisExecutionHandler<R> extends AbstractSecurityAnalysisExecutionHandler<R,
         DynamicSecurityAnalysisExecutionInput,

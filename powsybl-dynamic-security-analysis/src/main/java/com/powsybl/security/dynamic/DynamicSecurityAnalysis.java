@@ -36,7 +36,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Dynamic Security analysis main API.
  *
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public final class DynamicSecurityAnalysis {
 

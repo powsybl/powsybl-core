@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSecurityDummyExtension extends AbstractExtension<DynamicSecurityAnalysisParameters> {
 

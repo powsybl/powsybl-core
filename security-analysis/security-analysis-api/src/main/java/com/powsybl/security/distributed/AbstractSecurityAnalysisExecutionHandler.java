@@ -9,7 +9,7 @@ package com.powsybl.security.distributed;
 
 import com.google.common.io.ByteSource;
 import com.powsybl.computation.*;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.security.AbstractSecurityAnalysisParameters;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.ActionList;
@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public abstract class AbstractSecurityAnalysisExecutionHandler<R,
         T extends AbstractSecurityAnalysisExecutionInput<T, V>,
@@ -100,7 +100,7 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
     /**
      * Copies case file, contingencies file, and parameters file to working directory,
      * and creates the {@literal itools security-analysis} command(s) to be executed,
-     * based on configuration and the optional options customizer.
+     * based on configuration and the optional options' customizer.
      */
     @Override
     public List<CommandExecution> before(Path workingDir) throws IOException {
@@ -181,7 +181,7 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
         Path dest = getCasePath(workingDir);
         options.caseFile(dest);
         LOGGER.debug("Copying network to file {}", dest);
-        NetworkXml.write(variant.getVariant(), dest);
+        NetworkSerDe.write(variant.getVariant(), dest);
     }
 
     /**
@@ -233,7 +233,7 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
     }
 
     /**
-     * Copis bytes from the source to target path.
+     * Copies bytes from the source to target path.
      */
     protected static void copySourceToPath(ByteSource source, Path dest) {
         try (InputStream is = source.openBufferedStream()) {

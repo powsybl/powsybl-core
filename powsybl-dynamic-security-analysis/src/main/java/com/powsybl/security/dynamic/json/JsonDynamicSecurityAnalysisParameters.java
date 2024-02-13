@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * Provides methods to read and write DynamicDynamicSecurityAnalysisParameters from and to JSON.
  *
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public final class JsonDynamicSecurityAnalysisParameters {
 

@@ -7,7 +7,7 @@
  */
 package com.powsybl.security.dynamic.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import org.junit.jupiter.api.Assertions;
@@ -19,9 +19,9 @@ import java.io.InputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-class JsonDynamicSecurityAnalysisParametersTest extends AbstractConverterTest {
+class JsonDynamicSecurityAnalysisParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {
