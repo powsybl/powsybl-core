@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cmm="http://www.powsybl.org/schema/iidm/ext/cgmes_metadata_models/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cgmes_metadata_models/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Model">
+        <xs:sequence>
+            <xs:element name="Profile" type="cmm:nonEmptyString" maxOccurs="unbounded"/>
+            <xs:element name="DependentOn" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Supersedes" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string"/>
+        <xs:attribute name="description" type="xs:string"/>
+        <xs:attribute name="version" use="required" type="cmm:nonEmptyString"/>
+        <xs:attribute name="modelingAuthoritySet" use="required" type="cmm:nonEmptyString"/>
+    </xs:complexType>
+    <xs:element name="cgmesMetadataModels">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Model" type="cmm:Model" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
