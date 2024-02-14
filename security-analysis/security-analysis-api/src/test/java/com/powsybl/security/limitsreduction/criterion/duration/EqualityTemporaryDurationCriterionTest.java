@@ -30,7 +30,7 @@ class EqualityTemporaryDurationCriterionTest {
     @Test
     void isTemporaryLimitWithinCriterionBoundsTest() {
         EqualityTemporaryDurationCriterion criterion = new EqualityTemporaryDurationCriterion(10);
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(10));
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(10_000));
+        assertTrue(criterion.filter(10));
+        assertFalse(criterion.filter(10_000));
     }
 }

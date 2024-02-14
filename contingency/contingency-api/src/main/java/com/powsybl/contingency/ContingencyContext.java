@@ -104,6 +104,10 @@ public class ContingencyContext {
         return NONE;
     }
 
+    public static ContingencyContext onlyContingencies() {
+        return ONLY_CONTINGENCIES;
+    }
+
     public static ContingencyContext specificContingency(String contingencyId) {
         return new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
     }

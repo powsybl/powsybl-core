@@ -29,7 +29,7 @@ public class EqualityTemporaryDurationCriterion extends AbstractTemporaryDuratio
     }
 
     @Override
-    public boolean isAcceptableDurationWithinCriterionBounds(int acceptableDuration) {
+    public boolean filter(int acceptableDuration) {
         return acceptableDuration == getDurationEqualityValue();
     }
 }

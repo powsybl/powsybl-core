@@ -31,7 +31,7 @@ class AllTemporaryDurationCriterionTest {
     @Test
     void isTemporaryLimitWithinCriterionBoundsTest() {
         AllTemporaryDurationCriterion criterion = new AllTemporaryDurationCriterion();
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(10));
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(10_000));
+        assertTrue(criterion.filter(10));
+        assertTrue(criterion.filter(10_000));
     }
 }

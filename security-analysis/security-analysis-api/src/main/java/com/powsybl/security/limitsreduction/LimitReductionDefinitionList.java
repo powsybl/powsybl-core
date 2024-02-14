@@ -13,9 +13,7 @@ import com.powsybl.iidm.network.LimitType;
 import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
 import com.powsybl.security.limitsreduction.criterion.network.AbstractNetworkElementCriterion;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Contains the definitions of the applied limit reductions.
@@ -25,14 +23,14 @@ import java.util.List;
 
 public class LimitReductionDefinitionList {
 
-    private final List<LimitReductionDefinition> limitReductionDefinitions = new ArrayList<>();
+    private List<LimitReductionDefinition> limitReductionDefinitions = Collections.emptyList();
 
     public static class LimitReductionDefinition {
         private double limitReduction = 1d;
         private final LimitType limitType;
-        private List<ContingencyContext> contingencyContexts = List.of(ContingencyContext.all());
-        private List<AbstractNetworkElementCriterion> networkElementCriteria = new ArrayList<>();
-        private List<LimitDurationCriterion> durationCriteria = new ArrayList<>();
+        private List<ContingencyContext> contingencyContexts = Collections.emptyList();
+        private List<AbstractNetworkElementCriterion> networkElementCriteria = Collections.emptyList();
+        private List<LimitDurationCriterion> durationCriteria = Collections.emptyList();
 
         private boolean isSupportedLimitType(LimitType limitType) {
             return limitType == LimitType.CURRENT
@@ -65,7 +63,7 @@ public class LimitReductionDefinitionList {
         }
 
         public List<ContingencyContext> getContingencyContexts() {
-            return contingencyContexts;
+            return Collections.unmodifiableList(contingencyContexts);
         }
 
         public LimitReductionDefinition setContingencyContexts(ContingencyContext... contingencyContexts) {
@@ -78,7 +76,7 @@ public class LimitReductionDefinitionList {
         }
 
         public List<AbstractNetworkElementCriterion> getNetworkElementCriteria() {
-            return networkElementCriteria;
+            return Collections.unmodifiableList(networkElementCriteria);
         }
 
         public LimitReductionDefinition setNetworkElementCriteria(AbstractNetworkElementCriterion... criteria) {
@@ -91,7 +89,7 @@ public class LimitReductionDefinitionList {
         }
 
         public List<LimitDurationCriterion> getDurationCriteria() {
-            return durationCriteria;
+            return Collections.unmodifiableList(durationCriteria);
         }
 
         public LimitReductionDefinition setDurationCriteria(LimitDurationCriterion... durationCriteria) {
@@ -108,12 +106,12 @@ public class LimitReductionDefinitionList {
         return Collections.unmodifiableList(limitReductionDefinitions);
     }
 
-    public LimitReductionDefinitionList addLimitReductionDefinitions(LimitReductionDefinition... definitions) {
-        return addLimitReductionDefinitions(List.of(definitions));
+    public LimitReductionDefinitionList setLimitReductionDefinitions(LimitReductionDefinition... definitions) {
+        return setLimitReductionDefinitions(List.of(definitions));
     }
 
-    public LimitReductionDefinitionList addLimitReductionDefinitions(List<LimitReductionDefinition> definitions) {
-        limitReductionDefinitions.addAll(definitions);
+    public LimitReductionDefinitionList setLimitReductionDefinitions(List<LimitReductionDefinition> definitions) {
+        limitReductionDefinitions = definitions;
         return this;
     }
 }

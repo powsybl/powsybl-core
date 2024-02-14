@@ -29,6 +29,12 @@ public abstract class AbstractTemporaryDurationCriterion implements LimitDuratio
         return TEMPORARY;
     }
 
-    public abstract boolean isAcceptableDurationWithinCriterionBounds(int acceptableDuration);
+    /**
+     * Does the given acceptable duration respect the current duration criterion?
+     * @param acceptableDuration the duration to check
+     * @return <code>true</code> if the given acceptable duration respects the current criterion,
+     *         <code>false</code> otherwise.
+     */
+    public abstract boolean filter(int acceptableDuration);
 
 }

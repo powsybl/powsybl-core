@@ -26,7 +26,7 @@ import java.util.Optional;
 import static com.powsybl.contingency.ContingencyContextType.*;
 
 /**
- * Implements the behaviour for reduced limits computation.
+ * Class responsible for computing reduced limits using a {@link LimitReductionDefinitionList}.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -59,7 +59,7 @@ public class ReducedLimitsComputer {
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement<?> networkElement, LimitType limitType) {
         for (LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition : definitionsForCurrentContingencyId) {
             if (limitReductionDefinition.getLimitType() == limitType &&
-                    isEquipmentAffectedByLimitReduction(networkElement, limitReductionDefinition.getNetworkElementCriteria())) {
+                    isEquipmentAffectedByLimitReduction(networkElement, limitReductionDefinition)) {
                 setLimitReductionsToLimitReducer(limitsReducer, limitReductionDefinition);
             }
         }
@@ -74,7 +74,7 @@ public class ReducedLimitsComputer {
 
     private void computeDefinitionsForCurrentContingencyId(String contingencyId) {
         definitionsForCurrentContingencyId = limitReductionDefinitionList.getLimitReductionDefinitions().stream()
-                .filter(l -> isContingencyContextApplicable(l.getContingencyContexts(), contingencyId))
+                .filter(l -> isContingencyContextListApplicable(l.getContingencyContexts(), contingencyId))
                 .toList();
     }
 
@@ -87,37 +87,39 @@ public class ReducedLimitsComputer {
             limitsReducer.setPermanentLimitReduction(limitReductionDefinition.getLimitReduction());
         }
         limitsReducer.getTemporaryLimitsAcceptableDurationStream()
-                .filter(acceptableDuration -> isTemporaryLimitAffectedByLimitReduction(limitReductionDefinition, acceptableDuration))
+                .filter(acceptableDuration -> isTemporaryLimitAffectedByLimitReduction(acceptableDuration, limitReductionDefinition))
                 .forEach(acceptableDuration -> limitsReducer.setTemporaryLimitReduction(acceptableDuration,
                         limitReductionDefinition.getLimitReduction()));
     }
 
-    private boolean isContingencyContextApplicable(List<ContingencyContext> contingencyContextList, String contingencyId) {
-        return contingencyContextList.stream().anyMatch(contingencyContext ->
-                contingencyContext.getContextType() == ALL
+    protected boolean isContingencyContextListApplicable(List<ContingencyContext> contingencyContextList, String contingencyId) {
+        return contingencyContextList.isEmpty()
+                || contingencyContextList.stream().anyMatch(contingencyContext ->
+                    contingencyContext.getContextType() == ALL
                         || contingencyContext.getContextType() == NONE && contingencyId == null
                         || contingencyContext.getContextType() == ONLY_CONTINGENCIES && contingencyId != null
                         || contingencyContext.getContextType() == SPECIFIC && contingencyContext.getContingencyId().equals(contingencyId)
         );
     }
 
-    private boolean isEquipmentAffectedByLimitReduction(NetworkElement<?> networkElement, List<AbstractNetworkElementCriterion> networkElementCriteria) {
+    protected boolean isEquipmentAffectedByLimitReduction(NetworkElement<?> networkElement, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
-        return networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));
+        List<AbstractNetworkElementCriterion> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
+        return networkElementCriteria.isEmpty()
+                || networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));
     }
 
-    private boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    protected boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         return limitReductionDefinition.getDurationCriteria().isEmpty()
                 || limitReductionDefinition.getDurationCriteria().stream()
                     .anyMatch(c -> c.getType().equals(LimitDurationCriterion.LimitDurationType.PERMANENT));
     }
 
-    private boolean isTemporaryLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition,
-                                                             int temporaryLimitAcceptableDuration) {
+    protected boolean isTemporaryLimitAffectedByLimitReduction(int temporaryLimitAcceptableDuration, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         return limitReductionDefinition.getDurationCriteria().isEmpty()
                 || limitReductionDefinition.getDurationCriteria().stream()
                     .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))
                     .map(AbstractTemporaryDurationCriterion.class::cast)
-                    .anyMatch(c -> c.isAcceptableDurationWithinCriterionBounds(temporaryLimitAcceptableDuration));
+                    .anyMatch(c -> c.filter(temporaryLimitAcceptableDuration));
     }
 }

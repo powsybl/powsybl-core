@@ -36,7 +36,7 @@ class IntervalTemporaryDurationCriterionTest {
                 () -> assertNull(criterion.getHighBound()),
                 () -> assertFalse(criterion.isHighClosed())
         );
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(10));
+        assertTrue(criterion.filter(10));
     }
 
     @Test
@@ -48,18 +48,18 @@ class IntervalTemporaryDurationCriterionTest {
                 () -> assertNull(criterion.getHighBound()),
                 () -> assertFalse(criterion.isHighClosed())
         );
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(10));
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(20));
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(21));
+        assertFalse(criterion.filter(10));
+        assertFalse(criterion.filter(20));
+        assertTrue(criterion.filter(21));
 
         criterion.setLowBound(30, true);
         assertAll(
                 () -> assertEquals(30, criterion.getLowBound()),
                 () -> assertTrue(criterion.isLowClosed())
         );
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(20));
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(30));
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(31));
+        assertFalse(criterion.filter(20));
+        assertTrue(criterion.filter(30));
+        assertTrue(criterion.filter(31));
     }
 
     @Test
@@ -71,18 +71,18 @@ class IntervalTemporaryDurationCriterionTest {
                 () -> assertEquals(200, criterion.getHighBound()),
                 () -> assertFalse(criterion.isHighClosed())
         );
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(300));
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(200));
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(199));
+        assertFalse(criterion.filter(300));
+        assertFalse(criterion.filter(200));
+        assertTrue(criterion.filter(199));
 
         criterion.setHighBound(300, true);
         assertAll(
                 () -> assertEquals(300, criterion.getHighBound()),
                 () -> assertTrue(criterion.isHighClosed())
         );
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(500));
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(300));
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(299));
+        assertFalse(criterion.filter(500));
+        assertTrue(criterion.filter(300));
+        assertTrue(criterion.filter(299));
     }
 
     @Test
@@ -96,9 +96,9 @@ class IntervalTemporaryDurationCriterionTest {
                 () -> assertEquals(300, criterion.getHighBound()),
                 () -> assertTrue(criterion.isHighClosed())
         );
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(10));
-        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(30));
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(500));
+        assertFalse(criterion.filter(10));
+        assertTrue(criterion.filter(30));
+        assertFalse(criterion.filter(500));
     }
 
     @Test

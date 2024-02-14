@@ -5,17 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitsreduction.criterion.duration;
+package com.powsybl.security.limitsreduction;
 
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.security.limitsreduction.LimitReductionDefinitionList;
-import com.powsybl.security.limitsreduction.ReducedLimitsComputer;
+import com.powsybl.security.limitsreduction.criterion.duration.PermanentDurationCriterion;
 import com.powsybl.security.limitsreduction.criterion.network.LineCriterion;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -43,13 +42,13 @@ class ReducedLimitsComputerTest {
         LimitReductionDefinitionList.LimitReductionDefinition definition1 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
                 .setLimitReduction(0.9)
                 .setNetworkElementCriteria(new LineCriterion(Set.of("NHV1_NHV2_1")))
-                .setContingencyContexts(new ContingencyContext("contingency1", ContingencyContextType.SPECIFIC))
+                .setContingencyContexts(ContingencyContext.specificContingency("contingency1"))
                 .setDurationCriteria(new PermanentDurationCriterion());
         LimitReductionDefinitionList.LimitReductionDefinition definition2 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
                 .setLimitReduction(0.5)
                 .setNetworkElementCriteria(new LineCriterion(Set.of("NHV1_NHV2_2")));
-        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList();
-        definitionList.addLimitReductionDefinitions(definition1, definition2);
+        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
+                .setLimitReductionDefinitions(definition1, definition2);
         computer = new ReducedLimitsComputer(definitionList);
     }
 
@@ -143,11 +142,41 @@ class ReducedLimitsComputerTest {
                 .setNetworkElementCriteria(new LineCriterion(Set.of("NHV1_NHV2_1")))
                 .setContingencyContexts(ContingencyContext.all());
         LimitReductionDefinitionList reductionsTo1List = new LimitReductionDefinitionList()
-                .addLimitReductionDefinitions(definition1, definition2);
+                .setLimitReductionDefinitions(definition1, definition2);
         ReducedLimitsComputer reductionsTo1Computer = new ReducedLimitsComputer(reductionsTo1List);
         return Stream.of(
                 Arguments.of("No definitions", noDefComputer),
                 Arguments.of("Reductions to 1.0", reductionsTo1Computer)
         );
     }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getContingencyContextListsData")
+    void isContingencyContextListApplicableTest(String desc, List<ContingencyContext> contingencyContexts,
+                                                boolean applicableForPreContingency,
+                                                boolean applicableForContingency1, boolean applicableForContingency2,
+                                                boolean applicableForContingency3) {
+        assertEquals(applicableForPreContingency, computer.isContingencyContextListApplicable(contingencyContexts, null));
+        assertEquals(applicableForContingency1, computer.isContingencyContextListApplicable(contingencyContexts, "contingency1"));
+        assertEquals(applicableForContingency2, computer.isContingencyContextListApplicable(contingencyContexts, "contingency2"));
+        assertEquals(applicableForContingency3, computer.isContingencyContextListApplicable(contingencyContexts, "contingency3"));
+    }
+
+    static Stream<Arguments> getContingencyContextListsData() {
+        ContingencyContext c1 = ContingencyContext.specificContingency("contingency1");
+        ContingencyContext c2 = ContingencyContext.specificContingency("contingency2");
+        ContingencyContext c3 = ContingencyContext.specificContingency("contingency3");
+        return Stream.of(
+                Arguments.of("(empty)", List.of(), true, true, true, true),
+                Arguments.of("all", List.of(ContingencyContext.all()), true, true, true, true),
+                Arguments.of("none", List.of(ContingencyContext.none()), true, false, false, false),
+                Arguments.of("only contingencies", List.of(ContingencyContext.onlyContingencies()), false, true, true, true),
+                Arguments.of("c1", List.of(c1), false, true, false, false),
+                Arguments.of("c2", List.of(c2), false, false, true, false),
+                Arguments.of("c3", List.of(c3), false, false, false, true),
+                Arguments.of("none + c1", List.of(ContingencyContext.none(), c1), true, true, false, false),
+                Arguments.of("c1 + c2", List.of(c1, c2), false, true, true, false)
+        );
+    }
+
 }

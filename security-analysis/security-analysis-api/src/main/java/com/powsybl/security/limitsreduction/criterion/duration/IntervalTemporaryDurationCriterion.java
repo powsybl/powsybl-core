@@ -62,7 +62,7 @@ public class IntervalTemporaryDurationCriterion extends AbstractTemporaryDuratio
     }
 
     @Override
-    public boolean isAcceptableDurationWithinCriterionBounds(int acceptableDuration) {
+    public boolean filter(int acceptableDuration) {
         boolean lowBoundOk = lowBound == null || acceptableDuration > lowBound
                 || lowClosed && acceptableDuration == lowBound;
         boolean highBoundOk = highBound == null || acceptableDuration < highBound

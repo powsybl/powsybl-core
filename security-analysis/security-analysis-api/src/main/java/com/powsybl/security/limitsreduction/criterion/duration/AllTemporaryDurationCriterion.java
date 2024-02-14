@@ -19,7 +19,7 @@ public class AllTemporaryDurationCriterion extends AbstractTemporaryDurationCrit
     }
 
     @Override
-    public boolean isAcceptableDurationWithinCriterionBounds(int acceptableDuration) {
+    public boolean filter(int acceptableDuration) {
         return true;
     }
 }
