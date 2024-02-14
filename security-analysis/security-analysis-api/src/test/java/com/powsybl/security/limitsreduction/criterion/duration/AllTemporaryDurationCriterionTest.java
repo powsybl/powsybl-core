@@ -5,32 +5,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.detectors.criterion.duration;
+package com.powsybl.security.limitsreduction.criterion.duration;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class EqualityTemporaryDurationCriterionTest {
+class AllTemporaryDurationCriterionTest {
     @Test
     void getTypeTest() {
-        EqualityTemporaryDurationCriterion criterion = new EqualityTemporaryDurationCriterion(10);
+        AllTemporaryDurationCriterion criterion = new AllTemporaryDurationCriterion();
         assertEquals(LimitDurationCriterion.LimitDurationType.TEMPORARY, criterion.getType());
     }
 
     @Test
     void getComparisonTypeTest() {
-        EqualityTemporaryDurationCriterion criterion = new EqualityTemporaryDurationCriterion(10);
-        assertEquals(AbstractTemporaryDurationCriterion.TemporaryDurationCriterionType.EQUALITY, criterion.getComparisonType());
+        AllTemporaryDurationCriterion criterion = new AllTemporaryDurationCriterion();
+        assertEquals(AbstractTemporaryDurationCriterion.TemporaryDurationCriterionType.ALL, criterion.getComparisonType());
     }
 
     @Test
     void isTemporaryLimitWithinCriterionBoundsTest() {
-        EqualityTemporaryDurationCriterion criterion = new EqualityTemporaryDurationCriterion(10);
+        AllTemporaryDurationCriterion criterion = new AllTemporaryDurationCriterion();
         assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(10));
-        assertFalse(criterion.isAcceptableDurationWithinCriterionBounds(10_000));
+        assertTrue(criterion.isAcceptableDurationWithinCriterionBounds(10_000));
     }
 }

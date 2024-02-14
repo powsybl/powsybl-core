@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.detectors;
+package com.powsybl.security.limitsreduction;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}

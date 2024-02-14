@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.detectors;
+package com.powsybl.security.limitsreduction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +23,9 @@ public abstract class AbstractLimitsReducer<T> {
         this.originalLimits = originalLimits;
     }
 
-    abstract T generateReducedLimits();
+    protected abstract T generateReducedLimits();
 
-    abstract IntStream getTemporaryLimitsAcceptableDurationStream();
+    protected abstract IntStream getTemporaryLimitsAcceptableDurationStream();
 
     public T getOriginalLimits() {
         return originalLimits;

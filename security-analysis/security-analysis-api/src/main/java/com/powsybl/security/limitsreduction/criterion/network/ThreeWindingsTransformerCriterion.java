@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.detectors.criterion.network;
+package com.powsybl.security.limitsreduction.criterion.network;
 
 import com.powsybl.iidm.network.util.criterion.SingleCountryCriterion;
 import com.powsybl.iidm.network.util.criterion.ThreeNominalVoltageCriterion;

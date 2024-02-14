@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.detectors;
+package com.powsybl.security.limitsreduction;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Identifiable;
@@ -14,10 +14,10 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.criterion.translation.DefaultNetworkElement;
 import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
-import com.powsybl.security.detectors.criterion.duration.AbstractTemporaryDurationCriterion;
-import com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion;
-import com.powsybl.security.detectors.criterion.network.AbstractNetworkElementCriterion;
-import com.powsybl.security.detectors.criterion.network.NetworkElementVisitor;
+import com.powsybl.security.limitsreduction.criterion.duration.AbstractTemporaryDurationCriterion;
+import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
+import com.powsybl.security.limitsreduction.criterion.network.AbstractNetworkElementCriterion;
+import com.powsybl.security.limitsreduction.criterion.network.NetworkElementVisitor;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,21 +25,20 @@ import java.util.Optional;
 
 import static com.powsybl.contingency.ContingencyContextType.*;
 
-//TODO rename and move this class
 /**
- * Implements the behaviour for limit violation detection with limit reductions.
+ * Implements the behaviour for reduced limits computation.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class LimitViolationDetectorWithLimitReduction {
+public class ReducedLimitsComputer {
     private final LimitReductionDefinitionList limitReductionDefinitionList;
-    private String currentContingencyId = null;
     private List<LimitReductionDefinitionList.LimitReductionDefinition> definitionsForCurrentContingencyId = Collections.emptyList();
     boolean sameDefinitionsAsForPreviousContingencyId = false;
 
-    public LimitViolationDetectorWithLimitReduction(LimitReductionDefinitionList limitReductionDefinitionList) {
+    public ReducedLimitsComputer(LimitReductionDefinitionList limitReductionDefinitionList) {
         this.limitReductionDefinitionList = limitReductionDefinitionList;
-        computeDefinitionsForCurrentContingencyId();
+        computeDefinitionsForCurrentContingencyId(null);
     }
 
     public Optional<LoadingLimits> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
@@ -61,22 +60,21 @@ public class LimitViolationDetectorWithLimitReduction {
         for (LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition : definitionsForCurrentContingencyId) {
             if (limitReductionDefinition.getLimitType() == limitType &&
                     isEquipmentAffectedByLimitReduction(networkElement, limitReductionDefinition.getNetworkElementCriteria())) {
-                manageLimits(limitsReducer, limitReductionDefinition);
+                setLimitReductionsToLimitReducer(limitsReducer, limitReductionDefinition);
             }
         }
     }
 
     public boolean changeContingencyId(String contingencyId) {
         var definitionsForPreviousContingencyId = definitionsForCurrentContingencyId;
-        currentContingencyId = contingencyId;
-        computeDefinitionsForCurrentContingencyId();
+        computeDefinitionsForCurrentContingencyId(contingencyId);
         sameDefinitionsAsForPreviousContingencyId = definitionsForCurrentContingencyId.equals(definitionsForPreviousContingencyId);
         return isSameDefinitionsAsForPreviousContingencyId();
     }
 
-    private void computeDefinitionsForCurrentContingencyId() {
+    private void computeDefinitionsForCurrentContingencyId(String contingencyId) {
         definitionsForCurrentContingencyId = limitReductionDefinitionList.getLimitReductionDefinitions().stream()
-                .filter(l -> isContingencyContextApplicable(l.getContingencyContexts(), currentContingencyId))
+                .filter(l -> isContingencyContextApplicable(l.getContingencyContexts(), contingencyId))
                 .toList();
     }
 
@@ -84,8 +82,7 @@ public class LimitViolationDetectorWithLimitReduction {
         return sameDefinitionsAsForPreviousContingencyId;
     }
 
-    //TODO to rename
-    private void manageLimits(AbstractLimitsReducer<?> limitsReducer, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    private void setLimitReductionsToLimitReducer(AbstractLimitsReducer<?> limitsReducer, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         if (isPermanentLimitAffectedByLimitReduction(limitReductionDefinition)) {
             limitsReducer.setPermanentLimitReduction(limitReductionDefinition.getLimitReduction());
         }

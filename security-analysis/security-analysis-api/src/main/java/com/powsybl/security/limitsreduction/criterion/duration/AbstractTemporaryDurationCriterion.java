@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.detectors.criterion.duration;
+package com.powsybl.security.limitsreduction.criterion.duration;
 
-import static com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion.LimitDurationType.TEMPORARY;
+import static com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion.LimitDurationType.TEMPORARY;
 
 /**
  * Describes temporary duration criterion

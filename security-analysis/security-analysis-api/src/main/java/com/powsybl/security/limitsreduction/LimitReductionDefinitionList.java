@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.detectors;
+package com.powsybl.security.limitsreduction;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.security.detectors.criterion.duration.LimitDurationCriterion;
-import com.powsybl.security.detectors.criterion.network.AbstractNetworkElementCriterion;
+import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
+import com.powsybl.security.limitsreduction.criterion.network.AbstractNetworkElementCriterion;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +29,7 @@ public class LimitReductionDefinitionList {
 
     public static class LimitReductionDefinition {
         private double limitReduction = 1d;
-        private LimitType limitType;
+        private final LimitType limitType;
         private List<ContingencyContext> contingencyContexts = List.of(ContingencyContext.all());
         private List<AbstractNetworkElementCriterion> networkElementCriteria = new ArrayList<>();
         private List<LimitDurationCriterion> durationCriteria = new ArrayList<>();
