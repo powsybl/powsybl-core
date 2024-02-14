@@ -150,7 +150,7 @@ class LoadScalable extends AbstractInjectionScalable {
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
                 l.getId(), oldP0, l.getP0());
 
-        if (parameters.isConstantPowerFactor()) {
+        if (parameters.isConstantPowerFactor() && oldP0 != 0) {
             l.setQ0(l.getP0() * oldQ0 / oldP0);
             LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
                     l.getId(), oldQ0, l.getQ0());
