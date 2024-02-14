@@ -27,6 +27,16 @@ public abstract class AbstractLimitsReducer<T> {
 
     protected abstract IntStream getTemporaryLimitsAcceptableDurationStream();
 
+    protected T getReducedLimits() {
+        if (permanentLimitReduction == 1.0
+                && temporaryLimitReductionByAcceptableDuration.isEmpty()
+                    || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0)) {
+            // No reductions are applicable
+            return getOriginalLimits();
+        }
+        return generateReducedLimits();
+    }
+
     public T getOriginalLimits() {
         return originalLimits;
     }

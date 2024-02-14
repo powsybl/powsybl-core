@@ -53,7 +53,7 @@ public class ReducedLimitsComputer {
         }
         AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
         updateLimitReducer(limitsReducer, networkElement, limitType);
-        return Optional.of(limitsReducer.generateReducedLimits());
+        return Optional.of(limitsReducer.getReducedLimits());
     }
 
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement<?> networkElement, LimitType limitType) {
