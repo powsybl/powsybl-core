@@ -28,7 +28,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
     protected LoadingLimits generateReducedLimits() {
         LoadingLimits originalLimits = getOriginalLimits();
         LoadingLimitsAdder<?, ?> adder = getLoadingLimitsAdder(originalLimits);
-        adder.setPermanentLimit(originalLimits.getPermanentLimit() * getPermanentLimitReduction());
+        adder.setPermanentLimit(applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction()));
 
         // Compute the temporary limits:
         // A temporary limit L1 should be ignored (not created) if there exists another temporary limit L2
@@ -37,7 +37,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
                 .sorted(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration)).toList();
         double previousRetainedReducedValue = Double.NaN;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order of the durations
-            double tlReducedValue = tl.getValue() * getTemporaryLimitReduction(tl.getAcceptableDuration());
+            double tlReducedValue = applyReduction(tl.getValue(), getTemporaryLimitReduction(tl.getAcceptableDuration()));
             if (Double.isNaN(previousRetainedReducedValue) || tlReducedValue < previousRetainedReducedValue) {
                 previousRetainedReducedValue = tlReducedValue;
                 adder.beginTemporaryLimit()

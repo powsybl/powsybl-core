@@ -29,8 +29,8 @@ public abstract class AbstractLimitsReducer<T> {
 
     protected T getReducedLimits() {
         if (permanentLimitReduction == 1.0
-                && temporaryLimitReductionByAcceptableDuration.isEmpty()
-                    || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0)) {
+                && (temporaryLimitReductionByAcceptableDuration.isEmpty()
+                    || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0))) {
             // No reductions are applicable
             return getOriginalLimits();
         }
@@ -55,5 +55,9 @@ public abstract class AbstractLimitsReducer<T> {
 
     public double getTemporaryLimitReduction(int acceptableDuration) {
         return temporaryLimitReductionByAcceptableDuration.getOrDefault(acceptableDuration, 1.);
+    }
+
+    protected static double applyReduction(double value, double reduction) {
+        return value == Double.MAX_VALUE ? Double.MAX_VALUE : value * reduction;
     }
 }

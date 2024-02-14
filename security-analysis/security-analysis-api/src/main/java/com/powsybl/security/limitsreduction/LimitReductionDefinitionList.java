@@ -25,7 +25,7 @@ import java.util.List;
 
 public class LimitReductionDefinitionList {
 
-    private List<LimitReductionDefinition> limitReductionDefinitions = new ArrayList<>();
+    private final List<LimitReductionDefinition> limitReductionDefinitions = new ArrayList<>();
 
     public static class LimitReductionDefinition {
         private double limitReduction = 1d;
@@ -57,12 +57,19 @@ public class LimitReductionDefinitionList {
         }
 
         public LimitReductionDefinition setLimitReduction(double limitReduction) {
+            if (limitReduction > 1. || limitReduction < 0.) {
+                throw new PowsyblException("Limit reduction value should be in [0;1]");
+            }
             this.limitReduction = limitReduction;
             return this;
         }
 
         public List<ContingencyContext> getContingencyContexts() {
             return contingencyContexts;
+        }
+
+        public LimitReductionDefinition setContingencyContexts(ContingencyContext... contingencyContexts) {
+            return setContingencyContexts(List.of(contingencyContexts));
         }
 
         public LimitReductionDefinition setContingencyContexts(List<ContingencyContext> contingencyContexts) {
@@ -74,6 +81,10 @@ public class LimitReductionDefinitionList {
             return networkElementCriteria;
         }
 
+        public LimitReductionDefinition setNetworkElementCriteria(AbstractNetworkElementCriterion... criteria) {
+            return setNetworkElementCriteria(List.of(criteria));
+        }
+
         public LimitReductionDefinition setNetworkElementCriteria(List<AbstractNetworkElementCriterion> criteria) {
             this.networkElementCriteria = criteria;
             return this;
@@ -81,6 +92,10 @@ public class LimitReductionDefinitionList {
 
         public List<LimitDurationCriterion> getDurationCriteria() {
             return durationCriteria;
+        }
+
+        public LimitReductionDefinition setDurationCriteria(LimitDurationCriterion... durationCriteria) {
+            return setDurationCriteria(List.of(durationCriteria));
         }
 
         public LimitReductionDefinition setDurationCriteria(List<LimitDurationCriterion> durationCriteria) {
@@ -91,5 +106,14 @@ public class LimitReductionDefinitionList {
 
     public List<LimitReductionDefinition> getLimitReductionDefinitions() {
         return Collections.unmodifiableList(limitReductionDefinitions);
+    }
+
+    public LimitReductionDefinitionList addLimitReductionDefinitions(LimitReductionDefinition... definitions) {
+        return addLimitReductionDefinitions(List.of(definitions));
+    }
+
+    public LimitReductionDefinitionList addLimitReductionDefinitions(List<LimitReductionDefinition> definitions) {
+        limitReductionDefinitions.addAll(definitions);
+        return this;
     }
 }

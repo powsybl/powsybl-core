@@ -107,15 +107,17 @@ public class ReducedLimitsComputer {
     }
 
     private boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
-        return limitReductionDefinition.getDurationCriteria().stream().anyMatch(limitDurationCriterion ->
-                limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.PERMANENT));
+        return limitReductionDefinition.getDurationCriteria().isEmpty()
+                || limitReductionDefinition.getDurationCriteria().stream()
+                    .anyMatch(c -> c.getType().equals(LimitDurationCriterion.LimitDurationType.PERMANENT));
     }
 
     private boolean isTemporaryLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition,
                                                              int temporaryLimitAcceptableDuration) {
-        return limitReductionDefinition.getDurationCriteria().stream()
-                .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))
-                .map(AbstractTemporaryDurationCriterion.class::cast)
-                .anyMatch(temporaryLimitDurationCriterion -> temporaryLimitDurationCriterion.isAcceptableDurationWithinCriterionBounds(temporaryLimitAcceptableDuration));
+        return limitReductionDefinition.getDurationCriteria().isEmpty()
+                || limitReductionDefinition.getDurationCriteria().stream()
+                    .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))
+                    .map(AbstractTemporaryDurationCriterion.class::cast)
+                    .anyMatch(c -> c.isAcceptableDurationWithinCriterionBounds(temporaryLimitAcceptableDuration));
     }
 }
