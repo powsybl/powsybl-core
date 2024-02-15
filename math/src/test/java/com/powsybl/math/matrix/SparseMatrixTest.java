@@ -6,7 +6,6 @@
  */
 package com.powsybl.math.matrix;
 
-import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -53,7 +52,7 @@ class SparseMatrixTest extends AbstractMatrixTest {
         a.set(0, 0, 1d);
         a.set(1, 0, 1d);
         a.set(0, 1, 1d);
-        assertThrows(PowsyblException.class, () -> a.set(1, 0, 1d));
+        assertThrows(MatrixException.class, () -> a.set(1, 0, 1d));
     }
 
     @Test
@@ -62,7 +61,7 @@ class SparseMatrixTest extends AbstractMatrixTest {
         a.add(0, 0, 1d);
         a.add(1, 0, 1d);
         a.add(0, 1, 1d);
-        assertThrows(PowsyblException.class, () -> a.add(1, 0, 1d));
+        assertThrows(MatrixException.class, () -> a.add(1, 0, 1d));
     }
 
     @Test
@@ -86,5 +85,32 @@ class SparseMatrixTest extends AbstractMatrixTest {
             matrix.set(1, 1, 2);
             assertThrows(MatrixException.class, decomposition::update);
         }
+    }
+
+    @Test
+    void initFromArrayIssue() {
+        SparseMatrix a = new SparseMatrix(2, 2, 2);
+        a.add(0, 0, 1d);
+        a.add(1, 0, 1d);
+        a.add(0, 1, 1d);
+        try (LUDecomposition decomposition = a.decomposeLU()) {
+            double[] x = new double[] {1, 0};
+            decomposition.solve(x);
+            assertArrayEquals(new double[] {0, 1}, x);
+        }
+        SparseMatrix m = new SparseMatrix(a.getRowCount(), a.getColumnCount(), a.getColumnStart(), a.getRowIndices(), a.getValues());
+        try (LUDecomposition decomposition = m.decomposeLU()) {
+            double[] x = new double[] {1, 0};
+            decomposition.solve(x);
+            assertArrayEquals(new double[] {0, 1}, x);
+        }
+    }
+
+    @Test
+    void testFromArrayConstructorErrors() {
+        MatrixException e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1}, new int[]{0, 1}, new double[]{0.5, 0.3}));
+        assertEquals("columnStart array length has to be columnCount + 1", e.getMessage());
+        e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1, 1}, new int[]{0, 1, 1}, new double[]{0.5, 0.3}));
+        assertEquals("rowIndices and values arrays must have the same length", e.getMessage());
     }
 }

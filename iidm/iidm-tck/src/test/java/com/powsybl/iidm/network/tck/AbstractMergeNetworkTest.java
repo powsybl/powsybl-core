@@ -8,10 +8,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.LoadDetailAdder;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import java.time.ZonedDateTime;
@@ -94,6 +91,8 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", tieLine.getNameOrId());
+        assertEquals("dl1", tieLine.getDanglingLine1().getId());
+        assertEquals("dl2", tieLine.getDanglingLine2().getId());
         assertEquals(0.0, tieLine.getDanglingLine1().getP0());
         assertEquals(0.0, tieLine.getDanglingLine1().getQ0());
         assertEquals(0.0, tieLine.getDanglingLine2().getP0());
@@ -151,10 +150,20 @@ public abstract class AbstractMergeNetworkTest {
 
         // Add extension at network level
         n1.newExtension(SecondaryVoltageControlAdder.class)
-                .addControlZone(new SecondaryVoltageControl.ControlZone("z1",
-                        new SecondaryVoltageControl.PilotPoint(List.of("NLOAD"), 15d),
-                        List.of(new SecondaryVoltageControl.ControlUnit("GEN", false),
-                                new SecondaryVoltageControl.ControlUnit("GEN2"))))
+                .newControlZone()
+                    .withName("z1")
+                    .newPilotPoint()
+                        .withBusbarSectionsOrBusesIds(List.of("NLOAD"))
+                        .withTargetV(15d)
+                    .add()
+                    .newControlUnit()
+                        .withId("GEN")
+                        .withParticipate(false)
+                    .add()
+                    .newControlUnit()
+                        .withId("GEN2")
+                        .add()
+                    .add()
                 .add();
         // Add extension at inner element level
         n1.getLoad("LOAD").newExtension(LoadDetailAdder.class)
@@ -615,6 +624,18 @@ public abstract class AbstractMergeNetworkTest {
         ld2.setP0(10);
         merge.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(0, ld2.getP0(), 0);
+    }
+
+    @Test
+    public void invertDanglingLinesWhenCreatingATieLine() {
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl2", "code", "dl1", "code");
+        Network merge = Network.merge(n1, n2);
+        assertEquals(1, merge.getTieLineCount());
+        TieLine tieLine = merge.getTieLine("dl1 + dl2");
+        assertNotNull(tieLine);
+        assertEquals("dl1", tieLine.getDanglingLine1().getId());
+        assertEquals("dl2", tieLine.getDanglingLine2().getId());
     }
 
     @Test

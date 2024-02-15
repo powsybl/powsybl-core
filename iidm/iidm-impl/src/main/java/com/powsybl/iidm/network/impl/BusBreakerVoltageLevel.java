@@ -213,6 +213,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case STATIC_VAR_COMPENSATOR:
                         feederCount++;
                         break;
+                    case GROUND:
+                        break;
 
                     case BUSBAR_SECTION: // must not happend in a bus/breaker topology
                     default:

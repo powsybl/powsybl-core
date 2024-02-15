@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:dm="http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0" id="fourSubstations" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S1">
+        <iidm:voltageLevel id="S1VL1" nominalV="225.0" lowVoltageLimit="220.0" highVoltageLimit="240.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="S1VL1_BBS" name="S1VL1_BBS" node="0"/>
+                <iidm:switch id="S1VL1_BBS_LD1_DISCONNECTOR" name="S1VL1_BBS_LD1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="S1VL1_LD1_BREAKER" name="S1VL1_LD1_BREAKER" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+                <iidm:switch id="S1VL1_BBS_TWT_DISCONNECTOR" name="S1VL1_BBS_TWT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="S1VL1_TWT_BREAKER" name="S1VL1_TWT_BREAKER" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
+                <iidm:bus v="224.6139" angle="2.2822" nodes="0,1,2,3,4"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="LD1" loadType="UNDEFINED" p0="80.0" q0="10.0" node="2" p="80.0" q="10.0"/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="S1VL2" nominalV="400.0" lowVoltageLimit="390.0" highVoltageLimit="440.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="S1VL2_BBS1" name="S1VL2_BBS1" node="0"/>
+                <iidm:busbarSection id="S1VL2_BBS2" name="S1VL2_BBS2" node="1"/>
+                <iidm:switch id="S1VL2_BBS1_TWT_DISCONNECTOR" name="S1VL2_BBS1_TWT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="S1VL2_BBS2_TWT_DISCONNECTOR" name="S1VL2_BBS2_TWT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="2"/>
+                <iidm:switch id="S1VL2_TWT_BREAKER" name="S1VL2_TWT_BREAKER" kind="BREAKER" retained="true" open="false" node1="2" node2="3"/>
+                <iidm:switch id="S1VL2_BBS1_VSC1_DISCONNECTOR" name="S1VL2_BBS1_VSC1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="4"/>
+                <iidm:switch id="S1VL2_BBS2_VSC1_DISCONNECTOR" name="S1VL2_BBS2_VSC1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="4"/>
+                <iidm:switch id="S1VL2_VSC1_BREAKER" name="S1VL2_VSC1_BREAKER" kind="BREAKER" retained="true" open="false" node1="4" node2="5"/>
+                <iidm:switch id="S1VL2_BBS1_GH1_DISCONNECTOR" name="S1VL2_BBS1_GH1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="6"/>
+                <iidm:switch id="S1VL2_BBS1_GH2_DISCONNECTOR" name="S1VL2_BBS1_GH2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="8"/>
+                <iidm:switch id="S1VL2_BBS1_GH3_DISCONNECTOR" name="S1VL2_BBS1_GH3_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="10"/>
+                <iidm:switch id="S1VL2_BBS2_GH1_DISCONNECTOR" name="S1VL2_BBS2_GH1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="6"/>
+                <iidm:switch id="S1VL2_BBS2_GH2_DISCONNECTOR" name="S1VL2_BBS2_GH2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="8"/>
+                <iidm:switch id="S1VL2_BBS2_GH3_DISCONNECTOR" name="S1VL2_BBS2_GH3_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="10"/>
+                <iidm:switch id="S1VL2_GH1_BREAKER" name="S1VL2_GH1_BREAKER" kind="BREAKER" retained="true" open="false" node1="6" node2="7"/>
+                <iidm:switch id="S1VL2_GH2_BREAKER" name="S1VL2_GH2_BREAKER" kind="BREAKER" retained="true" open="false" node1="8" node2="9"/>
+                <iidm:switch id="S1VL2_GH3_BREAKER" name="S1VL2_GH3_BREAKER" kind="BREAKER" retained="true" open="false" node1="10" node2="11"/>
+                <iidm:switch id="S1VL2_BBS1_LD2_DISCONNECTOR" name="S1VL2_BBS1_LD2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="12"/>
+                <iidm:switch id="S1VL2_BBS1_LD3_DISCONNECTOR" name="S1VL2_BBS1_LD3_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="14"/>
+                <iidm:switch id="S1VL2_BBS1_LD4_DISCONNECTOR" name="S1VL2_BBS1_LD4_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="16"/>
+                <iidm:switch id="S1VL2_BBS2_LD2_DISCONNECTOR" name="S1VL2_BBS2_LD2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="12"/>
+                <iidm:switch id="S1VL2_BBS2_LD3_DISCONNECTOR" name="S1VL2_BBS2_LD3_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="14"/>
+                <iidm:switch id="S1VL2_BBS2_LD4_DISCONNECTOR" name="S1VL2_BBS2_LD4_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="16"/>
+                <iidm:switch id="S1VL2_LD2_BREAKER" name="S1VL2_LD2_BREAKER" kind="BREAKER" retained="true" open="false" node1="12" node2="13"/>
+                <iidm:switch id="S1VL2_LD3_BREAKER" name="S1VL2_LD3_BREAKER" kind="BREAKER" retained="true" open="false" node1="14" node2="15"/>
+                <iidm:switch id="S1VL2_LD4_BREAKER" name="S1VL2_LD4_BREAKER" kind="BREAKER" retained="true" open="false" node1="16" node2="17"/>
+                <iidm:switch id="S1VL2_BBS1_SHUNT_DISCONNECTOR" name="S1VL2_BBS1_SHUNT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="18"/>
+                <iidm:switch id="S1VL2_BBS2_SHUNT_DISCONNECTOR" name="S1VL2_BBS2_SHUNT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="18"/>
+                <iidm:switch id="S1VL2_SHUNT_BREAKER" name="S1VL2_SHUNT_BREAKER" kind="BREAKER" retained="true" open="false" node1="18" node2="19"/>
+                <iidm:switch id="S1VL2_BBS1_LCC1_DISCONNECTOR" name="S1VL2_BBS1_LCC1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="20"/>
+                <iidm:switch id="S1VL2_BBS2_LCC1_DISCONNECTOR" name="S1VL2_BBS2_LCC1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="20"/>
+                <iidm:switch id="S1VL2_LCC1_BREAKER" name="S1VL2_LCC1_BREAKER" kind="BREAKER" retained="true" open="false" node1="20" node2="21"/>
+                <iidm:switch id="S1VL2_BBS1_COUPLER_DISCONNECTOR" name="S1VL2_BBS1_COUPLER_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="22"/>
+                <iidm:switch id="S1VL2_BBS2_COUPLER_DISCONNECTOR" name="S1VL2_BBS2_COUPLER_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="23"/>
+                <iidm:switch id="S1VL2_COUPLER" name="S1VL2_COUPLER" kind="BREAKER" retained="true" open="false" node1="22" node2="23"/>
+                <iidm:bus v="400.0" angle="0.0" nodes="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="GH1" energySource="HYDRO" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="85.357" targetV="400.0" targetQ="512.081" node="7" p="-85.357" q="-512.0814">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="0.0" minQ="-769.3" maxQ="860.0"/>
+                    <iidm:point p="100.0" minQ="-864.55" maxQ="946.25"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+            <iidm:generator id="GH2" energySource="HYDRO" minP="0.0" maxP="200.0" voltageRegulatorOn="true" targetP="90.0" targetV="400.0" targetQ="512.081" node="9" p="-90.0" q="-512.0814">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="0.0" minQ="-556.8" maxQ="557.4"/>
+                    <iidm:point p="200.0" minQ="-553.514" maxQ="536.4"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+            <iidm:generator id="GH3" energySource="HYDRO" minP="0.0" maxP="200.0" voltageRegulatorOn="true" targetP="155.714" targetV="400.0" targetQ="512.081" node="11" p="-155.714" q="-512.0814">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="0.0" minQ="-680.6" maxQ="688.1"/>
+                    <iidm:point p="200.0" minQ="-681.725" maxQ="716.3500004"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+            <iidm:load id="LD2" loadType="UNDEFINED" p0="60.0" q0="5.0" node="13" p="60.0" q="5.0"/>
+            <iidm:load id="LD3" loadType="UNDEFINED" p0="60.0" q0="5.0" node="15" p="60.0" q="5.0"/>
+            <iidm:load id="LD4" loadType="UNDEFINED" p0="40.0" q0="5.0" node="17" p="40.0" q="5.0"/>
+            <iidm:shunt id="SHUNT" sectionCount="1" voltageRegulatorOn="false" node="19" q="1920.0">
+                <iidm:shuntLinearModel bPerSection="-0.012" maximumSectionCount="1"/>
+            </iidm:shunt>
+            <iidm:vscConverterStation id="VSC1" name="VSC1" voltageRegulatorOn="true" lossFactor="1.1" voltageSetpoint="400.0" reactivePowerSetpoint="500.0" node="5" p="10.11" q="-512.0814">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="-100.0" minQ="-550.0" maxQ="570.0"/>
+                    <iidm:point p="100.0" minQ="-550.0" maxQ="570.0"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:vscConverterStation>
+            <iidm:lccConverterStation id="LCC1" name="LCC1" lossFactor="1.1" powerFactor="0.6" node="21" p="80.88"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="400.0" node1="4" voltageLevelId1="S1VL1" node2="3" voltageLevelId2="S1VL2" p1="-80.0" q1="-10.0" p2="80.0809" q2="5.4857" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE" regulationValue="225.0">
+                <iidm:terminalRef id="TWT" side="ONE"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.85"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.15"/>
+            </iidm:ratioTapChanger>
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="15" regulationMode="FIXED_TAP">
+                <iidm:terminalRef id="TWT" side="ONE"/>
+                <iidm:step r="39.78473" x="29.784725" g="0.0" b="0.0" rho="1.0" alpha="-42.8"/>
+                <iidm:step r="31.720245" x="21.720242" g="0.0" b="0.0" rho="1.0" alpha="-40.18"/>
+                <iidm:step r="23.655737" x="13.655735" g="0.0" b="0.0" rho="1.0" alpha="-37.54"/>
+                <iidm:step r="16.263271" x="6.263268" g="0.0" b="0.0" rho="1.0" alpha="-34.9"/>
+                <iidm:step r="9.542847" x="4.542842" g="0.0" b="0.0" rho="1.0" alpha="-32.26"/>
+                <iidm:step r="3.4944773" x="3.4944773" g="0.0" b="0.0" rho="1.0" alpha="-29.6"/>
+                <iidm:step r="-1.8818557" x="-1.8818527" g="0.0" b="0.0" rho="1.0" alpha="-26.94"/>
+                <iidm:step r="-7.258195" x="-3.2581954" g="0.0" b="0.0" rho="1.0" alpha="-24.26"/>
+                <iidm:step r="-11.962485" x="-7.962484" g="0.0" b="0.0" rho="1.0" alpha="-21.58"/>
+                <iidm:step r="-15.994745" x="-11.994745" g="0.0" b="0.0" rho="1.0" alpha="-18.9"/>
+                <iidm:step r="-19.354952" x="-15.354952" g="0.0" b="0.0" rho="1.0" alpha="-16.22"/>
+                <iidm:step r="-22.043127" x="-22.043129" g="0.0" b="0.0" rho="1.0" alpha="-13.52"/>
+                <iidm:step r="-24.73129" x="-24.731287" g="0.0" b="0.0" rho="1.0" alpha="-10.82"/>
+                <iidm:step r="-26.747417" x="-26.747417" g="0.0" b="0.0" rho="1.0" alpha="-8.12"/>
+                <iidm:step r="-28.091503" x="-28.091503" g="0.0" b="0.0" rho="1.0" alpha="-5.42"/>
+                <iidm:step r="-28.763538" x="-28.763536" g="0.0" b="0.0" rho="1.0" alpha="-2.7"/>
+                <iidm:step r="-28.763538" x="-28.763536" g="0.0" b="0.0" rho="1.0" alpha="0.0"/>
+                <iidm:step r="-28.763538" x="-28.763536" g="0.0" b="0.0" rho="1.0" alpha="2.7"/>
+                <iidm:step r="-28.091503" x="-28.091503" g="0.0" b="0.0" rho="1.0" alpha="5.42"/>
+                <iidm:step r="-26.747417" x="-26.747417" g="0.0" b="0.0" rho="1.0" alpha="8.12"/>
+                <iidm:step r="-24.73129" x="-24.731287" g="0.0" b="0.0" rho="1.0" alpha="10.82"/>
+                <iidm:step r="-22.043127" x="-22.043129" g="0.0" b="0.0" rho="1.0" alpha="13.52"/>
+                <iidm:step r="-19.354952" x="-19.354952" g="0.0" b="0.0" rho="1.0" alpha="16.22"/>
+                <iidm:step r="-15.994745" x="-15.994745" g="0.0" b="0.0" rho="1.0" alpha="18.9"/>
+                <iidm:step r="-11.962485" x="-11.962484" g="0.0" b="0.0" rho="1.0" alpha="21.58"/>
+                <iidm:step r="-7.258195" x="-7.2581954" g="0.0" b="0.0" rho="1.0" alpha="24.26"/>
+                <iidm:step r="-1.8818557" x="-1.8818527" g="0.0" b="0.0" rho="1.0" alpha="26.94"/>
+                <iidm:step r="3.4944773" x="3.4944773" g="0.0" b="0.0" rho="1.0" alpha="29.6"/>
+                <iidm:step r="9.542847" x="9.542842" g="0.0" b="0.0" rho="1.0" alpha="32.26"/>
+                <iidm:step r="16.263271" x="16.263268" g="0.0" b="0.0" rho="1.0" alpha="34.9"/>
+                <iidm:step r="23.655737" x="23.655735" g="0.0" b="0.0" rho="1.0" alpha="37.54"/>
+                <iidm:step r="31.720245" x="31.720242" g="0.0" b="0.0" rho="1.0" alpha="40.18"/>
+                <iidm:step r="39.78473" x="39.784725" g="0.0" b="0.0" rho="1.0" alpha="42.8"/>
+            </iidm:phaseTapChanger>
+            <iidm:operationalLimitsGroup1 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="1031.0"/>
+            </iidm:operationalLimitsGroup1>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="1031.0"/>
+            </iidm:operationalLimitsGroup2>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="S2">
+        <iidm:voltageLevel id="S2VL1" nominalV="400.0" lowVoltageLimit="390.0" highVoltageLimit="440.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="S2VL1_BBS" name="S2VL1_BBS" node="0"/>
+                <iidm:switch id="S2VL1_BBS_GTH1_DISCONNECTOR" name="S2VL1_BBS_GTH1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="S2VL1_GTH1_BREAKER" name="S2VL1_GTH1_BREAKER" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+                <iidm:switch id="S2VL1_BBS_VSC2_DISCONNECTOR" name="S2VL1_BBS_VSC2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="S2VL1_VSC2_BREAKER" name="S2VL1_VSC2_BREAKER" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
+                <iidm:switch id="S2VL1_BBS_LINES2S3_DISCONNECTOR" name="S2VL1_BBS_LINES2S3_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:switch id="S2VL1_LINES2S3_BREAKER" name="S2VL1_LINES2S3_BREAKER" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
+                <iidm:bus v="408.847" angle="0.7347" nodes="0,1,2,3,4,5,6"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="GTH1" energySource="THERMAL" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="100.0" targetV="400.0" targetQ="70.0" node="2" p="-100.0" q="-70.0">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="0.0" minQ="-76.8" maxQ="77.4"/>
+                    <iidm:point p="100.0" minQ="-73.514" maxQ="76.4"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+            <iidm:vscConverterStation id="VSC2" name="VSC2" voltageRegulatorOn="false" lossFactor="1.1" voltageSetpoint="0.0" reactivePowerSetpoint="120.0" node="4" p="-9.89" q="-120.0">
+                <iidm:minMaxReactiveLimits minQ="-400.0" maxQ="500.0"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S3">
+        <iidm:voltageLevel id="S3VL1" nominalV="400.0" lowVoltageLimit="390.0" highVoltageLimit="440.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="S3VL1_BBS" name="S3VL1_BBS" node="0"/>
+                <iidm:switch id="S3VL1_BBS_LINES2S3_DISCONNECTOR" name="S3VL1_BBS_LINES2S3_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="S3VL1_LINES2S3_BREAKER" name="S3VL1_LINES2S3_BREAKER" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+                <iidm:switch id="S3VL1_BBS_LD5_DISCONNECTOR" name="S3VL1_BBS_LD5_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="S3VL1_LD5_BREAKER" name="S3VL1_LD5_BREAKER" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
+                <iidm:switch id="S3VL1_BBS_GTH2_DISCONNECTOR" name="S3VL1_BBS_GTH2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:switch id="S3VL1_GTH2_BREAKER" name="S3VL1_GTH2_BREAKER" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
+                <iidm:switch id="S3VL1_BBS_LINES3S4_DISCONNECTOR" name="S3VL1_BBS_LINES3S4_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="7"/>
+                <iidm:switch id="S3VL1_LINES3S4_BREAKER" name="S3VL1_LINES3S4_BREAKER" kind="BREAKER" retained="true" open="false" node1="7" node2="8"/>
+                <iidm:switch id="S3VL1_BBS_LCC2_DISCONNECTOR" name="S3VL1_BBS_LCC2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="9"/>
+                <iidm:switch id="S3VL1_LCC2_BREAKER" name="S3VL1_LCC2_BREAKER" kind="BREAKER" retained="true" open="false" node1="9" node2="10"/>
+                <iidm:bus v="400.0" angle="0.0" nodes="0,1,2,3,4,5,6,7,8,9,10"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="GTH2" energySource="THERMAL" minP="0.0" maxP="400.0" voltageRegulatorOn="true" targetP="250.9944" targetV="400.0" targetQ="71.8487" node="6" p="-250.9944" q="71.8487">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="0.0" minQ="-169.3" maxQ="200.0"/>
+                    <iidm:point p="400.0" minQ="-174.55" maxQ="176.25"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+            <iidm:load id="LD5" loadType="UNDEFINED" p0="200.0" q0="5.0" node="4" p="200.0" q="5.0"/>
+            <iidm:lccConverterStation id="LCC2" name="LCC2" lossFactor="1.1" powerFactor="0.6" node="10" p="-79.12"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S4">
+        <iidm:voltageLevel id="S4VL1" nominalV="400.0" lowVoltageLimit="390.0" highVoltageLimit="440.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="S4VL1_BBS" name="S4VL1_BBS" node="0"/>
+                <iidm:switch id="S4VL1_BBS_LINES3S4_DISCONNECTOR" name="S4VL1_BBS_LINES3S4_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:switch id="S4VL1_LINES3S4_BREAKER" name="S4VL1_LINES3S4_BREAKER" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
+                <iidm:switch id="S4VL1_BBS_LD6_DISCONNECTOR" name="S4VL1_BBS_LD6_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="S4VL1_LD6_BREAKER" name="S4VL1_LD6_BREAKER" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+                <iidm:switch id="S4VL1_BBS_SVC_DISCONNECTOR" name="S4VL1_BBS_SVC_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="S4VL1_SVC_BREAKER" name="S4VL1_SVC_BREAKER" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
+                <iidm:bus v="400.0" angle="-1.1259" nodes="0,1,2,3,4,5,6"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="LD6" loadType="UNDEFINED" p0="240.0" q0="10.0" node="2" p="240.0" q="10.0"/>
+            <iidm:staticVarCompensator id="SVC" bMin="-0.05" bMax="0.05" voltageSetpoint="400.0" regulationMode="VOLTAGE" node="4" q="-12.5415"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="LINE_S2S3" r="0.009999999" x="19.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="6" voltageLevelId1="S2VL1" node2="2" voltageLevelId2="S3VL1" p1="109.8893" q1="190.0229" p2="-109.8864" q2="-184.5171"/>
+    <iidm:line id="LINE_S3S4" r="0.009999999" x="13.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="8" voltageLevelId1="S3VL1" node2="6" voltageLevelId2="S4VL1" p1="240.0036" q1="2.1751" p2="-240.0" q2="2.5415" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="931.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="931.0">
+                <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
+                <iidm:temporaryLimit name="LD71" acceptableDuration="60"/>
+            </iidm:currentLimits>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:hvdcLine id="HVDC1" name="HVDC1" r="1.0" nominalV="400.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="10.0" maxP="300.0" converterStation1="VSC1" converterStation2="VSC2"/>
+    <iidm:hvdcLine id="HVDC2" name="HVDC2" r="1.0" nominalV="400.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="80.0" maxP="300.0" converterStation1="LCC1" converterStation2="LCC2"/>
+    <iidm:extension id="S1VL1_BBS_LD1_DISCONNECTOR">
+        <dm:discreteMeasurements>
+            <dm:discreteMeasurement id="DIS_MEAS_SW_POS" type="SWITCH_POSITION" valueType="STRING" value="CLOSED" valid="false">
+                <dm:property name="source" value="test"/>
+            </dm:discreteMeasurement>
+        </dm:discreteMeasurements>
+    </iidm:extension>
+    <iidm:extension id="TWT">
+        <dm:discreteMeasurements>
+            <dm:discreteMeasurement id="DIS_MEAS_TAP_POS" type="TAP_POSITION" tapChanger="PHASE_TAP_CHANGER" valueType="INT" value="15" valid="true">
+                <dm:property name="source" value="test2"/>
+            </dm:discreteMeasurement>
+        </dm:discreteMeasurements>
+    </iidm:extension>
+</iidm:network>

@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
@@ -180,6 +181,7 @@ public class Conversion {
             convert(cgmes.busBarSections(), bbs -> new BusbarSectionConversion(bbs, context));
         }
 
+        convert(cgmes.grounds(), g -> new GroundConversion(g, context));
         convert(cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
         convert(cgmes.energySources(), es -> new EnergySourceConversion(es, context));
         convf = eqi -> new EquivalentInjectionConversion(eqi, context);
@@ -722,7 +724,7 @@ public class Conversion {
                     .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
                     .orElse(null);
             if (regionName1 != null && regionName1.equals(regionName2)) {
-                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
+                context.ignored(node, "Both dangling lines are in the same region: we do not consider them as a merged line");
                 conversion1.convertAtBoundary();
                 conversion2.convertAtBoundary();
             } else if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
@@ -969,6 +971,18 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
+        public double getMissingPermanentLimitPercentage() {
+            return missingPermanentLimitPercentage;
+        }
+
+        public Config setMissingPermanentLimitPercentage(double missingPermanentLimitPercentage) {
+            if (missingPermanentLimitPercentage < 0 || missingPermanentLimitPercentage > 100) {
+                throw new IllegalArgumentException("Missing permanent limit percentage must be between 0 and 100.");
+            }
+            this.missingPermanentLimitPercentage = missingPermanentLimitPercentage;
+            return this;
+        }
+
         public CgmesImport.FictitiousSwitchesCreationMode getCreateFictitiousSwitchesForDisconnectedTerminalsMode() {
             return createFictitiousSwitchesForDisconnectedTerminalsMode;
         }
@@ -1017,6 +1031,8 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
+
+        private double missingPermanentLimitPercentage = 100;
     }
 
     private final CgmesModel cgmes;
@@ -1035,4 +1051,5 @@ public class Conversion {
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
     public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
+    public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
 }

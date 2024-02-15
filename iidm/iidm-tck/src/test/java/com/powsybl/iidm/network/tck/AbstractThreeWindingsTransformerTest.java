@@ -136,7 +136,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .setPermanentLimit(2.4)
                 .add();
         assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
-        assertEquals(3, leg1.getOperationalLimits().size());
 
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
             transformer.getTerminal(ThreeSides.TWO));
@@ -710,7 +709,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChanger(Leg leg, Terminal terminal, boolean regulating) {
         return leg.newRatioTapChanger()
-            .setTargetV(200.0)
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
             .setTapPosition(0)
@@ -743,7 +743,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChangerOneStep(Leg leg, Terminal terminal, double rho, double r, double x, double g, double b) {
         return leg.newRatioTapChanger()
-            .setTargetV(200.0)
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
             .setTapPosition(0)

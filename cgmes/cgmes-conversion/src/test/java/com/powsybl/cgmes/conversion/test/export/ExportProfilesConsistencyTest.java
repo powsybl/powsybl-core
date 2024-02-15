@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.NamingStrategyFactory;
+import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Report;
@@ -53,6 +53,7 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     private Network importNetwork(ReadOnlyDataSource dataSource) {
         Properties params = new Properties();
         params.put(CgmesImport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         return Importers.importData("CGMES", dataSource, params);
     }
 
