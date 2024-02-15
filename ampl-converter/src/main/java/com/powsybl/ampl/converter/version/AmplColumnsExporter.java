@@ -12,21 +12,12 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.iidm.network.*;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
  * @author Nicolas Pierre {@literal <nicolas.pierre at artelys.com>}
  */
 public interface AmplColumnsExporter {
-
-    String VERSION_HEADER_NAME = "version";
-
-    String getExporterId();
-
-    default void writeHeaderFile(Writer headerFileWriter) throws IOException {
-        headerFileWriter.write(VERSION_HEADER_NAME + " " + getExporterId() + "\n");
-    }
 
     List<Column> getRtcColumns();
 

@@ -24,7 +24,8 @@ import java.util.stream.Collectors;
  */
 public enum AmplExportVersion {
 
-    V1_0("1.0", BasicAmplExporter.getFactory());
+    V1_0("1.0", BasicAmplExporter::new),
+    V1_1("1.1", ExtendedAmplExporterV1::new);
 
     public interface Factory {
         AmplColumnsExporter create(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,

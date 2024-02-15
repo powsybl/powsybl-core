@@ -41,10 +41,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     private final int actionNum;
     private HashMap<String, HvdcLine> hvdcLinesMap;
 
-    public static AmplExportVersion.Factory getFactory() {
-        return BasicAmplExporter::new;
-    }
-
     public BasicAmplExporter(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,
                              int variantIndex, int faultNum, int actionNum) {
 
@@ -54,11 +50,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         this.variantIndex = variantIndex;
         this.faultNum = faultNum;
         this.actionNum = actionNum;
-    }
-
-    @Override
-    public String getExporterId() {
-        return AmplExportVersion.V1_0.getExporterId();
     }
 
     @Override
@@ -1422,5 +1413,29 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             return limits.getPermanentLimit();
         }
         return Double.NaN;
+    }
+
+    public AmplExportConfig getConfig() {
+        return config;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public StringToIntMapper<AmplSubset> getMapper() {
+        return mapper;
+    }
+
+    public int getVariantIndex() {
+        return variantIndex;
+    }
+
+    public int getFaultNum() {
+        return faultNum;
+    }
+
+    public int getActionNum() {
+        return actionNum;
     }
 }
