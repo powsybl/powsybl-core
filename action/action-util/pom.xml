@@ -22,11 +22,6 @@
     <name>Action utilities</name>
     <description>A set of DSL extensions and utility functions</description>
 
-    <properties>
-      <!-- TODO do we really want to discard groovydocs? -->
-      <groovydoc.attach>false</groovydoc.attach>
-    </properties>
-
     <build>
         <plugins>
             <plugin>

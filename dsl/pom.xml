@@ -20,11 +20,6 @@
     <artifactId>powsybl-dsl</artifactId>
     <name>DSL</name>
 
-    <properties>
-      <!-- TODO do we really want to discard groovydocs? -->
-      <groovydoc.attach>false</groovydoc.attach>
-    </properties>
-
     <build>
         <plugins>
             <plugin>

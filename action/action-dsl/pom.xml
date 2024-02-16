@@ -22,11 +22,6 @@
     <name>Action and rule DSL</name>
     <description>A DSL to describe actions, rules and access to network equipments</description>
 
-    <properties>
-      <!-- TODO do we really want to discard groovydocs? -->
-      <groovydoc.attach>false</groovydoc.attach>
-    </properties>
-
     <build>
         <plugins>
             <plugin>

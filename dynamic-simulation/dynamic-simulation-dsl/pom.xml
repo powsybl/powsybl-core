@@ -20,11 +20,6 @@
     <name>Dynamic Simulation DSL</name>
     <description>DSL for dynamic simulations</description>
 
-    <properties>
-      <!-- This project only has test groovy classes, don't pollute our artifact with an empty groovydoc jar -->
-      <groovydoc.attach>false</groovydoc.attach>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
