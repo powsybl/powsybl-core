@@ -69,28 +69,24 @@ class DynamicSecurityAnalysisTest {
 
     @Test
     void testDefaultOneProvider() {
-        // case with only one provider, no need for config
         DynamicSecurityAnalysis.Runner defaultDynamicSA = DynamicSecurityAnalysis.find();
-        assertEquals("DynamicSecurityAnalysisMock", defaultDynamicSA.getName());
+        assertEquals("DynamicSecurityAnalysisToolProviderMock", defaultDynamicSA.getName());
         assertEquals("1.0", defaultDynamicSA.getVersion());
-        SecurityAnalysisReport result = defaultDynamicSA.run(network, DynamicModelsSupplierMock.empty(), Collections.emptyList());
-        assertNotNull(result);
+        SecurityAnalysisReport report = defaultDynamicSA.run(network, DynamicModelsSupplierMock.empty(), Collections.emptyList());
+        assertNotNull(report);
     }
 
     @Test
-    void testAsyncNamedProvider()
-            throws InterruptedException, ExecutionException {
-        // case with only one provider, no need for config
+    void testAsyncNamedProvider() throws ExecutionException, InterruptedException {
         DynamicSecurityAnalysis.Runner defaultDynamicSA = DynamicSecurityAnalysis
-                .find("DynamicSecurityAnalysisMock");
-        assertEquals("DynamicSecurityAnalysisMock", defaultDynamicSA.getName());
-        CompletableFuture<SecurityAnalysisReport> result = defaultDynamicSA.runAsync(network, DynamicModelsSupplierMock.empty(), Collections.emptyList());
-        assertNotNull(result.get());
+                .find("DynamicSecurityAnalysisToolProviderMock");
+        assertEquals("DynamicSecurityAnalysisToolProviderMock", defaultDynamicSA.getName());
+        CompletableFuture<SecurityAnalysisReport> completableReport = defaultDynamicSA.runAsync(network, DynamicModelsSupplierMock.empty(), Collections.emptyList());
+        assertNotNull(completableReport.get());
     }
 
     @Test
     void testProviderRunCombinations() {
-        // case with only one provider, no need for config
         assertNotNull(DynamicSecurityAnalysis.run(network, DynamicModelsSupplierMock.empty(), Collections.emptyList()));
         assertNotNull(DynamicSecurityAnalysis.run(network, DynamicModelsSupplierMock.empty(), Collections.emptyList(), parameters));
         assertNotNull(DynamicSecurityAnalysis.run(network, DynamicModelsSupplierMock.empty(), contingenciesProvider, parameters, computationManager));
@@ -101,7 +97,6 @@ class DynamicSecurityAnalysisTest {
 
     @Test
     void testProviderAsyncCombinations() throws ExecutionException, InterruptedException {
-        // case with only one provider, no need for config
         assertNotNull(DynamicSecurityAnalysis.runAsync(network, DynamicModelsSupplierMock.empty(), Collections.emptyList()).get());
         assertNotNull(DynamicSecurityAnalysis.runAsync(network, DynamicModelsSupplierMock.empty(), Collections.emptyList(), parameters).get());
         assertNotNull(DynamicSecurityAnalysis.runAsync(network, DynamicModelsSupplierMock.empty(), contingenciesProvider, parameters, computationManager).get());

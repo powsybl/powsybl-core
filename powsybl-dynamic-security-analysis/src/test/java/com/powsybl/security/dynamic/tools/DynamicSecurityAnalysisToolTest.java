@@ -23,7 +23,10 @@ import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolationDetector;
+import com.powsybl.security.LimitViolationFilter;
+import com.powsybl.security.LimitViolationType;
+import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisInput;
@@ -36,7 +39,6 @@ import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
-import com.powsybl.security.results.PreContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.tools.SecurityAnalysisToolConstants;
 import com.powsybl.tools.Command;
@@ -65,7 +67,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
@@ -120,8 +123,8 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
     private static CommandLine mockCommandLine(Map<String, String> options, Set<String> flags) {
         CommandLine cli = mock(CommandLine.class);
-        //when(cli.hasOption(anyString())).thenReturn(false);
-       // when(cli.getOptionValue(anyString())).thenReturn(null);
+        when(cli.hasOption(anyString())).thenReturn(false);
+        when(cli.getOptionValue(anyString())).thenReturn(null);
         options.forEach((k, v) -> {
             when(cli.getOptionValue(k)).thenReturn(v);
             when(cli.hasOption(k)).thenReturn(true);
@@ -306,32 +309,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @AutoService(DynamicSecurityAnalysisProvider.class)
-    public static class DynamicSecurityAnalysisProviderMock implements DynamicSecurityAnalysisProvider {
-        @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, DynamicSecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
-            CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
-            SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
-            when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
-            when(report.getResult().getPreContingencyResult()).thenReturn(mock(PreContingencyResult.class));
-            when(report.getResult().getPreContingencyLimitViolationsResult()).thenReturn(mock(LimitViolationsResult.class));
-            when(report.getLogBytes()).thenReturn(Optional.of("Hello world".getBytes()));
-            when(cfSar.join()).thenReturn(report);
-            return cfSar;
-        }
-
-        @Override
-        public String getName() {
-            return "DynamicSecurityAnalysisToolProviderMock";
-        }
-
-        @Override
-        public String getVersion() {
-            return "1.0";
-        }
-    }
-
-    @AutoService(DynamicSecurityAnalysisProvider.class)
-    private static class DynamicSecurityAnalysisExceptionProviderMock implements DynamicSecurityAnalysisProvider {
+    public static class DynamicSecurityAnalysisExceptionProviderMock implements DynamicSecurityAnalysisProvider {
         @Override
         public CompletableFuture<SecurityAnalysisReport> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, DynamicSecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
