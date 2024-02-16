@@ -274,10 +274,11 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
                     "DynamicSecurityAnalysisToolExceptionProviderMock",
                     (executionInput, providerName) -> new DynamicSecurityAnalysisInput(executionInput.getNetworkVariant(), dynamicModelsSupplier));
 
+            ImportersLoaderList importers = new ImportersLoaderList(new NetworkImporterMock());
             try {
                 tool.run(cl, context, builderException,
                         DynamicSecurityAnalysisParameters::new,
-                        new ImportersLoaderList(new NetworkImporterMock()),
+                        importers,
                         TableFormatterConfig::new);
                 fail();
             } catch (CompletionException exception) {

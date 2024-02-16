@@ -33,7 +33,7 @@ public abstract class AbstractSecurityAnalysisExecutionBuilder<T extends Abstrac
      * @param providerName       The named security-analysis implementation to use. If {@literal null}, the default would be used.
      * @param inputBuildStrategy The method to translates execution inputs into actual security analysis inputs. Only used for local executions.
      */
-    public AbstractSecurityAnalysisExecutionBuilder(Supplier<ExternalSecurityAnalysisConfig> externalConfig,
+    protected AbstractSecurityAnalysisExecutionBuilder(Supplier<ExternalSecurityAnalysisConfig> externalConfig,
                                                     String providerName,
                                                     S inputBuildStrategy) {
         this.externalConfig = Objects.requireNonNull(externalConfig);

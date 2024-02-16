@@ -25,16 +25,16 @@ import java.util.Set;
 public abstract class AbstractSecurityAnalysisInput<T extends AbstractSecurityAnalysisInput<T>> implements SecurityAnalysisInputInterface {
 
     private final NetworkVariant networkVariant;
-    private Set<SecurityAnalysisInterceptor> interceptors;
+    private final Set<SecurityAnalysisInterceptor> interceptors;
     private LimitViolationFilter filter;
     private LimitViolationDetector detector;
     private ContingenciesProvider contingencies;
 
-    public AbstractSecurityAnalysisInput(Network network, String variantId) {
+    protected AbstractSecurityAnalysisInput(Network network, String variantId) {
         this(new NetworkVariant(network, variantId));
     }
 
-    public AbstractSecurityAnalysisInput(NetworkVariant networkVariant) {
+    protected AbstractSecurityAnalysisInput(NetworkVariant networkVariant) {
         this.networkVariant = Objects.requireNonNull(networkVariant);
         this.interceptors = new HashSet<>();
         this.filter = new LimitViolationFilter();

@@ -49,7 +49,7 @@ public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractS
 
     private boolean absolutePaths;
 
-    public AbstractSecurityAnalysisCommandOptions(String id) {
+    protected AbstractSecurityAnalysisCommandOptions(String id) {
         this.id = id;
         this.resultExtensions = new ArrayList<>();
         this.violationTypes = new ArrayList<>();

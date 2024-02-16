@@ -42,6 +42,7 @@ public class DynamicSecurityAnalysisCommandOptions extends AbstractSecurityAnaly
         return this;
     }
 
+    @Override
     public SimpleCommand toCommand() {
         SimpleCommandBuilder commandBuilder = toCommandBuilder()
                 .option(DYNAMIC_MODELS_FILE_OPTION, pathToString(dynamicModelsFile));

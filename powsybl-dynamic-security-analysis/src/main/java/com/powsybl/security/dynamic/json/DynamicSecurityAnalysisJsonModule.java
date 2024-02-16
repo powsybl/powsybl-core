@@ -31,9 +31,10 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}0
  */
+//TODO useful ?
 public class DynamicSecurityAnalysisJsonModule extends ContingencyJsonModule {
 
-    private final List<SecurityAnalysisJsonPlugin> plugins;
+    private final transient List<SecurityAnalysisJsonPlugin> plugins;
 
     public DynamicSecurityAnalysisJsonModule() {
         this(getServices());
@@ -107,13 +108,9 @@ public class DynamicSecurityAnalysisJsonModule extends ContingencyJsonModule {
                 new PhaseTapChangerRegulationActionSerializer(), new PhaseTapChangerRegulationActionDeserializer());
         registerActionType(RatioTapChangerRegulationAction.class, RatioTapChangerRegulationAction.NAME,
                 new RatioTapChangerRegulationActionSerializer(), new RatioTapChangerRegulationActionDeserializer());
-        registerActionType(GeneratorAction.class, GeneratorAction.NAME, new GeneratorActionSerializer(), new GeneratorActionDeserializer());
         registerActionType(LoadAction.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionDeserializer());
         registerActionType(HvdcAction.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionDeserializer());
-        registerActionType(GeneratorAction.class, GeneratorAction.NAME,
-                new GeneratorActionSerializer(), new GeneratorActionDeserializer());
-        registerActionType(LoadAction.class, LoadAction.NAME,
-                new LoadActionSerializer(), new LoadActionDeserializer());
+        registerActionType(GeneratorAction.class, GeneratorAction.NAME, new GeneratorActionSerializer(), new GeneratorActionDeserializer());
         registerActionType(ShuntCompensatorPositionAction.class, ShuntCompensatorPositionAction.NAME,
                 new ShuntCompensatorPositionActionSerializer(), new ShuntCompensatorPositionActionDeserializer());
     }
