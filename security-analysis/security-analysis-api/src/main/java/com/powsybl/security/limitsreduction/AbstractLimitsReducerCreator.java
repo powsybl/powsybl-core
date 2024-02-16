@@ -10,6 +10,6 @@ package com.powsybl.security.limitsreduction;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractLimitsReducerCreator<T, R extends AbstractLimitsReducer<T>> {
-    protected abstract R create(String networkElementId, T originalLimits);
+public interface AbstractLimitsReducerCreator<T, R extends AbstractLimitsReducer<T>> {
+    R create(String networkElementId, T originalLimits);
 }

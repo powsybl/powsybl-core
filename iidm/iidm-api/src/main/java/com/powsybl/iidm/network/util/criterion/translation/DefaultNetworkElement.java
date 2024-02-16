@@ -46,7 +46,8 @@ public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
                 return substation.map(Substation::getNullableCountry).orElse(null);
             }
             default -> {
-                return getCountry1() != null ? getCountry1() : getCountry2();
+                Country country1 = getCountry1();
+                return country1 != null ? country1 : getCountry2();
             }
 
         }

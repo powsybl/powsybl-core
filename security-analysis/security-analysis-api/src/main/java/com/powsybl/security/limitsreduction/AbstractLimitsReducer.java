@@ -19,7 +19,7 @@ public abstract class AbstractLimitsReducer<T> {
     private double permanentLimitReduction = 1.0;
     private final Map<Integer, Double> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
 
-    AbstractLimitsReducer(T originalLimits) {
+    protected AbstractLimitsReducer(T originalLimits) {
         this.originalLimits = originalLimits;
     }
 

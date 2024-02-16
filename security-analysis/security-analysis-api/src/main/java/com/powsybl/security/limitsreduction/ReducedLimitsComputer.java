@@ -42,14 +42,15 @@ public class ReducedLimitsComputer {
     }
 
     public Optional<LoadingLimits> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
-        return getLimitsWithAppliedReduction(new DefaultNetworkElement(identifiable), limitType, side, new DefaultLimitsReducerCreator());
+        return getLimitsWithAppliedReduction(new DefaultNetworkElement(identifiable), limitType, side, DefaultLimitsReducerCreator.getInstance());
     }
 
     public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElement<T> networkElement, LimitType limitType, ThreeSides side,
                                                          AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         Optional<T> originalLimits = networkElement.getLimits(limitType, side);
-        if (originalLimits.isEmpty()) {
-            return Optional.empty();
+        if (definitionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
+            // No reductions to apply or no limits on which to apply them
+            return originalLimits;
         }
         AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
         updateLimitReducer(limitsReducer, networkElement, limitType);
@@ -69,6 +70,8 @@ public class ReducedLimitsComputer {
         var definitionsForPreviousContingencyId = definitionsForCurrentContingencyId;
         computeDefinitionsForCurrentContingencyId(contingencyId);
         sameDefinitionsAsForPreviousContingencyId = definitionsForCurrentContingencyId.equals(definitionsForPreviousContingencyId);
+        //TODO Add a cache { (networkElement.getId(), limitType) -> Optional<T> } to avoid recomputing all the limits
+        // if the definitions are the same as for the previous contingencyId
         return isSameDefinitionsAsForPreviousContingencyId();
     }
 
