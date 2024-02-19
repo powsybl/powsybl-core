@@ -10,33 +10,40 @@ package com.powsybl.timeseries.dsl;
 import com.powsybl.timeseries.*;
 import com.powsybl.timeseries.ast.NodeCalc;
 import com.powsybl.timeseries.ast.NodeCalcVisitors;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 class CalculatedCachedTimeSeriesGroovyDslTest {
 
-    ReadOnlyTimeSeriesStore store;
-    TimeSeriesNameResolver resolver;
+    static ReadOnlyTimeSeriesStore store;
+    static TimeSeriesNameResolver resolver;
 
-    String[] timeSeriesNames = {"foo", "bar", "baz", "toCache"};
-    double[] fooValues = new double[] {3d, 5d};
-    TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
+    static String[] timeSeriesNames = {"foo", "bar", "baz", "toCache"};
+    static double[] fooValues = new double[] {3d, 5d};
+    static TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
+    static CalculatedTimeSeries tsCalc;
+    static CalculatedTimeSeries tsCalcIterative;
 
-    @Test
-    void evalCached() {
+    @BeforeAll
+    static void setUp() {
         // Script to evaluate
         String script = "ts['toCache'] = (timeSeries['foo'] <= 3.0)" +
             "+0".repeat(Math.max(0, NodeCalcVisitors.RECURSION_THRESHOLD + 1)) +
             "\n" +
             "ts['test'] = (timeSeries['toCache'] + timeSeries['toCache'] * 2.0)" +
+            "\n" +
+            "ts['testIterative'] = ts['test']" +
             "+0".repeat(Math.max(0, NodeCalcVisitors.RECURSION_THRESHOLD + 1));
 
         // Time Series Store
@@ -52,14 +59,135 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
 
         // NodeCalc
         NodeCalc testNodeCalc = nodes.get("test");
+        NodeCalc testIterativeNodeCalc = nodes.get("testIterative");
 
         // Calculated TimeSeries creation
-        CalculatedTimeSeries tsCalc = new CalculatedTimeSeries("test_calc", testNodeCalc);
+        tsCalc = new CalculatedTimeSeries("test_calc", testNodeCalc, resolver);
+        tsCalcIterative = new CalculatedTimeSeries("test_calc_iterative", testIterativeNodeCalc, resolver);
+    }
 
-        // Add the resolver to the calculated time series
-        tsCalc.setTimeSeriesNameResolver(resolver);
-
+    @Test
+    void evalCached() {
         assertArrayEquals(new double[] {3.0, 0.0}, tsCalc.toArray());
+        assertArrayEquals(new double[] {3.0, 0.0}, tsCalcIterative.toArray());
+    }
+
+    @Test
+    void jsonTests() {
+        String json = TimeSeries.toJson(List.of(tsCalc));
+        String jsonRef = """
+            [ {
+              "name" : "test_calc",
+              "expr" : {
+                "binaryOp" : {
+                  "op" : "PLUS",
+                  "binaryOp" : {
+                    "op" : "PLUS",
+                    "binaryOp" : {
+                      "op" : "PLUS",
+                      "binaryOp" : {
+                        "op" : "PLUS",
+                        "binaryOp" : {
+                          "op" : "PLUS",
+                          "binaryOp" : {
+                            "op" : "PLUS",
+                            "binaryOp" : {
+                              "op" : "PLUS",
+                              "binaryOp" : {
+                                "op" : "PLUS",
+                                "binaryOp" : {
+                                  "op" : "PLUS",
+                                  "binaryOp" : {
+                                    "op" : "PLUS",
+                                    "binaryOp" : {
+                                      "op" : "PLUS",
+                                      "binaryOp" : {
+                                        "op" : "PLUS",
+                                        "binaryOp" : {
+                                          "op" : "LESS_THAN_OR_EQUALS_TO",
+                                          "timeSeriesName" : "foo",
+                                          "bigDecimal" : 3.0
+                                        },
+                                        "integer" : 0
+                                      },
+                                      "integer" : 0
+                                    },
+                                    "integer" : 0
+                                  },
+                                  "integer" : 0
+                                },
+                                "integer" : 0
+                              },
+                              "integer" : 0
+                            },
+                            "integer" : 0
+                          },
+                          "integer" : 0
+                        },
+                        "integer" : 0
+                      },
+                      "integer" : 0
+                    },
+                    "integer" : 0
+                  },
+                  "binaryOp" : {
+                    "op" : "MULTIPLY",
+                    "binaryOp" : {
+                      "op" : "PLUS",
+                      "binaryOp" : {
+                        "op" : "PLUS",
+                        "binaryOp" : {
+                          "op" : "PLUS",
+                          "binaryOp" : {
+                            "op" : "PLUS",
+                            "binaryOp" : {
+                              "op" : "PLUS",
+                              "binaryOp" : {
+                                "op" : "PLUS",
+                                "binaryOp" : {
+                                  "op" : "PLUS",
+                                  "binaryOp" : {
+                                    "op" : "PLUS",
+                                    "binaryOp" : {
+                                      "op" : "PLUS",
+                                      "binaryOp" : {
+                                        "op" : "PLUS",
+                                        "binaryOp" : {
+                                          "op" : "PLUS",
+                                          "binaryOp" : {
+                                            "op" : "LESS_THAN_OR_EQUALS_TO",
+                                            "timeSeriesName" : "foo",
+                                            "bigDecimal" : 3.0
+                                          },
+                                          "integer" : 0
+                                        },
+                                        "integer" : 0
+                                      },
+                                      "integer" : 0
+                                    },
+                                    "integer" : 0
+                                  },
+                                  "integer" : 0
+                                },
+                                "integer" : 0
+                              },
+                              "integer" : 0
+                            },
+                            "integer" : 0
+                          },
+                          "integer" : 0
+                        },
+                        "integer" : 0
+                      },
+                      "integer" : 0
+                    },
+                    "bigDecimal" : 2.0
+                  }
+                }
+              }
+            } ]""";
+        // Serialisation
+        assertEquals(jsonRef, json);
 
     }
 }
