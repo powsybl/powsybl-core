@@ -313,7 +313,9 @@ class CgmesConformity1ConversionTest {
     }
 
     @Test
-    void microNLActivePowerControlNoExtensionByDefault() {
+    void microNLActivePowerControlExtensionByDefault() {
+        // We need to explicitly set that the extension does not have to be created
+        importParams.put(CgmesImport.CREATE_ACTIVE_POWER_CONTROL_EXTENSION, "false");
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), NetworkFactory.findDefault(), importParams);
         Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e");
         ActivePowerControl<Generator> ext = g.getExtension(ActivePowerControl.class);
@@ -322,7 +324,7 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void microNLActivePowerControlExtension() {
-        importParams.put(CgmesImport.CREATE_ACTIVE_POWER_CONTROL_EXTENSION, "true");
+        // The extension is created by default
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), NetworkFactory.findDefault(), importParams);
         Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e");
         ActivePowerControl<Generator> ext = g.getExtension(ActivePowerControl.class);

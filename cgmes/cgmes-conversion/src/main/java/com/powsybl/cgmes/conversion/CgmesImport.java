@@ -636,7 +636,7 @@ public class CgmesImport implements Importer {
             CREATE_ACTIVE_POWER_CONTROL_EXTENSION,
             ParameterType.BOOLEAN,
             "Create active power control extension during import",
-            Boolean.FALSE);
+            Boolean.TRUE);
     private static final Parameter CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER = new Parameter(
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE,
             ParameterType.STRING,
