@@ -75,7 +75,7 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
     @Test
     void jsonTests() {
         String json = TimeSeries.toJson(List.of(tsCalc));
-        String jsonR = String.join(System.getProperty("line.separator"),
+        String jsonR = String.join(System.lineSeparator(),
             "[ {",
             "  \"name\" : \"test_calc\",",
             "  \"expr\" : {",
