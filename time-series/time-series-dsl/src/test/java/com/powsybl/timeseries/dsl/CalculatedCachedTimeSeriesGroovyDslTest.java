@@ -7,6 +7,8 @@
  */
 package com.powsybl.timeseries.dsl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.timeseries.*;
 import com.powsybl.timeseries.ast.NodeCalc;
 import com.powsybl.timeseries.ast.NodeCalcVisitors;
@@ -73,120 +75,8 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
     }
 
     @Test
-    void jsonTests() {
+    void jsonTests() throws JsonProcessingException {
         String json = TimeSeries.toJson(List.of(tsCalc));
-        String jsonR = String.join(System.lineSeparator(),
-            "[ {",
-            "  \"name\" : \"test_calc\",",
-            "  \"expr\" : {",
-            "    \"binaryOp\" : {",
-            "      \"op\" : \"PLUS\",",
-            "      \"binaryOp\" : {",
-            "        \"op\" : \"PLUS\",",
-            "        \"binaryOp\" : {",
-            "          \"op\" : \"PLUS\",",
-            "          \"binaryOp\" : {",
-            "            \"op\" : \"PLUS\",",
-            "            \"binaryOp\" : {",
-            "              \"op\" : \"PLUS\",",
-            "              \"binaryOp\" : {",
-            "                \"op\" : \"PLUS\",",
-            "                \"binaryOp\" : {",
-            "                  \"op\" : \"PLUS\",",
-            "                  \"binaryOp\" : {",
-            "                    \"op\" : \"PLUS\",",
-            "                    \"binaryOp\" : {",
-            "                      \"op\" : \"PLUS\",",
-            "                      \"binaryOp\" : {",
-            "                        \"op\" : \"PLUS\",",
-            "                        \"binaryOp\" : {",
-            "                          \"op\" : \"PLUS\",",
-            "                          \"binaryOp\" : {",
-            "                            \"op\" : \"PLUS\",",
-            "                            \"binaryOp\" : {",
-            "                              \"op\" : \"LESS_THAN\",",
-            "                              \"timeSeriesName\" : \"foo\",",
-            "                              \"bigDecimal\" : 4.0",
-            "                            },",
-            "                            \"integer\" : 0",
-            "                          },",
-            "                          \"integer\" : 0",
-            "                        },",
-            "                        \"integer\" : 0",
-            "                      },",
-            "                      \"integer\" : 0",
-            "                    },",
-            "                    \"integer\" : 0",
-            "                  },",
-            "                  \"integer\" : 0",
-            "                },",
-            "                \"integer\" : 0",
-            "              },",
-            "              \"integer\" : 0",
-            "            },",
-            "            \"integer\" : 0",
-            "          },",
-            "          \"integer\" : 0",
-            "        },",
-            "        \"integer\" : 0",
-            "      },",
-            "      \"binaryOp\" : {",
-            "        \"op\" : \"MULTIPLY\",",
-            "        \"binaryOp\" : {",
-            "          \"op\" : \"PLUS\",",
-            "          \"binaryOp\" : {",
-            "            \"op\" : \"PLUS\",",
-            "            \"binaryOp\" : {",
-            "              \"op\" : \"PLUS\",",
-            "              \"binaryOp\" : {",
-            "                \"op\" : \"PLUS\",",
-            "                \"binaryOp\" : {",
-            "                  \"op\" : \"PLUS\",",
-            "                  \"binaryOp\" : {",
-            "                    \"op\" : \"PLUS\",",
-            "                    \"binaryOp\" : {",
-            "                      \"op\" : \"PLUS\",",
-            "                      \"binaryOp\" : {",
-            "                        \"op\" : \"PLUS\",",
-            "                        \"binaryOp\" : {",
-            "                          \"op\" : \"PLUS\",",
-            "                          \"binaryOp\" : {",
-            "                            \"op\" : \"PLUS\",",
-            "                            \"binaryOp\" : {",
-            "                              \"op\" : \"PLUS\",",
-            "                              \"binaryOp\" : {",
-            "                                \"op\" : \"LESS_THAN\",",
-            "                                \"timeSeriesName\" : \"foo\",",
-            "                                \"bigDecimal\" : 4.0",
-            "                              },",
-            "                              \"integer\" : 0",
-            "                            },",
-            "                            \"integer\" : 0",
-            "                          },",
-            "                          \"integer\" : 0",
-            "                        },",
-            "                        \"integer\" : 0",
-            "                      },",
-            "                      \"integer\" : 0",
-            "                    },",
-            "                    \"integer\" : 0",
-            "                  },",
-            "                  \"integer\" : 0",
-            "                },",
-            "                \"integer\" : 0",
-            "              },",
-            "              \"integer\" : 0",
-            "            },",
-            "            \"integer\" : 0",
-            "          },",
-            "          \"integer\" : 0",
-            "        },",
-            "        \"bigDecimal\" : 2.0",
-            "      }",
-            "    }",
-            "  }",
-            "} ]"
-            );
         String jsonRef = """
             [ {
               "name" : "test_calc",
@@ -299,7 +189,7 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
               }
             } ]""";
         // Serialisation
-        assertEquals(jsonR, json);
-
+        ObjectMapper mapper = new ObjectMapper();
+        assertEquals(mapper.readTree(jsonRef), mapper.readTree(json));
     }
 }
