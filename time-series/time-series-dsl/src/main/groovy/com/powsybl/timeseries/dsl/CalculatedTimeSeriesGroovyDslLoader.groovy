@@ -138,7 +138,7 @@ class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoad
 
         // Check for duplication
         start = System.currentTimeMillis()
-        nodes.forEach {key, node -> cacheDuplicated(node, key)}
+        nodes.forEach {key, node -> cacheDuplicated(node)}
         LOGGER.trace("Check for duplication done in {} ms", (System.currentTimeMillis() -start))
 
         nodes

@@ -18,7 +18,7 @@ import static com.powsybl.timeseries.ast.NodeCalcDuplicateDetector.detectDuplica
  */
 public class NodeCalcCacheCreator extends NodeCalcModifier<Map<NodeCalc, NodeCalc>> {
 
-    public static NodeCalc cacheDuplicated(NodeCalc nodeCalc, String name) {
+    public static NodeCalc cacheDuplicated(NodeCalc nodeCalc) {
         return new NodeCalcCacheCreator().createCachedNodes(nodeCalc);
     }
 
