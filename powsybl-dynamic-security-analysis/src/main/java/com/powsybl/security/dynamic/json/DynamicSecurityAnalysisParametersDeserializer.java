@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.security.AbstractSecurityAnalysisParameters;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 
@@ -50,22 +49,14 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                     version = parser.getValueAsString();
                     break;
                 case "increased-violations-parameters":
-                    //TODO keep version ?
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.0");
                     parser.nextToken();
                     parameters.setIncreasedViolationsParameters(JsonUtil.readValue(deserializationContext,
                             parser,
                             AbstractSecurityAnalysisParameters.IncreasedViolationsParameters.class));
                     break;
-                case "dynamic-simulation-parameters":
+                case "dynamic-simulation-contingencies-parameters":
                     parser.nextToken();
-                    JsonDynamicSimulationParameters.deserialize(parser, deserializationContext, parameters.getDynamicSimulationParameters());
-                    break;
-                case "dynamic-contingencies-parameters":
-                    parser.nextToken();
-                    parameters.setDynamicContingenciesParameters(JsonUtil.readValue(deserializationContext,
-                            parser,
-                            DynamicSecurityAnalysisParameters.DynamicContingenciesParameters.class));
+                    JsonDynamicSimulationContingenciesParameters.deserialize(parser, deserializationContext, parameters.getDynamicSimulationParameters());
                     break;
                 case "extensions":
                     parser.nextToken();
@@ -74,6 +65,10 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
+        }
+        if (version == null || !version.equals("1.0")) {
+            //Only 1.0 version is supported for now
+            throw new IllegalStateException("Version different than 1.0 not supported.");
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;

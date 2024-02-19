@@ -40,13 +40,13 @@ class JsonDynamicSecurityAnalysisParametersTest extends AbstractSerDeTest {
     @Test
     void updateDynamicSimulationParameters() {
         DynamicSecurityAnalysisParameters parameters = new DynamicSecurityAnalysisParameters();
-        parameters.getDynamicSimulationParameters().setStopTime(3);
+        parameters.getDynamicSimulationParameters().setStopTime(8);
         JsonDynamicSecurityAnalysisParameters.update(parameters, getClass().getResourceAsStream("/DynamicSecurityAnalysisParametersIncomplete.json"));
-        assertEquals(3, parameters.getDynamicSimulationParameters().getStopTime());
+        assertEquals(8, parameters.getDynamicSimulationParameters().getStopTime());
     }
 
     @Test
-    void readExtension() throws IOException {
+    void readExtension() {
         DynamicSecurityAnalysisParameters parameters = JsonDynamicSecurityAnalysisParameters.read(getClass().getResourceAsStream("/DynamicSecurityAnalysisParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DynamicSecurityDummyExtension.class));

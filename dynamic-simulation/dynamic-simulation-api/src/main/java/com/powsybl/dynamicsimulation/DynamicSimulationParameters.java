@@ -13,15 +13,15 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimulationParameters> {
+public class DynamicSimulationParameters extends AbstractDynamicSimulationParameters<DynamicSimulationParameters> {
 
     /**
      * A configuration loader interface for the DynamicSimulationParameters
@@ -34,10 +34,6 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
     }
 
     public static final String VERSION = "1.0";
-
-    public static final int DEFAULT_START_TIME = 0;
-    //TODO useful ? (should be fill in everytime)
-    public static final int DEFAULT_STOP_TIME = 1;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
         .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "dynamic-simulation-parameters"));
@@ -69,10 +65,6 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
             });
     }
 
-    private int startTime;
-
-    private int stopTime;
-
     /**
      * Constructor with given parameters
      *
@@ -82,74 +74,30 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      *                  seconds
      */
     public DynamicSimulationParameters(int startTime, int stopTime) {
-        if (startTime < 0) {
-            throw new IllegalStateException("Start time should be zero or positive");
-        }
-        if (stopTime <= startTime) {
-            throw new IllegalStateException("Stop time should be greater than start time");
-        }
-        this.startTime = startTime;
-        this.stopTime = stopTime;
+        super(startTime, stopTime);
     }
 
     public DynamicSimulationParameters() {
-        this(DEFAULT_START_TIME, DEFAULT_STOP_TIME);
+        super(DEFAULT_START_TIME, DEFAULT_STOP_TIME);
     }
 
     protected DynamicSimulationParameters(DynamicSimulationParameters other) {
-        Objects.requireNonNull(other);
-        startTime = other.startTime;
-        stopTime = other.stopTime;
+        super(other);
     }
 
-    public int getStartTime() {
-        return startTime;
-    }
-
-    /**
-     *
-     * @param startTime instant of time at which the dynamic simulation begins, in
-     *                  seconds
-     * @return
-     */
-    public DynamicSimulationParameters setStartTime(int startTime) {
-        if (startTime < 0) {
-            throw new IllegalStateException("Start time should be zero or positive");
-        }
-        this.startTime = startTime;
-        return this;
-    }
-
-    public int getStopTime() {
-        return stopTime;
-    }
-
-    /**
-     *
-     * @param stopTime instant of time at which the dynamic simulation ends, in
-     *                 seconds
-     * @return
-     */
-    public DynamicSimulationParameters setStopTime(int stopTime) {
-        if (stopTime <= startTime) {
-            throw new IllegalStateException("Stop time should be greater than start time");
-        }
-        this.stopTime = stopTime;
-        return this;
-    }
-
+    @Override
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("startTime", startTime,
-            "stopTime", stopTime);
+        return ImmutableMap.of("startTime", getStartTime(),
+            "stopTime", getStopTime());
+    }
+
+    @Override
+    public String getVersion() {
+        return VERSION;
     }
 
     public DynamicSimulationParameters copy() {
         return new DynamicSimulationParameters(this);
-    }
-
-    @Override
-    public String toString() {
-        return toMap().toString();
     }
 
     private void loadExtensions(PlatformConfig platformConfig) {
@@ -158,4 +106,8 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
         }
     }
 
+    @Override
+    protected DynamicSimulationParameters self() {
+        return this;
+    }
 }

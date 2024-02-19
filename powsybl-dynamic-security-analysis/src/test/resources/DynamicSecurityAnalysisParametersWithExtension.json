@@ -7,13 +7,11 @@
     "high-voltage-proportional-threshold" : 0.0,
     "high-voltage-absolute-threshold" : 0.0
   },
-  "dynamic-simulation-parameters" : {
+  "dynamic-simulation-contingencies-parameters" : {
     "version" : "1.0",
     "startTime" : 0,
-    "stopTime" : 1
-  },
-  "dynamic-contingencies-parameters" : {
-    "contingencies-start-time" : 0
+    "stopTime" : 10,
+    "contingenciesStartTime" : 5
   },
   "extensions" : {
     "dummy-extension" : { }

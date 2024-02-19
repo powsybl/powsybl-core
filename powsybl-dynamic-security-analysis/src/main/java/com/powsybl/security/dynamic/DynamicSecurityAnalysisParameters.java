@@ -7,11 +7,8 @@
  */
 package com.powsybl.security.dynamic;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.security.AbstractSecurityAnalysisParameters;
 import com.powsybl.security.dynamic.json.JsonDynamicSecurityAnalysisParameters;
 
@@ -25,30 +22,7 @@ public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisP
 
     public static final String VERSION = "1.0";
 
-    private DynamicSimulationParameters dynamicSimulationParameters = new DynamicSimulationParameters();
-    private DynamicContingenciesParameters dynamicContingenciesParameters = new DynamicContingenciesParameters();
-
-    public static class DynamicContingenciesParameters {
-
-        //TODO should be between start and stop time
-        static final int DEFAULT_CONTINGENCIES_START_TIME = 0;
-
-        @JsonProperty("contingencies-start-time")
-        private int contingenciesStartTime = DEFAULT_CONTINGENCIES_START_TIME;
-
-        public int getContingenciesStartTime() {
-            return contingenciesStartTime;
-        }
-
-        public DynamicContingenciesParameters setContingenciesStartTime(int contingenciesStartTime) {
-            this.contingenciesStartTime = contingenciesStartTime;
-            return this;
-        }
-
-        public void load(ModuleConfig config) {
-            setContingenciesStartTime(config.getIntProperty("contingencies-start-time", DEFAULT_CONTINGENCIES_START_TIME));
-        }
-    }
+    private DynamicSimulationContingenciesParameters dynamicSimulationParameters = new DynamicSimulationContingenciesParameters();
 
     /**
      * Load parameters from platform default config.
@@ -65,11 +39,10 @@ public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisP
 
         DynamicSecurityAnalysisParameters parameters = new DynamicSecurityAnalysisParameters();
 
-        parameters.setDynamicSimulationParameters(DynamicSimulationParameters.load(platformConfig));
+        parameters.setDynamicSimulationParameters(DynamicSimulationContingenciesParameters.load(platformConfig));
         platformConfig.getOptionalModuleConfig("dynamic-security-analysis-default-parameters")
                 .ifPresent(config -> {
                     parameters.getIncreasedViolationsParameters().load(config);
-                    parameters.getDynamicContingenciesParameters().load(config);
                 });
         parameters.readExtensions(platformConfig);
         return parameters;
@@ -82,21 +55,12 @@ public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisP
         }
     }
 
-    public DynamicSimulationParameters getDynamicSimulationParameters() {
+    public DynamicSimulationContingenciesParameters getDynamicSimulationParameters() {
         return dynamicSimulationParameters;
     }
 
-    public DynamicSecurityAnalysisParameters setDynamicSimulationParameters(DynamicSimulationParameters dynamicSimulationParameters) {
+    public DynamicSecurityAnalysisParameters setDynamicSimulationParameters(DynamicSimulationContingenciesParameters dynamicSimulationParameters) {
         this.dynamicSimulationParameters = dynamicSimulationParameters;
-        return self();
-    }
-
-    public DynamicContingenciesParameters getDynamicContingenciesParameters() {
-        return dynamicContingenciesParameters;
-    }
-
-    public DynamicSecurityAnalysisParameters setDynamicContingenciesParameters(DynamicContingenciesParameters dynamicContingenciesParameters) {
-        this.dynamicContingenciesParameters = dynamicContingenciesParameters;
         return self();
     }
 

@@ -1,7 +1,7 @@
 {
   "version" : "1.0",
   "startTime" : 0,
-  "stopTime" : 1,
+  "stopTime" : 10,
   "extensions" : {
     "dummy-extension" : { }
   }

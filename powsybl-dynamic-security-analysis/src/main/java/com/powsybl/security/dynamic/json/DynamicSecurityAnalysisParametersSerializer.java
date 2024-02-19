@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 
 import java.io.IOException;
@@ -30,9 +29,8 @@ public class DynamicSecurityAnalysisParametersSerializer extends StdSerializer<D
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", DynamicSecurityAnalysisParameters.VERSION);
         serializerProvider.defaultSerializeField("increased-violations-parameters", parameters.getIncreasedViolationsParameters(), jsonGenerator);
-        jsonGenerator.writeFieldName("dynamic-simulation-parameters");
-        JsonDynamicSimulationParameters.serialize(parameters.getDynamicSimulationParameters(), jsonGenerator, serializerProvider);
-        serializerProvider.defaultSerializeField("dynamic-contingencies-parameters", parameters.getDynamicContingenciesParameters(), jsonGenerator);
+        jsonGenerator.writeFieldName("dynamic-simulation-contingencies-parameters");
+        JsonDynamicSimulationContingenciesParameters.serialize(parameters.getDynamicSimulationParameters(), jsonGenerator, serializerProvider);
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonDynamicSecurityAnalysisParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();
     }
