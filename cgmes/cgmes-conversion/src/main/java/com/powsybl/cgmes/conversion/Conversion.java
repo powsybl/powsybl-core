@@ -805,15 +805,6 @@ public class Conversion {
             return this;
         }
 
-        public boolean changeSignForShuntReactivePowerFlowInitialState() {
-            return changeSignForShuntReactivePowerFlowInitialState;
-        }
-
-        public Config setChangeSignForShuntReactivePowerFlowInitialState(boolean b) {
-            changeSignForShuntReactivePowerFlowInitialState = b;
-            return this;
-        }
-
         public boolean computeFlowsAtBoundaryDanglingLines() {
             return true;
         }
@@ -985,7 +976,6 @@ public class Conversion {
         }
 
         private boolean convertBoundary = false;
-        private boolean changeSignForShuntReactivePowerFlowInitialState = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;

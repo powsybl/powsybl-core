@@ -423,12 +423,6 @@ public class CgmesImport implements Importer {
 
     private Conversion.Config config(Properties p) {
         Conversion.Config config = new Conversion.Config()
-                .setChangeSignForShuntReactivePowerFlowInitialState(
-                        Parameter.readBoolean(
-                                getFormat(),
-                                p,
-                                CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
-                                defaultValueConfig))
                 .setConvertBoundary(
                         Parameter.readBoolean(
                                 getFormat(),
@@ -560,7 +554,6 @@ public class CgmesImport implements Importer {
     private static final String FORMAT = "CGMES";
 
     public static final String BOUNDARY_LOCATION = "iidm.import.cgmes.boundary-location";
-    public static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
     public static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
     public static final String CONVERT_SV_INJECTIONS = "iidm.import.cgmes.convert-sv-injections";
     public static final String CREATE_ACTIVE_POWER_CONTROL_EXTENSION = "iidm.import.cgmes.create-active-power-control-extension";
@@ -586,12 +579,6 @@ public class CgmesImport implements Importer {
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
 
-    private static final Parameter CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER = new Parameter(
-            CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE,
-            ParameterType.BOOLEAN,
-            "Change the sign of the reactive power flow for shunt in initial state",
-            Boolean.FALSE)
-            .addAdditionalNames("changeSignForShuntReactivePowerFlowInitialState");
     private static final Parameter CONVERT_BOUNDARY_PARAMETER = new Parameter(
             CONVERT_BOUNDARY,
             ParameterType.BOOLEAN,
@@ -702,7 +689,6 @@ public class CgmesImport implements Importer {
             100.);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
-            CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
