@@ -64,8 +64,8 @@ public class CachedNodeCalc extends AbstractSingleChildNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CachedNodeCalc timeNodeCalc) {
-            return timeNodeCalc.child.equals(child);
+        if (obj instanceof CachedNodeCalc cachedNodeCalc) {
+            return cachedNodeCalc.child.equals(child);
         }
         return false;
     }
