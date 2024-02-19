@@ -16,8 +16,8 @@ import com.powsybl.iidm.network.util.criterion.translation.DefaultNetworkElement
 import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 import com.powsybl.security.limitsreduction.criterion.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
-import com.powsybl.security.limitsreduction.criterion.network.AbstractNetworkElementCriterion;
-import com.powsybl.security.limitsreduction.criterion.network.NetworkElementVisitor;
+import com.powsybl.iidm.network.util.criterion.AbstractNetworkElementCriterion;
+import com.powsybl.iidm.network.util.criterion.NetworkElementVisitor;
 
 import java.util.*;
 

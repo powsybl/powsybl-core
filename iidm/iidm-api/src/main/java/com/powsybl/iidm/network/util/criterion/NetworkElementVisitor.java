@@ -5,9 +5,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitsreduction.criterion.network;
+package com.powsybl.iidm.network.util.criterion;
 
-import com.powsybl.iidm.network.util.criterion.Criterion;
 import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 
 public class NetworkElementVisitor {
@@ -25,14 +24,14 @@ public class NetworkElementVisitor {
     }
 
     public boolean visit(TwoWindingsTransformerCriterion c) {
-        return c.getNetworkElementIds().contains(networkElement.getId())
-                || doRespectCriterion(networkElement, c.getSingleCountryCriterion())
+        return (c.getNetworkElementIds().isEmpty() || c.getNetworkElementIds().contains(networkElement.getId()))
+                && doRespectCriterion(networkElement, c.getSingleCountryCriterion())
                     && doRespectCriterion(networkElement, c.getTwoNominalVoltageCriterion());
     }
 
     public boolean visit(ThreeWindingsTransformerCriterion c) {
-        return c.getNetworkElementIds().contains(networkElement.getId())
-                || doRespectCriterion(networkElement, c.getSingleCountryCriterion())
+        return (c.getNetworkElementIds().isEmpty() || c.getNetworkElementIds().contains(networkElement.getId()))
+                && doRespectCriterion(networkElement, c.getSingleCountryCriterion())
                     && doRespectCriterion(networkElement, c.getThreeNominalVoltageCriterion());
     }
 

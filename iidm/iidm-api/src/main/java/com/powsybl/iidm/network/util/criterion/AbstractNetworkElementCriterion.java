@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitsreduction.criterion.network;
+package com.powsybl.iidm.network.util.criterion;
 
 import java.util.Set;
 
-public abstract class AbstractNetworkElementCriterion {
+public abstract class AbstractNetworkElementCriterion<T> {
 
     public enum NetworkElementCriterionType {
         LINE,
@@ -17,10 +17,11 @@ public abstract class AbstractNetworkElementCriterion {
         THREE_WINDING_TRANSFORMER
     }
 
-    private final Set<String> networkElementIds;
+    private Set<String> networkElementIds = Set.of();
 
-    protected AbstractNetworkElementCriterion(Set<String> networkElementIds) {
+    public T setNetworkElementIds(Set<String> networkElementIds) {
         this.networkElementIds = networkElementIds;
+        return (T) this;
     }
 
     public Set<String> getNetworkElementIds() {

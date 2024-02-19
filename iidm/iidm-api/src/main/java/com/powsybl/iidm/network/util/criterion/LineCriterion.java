@@ -5,20 +5,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitsreduction.criterion.network;
-
-import com.powsybl.iidm.network.util.criterion.SingleNominalVoltageCriterion;
-import com.powsybl.iidm.network.util.criterion.TwoCountriesCriterion;
+package com.powsybl.iidm.network.util.criterion;
 
 import java.util.Set;
 
-public class LineCriterion extends AbstractNetworkElementCriterion {
+public class LineCriterion extends AbstractNetworkElementCriterion<LineCriterion> {
 
     private TwoCountriesCriterion twoCountriesCriterion;
     private SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
+    public LineCriterion() {
+        super();
+    }
+
     public LineCriterion(Set<String> networkElementIds) {
-        super(networkElementIds);
+        setNetworkElementIds(networkElementIds);
     }
 
     @Override

@@ -11,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
-import com.powsybl.security.limitsreduction.criterion.network.AbstractNetworkElementCriterion;
+import com.powsybl.iidm.network.util.criterion.AbstractNetworkElementCriterion;
 
 import java.util.*;
 

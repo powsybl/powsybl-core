@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.limitsreduction.criterion.duration.PermanentDurationCriterion;
-import com.powsybl.security.limitsreduction.criterion.network.LineCriterion;
+import com.powsybl.iidm.network.util.criterion.LineCriterion;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
