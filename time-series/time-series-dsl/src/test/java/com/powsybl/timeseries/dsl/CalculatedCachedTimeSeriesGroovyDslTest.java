@@ -38,7 +38,7 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
     @BeforeAll
     static void setUp() {
         // Script to evaluate
-        String script = "ts['toCache'] = (timeSeries['foo'] <= 3.0)" +
+        String script = "ts['toCache'] = (timeSeries['foo'] < 4.0)" +
             "+0".repeat(Math.max(0, NodeCalcVisitors.RECURSION_THRESHOLD + 1)) +
             "\n" +
             "ts['test'] = (timeSeries['toCache'] + timeSeries['toCache'] * 2.0)" +
@@ -75,6 +75,118 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
     @Test
     void jsonTests() {
         String json = TimeSeries.toJson(List.of(tsCalc));
+        String jsonR = String.join(System.getProperty("line.separator"),
+            "[ {",
+            "  \"name\" : \"test_calc\",",
+            "  \"expr\" : {",
+            "    \"binaryOp\" : {",
+            "      \"op\" : \"PLUS\",",
+            "      \"binaryOp\" : {",
+            "        \"op\" : \"PLUS\",",
+            "        \"binaryOp\" : {",
+            "          \"op\" : \"PLUS\",",
+            "          \"binaryOp\" : {",
+            "            \"op\" : \"PLUS\",",
+            "            \"binaryOp\" : {",
+            "              \"op\" : \"PLUS\",",
+            "              \"binaryOp\" : {",
+            "                \"op\" : \"PLUS\",",
+            "                \"binaryOp\" : {",
+            "                  \"op\" : \"PLUS\",",
+            "                  \"binaryOp\" : {",
+            "                    \"op\" : \"PLUS\",",
+            "                    \"binaryOp\" : {",
+            "                      \"op\" : \"PLUS\",",
+            "                      \"binaryOp\" : {",
+            "                        \"op\" : \"PLUS\",",
+            "                        \"binaryOp\" : {",
+            "                          \"op\" : \"PLUS\",",
+            "                          \"binaryOp\" : {",
+            "                            \"op\" : \"PLUS\",",
+            "                            \"binaryOp\" : {",
+            "                              \"op\" : \"LESS_THAN\",",
+            "                              \"timeSeriesName\" : \"foo\",",
+            "                              \"bigDecimal\" : 4.0",
+            "                            },",
+            "                            \"integer\" : 0",
+            "                          },",
+            "                          \"integer\" : 0",
+            "                        },",
+            "                        \"integer\" : 0",
+            "                      },",
+            "                      \"integer\" : 0",
+            "                    },",
+            "                    \"integer\" : 0",
+            "                  },",
+            "                  \"integer\" : 0",
+            "                },",
+            "                \"integer\" : 0",
+            "              },",
+            "              \"integer\" : 0",
+            "            },",
+            "            \"integer\" : 0",
+            "          },",
+            "          \"integer\" : 0",
+            "        },",
+            "        \"integer\" : 0",
+            "      },",
+            "      \"binaryOp\" : {",
+            "        \"op\" : \"MULTIPLY\",",
+            "        \"binaryOp\" : {",
+            "          \"op\" : \"PLUS\",",
+            "          \"binaryOp\" : {",
+            "            \"op\" : \"PLUS\",",
+            "            \"binaryOp\" : {",
+            "              \"op\" : \"PLUS\",",
+            "              \"binaryOp\" : {",
+            "                \"op\" : \"PLUS\",",
+            "                \"binaryOp\" : {",
+            "                  \"op\" : \"PLUS\",",
+            "                  \"binaryOp\" : {",
+            "                    \"op\" : \"PLUS\",",
+            "                    \"binaryOp\" : {",
+            "                      \"op\" : \"PLUS\",",
+            "                      \"binaryOp\" : {",
+            "                        \"op\" : \"PLUS\",",
+            "                        \"binaryOp\" : {",
+            "                          \"op\" : \"PLUS\",",
+            "                          \"binaryOp\" : {",
+            "                            \"op\" : \"PLUS\",",
+            "                            \"binaryOp\" : {",
+            "                              \"op\" : \"PLUS\",",
+            "                              \"binaryOp\" : {",
+            "                                \"op\" : \"LESS_THAN\",",
+            "                                \"timeSeriesName\" : \"foo\",",
+            "                                \"bigDecimal\" : 4.0",
+            "                              },",
+            "                              \"integer\" : 0",
+            "                            },",
+            "                            \"integer\" : 0",
+            "                          },",
+            "                          \"integer\" : 0",
+            "                        },",
+            "                        \"integer\" : 0",
+            "                      },",
+            "                      \"integer\" : 0",
+            "                    },",
+            "                    \"integer\" : 0",
+            "                  },",
+            "                  \"integer\" : 0",
+            "                },",
+            "                \"integer\" : 0",
+            "              },",
+            "              \"integer\" : 0",
+            "            },",
+            "            \"integer\" : 0",
+            "          },",
+            "          \"integer\" : 0",
+            "        },",
+            "        \"bigDecimal\" : 2.0",
+            "      }",
+            "    }",
+            "  }",
+            "} ]"
+            );
         String jsonRef = """
             [ {
               "name" : "test_calc",
@@ -104,9 +216,9 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
                                       "binaryOp" : {
                                         "op" : "PLUS",
                                         "binaryOp" : {
-                                          "op" : "LESS_THAN_OR_EQUALS_TO",
+                                          "op" : "LESS_THAN",
                                           "timeSeriesName" : "foo",
-                                          "bigDecimal" : 3.0
+                                          "bigDecimal" : 4.0
                                         },
                                         "integer" : 0
                                       },
@@ -155,9 +267,9 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
                                         "binaryOp" : {
                                           "op" : "PLUS",
                                           "binaryOp" : {
-                                            "op" : "LESS_THAN_OR_EQUALS_TO",
+                                            "op" : "LESS_THAN",
                                             "timeSeriesName" : "foo",
-                                            "bigDecimal" : 3.0
+                                            "bigDecimal" : 4.0
                                           },
                                           "integer" : 0
                                         },
@@ -187,7 +299,7 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
               }
             } ]""";
         // Serialisation
-        assertEquals(jsonRef, json);
+        assertEquals(jsonR, json);
 
     }
 }
