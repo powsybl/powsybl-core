@@ -38,8 +38,6 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
             "\n" +
             "ts['test'] = (timeSeries['toCache'] + timeSeries['toCache'] * 2.0)" +
             "+0".repeat(Math.max(0, NodeCalcVisitors.RECURSION_THRESHOLD + 1));
-        // create time series space mock
-        TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
 
         // Time Series Store
         store = new ReadOnlyTimeSeriesStoreCache(

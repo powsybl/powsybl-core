@@ -16,7 +16,7 @@ import java.util.Objects;
 public class NodeCalcResolver extends NodeCalcCloner<Void> {
 
     private final Map<String, Integer> timeSeriesNums;
-    private Map<CachedNodeCalc, CachedNodeCalc> cachedNodeCalcMap;
+    private final Map<CachedNodeCalc, CachedNodeCalc> cachedNodeCalcMap;
 
     public NodeCalcResolver(Map<String, Integer> timeSeriesNums) {
         this.timeSeriesNums = Objects.requireNonNull(timeSeriesNums);
