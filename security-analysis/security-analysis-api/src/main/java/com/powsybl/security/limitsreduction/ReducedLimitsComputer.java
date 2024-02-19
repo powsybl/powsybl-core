@@ -19,9 +19,7 @@ import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCrit
 import com.powsybl.security.limitsreduction.criterion.network.AbstractNetworkElementCriterion;
 import com.powsybl.security.limitsreduction.criterion.network.NetworkElementVisitor;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.powsybl.contingency.ContingencyContextType.*;
 
@@ -34,10 +32,13 @@ import static com.powsybl.contingency.ContingencyContextType.*;
 public class ReducedLimitsComputer {
     private final LimitReductionDefinitionList limitReductionDefinitionList;
     private List<LimitReductionDefinitionList.LimitReductionDefinition> definitionsForCurrentContingencyId = Collections.emptyList();
-    boolean sameDefinitionsAsForPreviousContingencyId = false;
+    private boolean sameDefinitionsAsForPreviousContingencyId = false;
+
+    private final Map<CacheKey, Object> reducedLimitsCache;
 
     public ReducedLimitsComputer(LimitReductionDefinitionList limitReductionDefinitionList) {
         this.limitReductionDefinitionList = limitReductionDefinitionList;
+        this.reducedLimitsCache = new HashMap<>();
         computeDefinitionsForCurrentContingencyId(null);
     }
 
@@ -47,6 +48,12 @@ public class ReducedLimitsComputer {
 
     public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElement<T> networkElement, LimitType limitType, ThreeSides side,
                                                          AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
+        // Look into the cache to avoid recomputing reduced limits if they were already computed
+        // with the same limit reductions
+        CacheKey cacheKey = new CacheKey(networkElement.getId(), limitType, side);
+        if (reducedLimitsCache.containsKey(cacheKey)) {
+            return Optional.of((T) reducedLimitsCache.get(cacheKey));
+        }
         Optional<T> originalLimits = networkElement.getLimits(limitType, side);
         if (definitionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
@@ -54,7 +61,10 @@ public class ReducedLimitsComputer {
         }
         AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
         updateLimitReducer(limitsReducer, networkElement, limitType);
-        return Optional.of(limitsReducer.getReducedLimits());
+        T reducedLimits = limitsReducer.getReducedLimits();
+        // Cache the value to avoid recomputing it
+        reducedLimitsCache.put(cacheKey, reducedLimits);
+        return Optional.of(reducedLimits);
     }
 
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement<?> networkElement, LimitType limitType) {
@@ -70,8 +80,10 @@ public class ReducedLimitsComputer {
         var definitionsForPreviousContingencyId = definitionsForCurrentContingencyId;
         computeDefinitionsForCurrentContingencyId(contingencyId);
         sameDefinitionsAsForPreviousContingencyId = definitionsForCurrentContingencyId.equals(definitionsForPreviousContingencyId);
-        //TODO Add a cache { (networkElement.getId(), limitType) -> Optional<T> } to avoid recomputing all the limits
-        // if the definitions are the same as for the previous contingencyId
+        if (!isSameDefinitionsAsForPreviousContingencyId()) {
+            // The limit reductions are not the same as for the previous contingencyId, we clear the cache.
+            reducedLimitsCache.clear();
+        }
         return isSameDefinitionsAsForPreviousContingencyId();
     }
 
@@ -124,5 +136,8 @@ public class ReducedLimitsComputer {
                     .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))
                     .map(AbstractTemporaryDurationCriterion.class::cast)
                     .anyMatch(c -> c.filter(temporaryLimitAcceptableDuration));
+    }
+
+    private record CacheKey(String networkElementId, LimitType type, ThreeSides side) {
     }
 }
