@@ -151,17 +151,17 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         ToolOptions options = emptyOptions();
 
         DynamicSecurityAnalysisExecutionInput input = new DynamicSecurityAnalysisExecutionInput();
-        DynamicSecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getViolationTypes()).isEmpty();
         assertThat(input.getResultExtensions()).isEmpty();
         assertThat(input.getContingenciesSource()).isNotPresent();
 
         options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_TYPES_OPTION, "HIGH_VOLTAGE,CURRENT"));
-        DynamicSecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getViolationTypes()).containsExactly(LimitViolationType.CURRENT, LimitViolationType.HIGH_VOLTAGE);
 
         options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.WITH_EXTENSIONS_OPTION, "ext1,ext2"));
-        DynamicSecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getResultExtensions()).containsExactly("ext1", "ext2");
 
         parseOptionalFile(input, SecurityAnalysisToolConstants.CONTINGENCIES_FILE_OPTION, "contingencies", input::getContingenciesSource);
@@ -170,11 +170,11 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
     void parseOptionalFile(DynamicSecurityAnalysisExecutionInput input, String optionName, String fileName, Supplier<Optional<ByteSource>> getSource) throws IOException {
         ToolOptions invalidOptions = mockOptions(ImmutableMap.of(optionName, fileName));
-        assertThatIllegalArgumentException().isThrownBy(() -> DynamicSecurityAnalysisTool.updateInput(invalidOptions, input));
+        assertThatIllegalArgumentException().isThrownBy(() -> tool.updateInput(invalidOptions, input));
 
         Files.write(fileSystem.getPath(fileName), "test".getBytes());
         ToolOptions options = mockOptions(ImmutableMap.of(optionName, fileName));
-        DynamicSecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(getSource.get()).isPresent();
         if (getSource.get().isPresent()) {
             assertEquals("test", new String(getSource.get().get().read()));
@@ -185,11 +185,11 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
     ToolOptions parseFile(DynamicSecurityAnalysisExecutionInput input, String optionName, String fileName, Supplier<ByteSource> getSource) throws IOException {
         ToolOptions invalidOptions = mockOptions(ImmutableMap.of(optionName, fileName));
-        assertThatIllegalArgumentException().isThrownBy(() -> DynamicSecurityAnalysisTool.updateInput(invalidOptions, input));
+        assertThatIllegalArgumentException().isThrownBy(() -> tool.updateInput(invalidOptions, input));
 
         Files.write(fileSystem.getPath(fileName), "test".getBytes());
         ToolOptions options = mockOptions(ImmutableMap.of(optionName, fileName));
-        DynamicSecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertNotNull(getSource.get());
         assertEquals("test", new String(getSource.get().read()));
         return options;
