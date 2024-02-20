@@ -17,6 +17,11 @@ import java.util.Set;
  */
 public class NodeCalcDuplicateDetector extends NodeCalcModifier<Map<NodeCalc, Set<NodeCalc>>> {
 
+    /**
+     * Create a set of parents for each node in the tree that could be cached.
+     * @param nodeCalc Head of the node tree
+     * @return Map of the parents for each node in the tree
+     */
     public static Map<NodeCalc, Set<NodeCalc>> detectDuplicates(NodeCalc nodeCalc) {
         return new NodeCalcDuplicateDetector().detect(nodeCalc);
     }
@@ -70,8 +75,11 @@ public class NodeCalcDuplicateDetector extends NodeCalcModifier<Map<NodeCalc, Se
 
     private void visitNodeCalc(NodeCalc parent, NodeCalc child, Map<NodeCalc, Set<NodeCalc>> parents) {
         if (parents.containsKey(child)) {
+            // If the child is already in the map, the parent is added to its set
             parents.get(child).add(parent);
         } else {
+            // If the child is not already in the map, is is added and a set based on an IdentityHashMap (in order to
+            // use the identity comparison) is created for this child, with the parent in it.
             Set<NodeCalc> nodeCalcParents = Collections.newSetFromMap(new IdentityHashMap<>());
             nodeCalcParents.add(parent);
             parents.put(child, nodeCalcParents);

@@ -18,6 +18,11 @@ import static com.powsybl.timeseries.ast.NodeCalcDuplicateDetector.detectDuplica
  */
 public class NodeCalcCacheCreator extends NodeCalcModifier<Map<NodeCalc, NodeCalc>> {
 
+    /**
+     * Find the duplicated nodes in the tree and cache them depending on their type
+     * @param nodeCalc Head of the node tree
+     * @return null
+     */
     public static NodeCalc cacheDuplicated(NodeCalc nodeCalc) {
         return new NodeCalcCacheCreator().createCachedNodes(nodeCalc);
     }
@@ -41,6 +46,8 @@ public class NodeCalcCacheCreator extends NodeCalcModifier<Map<NodeCalc, NodeCal
                         .orElseGet(() -> new CachedNodeCalc(child)));
             }
         });
+
+        // Cache the chosen NodeCalc
         return nodeCalc.accept(this, cachedNodes, 0);
     }
 
