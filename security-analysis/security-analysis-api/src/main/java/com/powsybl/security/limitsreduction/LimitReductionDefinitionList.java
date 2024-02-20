@@ -11,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
-import com.powsybl.iidm.network.util.criterion.AbstractNetworkElementCriterion;
+import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
 
 import java.util.*;
 
@@ -29,7 +29,7 @@ public class LimitReductionDefinitionList {
         private double limitReduction = 1d;
         private final LimitType limitType;
         private List<ContingencyContext> contingencyContexts = Collections.emptyList();
-        private List<AbstractNetworkElementCriterion> networkElementCriteria = Collections.emptyList();
+        private List<NetworkElementCriterion> networkElementCriteria = Collections.emptyList();
         private List<LimitDurationCriterion> durationCriteria = Collections.emptyList();
 
         private boolean isSupportedLimitType(LimitType limitType) {
@@ -71,20 +71,20 @@ public class LimitReductionDefinitionList {
         }
 
         public LimitReductionDefinition setContingencyContexts(List<ContingencyContext> contingencyContexts) {
-            this.contingencyContexts = contingencyContexts;
+            this.contingencyContexts = Objects.requireNonNull(contingencyContexts);
             return this;
         }
 
-        public List<AbstractNetworkElementCriterion> getNetworkElementCriteria() {
+        public List<NetworkElementCriterion> getNetworkElementCriteria() {
             return Collections.unmodifiableList(networkElementCriteria);
         }
 
-        public LimitReductionDefinition setNetworkElementCriteria(AbstractNetworkElementCriterion... criteria) {
+        public LimitReductionDefinition setNetworkElementCriteria(NetworkElementCriterion... criteria) {
             return setNetworkElementCriteria(List.of(criteria));
         }
 
-        public LimitReductionDefinition setNetworkElementCriteria(List<AbstractNetworkElementCriterion> criteria) {
-            this.networkElementCriteria = criteria;
+        public LimitReductionDefinition setNetworkElementCriteria(List<NetworkElementCriterion> criteria) {
+            this.networkElementCriteria = Objects.requireNonNull(criteria);
             return this;
         }
 
@@ -97,7 +97,7 @@ public class LimitReductionDefinitionList {
         }
 
         public LimitReductionDefinition setDurationCriteria(List<LimitDurationCriterion> durationCriteria) {
-            this.durationCriteria = durationCriteria;
+            this.durationCriteria = Objects.requireNonNull(durationCriteria);
             return this;
         }
     }
@@ -111,7 +111,7 @@ public class LimitReductionDefinitionList {
     }
 
     public LimitReductionDefinitionList setLimitReductionDefinitions(List<LimitReductionDefinition> definitions) {
-        limitReductionDefinitions = definitions;
+        limitReductionDefinitions = Objects.requireNonNull(definitions);
         return this;
     }
 }

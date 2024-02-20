@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.util.criterion.AbstractNetworkElementCriterion;
-import com.powsybl.iidm.network.util.criterion.AbstractNetworkElementCriterion.NetworkElementCriterionType;
+import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
+import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion.NetworkElementCriterionType;
 import com.powsybl.iidm.network.util.criterion.Criterion;
 import com.powsybl.iidm.network.util.criterion.Criterion.CriterionType;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractNetworkElementCriterionDeserializer<T extends AbstractNetworkElementCriterion> extends StdDeserializer<T> {
+public abstract class AbstractNetworkElementCriterionDeserializer<T extends NetworkElementCriterion> extends StdDeserializer<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkElementCriterionDeserializer.class);
 

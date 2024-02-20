@@ -10,15 +10,13 @@ package com.powsybl.iidm.network.util.criterion;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractNetworkElementCriterion implements NetworkElementCriterion {
-    private final String name;
+public abstract class AbstractNetworkElementEquipmentCriterion extends AbstractNetworkElementCriterion {
 
-    protected AbstractNetworkElementCriterion(String name) {
-        this.name = name;
+    protected AbstractNetworkElementEquipmentCriterion(String name) {
+        super(name);
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+    public abstract Criterion getCountryCriterion();
+
+    public abstract Criterion getNominalVoltageCriterion();
 }

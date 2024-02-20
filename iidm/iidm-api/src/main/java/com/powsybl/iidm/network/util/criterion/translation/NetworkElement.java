@@ -29,5 +29,8 @@ public interface NetworkElement<T> {
 
     Double getNominalVoltage();
 
+    //TODO Extract this method in another inheriting interface
+    // located in the security-analyses module in order to ease the use of this interface and the criterion
+    // for other use cases
     Optional<T> getLimits(LimitType limitType, ThreeSides side);
 }

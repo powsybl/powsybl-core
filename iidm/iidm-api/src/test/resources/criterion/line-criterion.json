@@ -1,0 +1,19 @@
+{
+  "type" : "lineCriterion",
+  "version" : "1.0",
+  "name" : "criterion1",
+  "countryCriterion" : {
+    "type" : "TWO_COUNTRY",
+    "countries1" : [ "FR", "BE" ],
+    "countries2" : [ ]
+  },
+  "nominalVoltageCriterion" : {
+    "type" : "SINGLE_NOMINAL_VOLTAGE",
+    "voltageInterval" : {
+      "nominalVoltageLowBound" : 80.0,
+      "nominalVoltageHighBound" : 100.0,
+      "lowClosed" : true,
+      "highClosed" : true
+    }
+  }
+}

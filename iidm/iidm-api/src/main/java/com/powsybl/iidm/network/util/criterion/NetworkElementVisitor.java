@@ -17,19 +17,9 @@ public class NetworkElementVisitor {
         this.networkElement = networkElement;
     }
 
-    public boolean visit(LineCriterion c) {
-        return doRespectCriterion(networkElement, c.getTwoCountriesCriterion())
-                && doRespectCriterion(networkElement, c.getSingleNominalVoltageCriterion());
-    }
-
-    public boolean visit(TwoWindingsTransformerCriterion c) {
-        return doRespectCriterion(networkElement, c.getSingleCountryCriterion())
-                && doRespectCriterion(networkElement, c.getTwoNominalVoltageCriterion());
-    }
-
-    public boolean visit(ThreeWindingsTransformerCriterion c) {
-        return doRespectCriterion(networkElement, c.getSingleCountryCriterion())
-                && doRespectCriterion(networkElement, c.getThreeNominalVoltageCriterion());
+    public boolean visit(AbstractNetworkElementEquipmentCriterion c) {
+        return doRespectCriterion(networkElement, c.getCountryCriterion())
+                && doRespectCriterion(networkElement, c.getNominalVoltageCriterion());
     }
 
     public boolean visit(NetworkElementIdListCriterion c) {

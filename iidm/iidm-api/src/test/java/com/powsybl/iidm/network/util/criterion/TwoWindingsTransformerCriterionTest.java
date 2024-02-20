@@ -36,7 +36,7 @@ public class TwoWindingsTransformerCriterionTest {
 
     @Test
     void typeTest() {
-        assertEquals(AbstractNetworkElementCriterion.NetworkElementCriterionType.TWO_WINDING_TRANSFORMER,
+        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDING_TRANSFORMER,
                 new TwoWindingsTransformerCriterion().getNetworkElementCriterionType());
     }
 

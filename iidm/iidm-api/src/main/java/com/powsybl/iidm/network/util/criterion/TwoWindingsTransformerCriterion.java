@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.util.criterion;
 
-public class TwoWindingsTransformerCriterion extends AbstractNetworkElementCriterion {
+public class TwoWindingsTransformerCriterion extends AbstractNetworkElementEquipmentCriterion {
     public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.TWO_WINDING_TRANSFORMER;
 
     private SingleCountryCriterion singleCountryCriterion;
@@ -31,7 +31,8 @@ public class TwoWindingsTransformerCriterion extends AbstractNetworkElementCrite
         return networkElementVisitor.visit(this);
     }
 
-    public SingleCountryCriterion getSingleCountryCriterion() {
+    @Override
+    public SingleCountryCriterion getCountryCriterion() {
         return singleCountryCriterion;
     }
 
@@ -40,7 +41,8 @@ public class TwoWindingsTransformerCriterion extends AbstractNetworkElementCrite
         return this;
     }
 
-    public TwoNominalVoltageCriterion getTwoNominalVoltageCriterion() {
+    @Override
+    public TwoNominalVoltageCriterion getNominalVoltageCriterion() {
         return twoNominalVoltageCriterion;
     }
 

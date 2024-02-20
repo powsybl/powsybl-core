@@ -38,7 +38,7 @@ public class LineCriterionTest {
 
     @Test
     void typeTest() {
-        assertEquals(AbstractNetworkElementCriterion.NetworkElementCriterionType.LINE,
+        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.LINE,
                 new LineCriterion().getNetworkElementCriterionType());
     }
 

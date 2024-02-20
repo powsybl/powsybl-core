@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.util.criterion;
 
-public class LineCriterion extends AbstractNetworkElementCriterion {
+public class LineCriterion extends AbstractNetworkElementEquipmentCriterion {
     public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.LINE;
 
     private TwoCountriesCriterion twoCountriesCriterion;
@@ -31,7 +31,8 @@ public class LineCriterion extends AbstractNetworkElementCriterion {
         return networkElementVisitor.visit(this);
     }
 
-    public TwoCountriesCriterion getTwoCountriesCriterion() {
+    @Override
+    public TwoCountriesCriterion getCountryCriterion() {
         return twoCountriesCriterion;
     }
 
@@ -40,7 +41,8 @@ public class LineCriterion extends AbstractNetworkElementCriterion {
         return this;
     }
 
-    public SingleNominalVoltageCriterion getSingleNominalVoltageCriterion() {
+    @Override
+    public SingleNominalVoltageCriterion getNominalVoltageCriterion() {
         return singleNominalVoltageCriterion;
     }
 

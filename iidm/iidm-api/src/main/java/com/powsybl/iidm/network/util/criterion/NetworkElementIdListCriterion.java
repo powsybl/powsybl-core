@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.util.criterion;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -23,7 +24,7 @@ public class NetworkElementIdListCriterion extends AbstractNetworkElementCriteri
 
     public NetworkElementIdListCriterion(String name, Set<String> networkElementIds) {
         super(name);
-        this.networkElementIds = networkElementIds;
+        this.networkElementIds = Objects.requireNonNull(networkElementIds);
     }
 
     @Override

@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.util.criterion.translation.DefaultNetworkElement
 import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 import com.powsybl.security.limitsreduction.criterion.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
-import com.powsybl.iidm.network.util.criterion.AbstractNetworkElementCriterion;
+import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
 import com.powsybl.iidm.network.util.criterion.NetworkElementVisitor;
 
 import java.util.*;
@@ -119,7 +119,7 @@ public class ReducedLimitsComputer {
 
     protected boolean isEquipmentAffectedByLimitReduction(NetworkElement<?> networkElement, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
-        List<AbstractNetworkElementCriterion> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
+        List<NetworkElementCriterion> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()
                 || networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));
     }
