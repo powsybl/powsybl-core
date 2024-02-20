@@ -9,8 +9,6 @@ package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -192,28 +190,6 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
     }
 
-    private static double getRatio(ConvertedT2xModel convertedT2xModel) {
-        double a = convertedT2xModel.end1.ratedU / convertedT2xModel.end2.ratedU;
-        if (convertedT2xModel.end1.ratioTapChanger != null) {
-            a *= convertedT2xModel.end1.ratioTapChanger.getSteps()
-                .get(getStepIndex(convertedT2xModel.end1.ratioTapChanger)).getRatio();
-        }
-        if (convertedT2xModel.end1.phaseTapChanger != null) {
-            a *= convertedT2xModel.end1.phaseTapChanger.getSteps()
-                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getRatio();
-        }
-        return a;
-    }
-
-    private static double getAngle(ConvertedT2xModel convertedT2xModel) {
-        double angle = 0.0;
-        if (convertedT2xModel.end1.phaseTapChanger != null) {
-            angle = Math.toRadians(convertedT2xModel.end1.phaseTapChanger.getSteps()
-                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getAngle());
-        }
-        return angle;
-    }
-
     private static int getStepIndex(TapChanger tapChanger) {
         return tapChanger.getTapPosition();
     }
@@ -264,38 +240,5 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     private static double getB(ConvertedT2xModel convertedT2xModel) {
         return getValue(convertedT2xModel.end1.b, getStepB1(convertedT2xModel.end1.ratioTapChanger), getStepB1(convertedT2xModel.end1.phaseTapChanger));
-    }
-
-    private PiModel piModel(double r, double x, double g, double b, double a, double angle) {
-        PiModel piModel = new PiModel();
-
-        Complex ratio = ComplexUtils.polar2Complex(a, angle);
-        Complex ytr = new Complex(r, x).reciprocal();
-        Complex ytr1 = ytr.divide(ratio.conjugate());
-        Complex ytr2 = ytr.divide(ratio);
-        Complex ysh1 = new Complex(g, b).divide(ratio.multiply(ratio.conjugate()))
-            .add(ytr.multiply(ratio.reciprocal().subtract(1.0)).divide(ratio.conjugate()));
-        Complex ysh2 = ytr.multiply(ratio.reciprocal().negate().add(1.0));
-
-        piModel.r1 = ytr1.reciprocal().getReal();
-        piModel.x1 = ytr1.reciprocal().getImaginary();
-        piModel.g1 = ysh1.getReal();
-        piModel.b1 = ysh1.getImaginary();
-        piModel.r2 = ytr2.reciprocal().getReal();
-        piModel.x2 = ytr2.reciprocal().getImaginary();
-        piModel.g2 = ysh2.getReal();
-        piModel.b2 = ysh2.getImaginary();
-        return piModel;
-    }
-
-    private static class PiModel {
-        double r1;
-        double x1;
-        double g1;
-        double b1;
-        double r2;
-        double x2;
-        double g2;
-        double b2;
     }
 }
