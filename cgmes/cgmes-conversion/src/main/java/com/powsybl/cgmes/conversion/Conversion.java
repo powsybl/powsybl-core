@@ -787,15 +787,6 @@ public class Conversion {
             return false;
         }
 
-        public boolean allowUnsupportedTapChangers() {
-            return allowUnsupportedTapChangers;
-        }
-
-        public Config setAllowUnsupportedTapChangers(boolean allowUnsupportedTapChangers) {
-            this.allowUnsupportedTapChangers = allowUnsupportedTapChangers;
-            return this;
-        }
-
         public boolean importNodeBreakerAsBusBreaker() {
             return importNodeBreakerAsBusBreaker;
         }
@@ -805,29 +796,12 @@ public class Conversion {
             return this;
         }
 
-        public double lowImpedanceLineR() {
-            return lowImpedanceLineR;
-        }
-
-        public double lowImpedanceLineX() {
-            return lowImpedanceLineX;
-        }
-
         public boolean convertBoundary() {
             return convertBoundary;
         }
 
         public Config setConvertBoundary(boolean convertBoundary) {
             this.convertBoundary = convertBoundary;
-            return this;
-        }
-
-        public boolean changeSignForShuntReactivePowerFlowInitialState() {
-            return changeSignForShuntReactivePowerFlowInitialState;
-        }
-
-        public Config setChangeSignForShuntReactivePowerFlowInitialState(boolean b) {
-            changeSignForShuntReactivePowerFlowInitialState = b;
             return this;
         }
 
@@ -1001,11 +975,7 @@ public class Conversion {
             return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
         }
 
-        private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
-        private boolean changeSignForShuntReactivePowerFlowInitialState = false;
-        private double lowImpedanceLineR = 7.0E-5;
-        private double lowImpedanceLineX = 7.0E-5;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
