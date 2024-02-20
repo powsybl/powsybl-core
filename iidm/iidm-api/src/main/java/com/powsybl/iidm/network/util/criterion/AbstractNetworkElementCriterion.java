@@ -10,13 +10,33 @@ package com.powsybl.iidm.network.util.criterion;
 public abstract class AbstractNetworkElementCriterion {
 
     public enum NetworkElementCriterionType {
-        LINE,
-        TWO_WINDING_TRANSFORMER,
-        THREE_WINDING_TRANSFORMER,
-        IDENTIFIERS
+        LINE("lineCriterion"),
+        TWO_WINDING_TRANSFORMER("twoWindingsTransformerCriterion"),
+        THREE_WINDING_TRANSFORMER("threeWindingsTransformerCriterion"),
+        IDENTIFIERS("identifierCriterion");
+
+        private final String name;
+
+        NetworkElementCriterionType(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+    }
+
+    private final String name;
+
+    protected AbstractNetworkElementCriterion(String name) {
+        this.name = name;
     }
 
     public abstract NetworkElementCriterionType getNetworkElementCriterionType();
 
     public abstract boolean accept(NetworkElementVisitor networkElementVisitor);
+
+    public String getName() {
+        return name;
+    }
 }

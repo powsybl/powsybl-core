@@ -8,13 +8,22 @@
 package com.powsybl.iidm.network.util.criterion;
 
 public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementCriterion {
+    public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.THREE_WINDING_TRANSFORMER;
 
     private SingleCountryCriterion singleCountryCriterion;
     private ThreeNominalVoltageCriterion threeNominalVoltageCriterion;
 
+    public ThreeWindingsTransformerCriterion() {
+        super(null);
+    }
+
+    public ThreeWindingsTransformerCriterion(String name) {
+        super(name);
+    }
+
     @Override
     public NetworkElementCriterionType getNetworkElementCriterionType() {
-        return NetworkElementCriterionType.THREE_WINDING_TRANSFORMER;
+        return TYPE;
     }
 
     @Override

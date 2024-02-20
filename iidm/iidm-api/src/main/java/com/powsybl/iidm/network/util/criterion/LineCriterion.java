@@ -8,13 +8,22 @@
 package com.powsybl.iidm.network.util.criterion;
 
 public class LineCriterion extends AbstractNetworkElementCriterion {
+    public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.LINE;
 
     private TwoCountriesCriterion twoCountriesCriterion;
     private SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
+    public LineCriterion() {
+        super(null);
+    }
+
+    public LineCriterion(String name) {
+        super(name);
+    }
+
     @Override
     public NetworkElementCriterionType getNetworkElementCriterionType() {
-        return NetworkElementCriterionType.LINE;
+        return TYPE;
     }
 
     @Override

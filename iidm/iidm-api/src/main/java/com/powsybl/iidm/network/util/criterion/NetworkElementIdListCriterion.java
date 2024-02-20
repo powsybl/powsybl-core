@@ -13,15 +13,22 @@ import java.util.Set;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class NetworkElementIdListCriterion extends AbstractNetworkElementCriterion {
+    public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.IDENTIFIERS;
+
     private final Set<String> networkElementIds;
 
     public NetworkElementIdListCriterion(Set<String> networkElementIds) {
+        this(null, networkElementIds);
+    }
+
+    public NetworkElementIdListCriterion(String name, Set<String> networkElementIds) {
+        super(name);
         this.networkElementIds = networkElementIds;
     }
 
     @Override
     public NetworkElementCriterionType getNetworkElementCriterionType() {
-        return NetworkElementCriterionType.IDENTIFIERS;
+        return TYPE;
     }
 
     @Override
