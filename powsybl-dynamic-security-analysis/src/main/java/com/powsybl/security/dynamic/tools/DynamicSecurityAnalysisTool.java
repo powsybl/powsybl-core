@@ -230,13 +230,9 @@ public class DynamicSecurityAnalysisTool implements Tool {
             .setNetworkVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID)
             .setParameters(parametersLoader.get());
 
-        options.getPath(DYNAMIC_MODELS_FILE_OPTION)
+        executionInput.setDynamicModelsSource(options.getPath(DYNAMIC_MODELS_FILE_OPTION)
                 .map(FileUtil::asByteSource)
-                .ifPresentOrElse(
-                        executionInput::setDynamicModelsSource,
-                        () -> {
-                            throw new RuntimeException("dynamic models file not found");
-                        });
+                .orElseThrow(() -> new ParseException("Dynamic models file not found")));
 
         options.getPath(MONITORING_FILE).ifPresent(monitorFilePath -> executionInput.setMonitors(StateMonitor.read(monitorFilePath)));
         options.getPath(STRATEGIES_FILE).ifPresent(operatorStrategyFilePath -> executionInput.setOperatorStrategies(OperatorStrategyList.read(operatorStrategyFilePath).getOperatorStrategies()));

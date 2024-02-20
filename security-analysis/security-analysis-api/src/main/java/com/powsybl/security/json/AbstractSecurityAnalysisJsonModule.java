@@ -46,7 +46,7 @@ public abstract class AbstractSecurityAnalysisJsonModule extends ContingencyJson
     interface ActionMixIn {
     }
 
-    public AbstractSecurityAnalysisJsonModule(Collection<SecurityAnalysisJsonPlugin> plugins) {
+    protected AbstractSecurityAnalysisJsonModule(Collection<SecurityAnalysisJsonPlugin> plugins) {
         Objects.requireNonNull(plugins);
         this.plugins = List.copyOf(plugins);
         addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());

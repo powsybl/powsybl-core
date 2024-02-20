@@ -224,9 +224,9 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     void readNetwork() throws IOException {
         ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
                 mock(ComputationManager.class), mock(ComputationManager.class));
-
         CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
-        DynamicSecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
+        Network network = DynamicSecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
+        assertNotNull(network);
     }
 
     @Test

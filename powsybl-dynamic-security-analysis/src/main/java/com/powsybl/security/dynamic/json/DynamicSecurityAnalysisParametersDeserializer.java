@@ -27,8 +27,6 @@ import static com.powsybl.security.dynamic.json.JsonDynamicSecurityAnalysisParam
  */
 public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializer<DynamicSecurityAnalysisParameters> {
 
-    private static final String CONTEXT_NAME = "DynamicSecurityAnalysisParameters";
-
     DynamicSecurityAnalysisParametersDeserializer() {
         super(DynamicSecurityAnalysisParameters.class);
     }

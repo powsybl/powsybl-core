@@ -7,9 +7,7 @@
  */
 package com.powsybl.security.dynamic;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
@@ -18,6 +16,7 @@ import com.powsybl.dynamicsimulation.AbstractDynamicSimulationParameters;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -127,7 +126,7 @@ public class DynamicSimulationContingenciesParameters extends AbstractDynamicSim
 
     @Override
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("startTime", getStartTime(),
+        return Map.of("startTime", getStartTime(),
                 "stopTime", getStopTime(),
                 "contingenciesStartTime", contingenciesStartTime);
     }

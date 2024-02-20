@@ -41,9 +41,7 @@ public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisP
 
         parameters.setDynamicSimulationParameters(DynamicSimulationContingenciesParameters.load(platformConfig));
         platformConfig.getOptionalModuleConfig("dynamic-security-analysis-default-parameters")
-                .ifPresent(config -> {
-                    parameters.getIncreasedViolationsParameters().load(config);
-                });
+                .ifPresent(config -> parameters.getIncreasedViolationsParameters().load(config));
         parameters.readExtensions(platformConfig);
         return parameters;
     }
