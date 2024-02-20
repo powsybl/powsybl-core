@@ -16,7 +16,7 @@ import com.powsybl.security.dynamic.execution.DynamicSecurityAnalysisExecutionIn
  *
  * Factory methods for dynamic security analysis execution handlers.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public final class DynamicSecurityAnalysisExecutionHandlers {
 

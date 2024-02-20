@@ -15,11 +15,6 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
- * Parameters for security analysis computation.
- * Extensions may be added, for instance for implementation-specific parameters.
- *
- * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
- * @author Sylvain LECLERC <sylvain.leclerc at rte-france.com>
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public abstract class AbstractSecurityAnalysisParameters<T extends AbstractSecurityAnalysisParameters<T>> extends AbstractExtendable<T> {

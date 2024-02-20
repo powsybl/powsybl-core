@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
  * based on an underlying {@link com.powsybl.security.dynamic.DynamicSecurityAnalysis} implementation,
  * or be forwarded to external processes through a {@link ComputationManager}.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public interface DynamicSecurityAnalysisExecution {
 

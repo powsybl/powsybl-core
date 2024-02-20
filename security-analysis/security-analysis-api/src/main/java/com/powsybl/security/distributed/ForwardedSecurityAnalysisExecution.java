@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
  * it will spawn multiple "slave" processes.
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class ForwardedSecurityAnalysisExecution extends AbstractForwardedSecurityAnalysisExecution implements SecurityAnalysisExecution {
 

@@ -20,10 +20,10 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Execute a security analysis by spawning a specified number of subtasks, each of which
- * will consist to a separate call to {@literal itools security-analysis} through the specified
+ * will consist of a separate call to {@literal itools security-analysis} through the specified
  * {@link ComputationManager}.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DistributedDynamicSecurityAnalysisExecution extends AbstractDistributedSecurityAnalysisExecution implements DynamicSecurityAnalysisExecution {
 
