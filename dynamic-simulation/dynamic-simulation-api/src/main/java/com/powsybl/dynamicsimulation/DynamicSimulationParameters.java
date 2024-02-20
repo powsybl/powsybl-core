@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
@@ -86,7 +87,7 @@ public class DynamicSimulationParameters extends AbstractDynamicSimulationParame
 
     @Override
     protected Map<String, Object> toMap() {
-        return Map.of("startTime", getStartTime(),
+        return ImmutableMap.of("startTime", getStartTime(),
             "stopTime", getStopTime());
     }
 
