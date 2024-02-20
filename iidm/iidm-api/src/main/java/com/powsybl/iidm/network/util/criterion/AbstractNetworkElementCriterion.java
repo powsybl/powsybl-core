@@ -7,25 +7,13 @@
  */
 package com.powsybl.iidm.network.util.criterion;
 
-import java.util.Set;
-
-public abstract class AbstractNetworkElementCriterion<T extends AbstractNetworkElementCriterion<T>> {
+public abstract class AbstractNetworkElementCriterion {
 
     public enum NetworkElementCriterionType {
         LINE,
         TWO_WINDING_TRANSFORMER,
-        THREE_WINDING_TRANSFORMER
-    }
-
-    private Set<String> networkElementIds = Set.of();
-
-    public T setNetworkElementIds(Set<String> networkElementIds) {
-        this.networkElementIds = networkElementIds;
-        return (T) this;
-    }
-
-    public Set<String> getNetworkElementIds() {
-        return networkElementIds;
+        THREE_WINDING_TRANSFORMER,
+        IDENTIFIERS
     }
 
     public abstract NetworkElementCriterionType getNetworkElementCriterionType();

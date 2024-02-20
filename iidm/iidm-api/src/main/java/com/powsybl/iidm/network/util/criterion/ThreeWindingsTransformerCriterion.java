@@ -7,21 +7,10 @@
  */
 package com.powsybl.iidm.network.util.criterion;
 
-import java.util.Set;
-
-public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementCriterion<ThreeWindingsTransformerCriterion> {
+public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementCriterion {
 
     private SingleCountryCriterion singleCountryCriterion;
     private ThreeNominalVoltageCriterion threeNominalVoltageCriterion;
-
-    public ThreeWindingsTransformerCriterion() {
-        super();
-    }
-
-    public ThreeWindingsTransformerCriterion(Set<String> networkElementIds) {
-        super();
-        setNetworkElementIds(networkElementIds);
-    }
 
     @Override
     public NetworkElementCriterionType getNetworkElementCriterionType() {

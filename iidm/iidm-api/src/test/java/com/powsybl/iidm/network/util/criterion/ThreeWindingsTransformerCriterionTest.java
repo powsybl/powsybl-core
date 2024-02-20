@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -39,14 +38,6 @@ public class ThreeWindingsTransformerCriterionTest {
     void typeTest() {
         assertEquals(AbstractNetworkElementCriterion.NetworkElementCriterionType.THREE_WINDING_TRANSFORMER,
                 new ThreeWindingsTransformerCriterion().getNetworkElementCriterionType());
-    }
-
-    @Test
-    void idListTest() {
-        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion(Set.of(twt1.getId(), twt3.getId()));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
     }
 
     @Test
@@ -78,8 +69,11 @@ public class ThreeWindingsTransformerCriterionTest {
     @Test
     void mixedCriteriaTest() {
         ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion()
-                .setNetworkElementIds(Set.of("twt1", "twt3"))
-                .setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR)));
+                .setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR)))
+                .setThreeNominalVoltageCriterion(new ThreeNominalVoltageCriterion(
+                        new VoltageInterval(80., 100., true, true),
+                        new VoltageInterval(350., 550., true, true),
+                        new VoltageInterval(40., 70., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt3)));

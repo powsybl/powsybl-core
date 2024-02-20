@@ -8,17 +8,15 @@
 package com.powsybl.iidm.network.util.criterion;
 
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 import com.powsybl.iidm.network.util.criterion.SingleNominalVoltageCriterion.VoltageInterval;
+import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
 /**
@@ -40,14 +38,6 @@ public class TwoWindingsTransformerCriterionTest {
     void typeTest() {
         assertEquals(AbstractNetworkElementCriterion.NetworkElementCriterionType.TWO_WINDING_TRANSFORMER,
                 new TwoWindingsTransformerCriterion().getNetworkElementCriterionType());
-    }
-
-    @Test
-    void idListTest() {
-        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(Set.of(twt1.getId(), twt3.getId()));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
     }
 
     @Test
@@ -78,7 +68,9 @@ public class TwoWindingsTransformerCriterionTest {
     @Test
     void mixedCriteriaTest() {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion()
-                .setNetworkElementIds(Set.of("twt1", "twt3"))
+                .setTwoNominalVoltageCriterion(new TwoNominalVoltageCriterion(
+                        new VoltageInterval(80., 100., true, true),
+                        new VoltageInterval(40., 70., true, true)))
                 .setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));

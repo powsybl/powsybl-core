@@ -18,21 +18,22 @@ public class NetworkElementVisitor {
     }
 
     public boolean visit(LineCriterion c) {
-        return (c.getNetworkElementIds().isEmpty() || c.getNetworkElementIds().contains(networkElement.getId()))
-                && doRespectCriterion(networkElement, c.getTwoCountriesCriterion())
+        return doRespectCriterion(networkElement, c.getTwoCountriesCriterion())
                 && doRespectCriterion(networkElement, c.getSingleNominalVoltageCriterion());
     }
 
     public boolean visit(TwoWindingsTransformerCriterion c) {
-        return (c.getNetworkElementIds().isEmpty() || c.getNetworkElementIds().contains(networkElement.getId()))
-                && doRespectCriterion(networkElement, c.getSingleCountryCriterion())
-                    && doRespectCriterion(networkElement, c.getTwoNominalVoltageCriterion());
+        return doRespectCriterion(networkElement, c.getSingleCountryCriterion())
+                && doRespectCriterion(networkElement, c.getTwoNominalVoltageCriterion());
     }
 
     public boolean visit(ThreeWindingsTransformerCriterion c) {
-        return (c.getNetworkElementIds().isEmpty() || c.getNetworkElementIds().contains(networkElement.getId()))
-                && doRespectCriterion(networkElement, c.getSingleCountryCriterion())
-                    && doRespectCriterion(networkElement, c.getThreeNominalVoltageCriterion());
+        return doRespectCriterion(networkElement, c.getSingleCountryCriterion())
+                && doRespectCriterion(networkElement, c.getThreeNominalVoltageCriterion());
+    }
+
+    public boolean visit(NetworkElementIdListCriterion c) {
+        return c.getNetworkElementIds().contains(networkElement.getId());
     }
 
     private boolean doRespectCriterion(NetworkElement<?> networkElement, Criterion criterion) {

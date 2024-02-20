@@ -7,20 +7,10 @@
  */
 package com.powsybl.iidm.network.util.criterion;
 
-import java.util.Set;
-
-public class LineCriterion extends AbstractNetworkElementCriterion<LineCriterion> {
+public class LineCriterion extends AbstractNetworkElementCriterion {
 
     private TwoCountriesCriterion twoCountriesCriterion;
     private SingleNominalVoltageCriterion singleNominalVoltageCriterion;
-
-    public LineCriterion() {
-        super();
-    }
-
-    public LineCriterion(Set<String> networkElementIds) {
-        setNetworkElementIds(networkElementIds);
-    }
 
     @Override
     public NetworkElementCriterionType getNetworkElementCriterionType() {

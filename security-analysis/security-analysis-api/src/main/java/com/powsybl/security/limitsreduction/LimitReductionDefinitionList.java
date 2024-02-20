@@ -29,7 +29,7 @@ public class LimitReductionDefinitionList {
         private double limitReduction = 1d;
         private final LimitType limitType;
         private List<ContingencyContext> contingencyContexts = Collections.emptyList();
-        private List<AbstractNetworkElementCriterion<?>> networkElementCriteria = Collections.emptyList();
+        private List<AbstractNetworkElementCriterion> networkElementCriteria = Collections.emptyList();
         private List<LimitDurationCriterion> durationCriteria = Collections.emptyList();
 
         private boolean isSupportedLimitType(LimitType limitType) {
@@ -75,15 +75,15 @@ public class LimitReductionDefinitionList {
             return this;
         }
 
-        public List<AbstractNetworkElementCriterion<?>> getNetworkElementCriteria() {
+        public List<AbstractNetworkElementCriterion> getNetworkElementCriteria() {
             return Collections.unmodifiableList(networkElementCriteria);
         }
 
-        public LimitReductionDefinition setNetworkElementCriteria(AbstractNetworkElementCriterion<?>... criteria) {
+        public LimitReductionDefinition setNetworkElementCriteria(AbstractNetworkElementCriterion... criteria) {
             return setNetworkElementCriteria(List.of(criteria));
         }
 
-        public LimitReductionDefinition setNetworkElementCriteria(List<AbstractNetworkElementCriterion<?>> criteria) {
+        public LimitReductionDefinition setNetworkElementCriteria(List<AbstractNetworkElementCriterion> criteria) {
             this.networkElementCriteria = criteria;
             return this;
         }

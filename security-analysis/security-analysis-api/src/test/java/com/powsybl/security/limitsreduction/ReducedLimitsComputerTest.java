@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.util.criterion.NetworkElementIdListCriterion;
 import com.powsybl.security.limitsreduction.criterion.duration.PermanentDurationCriterion;
-import com.powsybl.iidm.network.util.criterion.LineCriterion;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,12 +41,12 @@ class ReducedLimitsComputerTest {
 
         LimitReductionDefinitionList.LimitReductionDefinition definition1 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
                 .setLimitReduction(0.9)
-                .setNetworkElementCriteria(new LineCriterion(Set.of("NHV1_NHV2_1")))
+                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .setContingencyContexts(ContingencyContext.specificContingency("contingency1"))
                 .setDurationCriteria(new PermanentDurationCriterion());
         LimitReductionDefinitionList.LimitReductionDefinition definition2 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
                 .setLimitReduction(0.5)
-                .setNetworkElementCriteria(new LineCriterion(Set.of("NHV1_NHV2_2")));
+                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")));
         LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
                 .setLimitReductionDefinitions(definition1, definition2);
         computer = new ReducedLimitsComputer(definitionList);
@@ -145,11 +145,11 @@ class ReducedLimitsComputerTest {
         ReducedLimitsComputer noDefComputer = new ReducedLimitsComputer(new LimitReductionDefinitionList());
         LimitReductionDefinitionList.LimitReductionDefinition definition1 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
                 .setLimitReduction(1.)
-                .setNetworkElementCriteria(new LineCriterion(Set.of("NHV1_NHV2_1")))
+                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .setContingencyContexts(ContingencyContext.all());
         LimitReductionDefinitionList.LimitReductionDefinition definition2 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
                 .setLimitReduction(1.)
-                .setNetworkElementCriteria(new LineCriterion(Set.of("NHV1_NHV2_1")))
+                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .setContingencyContexts(ContingencyContext.all());
         LimitReductionDefinitionList reductionsTo1List = new LimitReductionDefinitionList()
                 .setLimitReductionDefinitions(definition1, definition2);

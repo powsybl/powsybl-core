@@ -6,16 +6,15 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util.criterion;
-import com.powsybl.iidm.network.util.criterion.SingleNominalVoltageCriterion.VoltageInterval;
 
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.util.criterion.SingleNominalVoltageCriterion.VoltageInterval;
 import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -53,15 +52,6 @@ public class LineCriterionTest {
     }
 
     @Test
-    void idListTest() {
-        LineCriterion criterion = new LineCriterion(Set.of(line1.getId(), line3.getId()));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line3)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line4)));
-    }
-
-    @Test
     void nominalVoltageTest() {
         LineCriterion criterion = new LineCriterion()
                 .setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
@@ -91,10 +81,9 @@ public class LineCriterionTest {
     @Test
     void mixedCriteriaTest() {
         LineCriterion criterion = new LineCriterion()
-                .setNetworkElementIds(Set.of("line1", "line2"))
                 .setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
                     new VoltageInterval(350., 450., true, true)))
-                .setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.BE, Country.FR)));
+                .setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.FR)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line3)));
