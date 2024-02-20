@@ -49,5 +49,4 @@ public class LineCriterion extends AbstractNetworkElementCriterion<LineCriterion
         this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
         return this;
     }
-
 }

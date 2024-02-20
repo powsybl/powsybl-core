@@ -25,7 +25,6 @@ public final class DefaultLimitsReducerCreator implements AbstractLimitsReducerC
     }
 
     private DefaultLimitsReducerCreator() {
-        //TODO Find a better way to create LoadingLimits not linked to an element of the real network with the API.
         dummyNetwork = Network.create("Tmp", "Manual");
         VoltageLevel voltageLevel = dummyNetwork.newVoltageLevel().setId("vl").setNominalV(225.).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         voltageLevel.getBusBreakerView().newBus().setId("bus").add();

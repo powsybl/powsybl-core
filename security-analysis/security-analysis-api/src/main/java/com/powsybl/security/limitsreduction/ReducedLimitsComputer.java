@@ -119,7 +119,7 @@ public class ReducedLimitsComputer {
 
     protected boolean isEquipmentAffectedByLimitReduction(NetworkElement<?> networkElement, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
-        List<AbstractNetworkElementCriterion> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
+        List<AbstractNetworkElementCriterion<?>> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()
                 || networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));
     }

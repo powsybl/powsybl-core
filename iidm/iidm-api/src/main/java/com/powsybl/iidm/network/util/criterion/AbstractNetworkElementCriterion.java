@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.util.criterion;
 
 import java.util.Set;
 
-public abstract class AbstractNetworkElementCriterion<T> {
+public abstract class AbstractNetworkElementCriterion<T extends AbstractNetworkElementCriterion<T>> {
 
     public enum NetworkElementCriterionType {
         LINE,
@@ -31,5 +31,4 @@ public abstract class AbstractNetworkElementCriterion<T> {
     public abstract NetworkElementCriterionType getNetworkElementCriterionType();
 
     public abstract boolean accept(NetworkElementVisitor networkElementVisitor);
-
 }
