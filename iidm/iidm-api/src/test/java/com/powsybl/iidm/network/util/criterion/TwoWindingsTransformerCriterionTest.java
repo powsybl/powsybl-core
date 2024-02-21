@@ -41,6 +41,17 @@ public class TwoWindingsTransformerCriterionTest {
     }
 
     @Test
+    void emptyCriterionTest() {
+        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion();
+        assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twt2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
+
+        NetworkElement<?> anotherTypeElement = Mockito.mock(NetworkElement.class);
+        assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
+    }
+
+    @Test
     void nominalVoltagesTest() {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion()
                 .setTwoNominalVoltageCriterion(new TwoNominalVoltageCriterion(
@@ -83,6 +94,7 @@ public class TwoWindingsTransformerCriterionTest {
         when(n.getCountry()).thenReturn(country);
         when(n.getNominalVoltage1()).thenReturn(nominalVoltage1);
         when(n.getNominalVoltage2()).thenReturn(nominalVoltage2);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDING_TRANSFORMER)).thenReturn(true);
         return n;
     }
 }

@@ -49,6 +49,9 @@ public class LineCriterionTest {
         assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line3)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line4)));
+
+        NetworkElement<?> anotherTypeElement = Mockito.mock(NetworkElement.class);
+        assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
     }
 
     @Test
@@ -96,6 +99,7 @@ public class LineCriterionTest {
         when(n.getCountry1()).thenReturn(country1);
         when(n.getCountry2()).thenReturn(country2);
         when(n.getNominalVoltage()).thenReturn(nominalVoltage);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE)).thenReturn(true);
         return n;
     }
 }

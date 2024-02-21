@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.util.criterion.translation;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -67,6 +68,11 @@ class DefaultNetworkElementTest {
         assertNull(getPermanentLimit(networkElement, LimitType.APPARENT_POWER, ThreeSides.TWO));
         assertNull(getPermanentLimit(networkElement, LimitType.ACTIVE_POWER, ThreeSides.ONE));
         assertEquals(987., getPermanentLimit(networkElement, LimitType.ACTIVE_POWER, ThreeSides.TWO), 0.01);
+
+        assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDING_TRANSFORMER));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDING_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIERS));
     }
 
     //TODO Add tests for the other kinds

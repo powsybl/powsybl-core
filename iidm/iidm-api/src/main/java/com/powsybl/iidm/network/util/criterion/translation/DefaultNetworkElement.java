@@ -8,10 +8,15 @@
 package com.powsybl.iidm.network.util.criterion.translation;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion.NetworkElementCriterionType;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
+
+    private static final Set<IdentifiableType> VALID_TYPES_FOR_LINE_CRITERION = Set.of(IdentifiableType.LINE,
+            IdentifiableType.HVDC_LINE, IdentifiableType.TIE_LINE);
 
     private final Identifiable<?> identifiable;
 
@@ -107,5 +112,16 @@ public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
             case THREE_WINDINGS_TRANSFORMER -> (Optional<LoadingLimits>) ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
             default -> Optional.empty();
         };
+    }
+
+    @Override
+    public boolean isValidFor(NetworkElementCriterionType type) {
+        return type == NetworkElementCriterionType.IDENTIFIERS
+                || type == NetworkElementCriterionType.LINE
+                    && VALID_TYPES_FOR_LINE_CRITERION.contains(identifiable.getType())
+                || type == NetworkElementCriterionType.TWO_WINDING_TRANSFORMER
+                    && identifiable.getType() == IdentifiableType.TWO_WINDINGS_TRANSFORMER
+                || type == NetworkElementCriterionType.THREE_WINDING_TRANSFORMER
+                    && identifiable.getType() == IdentifiableType.THREE_WINDINGS_TRANSFORMER;
     }
 }

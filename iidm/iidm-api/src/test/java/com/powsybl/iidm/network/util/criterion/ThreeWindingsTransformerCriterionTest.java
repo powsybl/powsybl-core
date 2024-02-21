@@ -41,6 +41,17 @@ public class ThreeWindingsTransformerCriterionTest {
     }
 
     @Test
+    void emptyCriterionTest() {
+        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion();
+        assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twt2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
+
+        NetworkElement<?> anotherTypeElement = Mockito.mock(NetworkElement.class);
+        assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
+    }
+
+    @Test
     void nominalVoltagesTest() {
         ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion()
                 .setThreeNominalVoltageCriterion(new ThreeNominalVoltageCriterion(
@@ -87,6 +98,7 @@ public class ThreeWindingsTransformerCriterionTest {
         when(n.getNominalVoltage1()).thenReturn(nominalVoltage1);
         when(n.getNominalVoltage2()).thenReturn(nominalVoltage2);
         when(n.getNominalVoltage3()).thenReturn(nominalVoltage3);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDING_TRANSFORMER)).thenReturn(true);
         return n;
     }
 }

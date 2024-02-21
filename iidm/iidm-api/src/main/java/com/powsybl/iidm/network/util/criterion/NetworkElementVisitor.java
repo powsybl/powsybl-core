@@ -18,7 +18,8 @@ public class NetworkElementVisitor {
     }
 
     public boolean visit(AbstractNetworkElementEquipmentCriterion c) {
-        return doRespectCriterion(networkElement, c.getCountryCriterion())
+        return networkElement.isValidFor(c.getNetworkElementCriterionType())
+                && doRespectCriterion(networkElement, c.getCountryCriterion())
                 && doRespectCriterion(networkElement, c.getNominalVoltageCriterion());
     }
 

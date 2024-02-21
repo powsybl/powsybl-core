@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.util.criterion.translation;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
 
 import java.util.Optional;
 
@@ -33,4 +34,6 @@ public interface NetworkElement<T> {
     // located in the security-analyses module in order to ease the use of this interface and the criterion
     // for other use cases
     Optional<T> getLimits(LimitType limitType, ThreeSides side);
+
+    boolean isValidFor(NetworkElementCriterion.NetworkElementCriterionType networkElementCriterionType);
 }
