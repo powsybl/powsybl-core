@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.util.criterion.json;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
@@ -35,13 +36,15 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
 
     @Test
     void lineCriterionRoundTripTest() throws IOException {
-        LineCriterion lineCriterion = new LineCriterion("criterion1")
+        LineCriterion criterion = new LineCriterion("criterion1")
                 .setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR, Country.BE)))
                         .setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
                                 new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
-        roundTripTest(lineCriterion, NetworkElementCriterionModuleTest::writeCriterion,
-                NetworkElementCriterionModuleTest::readLineCriterion,
-                "/criterion/line-criterion.json");
+        LineCriterion empty = new LineCriterion();
+        List<NetworkElementCriterion> criteria = List.of(criterion, empty);
+        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+                NetworkElementCriterionModuleTest::readLineCriteria,
+                "/criterion/line-criteria.json");
     }
 
     @Test
@@ -51,9 +54,11 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
                 .setTwoNominalVoltageCriterion(new TwoNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(380., 420., true, false)));
-        roundTripTest(criterion, NetworkElementCriterionModuleTest::writeCriterion,
-                NetworkElementCriterionModuleTest::readTwoWindingsTransformerCriterion,
-                "/criterion/two-windings-transformer-criterion.json");
+        TwoWindingsTransformerCriterion empty = new TwoWindingsTransformerCriterion();
+        List<NetworkElementCriterion> criteria = List.of(criterion, empty);
+        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+                NetworkElementCriterionModuleTest::readTwoWindingsTransformerCriteria,
+                "/criterion/two-windings-transformer-criteria.json");
     }
 
     @Test
@@ -64,46 +69,55 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(190., 220., false, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(380., 420., true, false)));
-        roundTripTest(criterion, NetworkElementCriterionModuleTest::writeCriterion,
-                NetworkElementCriterionModuleTest::readThreeWindingsTransformerCriterion,
-                "/criterion/three-windings-transformer-criterion.json");
+        ThreeWindingsTransformerCriterion empty = new ThreeWindingsTransformerCriterion();
+        List<NetworkElementCriterion> criteria = List.of(criterion, empty);
+        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+                NetworkElementCriterionModuleTest::readThreeWindingsTransformerCriteria,
+                "/criterion/three-windings-transformer-criteria.json");
     }
 
     @Test
     void networkElementIdListCriterionRoundTripTest() throws IOException {
         NetworkElementIdListCriterion criterion = new NetworkElementIdListCriterion("criterion4", Set.of("lineId1", "lineId2"));
-        roundTripTest(criterion, NetworkElementCriterionModuleTest::writeCriterion,
-                NetworkElementCriterionModuleTest::readNetworkElementIdListCriterion,
-                "/criterion/network-element-id-list-criterion.json");
+        NetworkElementIdListCriterion empty = new NetworkElementIdListCriterion(Set.of());
+        List<NetworkElementCriterion> criteria = List.of(criterion, empty);
+        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+                NetworkElementCriterionModuleTest::readNetworkElementIdListCriteria,
+                "/criterion/network-element-id-list-criteria.json");
     }
 
-    private static NetworkElementCriterion readLineCriterion(Path jsonFile) {
-        return read(jsonFile, LineCriterion.class);
+    private static List<NetworkElementCriterion> readLineCriteria(Path jsonFile) {
+        return convert(readCriteria(jsonFile, new TypeReference<List<LineCriterion>>() { }));
     }
 
-    private static NetworkElementCriterion readTwoWindingsTransformerCriterion(Path jsonFile) {
-        return read(jsonFile, TwoWindingsTransformerCriterion.class);
+    private static List<NetworkElementCriterion> readTwoWindingsTransformerCriteria(Path jsonFile) {
+        return convert(readCriteria(jsonFile, new TypeReference<List<TwoWindingsTransformerCriterion>>() { }));
     }
 
-    private static NetworkElementCriterion readThreeWindingsTransformerCriterion(Path jsonFile) {
-        return read(jsonFile, ThreeWindingsTransformerCriterion.class);
+    private static List<NetworkElementCriterion> readThreeWindingsTransformerCriteria(Path jsonFile) {
+        return convert(readCriteria(jsonFile, new TypeReference<List<ThreeWindingsTransformerCriterion>>() { }));
     }
 
-    private static NetworkElementCriterion readNetworkElementIdListCriterion(Path jsonFile) {
-        return read(jsonFile, NetworkElementIdListCriterion.class);
+    private static List<NetworkElementCriterion> readNetworkElementIdListCriteria(Path jsonFile) {
+        return convert(readCriteria(jsonFile, new TypeReference<List<NetworkElementIdListCriterion>>() { }));
     }
 
-    private static void writeCriterion(NetworkElementCriterion criterion, Path path) {
-        write(criterion, path);
+    private static List<NetworkElementCriterion> convert(List<? extends NetworkElementCriterion> list) {
+        return List.of(list.toArray(new NetworkElementCriterion[0]));
     }
 
-    private static <T> T read(Path jsonFile, Class<T> clazz) {
+    private static <T extends NetworkElementCriterion> List<T> readCriteria(Path jsonFile,
+                                                              TypeReference<List<T>> typeReference) {
         Objects.requireNonNull(jsonFile);
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return (T) MAPPER.readValue(is, clazz);
+            return MAPPER.readValue(is, typeReference);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static void writeCriteria(List<NetworkElementCriterion> criteria, Path path) {
+        write(criteria, path);
     }
 
     private static <T> void write(T object, Path jsonFile) {

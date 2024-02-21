@@ -1,4 +1,4 @@
-{
+[ {
   "type" : "lineCriterion",
   "version" : "1.0",
   "name" : "criterion1",
@@ -16,4 +16,7 @@
       "highClosed" : true
     }
   }
-}
+}, {
+  "type" : "lineCriterion",
+  "version" : "1.0"
+} ]

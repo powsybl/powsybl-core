@@ -24,19 +24,21 @@ public final class NetworkElementCriterionSerializer {
     public static void serializeCommonHeadAttributes(NetworkElementCriterion criterion, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStringField("type", criterion.getNetworkElementCriterionType().getName());
         jsonGenerator.writeStringField("version", NetworkElementCriterion.getVersion());
-        jsonGenerator.writeStringField("name", criterion.getName());
+        if (criterion.getName() != null) {
+            jsonGenerator.writeStringField("name", criterion.getName());
+        }
     }
 
     public static void serializeCountryCriterion(AbstractNetworkElementEquipmentCriterion criterion, JsonGenerator jsonGenerator,
                                                  SerializerProvider serializerProvider) throws IOException {
-        if (criterion != null) {
+        if (criterion.getCountryCriterion() != null) {
             serializerProvider.defaultSerializeField("countryCriterion", criterion.getCountryCriterion(), jsonGenerator);
         }
     }
 
     public static void serializeNominalVoltageCriterion(AbstractNetworkElementEquipmentCriterion criterion, JsonGenerator jsonGenerator,
                                                         SerializerProvider serializerProvider) throws IOException {
-        if (criterion != null) {
+        if (criterion.getNominalVoltageCriterion() != null) {
             serializerProvider.defaultSerializeField("nominalVoltageCriterion", criterion.getNominalVoltageCriterion(), jsonGenerator);
         }
     }
