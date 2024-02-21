@@ -6,6 +6,8 @@
  */
 package com.powsybl.ampl.executor;
 
+import com.powsybl.ampl.converter.AmplExportConfig;
+
 import java.util.Collection;
 
 /**
@@ -32,4 +34,9 @@ public interface AmplParameters {
      * @return true if debug mode is on, else otherwise
      */
     boolean isDebug();
+
+    /**
+     * Configuration for AmplExporter
+     */
+    AmplExportConfig getAmplExportConfig();
 }
