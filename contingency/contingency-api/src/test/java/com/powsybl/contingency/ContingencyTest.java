@@ -12,11 +12,7 @@ import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -24,9 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -220,5 +214,21 @@ class ContingencyTest {
         ContingencyBuilder contingencyBuilder = Contingency.builder("Invalid contingency");
         PowsyblException exception = assertThrows(PowsyblException.class, () -> contingencyBuilder.addIdentifiable("Unknown", network));
         assertEquals("Element Unknown has not been found in the network", exception.getMessage());
+    }
+
+    @Test
+    void testWithName() {
+        ContingencyElement bbsElement = new BusbarSectionContingency("bbs");
+        Contingency contingency = new Contingency("test", "testName", bbsElement);
+        assertEquals("testName", contingency.getName().orElse(null));
+
+        Contingency contingency2 = new Contingency("test2", "testName2");
+        assertEquals("testName2", contingency2.getName().orElse(null));
+
+        Contingency contingency3 = Contingency.builder("test3").addName("testName3").build();
+        assertEquals("testName3", contingency3.getName().orElse(null));
+
+        Contingency contingency4 = Contingency.builder("test4").addGenerator("GEN").addName("testName4").build();
+        assertEquals("testName4", contingency4.getName().orElse(null));
     }
 }
