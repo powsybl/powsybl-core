@@ -26,6 +26,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
 
@@ -94,6 +95,10 @@ public class AmplNetworkWriter {
 
     public AmplNetworkWriter(Network network, DataSource dataSource, AmplExportConfig config) {
         this(network, DEFAULT_VARIANT_INDEX, dataSource, 0, 0, false, AmplUtil.createMapper(network), config);
+    }
+
+    private <I extends Identifiable<?>> Iterable<I> getSortedIdentifiables(Stream<I> equipments) {
+        return config.isExportSorted() ? equipments.sorted(Comparator.comparing(Identifiable::getId)).toList() : equipments.toList();
     }
 
     public static String getTableTitle(Network network, String tableName) {
@@ -169,24 +174,24 @@ public class AmplNetworkWriter {
                  !append,
                  AmplConstants.LOCALE,
                  columnsExporter.getSubstationsColumns())) {
-            for (VoltageLevel vl : network.getVoltageLevels()) {
+            for (VoltageLevel vl : getSortedIdentifiables(network.getVoltageLevelStream())) {
                 columnsExporter.writeVoltageLevelToFormatter(formatter, vl);
                 addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId()), vl);
             }
             // voltage level associated to 3 windings transformers middle bus
-            for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            for (ThreeWindingsTransformer twt : getSortedIdentifiables(network.getThreeWindingsTransformerStream())) {
                 columnsExporter.writeThreeWindingsTransformerVoltageLevelToFormatter(formatter, twt);
                 addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL,
                     AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt)), twt);
             }
             // voltage level associated to dangling lines middle bus
-            for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+            for (DanglingLine dl : getSortedIdentifiables(network.getDanglingLineStream(DanglingLineFilter.UNPAIRED))) {
                 columnsExporter.writeDanglingLineVoltageLevelToFormatter(formatter, dl);
                 addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getDanglingLineMiddleVoltageLevelId(dl)),
                     dl);
             }
             if (config.isExportXNodes()) {
-                for (TieLine tieLine : network.getTieLines()) {
+                for (TieLine tieLine : getSortedIdentifiables(network.getTieLineStream())) {
                     columnsExporter.writeTieLineVoltageLevelToFormatter(formatter, tieLine);
                     addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tieLine)),
                         tieLine);
@@ -271,7 +276,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeThreeWindingsTransformerMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+        for (ThreeWindingsTransformer twt : getSortedIdentifiables(network.getThreeWindingsTransformerStream())) {
             int middleCcNum = getThreeWindingsTransformerMiddleBusComponentNum(context, twt);
 
             if (connectedComponentToExport(middleCcNum)) {
@@ -283,7 +288,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (DanglingLine dl : getSortedIdentifiables(network.getDanglingLineStream(DanglingLineFilter.UNPAIRED))) {
             int middleCcNum = getDanglingLineMiddleBusComponentNum(context, dl);
             if (connectedComponentToExport(middleCcNum)) {
                 context.busIdsToExport.add(AmplUtil.getDanglingLineMiddleBusId(dl));
@@ -293,7 +298,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeTieLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (TieLine tieLine : network.getTieLines()) {
+        for (TieLine tieLine : getSortedIdentifiables(network.getTieLineStream())) {
 
             int xNodeCcNum = getTieLineMiddleBusComponentNum(context, tieLine);
             if (connectedComponentToExport(xNodeCcNum)) {
@@ -326,7 +331,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeLines(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (Line l : network.getLines()) {
+        for (Line l : getSortedIdentifiables(network.getLineStream())) {
             Terminal t1 = l.getTerminal1();
             Terminal t2 = l.getTerminal2();
             Bus bus1 = AmplUtil.getBus(t1);
@@ -348,7 +353,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeTieLines(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (TieLine l : network.getTieLines()) {
+        for (TieLine l : getSortedIdentifiables(network.getTieLineStream())) {
             Terminal t1 = l.getDanglingLine1().getTerminal();
             Terminal t2 = l.getDanglingLine2().getTerminal();
             Bus bus1 = AmplUtil.getBus(t1);
@@ -370,7 +375,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeTwoWindingsTransformers(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+        for (TwoWindingsTransformer twt : getSortedIdentifiables(network.getTwoWindingsTransformerStream())) {
             Terminal t1 = twt.getTerminal1();
             Terminal t2 = twt.getTerminal2();
             Bus bus1 = AmplUtil.getBus(t1);
@@ -391,7 +396,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeThreeWindingsTransformers(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+        for (ThreeWindingsTransformer twt : getSortedIdentifiables(network.getThreeWindingsTransformerStream())) {
             Terminal t1 = twt.getLeg1().getTerminal();
             Terminal t2 = twt.getLeg2().getTerminal();
             Terminal t3 = twt.getLeg3().getTerminal();
@@ -439,7 +444,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLines(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (DanglingLine dl : getSortedIdentifiables(network.getDanglingLineStream(DanglingLineFilter.UNPAIRED))) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
             String bus1Id = AmplUtil.getBusId(bus1);
@@ -473,13 +478,13 @@ public class AmplNetworkWriter {
     }
 
     private void writeTwoWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
-        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+        for (TwoWindingsTransformer twt : getSortedIdentifiables(network.getTwoWindingsTransformerStream())) {
             columnsExporter.writeTwoWindingsTransformerTapChangerTableToFormatter(formatter, twt);
         }
     }
 
     private void writeThreeWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+        for (ThreeWindingsTransformer twt : getSortedIdentifiables(network.getThreeWindingsTransformerStream())) {
             columnsExporter.writeThreeWindingsTransformerTapChangerTableToFormatter(formatter, twt);
         }
     }
@@ -533,7 +538,7 @@ public class AmplNetworkWriter {
                  AmplConstants.LOCALE,
                  columnsExporter.getLoadsColumns())) {
             List<String> skipped = new ArrayList<>();
-            for (Load l : network.getLoads()) {
+            for (Load l : getSortedIdentifiables(network.getLoadStream())) {
                 Terminal t = l.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
@@ -549,7 +554,7 @@ public class AmplNetworkWriter {
                 columnsExporter.writeLoadtoFormatter(formatter, l);
                 addExtensions(mapper.getInt(AmplSubset.LOAD, l.getId()), l);
             }
-            for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+            for (DanglingLine dl : getSortedIdentifiables(network.getDanglingLineStream(DanglingLineFilter.UNPAIRED))) {
                 String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
                 if (!exportLoad(context, middleBusId)) {
                     skipped.add(dl.getId());
@@ -587,7 +592,7 @@ public class AmplNetworkWriter {
                  AmplConstants.LOCALE,
                  columnsExporter.getShuntsColumns())) {
             List<String> skipped = new ArrayList<>();
-            for (ShuntCompensator sc : network.getShuntCompensators()) {
+            for (ShuntCompensator sc : getSortedIdentifiables(network.getShuntCompensatorStream())) {
                 Terminal t = sc.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
@@ -623,7 +628,7 @@ public class AmplNetworkWriter {
                  AmplConstants.LOCALE,
                  columnsExporter.getStaticVarCompensatorColumns())) {
             List<String> skipped = new ArrayList<>();
-            for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
+            for (StaticVarCompensator svc : getSortedIdentifiables(network.getStaticVarCompensatorStream())) {
                 columnsExporter.writeStaticVarCompensatorToFormatter(formatter, svc);
                 addExtensions(mapper.getInt(AmplSubset.STATIC_VAR_COMPENSATOR, svc.getId()), svc);
             }
@@ -643,7 +648,7 @@ public class AmplNetworkWriter {
                  AmplConstants.LOCALE,
                  columnsExporter.getGeneratorsColumns())) {
             List<String> skipped = new ArrayList<>();
-            for (Generator g : network.getGenerators()) {
+            for (Generator g : getSortedIdentifiables(network.getGeneratorStream())) {
                 Terminal t = g.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
@@ -680,7 +685,7 @@ public class AmplNetworkWriter {
                  AmplConstants.LOCALE,
                  columnsExporter.getBatteriesColumns())) {
             List<String> skipped = new ArrayList<>();
-            for (Battery b : network.getBatteries()) {
+            for (Battery b : getSortedIdentifiables(network.getBatteryStream())) {
                 Terminal t = b.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
@@ -725,7 +730,7 @@ public class AmplNetworkWriter {
                  !append,
                  AmplConstants.LOCALE,
                  columnsExporter.getHvdcLinesColumns())) {
-            for (HvdcLine hvdcLine : network.getHvdcLines()) {
+            for (HvdcLine hvdcLine : getSortedIdentifiables(network.getHvdcLineStream())) {
                 columnsExporter.writeHvdcToFormatter(formatter, hvdcLine);
                 addExtensions(mapper.getInt(AmplSubset.HVDC_LINE, hvdcLine.getId()), hvdcLine);
             }
@@ -742,7 +747,7 @@ public class AmplNetworkWriter {
                  AmplConstants.LOCALE,
                  columnsExporter.getLccConverterStationsColumns())) {
 
-            for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
+            for (HvdcConverterStation hvdcStation : getSortedIdentifiables(network.getHvdcConverterStationStream())) {
                 if (hvdcStation.getHvdcType().equals(HvdcType.LCC)) {
                     LccConverterStation lccStation = (LccConverterStation) hvdcStation;
                     columnsExporter.writeLccConverterStationToFormatter(formatter, lccStation);
@@ -762,7 +767,7 @@ public class AmplNetworkWriter {
                  AmplConstants.LOCALE,
                  columnsExporter.getVscConverterStationsColumns())) {
 
-            for (HvdcConverterStation hvdcStation : network.getHvdcConverterStations()) {
+            for (HvdcConverterStation hvdcStation : getSortedIdentifiables(network.getHvdcConverterStationStream())) {
                 if (hvdcStation.getHvdcType().equals(HvdcType.VSC)) {
                     VscConverterStation vscStation = (VscConverterStation) hvdcStation;
                     columnsExporter.writeVscConverterStationToFormatter(formatter, vscStation);
