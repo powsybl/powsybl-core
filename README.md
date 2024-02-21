@@ -1,5 +1,6 @@
 # PowSyBl Core
 
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/powsybl/powsybl-core/badge)](https://securityscorecards.dev/viewer/?uri=github.com/powsybl/powsybl-core)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4795/badge)](https://bestpractices.coreinfrastructure.org/projects/4795)
 [![Actions Status](https://github.com/powsybl/powsybl-core/workflows/CI/badge.svg)](https://github.com/powsybl/powsybl-core/actions)
 [![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-core&metric=coverage)](https://sonarcloud.io/component_measures?id=com.powsybl%3Apowsybl-core&metric=coverage)
