@@ -80,6 +80,8 @@ public class IntervalTemporaryDurationCriterionDeserializer extends StdDeseriali
                 }
             }
         });
+        //TODO Introduce a builder to avoid having IntervalTemporaryDurationCriterion without bounds
+        // (for now, this could be done manually)
         IntervalTemporaryDurationCriterion criterion = new IntervalTemporaryDurationCriterion();
         if (checkBoundData(context.lowBound, context.lowClosed, "lowBound", "lowClosed")) {
             criterion.setLowBound(context.lowBound, context.lowClosed);
