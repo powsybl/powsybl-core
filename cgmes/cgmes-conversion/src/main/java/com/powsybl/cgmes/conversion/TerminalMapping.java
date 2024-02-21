@@ -60,7 +60,7 @@ public class TerminalMapping {
         return cgmesTerminalsMapping.get(cgmesTerminalId);
     }
 
-    public Terminal findForLoadingLimits(String cgmesTerminalId) {
+    public Terminal findForFlowLimits(String cgmesTerminalId) {
         // We only considered Terminals assigned to an iidm equipment
         // Terminals not included in the iidm model are:
         // - boundary terminal of danglingLines (paired an unpaired)
@@ -77,7 +77,8 @@ public class TerminalMapping {
     }
 
     /**
-     * @deprecated Not used anymore.
+     * @deprecated Not used anymore. Use {@link #findForVoltageLimits(String)}
+     * or {@link #findForFlowLimits(String)} instead.
      */
     @Deprecated(since = "6.1.2")
     public Terminal find(String cgmesTerminalId, boolean loadingLimits) {

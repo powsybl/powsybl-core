@@ -39,7 +39,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         Terminal terminal = null;
         if (limitSubclass == null || limitSubclass.equals(ACTIVE_POWER_LIMIT) || limitSubclass.equals(APPARENT_POWER_LIMIT) || limitSubclass.equals(CURRENT_LIMIT)) {
             if (terminalId != null) {
-                terminal = context.terminalMapping().findForLoadingLimits(terminalId);
+                terminal = context.terminalMapping().findForFlowLimits(terminalId);
             }
             if (terminal != null) {
                 createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, terminal.getConnectable());
