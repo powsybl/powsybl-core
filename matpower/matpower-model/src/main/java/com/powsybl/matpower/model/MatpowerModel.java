@@ -31,6 +31,8 @@ public class MatpowerModel {
 
     private final List<MBranch> branches = new ArrayList<>();
 
+    private final List<MDcLine> dcLines = new ArrayList<>();
+
     @JsonCreator
     public MatpowerModel(@JsonProperty("caseName") String caseName) {
         this.caseName = Objects.requireNonNull(caseName);
@@ -120,5 +122,14 @@ public class MatpowerModel {
     public void addBranch(MBranch branch) {
         Objects.requireNonNull(branch);
         branches.add(branch);
+    }
+
+    public List<MDcLine> getDcLines() {
+        return dcLines;
+    }
+
+    public void addDcLine(MDcLine dcLine) {
+        Objects.requireNonNull(dcLine);
+        dcLines.add(dcLine);
     }
 }
