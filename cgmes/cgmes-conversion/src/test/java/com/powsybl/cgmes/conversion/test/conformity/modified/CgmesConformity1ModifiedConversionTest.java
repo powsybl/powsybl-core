@@ -480,6 +480,9 @@ class CgmesConformity1ModifiedConversionTest {
         VoltageLevel vl = network.getVoltageLevel("469df5f7-058f-4451-a998-57a48e8a56fe");
         assertEquals(401.2, vl.getHighVoltageLimit(), 0.0);
         assertEquals(350.7, vl.getLowVoltageLimit(), 0.0);
+        VoltageLevel vl1 = network.getVoltageLevel("d0486169-2205-40b2-895e-b672ecb9e5fc");
+        assertEquals(247.5, vl1.getHighVoltageLimit(), 0.0);
+        assertEquals(202.5, vl1.getLowVoltageLimit(), 0.0);
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
         assertTrue(twt3.getLeg1().getApparentPowerLimits().isEmpty());
         assertTrue(twt3.getLeg2().getApparentPowerLimits().isEmpty());
