@@ -25,7 +25,7 @@ public class NetworkElementIdListCriterionSerializer extends StdSerializer<Netwo
     @Override
     public void serialize(NetworkElementIdListCriterion criterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        NetworkElementCriterionSerializer.serializeCommonHeadAttributes(criterion, jsonGenerator);
+        NetworkElementCriterionSerializerUtil.serializeCommonHeadAttributes(criterion, jsonGenerator);
         jsonGenerator.writeArrayFieldStart("identifiers");
         for (String s : criterion.getNetworkElementIds().stream().sorted().toList()) { // sorted alphanumerically
             jsonGenerator.writeString(s);

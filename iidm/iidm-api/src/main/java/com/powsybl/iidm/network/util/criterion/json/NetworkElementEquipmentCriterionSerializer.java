@@ -28,9 +28,9 @@ public class NetworkElementEquipmentCriterionSerializer<T extends AbstractNetwor
     @Override
     public void serialize(T criterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        NetworkElementCriterionSerializer.serializeCommonHeadAttributes(criterion, jsonGenerator);
-        NetworkElementCriterionSerializer.serializeCountryCriterion(criterion, jsonGenerator, serializerProvider);
-        NetworkElementCriterionSerializer.serializeNominalVoltageCriterion(criterion, jsonGenerator, serializerProvider);
+        NetworkElementCriterionSerializerUtil.serializeCommonHeadAttributes(criterion, jsonGenerator);
+        NetworkElementCriterionSerializerUtil.serializeCountryCriterion(criterion, jsonGenerator, serializerProvider);
+        NetworkElementCriterionSerializerUtil.serializeNominalVoltageCriterion(criterion, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }
 }

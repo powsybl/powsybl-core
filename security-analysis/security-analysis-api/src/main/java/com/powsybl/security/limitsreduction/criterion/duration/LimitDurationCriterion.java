@@ -21,4 +21,9 @@ public interface LimitDurationCriterion {
 
     LimitDurationType getType();
 
+    String VERSION = "1.0";
+
+    static String getVersion() {
+        return VERSION;
+    }
 }

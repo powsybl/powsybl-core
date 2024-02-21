@@ -17,8 +17,8 @@ import java.io.IOException;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public final class NetworkElementCriterionSerializer {
-    private NetworkElementCriterionSerializer() {
+public final class NetworkElementCriterionSerializerUtil {
+    private NetworkElementCriterionSerializerUtil() {
     }
 
     public static void serializeCommonHeadAttributes(NetworkElementCriterion criterion, JsonGenerator jsonGenerator) throws IOException {

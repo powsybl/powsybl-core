@@ -13,9 +13,9 @@ package com.powsybl.security.limitsreduction.criterion.duration;
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 public class EqualityTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
-    private final double durationEqualityValue;
+    private final int durationEqualityValue;
 
-    public EqualityTemporaryDurationCriterion(double durationEqualityValue) {
+    public EqualityTemporaryDurationCriterion(int durationEqualityValue) {
         this.durationEqualityValue = durationEqualityValue;
     }
 
@@ -24,7 +24,7 @@ public class EqualityTemporaryDurationCriterion extends AbstractTemporaryDuratio
         return TemporaryDurationCriterionType.EQUALITY;
     }
 
-    public double getDurationEqualityValue() {
+    public int getDurationEqualityValue() {
         return durationEqualityValue;
     }
 
