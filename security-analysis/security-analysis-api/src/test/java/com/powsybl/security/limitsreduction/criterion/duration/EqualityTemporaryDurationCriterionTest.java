@@ -33,4 +33,9 @@ class EqualityTemporaryDurationCriterionTest {
         assertTrue(criterion.filter(10));
         assertFalse(criterion.filter(10_000));
     }
+
+    @Test
+    void invalidValueTest() {
+        assertThrows(IllegalArgumentException.class, () -> new EqualityTemporaryDurationCriterion(-10));
+    }
 }
