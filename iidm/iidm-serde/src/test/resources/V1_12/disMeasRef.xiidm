@@ -83,7 +83,7 @@
             </iidm:vscConverterStation>
             <iidm:lccConverterStation id="LCC1" name="LCC1" lossFactor="1.1" powerFactor="0.6" node="21" p="80.88"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="400.0" node1="4" voltageLevelId1="S1VL1" node2="3" voltageLevelId2="S1VL2" p1="-80.0" q1="-10.0" p2="80.0809" q2="5.4857">
+        <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="400.0" node1="4" voltageLevelId1="S1VL1" node2="3" voltageLevelId2="S1VL2" p1="-80.0" q1="-10.0" p2="80.0809" q2="5.4857" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE" regulationValue="225.0">
                 <iidm:terminalRef id="TWT" side="ONE"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.85"/>
@@ -126,8 +126,12 @@
                 <iidm:step r="31.720245" x="31.720242" g="0.0" b="0.0" rho="1.0" alpha="40.18"/>
                 <iidm:step r="39.78473" x="39.784725" g="0.0" b="0.0" rho="1.0" alpha="42.8"/>
             </iidm:phaseTapChanger>
-            <iidm:currentLimits1 permanentLimit="1031.0"/>
-            <iidm:currentLimits2 permanentLimit="1031.0"/>
+            <iidm:operationalLimitsGroup1 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="1031.0"/>
+            </iidm:operationalLimitsGroup1>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="1031.0"/>
+            </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S2">
@@ -196,12 +200,16 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="LINE_S2S3" r="0.009999999" x="19.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="6" voltageLevelId1="S2VL1" node2="2" voltageLevelId2="S3VL1" p1="109.8893" q1="190.0229" p2="-109.8864" q2="-184.5171"/>
-    <iidm:line id="LINE_S3S4" r="0.009999999" x="13.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="8" voltageLevelId1="S3VL1" node2="6" voltageLevelId2="S4VL1" p1="240.0036" q1="2.1751" p2="-240.0" q2="2.5415">
-        <iidm:currentLimits1 permanentLimit="931.0"/>
-        <iidm:currentLimits2 permanentLimit="931.0">
-            <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
-            <iidm:temporaryLimit name="LD71" acceptableDuration="60"/>
-        </iidm:currentLimits2>
+    <iidm:line id="LINE_S3S4" r="0.009999999" x="13.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="8" voltageLevelId1="S3VL1" node2="6" voltageLevelId2="S4VL1" p1="240.0036" q1="2.1751" p2="-240.0" q2="2.5415" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="931.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="931.0">
+                <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
+                <iidm:temporaryLimit name="LD71" acceptableDuration="60"/>
+            </iidm:currentLimits>
+        </iidm:operationalLimitsGroup2>
     </iidm:line>
     <iidm:hvdcLine id="HVDC1" name="HVDC1" r="1.0" nominalV="400.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="10.0" maxP="300.0" converterStation1="VSC1" converterStation2="VSC2"/>
     <iidm:hvdcLine id="HVDC2" name="HVDC2" r="1.0" nominalV="400.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="80.0" maxP="300.0" converterStation1="LCC1" converterStation2="LCC2"/>

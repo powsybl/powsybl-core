@@ -50,7 +50,7 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
     }
 
     public String iidmName() {
-        return context.namingStrategy().getName(type, name);
+        return context.namingStrategy().getIidmName(type, name);
     }
 
     // Identification

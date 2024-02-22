@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
@@ -180,6 +181,7 @@ public class Conversion {
             convert(cgmes.busBarSections(), bbs -> new BusbarSectionConversion(bbs, context));
         }
 
+        convert(cgmes.grounds(), g -> new GroundConversion(g, context));
         convert(cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
         convert(cgmes.energySources(), es -> new EnergySourceConversion(es, context));
         convf = eqi -> new EquivalentInjectionConversion(eqi, context);
@@ -722,7 +724,7 @@ public class Conversion {
                     .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
                     .orElse(null);
             if (regionName1 != null && regionName1.equals(regionName2)) {
-                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
+                context.ignored(node, "Both dangling lines are in the same region: we do not consider them as a merged line");
                 conversion1.convertAtBoundary();
                 conversion2.convertAtBoundary();
             } else if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
@@ -785,15 +787,6 @@ public class Conversion {
             return false;
         }
 
-        public boolean allowUnsupportedTapChangers() {
-            return allowUnsupportedTapChangers;
-        }
-
-        public Config setAllowUnsupportedTapChangers(boolean allowUnsupportedTapChangers) {
-            this.allowUnsupportedTapChangers = allowUnsupportedTapChangers;
-            return this;
-        }
-
         public boolean importNodeBreakerAsBusBreaker() {
             return importNodeBreakerAsBusBreaker;
         }
@@ -803,29 +796,12 @@ public class Conversion {
             return this;
         }
 
-        public double lowImpedanceLineR() {
-            return lowImpedanceLineR;
-        }
-
-        public double lowImpedanceLineX() {
-            return lowImpedanceLineX;
-        }
-
         public boolean convertBoundary() {
             return convertBoundary;
         }
 
         public Config setConvertBoundary(boolean convertBoundary) {
             this.convertBoundary = convertBoundary;
-            return this;
-        }
-
-        public boolean changeSignForShuntReactivePowerFlowInitialState() {
-            return changeSignForShuntReactivePowerFlowInitialState;
-        }
-
-        public Config setChangeSignForShuntReactivePowerFlowInitialState(boolean b) {
-            changeSignForShuntReactivePowerFlowInitialState = b;
             return this;
         }
 
@@ -969,6 +945,18 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
+        public double getMissingPermanentLimitPercentage() {
+            return missingPermanentLimitPercentage;
+        }
+
+        public Config setMissingPermanentLimitPercentage(double missingPermanentLimitPercentage) {
+            if (missingPermanentLimitPercentage < 0 || missingPermanentLimitPercentage > 100) {
+                throw new IllegalArgumentException("Missing permanent limit percentage must be between 0 and 100.");
+            }
+            this.missingPermanentLimitPercentage = missingPermanentLimitPercentage;
+            return this;
+        }
+
         public CgmesImport.FictitiousSwitchesCreationMode getCreateFictitiousSwitchesForDisconnectedTerminalsMode() {
             return createFictitiousSwitchesForDisconnectedTerminalsMode;
         }
@@ -987,11 +975,7 @@ public class Conversion {
             return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
         }
 
-        private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
-        private boolean changeSignForShuntReactivePowerFlowInitialState = false;
-        private double lowImpedanceLineR = 7.0E-5;
-        private double lowImpedanceLineX = 7.0E-5;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
@@ -1017,6 +1001,8 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
+
+        private double missingPermanentLimitPercentage = 100;
     }
 
     private final CgmesModel cgmes;
@@ -1037,4 +1023,5 @@ public class Conversion {
     public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STRORAGE_KIND = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineHydroPlantStorageKind";
     public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineFuelType";
     public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
+    public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
 }

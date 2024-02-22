@@ -591,6 +591,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags grounds() {
+        return namedQuery("grounds");
+    }
+
+    @Override
     public PropertyBags modelProfiles() {
         return namedQuery(MODEL_PROFILES);
     }

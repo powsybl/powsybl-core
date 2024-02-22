@@ -13,6 +13,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
@@ -28,6 +29,10 @@ public class ContingencySerializer extends StdSerializer<Contingency> {
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField("id", contingency.getId());
+        Optional<String> contingencyName = contingency.getName();
+        if (contingencyName.isPresent()) {
+            jsonGenerator.writeStringField("name", contingencyName.get());
+        }
         serializerProvider.defaultSerializeField("elements", contingency.getElements(), jsonGenerator);
 
         JsonUtil.writeExtensions(contingency, jsonGenerator, serializerProvider);

@@ -21,13 +21,13 @@ public final class LoadAreaEq {
     private LoadAreaEq() {
     }
 
-    public static void write(String id, String networkId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("LoadArea", id, networkId + " Load Area", cimNamespace, writer, context);
+    public static void write(String id, String baseName, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("LoadArea", id, baseName + " Load Area", cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
-    public static void writeSubArea(String id, String loadAreaId, String networkId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("SubLoadArea", id, networkId + " SubLoad Area", cimNamespace, writer, context);
+    public static void writeSubArea(String id, String loadAreaId, String baseName, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("SubLoadArea", id, baseName + " SubLoad Area", cimNamespace, writer, context);
         CgmesExportUtil.writeReference("SubLoadArea.LoadArea", loadAreaId, cimNamespace, writer, context);
         writer.writeEndElement();
     }
