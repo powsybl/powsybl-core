@@ -279,6 +279,12 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      */
     String getPairingKey();
 
+    /**
+     * Set a pairing key corresponding to this dangling line only if the dangling line is not paired,
+     * throw exception otherwise.
+     */
+    DanglingLine setPairingKey(String pairingKey);
+
     Boundary getBoundary();
 
     default Optional<TieLine> getTieLine() {
