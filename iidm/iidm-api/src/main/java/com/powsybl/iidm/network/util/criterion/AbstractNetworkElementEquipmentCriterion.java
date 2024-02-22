@@ -12,6 +12,10 @@ package com.powsybl.iidm.network.util.criterion;
  */
 public abstract class AbstractNetworkElementEquipmentCriterion extends AbstractNetworkElementCriterion {
 
+    protected AbstractNetworkElementEquipmentCriterion() {
+        super(null);
+    }
+
     protected AbstractNetworkElementEquipmentCriterion(String name) {
         super(name);
     }
@@ -19,4 +23,9 @@ public abstract class AbstractNetworkElementEquipmentCriterion extends AbstractN
     public abstract Criterion getCountryCriterion();
 
     public abstract Criterion getNominalVoltageCriterion();
+
+    @Override
+    public boolean accept(NetworkElementVisitor networkElementVisitor) {
+        return networkElementVisitor.visit(this);
+    }
 }

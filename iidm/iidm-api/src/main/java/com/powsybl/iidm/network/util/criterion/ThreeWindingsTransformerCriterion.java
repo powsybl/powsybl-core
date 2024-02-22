@@ -14,7 +14,7 @@ public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementEqu
     private ThreeNominalVoltageCriterion threeNominalVoltageCriterion;
 
     public ThreeWindingsTransformerCriterion() {
-        super(null);
+        super();
     }
 
     public ThreeWindingsTransformerCriterion(String name) {
@@ -24,11 +24,6 @@ public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementEqu
     @Override
     public NetworkElementCriterionType getNetworkElementCriterionType() {
         return TYPE;
-    }
-
-    @Override
-    public boolean accept(NetworkElementVisitor networkElementVisitor) {
-        return networkElementVisitor.visit(this);
     }
 
     @Override

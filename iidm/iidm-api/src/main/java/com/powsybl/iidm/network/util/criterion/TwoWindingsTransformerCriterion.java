@@ -14,7 +14,7 @@ public class TwoWindingsTransformerCriterion extends AbstractNetworkElementEquip
     private TwoNominalVoltageCriterion twoNominalVoltageCriterion;
 
     public TwoWindingsTransformerCriterion() {
-        super(null);
+        super();
     }
 
     public TwoWindingsTransformerCriterion(String name) {
@@ -24,11 +24,6 @@ public class TwoWindingsTransformerCriterion extends AbstractNetworkElementEquip
     @Override
     public NetworkElementCriterionType getNetworkElementCriterionType() {
         return TYPE;
-    }
-
-    @Override
-    public boolean accept(NetworkElementVisitor networkElementVisitor) {
-        return networkElementVisitor.visit(this);
     }
 
     @Override

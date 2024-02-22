@@ -14,7 +14,7 @@ public class LineCriterion extends AbstractNetworkElementEquipmentCriterion {
     private SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
     public LineCriterion() {
-        super(null);
+        super();
     }
 
     public LineCriterion(String name) {
@@ -24,11 +24,6 @@ public class LineCriterion extends AbstractNetworkElementEquipmentCriterion {
     @Override
     public NetworkElementCriterionType getNetworkElementCriterionType() {
         return TYPE;
-    }
-
-    @Override
-    public boolean accept(NetworkElementVisitor networkElementVisitor) {
-        return networkElementVisitor.visit(this);
     }
 
     @Override
