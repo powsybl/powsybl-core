@@ -64,13 +64,16 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
 
     @Test
     void intervalTemporaryDurationCriterionRoundTripTest() throws IOException {
-        IntervalTemporaryDurationCriterion criterion1 = new IntervalTemporaryDurationCriterion()
+        IntervalTemporaryDurationCriterion criterion1 = IntervalTemporaryDurationCriterion.builder()
                 .setLowBound(60, true)
-                .setHighBound(5 * 60, true);
-        IntervalTemporaryDurationCriterion criterion2 = new IntervalTemporaryDurationCriterion()
-                .setLowBound(10 * 60, false);
-        IntervalTemporaryDurationCriterion criterion3 = new IntervalTemporaryDurationCriterion()
-                .setHighBound(20 * 60, false);
+                .setHighBound(5 * 60, true)
+                .build();
+        IntervalTemporaryDurationCriterion criterion2 = IntervalTemporaryDurationCriterion.builder()
+                .setLowBound(10 * 60, false)
+                .build();
+        IntervalTemporaryDurationCriterion criterion3 = IntervalTemporaryDurationCriterion.builder()
+                .setHighBound(20 * 60, false)
+                .build();
         List<LimitDurationCriterion> criteria = List.of(criterion1, criterion2, criterion3);
         roundTripTest(criteria, LimitDurationCriterionModuleTest::writeCriteria,
                 LimitDurationCriterionModuleTest::readIntervalTemporaryDurationCriterion,

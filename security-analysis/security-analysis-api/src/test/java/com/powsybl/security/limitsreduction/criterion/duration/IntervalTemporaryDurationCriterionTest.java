@@ -17,31 +17,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class IntervalTemporaryDurationCriterionTest {
     @Test
     void getTypeTest() {
-        IntervalTemporaryDurationCriterion criterion = new IntervalTemporaryDurationCriterion();
+        IntervalTemporaryDurationCriterion criterion = IntervalTemporaryDurationCriterion.builder()
+                .setLowBound(10, true)
+                .build();
         assertEquals(LimitDurationCriterion.LimitDurationType.TEMPORARY, criterion.getType());
     }
 
     @Test
     void getComparisonTypeTest() {
-        IntervalTemporaryDurationCriterion criterion = new IntervalTemporaryDurationCriterion();
+        IntervalTemporaryDurationCriterion criterion = IntervalTemporaryDurationCriterion.builder()
+                .setHighBound(100, true)
+                .build();
         assertEquals(AbstractTemporaryDurationCriterion.TemporaryDurationCriterionType.INTERVAL, criterion.getComparisonType());
     }
 
     @Test
-    void noBoundsTest() {
-        IntervalTemporaryDurationCriterion criterion = new IntervalTemporaryDurationCriterion();
-        assertAll(
-                () -> assertNull(criterion.getLowBound()),
-                () -> assertFalse(criterion.isLowClosed()),
-                () -> assertNull(criterion.getHighBound()),
-                () -> assertFalse(criterion.isHighClosed())
-        );
-        assertTrue(criterion.filter(10));
-    }
-
-    @Test
-    void lowBoundTest() {
-        IntervalTemporaryDurationCriterion criterion = new IntervalTemporaryDurationCriterion().setLowBound(20, false);
+    void openLowBoundTest() {
+        IntervalTemporaryDurationCriterion criterion = IntervalTemporaryDurationCriterion.builder()
+                .setLowBound(20, false)
+                .build();
         assertAll(
                 () -> assertEquals(20, criterion.getLowBound()),
                 () -> assertFalse(criterion.isLowClosed()),
@@ -51,8 +45,13 @@ class IntervalTemporaryDurationCriterionTest {
         assertFalse(criterion.filter(10));
         assertFalse(criterion.filter(20));
         assertTrue(criterion.filter(21));
+    }
 
-        criterion.setLowBound(30, true);
+    @Test
+    void closedLowBoundTest() {
+        IntervalTemporaryDurationCriterion criterion = IntervalTemporaryDurationCriterion.builder()
+                .setLowBound(30, true)
+                .build();
         assertAll(
                 () -> assertEquals(30, criterion.getLowBound()),
                 () -> assertTrue(criterion.isLowClosed())
@@ -63,8 +62,10 @@ class IntervalTemporaryDurationCriterionTest {
     }
 
     @Test
-    void highBoundTest() {
-        IntervalTemporaryDurationCriterion criterion = new IntervalTemporaryDurationCriterion().setHighBound(200, false);
+    void openHighBoundTest() {
+        IntervalTemporaryDurationCriterion criterion = IntervalTemporaryDurationCriterion.builder()
+                .setHighBound(200, false)
+                .build();
         assertAll(
                 () -> assertNull(criterion.getLowBound()),
                 () -> assertFalse(criterion.isLowClosed()),
@@ -74,8 +75,13 @@ class IntervalTemporaryDurationCriterionTest {
         assertFalse(criterion.filter(300));
         assertFalse(criterion.filter(200));
         assertTrue(criterion.filter(199));
+    }
 
-        criterion.setHighBound(300, true);
+    @Test
+    void closedHighBoundTest() {
+        IntervalTemporaryDurationCriterion criterion = IntervalTemporaryDurationCriterion.builder()
+                .setHighBound(300, true)
+                .build();
         assertAll(
                 () -> assertEquals(300, criterion.getHighBound()),
                 () -> assertTrue(criterion.isHighClosed())
@@ -87,9 +93,10 @@ class IntervalTemporaryDurationCriterionTest {
 
     @Test
     void bothBoundsTest() {
-        IntervalTemporaryDurationCriterion criterion = new IntervalTemporaryDurationCriterion()
+        IntervalTemporaryDurationCriterion criterion = IntervalTemporaryDurationCriterion.builder()
                 .setLowBound(20, true)
-                .setHighBound(300, true);
+                .setHighBound(300, true)
+                .build();
         assertAll(
                 () -> assertEquals(20, criterion.getLowBound()),
                 () -> assertTrue(criterion.isLowClosed()),
@@ -102,42 +109,15 @@ class IntervalTemporaryDurationCriterionTest {
     }
 
     @Test
-    void resetBoundsTest() {
-        IntervalTemporaryDurationCriterion criterion = new IntervalTemporaryDurationCriterion()
-                .setLowBound(20, true)
-                .setHighBound(300, true);
-        assertAll(
-                () -> assertEquals(20, criterion.getLowBound()),
-                () -> assertTrue(criterion.isLowClosed()),
-                () -> assertEquals(300, criterion.getHighBound()),
-                () -> assertTrue(criterion.isHighClosed())
-        );
-        criterion.resetLowBound();
-        assertAll(
-                () -> assertNull(criterion.getLowBound()),
-                () -> assertFalse(criterion.isLowClosed()),
-                () -> assertEquals(300, criterion.getHighBound()),
-                () -> assertTrue(criterion.isHighClosed())
-        );
-        criterion.setLowBound(20, true);
-        criterion.resetHighBound();
-        assertAll(
-                () -> assertEquals(20, criterion.getLowBound()),
-                () -> assertTrue(criterion.isLowClosed()),
-                () -> assertNull(criterion.getHighBound()),
-                () -> assertFalse(criterion.isHighClosed())
-        );
-    }
-
-    @Test
     void invalidValuesTest() {
-        IntervalTemporaryDurationCriterion criterion = new IntervalTemporaryDurationCriterion();
-        assertThrows(IllegalArgumentException.class, () -> criterion.setLowBound(-2, false));
-        assertThrows(IllegalArgumentException.class, () -> criterion.setHighBound(-2, false));
-        criterion.setLowBound(10, false);
-        assertThrows(IllegalArgumentException.class, () -> criterion.setHighBound(2, false));
-        criterion.resetLowBound();
-        criterion.setHighBound(2, false);
-        assertThrows(IllegalArgumentException.class, () -> criterion.setLowBound(10, false));
+        IntervalTemporaryDurationCriterion.Builder builder = IntervalTemporaryDurationCriterion.builder();
+        assertThrows(IllegalArgumentException.class, () -> builder.setLowBound(-2, false));
+        assertThrows(IllegalArgumentException.class, () -> builder.setHighBound(-2, false));
+        builder.setLowBound(10, false);
+        assertThrows(IllegalArgumentException.class, () -> builder.setHighBound(2, false));
+
+        IntervalTemporaryDurationCriterion.Builder builder2 = IntervalTemporaryDurationCriterion.builder();
+        builder2.setHighBound(2, false);
+        assertThrows(IllegalArgumentException.class, () -> builder2.setLowBound(10, false));
     }
 }

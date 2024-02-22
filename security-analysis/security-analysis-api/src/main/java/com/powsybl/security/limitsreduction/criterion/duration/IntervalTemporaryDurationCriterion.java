@@ -12,48 +12,63 @@ package com.powsybl.security.limitsreduction.criterion.duration;
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
-public class IntervalTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
-    private Integer lowBound = null;
-    private Integer highBound = null;
-    private boolean lowClosed = false;
-    private boolean highClosed = false;
+public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
+    private final Integer lowBound;
+    private final Integer highBound;
+    private final boolean lowClosed;
+    private final boolean highClosed;
 
-    public IntervalTemporaryDurationCriterion setLowBound(int value, boolean closed) {
-        checkValue(value);
-        checkBounds(value, highBound);
-        this.lowBound = value;
-        this.lowClosed = closed;
-        return this;
+    private IntervalTemporaryDurationCriterion(Integer lowBound, Integer highBound, boolean lowClosed, boolean highClosed) {
+        this.lowBound = lowBound;
+        this.highBound = highBound;
+        this.lowClosed = lowClosed;
+        this.highClosed = highClosed;
     }
 
-    public void resetLowBound() {
-        this.lowBound = null;
-        this.lowClosed = false;
-    }
+    public static class Builder {
+        private Integer lowBound = null;
+        private Integer highBound = null;
+        private boolean lowClosed = false;
+        private boolean highClosed = false;
 
-    public IntervalTemporaryDurationCriterion setHighBound(int value, boolean closed) {
-        checkValue(value);
-        checkBounds(lowBound, value);
-        this.highBound = value;
-        this.highClosed = closed;
-        return this;
-    }
+        public Builder setLowBound(int value, boolean closed) {
+            checkValue(value);
+            checkBounds(value, highBound);
+            this.lowBound = value;
+            this.lowClosed = closed;
+            return this;
+        }
 
-    public void resetHighBound() {
-        this.highBound = null;
-        this.highClosed = false;
-    }
+        public Builder setHighBound(int value, boolean closed) {
+            checkValue(value);
+            checkBounds(lowBound, value);
+            this.highBound = value;
+            this.highClosed = closed;
+            return this;
+        }
 
-    private void checkValue(int value) {
-        if (value <= 0) {
-            throw new IllegalArgumentException("Invalid bound value (must be > 0)");
+        private void checkValue(int value) {
+            if (value <= 0) {
+                throw new IllegalArgumentException("Invalid bound value (must be > 0).");
+            }
+        }
+
+        private void checkBounds(Integer low, Integer high) {
+            if (low != null && high != null && low > high) {
+                throw new IllegalArgumentException("Invalid interval bounds values (low must be <= high).");
+            }
+        }
+
+        public IntervalTemporaryDurationCriterion build() {
+            if (lowBound == null && highBound == null) {
+                throw new IllegalArgumentException("Invalid interval criterion: at least one bound must be defined.");
+            }
+            return new IntervalTemporaryDurationCriterion(lowBound, highBound, lowClosed, highClosed);
         }
     }
 
-    private void checkBounds(Integer low, Integer high) {
-        if (low != null && high != null && low > high) {
-            throw new IllegalArgumentException("Invalid interval bounds values (low must be <= high)");
-        }
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override

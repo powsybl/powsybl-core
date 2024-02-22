@@ -12,7 +12,7 @@ package com.powsybl.security.limitsreduction.criterion.duration;
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
-public class EqualityTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
+public final class EqualityTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
     private final int durationEqualityValue;
 
     public EqualityTemporaryDurationCriterion(int durationEqualityValue) {

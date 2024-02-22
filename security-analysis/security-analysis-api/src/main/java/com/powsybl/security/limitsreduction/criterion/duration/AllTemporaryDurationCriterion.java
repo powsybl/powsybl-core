@@ -12,7 +12,7 @@ package com.powsybl.security.limitsreduction.criterion.duration;
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
-public class AllTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
+public final class AllTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
     @Override
     public TemporaryDurationCriterionType getComparisonType() {
         return TemporaryDurationCriterionType.ALL;

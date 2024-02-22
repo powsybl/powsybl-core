@@ -12,7 +12,7 @@ package com.powsybl.security.limitsreduction.criterion.duration;
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
-public class PermanentDurationCriterion implements LimitDurationCriterion {
+public final class PermanentDurationCriterion implements LimitDurationCriterion {
     @Override
     public LimitDurationType getType() {
         return LimitDurationType.PERMANENT;
