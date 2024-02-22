@@ -28,7 +28,6 @@ public class TwoWindingsTransformerCriterionDeserializer extends AbstractNetwork
     @Override
     public TwoWindingsTransformerCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = new AbstractNetworkElementCriterionDeserializer.ParsingContext();
-        parser.nextToken();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 TwoWindingsTransformerCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE));
 

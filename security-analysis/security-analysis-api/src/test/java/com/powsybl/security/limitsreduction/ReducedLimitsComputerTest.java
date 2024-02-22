@@ -48,7 +48,7 @@ class ReducedLimitsComputerTest {
                 .setLimitReduction(0.5)
                 .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")));
         LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
-                .setLimitReductionDefinitions(definition1, definition2);
+                .setLimitReductionDefinitions(List.of(definition1, definition2));
         computer = new ReducedLimitsComputer(definitionList);
     }
 
@@ -152,7 +152,7 @@ class ReducedLimitsComputerTest {
                 .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .setContingencyContexts(ContingencyContext.all());
         LimitReductionDefinitionList reductionsTo1List = new LimitReductionDefinitionList()
-                .setLimitReductionDefinitions(definition1, definition2);
+                .setLimitReductionDefinitions(List.of(definition1, definition2));
         ReducedLimitsComputer reductionsTo1Computer = new ReducedLimitsComputer(reductionsTo1List);
         return Stream.of(
                 Arguments.of("No definitions", noDefComputer),

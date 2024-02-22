@@ -10,7 +10,6 @@ package com.powsybl.security.json.limitsreduction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
 
 import java.io.IOException;
@@ -31,11 +30,8 @@ public class LimitReductionDefinitionSerializer extends StdSerializer<LimitReduc
         jsonGenerator.writeStringField("limitType", limitReductionDefinition.getLimitType().name());
 
         if (!limitReductionDefinition.getContingencyContexts().isEmpty()) {
-            jsonGenerator.writeArrayFieldStart("contingencyContexts");
-            for (ContingencyContext contingencyContext : limitReductionDefinition.getContingencyContexts()) {
-                serializeContingencyContext(jsonGenerator, contingencyContext);
-            }
-            jsonGenerator.writeEndArray();
+            serializerProvider.defaultSerializeField("contingencyContexts",
+                    limitReductionDefinition.getContingencyContexts(), jsonGenerator);
         }
         if (!limitReductionDefinition.getNetworkElementCriteria().isEmpty()) {
             serializerProvider.defaultSerializeField("equipmentCriteria",
@@ -46,15 +42,6 @@ public class LimitReductionDefinitionSerializer extends StdSerializer<LimitReduc
                     limitReductionDefinition.getDurationCriteria(), jsonGenerator);
         }
 
-        jsonGenerator.writeEndObject();
-    }
-
-    private static void serializeContingencyContext(JsonGenerator jsonGenerator, ContingencyContext contingencyContext) throws IOException {
-        jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("contingencyContextType", contingencyContext.getContextType().name());
-        if (contingencyContext.getContingencyId() != null) {
-            jsonGenerator.writeStringField("contingencyId", contingencyContext.getContingencyId());
-        }
         jsonGenerator.writeEndObject();
     }
 }

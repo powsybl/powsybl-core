@@ -27,7 +27,6 @@ public class NetworkElementIdListCriterionDeserializer extends AbstractNetworkEl
     @Override
     public NetworkElementIdListCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext parsingContext = new ParsingContext();
-        parser.nextToken();
         JsonUtil.parsePolymorphicObject(parser, name -> deserialize(parser, parsingContext, name));
 
         return new NetworkElementIdListCriterion(parsingContext.name, parsingContext.ids);

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
 import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
@@ -28,7 +29,6 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
     }
 
     private static class ParsingContext {
-        String version;
         double limitReduction;
         LimitType limitType;
         List<NetworkElementCriterion> networkElementCriteria;
@@ -40,29 +40,43 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
-                case "limitReduction":
+                case "limitReduction" -> {
                     parser.nextToken();
                     context.limitReduction = parser.getValueAsDouble();
                     return true;
-                case "limitType":
+                }
+                case "limitType" -> {
                     context.limitType = LimitType.valueOf(parser.nextTextValue());
                     return true;
-                //TODO deserialize the contingency contexts
-                case "equipmentCriteria":
+                }
+                case "contingencyContexts" -> {
+                    parser.nextToken();
+                    context.networkElementCriteria = JsonUtil.readList(deserializationContext, parser, ContingencyContext.class);
+                    return true;
+                }
+                case "equipmentCriteria" -> {
                     parser.nextToken();
                     context.networkElementCriteria = JsonUtil.readList(deserializationContext, parser, NetworkElementCriterion.class);
                     return true;
-                case "durationCriteria":
+                }
+                case "durationCriteria" -> {
                     parser.nextToken();
                     context.durationCriteria = JsonUtil.readList(deserializationContext, parser, LimitDurationCriterion.class);
                     return true;
-                default:
+                }
+                default -> {
                     return false;
+                }
             }
         });
-        return new LimitReductionDefinition(context.limitType)
-                .setLimitReduction(context.limitReduction)
-                .setNetworkElementCriteria(context.networkElementCriteria)
-                .setDurationCriteria(context.durationCriteria);
+        LimitReductionDefinition definition = new LimitReductionDefinition(context.limitType)
+                .setLimitReduction(context.limitReduction);
+        if (context.networkElementCriteria != null) {
+            definition.setNetworkElementCriteria(context.networkElementCriteria);
+        }
+        if (context.durationCriteria != null) {
+            definition.setDurationCriteria(context.durationCriteria);
+        }
+        return definition;
     }
 }

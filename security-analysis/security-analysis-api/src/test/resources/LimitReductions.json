@@ -1,0 +1,43 @@
+{
+  "limitReductionDefinitions" : [ {
+    "limitReduction" : 0.9,
+    "limitType" : "CURRENT",
+    "contingencyContexts" : [ {
+      "contextType" : "SPECIFIC",
+      "contingencyId" : "contingency1"
+    }, {
+      "contextType" : "NONE"
+    } ],
+    "equipmentCriteria" : [ {
+      "type" : "identifierCriterion",
+      "version" : "1.0",
+      "identifiers" : [ "NHV1_NHV2_1" ]
+    }, {
+      "type" : "lineCriterion",
+      "version" : "1.0",
+      "nominalVoltageCriterion" : {
+        "type" : "SINGLE_NOMINAL_VOLTAGE",
+        "voltageInterval" : {
+          "nominalVoltageLowBound" : 350.0,
+          "nominalVoltageHighBound" : 410.0,
+          "lowClosed" : true,
+          "highClosed" : false
+        }
+      }
+    }, {
+      "type" : "twoWindingsTransformerCriterion",
+      "version" : "1.0",
+      "countryCriterion" : {
+        "type" : "SINGLE_COUNTRY",
+        "countries" : [ "FR", "BE" ]
+      }
+    }, {
+      "type" : "threeWindingsTransformerCriterion",
+      "version" : "1.0",
+      "countryCriterion" : {
+        "type" : "SINGLE_COUNTRY",
+        "countries" : [ "FR", "BE" ]
+      }
+    } ]
+  } ]
+}

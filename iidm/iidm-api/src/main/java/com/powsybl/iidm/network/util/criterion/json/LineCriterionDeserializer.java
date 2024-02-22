@@ -28,7 +28,6 @@ public class LineCriterionDeserializer extends AbstractNetworkElementCriterionDe
     @Override
     public LineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = new AbstractNetworkElementCriterionDeserializer.ParsingContext();
-        parser.nextToken();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 LineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE));
 

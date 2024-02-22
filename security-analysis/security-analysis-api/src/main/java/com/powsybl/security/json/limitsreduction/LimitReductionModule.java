@@ -24,10 +24,12 @@ import com.powsybl.security.limitsreduction.criterion.duration.*;
 public class LimitReductionModule extends SimpleModule {
     public LimitReductionModule() {
         addSerializer(LimitReductionDefinition.class, new LimitReductionDefinitionSerializer());
+        addSerializer(Criterion.class, new CriterionSerializer());
         addDeserializer(LimitReductionDefinition.class, new LimitReductionDefinitionDeserializer());
+        addDeserializer(Criterion.class, new CriterionDeserializer());
 
         registerNetworkElementCriteria();
-        registerLimitDurationCriteria();
+        //registerLimitDurationCriteria();
     }
 
     private void registerNetworkElementCriteria() {

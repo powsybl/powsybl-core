@@ -106,10 +106,6 @@ public class LimitReductionDefinitionList {
         return Collections.unmodifiableList(limitReductionDefinitions);
     }
 
-    public LimitReductionDefinitionList setLimitReductionDefinitions(LimitReductionDefinition... definitions) {
-        return setLimitReductionDefinitions(List.of(definitions));
-    }
-
     public LimitReductionDefinitionList setLimitReductionDefinitions(List<LimitReductionDefinition> definitions) {
         limitReductionDefinitions = Objects.requireNonNull(definitions);
         return this;

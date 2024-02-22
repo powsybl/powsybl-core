@@ -28,7 +28,6 @@ public class ThreeWindingsTransformerCriterionDeserializer extends AbstractNetwo
     @Override
     public ThreeWindingsTransformerCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext parsingContext = new ParsingContext();
-        parser.nextToken();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 ThreeWindingsTransformerCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.THREE_NOMINAL_VOLTAGE));
 
