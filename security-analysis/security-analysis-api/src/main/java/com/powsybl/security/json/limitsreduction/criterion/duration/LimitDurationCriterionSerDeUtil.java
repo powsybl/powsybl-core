@@ -16,6 +16,7 @@ import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCrit
 import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion.LimitDurationType;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -25,26 +26,47 @@ public final class LimitDurationCriterionSerDeUtil {
     private LimitDurationCriterionSerDeUtil() {
     }
 
-    public static void serializeCommonHeadAttributes(LimitDurationCriterion criterion, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField("type", criterion.getType().name());
-        jsonGenerator.writeStringField("version", LimitDurationCriterion.getVersion());
-    }
+    public enum SerializationType {
+        PERMANENT(LimitDurationType.PERMANENT, null),
+        TEMPORARY_ALL(LimitDurationType.TEMPORARY, TemporaryDurationCriterionType.ALL),
+        TEMPORARY_EQUALITY(LimitDurationType.TEMPORARY, TemporaryDurationCriterionType.EQUALITY),
+        TEMPORARY_INTERVAL(LimitDurationType.TEMPORARY, TemporaryDurationCriterionType.INTERVAL);
 
-    public static void serializeComparisonType(AbstractTemporaryDurationCriterion criterion, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField("comparisonType", criterion.getComparisonType().name());
-    }
+        private final LimitDurationType type;
 
-    private static void readAndCheckTextValue(String expectedValue, JsonParser parser, String errorMessagePrefix) throws IOException {
-        if (!expectedValue.equals(parser.nextTextValue())) {
-            throw JsonMappingException.from(parser, errorMessagePrefix + expectedValue);
+        private final TemporaryDurationCriterionType temporaryComparisonType;
+
+        SerializationType(LimitDurationType type, TemporaryDurationCriterionType temporaryComparisonType) {
+            this.type = type;
+            this.temporaryComparisonType = temporaryComparisonType;
+        }
+
+        public static SerializationType getFor(LimitDurationType type, TemporaryDurationCriterionType temporaryComparisonType) {
+            return Arrays.stream(values())
+                    .filter(v -> v.type == type && v.temporaryComparisonType == temporaryComparisonType)
+                    .findFirst()
+                    .orElseThrow();
+        }
+
+        public static SerializationType getFor(LimitDurationCriterion criterion) {
+            if (criterion.getType() == LimitDurationType.PERMANENT) {
+                return PERMANENT;
+            }
+            return getFor(LimitDurationType.TEMPORARY, ((AbstractTemporaryDurationCriterion) criterion).getComparisonType());
         }
     }
 
-    public static void readAndCheckType(LimitDurationType expectedType, JsonParser parser) throws IOException {
-        readAndCheckTextValue(expectedType.name(), parser, "Expected type ");
+    public static void serializeCommonHeadAttributes(LimitDurationCriterion criterion, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStringField("type", SerializationType.getFor(criterion).name());
+        jsonGenerator.writeStringField("version", LimitDurationCriterion.getVersion());
     }
 
-    public static void readAndCheckComparisonType(TemporaryDurationCriterionType expectedType, JsonParser parser) throws IOException {
-        readAndCheckTextValue(expectedType.name(), parser, "Expected comparison type ");
+    public static void readAndCheckType(LimitDurationType expectedType,
+                                        TemporaryDurationCriterionType expectedComparisonType,
+                                        JsonParser parser) throws IOException {
+        String expectedValue = SerializationType.getFor(expectedType, expectedComparisonType).name();
+        if (!expectedValue.equals(parser.nextTextValue())) {
+            throw JsonMappingException.from(parser, "Expected type " + expectedValue);
+        }
     }
 }

@@ -18,6 +18,8 @@ import com.powsybl.iidm.network.util.criterion.*;
 import com.powsybl.security.limitsreduction.LimitReductionDefinitionList;
 import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
 import com.powsybl.security.limitsreduction.criterion.duration.AllTemporaryDurationCriterion;
+import com.powsybl.security.limitsreduction.criterion.duration.IntervalTemporaryDurationCriterion;
+import com.powsybl.security.limitsreduction.criterion.duration.PermanentDurationCriterion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -47,15 +49,19 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                                 new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false))),
                         new TwoWindingsTransformerCriterion().setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE))),
                         new ThreeWindingsTransformerCriterion().setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE))))
-                .setContingencyContexts(ContingencyContext.specificContingency("contingency1"), ContingencyContext.none());
-                //.setDurationCriteria(new PermanentDurationCriterion());
+                .setContingencyContexts(ContingencyContext.specificContingency("contingency1"), ContingencyContext.none())
+                .setDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
         LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.APPARENT_POWER)
                 .setLimitReduction(0.5)
                 .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
-                .setDurationCriteria(new AllTemporaryDurationCriterion());
+                .setDurationCriteria(IntervalTemporaryDurationCriterion.builder()
+                        .setLowBound(10 * 60, true)
+                        .setHighBound(20 * 60, true)
+                        .build());
+        LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER)
+                .setLimitReduction(0.8);
         LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
-                .setLimitReductionDefinitions(List.of(definition1));
-                //.setLimitReductionDefinitions(List.of(definition1, definition2));
+                .setLimitReductionDefinitions(List.of(definition1, definition2, definition3));
 
         roundTripTest(definitionList, LimitReductionModuleTest::write,
                 LimitReductionModuleTest::read,
@@ -84,5 +90,4 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
             throw new UncheckedIOException(e);
         }
     }
-
 }

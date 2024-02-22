@@ -17,7 +17,6 @@ import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCrit
 
 import java.io.IOException;
 
-import static com.powsybl.security.json.limitsreduction.criterion.duration.LimitDurationCriterionSerDeUtil.readAndCheckComparisonType;
 import static com.powsybl.security.json.limitsreduction.criterion.duration.LimitDurationCriterionSerDeUtil.readAndCheckType;
 
 /**
@@ -44,15 +43,11 @@ public class IntervalTemporaryDurationCriterionDeserializer extends StdDeseriali
         JsonUtil.parsePolymorphicObject(parser, name -> {
             switch (name) {
                 case "type" -> {
-                    readAndCheckType(LimitDurationType.TEMPORARY, parser);
+                    readAndCheckType(LimitDurationType.TEMPORARY, TemporaryDurationCriterionType.INTERVAL, parser);
                     return true;
                 }
                 case "version" -> {
                     parser.nextTextValue();
-                    return true;
-                }
-                case "comparisonType" -> {
-                    readAndCheckComparisonType(TemporaryDurationCriterionType.INTERVAL, parser);
                     return true;
                 }
                 case "lowBound" -> {

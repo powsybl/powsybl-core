@@ -1,6 +1,5 @@
 [ {
-  "type" : "TEMPORARY",
+  "type" : "TEMPORARY_EQUALITY",
   "version" : "1.0",
-  "comparisonType" : "EQUALITY",
   "value" : 1200
 } ]

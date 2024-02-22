@@ -27,7 +27,6 @@ public class EqualityTemporaryDurationCriterionSerializer extends StdSerializer<
     public void serialize(EqualityTemporaryDurationCriterion criterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         LimitDurationCriterionSerDeUtil.serializeCommonHeadAttributes(criterion, jsonGenerator);
-        LimitDurationCriterionSerDeUtil.serializeComparisonType(criterion, jsonGenerator);
         jsonGenerator.writeNumberField("value", criterion.getDurationEqualityValue());
         jsonGenerator.writeEndObject();
     }

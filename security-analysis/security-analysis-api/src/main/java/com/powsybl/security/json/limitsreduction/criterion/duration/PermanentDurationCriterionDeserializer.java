@@ -32,7 +32,7 @@ public class PermanentDurationCriterionDeserializer extends StdDeserializer<Perm
         JsonUtil.parsePolymorphicObject(parser, name -> {
             switch (name) {
                 case "type" -> {
-                    readAndCheckType(LimitDurationType.PERMANENT, parser);
+                    readAndCheckType(LimitDurationType.PERMANENT, null, parser);
                     return true;
                 }
                 case "version" -> {

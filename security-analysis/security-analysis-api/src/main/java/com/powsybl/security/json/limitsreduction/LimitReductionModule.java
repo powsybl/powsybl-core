@@ -29,7 +29,7 @@ public class LimitReductionModule extends SimpleModule {
         addDeserializer(Criterion.class, new CriterionDeserializer());
 
         registerNetworkElementCriteria();
-        //registerLimitDurationCriteria();
+        registerLimitDurationCriteria();
     }
 
     private void registerNetworkElementCriteria() {
@@ -50,16 +50,20 @@ public class LimitReductionModule extends SimpleModule {
 
     private void registerLimitDurationCriteria() {
         setMixInAnnotation(LimitDurationCriterion.class, LimitDurationCriterionMixIn.class);
-        registerSubtype(PermanentDurationCriterion.class,
+        registerNamedSubtype(PermanentDurationCriterion.class,
+                LimitDurationCriterionSerDeUtil.SerializationType.PERMANENT.name(),
                 new PermanentDurationCriterionSerializer(),
                 new PermanentDurationCriterionDeserializer());
-        registerSubtype(AllTemporaryDurationCriterion.class,
+        registerNamedSubtype(AllTemporaryDurationCriterion.class,
+                LimitDurationCriterionSerDeUtil.SerializationType.TEMPORARY_ALL.name(),
                 new AllTemporaryDurationCriterionSerializer(),
                 new AllTemporaryDurationCriterionDeserializer());
-        registerSubtype(EqualityTemporaryDurationCriterion.class,
+        registerNamedSubtype(EqualityTemporaryDurationCriterion.class,
+                LimitDurationCriterionSerDeUtil.SerializationType.TEMPORARY_EQUALITY.name(),
                 new EqualityTemporaryDurationCriterionSerializer(),
                 new EqualityTemporaryDurationCriterionDeserializer());
-        registerSubtype(IntervalTemporaryDurationCriterion.class,
+        registerNamedSubtype(IntervalTemporaryDurationCriterion.class,
+                LimitDurationCriterionSerDeUtil.SerializationType.TEMPORARY_INTERVAL.name(),
                 new IntervalTemporaryDurationCriterionSerializer(),
                 new IntervalTemporaryDurationCriterionDeserializer());
     }
@@ -74,18 +78,12 @@ public class LimitReductionModule extends SimpleModule {
     /**
      * Deserializer for LimitDurationCriterion be chosen based on deduction (presence of existing attributes).
      */
-    @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true)
     interface LimitDurationCriterionMixIn {
     }
 
     private <T> void registerNamedSubtype(Class<T> clazz, String typeName, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {
         registerSubtypes(new NamedType(clazz, typeName));
-        addSerializer(clazz, serializer);
-        addDeserializer(clazz, deserializer);
-    }
-
-    private <T> void registerSubtype(Class<T> clazz, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {
-        registerSubtypes(clazz);
         addSerializer(clazz, serializer);
         addDeserializer(clazz, deserializer);
     }

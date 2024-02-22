@@ -1,21 +1,18 @@
 [ {
-  "type" : "TEMPORARY",
+  "type" : "TEMPORARY_INTERVAL",
   "version" : "1.0",
-  "comparisonType" : "INTERVAL",
   "lowBound" : 60,
   "lowClosed" : true,
   "highBound" : 300,
   "highClosed" : true
 }, {
-  "type" : "TEMPORARY",
+  "type" : "TEMPORARY_INTERVAL",
   "version" : "1.0",
-  "comparisonType" : "INTERVAL",
   "lowBound" : 600,
   "lowClosed" : false
 }, {
-  "type" : "TEMPORARY",
+  "type" : "TEMPORARY_INTERVAL",
   "version" : "1.0",
-  "comparisonType" : "INTERVAL",
   "highBound" : 1200,
   "highClosed" : false
 } ]

@@ -38,6 +38,32 @@
         "type" : "SINGLE_COUNTRY",
         "countries" : [ "FR", "BE" ]
       }
+    } ],
+    "durationCriteria" : [ {
+      "type" : "PERMANENT",
+      "version" : "1.0"
+    }, {
+      "type" : "TEMPORARY_ALL",
+      "version" : "1.0"
     } ]
+  }, {
+    "limitReduction" : 0.5,
+    "limitType" : "APPARENT_POWER",
+    "equipmentCriteria" : [ {
+      "type" : "identifierCriterion",
+      "version" : "1.0",
+      "identifiers" : [ "NHV1_NHV2_2" ]
+    } ],
+    "durationCriteria" : [ {
+      "type" : "TEMPORARY_INTERVAL",
+      "version" : "1.0",
+      "lowBound" : 600,
+      "lowClosed" : true,
+      "highBound" : 1200,
+      "highClosed" : true
+    } ]
+  }, {
+    "limitReduction" : 0.8,
+    "limitType" : "ACTIVE_POWER"
   } ]
 }

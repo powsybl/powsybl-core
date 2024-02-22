@@ -69,9 +69,8 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
     void missingValueAtEqualityTemporaryDurationCriterionReading() {
         String jsonString = """
                 {
-                  "type" : "TEMPORARY",
-                  "version" : "1.0",
-                  "comparisonType" : "EQUALITY"
+                  "type" : "TEMPORARY_EQUALITY",
+                  "version" : "1.0"
                 }
                 """;
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
@@ -101,9 +100,8 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
     void missingBoundClosedIndicatorAtIntervalTemporaryDurationCriterionReading() {
         String jsonString = """
                 {
-                  "type" : "TEMPORARY",
+                  "type" : "TEMPORARY_INTERVAL",
                   "version" : "1.0",
-                  "comparisonType" : "INTERVAL",
                   "lowBound" : 600
                 }
                 """;
@@ -116,9 +114,8 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
     void missingBoundValueAtIntervalTemporaryDurationCriterionReading() {
         String jsonString = """
                 {
-                  "type" : "TEMPORARY",
+                  "type" : "TEMPORARY_INTERVAL",
                   "version" : "1.0",
-                  "comparisonType" : "INTERVAL",
                   "highClosed" : true
                 }
                 """;

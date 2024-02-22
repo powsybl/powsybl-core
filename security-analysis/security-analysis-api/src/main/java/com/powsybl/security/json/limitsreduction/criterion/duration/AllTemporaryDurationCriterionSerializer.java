@@ -27,7 +27,6 @@ public class AllTemporaryDurationCriterionSerializer extends StdSerializer<AllTe
     public void serialize(AllTemporaryDurationCriterion criterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         LimitDurationCriterionSerDeUtil.serializeCommonHeadAttributes(criterion, jsonGenerator);
-        LimitDurationCriterionSerDeUtil.serializeComparisonType(criterion, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }
