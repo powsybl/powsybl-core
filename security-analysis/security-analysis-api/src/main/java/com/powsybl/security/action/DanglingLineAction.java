@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -15,21 +15,21 @@ package com.powsybl.security.action;
  *
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public class LoadAction extends AbstractLoadAction {
+public class DanglingLineAction extends AbstractLoadAction {
 
     /**
      * @param id                 the id of the action.
-     * @param elementId          the id of the load on which the action would be applied.
-     * @param relativeValue      True if the load P0 and/or Q0 variation is relative, False if absolute.
-     * @param activePowerValue   The new load P0 (MW) if relativeValue equals False, otherwise the relative variation of load P0 (MW).
-     * @param reactivePowerValue The new load Q0 (MVar) if relativeValue equals False, otherwise the relative variation of load Q0 (MVar).
+     * @param elementId          the id of the dangling line on which the action would be applied.
+     * @param relativeValue      True if the dangling line P0 and/or Q0 variation is relative, False if absolute.
+     * @param activePowerValue   The new dangling line P0 (MW) if relativeValue equals False, otherwise the relative variation of dangling line P0 (MW).
+     * @param reactivePowerValue The new dangling line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of dangling line Q0 (MVar).
      */
-    LoadAction(String id, String elementId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
+    DanglingLineAction(String id, String elementId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
         super(id, elementId, relativeValue, activePowerValue, reactivePowerValue);
     }
 
     @Override
     public String getType() {
-        return "LOAD";
+        return "DANGLING_LINE";
     }
 }

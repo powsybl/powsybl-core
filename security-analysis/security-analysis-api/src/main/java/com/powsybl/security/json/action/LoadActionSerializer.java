@@ -28,7 +28,7 @@ public class LoadActionSerializer extends StdSerializer<LoadAction> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("loadId", action.getLoadId());
+        jsonGenerator.writeStringField("loadId", action.getElementId());
         jsonGenerator.writeBooleanField("relativeValue", action.isRelativeValue());
         action.getActivePowerValue().ifPresent(activePowerValue -> {
             try {
