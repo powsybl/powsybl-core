@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.security.limitsreduction.criterion.duration.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,6 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -63,6 +66,20 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
     }
 
     @Test
+    void missingValueAtEqualityTemporaryDurationCriterionReading() {
+        String jsonString = """
+                {
+                  "type" : "TEMPORARY",
+                  "version" : "1.0",
+                  "comparisonType" : "EQUALITY"
+                }
+                """;
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> readCriterion(jsonString, EqualityTemporaryDurationCriterion.class));
+        Assertions.assertEquals("\"value\" attribute is expected for \"EQUALITY\" temporary limit duration criteria", e.getMessage());
+    }
+
+    @Test
     void intervalTemporaryDurationCriterionRoundTripTest() throws IOException {
         IntervalTemporaryDurationCriterion criterion1 = IntervalTemporaryDurationCriterion.builder()
                 .setLowBound(60, true)
@@ -80,7 +97,35 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
                 "/criterion/interval-temporary-duration-criteria.json");
     }
 
-    //TODO add reading error cases
+    @Test
+    void missingBoundClosedIndicatorAtIntervalTemporaryDurationCriterionReading() {
+        String jsonString = """
+                {
+                  "type" : "TEMPORARY",
+                  "version" : "1.0",
+                  "comparisonType" : "INTERVAL",
+                  "lowBound" : 600
+                }
+                """;
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> readCriterion(jsonString, IntervalTemporaryDurationCriterion.class));
+        Assertions.assertEquals("Missing \"lowClosed\" attribute for \"INTERVAL\" temporary limit duration criterion with non-null \"lowBound\" attribute.", e.getMessage());
+    }
+
+    @Test
+    void missingBoundValueAtIntervalTemporaryDurationCriterionReading() {
+        String jsonString = """
+                {
+                  "type" : "TEMPORARY",
+                  "version" : "1.0",
+                  "comparisonType" : "INTERVAL",
+                  "highClosed" : true
+                }
+                """;
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> readCriterion(jsonString, IntervalTemporaryDurationCriterion.class));
+        Assertions.assertEquals("Missing \"highBound\" attribute for \"INTERVAL\" temporary limit duration criterion with non-null \"highClosed\" attribute.", e.getMessage());
+    }
 
     private static List<LimitDurationCriterion> readPermanentDurationCriterion(Path jsonFile) {
         return convert(readCriteria(jsonFile, new TypeReference<List<PermanentDurationCriterion>>() { }));
@@ -102,11 +147,18 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
         return List.of(list.toArray(new LimitDurationCriterion[0]));
     }
 
-    private static <T extends LimitDurationCriterion> List<T> readCriteria(Path jsonFile,
-                                                                            TypeReference<List<T>> typeReference) {
+    private static <T extends LimitDurationCriterion> List<T> readCriteria(Path jsonFile, TypeReference<List<T>> typeReference) {
         Objects.requireNonNull(jsonFile);
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return MAPPER.readValue(is, typeReference);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static <T extends LimitDurationCriterion> T readCriterion(String jsonString, Class<T> clazz) {
+        try {
+            return MAPPER.readValue(jsonString, clazz);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
