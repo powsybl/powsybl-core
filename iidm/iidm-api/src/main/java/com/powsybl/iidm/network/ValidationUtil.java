@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -550,11 +552,11 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                                          Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
+                                                                          Set<TapChanger<?, ?, ?, ?>> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
         return checkOnlyOneTapChangerRegulatingEnabled(validable, tapChangersNotIncludingTheModified, regulating, throwException, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified,
+    public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger<?, ?, ?, ?>> tapChangersNotIncludingTheModified,
                                                                           boolean regulating, boolean throwException, Reporter reporter) {
         if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
@@ -590,11 +592,41 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkPermanentLimit(Validable validable, double permanentLimit) {
-        // TODO: if (Double.isNaN(permanentLimit) || permanentLimit <= 0) {
-        if (permanentLimit <= 0) {
+    public static void checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
+        ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits);
+        ValidationUtil.checkTemporaryLimits(validable, permanentLimit, temporaryLimits);
+    }
+
+    public static void checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
+        if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty() || permanentLimit <= 0) {
             throw new ValidationException(validable, "permanent limit must be defined and be > 0");
         }
+    }
+
+    public static void checkTemporaryLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
+        // check temporary limits are consistent with permanent
+        if (LOGGER.isDebugEnabled()) {
+            double previousLimit = Double.NaN;
+            boolean wrongOrderMessageAlreadyLogged = false;
+            for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
+                if (tl.getValue() <= permanentLimit) {
+                    LOGGER.debug("{}, temporary limit should be greater than permanent limit", validable.getMessageHeader());
+                }
+                if (!wrongOrderMessageAlreadyLogged && !Double.isNaN(previousLimit) && tl.getValue() <= previousLimit) {
+                    LOGGER.debug("{} : temporary limits should be in ascending value order", validable.getMessageHeader());
+                    wrongOrderMessageAlreadyLogged = true;
+                }
+                previousLimit = tl.getValue();
+            }
+        }
+        // check name unicity
+        temporaryLimits.stream()
+                .collect(Collectors.groupingBy(LoadingLimits.TemporaryLimit::getName))
+                .forEach((name, temporaryLimits1) -> {
+                    if (temporaryLimits1.size() > 1) {
+                        throw new ValidationException(validable, temporaryLimits1.size() + "temporary limits have the same name " + name);
+                    }
+                });
     }
 
     public static void checkLossFactor(Validable validable, float lossFactor) {

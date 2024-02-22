@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.ImmutableSet;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.SecurityAnalysisTestNetworkFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -317,5 +318,61 @@ public abstract class AbstractOverloadManagementSystemTest {
                     .add();
         ValidationException ex = assertThrows(ValidationException.class, omsAdder::add);
         assertTrue(ex.getMessage().contains("'UNKNOWN' not found"));
+    }
+
+    @Test
+    public void removalTest() {
+        Network network = SecurityAnalysisTestNetworkFactory.create();
+        Substation substation = network.getSubstation("S1");
+        OverloadManagementSystem overloadManagementSystem = substation.newOverloadManagementSystem()
+                .setId("OMS1")
+                .setMonitoredElementId("LINE_S1S2V1_1")
+                .setMonitoredElementSide(ThreeSides.ONE)
+                .newBranchTripping()
+                    .setKey("LineTrip")
+                    .setOpenAction(false)
+                    .setBranchToOperateId("LINE_S1S2V1_2")
+                    .setSideToOperate(TwoSides.ONE)
+                    .setCurrentLimit(50)
+                    .add()
+                .add();
+        assertEquals(1, network.getOverloadManagementSystemCount());
+        assertEquals(1, substation.getOverloadManagementSystemCount());
+        assertNotNull(network.getOverloadManagementSystem("OMS1"));
+
+        assertEquals(network, overloadManagementSystem.getNetwork());
+        assertEquals(network, overloadManagementSystem.getParentNetwork());
+        assertEquals(substation, overloadManagementSystem.getSubstation());
+
+        overloadManagementSystem.remove();
+
+        assertEquals(0, network.getOverloadManagementSystemCount());
+        assertEquals(0, substation.getOverloadManagementSystemCount());
+        assertNull(network.getOverloadManagementSystem("OMS1"));
+
+        assertThrows(PowsyblException.class, overloadManagementSystem::getNetwork);
+        assertThrows(PowsyblException.class, overloadManagementSystem::getParentNetwork);
+        assertThrows(PowsyblException.class, overloadManagementSystem::getSubstation);
+    }
+
+    @Test
+    public void substationRemovalTest() {
+        Network network = SecurityAnalysisTestNetworkFactory.create();
+        Substation substationS3 = network.newSubstation().setId("S3").add();
+        substationS3.newOverloadManagementSystem()
+                .setId("OMS1")
+                .setMonitoredElementId("LINE_S1S2V1_1")
+                .setMonitoredElementSide(ThreeSides.ONE)
+                .newBranchTripping()
+                    .setKey("LineTrip")
+                    .setOpenAction(false)
+                    .setBranchToOperateId("LINE_S1S2V1_2")
+                    .setSideToOperate(TwoSides.ONE)
+                    .setCurrentLimit(50)
+                    .add()
+                .add();
+        assertEquals(1, network.getOverloadManagementSystemCount());
+        substationS3.remove();
+        assertEquals(0, network.getOverloadManagementSystemCount());
     }
 }

@@ -19,7 +19,7 @@ import java.util.Objects;
 public abstract class AbstractExtensionAdder<T extends Extendable<T>, E extends Extension<T>>
         implements ExtensionAdder<T, E> {
 
-    private final T extendable;
+    protected final T extendable;
 
     protected AbstractExtensionAdder(T extendable) {
         this.extendable = Objects.requireNonNull(extendable);

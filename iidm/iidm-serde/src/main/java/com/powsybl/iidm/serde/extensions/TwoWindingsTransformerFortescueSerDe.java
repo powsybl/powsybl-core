@@ -33,8 +33,8 @@ public class TwoWindingsTransformerFortescueSerDe extends AbstractExtensionSerDe
         context.getWriter().writeDoubleAttribute("rz", twtFortescue.getRz(), Double.NaN);
         context.getWriter().writeDoubleAttribute("xz", twtFortescue.getXz(), Double.NaN);
         context.getWriter().writeBooleanAttribute("freeFluxes", twtFortescue.isFreeFluxes());
-        context.getWriter().writeStringAttribute("connectionType1", twtFortescue.getConnectionType1().name());
-        context.getWriter().writeStringAttribute("connectionType2", twtFortescue.getConnectionType2().name());
+        context.getWriter().writeEnumAttribute("connectionType1", twtFortescue.getConnectionType1());
+        context.getWriter().writeEnumAttribute("connectionType2", twtFortescue.getConnectionType2());
         context.getWriter().writeDoubleAttribute("groundingR1", twtFortescue.getGroundingR1(), 0);
         context.getWriter().writeDoubleAttribute("groundingX1", twtFortescue.getGroundingX1(), 0);
         context.getWriter().writeDoubleAttribute("groundingR2", twtFortescue.getGroundingR2(), 0);

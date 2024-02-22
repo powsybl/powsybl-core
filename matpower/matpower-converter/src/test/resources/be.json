@@ -239,7 +239,7 @@
     "rateC" : 354.15,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -253,7 +253,7 @@
     "rateC" : 295.2,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -267,7 +267,7 @@
     "rateC" : 154.891,
     "ratio" : 1.0277920081967213,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -281,7 +281,7 @@
     "rateC" : 406.305,
     "ratio" : 0.9453778319888644,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -295,7 +295,7 @@
     "rateC" : 364.116,
     "ratio" : 1.0526315789473684,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -309,7 +309,7 @@
     "rateC" : 354.15,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -323,7 +323,7 @@
     "rateC" : 548.34,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -337,7 +337,7 @@
     "rateC" : 712.88,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -351,7 +351,7 @@
     "rateC" : 295.2,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -365,7 +365,7 @@
     "rateC" : 493.62,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -379,7 +379,7 @@
     "rateC" : 367.916,
     "ratio" : 1.0526315789473684,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -393,7 +393,7 @@
     "rateC" : 406.305,
     "ratio" : 0.9777777777777777,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -407,8 +407,9 @@
     "rateC" : 396.27840000000003,
     "ratio" : 1.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
-  } ]
+  } ],
+  "dcLines" : [ ]
 }

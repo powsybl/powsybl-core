@@ -43,9 +43,7 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
         context.getWriter().writeDoubleAttribute(voltageSetpointName[0], svc.getVoltageSetpoint());
         context.getWriter().writeDoubleAttribute(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint());
 
-        if (svc.getRegulationMode() != null) {
-            context.getWriter().writeStringAttribute("regulationMode", svc.getRegulationMode().name());
-        }
+        context.getWriter().writeEnumAttribute("regulationMode", svc.getRegulationMode());
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
     }
@@ -82,7 +80,7 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint)
                 .setRegulationMode(regulationMode);
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         StaticVarCompensator svc = adder.add();
         readPQ(null, svc.getTerminal(), context.getReader());
         return svc;

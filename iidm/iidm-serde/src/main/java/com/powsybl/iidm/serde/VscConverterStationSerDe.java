@@ -62,7 +62,7 @@ class VscConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<VscConver
         float lossFactor = context.getReader().readFloatAttribute("lossFactor");
         double voltageSetpoint = context.getReader().readDoubleAttribute("voltageSetpoint");
         double reactivePowerSetpoint = context.getReader().readDoubleAttribute("reactivePowerSetpoint");
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder
                 .setLossFactor(lossFactor)
                 .setVoltageSetpoint(voltageSetpoint)

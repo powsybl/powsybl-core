@@ -35,7 +35,7 @@ import static com.powsybl.iidm.network.util.TieLineUtil.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, MultiVariantObject {
+public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, MultiVariantObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
@@ -183,7 +183,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return getRef();
     }
 
-    NetworkListenerList getListeners() {
+    public NetworkListenerList getListeners() {
         return listeners;
     }
 
@@ -719,6 +719,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newHvdcLine(null);
     }
 
+    @Override
+    public Ground getGround(String id) {
+        return index.get(id, GroundImpl.class);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return Collections.unmodifiableCollection(index.getAll(GroundImpl.class));
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return index.getAll(GroundImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getGroundCount() {
+        return index.getAll(GroundImpl.class).size();
+    }
+
     HvdcLineAdder newHvdcLine(String subnetwork) {
         return new HvdcLineAdderImpl(this, subnetwork);
     }
@@ -1048,6 +1068,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
                 ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
+            } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
+                // Invert the ids to always have them in lexicographical order (to ensure reproducibility)
+                var tmp = l.dl1Id;
+                l.dl1Id = l.dl2Id;
+                l.dl2Id = tmp;
             }
         }
     }

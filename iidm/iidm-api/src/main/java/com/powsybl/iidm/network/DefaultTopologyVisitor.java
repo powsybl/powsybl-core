@@ -66,4 +66,9 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
         // empty default implementation
     }
+
+    @Override
+    public void visitGround(Ground ground) {
+        // empty default implementation
+    }
 }

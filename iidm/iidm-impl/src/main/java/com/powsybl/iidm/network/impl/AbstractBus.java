@@ -82,6 +82,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                 case TWO_WINDINGS_TRANSFORMER:
                 case THREE_WINDINGS_TRANSFORMER:
                 case DANGLING_LINE:
+                case GROUND:
                     // skip
                     break;
                 case GENERATOR:
@@ -113,6 +114,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                 case TWO_WINDINGS_TRANSFORMER:
                 case THREE_WINDINGS_TRANSFORMER:
                 case DANGLING_LINE:
+                case GROUND:
                     // skip
                     break;
                 case GENERATOR:
@@ -336,6 +338,10 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
                 case HVDC_CONVERTER_STATION:
                     visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
+                    break;
+
+                case GROUND:
+                    visitor.visitGround((GroundImpl) connectable);
                     break;
 
                 default:

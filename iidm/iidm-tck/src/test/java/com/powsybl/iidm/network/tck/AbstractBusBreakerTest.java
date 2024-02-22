@@ -260,18 +260,4 @@ public abstract class AbstractBusBreakerTest {
         assertThrows(PowsyblException.class, () -> nodeBreakerView.getNodeInternalConnectedToStream(2), "Not supported in a bus breaker topology");
         assertThrows(PowsyblException.class, () -> nodeBreakerView.getNodesInternalConnectedTo(3), "Not supported in a bus breaker topology");
     }
-
-    @Test
-    public void testListenerOnTerminalConnection() {
-        Network network = createTestNetwork();
-        NetworkListener connectionListener = mock(DefaultNetworkListener.class);
-        network.addListener(connectionListener);
-        Line l1 = network.getLine("L1");
-        l1.getTerminal1().disconnect();
-        l1.getTerminal1().disconnect();
-        verify(connectionListener, times(1)).onUpdate(l1, "connected", "InitialState", true, false);
-        l1.getTerminal1().connect();
-        l1.getTerminal1().connect();
-        verify(connectionListener, times(1)).onUpdate(l1, "connected", "InitialState", false, true);
-    }
 }
