@@ -15,8 +15,7 @@ import java.util.Set;
 
 public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
 
-    private static final Set<IdentifiableType> VALID_TYPES_FOR_LINE_CRITERION = Set.of(IdentifiableType.LINE,
-            IdentifiableType.HVDC_LINE, IdentifiableType.TIE_LINE);
+    private static final Set<IdentifiableType> VALID_TYPES_FOR_LINE_CRITERION = Set.of(IdentifiableType.LINE, IdentifiableType.TIE_LINE);
 
     private final Identifiable<?> identifiable;
 
@@ -62,7 +61,6 @@ public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
         return switch (identifiable.getType()) {
             case LINE -> getCountryFromTerminal(((Line) identifiable).getTerminal(side));
             case TIE_LINE -> getCountryFromTerminal(((TieLine) identifiable).getDanglingLine(side).getTerminal());
-            case HVDC_LINE -> getCountryFromTerminal(((HvdcLine) identifiable).getConverterStation(side).getTerminal());
             default -> null;
         };
     }
@@ -96,7 +94,6 @@ public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
         return switch (identifiable.getType()) {
             case LINE -> ((Line) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
             case TIE_LINE -> ((TieLine) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
-            case HVDC_LINE -> ((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV();
             case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
             case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV();
             default -> null;
