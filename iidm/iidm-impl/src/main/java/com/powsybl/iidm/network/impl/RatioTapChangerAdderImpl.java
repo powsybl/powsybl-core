@@ -199,7 +199,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
         if (parent.hasPhaseTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
-            network.getReporterContext().getReporter().report(ReportNodeImpl.builder()
+            network.getReporterContext().getReporter().addChild(ReportNodeImpl.builder()
                     .withKey("validationWarning")
                     .withDefaultMessage("${parent} has both Ratio and Phase Tap Changer.")
                     .withValue("parent", parent.getMessageHeader())

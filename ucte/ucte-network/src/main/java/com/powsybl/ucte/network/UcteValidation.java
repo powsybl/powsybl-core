@@ -35,7 +35,7 @@ public final class UcteValidation {
             case REAL_ELEMENT_IN_OPERATION:
             case REAL_ELEMENT_OUT_OF_OPERATION:
                 if (line.getResistance() < ZERO_EPS) {
-                    reportNode.report(ReportNodeImpl.builder()
+                    reportNode.addChild(ReportNodeImpl.builder()
                         .withKey("negativeLineResistance")
                         .withDefaultMessage("${lineId} - Real line resistance cannot be negative (${resistance} ohm)")
                         .withValue("lineId", lineId)
@@ -45,7 +45,7 @@ public final class UcteValidation {
                     LOGGER.error(lineId, "Real line resistance cannot be negative", line.getResistance() + " ohm");
                 }
                 if (Math.abs(line.getReactance()) < REACTANCE_EPS) {
-                    reportNode.report(ReportNodeImpl.builder()
+                    reportNode.addChild(ReportNodeImpl.builder()
                         .withKey("epsilonLineReactance")
                         .withDefaultMessage("${lineId} - Real line reactance must be larger than 0.05 ohm (${reactance} ohm)")
                         .withValue("lineId", lineId)
@@ -59,7 +59,7 @@ public final class UcteValidation {
             case BUSBAR_COUPLER_IN_OPERATION:
             case BUSBAR_COUPLER_OUT_OF_OPERATION:
                 if (Math.abs(line.getResistance()) > ZERO_EPS) {
-                    reportNode.report(ReportNodeImpl.builder()
+                    reportNode.addChild(ReportNodeImpl.builder()
                         .withKey("nonZeroBusbarCouplerResistance")
                         .withDefaultMessage("${lineId} - Busbar coupler resistance must be zero (${resistance} ohm)")
                         .withValue("lineId", lineId)
@@ -69,7 +69,7 @@ public final class UcteValidation {
                     LOGGER.warn(lineId, "Busbar coupler resistance must be zero", line.getResistance() + " ohm");
                 }
                 if (Math.abs(line.getReactance()) > ZERO_EPS) {
-                    reportNode.report(ReportNodeImpl.builder()
+                    reportNode.addChild(ReportNodeImpl.builder()
                         .withKey("nonZeroBusbarCouplerReactance")
                         .withDefaultMessage("${lineId} - Busbar coupler reactance must be zero (${reactance} ohm)")
                         .withValue("lineId", lineId)
@@ -79,7 +79,7 @@ public final class UcteValidation {
                     LOGGER.warn(lineId, "Busbar coupler reactance must be zero", line.getReactance() + " ohm");
                 }
                 if (Math.abs(line.getSusceptance()) > ZERO_EPS) {
-                    reportNode.report(ReportNodeImpl.builder()
+                    reportNode.addChild(ReportNodeImpl.builder()
                         .withKey("nonZeroBusbarCouplerSusceptance")
                         .withDefaultMessage("${lineId} - Busbar coupler susceptance must be zero (${susceptance} ohm)")
                         .withValue("lineId", lineId)
@@ -98,7 +98,7 @@ public final class UcteValidation {
     public static void checkValidTransformerCharacteristics(UcteTransformer ucteTransformer, ReportNode reportNode) {
         String transformerId = ucteTransformer.getId().toString();
         if (ucteTransformer.getNominalPower() < ZERO_EPS) {
-            reportNode.report(ReportNodeImpl.builder()
+            reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("epsilonTransformerNominalPower")
                 .withDefaultMessage("${transformerId} - Value must be positive, blank and zero is not allowed (${nominalPower} ohm)")
                 .withValue("transformerId", transformerId)
@@ -126,7 +126,7 @@ public final class UcteValidation {
     // Phase regulation
     public static void checkPhaseRegulation(UctePhaseRegulation uctePhaseRegulation, UcteElementId transfoId, ReportNode reportNode) {
         if (uctePhaseRegulation.getDu() < ZERO_EPS || uctePhaseRegulation.getDu() > DU_LIMIT) {
-            reportNode.report(ReportNodeImpl.builder()
+            reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("wrongPhaseRegulationDu")
                 .withDefaultMessage("${transfoId} - For LTCs, transformer phase regulation voltage per tap should not be zero. Its absolute value should not be above 6 % (${du} %)")
                 .withValue("transfoId", transfoId.toString())
@@ -144,7 +144,7 @@ public final class UcteValidation {
     // Angle regulation
     public static void checkAngleRegulation(UcteAngleRegulation ucteAngleRegulation, UcteElementId transfoId, ReportNode reportNode) {
         if (ucteAngleRegulation.getDu() < ZERO_EPS || ucteAngleRegulation.getDu() > DU_LIMIT) {
-            reportNode.report(ReportNodeImpl.builder()
+            reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("wrongAngleRegulationDu")
                 .withDefaultMessage("${transfoId} - For LTCs, transformer angle regulation voltage per tap should not be zero. Its absolute value should not be above 6 % (${du} %)")
                 .withValue("transfoId", transfoId.toString())

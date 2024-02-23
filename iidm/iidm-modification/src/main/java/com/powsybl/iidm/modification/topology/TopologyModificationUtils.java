@@ -649,7 +649,7 @@ public final class TopologyModificationUtils {
             // temporary limits on both sides : they are ignored, otherwise, we keep temporary limits on side where they are defined
             if (!temporaryLimits1.isEmpty() && !temporaryLimitsTeePointSide.isEmpty()) {
                 LOGGER.warn("Temporary limits on both sides for line {} : They are ignored", lineId);
-                reportNode.report(ReportNodeImpl.builder()
+                reportNode.addChild(ReportNodeImpl.builder()
                         .withKey("limitsLost")
                         .withDefaultMessage("Temporary limits on both sides for line ${lineId} : They are ignored")
                         .withValue("lineId", lineId)

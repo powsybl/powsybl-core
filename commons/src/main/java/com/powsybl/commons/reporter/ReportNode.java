@@ -85,7 +85,7 @@ public interface ReportNode {
      * Add a ReportNode as a child of current ReportNode.
      * @param reportNode the ReportNode to add
      */
-    void report(ReportNode reportNode);
+    void addChild(ReportNode reportNode);
 
     /**
      * Get the key of current node, each message template should have a unique key
@@ -147,7 +147,7 @@ public interface ReportNode {
         }
 
         @Override
-        public void report(ReportNode reportNode) {
+        public void addChild(ReportNode reportNode) {
             // No-op
         }
 

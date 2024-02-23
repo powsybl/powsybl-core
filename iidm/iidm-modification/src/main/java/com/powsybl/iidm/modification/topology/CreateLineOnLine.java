@@ -232,7 +232,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         // Create the new line
         Line newLine = lineAdder.add();
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("newLineOnLineCreated")
                 .withDefaultMessage("New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
                 .withValue("newLineId", newLine.getId())

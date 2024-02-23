@@ -64,12 +64,12 @@ public class ReportNodeImpl extends AbstractReportNode {
     @Override
     public ReportNodeImpl report(String key, String defaultMessage, Map<String, TypedValue> values) {
         ReportNodeImpl subReporter = new ReportNodeImpl(key, defaultMessage, values);
-        report(subReporter);
+        addChild(subReporter);
         return subReporter;
     }
 
     @Override
-    public void report(ReportNode reportNode) {
+    public void addChild(ReportNode reportNode) {
         children.add(reportNode);
     }
 
@@ -115,7 +115,7 @@ public class ReportNodeImpl extends AbstractReportNode {
         JsonNode reportsNode = reportTree.get("children");
         if (reportsNode != null) {
             for (JsonNode jsonNode : reportsNode) {
-                reportNode.report(ReportNodeImpl.parseJsonNode(jsonNode, dictionary, codec));
+                reportNode.addChild(ReportNodeImpl.parseJsonNode(jsonNode, dictionary, codec));
             }
         }
 

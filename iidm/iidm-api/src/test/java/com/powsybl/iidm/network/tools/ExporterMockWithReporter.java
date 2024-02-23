@@ -36,7 +36,7 @@ public class ExporterMockWithReporter implements Exporter {
 
     @Override
     public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
             .withKey("export_test")
             .withDefaultMessage("Export mock")
             .build());

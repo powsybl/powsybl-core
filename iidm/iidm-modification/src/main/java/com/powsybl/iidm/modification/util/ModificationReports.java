@@ -30,7 +30,7 @@ public final class ModificationReports {
 
     // INFO
     public static void createdConnectable(ReportNode reportNode, Connectable<?> connectable) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("connectableCreated")
                 .withDefaultMessage("New connectable ${connectableId} of type ${connectableType} created.")
                 .withValue(CONNECTABLE_ID, connectable.getId())
@@ -40,7 +40,7 @@ public final class ModificationReports {
     }
 
     public static void createdNodeBreakerFeederBay(ReportNode reportNode, String voltageLevelId, String bbsId, Connectable<?> connectable, int parallelBbsNumber) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("newConnectableAdded")
                 .withDefaultMessage("New feeder bay associated to ${connectableId} of type ${connectableType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector " +
                         "and on ${parallelBbsNumber} parallel busbar sections with an open disconnector.")
@@ -54,7 +54,7 @@ public final class ModificationReports {
     }
 
     public static void removedLineReport(ReportNode reportNode, String lineId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("lineRemoved")
                 .withDefaultMessage("Line ${lineId} removed")
                 .withValue(LINE_ID, lineId)
@@ -63,7 +63,7 @@ public final class ModificationReports {
     }
 
     public static void removedTieLineAndAssociatedDanglingLines(ReportNode reportNode, String tieLineId, String danglingLineId1, String danglingLineId2, String pairingKey) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("removedTieLineAndAssociatedDanglingLines")
                 .withDefaultMessage("Removed tie line ${tieLineId} and associated dangling lines ${danglingLineId1} and ${danglingLineId2} with pairing key ${pairingKey}")
                 .withValue("tieLineId", tieLineId)
@@ -75,7 +75,7 @@ public final class ModificationReports {
     }
 
     public static void createdLineReport(ReportNode reportNode, String lineId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("lineCreated")
                 .withDefaultMessage("Line ${lineId} created")
                 .withValue(LINE_ID, lineId)
@@ -84,7 +84,7 @@ public final class ModificationReports {
     }
 
     public static void voltageLevelRemovedReport(ReportNode reportNode, String vlId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("voltageLevelRemoved")
                 .withDefaultMessage("Voltage level ${vlId} removed")
                 .withValue("vlId", vlId)
@@ -93,7 +93,7 @@ public final class ModificationReports {
     }
 
     public static void substationRemovedReport(ReportNode reportNode, String substationId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("substationRemoved")
                 .withDefaultMessage("Substation ${substationId} removed")
                 .withValue(SUBSTATION_ID, substationId)
@@ -102,7 +102,7 @@ public final class ModificationReports {
     }
 
     public static void newCouplingDeviceAddedReport(ReportNode reportNode, String voltageLevelId, String busOrBbsId1, String busOrBbsId2) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("newCouplingDeviceAdded")
                 .withDefaultMessage("New coupling device was created on voltage level ${voltageLevelId}. It connects ${busOrBbsId1} and ${busOrBbsId2} with closed disconnectors")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
@@ -113,7 +113,7 @@ public final class ModificationReports {
     }
 
     public static void openDisconnectorsAddedReport(ReportNode reportNode, String voltageLevelId, int nbOpenDisconnectors) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("openDisconnectorsAdded")
                 .withDefaultMessage("${nbOpenDisconnectors} open disconnectors created on parallel busbar sections in voltage level ${voltageLevelId}")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
@@ -123,7 +123,7 @@ public final class ModificationReports {
     }
 
     public static void createdNewSymmetricalTopology(ReportNode reportNode, String voltageLevelId, int busbarCount, int sectionCount) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("SymmetricalTopologyCreated")
                 .withDefaultMessage("New symmetrical topology in voltage level ${voltageLevelId}: creation of ${busbarCount} bus(es) or busbar(s) with ${sectionCount} section(s) each.")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
@@ -134,7 +134,7 @@ public final class ModificationReports {
     }
 
     public static void removedSwitchReport(ReportNode reportNode, String switchId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("SwitchRemoved")
                 .withDefaultMessage("Switch ${switchId} removed")
                 .withValue("switchId", switchId)
@@ -143,7 +143,7 @@ public final class ModificationReports {
     }
 
     public static void removedInternalConnectionReport(ReportNode reportNode, int node1, int node2) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("InternalConnectionRemoved")
                 .withDefaultMessage("Internal connection between ${node1} and ${node2} removed")
                 .withValue("node1", node1)
@@ -153,7 +153,7 @@ public final class ModificationReports {
     }
 
     public static void removedConnectableReport(ReportNode reportNode, String connectableId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("ConnectableRemoved")
                 .withDefaultMessage("Connectable ${connectableId} removed")
                 .withValue(CONNECTABLE_ID, connectableId)
@@ -162,7 +162,7 @@ public final class ModificationReports {
     }
 
     public static void removeFeederBayAborted(ReportNode reportNode, String connectableId, int node, String otherConnectableId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("RemoveFeederBayAborted")
                 .withDefaultMessage("Remove feeder bay of ${connectableId} cannot go further node ${node}, as it is connected to ${otherConnectableId}")
                 .withValue(CONNECTABLE_ID, connectableId)
@@ -173,7 +173,7 @@ public final class ModificationReports {
     }
 
     public static void removedSubstationReport(ReportNode reportNode, String substationId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("removeSubstation")
                 .withDefaultMessage("Substation ${substationId} and its voltage levels have been removed")
                 .withValue(SUBSTATION_ID, substationId)
@@ -182,7 +182,7 @@ public final class ModificationReports {
     }
 
     public static void removedVoltageLevelReport(ReportNode reportNode, String voltageLevelId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("removeVoltageLevel")
                 .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
@@ -191,7 +191,7 @@ public final class ModificationReports {
     }
 
     public static void removedHvdcLineReport(ReportNode reportNode, String hvdcLineId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("removeHvdcLine")
                 .withDefaultMessage("Hvdc line ${hvdcLineId} has been removed")
                 .withValue(HVDC_LINE_ID, hvdcLineId)
@@ -200,7 +200,7 @@ public final class ModificationReports {
     }
 
     public static void removedVscConverterStationReport(ReportNode reportNode, String vscConverterStationId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("removeVscConverterStation")
                 .withDefaultMessage("Vsc converter station ${vscConverterStationId} has been removed")
                 .withValue("vscConverterStationId", vscConverterStationId)
@@ -209,7 +209,7 @@ public final class ModificationReports {
     }
 
     public static void removedLccConverterStationReport(ReportNode reportNode, String lccConverterStationId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("removeLccConverterStation")
                 .withDefaultMessage("Lcc converter station ${lccConverterStationId} has been removed")
                 .withValue("lccConverterStationId", lccConverterStationId)
@@ -218,7 +218,7 @@ public final class ModificationReports {
     }
 
     public static void removedShuntCompensatorReport(ReportNode reportNode, String shuntCompensatorId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("removeShuntCompensator")
                 .withDefaultMessage("Shunt compensator ${shuntCompensatorId} has been removed")
                 .withValue("shuntCompensatorId", shuntCompensatorId)
@@ -228,7 +228,7 @@ public final class ModificationReports {
 
     // WARN
     public static void ignoredVscShunts(ReportNode reportNode, String shuntsIds, String converterStationId1, String converterStationId2) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("ignoredVscShunts")
                 .withDefaultMessage("Shunts ${shuntsIds} are ignored since converter stations ${converterStationId1} and ${converterStationId2} are VSC")
                 .withValue("shuntsIds", shuntsIds)
@@ -239,7 +239,7 @@ public final class ModificationReports {
     }
 
     public static void ignoredShuntInAnotherVoltageLevel(ReportNode reportNode, String shuntId, String voltageLevelId1, String voltageLevelId2) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("ignoredShuntInAnotherVoltageLevel")
                 .withDefaultMessage("Shunt compensator ${shuntId} has been ignored because it is not in the same voltage levels as the Lcc (${voltageLevelId1} or ${voltageLevelId2})")
                 .withValue("shuntId", shuntId)
@@ -250,7 +250,7 @@ public final class ModificationReports {
     }
 
     public static void ignoredPositionOrder(ReportNode reportNode, int positionOrder, VoltageLevel voltageLevel) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("ignoredPositionOrder")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is BUS_BREAKER. Position order ${positionOrder} is ignored.")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
@@ -260,7 +260,7 @@ public final class ModificationReports {
     }
 
     public static void lostDanglingLineExtensions(ReportNode reportNode, String extensions, String danglingLineId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("lostDanglingLineExtensions")
                 .withDefaultMessage("Extension [${extensions}] of dangling line ${danglingLineId} will be lost")
                 .withValue("extensions", extensions)
@@ -270,7 +270,7 @@ public final class ModificationReports {
     }
 
     public static void lostTieLineExtensions(ReportNode reportNode, String extensions, String tieLineId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("lostTieLineExtensions")
                 .withDefaultMessage("Extension [${extensions}] of tie line ${tieLineId} will be lost")
                 .withValue("extensions", extensions)
@@ -280,7 +280,7 @@ public final class ModificationReports {
     }
 
     public static void noBusbarSectionPositionExtensionReport(ReportNode reportNode, BusbarSection bbs) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("noBusbarSectionPositionExtension")
                 .withDefaultMessage("No busbar section position extension found on ${bbsId}, only one disconnector is created.")
                 .withValue(BBS_ID, bbs.getId())
@@ -289,7 +289,7 @@ public final class ModificationReports {
     }
 
     public static void positionOrderAlreadyTakenReport(ReportNode reportNode, int positionOrder) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("positionOrderAlreadyTaken")
                 .withDefaultMessage("PositionOrder ${positionOrder} already taken. No position extension created.")
                 .withValue(POSITION_ORDER, positionOrder)
@@ -298,7 +298,7 @@ public final class ModificationReports {
     }
 
     public static void positionNoSlotLeftByAdjacentBbsReport(ReportNode reportNode, String bbsId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("positionAdjacentBbsIncoherent")
                 .withDefaultMessage("Positions of adjacent busbar sections do not leave slots for new positions on busbar section ${bbsId}")
                 .withValue(BBS_ID, bbsId)
@@ -307,7 +307,7 @@ public final class ModificationReports {
     }
 
     public static void positionOrderTooLowReport(ReportNode reportNode, int minValue, int positionOrder) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("positionOrderTooLow")
                 .withDefaultMessage("PositionOrder ${positionOrder} too low (<${minValue}). No position extension created.")
                 .withValue(POSITION_ORDER, positionOrder)
@@ -317,7 +317,7 @@ public final class ModificationReports {
     }
 
     public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("positionOrderTooHigh")
                 .withDefaultMessage("PositionOrder ${positionOrder} too high (>${minValue}). No position extension created.")
                 .withValue(POSITION_ORDER, positionOrder)
@@ -327,7 +327,7 @@ public final class ModificationReports {
     }
 
     public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("noConnectablePositionExtensions")
                 .withDefaultMessage("No extensions found on voltageLevel ${voltageLevel}. The extension on the connectable is not created.")
                 .withValue("voltageLevel", voltageLevel.getId())
@@ -336,7 +336,7 @@ public final class ModificationReports {
     }
 
     public static void voltageLevelRemovingEquipmentsLeftReport(ReportNode reportNode, String vlId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("voltageLevelRemovingEquipmentsLeft")
                 .withDefaultMessage("Voltage level ${vlId} still contains equipments")
                 .withValue("vlId", vlId)
@@ -346,7 +346,7 @@ public final class ModificationReports {
 
     // ERROR
     public static void notFoundBusOrBusbarSectionReport(ReportNode reportNode, String identifiableId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("notFoundBusOrBusbarSection")
                 .withDefaultMessage("Bus or busbar section ${identifiableId} not found")
                 .withValue(IDENTIFIABLE_ID, identifiableId)
@@ -355,7 +355,7 @@ public final class ModificationReports {
     }
 
     public static void notFoundShuntReport(ReportNode reportNode, String shuntId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("notFoundShunt")
                 .withDefaultMessage("Shunt ${shuntId} not found")
                 .withValue("shuntId", shuntId)
@@ -364,7 +364,7 @@ public final class ModificationReports {
     }
 
     public static void networkMismatchReport(ReportNode reportNode, String injectionId, IdentifiableType identifiableType) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("networkMismatch")
                 .withDefaultMessage("Network given in parameters and in injectionAdder are different. Injection '${injectionId}' of type {identifiableType} was added then removed")
                 .withValue("injectionId", injectionId)
@@ -374,7 +374,7 @@ public final class ModificationReports {
     }
 
     public static void connectableNotSupported(ReportNode reportNode, Connectable<?> connectable) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("connectableNotSupported")
                 .withDefaultMessage("Given connectable not supported: ${connectableClassName}.")
                 .withValue("connectableClassName", connectable.getClass().getName())
@@ -383,7 +383,7 @@ public final class ModificationReports {
     }
 
     public static void connectableNotInVoltageLevel(ReportNode reportNode, Connectable<?> connectable, VoltageLevel voltageLevel) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("connectableNotInVoltageLevel")
                 .withDefaultMessage("Given connectable ${connectableId} not in voltageLevel ${voltageLevelId}")
                 .withValue(CONNECTABLE_ID, connectable.getId())
@@ -393,7 +393,7 @@ public final class ModificationReports {
     }
 
     public static void notFoundLineReport(ReportNode reportNode, String lineId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("lineNotFound")
                 .withDefaultMessage("Line ${lineId} is not found")
                 .withValue(LINE_ID, lineId)
@@ -402,7 +402,7 @@ public final class ModificationReports {
     }
 
     public static void notFoundConnectableReport(ReportNode reportNode, String connectableId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("connectableNotFound")
                 .withDefaultMessage("Connectable ${connectableId} is not found")
                 .withValue(CONNECTABLE_ID, connectableId)
@@ -411,7 +411,7 @@ public final class ModificationReports {
     }
 
     public static void removeFeederBayBusbarSectionReport(ReportNode reportNode, String busbarSectionConnectableId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("removeBayBusbarSectionConnectable")
                 .withDefaultMessage("Cannot remove feeder bay for connectable ${connectableId}, as it is a busbarSection")
                 .withValue(CONNECTABLE_ID, busbarSectionConnectableId)
@@ -420,7 +420,7 @@ public final class ModificationReports {
     }
 
     public static void noVoltageLevelInCommonReport(ReportNode reportNode, String line1Id, String line2Id) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("noVoltageLevelInCommon")
                 .withDefaultMessage("Lines ${line1Id} and ${line2Id} should have one and only one voltage level in common at their extremities")
                 .withValue("line1Id", line1Id)
@@ -430,7 +430,7 @@ public final class ModificationReports {
     }
 
     public static void notFoundVoltageLevelReport(ReportNode reportNode, String voltageLevelId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("voltageLevelNotFound")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
@@ -439,7 +439,7 @@ public final class ModificationReports {
     }
 
     public static void notFoundSubstationReport(ReportNode reportNode, String substationId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("substationNotFound")
                 .withDefaultMessage("Substation ${substationId} is not found")
                 .withValue(SUBSTATION_ID, substationId)
@@ -448,7 +448,7 @@ public final class ModificationReports {
     }
 
     public static void notFoundHvdcLineReport(ReportNode reportNode, String hvdcLineId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("HvdcNotFound")
                 .withDefaultMessage("Hvdc line ${hvdcLineId} is not found")
                 .withValue(HVDC_LINE_ID, hvdcLineId)
@@ -457,7 +457,7 @@ public final class ModificationReports {
     }
 
     public static void notFoundBusOrBusbarSectionVoltageLevelReport(ReportNode reportNode, String busOrBusbarSectionId1, String busOrBusbarSectionId2) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("busOrBusbarSectionVoltageLevelNotFound")
                 .withDefaultMessage("Voltage level associated to ${busOrBusbarSectionId1} or ${busOrBusbarSectionId2} not found.")
                 .withValue("busOrBusbarSectionId1", busOrBusbarSectionId1)
@@ -467,7 +467,7 @@ public final class ModificationReports {
     }
 
     public static void noTeePointAndOrTappedVoltageLevelReport(ReportNode reportNode, String line1Id, String line2Id, String line3Id) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("noTeePointAndOrTappedVoltageLevel")
                 .withDefaultMessage("Unable to find the tee point and the tapped voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
                 .withValue("line1Id", line1Id)
@@ -478,7 +478,7 @@ public final class ModificationReports {
     }
 
     public static void notFoundBusInVoltageLevelReport(ReportNode reportNode, String busId, String voltageLevelId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("busNotFound")
                 .withDefaultMessage("Bus ${busId} is not found in voltage level ${voltageLevelId}")
                 .withValue("busId", busId)
@@ -488,7 +488,7 @@ public final class ModificationReports {
     }
 
     public static void notFoundBusbarSectionInVoltageLevelReport(ReportNode reportNode, String busbarSectionId, String voltageLevelId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("busbarSectionNotFound")
                 .withDefaultMessage("Busbar section ${busbarSectionId} is not found in voltage level ${voltageLevelId}")
                 .withValue("busbarSectionId", busbarSectionId)
@@ -498,7 +498,7 @@ public final class ModificationReports {
     }
 
     public static void noCouplingDeviceOnSameBusOrBusbarSection(ReportNode reportNode, String busbarSectionId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("noCouplingDeviceOnSameBusOrBusbarSection")
                 .withDefaultMessage("No coupling device can be created on a same bus or busbar section (${busOrBbsId}).")
                 .withValue("busOrBbsId", busbarSectionId)
@@ -507,7 +507,7 @@ public final class ModificationReports {
     }
 
     public static void unexpectedDifferentVoltageLevels(ReportNode reportNode, String busbarSectionId1, String busbarSectionId2) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("unexpectedDifferentVoltageLevels")
                 .withDefaultMessage("${busOrBbsId1} and ${busOrBbsId2} are in two different voltage levels.")
                 .withValue("busOrBbsId1", busbarSectionId1)
@@ -517,7 +517,7 @@ public final class ModificationReports {
     }
 
     public static void unsupportedVoltageLevelTopologyKind(ReportNode reportNode, String voltageLevelId, TopologyKind expected, TopologyKind actual) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("unsupportedVoltageLevelTopologyKind")
                 .withDefaultMessage("Voltage Level ${voltageLevelId} has an unsupported topology ${actualTopology}. Should be ${expectedTopology}")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
@@ -528,7 +528,7 @@ public final class ModificationReports {
     }
 
     public static void unsupportedIdentifiableType(ReportNode reportNode, IdentifiableType type, String identifiableId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("unsupportedIdentifiableType")
                 .withDefaultMessage("Unsupported type ${identifiableType} for identifiable ${identifiableId}")
                 .withValue(IDENTIFIABLE_TYPE, type.name())
@@ -538,7 +538,7 @@ public final class ModificationReports {
     }
 
     public static void unexpectedNullPositionOrder(ReportNode reportNode, String voltageLevelId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("unexpectedNullPositionOrder")
                 .withDefaultMessage("Position order is null for attachment in node-breaker voltage level ${voltageLevelId}")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
@@ -547,7 +547,7 @@ public final class ModificationReports {
     }
 
     public static void unexpectedNegativePositionOrder(ReportNode reportNode, int positionOrder, String voltageLevelId) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("unexpectedNegativePositionOrder")
                 .withDefaultMessage("Position order is negative (${positionOrder}) for attachment in voltage level ${voltageLevelId}")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
@@ -557,7 +557,7 @@ public final class ModificationReports {
     }
 
     public static void unexpectedIdentifiableType(ReportNode reportNode, Identifiable<?> identifiable) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("unexpectedIdentifiableType")
                 .withDefaultMessage("Unexpected type of identifiable ${identifiableId}: ${identifiableType}")
                 .withValue(IDENTIFIABLE_ID, identifiable.getId())
@@ -567,7 +567,7 @@ public final class ModificationReports {
     }
 
     public static void countLowerThanMin(ReportNode reportNode, String type, int min) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("countLowerThanMin")
                 .withDefaultMessage("${type} must be >= ${min}")
                 .withValue("type", type)
@@ -577,7 +577,7 @@ public final class ModificationReports {
     }
 
     public static void unexpectedSwitchKindsCount(ReportNode reportNode, int switchKindsCount, int expectedSwitchKindsCount) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("unexpectedSwitchKindsCount")
                 .withDefaultMessage("Unexpected switch kinds count (${switchKindsCount}). Should be ${expectedSwitchKindsCount}")
                 .withValue("switchKindsCount", switchKindsCount)
@@ -587,7 +587,7 @@ public final class ModificationReports {
     }
 
     public static void undefinedSwitchKind(ReportNode reportNode) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("undefinedSwitchKind")
                 .withDefaultMessage("All switch kinds must be defined")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -595,7 +595,7 @@ public final class ModificationReports {
     }
 
     public static void wrongSwitchKind(ReportNode reportNode) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("wrongSwitchKind")
                 .withDefaultMessage("Switch kinds must be DISCONNECTOR or BREAKER")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -603,7 +603,7 @@ public final class ModificationReports {
     }
 
     public static void undefinedFictitiousSubstationId(ReportNode reportNode) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("undefinedFictitiousSubstationId")
                 .withDefaultMessage("Fictitious substation ID must be defined if a fictitious substation is to be created")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -611,7 +611,7 @@ public final class ModificationReports {
     }
 
     public static void undefinedPercent(ReportNode reportNode) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey("undefinedPercent")
                 .withDefaultMessage("Percent should not be undefined")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -622,7 +622,7 @@ public final class ModificationReports {
     }
 
     public static void scalingReport(ReportNode reportNode, String type, DistributionMode mode, ScalingType scalingType, double asked, double done) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
             .withKey("scalingApplied")
             .withDefaultMessage("Successfully scaled on ${identifiableType} using mode ${mode} and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
             .withValue(IDENTIFIABLE_TYPE, type)
@@ -635,7 +635,7 @@ public final class ModificationReports {
     }
 
     public static void scalingReport(ReportNode reportNode, String type, ScalingType scalingType, double asked, double done) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
             .withKey("scalingApplied")
             .withDefaultMessage("Successfully scaled on ${identifiableType} using mode STACKING and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
             .withValue(IDENTIFIABLE_TYPE, type)
@@ -651,7 +651,7 @@ public final class ModificationReports {
             "Connectable ${connectable} has been connected." :
             "Connectable ${connectable} has NOT been connected.";
         String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
             .withKey(key)
             .withDefaultMessage(defaultMessage)
             .withValue("connectable", connectable.getId())
@@ -666,7 +666,7 @@ public final class ModificationReports {
         defaultMessage += isPlanned ? " (planned disconnection)." : " (unplanned disconnection).";
         String key = isPlanned ? "planned" : "unplanned";
         key += disconnectionSuccessful ? "ConnectableDisconnected" : "ConnectableNotDisconnected";
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
             .withKey(key)
             .withDefaultMessage(defaultMessage)
             .withValue("connectable", connectable.getId())

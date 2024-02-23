@@ -58,7 +58,7 @@ public final class ValidationUtil {
     }
 
     private static void logError(Validable validable, String message, ReportNode reportNode) {
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey(validable.getMessageHeader())
                 .withDefaultMessage(message)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -471,7 +471,7 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, message, throwException, reportNode);
             return ValidationLevel.EQUIPMENT;
         }
-        reportNode.report(ReportNodeImpl.builder()
+        reportNode.addChild(ReportNodeImpl.builder()
                 .withKey(validable.getMessageHeader())
                 .withDefaultMessage(message)
                 .withSeverity(TypedValue.WARN_SEVERITY)
