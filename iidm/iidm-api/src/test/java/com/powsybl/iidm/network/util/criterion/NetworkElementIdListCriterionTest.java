@@ -21,9 +21,9 @@ import static org.mockito.Mockito.when;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class NetworkElementIdListCriterionTest {
-    private static NetworkElement<?> networkElement1;
-    private static NetworkElement<?> networkElement2;
-    private static NetworkElement<?> networkElement3;
+    private static NetworkElement networkElement1;
+    private static NetworkElement networkElement2;
+    private static NetworkElement networkElement3;
 
     @BeforeAll
     public static void init() {
@@ -54,8 +54,8 @@ public class NetworkElementIdListCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(networkElement3)));
     }
 
-    private static NetworkElement<?> createNetworkElement(String id) {
-        NetworkElement<?> n = Mockito.mock(NetworkElement.class);
+    private static NetworkElement createNetworkElement(String id) {
+        NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
         return n;
     }

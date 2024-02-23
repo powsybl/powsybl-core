@@ -12,12 +12,12 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.util.criterion.translation.DefaultNetworkElement;
-import com.powsybl.iidm.network.util.criterion.translation.NetworkElement;
-import com.powsybl.security.limitsreduction.criterion.duration.AbstractTemporaryDurationCriterion;
-import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
 import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
 import com.powsybl.iidm.network.util.criterion.NetworkElementVisitor;
+import com.powsybl.security.json.limitsreduction.criterion.duration.translation.DefaultNetworkElementWithLimits;
+import com.powsybl.security.json.limitsreduction.criterion.duration.translation.NetworkElementWithLimits;
+import com.powsybl.security.limitsreduction.criterion.duration.AbstractTemporaryDurationCriterion;
+import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
 
 import java.util.*;
 
@@ -43,10 +43,10 @@ public class ReducedLimitsComputer {
     }
 
     public Optional<LoadingLimits> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
-        return getLimitsWithAppliedReduction(new DefaultNetworkElement(identifiable), limitType, side, DefaultLimitsReducerCreator.getInstance());
+        return getLimitsWithAppliedReduction(new DefaultNetworkElementWithLimits(identifiable), limitType, side, DefaultLimitsReducerCreator.getInstance());
     }
 
-    public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElement<T> networkElement, LimitType limitType, ThreeSides side,
+    public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
                                                          AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         // Look into the cache to avoid recomputing reduced limits if they were already computed
         // with the same limit reductions
@@ -67,7 +67,7 @@ public class ReducedLimitsComputer {
         return Optional.of(reducedLimits);
     }
 
-    private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement<?> networkElement, LimitType limitType) {
+    private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElementWithLimits<?> networkElement, LimitType limitType) {
         for (LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition : definitionsForCurrentContingencyId) {
             if (limitReductionDefinition.getLimitType() == limitType &&
                     isEquipmentAffectedByLimitReduction(networkElement, limitReductionDefinition)) {
@@ -117,7 +117,7 @@ public class ReducedLimitsComputer {
         );
     }
 
-    protected boolean isEquipmentAffectedByLimitReduction(NetworkElement<?> networkElement, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    protected boolean isEquipmentAffectedByLimitReduction(NetworkElementWithLimits<?> networkElement, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
         List<NetworkElementCriterion> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()

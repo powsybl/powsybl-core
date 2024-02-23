@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion.NetworkEl
 import java.util.Optional;
 import java.util.Set;
 
-public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
+public class DefaultNetworkElement implements NetworkElement {
 
     private static final Set<IdentifiableType> VALID_TYPES_FOR_LINE_CRITERION = Set.of(IdentifiableType.LINE, IdentifiableType.TIE_LINE);
 
@@ -101,17 +101,6 @@ public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
     }
 
     @Override
-    public Optional<LoadingLimits> getLimits(LimitType limitType, ThreeSides side) {
-        return switch (identifiable.getType()) {
-            case LINE -> (Optional<LoadingLimits>) ((Line) identifiable).getLimits(limitType, side.toTwoSides());
-            case TIE_LINE -> (Optional<LoadingLimits>) ((TieLine) identifiable).getLimits(limitType, side.toTwoSides());
-            case TWO_WINDINGS_TRANSFORMER -> (Optional<LoadingLimits>) ((TwoWindingsTransformer) identifiable).getLimits(limitType, side.toTwoSides());
-            case THREE_WINDINGS_TRANSFORMER -> (Optional<LoadingLimits>) ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
-            default -> Optional.empty();
-        };
-    }
-
-    @Override
     public boolean isValidFor(NetworkElementCriterionType type) {
         return type == NetworkElementCriterionType.IDENTIFIERS
                 || type == NetworkElementCriterionType.LINE
@@ -120,5 +109,9 @@ public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
                     && identifiable.getType() == IdentifiableType.TWO_WINDINGS_TRANSFORMER
                 || type == NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER
                     && identifiable.getType() == IdentifiableType.THREE_WINDINGS_TRANSFORMER;
+    }
+
+    protected Identifiable<?> getIdentifiable() {
+        return identifiable;
     }
 }

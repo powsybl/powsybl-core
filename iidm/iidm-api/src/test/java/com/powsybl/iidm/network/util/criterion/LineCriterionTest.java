@@ -23,10 +23,10 @@ import static org.mockito.Mockito.when;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class LineCriterionTest {
-    private static NetworkElement<?> line1;
-    private static NetworkElement<?> line2;
-    private static NetworkElement<?> line3;
-    private static NetworkElement<?> line4;
+    private static NetworkElement line1;
+    private static NetworkElement line2;
+    private static NetworkElement line3;
+    private static NetworkElement line4;
 
     @BeforeAll
     public static void init() {
@@ -50,7 +50,7 @@ public class LineCriterionTest {
         assertTrue(criterion.accept(new NetworkElementVisitor(line3)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line4)));
 
-        NetworkElement<?> anotherTypeElement = Mockito.mock(NetworkElement.class);
+        NetworkElement anotherTypeElement = Mockito.mock(NetworkElement.class);
         assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
     }
 
@@ -93,8 +93,8 @@ public class LineCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(line4)));
     }
 
-    private static NetworkElement<?> createLine(String id, Country country1, Country country2, double nominalVoltage) {
-        NetworkElement<?> n = Mockito.mock(NetworkElement.class);
+    private static NetworkElement createLine(String id, Country country1, Country country2, double nominalVoltage) {
+        NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
         when(n.getCountry1()).thenReturn(country1);
         when(n.getCountry2()).thenReturn(country2);

@@ -23,9 +23,9 @@ import static org.mockito.Mockito.when;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class ThreeWindingsTransformerCriterionTest {
-    private static NetworkElement<?> twt1;
-    private static NetworkElement<?> twt2;
-    private static NetworkElement<?> twt3;
+    private static NetworkElement twt1;
+    private static NetworkElement twt2;
+    private static NetworkElement twt3;
 
     @BeforeAll
     public static void init() {
@@ -47,7 +47,7 @@ public class ThreeWindingsTransformerCriterionTest {
         assertTrue(criterion.accept(new NetworkElementVisitor(twt2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
 
-        NetworkElement<?> anotherTypeElement = Mockito.mock(NetworkElement.class);
+        NetworkElement anotherTypeElement = Mockito.mock(NetworkElement.class);
         assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
     }
 
@@ -90,9 +90,9 @@ public class ThreeWindingsTransformerCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(twt3)));
     }
 
-    private static NetworkElement<?> createThreeWindingsTransformer(String id, Country country, double nominalVoltage1,
+    private static NetworkElement createThreeWindingsTransformer(String id, Country country, double nominalVoltage1,
                                                                     double nominalVoltage2, double nominalVoltage3) {
-        NetworkElement<?> n = Mockito.mock(NetworkElement.class);
+        NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
         when(n.getCountry()).thenReturn(country);
         when(n.getNominalVoltage1()).thenReturn(nominalVoltage1);

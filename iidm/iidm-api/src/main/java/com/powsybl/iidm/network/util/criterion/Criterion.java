@@ -39,7 +39,7 @@ public interface Criterion {
         return false;
     }
 
-    default boolean filter(NetworkElement<?> networkElement) {
+    default boolean filter(NetworkElement networkElement) {
         return false;
     }
 }

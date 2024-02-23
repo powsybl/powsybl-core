@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.util.criterion.translation;
+package com.powsybl.security.json.limitsreduction.criterion.duration.translation;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -20,8 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class DefaultNetworkElementTest {
-
+class DefaultNetworkElementWithLimitsTest {
     @Test
     void testBranch() {
         Substation substation1 = Mockito.mock(Substation.class);
@@ -46,8 +45,12 @@ class DefaultNetworkElementTest {
         Mockito.when(line.getId()).thenReturn("testLine");
         Mockito.when(line.getTerminal(TwoSides.ONE)).thenReturn(terminal1);
         Mockito.when(line.getTerminal(TwoSides.TWO)).thenReturn(terminal2);
+        Mockito.when(line.getLimits(LimitType.CURRENT, TwoSides.ONE)).thenAnswer(x -> createLimits(120.));
+        Mockito.when(line.getLimits(LimitType.CURRENT, TwoSides.TWO)).thenAnswer(x -> createLimits(250.));
+        Mockito.when(line.getLimits(LimitType.APPARENT_POWER, TwoSides.ONE)).thenAnswer(x -> createLimits(654.));
+        Mockito.when(line.getLimits(LimitType.ACTIVE_POWER, TwoSides.TWO)).thenAnswer(x -> createLimits(987.));
 
-        DefaultNetworkElement networkElement = new DefaultNetworkElement(line);
+        DefaultNetworkElementWithLimits networkElement = new DefaultNetworkElementWithLimits(line);
         assertEquals("testLine", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry());
         assertEquals(Country.FR, networkElement.getCountry1());
@@ -57,6 +60,14 @@ class DefaultNetworkElementTest {
         assertEquals(226., networkElement.getNominalVoltage2(), 0.01);
         assertThrows(PowsyblException.class, networkElement::getNominalVoltage3);
 
+        assertEquals(120., getPermanentLimit(networkElement, LimitType.CURRENT, ThreeSides.ONE), 0.01);
+        assertEquals(250., getPermanentLimit(networkElement, LimitType.CURRENT, ThreeSides.TWO), 0.01);
+        assertThrows(PowsyblException.class, () -> getPermanentLimit(networkElement, LimitType.CURRENT, ThreeSides.THREE));
+        assertEquals(654., getPermanentLimit(networkElement, LimitType.APPARENT_POWER, ThreeSides.ONE), 0.01);
+        assertNull(getPermanentLimit(networkElement, LimitType.APPARENT_POWER, ThreeSides.TWO));
+        assertNull(getPermanentLimit(networkElement, LimitType.ACTIVE_POWER, ThreeSides.ONE));
+        assertEquals(987., getPermanentLimit(networkElement, LimitType.ACTIVE_POWER, ThreeSides.TWO), 0.01);
+
         assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
@@ -65,4 +76,14 @@ class DefaultNetworkElementTest {
 
     //TODO Add tests for the other kinds
 
+    private Optional<LoadingLimits> createLimits(double permanentValue) {
+        LoadingLimits limits = Mockito.mock(LoadingLimits.class);
+        Mockito.when(limits.getPermanentLimit()).thenReturn(permanentValue);
+        return Optional.of(limits);
+    }
+
+    private Double getPermanentLimit(DefaultNetworkElementWithLimits networkElement, LimitType type, ThreeSides side) {
+        Optional<LoadingLimits> limits = networkElement.getLimits(type, side);
+        return limits.map(LoadingLimits::getPermanentLimit).orElse(null);
+    }
 }
