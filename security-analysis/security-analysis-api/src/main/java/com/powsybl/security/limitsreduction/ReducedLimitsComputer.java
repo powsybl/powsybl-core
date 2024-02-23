@@ -107,7 +107,7 @@ public class ReducedLimitsComputer {
                         limitReductionDefinition.getLimitReduction()));
     }
 
-    protected boolean isContingencyContextListApplicable(List<ContingencyContext> contingencyContextList, String contingencyId) {
+    protected static boolean isContingencyContextListApplicable(List<ContingencyContext> contingencyContextList, String contingencyId) {
         return contingencyContextList.isEmpty()
                 || contingencyContextList.stream().anyMatch(contingencyContext ->
                     contingencyContext.getContextType() == ALL
@@ -117,20 +117,20 @@ public class ReducedLimitsComputer {
         );
     }
 
-    protected boolean isEquipmentAffectedByLimitReduction(NetworkElementWithLimits<?> networkElement, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    protected static boolean isEquipmentAffectedByLimitReduction(NetworkElementWithLimits<?> networkElement, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
         List<NetworkElementCriterion> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()
                 || networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));
     }
 
-    protected boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    protected static boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         return limitReductionDefinition.getDurationCriteria().isEmpty()
                 || limitReductionDefinition.getDurationCriteria().stream()
                     .anyMatch(c -> c.getType().equals(LimitDurationCriterion.LimitDurationType.PERMANENT));
     }
 
-    protected boolean isTemporaryLimitAffectedByLimitReduction(int temporaryLimitAcceptableDuration, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    protected static boolean isTemporaryLimitAffectedByLimitReduction(int temporaryLimitAcceptableDuration, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
         return limitReductionDefinition.getDurationCriteria().isEmpty()
                 || limitReductionDefinition.getDurationCriteria().stream()
                     .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))

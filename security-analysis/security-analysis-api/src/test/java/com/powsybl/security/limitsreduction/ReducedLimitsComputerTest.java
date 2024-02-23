@@ -47,8 +47,12 @@ class ReducedLimitsComputerTest {
         LimitReductionDefinitionList.LimitReductionDefinition definition2 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
                 .setLimitReduction(0.5)
                 .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")));
+        LimitReductionDefinitionList.LimitReductionDefinition definition3 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
+                .setLimitReduction(0.1)
+                .setContingencyContexts(ContingencyContext.specificContingency("contingency3"))
+                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")));
         LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
-                .setLimitReductionDefinitions(List.of(definition1, definition2));
+                .setLimitReductionDefinitions(List.of(definition1, definition2, definition3));
         computer = new ReducedLimitsComputer(definitionList);
     }
 
@@ -59,13 +63,13 @@ class ReducedLimitsComputerTest {
         // - No reductions apply for "NHV1_NHV2_1"
         computeAndCheckLimitsOnLine1WithoutReductions();
         // - Some reductions apply for "NHV1_NHV2_2"
-        computeAndCheckLimitsOnLine2();
+        computeAndCheckLimitsOnLine2(0.5);
 
         // contingency0
         computer.changeContingencyId("contingency0");
         // - Same reductions as before apply for both network elements => the cache is used.
         computeAndCheckLimitsOnLine1WithoutReductions();
-        computeAndCheckLimitsOnLine2();
+        computeAndCheckLimitsOnLine2(0.5);
 
         // contingency1
         computer.changeContingencyId("contingency1");
@@ -80,7 +84,7 @@ class ReducedLimitsComputerTest {
         assertEquals(1500, optLimits.get().getTemporaryLimitValue(60), 0.01);
         assertEquals(Double.MAX_VALUE, optLimits.get().getTemporaryLimitValue(0), 0.01);
         // - Same reductions as before apply for "NHV1_NHV2_2"
-        computeAndCheckLimitsOnLine2();
+        computeAndCheckLimitsOnLine2(0.5);
     }
 
     private static void computeAndCheckLimitsOnLine1WithoutReductions() {
@@ -95,15 +99,22 @@ class ReducedLimitsComputerTest {
         assertEquals(Double.MAX_VALUE, optLimits.get().getTemporaryLimitValue(0), 0.01);
     }
 
-    private static void computeAndCheckLimitsOnLine2() {
+    private static void computeAndCheckLimitsOnLine2(double expectedReduction) {
         Optional<LoadingLimits> optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.ONE);
         assertTrue(optLimits.isPresent());
-        assertEquals(550, optLimits.get().getPermanentLimit(), 0.01);
-        assertEquals(600, optLimits.get().getTemporaryLimitValue(20 * 60), 0.01);
+        assertEquals(1100 * expectedReduction, optLimits.get().getPermanentLimit(), 0.01);
+        assertEquals(1200 * expectedReduction, optLimits.get().getTemporaryLimitValue(20 * 60), 0.01);
         assertEquals(Double.MAX_VALUE, optLimits.get().getTemporaryLimitValue(60), 0.01);
         optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO);
         assertTrue(optLimits.isPresent());
-        assertEquals(250, optLimits.get().getPermanentLimit(), 0.01);
+        assertEquals(500 * expectedReduction, optLimits.get().getPermanentLimit(), 0.01);
+    }
+
+    @Test
+    void severalApplicableDefinitionsTest() {
+        computer.changeContingencyId("contingency3");
+        // Several definitions apply for line2 (with 0.5 and 0.1 reductions), only the last is used.
+        computeAndCheckLimitsOnLine2(0.1);
     }
 
     @Test
@@ -166,10 +177,10 @@ class ReducedLimitsComputerTest {
                                                 boolean applicableForPreContingency,
                                                 boolean applicableForContingency1, boolean applicableForContingency2,
                                                 boolean applicableForContingency3) {
-        assertEquals(applicableForPreContingency, computer.isContingencyContextListApplicable(contingencyContexts, null));
-        assertEquals(applicableForContingency1, computer.isContingencyContextListApplicable(contingencyContexts, "contingency1"));
-        assertEquals(applicableForContingency2, computer.isContingencyContextListApplicable(contingencyContexts, "contingency2"));
-        assertEquals(applicableForContingency3, computer.isContingencyContextListApplicable(contingencyContexts, "contingency3"));
+        assertEquals(applicableForPreContingency, ReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, null));
+        assertEquals(applicableForContingency1, ReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, "contingency1"));
+        assertEquals(applicableForContingency2, ReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, "contingency2"));
+        assertEquals(applicableForContingency3, ReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, "contingency3"));
     }
 
     static Stream<Arguments> getContingencyContextListsData() {
