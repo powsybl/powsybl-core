@@ -36,7 +36,7 @@ public class TwoWindingsTransformerCriterionTest {
 
     @Test
     void typeTest() {
-        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDING_TRANSFORMER,
+        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER,
                 new TwoWindingsTransformerCriterion().getNetworkElementCriterionType());
     }
 
@@ -94,7 +94,7 @@ public class TwoWindingsTransformerCriterionTest {
         when(n.getCountry()).thenReturn(country);
         when(n.getNominalVoltage1()).thenReturn(nominalVoltage1);
         when(n.getNominalVoltage2()).thenReturn(nominalVoltage2);
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDING_TRANSFORMER)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER)).thenReturn(true);
         return n;
     }
 }

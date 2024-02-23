@@ -70,8 +70,8 @@ class DefaultNetworkElementTest {
         assertEquals(987., getPermanentLimit(networkElement, LimitType.ACTIVE_POWER, ThreeSides.TWO), 0.01);
 
         assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE));
-        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDING_TRANSFORMER));
-        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDING_TRANSFORMER));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIERS));
     }
 

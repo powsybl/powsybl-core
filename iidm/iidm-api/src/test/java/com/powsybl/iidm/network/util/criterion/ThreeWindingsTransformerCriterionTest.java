@@ -36,7 +36,7 @@ public class ThreeWindingsTransformerCriterionTest {
 
     @Test
     void typeTest() {
-        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDING_TRANSFORMER,
+        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER,
                 new ThreeWindingsTransformerCriterion().getNetworkElementCriterionType());
     }
 
@@ -98,7 +98,7 @@ public class ThreeWindingsTransformerCriterionTest {
         when(n.getNominalVoltage1()).thenReturn(nominalVoltage1);
         when(n.getNominalVoltage2()).thenReturn(nominalVoltage2);
         when(n.getNominalVoltage3()).thenReturn(nominalVoltage3);
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDING_TRANSFORMER)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER)).thenReturn(true);
         return n;
     }
 }

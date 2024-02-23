@@ -119,9 +119,9 @@ public class DefaultNetworkElement implements NetworkElement<LoadingLimits> {
         return type == NetworkElementCriterionType.IDENTIFIERS
                 || type == NetworkElementCriterionType.LINE
                     && VALID_TYPES_FOR_LINE_CRITERION.contains(identifiable.getType())
-                || type == NetworkElementCriterionType.TWO_WINDING_TRANSFORMER
+                || type == NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER
                     && identifiable.getType() == IdentifiableType.TWO_WINDINGS_TRANSFORMER
-                || type == NetworkElementCriterionType.THREE_WINDING_TRANSFORMER
+                || type == NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER
                     && identifiable.getType() == IdentifiableType.THREE_WINDINGS_TRANSFORMER;
     }
 }
