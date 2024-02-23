@@ -141,15 +141,15 @@ public class ReportNodeImpl extends AbstractReportNode {
         dictionary.put(getKey(), getDefaultText());
     }
 
-    public void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValueMaps) throws IOException {
-        inheritedValueMaps.addFirst(getValues());
+    public void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValuesMaps) throws IOException {
+        inheritedValuesMaps.addFirst(getValues());
         if (children.isEmpty()) {
-            printDefaultText(writer, indent, "", inheritedValueMaps);
+            printDefaultText(writer, indent, "", inheritedValuesMaps);
         } else {
-            printDefaultText(writer, indent, "+ ", inheritedValueMaps);
+            printDefaultText(writer, indent, "+ ", inheritedValuesMaps);
             String childrenIndent = indent + "   ";
             for (ReportNode child : children) {
-                child.print(writer, childrenIndent, inheritedValueMaps);
+                child.print(writer, childrenIndent, inheritedValuesMaps);
             }
         }
     }

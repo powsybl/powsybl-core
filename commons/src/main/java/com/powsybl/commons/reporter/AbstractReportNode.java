@@ -36,13 +36,13 @@ public abstract class AbstractReportNode implements ReportNode {
     }
 
     @Override
-    public ReportNode report(String reporterKey, String defaultMessage, String valueKey, Object value) {
-        return this.report(reporterKey, defaultMessage, valueKey, value, TypedValue.UNTYPED);
+    public ReportNode report(String key, String defaultMessage, String valueKey, Object value) {
+        return this.report(key, defaultMessage, valueKey, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public ReportNode report(String reporterKey, String defaultMessage, String valueKey, Object value, String type) {
-        return report(reporterKey, defaultMessage, Map.of(valueKey, new TypedValue(value, type)));
+    public ReportNode report(String key, String defaultMessage, String valueKey, Object value, String type) {
+        return report(key, defaultMessage, Map.of(valueKey, new TypedValue(value, type)));
     }
 
     private void addValue(String key, TypedValue typedValue) {

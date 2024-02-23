@@ -13,73 +13,88 @@ import java.io.Writer;
 import java.util.*;
 
 /**
- * A <code>Reporter</code> allows building up functional reports with a hierarchy reflecting task/subtasks of processes.
- * The enclosed reports are based on {@link ReportNode} class.
+ * A <code>ReporterNode</code> allows building up functional reports with a tree hierarchy.
  *
- * <p>A <code>Reporter</code> can create sub-reporters to separate from current reports the reports from that task.
- * Each sub-reporter is defined by a key identifying the corresponding task, a default <code>String</code> describing
- * the corresponding task, and {@link TypedValue} values indexed by their keys. These values may be referred to
- * by their key in the description of the sub-reporter, or in its reports, using the <code>${key}</code> syntax,
+ * <p>Each <code>ReporterNode</code> is defined by
+ * <ul>
+ *     <li>a {@link String} key identifying the <strong>unique</strong> corresponding functional report</li>
+ *     <li>a map of {@link TypedValue} indexed by their keys</li>
+ *     <li>a default {@link String} containing the functional message in the default language, which may contain
+ *     references to those values or to the values of one of its ancestors</li>
+ * </ul>
+ *
+ * The {@link TypedValue} values may be referred to by their key using the <code>${key}</code> syntax,
  * in order to be later replaced by {@link org.apache.commons.text.StringSubstitutor} for instance when formatting
  * the string for the end user.
  *
- * <p>Instances of <code>Reporter</code> are not thread-safe.
- * When a new thread is created, a new Reporter should be provided to the process in that thread.
- * A reporter is not meant to be shared with other threads nor to be saved as a class parameter, but should instead
- * be passed on in methods through their arguments.
+ * <p>Instances of <code>ReporterNode</code> are not thread-safe.
+ * When a new thread is created, a new <code>ReporterNode</code> should be provided to the process in that thread.
+ * A <code>ReporterNode</code> is not meant to be shared with other threads.
+ * Therefore, it should not be saved as a class parameter of an object which could be used by separate threads.
+ * In those cases it should instead be passed on in methods through their arguments.
  *
- * <p>The <code>Reporter</code> can be used for multilingual support. Indeed, each <code>Reporter</code> name and
- * {@link ReportNode} message can be translated based on their key and using the value keys in the desired order.
+ * <p>The <code>ReporterNode</code> is designed for multilingual support. Indeed, each {@link ReportNode} message can be translated based on their key and using the value keys in the desired order.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public interface ReportNode {
 
     /**
-     * A No-op implementation of <code>Reporter</code>
+     * A No-op implementation of <code>ReporterNode</code>
      */
     ReportNode NO_OP = new NoOpImpl();
 
     /**
-     * Create a new child MessageNode with a message and its associated values
-     * @param key the key identifying that child MessageNode
-     * @param defaultMessage functional log, which may contain references to the provided values
-     * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the defaultMessage
-     *               or within children of the created child MessageNode.
-     * @return the new sub-reporter
+     * Create a new child <code>ReporterNode</code> with a default message and its associated values
+     *
+     * @param key            the key identifying that <code>ReporterNode</code> to create
+     * @param defaultMessage functional log, which may contain references to values using the <code>${key}</code> syntax,
+     *                       the values mentioned being the provided values and the values of any
+     *                       <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>
+     * @param values         a map of {@link TypedValue} indexed by their key, which may be referred to within the defaultMessage
+     *                       or within any descendants of the created <code>ReporterNode</code>.
+     *                       Be aware that any value in this map might, in all descendants, override a value of one of
+     *                       <code>ReporterNode</code> ancestors if reusing an existing key.
+     * @return the created <code>ReporterNode</code>
      */
     ReportNode report(String key, String defaultMessage, Map<String, TypedValue> values);
 
     /**
-     * Create a new child MessageNode with a message and no associated values
-     * @param reporterKey the key identifying that sub-reporter
-     * @param defaultMessage description of the corresponding task
-     * @return the new sub-reporter
+     * Create a new child <code>ReporterNode</code> with a default message and no associated values
+     *
+     * @param key            the key identifying that <code>ReporterNode</code> child
+     * @param defaultMessage functional log, which may contain references to values of any <code>ReporterNode</code>
+     *                       ancestor of the created <code>ReporterNode</code>, using the <code>${key}</code> syntax
+     * @return the created <code>ReporterNode</code>
      */
-    ReportNode report(String reporterKey, String defaultMessage);
+    ReportNode report(String key, String defaultMessage);
 
     /**
-     * Create a new child MessageNode with a message and one untyped associated value
-     * @param reporterKey the key identifying that sub-reporter
-     * @param defaultMessage description of the corresponding task, which may contain references to the provided value
-     * @param valueKey the key for the value which follows
-     * @param value the value which may be referred to within the defaultMessage or within the reports message of the
-     *              created sub-reporter
-     * @return the new sub-reporter
+     * Create a new child <code>ReporterNode</code> with a default message and one untyped associated value
+     * @param key            the key identifying that <code>ReporterNode</code> child
+     * @param defaultMessage functional log, which may contain references to the given value or to values of any
+     *                       <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
+     *                       <code>${key}</code> syntax
+     * @param valueKey       the key for the value which follows
+     * @param value          the value which may be referred to within the defaultMessage or within any descendants of
+     *                       the created <code>ReporterNode</code>.
+     *                       Be aware that this value might, in all descendants, override a value of one of <code>ReporterNode</code>
+     *                       ancestors if reusing an existing key.
+     * @return the created <code>ReporterNode</code>
      */
-    ReportNode report(String reporterKey, String defaultMessage, String valueKey, Object value);
+    ReportNode report(String key, String defaultMessage, String valueKey, Object value);
 
     /**
-     * Create a new child MessageNode with a message and one associated typed value
-     * @param reporterKey the key identifying that sub-reporter
+     * Create a new child <code>ReporterNode</code> with a default message and one associated typed value
+     * @param key            the key identifying that <code>ReporterNode</code> child
      * @param defaultMessage description of the corresponding task, which may contain references to the provided typed value
      * @param valueKey the key for the value which follows
      * @param value the value which may be referred to within the defaultMessage or within the reports message of the
      *              created sub-reporter
      * @param type the string representing the type of the value provided
-     * @return the new sub-reporter
+     * @return the created <code>ReporterNode</code>
      */
-    ReportNode report(String reporterKey, String defaultMessage, String valueKey, Object value, String type);
+    ReportNode report(String key, String defaultMessage, String valueKey, Object value, String type);
 
     /**
      * Add a ReportNode as a child of current ReportNode.
@@ -88,7 +103,9 @@ public interface ReportNode {
     void addChild(ReportNode reportNode);
 
     /**
-     * Get the key of current node, each message template should have a unique key
+     * Get the key of current node.
+     * Note that each key needs to correspond to a unique message template
+     * This is required in serialization, in particular due to multilingual support.
      * @return the key
      */
     String getKey();
@@ -126,12 +143,12 @@ public interface ReportNode {
     void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException;
 
     /**
-     * Print to given writer the current report node and its lineage
+     * Print to given writer the current report node and its descendants
      * @param writer the writer to write to
      * @param indent the indentation String to use
-     * @param inheritedValueMap the inherited value map
+     * @param inheritedValuesMaps the deque of inherited values maps
      */
-    void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValueMap) throws IOException;
+    void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValuesMaps) throws IOException;
 
     /**
      * A default no-op implementation
@@ -162,7 +179,7 @@ public interface ReportNode {
         }
 
         @Override
-        public void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValueMap) throws IOException {
+        public void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValuesMaps) throws IOException {
             // No-op
         }
     }
