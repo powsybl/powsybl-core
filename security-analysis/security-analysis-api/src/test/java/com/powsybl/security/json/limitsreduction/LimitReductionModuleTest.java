@@ -7,9 +7,6 @@
  */
 package com.powsybl.security.json.limitsreduction;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Country;
@@ -23,22 +20,13 @@ import com.powsybl.security.limitsreduction.criterion.duration.PermanentDuration
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class LimitReductionModuleTest extends AbstractSerDeTest {
-
-    private static final ObjectMapper MAPPER = JsonUtil.createObjectMapper().registerModule(new LimitReductionModule());
-    private static final ObjectWriter WRITER = MAPPER.writerWithDefaultPrettyPrinter();
 
     @Test
     void roundTripTest() throws IOException {
@@ -63,31 +51,8 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
                 .setLimitReductionDefinitions(List.of(definition1, definition2, definition3));
 
-        roundTripTest(definitionList, LimitReductionModuleTest::write,
-                LimitReductionModuleTest::read,
+        roundTripTest(definitionList, LimitReductionDefinitionListSerDeUtil::write,
+                LimitReductionDefinitionListSerDeUtil::read,
                 "/LimitReductions.json");
-    }
-
-    private static <T> void write(T object, Path jsonFile) {
-        Objects.requireNonNull(object);
-        Objects.requireNonNull(jsonFile);
-
-        try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            WRITER.writeValue(os, object);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private static LimitReductionDefinitionList read(Path jsonFile) {
-        return read(jsonFile, LimitReductionDefinitionList.class);
-    }
-
-    private static <T> T read(Path jsonFile, Class<T> clazz) {
-        try (InputStream is = Files.newInputStream(jsonFile)) {
-            return MAPPER.readValue(is, clazz);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 }
