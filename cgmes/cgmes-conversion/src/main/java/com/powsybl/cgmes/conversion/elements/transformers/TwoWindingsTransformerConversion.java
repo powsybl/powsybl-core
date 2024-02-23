@@ -9,18 +9,17 @@ package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
-import com.powsybl.cgmes.conversion.elements.BoundaryLine;
 import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Optional;
 
 /**
  * TwoWindingsTransformer Cgmes Conversion
@@ -59,6 +58,8 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class TwoWindingsTransformerConversion extends AbstractTransformerConversion implements EquipmentAtBoundaryConversion {
 
+    private DanglingLine danglingLine;
+
     public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
     }
@@ -96,39 +97,22 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
             return;
         }
 
+        String eqInstance = ps.get(0).get("graph");
         if (isBoundary(1)) {
-            convertTwoWindingsTransformerAtBoundary(1);
+            convertTwoWindingsTransformerAtBoundary(eqInstance, 1);
         } else if (isBoundary(2)) {
-            convertTwoWindingsTransformerAtBoundary(2);
+            convertTwoWindingsTransformerAtBoundary(eqInstance, 2);
         } else {
             throw new ConversionException("Boundary must be at one end of the twoWindingsTransformer");
         }
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
-
-        CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
-        InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
-        ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
-
-        // The twoWindingsTransformer is converted to a BoundaryLine with different VoltageLevels at its ends
-        // and the tapChanger fixed to the current tap position.
-        // As the current TieLine only supports a Line at each half we can only map twoWindingsTransformers with
-        // ratioTapChanger and / or phaseTapChanger with zero angle.
-        // Since the angle has been fixed to 0.0, if the current angle of the transformer (getAngle(convertedT2xModel))
-        // is non-zero we will have differences in the LF computation.
-        // TODO support in the TieLine the complete twoWindingsTransformer model (transformer + tapChangers)
-
-        PiModel pm = piModel(getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel),
-            getB(convertedT2xModel), getRatio(convertedT2xModel), 0.0);
-        boundaryLine.setParameters(pm.r1, pm.x1, pm.g1, pm.b1, pm.g2, pm.b2);
-
-        return boundaryLine;
+    public Optional <DanglingLine> getDanglingLine() {
+        return Optional.ofNullable(danglingLine);
     }
 
-    private void convertTwoWindingsTransformerAtBoundary(int boundarySide) {
+    private void convertTwoWindingsTransformerAtBoundary(String eqInstance, int boundarySide) {
 
         CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
@@ -141,7 +125,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
         // we will have differences in the LF computation.
         // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
-        convertToDanglingLine(boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
+        danglingLine = convertToDanglingLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
@@ -206,28 +190,6 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
     }
 
-    private static double getRatio(ConvertedT2xModel convertedT2xModel) {
-        double a = convertedT2xModel.end1.ratedU / convertedT2xModel.end2.ratedU;
-        if (convertedT2xModel.end1.ratioTapChanger != null) {
-            a *= convertedT2xModel.end1.ratioTapChanger.getSteps()
-                .get(getStepIndex(convertedT2xModel.end1.ratioTapChanger)).getRatio();
-        }
-        if (convertedT2xModel.end1.phaseTapChanger != null) {
-            a *= convertedT2xModel.end1.phaseTapChanger.getSteps()
-                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getRatio();
-        }
-        return a;
-    }
-
-    private static double getAngle(ConvertedT2xModel convertedT2xModel) {
-        double angle = 0.0;
-        if (convertedT2xModel.end1.phaseTapChanger != null) {
-            angle = Math.toRadians(convertedT2xModel.end1.phaseTapChanger.getSteps()
-                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getAngle());
-        }
-        return angle;
-    }
-
     private static int getStepIndex(TapChanger tapChanger) {
         return tapChanger.getTapPosition();
     }
@@ -278,38 +240,5 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     private static double getB(ConvertedT2xModel convertedT2xModel) {
         return getValue(convertedT2xModel.end1.b, getStepB1(convertedT2xModel.end1.ratioTapChanger), getStepB1(convertedT2xModel.end1.phaseTapChanger));
-    }
-
-    private PiModel piModel(double r, double x, double g, double b, double a, double angle) {
-        PiModel piModel = new PiModel();
-
-        Complex ratio = ComplexUtils.polar2Complex(a, angle);
-        Complex ytr = new Complex(r, x).reciprocal();
-        Complex ytr1 = ytr.divide(ratio.conjugate());
-        Complex ytr2 = ytr.divide(ratio);
-        Complex ysh1 = new Complex(g, b).divide(ratio.multiply(ratio.conjugate()))
-            .add(ytr.multiply(ratio.reciprocal().subtract(1.0)).divide(ratio.conjugate()));
-        Complex ysh2 = ytr.multiply(ratio.reciprocal().negate().add(1.0));
-
-        piModel.r1 = ytr1.reciprocal().getReal();
-        piModel.x1 = ytr1.reciprocal().getImaginary();
-        piModel.g1 = ysh1.getReal();
-        piModel.b1 = ysh1.getImaginary();
-        piModel.r2 = ytr2.reciprocal().getReal();
-        piModel.x2 = ytr2.reciprocal().getImaginary();
-        piModel.g2 = ysh2.getReal();
-        piModel.b2 = ysh2.getImaginary();
-        return piModel;
-    }
-
-    private static class PiModel {
-        double r1;
-        double x1;
-        double g1;
-        double b1;
-        double r2;
-        double x2;
-        double g2;
-        double b2;
     }
 }
