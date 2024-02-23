@@ -6,21 +6,22 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
- * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class DynamicSimulationParametersDeserializer extends AbstractDynamicSimulationParametersDeserializer<DynamicSimulationParameters> {
+public class DynamicSimulationParametersDeserializer extends StdDeserializer<DynamicSimulationParameters> {
 
     DynamicSimulationParametersDeserializer() {
         super(DynamicSimulationParameters.class);
@@ -33,16 +34,39 @@ public class DynamicSimulationParametersDeserializer extends AbstractDynamicSimu
 
     @Override
     public DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext,
-        DynamicSimulationParameters parameters) throws IOException {
+                                                   DynamicSimulationParameters parameters) throws IOException {
 
-        List<Extension<DynamicSimulationParameters>> extensions = new ArrayList<>();
+        List<Extension<DynamicSimulationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            boolean found = deserializeCommons(parser, deserializationContext, parameters, extensions);
-            if (!found) {
-                throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+            switch (parser.getCurrentName()) {
+
+                case "version":
+                    parser.nextToken();
+                    break;
+
+                case "startTime":
+                    parser.nextToken();
+                    parameters.setStartTime(parser.readValueAs(Integer.class));
+                    break;
+
+                case "stopTime":
+                    parser.nextToken();
+                    parameters.setStopTime(parser.readValueAs(Integer.class));
+                    break;
+
+                case "extensions":
+                    parser.nextToken();
+                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonDynamicSimulationParameters.getExtensionSerializers());
+                    break;
+
+                default:
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
+
         JsonDynamicSimulationParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+
         return parameters;
     }
+
 }

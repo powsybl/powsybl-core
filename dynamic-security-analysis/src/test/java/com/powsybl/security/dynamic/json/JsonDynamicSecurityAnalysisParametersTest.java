@@ -26,7 +26,7 @@ class JsonDynamicSecurityAnalysisParametersTest extends AbstractSerDeTest {
     @Test
     void roundTrip() throws IOException {
         DynamicSecurityAnalysisParameters parameters = new DynamicSecurityAnalysisParameters();
-        parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.2);
+        parameters.getDynamicSimulationParameters().setStopTime(20);
         roundTripTest(parameters, JsonDynamicSecurityAnalysisParameters::write, JsonDynamicSecurityAnalysisParameters::read, "/DynamicSecurityAnalysisParametersV1.json");
     }
 

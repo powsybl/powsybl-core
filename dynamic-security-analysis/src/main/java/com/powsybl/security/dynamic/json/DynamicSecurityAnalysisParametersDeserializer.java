@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.AbstractSecurityAnalysisParameters;
+import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 
 import java.io.IOException;
@@ -46,15 +46,15 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                     parser.nextToken();
                     version = parser.getValueAsString();
                     break;
-                case "increased-violations-parameters":
+                case "dynamic-simulation-parameters":
                     parser.nextToken();
-                    parameters.setIncreasedViolationsParameters(JsonUtil.readValue(deserializationContext,
-                            parser,
-                            AbstractSecurityAnalysisParameters.IncreasedViolationsParameters.class));
+                    JsonDynamicSimulationParameters.deserialize(parser, deserializationContext, parameters.getDynamicSimulationParameters());
                     break;
-                case "dynamic-simulation-contingencies-parameters":
+                case "contingencies-parameters":
                     parser.nextToken();
-                    JsonDynamicSimulationContingenciesParameters.deserialize(parser, deserializationContext, parameters.getDynamicSimulationParameters());
+                    parameters.setDynamicContingenciesParameters(JsonUtil.readValue(deserializationContext,
+                            parser,
+                            DynamicSecurityAnalysisParameters.ContingenciesParameters.class));
                     break;
                 case "extensions":
                     parser.nextToken();
