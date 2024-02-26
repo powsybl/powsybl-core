@@ -402,7 +402,7 @@ public class CgmesExportContext {
         for (Connectable<?> c : network.getConnectables()) {
             if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c, network);
+                    addIidmMappingsTerminal(t, c);
                 }
             }
         }
@@ -488,7 +488,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c, Network network) {
+    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof DanglingLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
             if (terminalId == null) {
