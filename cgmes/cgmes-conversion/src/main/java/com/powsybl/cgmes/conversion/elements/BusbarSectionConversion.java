@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.BusbarSectionAdder;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
@@ -50,7 +51,11 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
     }
 
     private void addBusbarSectionTerminalToBus() {
-        Bus bus = voltageLevel().getBusBreakerView().getBus(busId());
+        // voltageLevel() assumes voltage level is present, throws an exception if not available
+        // voltageLevel(1) returns the (optional) voltage level of the first terminal
+        // Some isolated busbar sections may not have a topological node, so we need to check
+        // if the voltage level is present before trying to access the bus
+        Bus bus = voltageLevel(1).map(VoltageLevel::getBusBreakerView).map(bbv -> bbv.getBus(busId())).orElse(null);
         if (bus != null) {
             String busbarSectionTerminals = bus.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
             if (!busbarSectionTerminals.isEmpty()) {
