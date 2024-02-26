@@ -1,4 +1,4 @@
-+ Testing reportNode when replacing tee point by voltage level on line in Node/breaker network
++ Testing reporter when replacing tee point by voltage level on line in Node/breaker network
    No busbar section position extension found on bbs, only one disconnector is created.
    Line CJ_1 removed
    Line CJ_2 removed

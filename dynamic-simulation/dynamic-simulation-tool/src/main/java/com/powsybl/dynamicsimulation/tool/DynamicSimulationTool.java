@@ -229,7 +229,7 @@ public class DynamicSimulationTool implements Tool {
         DynamicSimulationResultSerializer.write(result, outputFile);
     }
 
-    private void exportLog(ReportNodeImpl reporter, ToolRunningContext context, Path outputLogFile) {
+    private void exportLog(ReportNodeImpl reporter, ToolRunningContext context, Path outputLogFile) throws IOException {
         context.getOutputStream().println("Writing logs to '" + outputLogFile + "'");
         reporter.print(outputLogFile);
     }

@@ -1,4 +1,4 @@
-+ Testing reportNode for reverting create line on line with mixed topology network
++ Testing reporter for reverting create line on line with mixed topology network
    Line NHV1_NHV2_1_2 removed
    Line NHV1_NHV2_1_1 removed
    Line testLine removed
