@@ -30,7 +30,7 @@ import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
 import static com.powsybl.shortcircuit.VoltageRange.checkVoltageRange;
 
 /**
- * Generic parameters for short circuit-computations.
+ * Generic parameters for short-circuit computations.
  * May contain extensions for implementation-specific parameters.
  *
  * @author Boubakeur Brahimi

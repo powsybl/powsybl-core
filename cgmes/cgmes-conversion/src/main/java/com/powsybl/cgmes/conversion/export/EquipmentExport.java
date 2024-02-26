@@ -865,7 +865,7 @@ public final class EquipmentExport {
             writeDanglingLineEquivalentInjection(danglingLine, cimNamespace, baseVoltageId, connectivityNodeId, exported, writer, context);
 
             // Cast the danglingLine to an AcLineSegment
-            AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(danglingLine), danglingLine.getNameOrId() + "_DL",
+            AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(danglingLine), danglingLine.getNameOrId(),
                     context.getBaseVoltageByNominalVoltage(danglingLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
                     danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer, context);
             writeFlowsLimits(danglingLine, exportedTerminalId(mapTerminal2Id, danglingLine.getTerminal()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
@@ -1264,7 +1264,7 @@ public final class EquipmentExport {
                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Network network) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
         writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t),
-                CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network)), cimNamespace, writer, context);
+                CgmesExportUtil.getTerminalSequenceNumber(t), cimNamespace, writer, context);
     }
 
     private static void writeTerminal(Terminal terminal, Map<Terminal, String> mapTerminal2Id, String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {

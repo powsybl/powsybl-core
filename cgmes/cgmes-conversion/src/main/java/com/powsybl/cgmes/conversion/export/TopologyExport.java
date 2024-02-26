@@ -20,6 +20,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_TOPOLOGICAL_NODE;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TOPOLOGICAL_NODE;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -59,6 +60,22 @@ public final class TopologyExport {
         writeBoundaryTerminals(network, cimNamespace, writer, context);
         writeSwitchesTerminals(network, cimNamespace, writer, context);
         writeDcTerminals(network, cimNamespace, writer, context);
+        // Only if it is an updated export
+        if (!context.isExportEquipment()) {
+            writeBusbarSectionTerminalsFromBusBranchCgmesModel(network, cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeBusbarSectionTerminalsFromBusBranchCgmesModel(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (Bus b : network.getBusBreakerView().getBuses()) {
+            String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
+            String bbsTerminals = b.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
+            if (!bbsTerminals.isEmpty()) {
+                for (String bbsTerminal : bbsTerminals.split(",")) {
+                    writeTerminal(bbsTerminal, topologicalNodeId, cimNamespace, writer, context);
+                }
+            }
+        }
     }
 
     private static void writeConnectableTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

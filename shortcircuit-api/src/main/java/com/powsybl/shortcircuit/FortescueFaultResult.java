@@ -46,7 +46,7 @@ public final class FortescueFaultResult extends AbstractFaultResult {
     }
 
     /**
-     * The results on three phases for current [in kA]
+     * The results on three phases for current [in A]
      */
     public FortescueValue getCurrent() {
         return current;

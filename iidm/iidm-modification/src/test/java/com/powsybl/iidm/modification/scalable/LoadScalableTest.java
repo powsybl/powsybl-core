@@ -185,6 +185,13 @@ class LoadScalableTest {
         ls1.scale(network, 20, parameters);
         assertEquals(60, load.getP0(), 1e-3);
         assertEquals(7.5, load.getQ0(), 1e-3);
+
+        ls1.reset(network);
+        assertEquals(0.0, load.getP0(), 1e-3);
+        assertEquals(7.5, load.getQ0(), 1e-3);
+        ls1.scale(network, -20, parameters);
+        assertEquals(20.0, load.getP0(), 1e-3);
+        assertEquals(7.5, load.getQ0(), 1e-3);
     }
 
     @Test

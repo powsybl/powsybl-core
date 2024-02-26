@@ -16,10 +16,14 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Optional;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class SwitchConversion extends AbstractConductingEquipmentConversion implements EquipmentAtBoundaryConversion {
+
+    private DanglingLine danglingLine;
 
     public SwitchConversion(PropertyBag sw, Context context) {
         super("Switch", sw, context, 2);
@@ -64,9 +68,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String node) {
-        String graph = p.get("graph");
-        return super.createBoundaryLine(graph, node);
+    public Optional<DanglingLine> getDanglingLine() {
+        return Optional.ofNullable(danglingLine);
     }
 
     private Switch convertToSwitch() {
@@ -100,7 +103,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             convertToSwitch().setRetained(true);
         } else {
             warnDanglingLineCreated();
-            convertToDanglingLine(boundarySide);
+            String eqInstance = p.get("graph");
+            danglingLine = convertToDanglingLine(eqInstance, boundarySide);
         }
     }
 

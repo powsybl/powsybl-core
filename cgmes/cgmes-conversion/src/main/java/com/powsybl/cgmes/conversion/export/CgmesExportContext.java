@@ -57,6 +57,7 @@ public class CgmesExportContext {
     private Reporter reporter = Reporter.NO_OP;
     private String boundaryEqId; // may be null
     private String boundaryTpId; // may be null
+    private String businessProcess = DEFAULT_BUSINESS_PROCESS;
 
     private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfileUri("EQ"));
     private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfileUri("TP"));
@@ -74,7 +75,9 @@ public class CgmesExportContext {
     public static final double MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final double MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final boolean EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE = true;
-    public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate("powsybl.org");
+    public static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
+    public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate(DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    public static final String DEFAULT_BUSINESS_PROCESS = "1D";
 
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
@@ -140,7 +143,7 @@ public class CgmesExportContext {
         private int version = 1;
         private String supersedes;
         private final List<String> dependencies = new ArrayList<>();
-        private String modelingAuthoritySet = "powsybl.org";
+        private String modelingAuthoritySet = DEFAULT_MODELING_AUTHORITY_SET_VALUE;
         private final Set<String> ids = new HashSet<>();
 
         // TODO Each model may have a list of profiles, not only one
@@ -235,6 +238,7 @@ public class CgmesExportContext {
         public void setSupersedes(String id) {
             this.supersedes = id;
         }
+
     }
 
     public CgmesExportContext() {
@@ -504,7 +508,7 @@ public class CgmesExportContext {
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network));
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 terminalId = namingStrategy.getCgmesId(refTyped(c), TERMINAL, ref(sequenceNumber));
@@ -620,7 +624,7 @@ public class CgmesExportContext {
     }
 
     private void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.ALL)) {
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             if (alias == null) {
@@ -836,6 +840,18 @@ public class CgmesExportContext {
             return network.getBusBreakerView().getBusStream().collect(Collectors.toMap(b -> namingStrategy.getCgmesId(b), b -> b));
         }
         return Collections.unmodifiableMap(topologicalNodes);
+    }
+
+    /**
+     * The business process related to the export, used to get a unique ID for EQ, TP, SSH and SV FullModel.
+     */
+    public String getBusinessProcess() {
+        return businessProcess;
+    }
+
+    public CgmesExportContext setBusinessProcess(String businessProcess) {
+        this.businessProcess = businessProcess;
+        return this;
     }
 }
 
