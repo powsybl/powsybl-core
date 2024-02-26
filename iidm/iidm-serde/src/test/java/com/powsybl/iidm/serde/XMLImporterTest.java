@@ -260,7 +260,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
 
         StringWriter sw = new StringWriter();
-        reporterModel.export(sw);
+        reporterModel.print(sw);
         InputStream ref = XMLImporterTest.class.getResourceAsStream(expectedContentFilename);
         String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
         String logExport = normalizeLineSeparator(sw.toString());

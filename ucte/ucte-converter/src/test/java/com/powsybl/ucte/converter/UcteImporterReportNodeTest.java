@@ -52,14 +52,13 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         reporter.report("reportTest", "Report test ${unknownKey}", "nonPrintedString", "Non printed String");
         Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());
-        assertEquals("Report test ${unknownKey}", reportNode.get().getDefaultText());
-        assertEquals("Non printed String", reportNode.get().getValue("nonPrintedString").getValue());
-        assertTrue(reportNode.get() instanceof ReportNode);
+        assertEquals("Report test ${unknownKey}", reportNode.get().getMessage());
+        assertEquals("Non printed String", reportNode.get().getValue("nonPrintedString").map(Object::toString).orElse(null));
 
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
         StringWriter sw = new StringWriter();
-        reporter.export(sw);
+        reporter.print(sw);
 
         InputStream refStream = getClass().getResourceAsStream("/elementNameImportReport.txt");
         String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
@@ -82,11 +81,11 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         Iterator<ReportNode> childrenIt = rm.getChildren().iterator();
         ReportNode node1 = childrenIt.next();
         assertTrue(node1 instanceof ReportNode);
-        assertEquals("No value report", node1.getDefaultText());
+        assertEquals("No value report", node1.getMessage());
 
         ReportNode node2 = childrenIt.next();
         assertTrue(node2 instanceof ReportNodeImpl);
-        assertEquals("Reading UCTE network file", node2.getDefaultText());
+        assertEquals("Reading UCTE network file", node2.getMessage());
     }
 
     @Test
@@ -99,10 +98,10 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         Iterator<ReportNode> childrenIt = rm.getChildren().iterator();
         ReportNode node1 = childrenIt.next();
         assertTrue(node1 instanceof ReportNode);
-        assertEquals("No value report", node1.getDefaultText());
+        assertEquals("No value report", node1.getMessage());
         ReportNode node2 = childrenIt.next();
         assertTrue(node2 instanceof ReportNodeImpl);
-        assertEquals("Reading UCTE network file", node2.getDefaultText());
+        assertEquals("Reading UCTE network file", node2.getMessage());
 
         mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
         rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNodeImpl.class);
@@ -113,8 +112,8 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         assertTrue(node1 instanceof ReportNode);
         node2 = childrenIt.next();
         assertTrue(node2 instanceof ReportNodeImpl);
-        assertEquals("Reading UCTE network file", node2.getDefaultText());
-        assertEquals("No value report", node1.getDefaultText());
+        assertEquals("Reading UCTE network file", node2.getMessage());
+        assertEquals("No value report", node1.getMessage());
     }
 
     @Test

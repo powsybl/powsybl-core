@@ -177,7 +177,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     }
 
     @Test
-    void testWithReporter() {
+    void testWithReporter() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         ReportNodeImpl reporter = new ReportNodeImpl("reportTestConnectVoltageLevelOnLine", "Testing reporter for connecting voltage level on line");
         new ConnectVoltageLevelOnLineBuilder()

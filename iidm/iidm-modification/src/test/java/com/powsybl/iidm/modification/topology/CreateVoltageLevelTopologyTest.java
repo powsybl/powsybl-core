@@ -207,7 +207,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     }
 
     @Test
-    void testWithReporter() {
+    void testWithReporter() throws IOException {
         Network network = createNbNetwork();
         ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateVoltageLevelTopology", "Testing reporter for voltage level topology creation");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()

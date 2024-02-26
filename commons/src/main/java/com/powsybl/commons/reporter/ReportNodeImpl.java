@@ -13,18 +13,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 /**
  * An in-memory implementation of {@link ReportNode}.
  *
- * <p>Being an implementation of {@link ReportNode}, instances of <code>ReporterModel</code> are not thread-safe.
- * A reporterModel is not meant to be shared with other threads nor to be saved as a class parameter, but should instead
+ * <p>Being an implementation of {@link ReportNode}, instances of <code>ReportNodeImpl</code> are not thread-safe.
+ * A <code>ReporterNode</code> is not meant to be shared with other threads.
+ * Therefore, it should not be saved as a class parameter of an object which could be used by separate threads.
+ * In those cases it should instead be passed on in methods through their arguments.
  * be passed on in methods through their arguments. Respecting this ensures that
  * <ol>
  *   <li>sub-reporters always are in the same order</li>
@@ -37,12 +35,24 @@ public class ReportNodeImpl extends AbstractReportNode {
     private final List<ReportNode> children = new ArrayList<>();
 
     /**
-     * ReporterModel constructor, with no associated values.
+     * ReportNode constructor, with no associated values.
      * @param key the key identifying the corresponding task
      * @param defaultMessage the name or message describing the corresponding task
      */
     public ReportNodeImpl(String key, String defaultMessage) {
-        this(key, defaultMessage, Collections.emptyMap());
+        this(key, defaultMessage, Collections.emptyMap(), new ArrayDeque<>());
+    }
+
+    /**
+     * ReportNode constructor for the roo , with no associated values.
+     * @param key the key identifying the corresponding task
+     * @param defaultMessage the name or message describing the corresponding task, which may contain references to the
+     *                    provided values
+     * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
+     *                   defaultMessage or within the reports message of created ReporterModel
+     */
+    public ReportNodeImpl(String key, String defaultMessage, Map<String, TypedValue> values) {
+        super(key, defaultMessage, values, new ArrayDeque<>());
     }
 
     /**
@@ -53,8 +63,8 @@ public class ReportNodeImpl extends AbstractReportNode {
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
      *                   defaultMessage or within the reports message of created ReporterModel
      */
-    public ReportNodeImpl(String key, String defaultMessage, Map<String, TypedValue> values) {
-        super(key, defaultMessage, values);
+    public ReportNodeImpl(String key, String defaultMessage, Map<String, TypedValue> values, Deque<Map<String, TypedValue>> inheritedValuesDeque) {
+        super(key, defaultMessage, values, inheritedValuesDeque);
     }
 
     public static ReportNodeBuilder builder() {
@@ -62,8 +72,8 @@ public class ReportNodeImpl extends AbstractReportNode {
     }
 
     @Override
-    public ReportNodeImpl report(String key, String defaultMessage, Map<String, TypedValue> values) {
-        ReportNodeImpl subReporter = new ReportNodeImpl(key, defaultMessage, values);
+    public ReportNodeImpl report(String key, String messageTemplate, Map<String, TypedValue> values) {
+        ReportNodeImpl subReporter = new ReportNodeImpl(key, messageTemplate, values, getValuesDeque());
         addChild(subReporter);
         return subReporter;
     }
@@ -78,22 +88,6 @@ public class ReportNodeImpl extends AbstractReportNode {
         return Collections.unmodifiableCollection(children);
     }
 
-    public void export(Path path) {
-        try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-            export(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void export(Writer writer) {
-        try {
-            print(writer, "", new ArrayDeque<>());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec, ReporterVersion version) throws IOException {
         return switch (version) {
             case V_1_0 -> throw new PowsyblException("No backward compatibility of version " + version);
@@ -102,6 +96,10 @@ public class ReportNodeImpl extends AbstractReportNode {
     }
 
     public static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
+        return parseJsonNode(reportTree, dictionary, codec, new ArrayDeque<>());
+    }
+
+    private static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec, Deque<Map<String, TypedValue>> inheritedValuesDeque) throws IOException {
         JsonNode keyNode = reportTree.get("key");
         String key = codec.readValue(keyNode.traverse(), String.class);
 
@@ -110,12 +108,12 @@ public class ReportNodeImpl extends AbstractReportNode {
         });
 
         String defaultTitle = dictionary.getOrDefault(key, "(missing task key in dictionary)");
-        ReportNodeImpl reportNode = new ReportNodeImpl(key, defaultTitle, values);
+        ReportNodeImpl reportNode = new ReportNodeImpl(key, defaultTitle, values, inheritedValuesDeque);
 
         JsonNode reportsNode = reportTree.get("children");
         if (reportsNode != null) {
             for (JsonNode jsonNode : reportsNode) {
-                reportNode.addChild(ReportNodeImpl.parseJsonNode(jsonNode, dictionary, codec));
+                reportNode.addChild(ReportNodeImpl.parseJsonNode(jsonNode, dictionary, codec, reportNode.getValuesDeque()));
             }
         }
 
@@ -125,8 +123,9 @@ public class ReportNodeImpl extends AbstractReportNode {
     public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("key", getKey());
-        if (!getValues().isEmpty()) {
-            generator.writeObjectField("values", getValues());
+        Map<String, TypedValue> values = getValuesDeque().getFirst();
+        if (!values.isEmpty()) {
+            generator.writeObjectField("values", values);
         }
         if (!children.isEmpty()) {
             generator.writeFieldName("children");
@@ -138,18 +137,18 @@ public class ReportNodeImpl extends AbstractReportNode {
         }
         generator.writeEndObject();
 
-        dictionary.put(getKey(), getDefaultText());
+        dictionary.put(getKey(), getMessage());
     }
 
-    public void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValuesMaps) throws IOException {
-        inheritedValuesMaps.addFirst(getValues());
+    @Override
+    public void print(Writer writer, String indentationStart) throws IOException {
         if (children.isEmpty()) {
-            printDefaultText(writer, indent, "", inheritedValuesMaps);
+            printDefaultText(writer, indentationStart, "");
         } else {
-            printDefaultText(writer, indent, "+ ", inheritedValuesMaps);
-            String childrenIndent = indent + "   ";
+            printDefaultText(writer, indentationStart, "+ ");
+            String childrenIndent = indentationStart + "   ";
             for (ReportNode child : children) {
-                child.print(writer, childrenIndent, inheritedValuesMaps);
+                child.print(writer, childrenIndent);
             }
         }
     }

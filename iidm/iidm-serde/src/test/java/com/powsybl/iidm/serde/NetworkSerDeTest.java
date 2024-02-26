@@ -50,7 +50,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testSkippedExtension() {
+    void testSkippedExtension() throws IOException {
         // Read file with all extensions included (default ImportOptions)
         ReportNodeImpl reporter1 = new ReportNodeImpl("root", "Root reportNode");
         Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
@@ -60,7 +60,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertNotNull(load1.getExtension(LoadZipModel.class));
 
         StringWriter sw1 = new StringWriter();
-        reporter1.export(sw1);
+        reporter1.print(sw1);
         assertEquals("""
                 + Root reportNode
                    Validation warnings
@@ -83,7 +83,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertEquals(3.0, loadZipModelExt.getA3(), 0.001);
 
         StringWriter sw2 = new StringWriter();
-        reporter2.export(sw2);
+        reporter2.print(sw2);
         assertEquals("""
                 + Root reportNode
                    Validation warnings

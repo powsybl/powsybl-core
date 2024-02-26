@@ -461,7 +461,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
     }
 
     @Test
-    void testCreateLoadWithReporter() {
+    void testCreateLoadWithReporter() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateLoad", "Testing reporter for a load creation");
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
@@ -480,7 +480,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
     }
 
     @Test
-    void testCreateLoadWithReporterWithoutExtensions() {
+    void testCreateLoadWithReporterWithoutExtensions() throws IOException {
         Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateLoadWithoutExtensions", "Testing reporter for a load creation in a network without extensions");
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()

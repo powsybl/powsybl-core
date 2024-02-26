@@ -10,6 +10,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -17,10 +20,11 @@ import java.util.*;
  *
  * <p>Each <code>ReporterNode</code> is defined by
  * <ul>
- *     <li>a {@link String} key identifying the <strong>unique</strong> corresponding functional report</li>
- *     <li>a map of {@link TypedValue} indexed by their keys</li>
+ *     <li>a {@link String} key identifying the <strong>unique</strong> corresponding functional report; this key is
+ *     used to build a dictionary of all the message templates,</li>
+ *     <li>a map of {@link TypedValue} indexed by their keys,</li>
  *     <li>a default {@link String} containing the functional message in the default language, which may contain
- *     references to those values or to the values of one of its ancestors</li>
+ *     references to those values or to the values of one of its ancestors.</li>
  * </ul>
  *
  * The {@link TypedValue} values may be referred to by their key using the <code>${key}</code> syntax,
@@ -45,56 +49,60 @@ public interface ReportNode {
     ReportNode NO_OP = new NoOpImpl();
 
     /**
-     * Create a new child <code>ReporterNode</code> with a default message and its associated values
+     * Create a new child <code>ReporterNode</code> with a default message template and its associated values
      *
-     * @param key            the key identifying that <code>ReporterNode</code> to create
-     * @param defaultMessage functional log, which may contain references to values using the <code>${key}</code> syntax,
-     *                       the values mentioned being the provided values and the values of any
-     *                       <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>
-     * @param values         a map of {@link TypedValue} indexed by their key, which may be referred to within the defaultMessage
-     *                       or within any descendants of the created <code>ReporterNode</code>.
-     *                       Be aware that any value in this map might, in all descendants, override a value of one of
-     *                       <code>ReporterNode</code> ancestors if reusing an existing key.
+     * @param key             the key identifying the message corresponding to the <code>ReporterNode</code> to create
+     * @param messageTemplate functional log, which may contain references to values using the <code>${key}</code> syntax,
+     *                        the values mentioned being the provided values and the values of any
+     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>
+     * @param values          a map of {@link TypedValue} indexed by their key, which may be referred to within the messageTemplate
+     *                        or within any descendants of the created <code>ReporterNode</code>.
+     *                        Be aware that any value in this map might, in all descendants, override a value of one of
+     *                        <code>ReporterNode</code> ancestors.
      * @return the created <code>ReporterNode</code>
      */
-    ReportNode report(String key, String defaultMessage, Map<String, TypedValue> values);
+    ReportNode report(String key, String messageTemplate, Map<String, TypedValue> values);
 
     /**
-     * Create a new child <code>ReporterNode</code> with a default message and no associated values
+     * Create a new child <code>ReporterNode</code> with a default message template and no associated values
      *
-     * @param key            the key identifying that <code>ReporterNode</code> child
-     * @param defaultMessage functional log, which may contain references to values of any <code>ReporterNode</code>
-     *                       ancestor of the created <code>ReporterNode</code>, using the <code>${key}</code> syntax
+     * @param key             the key identifying the message corresponding to the <code>ReporterNode</code> to create
+     * @param messageTemplate functional log, which may contain references to values of any <code>ReporterNode</code>
+     *                        ancestor of the created <code>ReporterNode</code>, using the <code>${key}</code> syntax
      * @return the created <code>ReporterNode</code>
      */
-    ReportNode report(String key, String defaultMessage);
+    ReportNode report(String key, String messageTemplate);
 
     /**
-     * Create a new child <code>ReporterNode</code> with a default message and one untyped associated value
-     * @param key            the key identifying that <code>ReporterNode</code> child
-     * @param defaultMessage functional log, which may contain references to the given value or to values of any
-     *                       <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
-     *                       <code>${key}</code> syntax
-     * @param valueKey       the key for the value which follows
-     * @param value          the value which may be referred to within the defaultMessage or within any descendants of
-     *                       the created <code>ReporterNode</code>.
-     *                       Be aware that this value might, in all descendants, override a value of one of <code>ReporterNode</code>
-     *                       ancestors if reusing an existing key.
+     * Create a new child <code>ReporterNode</code> with a default message template and one untyped associated value
+     *
+     * @param key             the key identifying the message corresponding to the <code>ReporterNode</code> to create
+     * @param messageTemplate functional log, which may contain references to the given value or to values of any
+     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
+     *                        <code>${key}</code> syntax
+     * @param valueKey        the key for the value which follows
+     * @param value           the value which may be referred to within the messageTemplate or within any descendants of
+     *                        the created <code>ReporterNode</code>.
+     *                        Be aware that this value might, in all descendants, override a value of one of <code>ReporterNode</code>
+     *                        ancestors.
      * @return the created <code>ReporterNode</code>
      */
-    ReportNode report(String key, String defaultMessage, String valueKey, Object value);
+    ReportNode report(String key, String messageTemplate, String valueKey, Object value);
 
     /**
-     * Create a new child <code>ReporterNode</code> with a default message and one associated typed value
-     * @param key            the key identifying that <code>ReporterNode</code> child
-     * @param defaultMessage description of the corresponding task, which may contain references to the provided typed value
-     * @param valueKey the key for the value which follows
-     * @param value the value which may be referred to within the defaultMessage or within the reports message of the
-     *              created sub-reporter
-     * @param type the string representing the type of the value provided
+     * Create a new child <code>ReporterNode</code> with a default message template and one associated typed value
+     *
+     * @param key             the key identifying the message corresponding to the <code>ReporterNode</code> to create
+     * @param messageTemplate functional log, which may contain references to the given value or to values of any
+     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
+     *                        <code>${key}</code> syntax
+     * @param valueKey        the key for the value which follows
+     * @param value           the value which may be referred to within the messageTemplate or within the reports message of the
+     *                        created sub-reporter
+     * @param type            the string representing the type of the value provided
      * @return the created <code>ReporterNode</code>
      */
-    ReportNode report(String key, String defaultMessage, String valueKey, Object value, String type);
+    ReportNode report(String key, String messageTemplate, String valueKey, Object value, String type);
 
     /**
      * Add a ReportNode as a child of current ReportNode.
@@ -111,23 +119,24 @@ public interface ReportNode {
     String getKey();
 
     /**
-     * Get the default text of current node
+     * Get the message of current node, replacing references with the corresponding values
      * @return the default text
      */
-    String getDefaultText();
+    String getMessage();
 
     /**
-     * Get the values map of current node
-     * @return the values map
+     * Get the {@link Deque} of values maps for current node
+     * @return the {@link Deque} values map
      */
-    Map<String, TypedValue> getValues();
+    Deque<Map<String, TypedValue>> getValuesDeque();
 
     /**
      * Get the value corresponding to the given key in current node context
+     *
      * @param valueKey the key to request
      * @return the value
      */
-    TypedValue getValue(String valueKey);
+    Optional<TypedValue> getValue(String valueKey);
 
     /**
      * Get the ReportNode children of current node
@@ -143,29 +152,80 @@ public interface ReportNode {
     void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException;
 
     /**
+     * Print to given path the current report node and its descendants
+     * @param path the writer to write to
+     */
+    default void print(Path path) throws IOException {
+        try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            print(writer);
+        }
+    }
+
+    /**
      * Print to given writer the current report node and its descendants
      * @param writer the writer to write to
-     * @param indent the indentation String to use
-     * @param inheritedValuesMaps the deque of inherited values maps
      */
-    void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValuesMaps) throws IOException;
+    default void print(Writer writer) throws IOException {
+        print(writer, "");
+    }
+
+    /**
+     * Print to given writer the current report node and its descendants
+     * @param writer the writer to write to
+     * @param indentationStart the string indentation to use for current node
+     */
+    void print(Writer writer, String indentationStart) throws IOException;
 
     /**
      * A default no-op implementation
      */
-    class NoOpImpl extends AbstractReportNode {
-        public NoOpImpl() {
-            super("noOp", "NoOp", Collections.emptyMap());
+    class NoOpImpl implements ReportNode {
+
+        private static final Deque<Map<String, TypedValue>> EMPTY_MAP_DEQUE = new ArrayDeque<>();
+
+        @Override
+        public ReportNode report(String key, String messageTemplate, Map<String, TypedValue> values) {
+            return new NoOpImpl();
         }
 
         @Override
-        public ReportNode report(String key, String defaultMessage, Map<String, TypedValue> values) {
+        public ReportNode report(String key, String messageTemplate) {
+            return new NoOpImpl();
+        }
+
+        @Override
+        public ReportNode report(String key, String messageTemplate, String valueKey, Object value) {
+            return new NoOpImpl();
+        }
+
+        @Override
+        public ReportNode report(String key, String messageTemplate, String valueKey, Object value, String type) {
             return new NoOpImpl();
         }
 
         @Override
         public void addChild(ReportNode reportNode) {
             // No-op
+        }
+
+        @Override
+        public String getKey() {
+            return null;
+        }
+
+        @Override
+        public String getMessage() {
+            return null;
+        }
+
+        @Override
+        public Deque<Map<String, TypedValue>> getValuesDeque() {
+            return EMPTY_MAP_DEQUE;
+        }
+
+        @Override
+        public Optional<TypedValue> getValue(String valueKey) {
+            return Optional.empty();
         }
 
         @Override
@@ -179,7 +239,12 @@ public interface ReportNode {
         }
 
         @Override
-        public void print(Writer writer, String indent, Deque<Map<String, TypedValue>> inheritedValuesMaps) throws IOException {
+        public void print(Writer writer) throws IOException {
+            // No-op
+        }
+
+        @Override
+        public void print(Writer writer, String indentationStart) throws IOException {
             // No-op
         }
     }

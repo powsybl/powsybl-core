@@ -207,7 +207,7 @@ public class DynamicSimulationTool implements Tool {
 
     private void printLog(ReportNodeImpl reporter, ToolRunningContext context) throws IOException {
         Writer writer = new OutputStreamWriter(context.getOutputStream());
-        reporter.export(writer);
+        reporter.print(writer);
         writer.flush();
     }
 
@@ -231,6 +231,6 @@ public class DynamicSimulationTool implements Tool {
 
     private void exportLog(ReportNodeImpl reporter, ToolRunningContext context, Path outputLogFile) {
         context.getOutputStream().println("Writing logs to '" + outputLogFile + "'");
-        reporter.export(outputLogFile);
+        reporter.print(outputLogFile);
     }
 }

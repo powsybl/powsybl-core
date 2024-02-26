@@ -71,7 +71,7 @@ class FunctionalLogsTest {
 
     private void checkResult(String resourceName, ReportNodeImpl reporter) throws IOException {
         StringWriter sw = new StringWriter();
-        reporter.export(sw);
+        reporter.print(sw);
         try (InputStream is = getClass().getResourceAsStream(resourceName)) {
             String expected = new String(is.readAllBytes());
             assertEquals(expected, sw.toString());

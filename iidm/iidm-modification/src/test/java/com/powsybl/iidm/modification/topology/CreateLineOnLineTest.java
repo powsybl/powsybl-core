@@ -194,7 +194,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
     }
 
     @Test
-    void testWithReporter() {
+    void testWithReporter() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateLineOnLine", "Testing reporter for creation of a line on line");
         Line line = network.getLine("CJ");

@@ -30,12 +30,12 @@ public abstract class AbstractModificationTest extends AbstractSerDeTest {
         writeXmlTest(network, NetworkSerDe::write, refXmlFile);
     }
 
-    protected void testReporter(ReportNodeImpl reporter, String reporterFile) {
+    protected void testReporter(ReportNodeImpl reporter, String reporterFile) throws IOException {
         Optional<ReportNode> report = reporter.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
         StringWriter sw = new StringWriter();
-        reporter.export(sw);
+        reporter.print(sw);
 
         InputStream refStream = TopologyTestUtils.class.getResourceAsStream(reporterFile);
         ComparisonUtils.compareTxt(refStream, sw.toString());

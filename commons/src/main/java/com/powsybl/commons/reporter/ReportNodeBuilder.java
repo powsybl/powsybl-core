@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.reporter;
 
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class ReportNodeBuilder {
      * @return the new {@link ReportNode} corresponding to current <code>ReportBuilder</code>
      */
     public ReportNode build() {
-        return new ReportNodeImpl(key, defaultMessage, values);
+        return new ReportNodeImpl(key, defaultMessage, values, new ArrayDeque<>());
     }
 
     /**

@@ -332,7 +332,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
     }
 
     @Test
-    void testWithReporter() {
+    void testWithReporter() throws IOException {
         LineAdder lineAdder = nbNetwork.newLine()
                 .setId("lineTest")
                 .setR(1.0)

@@ -130,7 +130,7 @@ class ShortCircuitAnalysisTest {
         assertTrue(node instanceof ReportNodeImpl);
         ReportNodeImpl subReporter = (ReportNodeImpl) node;
         assertEquals("MockShortCircuit", subReporter.getKey());
-        assertEquals("Running mock short circuit", subReporter.getDefaultText());
+        assertEquals("Running mock short circuit", subReporter.getMessage());
         assertTrue(subReporter.getChildren().isEmpty());
     }
 

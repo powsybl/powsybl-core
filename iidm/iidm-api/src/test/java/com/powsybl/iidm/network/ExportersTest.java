@@ -127,7 +127,7 @@ class ExportersTest extends AbstractConvertersTest {
         assertTrue(reportNode.get() instanceof ReportNode);
 
         StringWriter sw = new StringWriter();
-        reporter.export(sw);
+        reporter.print(sw);
 
         InputStream refStream = getClass().getResourceAsStream("/exportReporterTest.txt");
         String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));

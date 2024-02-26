@@ -87,7 +87,7 @@ class ImportersTest extends AbstractConvertersTest {
     }
 
     @Test
-    void getImporterWithImportConfigAndReporter() {
+    void getImporterWithImportConfigAndReporter() throws IOException {
         Importer importer = Importer.find(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
         ReportNodeImpl reporter = new ReportNodeImpl("testFunctionalLog", "testFunctionalLogs");
         assertNotNull(importer);
@@ -98,7 +98,7 @@ class ImportersTest extends AbstractConvertersTest {
         // Check that the wrapped importer has received the functional logs reporter and produced report items
         assertEquals(1, reporter.getChildren().size());
         StringWriter sw = new StringWriter();
-        reporter.export(sw);
+        reporter.print(sw);
         String actual = TestUtil.normalizeLineSeparator(sw.toString());
         String expected = TestUtil.normalizeLineSeparator(
                 "+ testFunctionalLogs\n" +

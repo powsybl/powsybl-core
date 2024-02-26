@@ -120,7 +120,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     }
 
     @Test
-    void testWithReporter() {
+    void testWithReporter() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateCouplingDevice", "Testing reporter for coupling device creation");
         new CreateCouplingDeviceBuilder()

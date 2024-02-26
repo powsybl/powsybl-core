@@ -7,7 +7,6 @@
 package com.powsybl.commons.reporter;
 
 import org.apache.commons.text.StringSubstitutor;
-import org.apache.commons.text.lookup.StringLookup;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -21,33 +20,35 @@ public abstract class AbstractReportNode implements ReportNode {
 
     private final String key;
     private final String defaultText;
-    private final Map<String, TypedValue> values;
+    private final Deque<Map<String, TypedValue>> valuesDeque;
 
-    protected AbstractReportNode(String key, String defaultText, Map<String, TypedValue> values) {
+    protected AbstractReportNode(String key, String defaultText, Map<String, TypedValue> values, Deque<Map<String, TypedValue>> inheritedValuesDeque) {
         this.key = Objects.requireNonNull(key);
         this.defaultText = defaultText;
-        this.values = new HashMap<>();
+        this.valuesDeque = new ArrayDeque<>(inheritedValuesDeque);
+        this.valuesDeque.addFirst(new HashMap<>());
         Objects.requireNonNull(values).forEach(this::addValue);
     }
 
     @Override
-    public ReportNode report(String key, String defaultMessage) {
-        return report(key, defaultMessage, Collections.emptyMap());
+    public ReportNode report(String key, String messageTemplate) {
+        return report(key, messageTemplate, Collections.emptyMap());
     }
 
     @Override
-    public ReportNode report(String key, String defaultMessage, String valueKey, Object value) {
-        return this.report(key, defaultMessage, valueKey, value, TypedValue.UNTYPED);
+    public ReportNode report(String key, String messageTemplate, String valueKey, Object value) {
+        return this.report(key, messageTemplate, valueKey, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public ReportNode report(String key, String defaultMessage, String valueKey, Object value, String type) {
-        return report(key, defaultMessage, Map.of(valueKey, new TypedValue(value, type)));
+    public ReportNode report(String key, String messageTemplate, String valueKey, Object value, String type) {
+        return report(key, messageTemplate, Map.of(valueKey, new TypedValue(value, type)));
     }
 
     private void addValue(String key, TypedValue typedValue) {
+        Objects.requireNonNull(key);
         Objects.requireNonNull(typedValue);
-        values.put(key, typedValue);
+        valuesDeque.getFirst().put(key, typedValue);
     }
 
     @Override
@@ -56,22 +57,29 @@ public abstract class AbstractReportNode implements ReportNode {
     }
 
     @Override
-    public String getDefaultText() {
+    public String getMessage() {
         return defaultText;
     }
 
     @Override
-    public Map<String, TypedValue> getValues() {
-        return Collections.unmodifiableMap(values);
+    public Deque<Map<String, TypedValue>> getValuesDeque() {
+        return valuesDeque;
     }
 
     @Override
-    public TypedValue getValue(String valueKey) {
-        return values.get(valueKey);
+    public Optional<TypedValue> getValue(String valueKey) {
+        return getValuesDeque().stream()
+                .map(m -> m.get(valueKey))
+                .filter(Objects::nonNull)
+                .findFirst();
     }
 
-    protected void printDefaultText(Writer writer, String indent, String prefix, Deque<Map<String, TypedValue>> valueMaps) throws IOException {
-        String formattedText = formatMessage(getDefaultText(), valueMaps);
+    public Optional<String> getValueAsString(String valueKey) {
+        return getValue(valueKey).map(TypedValue::getValue).map(Object::toString);
+    }
+
+    protected void printDefaultText(Writer writer, String indent, String prefix) throws IOException {
+        String formattedText = formatMessage(getMessage());
         writer.append(indent).append(prefix).append(formattedText).append(System.lineSeparator());
     }
 
@@ -79,23 +87,11 @@ public abstract class AbstractReportNode implements ReportNode {
      * Format given message by replacing value references by the corresponding values.
      * The values in the given message have to be referred to with their corresponding key, using the <code>${key}</code> syntax.
      * {@link org.apache.commons.text.StringSubstitutor} is used for the string replacements.
+     *
      * @param message the message to be formatted
-     * @param values the key-value map used to look for the values
      * @return the resulting formatted string
      */
-    protected static String formatMessage(String message, Deque<Map<String, TypedValue>> values) {
-        return new StringSubstitutor(new MapsLookup(values)).replace(message);
-    }
-
-    private record MapsLookup(Deque<Map<String, TypedValue>> values) implements StringLookup {
-        @Override
-        public String lookup(String s) {
-            return values.stream()
-                    .map(m -> m.get(s))
-                    .filter(Objects::nonNull)
-                    .map(TypedValue::getValue)
-                    .map(Object::toString)
-                    .findFirst().orElse(null);
-        }
+    protected String formatMessage(String message) {
+        return new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(message);
     }
 }
