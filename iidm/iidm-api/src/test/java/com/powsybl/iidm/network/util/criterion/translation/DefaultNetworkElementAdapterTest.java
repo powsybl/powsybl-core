@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class DefaultNetworkElementTest {
+class DefaultNetworkElementAdapterTest {
 
     @Test
     void testBranch() {
@@ -47,7 +47,7 @@ class DefaultNetworkElementTest {
         Mockito.when(line.getTerminal(TwoSides.ONE)).thenReturn(terminal1);
         Mockito.when(line.getTerminal(TwoSides.TWO)).thenReturn(terminal2);
 
-        DefaultNetworkElement networkElement = new DefaultNetworkElement(line);
+        DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(line);
         assertEquals("testLine", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry());
         assertEquals(Country.FR, networkElement.getCountry1());

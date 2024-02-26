@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
 import com.powsybl.iidm.network.util.criterion.NetworkElementVisitor;
-import com.powsybl.security.json.limitsreduction.criterion.duration.translation.DefaultNetworkElementWithLimits;
+import com.powsybl.security.json.limitsreduction.criterion.duration.translation.DefaultNetworkElementWithLimitsAdapter;
 import com.powsybl.security.json.limitsreduction.criterion.duration.translation.NetworkElementWithLimits;
 import com.powsybl.security.limitsreduction.criterion.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
@@ -43,7 +43,7 @@ public class ReducedLimitsComputer {
     }
 
     public Optional<LoadingLimits> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
-        return getLimitsWithAppliedReduction(new DefaultNetworkElementWithLimits(identifiable), limitType, side, DefaultLimitsReducerCreator.getInstance());
+        return getLimitsWithAppliedReduction(new DefaultNetworkElementWithLimitsAdapter(identifiable), limitType, side, DefaultLimitsReducerCreator.getInstance());
     }
 
     public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class DefaultNetworkElementWithLimitsTest {
+class DefaultNetworkElementWithLimitsAdapterTest {
     @Test
     void testBranch() {
         Substation substation1 = Mockito.mock(Substation.class);
@@ -50,7 +50,7 @@ class DefaultNetworkElementWithLimitsTest {
         Mockito.when(line.getLimits(LimitType.APPARENT_POWER, TwoSides.ONE)).thenAnswer(x -> createLimits(654.));
         Mockito.when(line.getLimits(LimitType.ACTIVE_POWER, TwoSides.TWO)).thenAnswer(x -> createLimits(987.));
 
-        DefaultNetworkElementWithLimits networkElement = new DefaultNetworkElementWithLimits(line);
+        DefaultNetworkElementWithLimitsAdapter networkElement = new DefaultNetworkElementWithLimitsAdapter(line);
         assertEquals("testLine", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry());
         assertEquals(Country.FR, networkElement.getCountry1());
@@ -82,7 +82,7 @@ class DefaultNetworkElementWithLimitsTest {
         return Optional.of(limits);
     }
 
-    private Double getPermanentLimit(DefaultNetworkElementWithLimits networkElement, LimitType type, ThreeSides side) {
+    private Double getPermanentLimit(DefaultNetworkElementWithLimitsAdapter networkElement, LimitType type, ThreeSides side) {
         Optional<LoadingLimits> limits = networkElement.getLimits(type, side);
         return limits.map(LoadingLimits::getPermanentLimit).orElse(null);
     }

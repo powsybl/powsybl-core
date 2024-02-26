@@ -13,13 +13,13 @@ import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion.NetworkEl
 import java.util.Optional;
 import java.util.Set;
 
-public class DefaultNetworkElement implements NetworkElement {
+public class DefaultNetworkElementAdapter implements NetworkElement {
 
     private static final Set<IdentifiableType> VALID_TYPES_FOR_LINE_CRITERION = Set.of(IdentifiableType.LINE, IdentifiableType.TIE_LINE);
 
     private final Identifiable<?> identifiable;
 
-    public DefaultNetworkElement(Identifiable<?> identifiable) {
+    public DefaultNetworkElementAdapter(Identifiable<?> identifiable) {
         this.identifiable = identifiable;
     }
 

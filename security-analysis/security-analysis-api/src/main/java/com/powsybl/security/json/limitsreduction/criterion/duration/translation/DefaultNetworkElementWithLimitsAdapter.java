@@ -8,15 +8,15 @@
 package com.powsybl.security.json.limitsreduction.criterion.duration.translation;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.criterion.translation.DefaultNetworkElement;
+import com.powsybl.iidm.network.util.criterion.translation.DefaultNetworkElementAdapter;
 
 import java.util.Optional;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DefaultNetworkElementWithLimits extends DefaultNetworkElement implements NetworkElementWithLimits<LoadingLimits> {
-    public DefaultNetworkElementWithLimits(Identifiable<?> identifiable) {
+public class DefaultNetworkElementWithLimitsAdapter extends DefaultNetworkElementAdapter implements NetworkElementWithLimits<LoadingLimits> {
+    public DefaultNetworkElementWithLimitsAdapter(Identifiable<?> identifiable) {
         super(identifiable);
     }
 
