@@ -51,10 +51,11 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
     }
 
     private void addBusbarSectionTerminalToBus() {
+        // Some isolated busbar sections may not have a topological node.
+        // This means that we can not determine the voltage level of the busbar section in bus/branch model,
+        // So we need to check if the voltage level is present before trying to access the bus
         // voltageLevel() assumes voltage level is present, throws an exception if not available
-        // voltageLevel(1) returns the (optional) voltage level of the first terminal
-        // Some isolated busbar sections may not have a topological node, so we need to check
-        // if the voltage level is present before trying to access the bus
+        // voltageLevel(1) returns the optional voltage level of the first terminal
         Bus bus = voltageLevel(1).map(VoltageLevel::getBusBreakerView).map(bbv -> bbv.getBus(busId())).orElse(null);
         if (bus != null) {
             String busbarSectionTerminals = bus.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
