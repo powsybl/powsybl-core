@@ -857,7 +857,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator expectedGenerator = network.getGenerator("generator1");
         expectedGenerator.setEnergySource(EnergySource.HYDRO);
         String expectedStorageKind = "pumpedStorage";
-        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STRORAGE_KIND, expectedStorageKind);
+        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STORAGE_KIND, expectedStorageKind);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -870,7 +870,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the storage kind property
-        String actualStorageKind = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STRORAGE_KIND);
+        String actualStorageKind = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STORAGE_KIND);
         assertEquals(expectedStorageKind, actualStorageKind);
     }
 
