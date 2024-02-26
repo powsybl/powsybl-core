@@ -177,6 +177,11 @@ public interface ReportNode {
     void print(Writer writer, String indentationStart) throws IOException;
 
     /**
+     * TODO: Questions this design! could be avoided by replacing addChild(ReportNode) with addChild(ReportNodeBuilder)
+     */
+    void setInheritedValuesDeque(Deque<Map<String, TypedValue>> valuesDeque);
+
+    /**
      * A default no-op implementation
      */
     class NoOpImpl implements ReportNode {
@@ -245,6 +250,11 @@ public interface ReportNode {
 
         @Override
         public void print(Writer writer, String indentationStart) throws IOException {
+            // No-op
+        }
+
+        @Override
+        public void setInheritedValuesDeque(Deque<Map<String, TypedValue>> valuesDeque) {
             // No-op
         }
     }

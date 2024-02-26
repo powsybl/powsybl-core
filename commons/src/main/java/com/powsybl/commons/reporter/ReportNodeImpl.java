@@ -74,12 +74,13 @@ public class ReportNodeImpl extends AbstractReportNode {
     @Override
     public ReportNodeImpl report(String key, String messageTemplate, Map<String, TypedValue> values) {
         ReportNodeImpl subReporter = new ReportNodeImpl(key, messageTemplate, values, getValuesDeque());
-        addChild(subReporter);
+        children.add(subReporter);
         return subReporter;
     }
 
     @Override
     public void addChild(ReportNode reportNode) {
+        reportNode.setInheritedValuesDeque(getValuesDeque());
         children.add(reportNode);
     }
 
