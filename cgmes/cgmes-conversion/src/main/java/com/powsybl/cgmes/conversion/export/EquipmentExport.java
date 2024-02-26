@@ -388,12 +388,10 @@ public final class EquipmentExport {
         double maxQ;
         String kind = CgmesNames.GENERATOR_OR_MOTOR;
         switch (i.getReactiveLimits().getKind()) {
-            case CURVE:
+            case CURVE -> {
                 ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
-
                 minQ = Double.min(curve.getMinQ(curve.getMinP()), curve.getMinQ(curve.getMaxP()));
                 maxQ = Double.max(curve.getMaxQ(curve.getMinP()), curve.getMaxQ(curve.getMaxP()));
-
                 if (curve.getMinP() >= 0 && curve.getMaxP() >= 0) {
                     kind = "generator";
                 } else if (curve.getMinP() <= 0 && curve.getMaxP() <= 0) {
@@ -402,7 +400,6 @@ public final class EquipmentExport {
                 if (minQ == maxQ) {
                     break;
                 }
-
                 reactiveLimitsId = context.getNamingStrategy().getCgmesId(refTyped(i), REACTIVE_CAPABILITY_CURVE);
                 int pointIndex = 0;
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
@@ -412,9 +409,8 @@ public final class EquipmentExport {
                 }
                 String reactiveCapabilityCurveName = "RCC_" + i.getNameOrId();
                 ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, i, cimNamespace, writer, context);
-                break;
-
-            case MIN_MAX:
+            }
+            case MIN_MAX -> {
                 minQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
                 maxQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
 
@@ -424,11 +420,9 @@ public final class EquipmentExport {
                 } else if (minP <= 0 && maxP <= 0) {
                     kind = "motor";
                 } // other case not possible
-
-                break;
-
-            default:
-                throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + i.getNameOrId());
+            }
+            default ->
+                    throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + i.getNameOrId());
         }
         double defaultRatedS = computeDefaultRatedS(i, minP, maxP);
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
@@ -1122,7 +1116,7 @@ public final class EquipmentExport {
         }
         String reactiveLimitsId = context.getNamingStrategy().getCgmesId(refTyped(vscConverter), REACTIVE_CAPABILITY_CURVE);
         switch (vscConverter.getReactiveLimits().getKind()) {
-            case CURVE:
+            case CURVE -> {
                 ReactiveCapabilityCurve curve = vscConverter.getReactiveLimits(ReactiveCapabilityCurve.class);
                 int pointIndex = 0;
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
@@ -1132,15 +1126,12 @@ public final class EquipmentExport {
                 }
                 String reactiveCapabilityCurveName = "RCC_" + vscConverter.getNameOrId();
                 ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, vscConverter, cimNamespace, writer, context);
-                break;
-
-            case MIN_MAX:
+            }
+            case MIN_MAX ->
                 //Do not have to export anything
-                reactiveLimitsId = null;
-                break;
-
-            default:
-                throw new PowsyblException("Unexpected type of ReactiveLimits on the VsConverter " + converter.getNameOrId());
+                    reactiveLimitsId = null;
+            default ->
+                    throw new PowsyblException("Unexpected type of ReactiveLimits on the VsConverter " + converter.getNameOrId());
         }
         return reactiveLimitsId;
     }
@@ -1240,7 +1231,7 @@ public final class EquipmentExport {
         for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
             if (context.isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    writeTerminal(t, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context, network);
+                    writeTerminal(t, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
                 }
             }
         }
@@ -1261,7 +1252,7 @@ public final class EquipmentExport {
     }
 
     private static void writeTerminal(Terminal t, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
-                                      String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Network network) {
+                                      String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
         writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t),
                 CgmesExportUtil.getTerminalSequenceNumber(t), cimNamespace, writer, context);
