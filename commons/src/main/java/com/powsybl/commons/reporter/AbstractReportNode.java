@@ -13,21 +13,17 @@ import java.io.Writer;
 import java.util.*;
 
 /**
- * An abstract class providing some default method implementations for {@link ReportNode} implementations.
+ * An abstract class providing the default method implementations related to key / messageTemplate, for {@link ReportNode} implementations.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public abstract class AbstractReportNode implements ReportNode {
 
     private final String key;
-    private final String defaultText;
-    private final Deque<Map<String, TypedValue>> valuesDeque;
+    private final String messageTemplate;
 
-    protected AbstractReportNode(String key, String defaultText, Map<String, TypedValue> values, Deque<Map<String, TypedValue>> inheritedValuesDeque) {
+    protected AbstractReportNode(String key, String messageTemplate) {
         this.key = Objects.requireNonNull(key);
-        this.defaultText = defaultText;
-        this.valuesDeque = new ArrayDeque<>(inheritedValuesDeque);
-        this.valuesDeque.addFirst(new HashMap<>());
-        Objects.requireNonNull(values).forEach(this::addValue);
+        this.messageTemplate = messageTemplate;
     }
 
     @Override
@@ -45,53 +41,39 @@ public abstract class AbstractReportNode implements ReportNode {
         return report(key, messageTemplate, Map.of(valueKey, new TypedValue(value, type)));
     }
 
-    private void addValue(String key, TypedValue typedValue) {
-        Objects.requireNonNull(key);
-        Objects.requireNonNull(typedValue);
-        valuesDeque.getFirst().put(key, typedValue);
-    }
-
     @Override
     public String getKey() {
         return key;
     }
 
+    protected String getMessageTemplate() {
+        return messageTemplate;
+    }
+
     @Override
     public String getMessage() {
-        return defaultText;
-    }
-
-    @Override
-    public Deque<Map<String, TypedValue>> getValuesDeque() {
-        return valuesDeque;
-    }
-
-    @Override
-    public Optional<TypedValue> getValue(String valueKey) {
-        return getValuesDeque().stream()
-                .map(m -> m.get(valueKey))
-                .filter(Objects::nonNull)
-                .findFirst();
+        return new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(messageTemplate);
     }
 
     public Optional<String> getValueAsString(String valueKey) {
         return getValue(valueKey).map(TypedValue::getValue).map(Object::toString);
     }
 
-    protected void print(Writer writer, String indent, String prefix) throws IOException {
-        String formattedText = formatMessage(getMessage());
-        writer.append(indent).append(prefix).append(formattedText).append(System.lineSeparator());
+    @Override
+    public void print(Writer writer, String indentationStart) throws IOException {
+        Collection<ReportNode> children = getChildren();
+        if (children.isEmpty()) {
+            print(writer, indentationStart, "");
+        } else {
+            print(writer, indentationStart, "+ ");
+            String childrenIndent = indentationStart + "   ";
+            for (ReportNode child : children) {
+                child.print(writer, childrenIndent);
+            }
+        }
     }
 
-    /**
-     * Format given message by replacing value references by the corresponding values.
-     * The values in the given message have to be referred to with their corresponding key, using the <code>${key}</code> syntax.
-     * {@link org.apache.commons.text.StringSubstitutor} is used for the string replacements.
-     *
-     * @param message the message to be formatted
-     * @return the resulting formatted string
-     */
-    protected String formatMessage(String message) {
-        return new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(message);
+    protected void print(Writer writer, String indent, String prefix) throws IOException {
+        writer.append(indent).append(prefix).append(getMessage()).append(System.lineSeparator());
     }
 }

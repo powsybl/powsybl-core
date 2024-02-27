@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.*;
 
 /**
@@ -29,6 +28,7 @@ import java.util.*;
 public class ReportNodeImpl extends AbstractReportNode {
 
     private final List<ReportNode> children = new ArrayList<>();
+    private final Deque<Map<String, TypedValue>> valuesDeque;
 
     /**
      * ReportNodeImpl constructor, with no associated values and no inherited values.
@@ -55,7 +55,7 @@ public class ReportNodeImpl extends AbstractReportNode {
      *                        <code>ReporterNode</code> ancestors.
      */
     public ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values) {
-        super(key, messageTemplate, values, new ArrayDeque<>());
+        this(key, messageTemplate, values, new ArrayDeque<>());
     }
 
     /**
@@ -72,7 +72,16 @@ public class ReportNodeImpl extends AbstractReportNode {
      * @param inheritedValuesDeque a {@link Deque} of inherited values maps
      */
     public ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Deque<Map<String, TypedValue>> inheritedValuesDeque) {
-        super(key, messageTemplate, values, inheritedValuesDeque);
+        super(key, messageTemplate);
+        this.valuesDeque = new ArrayDeque<>(inheritedValuesDeque);
+        this.valuesDeque.addFirst(new HashMap<>());
+        Objects.requireNonNull(values).forEach(this::addValue);
+    }
+
+    private void addValue(String key, TypedValue typedValue) {
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(typedValue);
+        valuesDeque.getFirst().put(key, typedValue);
     }
 
     @Override
@@ -80,6 +89,19 @@ public class ReportNodeImpl extends AbstractReportNode {
         ReportNodeImpl child = new ReportNodeImpl(key, messageTemplate, values, getValuesDeque());
         children.add(child);
         return child;
+    }
+
+    @Override
+    public Deque<Map<String, TypedValue>> getValuesDeque() {
+        return valuesDeque;
+    }
+
+    @Override
+    public Optional<TypedValue> getValue(String valueKey) {
+        return getValuesDeque().stream()
+                .map(m -> m.get(valueKey))
+                .filter(Objects::nonNull)
+                .findFirst();
     }
 
     @Override
@@ -147,19 +169,6 @@ public class ReportNodeImpl extends AbstractReportNode {
         }
         generator.writeEndObject();
 
-        dictionary.put(getKey(), getMessage());
-    }
-
-    @Override
-    public void print(Writer writer, String indentationStart) throws IOException {
-        if (children.isEmpty()) {
-            print(writer, indentationStart, "");
-        } else {
-            print(writer, indentationStart, "+ ");
-            String childrenIndent = indentationStart + "   ";
-            for (ReportNode child : children) {
-                child.print(writer, childrenIndent);
-            }
-        }
+        dictionary.put(getKey(), getMessageTemplate());
     }
 }

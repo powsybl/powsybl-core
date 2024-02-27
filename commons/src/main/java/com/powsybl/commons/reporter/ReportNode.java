@@ -125,8 +125,8 @@ public interface ReportNode {
     String getKey();
 
     /**
-     * Get the message of current node, replacing references with the corresponding values
-     * @return the default text
+     * Get the message of current node, replacing references in the message template with the corresponding values
+     * @return the message
      */
     String getMessage();
 
