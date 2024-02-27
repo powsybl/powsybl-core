@@ -90,13 +90,6 @@ public class ReportNodeImpl extends AbstractReportNode {
     }
 
     @Override
-    public ReportNodeImpl report(String key, String messageTemplate, Map<String, TypedValue> values) {
-        ReportNodeImpl child = new ReportNodeImpl(key, messageTemplate, values, getValuesMapsInheritance());
-        children.add(child);
-        return child;
-    }
-
-    @Override
     public Collection<Map<String, TypedValue>> getValuesMapsInheritance() {
         if (valuesMapsInheritance == null) {
             List<Map<String, TypedValue>> v = new ArrayList<>(1 + inheritedValuesMaps.size());

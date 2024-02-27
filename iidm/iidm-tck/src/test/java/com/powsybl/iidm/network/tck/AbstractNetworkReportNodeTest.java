@@ -51,7 +51,7 @@ public abstract class AbstractNetworkReportNodeTest {
     }
 
     private Runnable getTask(Network network) {
-        return () -> network.getReporterContext().getReporter().report("reportKey", "message");
+        return () -> network.getReporterContext().getReporter().newReportNode().withKey("reportKey").withMessageTemplate("message").add();
     }
 
     @Test
@@ -79,7 +79,7 @@ public abstract class AbstractNetworkReportNodeTest {
                     try {
                         latch.countDown();
                         latch.await();
-                        network.getReporterContext().getReporter().report("key2", "message2");
+                        network.getReporterContext().getReporter().newReportNode().withKey("key2").withMessageTemplate("message2").add();
                     } finally {
                         network.getReporterContext().popReporter();
                     }
@@ -90,7 +90,7 @@ public abstract class AbstractNetworkReportNodeTest {
                     try {
                         latch.countDown();
                         latch.await();
-                        network.getReporterContext().getReporter().report("key3", "message3");
+                        network.getReporterContext().getReporter().newReportNode().withKey("key3").withMessageTemplate("message3").add();
                     } finally {
                         network.getReporterContext().popReporter();
                     }

@@ -162,7 +162,7 @@ public class CgmesImport implements Importer {
 
     private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         CgmesModel cgmes = readCgmes(ds, p, reportNode);
-        ReportNode conversionReportNode = reportNode.report("CGMESConversion", "Importing CGMES file(s)");
+        ReportNode conversionReportNode = reportNode.newReportNode().withKey("CGMESConversion").withMessageTemplate("Importing CGMES file(s)").add();
         return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
     }
 
@@ -348,7 +348,7 @@ public class CgmesImport implements Importer {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
         options.decodeEscapedIdentifiers(Parameter.readBoolean(getFormat(), p, DECODE_ESCAPED_IDENTIFIERS_PARAMETER, defaultValueConfig));
-        ReportNode tripleStoreReportNode = reportNode.report("CGMESTriplestore", "Reading CGMES Triplestore");
+        ReportNode tripleStoreReportNode = reportNode.newReportNode().withKey("CGMESTriplestore").withMessageTemplate("Reading CGMES Triplestore").add();
         return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReportNode, options);
     }
 

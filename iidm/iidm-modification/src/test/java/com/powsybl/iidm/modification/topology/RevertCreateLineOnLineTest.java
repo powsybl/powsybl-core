@@ -47,7 +47,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("CJ_2")
                 .withMergedLineId("CJ")
                 .build();
-        ReportNode subReportNode1 = reporter1.report("withThrowException", "throwException = true");
+        ReportNode subReportNode1 = reporter1.newReportNode().withKey("withThrowException").withMessageTemplate("throwException = true").add();
         ReportNodeImpl subReporter1a = (ReportNodeImpl) reporter1.getChildren().iterator().next();
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, subReportNode1), "Line line1NotFound is not found");
         assertEquals("lineNotFound", subReporter1a.getChildren().iterator().next().getKey());
@@ -57,7 +57,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("CJ_2")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError11.apply(network, false, reporter1.report("withoutThrowException", "throwException = false"));
+        modificationWithError11.apply(network, false, reporter1.newReportNode().withKey("withoutThrowException").withMessageTemplate("throwException = false").add());
         assertNull(network.getLine("CJ"));
         Iterator<ReportNode> it1b = reporter1.getChildren().iterator();
         it1b.next();
@@ -71,7 +71,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("CJ_3")
                 .withMergedLineId("CJ")
                 .build();
-        ReportNode subReportNode2 = reporter2.report("withThrowException", "throwException = true");
+        ReportNode subReportNode2 = reporter2.newReportNode().withKey("withThrowException").withMessageTemplate("throwException = true").add();
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, subReportNode2), "Line line2NotFound is not found");
         ReportNodeImpl subReporter2a = (ReportNodeImpl) reporter2.getChildren().iterator().next();
         assertEquals("lineNotFound", subReporter2a.getChildren().iterator().next().getKey());
@@ -81,7 +81,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("CJ_3")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError21.apply(network, false, reporter2.report("withoutThrowException", "throwException = false"));
+        modificationWithError21.apply(network, false, reporter2.newReportNode().withKey("withoutThrowException").withMessageTemplate("throwException = false").add());
         assertNull(network.getLine("CJ"));
         Iterator<ReportNode> it2b = reporter2.getChildren().iterator();
         it2b.next();
@@ -95,7 +95,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("line3NotFound")
                 .withMergedLineId("CJ")
                 .build();
-        ReportNode subReportNode3 = reporter3.report("withThrowException", "throwException = true");
+        ReportNode subReportNode3 = reporter3.newReportNode().withKey("withThrowException").withMessageTemplate("throwException = true").add();
         assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, subReportNode3), "Line line3NotFound is not found");
         ReportNodeImpl subReporter3a = (ReportNodeImpl) reporter3.getChildren().iterator().next();
         assertEquals("lineNotFound", subReporter3a.getChildren().iterator().next().getKey());
@@ -105,7 +105,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("line3NotFound")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError31.apply(network, false, reporter3.report("withoutThrowException", "throwException = false"));
+        modificationWithError31.apply(network, false, reporter3.newReportNode().withKey("withoutThrowException").withMessageTemplate("throwException = false").add());
         assertNull(network.getLine("CJ"));
         Iterator<ReportNode> it3b = reporter3.getChildren().iterator();
         it3b.next();
@@ -119,7 +119,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("LINE34")
                 .withMergedLineId("CJ")
                 .build();
-        ReportNode subReportNode4 = reporter4.report("withThrowException", "throwException = true");
+        ReportNode subReportNode4 = reporter4.newReportNode().withKey("withThrowException").withMessageTemplate("throwException = true").add();
         assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, subReportNode4), "Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34");
         ReportNodeImpl subReporter4a = (ReportNodeImpl) reporter4.getChildren().iterator().next();
         assertEquals("noTeePointAndOrTappedVoltageLevel", subReporter4a.getChildren().iterator().next().getKey());
@@ -129,7 +129,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("LINE34")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError41.apply(network, false, reporter4.report("withoutThrowException", "throwException = false"));
+        modificationWithError41.apply(network, false, reporter4.newReportNode().withKey("withoutThrowException").withMessageTemplate("throwException = false").add());
         assertNull(network.getLine("CJ"));
         Iterator<ReportNode> it4b = reporter4.getChildren().iterator();
         it4b.next();

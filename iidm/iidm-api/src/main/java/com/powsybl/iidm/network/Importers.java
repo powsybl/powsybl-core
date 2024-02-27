@@ -168,7 +168,11 @@ public final class Importers {
     }
 
     private static ReportNode createSubReporter(ReportNode reportNode, ReadOnlyDataSource ds) {
-        return reportNode.report("importDataSource", "Import data source ${dataSource}", "dataSource", ds.getBaseName());
+        return reportNode.newReportNode()
+                .withKey("importDataSource")
+                .withMessageTemplate("Import data source ${dataSource}")
+                .withValue("dataSource", ds.getBaseName())
+                .add();
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {

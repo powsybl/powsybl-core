@@ -53,7 +53,7 @@ public class GroovyEventModelsSupplier implements EventModelsSupplier {
     @Override
     public List<EventModel> get(Network network, ReportNode reportNode) {
         List<EventModel> eventModels = new ArrayList<>();
-        ReportNode groovyReportNode = reportNode.report("groovyEventModels", "Groovy Event Models Supplier");
+        ReportNode groovyReportNode = reportNode.newReportNode().withKey("groovyEventModels").withMessageTemplate("Groovy Event Models Supplier").add();
 
         Binding binding = new Binding();
         binding.setVariable("network", network);

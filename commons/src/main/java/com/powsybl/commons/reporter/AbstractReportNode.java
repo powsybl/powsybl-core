@@ -27,21 +27,6 @@ public abstract class AbstractReportNode implements ReportNode {
     }
 
     @Override
-    public ReportNode report(String key, String messageTemplate) {
-        return report(key, messageTemplate, Collections.emptyMap());
-    }
-
-    @Override
-    public ReportNode report(String key, String messageTemplate, String valueKey, Object value) {
-        return this.report(key, messageTemplate, valueKey, value, TypedValue.UNTYPED);
-    }
-
-    @Override
-    public ReportNode report(String key, String messageTemplate, String valueKey, Object value, String type) {
-        return report(key, messageTemplate, Map.of(valueKey, new TypedValue(value, type)));
-    }
-
-    @Override
     public String getKey() {
         return key;
     }

@@ -9,7 +9,6 @@ package com.powsybl.ucte.converter;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -30,7 +29,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -46,10 +46,11 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         ReportNodeImpl reporter = new ReportNodeImpl("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}",
             Map.of("file", new TypedValue("elementName.uct", TypedValue.FILENAME)));
 
-        PowsyblException e = assertThrows(PowsyblException.class, () -> reporter.report("ObjectReport", "Object ${object} report", "object", dataSource));
-        assertEquals("TypedValue expects only Float, Double, Integer, Long and String values (value is an instance of class com.powsybl.commons.datasource.ResourceDataSource)", e.getMessage());
-
-        reporter.report("reportTest", "Report test ${unknownKey}", "nonPrintedString", "Non printed String");
+        reporter.newReportNode()
+                .withKey("reportTest")
+                .withMessageTemplate("Report test ${unknownKey}")
+                .withValue("nonPrintedString", "Non printed String")
+                .add();
         Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());
         assertEquals("Report test ${unknownKey}", reportNode.get().getMessage());
@@ -70,7 +71,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     void roundTripReporterJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
         ReportNodeImpl reporter = new ReportNodeImpl("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct");
-        reporter.report("novalueReport", "No value report");
+        reporter.newReportNode().withKey("novalueReport").withMessageTemplate("No value report").add();
         Network.read(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reporter, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
 
@@ -124,10 +125,12 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         Files.copy(getClass().getResourceAsStream("/germanTsos.uct"), fileSystem.getPath(WORK_DIR, "germanTsos.uct"));
 
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
+        Map<String, TypedValue> values = new LinkedHashMap<>();
+        values.put("file1", new TypedValue("frVoltageRegulatingXnode.uct", TypedValue.FILENAME));
+        values.put("file2", new TypedValue("frTestGridForMerging.uct", TypedValue.FILENAME));
+        values.put("file3", new TypedValue("germanTsos.uct", TypedValue.FILENAME));
         ReportNodeImpl reporter = new ReportNodeImpl("importAllParallel", "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}",
-            Map.of("file1", new TypedValue("frVoltageRegulatingXnode.uct", TypedValue.FILENAME),
-                "file2", new TypedValue("frTestGridForMerging.uct", TypedValue.FILENAME),
-                "file3", new TypedValue("germanTsos.uct", TypedValue.FILENAME)));
+                values);
         Importers.importAll(workDir, new UcteImporter(), true, null, networkList::add, null, reporter);
         assertEquals(3, networkList.size());
         assertEquals(3, reporter.getChildren().size());

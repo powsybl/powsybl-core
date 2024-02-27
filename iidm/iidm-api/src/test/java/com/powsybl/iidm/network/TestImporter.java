@@ -42,7 +42,11 @@ public class TestImporter implements Importer {
     @Override
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
         if (reportNode != null) {
-            reportNode.report("test", "Import model ${model}", "model", "eurostagTutorialExample1");
+            reportNode.newReportNode()
+                    .withKey("test")
+                    .withMessageTemplate("Import model ${model}")
+                    .withValue("model", "eurostagTutorialExample1")
+                    .add();
         }
         return networkFactory.createNetwork("mock", "test");
     }

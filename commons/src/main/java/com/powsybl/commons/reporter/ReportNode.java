@@ -49,62 +49,6 @@ public interface ReportNode {
     ReportNode NO_OP = new ReportNodeNoOp();
 
     /**
-     * Create a new child <code>ReporterNode</code> with a default message template and its associated values
-     *
-     * @param key             the key identifying the message corresponding to the <code>ReporterNode</code> to create
-     * @param messageTemplate functional log, which may contain references to values using the <code>${key}</code> syntax,
-     *                        the values mentioned being the provided values and the values of any
-     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>
-     * @param values          a map of {@link TypedValue} indexed by their key, which may be referred to within the messageTemplate
-     *                        or within any descendants of the created <code>ReporterNode</code>.
-     *                        Be aware that any value in this map might, in all descendants, override a value of one of
-     *                        <code>ReporterNode</code> ancestors.
-     * @return the created <code>ReporterNode</code>
-     */
-    ReportNode report(String key, String messageTemplate, Map<String, TypedValue> values);
-
-    /**
-     * Create a new child <code>ReporterNode</code> with a default message template and no associated values
-     *
-     * @param key             the key identifying the message corresponding to the <code>ReporterNode</code> to create
-     * @param messageTemplate functional log, which may contain references to values of any <code>ReporterNode</code>
-     *                        ancestor of the created <code>ReporterNode</code>, using the <code>${key}</code> syntax
-     * @return the created <code>ReporterNode</code>
-     */
-    ReportNode report(String key, String messageTemplate);
-
-    /**
-     * Create a new child <code>ReporterNode</code> with a default message template and one untyped associated value
-     *
-     * @param key             the key identifying the message corresponding to the <code>ReporterNode</code> to create
-     * @param messageTemplate functional log, which may contain references to the given value or to values of any
-     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
-     *                        <code>${key}</code> syntax
-     * @param valueKey        the key for the value which follows
-     * @param value           the value which may be referred to within the messageTemplate or within any descendants of
-     *                        the created <code>ReporterNode</code>.
-     *                        Be aware that this value might, in all descendants, override a value of one of <code>ReporterNode</code>
-     *                        ancestors.
-     * @return the created <code>ReporterNode</code>
-     */
-    ReportNode report(String key, String messageTemplate, String valueKey, Object value);
-
-    /**
-     * Create a new child <code>ReporterNode</code> with a default message template and one associated typed value
-     *
-     * @param key             the key identifying the message corresponding to the <code>ReporterNode</code> to create
-     * @param messageTemplate functional log, which may contain references to the given value or to values of any
-     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
-     *                        <code>${key}</code> syntax
-     * @param valueKey        the key for the value which follows
-     * @param value           the value which may be referred to within the messageTemplate or within the reports message of the
-     *                        created sub-reporter
-     * @param type            the string representing the type of the value provided
-     * @return the created <code>ReporterNode</code>
-     */
-    ReportNode report(String key, String messageTemplate, String valueKey, Object value, String type);
-
-    /**
      * Create a new adder to create a <code>ReporterNode</code> child.
      * @return the created <code>ReporterNodeAdder</code>
      */
@@ -118,7 +62,7 @@ public interface ReportNode {
 
     /**
      * Get the key of current node.
-     * Note that each key needs to correspond to a unique message template
+     * Note that each key needs to correspond to a unique message template.
      * This is required in serialization, in particular due to multilingual support.
      * @return the key
      */
@@ -131,7 +75,7 @@ public interface ReportNode {
     String getMessage();
 
     /**
-     * Create the values maps for current node
+     * Get the values maps inheritance for the child nodes
      *
      * @return the {@link Deque} values map
      */

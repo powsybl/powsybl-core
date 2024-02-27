@@ -209,7 +209,7 @@ public class UcteReader {
 
     private void readTtBlock(UcteRecordParser parser, UcteNetwork network, ReportNode reportNode) throws IOException {
         LOGGER.warn("TT block not supported");
-        reportNode.report("UnsupportedTTBlock", "TT block not supported");
+        reportNode.newReportNode().withKey("UnsupportedTTBlock").withMessageTemplate("TT block not supported").add();
         while (parser.nextLine()) {
             if (parser.scanRecordType() != null) {
                 parseRecords(parser, network, reportNode);
@@ -267,7 +267,7 @@ public class UcteReader {
 
     public UcteNetwork read(BufferedReader reader, ReportNode reportNode) throws IOException {
 
-        ReportNode readReportNode = reportNode.report("UcteReading", "Reading UCTE network file");
+        ReportNode readReportNode = reportNode.newReportNode().withKey("UcteReading").withMessageTemplate("Reading UCTE network file").add();
         long start = System.currentTimeMillis();
         UcteNetwork network = new UcteNetworkImpl();
         UcteRecordParser parser = new UcteRecordParser(reader);
