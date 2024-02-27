@@ -19,7 +19,7 @@ public abstract class AbstractReportNodeAdder implements ReportNodeAdder {
     protected final ReportNode parent;
     protected final Map<String, TypedValue> values = new HashMap<>();
     protected String key;
-    protected String defaultMessage;
+    protected String messageTemplate;
 
     protected AbstractReportNodeAdder(ReportNode parent) {
         this.parent = Objects.requireNonNull(parent);
@@ -41,8 +41,8 @@ public abstract class AbstractReportNodeAdder implements ReportNodeAdder {
     }
 
     @Override
-    public ReportNodeAdder withDefaultMessage(String defaultMessage) {
-        this.defaultMessage = defaultMessage;
+    public ReportNodeAdder withMessageTemplate(String messageTemplate) {
+        this.messageTemplate = messageTemplate;
         return this;
     }
 

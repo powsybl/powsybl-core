@@ -103,7 +103,7 @@ public class ReportNodeNoOp implements ReportNode {
         }
 
         @Override
-        public ReportNodeAdder withDefaultMessage(String defaultMessage) {
+        public ReportNodeAdder withMessageTemplate(String messageTemplate) {
             return this;
         }
 

@@ -20,6 +20,6 @@ public class ReportNodeImplAdder extends AbstractReportNodeAdder {
 
     @Override
     protected ReportNodeImpl createReportNode() {
-        return new ReportNodeImpl(key, defaultMessage, values, parent.getValuesDeque());
+        return new ReportNodeImpl(key, messageTemplate, values, parent.getValuesDeque());
     }
 }

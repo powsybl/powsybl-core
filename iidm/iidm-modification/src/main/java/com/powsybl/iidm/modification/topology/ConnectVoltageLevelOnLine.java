@@ -120,7 +120,7 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         LOG.info("Voltage level {} connected to lines {} and {} replacing line {}.", voltageLevel.getId(), line1Id, line2Id, originalLineId);
         reportNode.newReportNode()
                 .withKey("voltageConnectedOnLine")
-                .withDefaultMessage("Voltage level ${voltageLevelId} connected to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
+                .withMessageTemplate("Voltage level ${voltageLevelId} connected to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
                 .withValue("voltageLevelId", voltageLevel.getId())
                 .withValue("line1Id", line1Id)
                 .withValue("line2Id", line2Id)

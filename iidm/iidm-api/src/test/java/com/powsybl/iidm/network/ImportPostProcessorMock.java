@@ -30,7 +30,7 @@ public class ImportPostProcessorMock implements ImportPostProcessor {
         network.setCaseDate(ZonedDateTime.of(2021, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC));
         reportNode.newReportNode()
             .withKey("testImportPostProcessor")
-            .withDefaultMessage("testing import post processor")
+            .withMessageTemplate("testing import post processor")
             .add();
     }
 }

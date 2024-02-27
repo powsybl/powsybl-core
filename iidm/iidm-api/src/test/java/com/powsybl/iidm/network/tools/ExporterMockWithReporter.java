@@ -37,7 +37,7 @@ public class ExporterMockWithReporter implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         reportNode.newReportNode()
             .withKey("export_test")
-            .withDefaultMessage("Export mock")
+            .withMessageTemplate("Export mock")
             .add();
     }
 }

@@ -425,7 +425,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
             reportNode.newReportNode()
                 .withKey("activePowerUndefined")
-                .withDefaultMessage("Node ${node}: active power is undefined, set value to 0")
+                .withMessageTemplate("Node ${node}: active power is undefined, set value to 0")
                 .withValue("node", code.toString())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -480,7 +480,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (isRegulatingVoltage() && (Double.isNaN(voltageReference) || voltageReference < 0.0001)) {
             reportNode.newReportNode()
                 .withKey("PvUndefinedVoltage")
-                .withDefaultMessage("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
+                .withMessageTemplate("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
                 .withValue("node", code.toString())
                 .withValue("voltageReference", voltageReference)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -508,7 +508,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (!isRegulatingVoltage() && Double.isNaN(reactivePowerGeneration)) {
             reportNode.newReportNode()
                 .withKey("PqUndefinedReactivePower")
-                .withDefaultMessage("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
+                .withMessageTemplate("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
                 .withValue("node", code.toString())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();

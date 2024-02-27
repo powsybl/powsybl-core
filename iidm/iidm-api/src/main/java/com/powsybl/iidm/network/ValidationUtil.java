@@ -59,7 +59,7 @@ public final class ValidationUtil {
     private static void logError(Validable validable, String message, ReportNode reportNode) {
         reportNode.newReportNode()
                 .withKey(validable.getMessageHeader())
-                .withDefaultMessage(message)
+                .withMessageTemplate(message)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
         LOGGER.error("{}{}", validable.getMessageHeader(), message);
@@ -472,7 +472,7 @@ public final class ValidationUtil {
         }
         reportNode.newReportNode()
                 .withKey(validable.getMessageHeader())
-                .withDefaultMessage(message)
+                .withMessageTemplate(message)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
         LOGGER.warn("{}{}", validable.getMessageHeader(), message);

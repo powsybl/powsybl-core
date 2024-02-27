@@ -216,7 +216,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             if (terminal.isConnected()) {
                 reportNode.newReportNode()
                     .withKey("alreadyConnectedTerminal")
-                    .withDefaultMessage("A terminal of connectable ${connectable} is already connected.")
+                    .withMessageTemplate("A terminal of connectable ${connectable} is already connected.")
                     .withValue("connectable", this.getId())
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .add();
@@ -279,7 +279,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             if (!terminal.isConnected()) {
                 reportNode.newReportNode()
                     .withKey("alreadyDisconnectedTerminal")
-                    .withDefaultMessage("A terminal of connectable ${connectable} is already disconnected.")
+                    .withMessageTemplate("A terminal of connectable ${connectable} is already disconnected.")
                     .withValue("connectable", this.getId())
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .add();

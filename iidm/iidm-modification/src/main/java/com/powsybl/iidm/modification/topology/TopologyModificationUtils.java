@@ -650,7 +650,7 @@ public final class TopologyModificationUtils {
                 LOGGER.warn("Temporary limits on both sides for line {} : They are ignored", lineId);
                 reportNode.newReportNode()
                         .withKey("limitsLost")
-                        .withDefaultMessage("Temporary limits on both sides for line ${lineId} : They are ignored")
+                        .withMessageTemplate("Temporary limits on both sides for line ${lineId} : They are ignored")
                         .withValue("lineId", lineId)
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();

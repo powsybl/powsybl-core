@@ -23,11 +23,7 @@ import java.util.*;
  * A <code>ReporterNode</code> is not meant to be shared with other threads.
  * Therefore, it should not be saved as a class parameter of an object which could be used by separate threads.
  * In those cases it should instead be passed on in methods through their arguments.
- * be passed on in methods through their arguments. Respecting this ensures that
- * <ol>
- *   <li>sub-reporters always are in the same order</li>
- *   <li>reports always are in the same order</li>
- * </ol>
+ *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class ReportNodeImpl extends AbstractReportNode {
@@ -36,35 +32,47 @@ public class ReportNodeImpl extends AbstractReportNode {
 
     /**
      * ReportNodeImpl constructor, with no associated values and no inherited values.
-     * @param key the key identifying the corresponding task
-     * @param defaultMessage the name or message describing the corresponding task
+     *
+     * @param key             the key identifying the corresponding task
+     * @param messageTemplate functional log, which may contain references to values of any
+     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
+     *                        <code>${key}</code> syntax
      */
-    public ReportNodeImpl(String key, String defaultMessage) {
-        this(key, defaultMessage, Collections.emptyMap());
+    public ReportNodeImpl(String key, String messageTemplate) {
+        this(key, messageTemplate, Collections.emptyMap());
     }
 
     /**
      * ReportNodeImpl constructor, with no inherited values.
-     * @param key the key identifying the corresponding task
-     * @param defaultMessage the name or message describing the corresponding task, which may contain references to the
-     *                    provided values
-     * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
-     *                   defaultMessage or within the reports message of created ReporterModel
+     *
+     * @param key             the key identifying the corresponding task
+     * @param messageTemplate functional log, which may contain references to the given value or to values of any
+     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
+     *                        <code>${key}</code> syntax
+     * @param values          a map of {@link TypedValue} indexed by their key, which may be referred to within the messageTemplate
+     *                        or within any descendants of the created <code>ReporterNode</code>.
+     *                        Be aware that any value in this map might, in all descendants, override a value of one of
+     *                        <code>ReporterNode</code> ancestors.
      */
-    public ReportNodeImpl(String key, String defaultMessage, Map<String, TypedValue> values) {
-        super(key, defaultMessage, values, new ArrayDeque<>());
+    public ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values) {
+        super(key, messageTemplate, values, new ArrayDeque<>());
     }
 
     /**
      * ReportNodeImpl constructor, with no associated values.
-     * @param key the key identifying the corresponding task
-     * @param defaultMessage the name or message describing the corresponding task, which may contain references to the
-     *                    provided values
-     * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
-     *                   defaultMessage or within the reports message of created ReporterModel
+     *
+     * @param key                  the key identifying the corresponding task
+     * @param messageTemplate      functional log, which may contain references to the given value or to values of any
+     *                             <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
+     *                             <code>${key}</code> syntax
+     * @param values               a map of {@link TypedValue} indexed by their key, which may be referred to within the messageTemplate
+     *                             or within any descendants of the created <code>ReporterNode</code>.
+     *                             Be aware that any value in this map might, in all descendants, override a value of one of
+     *                             <code>ReporterNode</code> ancestors.
+     * @param inheritedValuesDeque a {@link Deque} of inherited values maps
      */
-    public ReportNodeImpl(String key, String defaultMessage, Map<String, TypedValue> values, Deque<Map<String, TypedValue>> inheritedValuesDeque) {
-        super(key, defaultMessage, values, inheritedValuesDeque);
+    public ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Deque<Map<String, TypedValue>> inheritedValuesDeque) {
+        super(key, messageTemplate, values, inheritedValuesDeque);
     }
 
     @Override
@@ -108,8 +116,8 @@ public class ReportNodeImpl extends AbstractReportNode {
         Map<String, TypedValue> values = valuesNode == null ? Collections.emptyMap() : codec.readValue(valuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
-        String defaultTitle = dictionary.getOrDefault(key, "(missing task key in dictionary)");
-        ReportNodeImpl reportNode = new ReportNodeImpl(key, defaultTitle, values, inheritedValuesDeque);
+        String message = dictionary.getOrDefault(key, "(missing task key in dictionary)");
+        ReportNodeImpl reportNode = new ReportNodeImpl(key, message, values, inheritedValuesDeque);
 
         JsonNode reportsNode = reportTree.get("children");
         if (reportsNode != null) {
@@ -145,9 +153,9 @@ public class ReportNodeImpl extends AbstractReportNode {
     @Override
     public void print(Writer writer, String indentationStart) throws IOException {
         if (children.isEmpty()) {
-            printDefaultText(writer, indentationStart, "");
+            print(writer, indentationStart, "");
         } else {
-            printDefaultText(writer, indentationStart, "+ ");
+            print(writer, indentationStart, "+ ");
             String childrenIndent = indentationStart + "   ";
             for (ReportNode child : children) {
                 child.print(writer, childrenIndent);

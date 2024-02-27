@@ -78,7 +78,7 @@ public abstract class AbstractReportNode implements ReportNode {
         return getValue(valueKey).map(TypedValue::getValue).map(Object::toString);
     }
 
-    protected void printDefaultText(Writer writer, String indent, String prefix) throws IOException {
+    protected void print(Writer writer, String indent, String prefix) throws IOException {
         String formattedText = formatMessage(getMessage());
         writer.append(indent).append(prefix).append(formattedText).append(System.lineSeparator());
     }

@@ -27,7 +27,7 @@ class TypedValueTest {
 
         // Check that is not possible to add a Severity attribute with a TypedValue that is not a severity
         ReportNode root = new ReportNodeImpl("root", "Root reporterNode");
-        ReportNodeAdder r = root.newReportNode().withKey("key").withDefaultMessage("defaultMessage");
+        ReportNodeAdder r = root.newReportNode().withKey("key").withMessageTemplate("defaultMessage");
         TypedValue illegalSeverity = new TypedValue("error", "OTHER_TYPE");
         assertThrows(IllegalArgumentException.class, () -> r.withSeverity(illegalSeverity));
     }
