@@ -17,33 +17,33 @@ import java.util.*;
  * A default no-op implementation
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class NoOpImpl implements ReportNode {
+public class ReportNodeNoOp implements ReportNode {
 
     private static final Deque<Map<String, TypedValue>> EMPTY_MAP_DEQUE = new ArrayDeque<>();
 
     @Override
     public ReportNode report(String key, String messageTemplate, Map<String, TypedValue> values) {
-        return new NoOpImpl();
+        return new ReportNodeNoOp();
     }
 
     @Override
     public ReportNode report(String key, String messageTemplate) {
-        return new NoOpImpl();
+        return new ReportNodeNoOp();
     }
 
     @Override
     public ReportNode report(String key, String messageTemplate, String valueKey, Object value) {
-        return new NoOpImpl();
+        return new ReportNodeNoOp();
     }
 
     @Override
     public ReportNode report(String key, String messageTemplate, String valueKey, Object value, String type) {
-        return new NoOpImpl();
+        return new ReportNodeNoOp();
     }
 
     @Override
     public ReportNodeAdder newReportNode() {
-        return new NoOpImplAdder();
+        return new Adder();
     }
 
     @Override
@@ -91,10 +91,10 @@ public class NoOpImpl implements ReportNode {
         // No-op
     }
 
-    private class NoOpImplAdder implements ReportNodeAdder {
+    private class Adder implements ReportNodeAdder {
         @Override
         public ReportNode add() {
-            return new NoOpImpl();
+            return new ReportNodeNoOp();
         }
 
         @Override

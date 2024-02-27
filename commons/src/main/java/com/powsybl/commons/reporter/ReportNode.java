@@ -46,7 +46,7 @@ public interface ReportNode {
     /**
      * A No-op implementation of <code>ReporterNode</code>
      */
-    ReportNode NO_OP = new NoOpImpl();
+    ReportNode NO_OP = new ReportNodeNoOp();
 
     /**
      * Create a new child <code>ReporterNode</code> with a default message template and its associated values
