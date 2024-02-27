@@ -12,11 +12,11 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.iidm.network.util.criterion.*;
-import com.powsybl.iidm.network.util.criterion.json.*;
-import com.powsybl.security.json.limitsreduction.criterion.duration.*;
+import com.powsybl.iidm.criteria.*;
+import com.powsybl.iidm.criteria.duration.*;
+import com.powsybl.iidm.criteria.json.*;
+import com.powsybl.iidm.criteria.json.duration.*;
 import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
-import com.powsybl.security.limitsreduction.criterion.duration.*;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}

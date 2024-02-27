@@ -18,9 +18,9 @@ import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElement
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
 import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.util.criterion.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

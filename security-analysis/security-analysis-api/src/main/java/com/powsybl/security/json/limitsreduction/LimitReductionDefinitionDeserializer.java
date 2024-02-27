@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
+import com.powsybl.iidm.criteria.NetworkElementCriterion;
 import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
-import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
+import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 
 import java.io.IOException;
 import java.util.List;

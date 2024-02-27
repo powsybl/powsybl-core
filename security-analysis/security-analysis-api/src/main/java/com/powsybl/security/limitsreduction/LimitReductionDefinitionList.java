@@ -10,8 +10,8 @@ package com.powsybl.security.limitsreduction;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
-import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
+import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
+import com.powsybl.iidm.criteria.NetworkElementCriterion;
 
 import java.util.*;
 

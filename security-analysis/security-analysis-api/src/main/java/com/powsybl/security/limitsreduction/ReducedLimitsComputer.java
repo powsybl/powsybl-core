@@ -12,12 +12,12 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.util.criterion.NetworkElementCriterion;
-import com.powsybl.iidm.network.util.criterion.NetworkElementVisitor;
-import com.powsybl.security.json.limitsreduction.criterion.duration.translation.DefaultNetworkElementWithLimitsAdapter;
-import com.powsybl.security.json.limitsreduction.criterion.duration.translation.NetworkElementWithLimits;
-import com.powsybl.security.limitsreduction.criterion.duration.AbstractTemporaryDurationCriterion;
-import com.powsybl.security.limitsreduction.criterion.duration.LimitDurationCriterion;
+import com.powsybl.iidm.criteria.NetworkElementCriterion;
+import com.powsybl.iidm.criteria.NetworkElementVisitor;
+import com.powsybl.security.limitsreduction.criteria.translation.DefaultNetworkElementWithLimitsAdapter;
+import com.powsybl.security.limitsreduction.criteria.translation.NetworkElementWithLimits;
+import com.powsybl.iidm.criteria.duration.AbstractTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 
 import java.util.*;
 

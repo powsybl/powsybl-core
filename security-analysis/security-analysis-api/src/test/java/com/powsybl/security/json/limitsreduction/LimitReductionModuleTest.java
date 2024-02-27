@@ -9,14 +9,14 @@ package com.powsybl.security.json.limitsreduction;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.criteria.*;
+import com.powsybl.iidm.criteria.duration.AllTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.IntervalTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.util.criterion.*;
 import com.powsybl.security.limitsreduction.LimitReductionDefinitionList;
 import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
-import com.powsybl.security.limitsreduction.criterion.duration.AllTemporaryDurationCriterion;
-import com.powsybl.security.limitsreduction.criterion.duration.IntervalTemporaryDurationCriterion;
-import com.powsybl.security.limitsreduction.criterion.duration.PermanentDurationCriterion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
