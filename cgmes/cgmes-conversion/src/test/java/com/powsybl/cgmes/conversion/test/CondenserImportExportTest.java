@@ -13,13 +13,16 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 
-class CondenserImportTest extends AbstractSerDeTest {
+class CondenserImportExportTest extends AbstractSerDeTest {
 
     @Test
     void cgmes2condenserConversionTest() {
@@ -37,5 +40,16 @@ class CondenserImportTest extends AbstractSerDeTest {
         Generator g = network.getGenerators().iterator().next();
         assertEquals(0, g.getMinP());
         assertEquals(0, g.getMaxP());
+    }
+
+    @Test
+    void cgmes3condenserExportTest() throws IOException {
+        Network network = Network.read("condenser3_EQ.xml", getClass().getResourceAsStream("/issues/condenser3_EQ.xml"));
+        String basename = "condenser3";
+        network.write("CGMES", null, tmpDir.resolve(basename));
+        String eq = Files.readString(tmpDir.resolve(basename + "_EQ.xml"));
+        // No generating unit is referred, no generating unit is defined
+        assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
+        assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
     }
 }
