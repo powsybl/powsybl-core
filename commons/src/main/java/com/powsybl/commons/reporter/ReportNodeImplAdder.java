@@ -7,6 +7,8 @@
  */
 package com.powsybl.commons.reporter;
 
+import java.util.Map;
+
 /**
  * An adder to create {@link ReportNode} objects.
  *
@@ -19,7 +21,7 @@ public class ReportNodeImplAdder extends AbstractReportNodeAdder {
     }
 
     @Override
-    protected ReportNodeImpl createReportNode() {
+    protected ReportNode createReportNode(String key, String messageTemplate, Map<String, TypedValue> values, ReportNode parent) {
         return new ReportNodeImpl(key, messageTemplate, values, parent.getValuesDeque());
     }
 }

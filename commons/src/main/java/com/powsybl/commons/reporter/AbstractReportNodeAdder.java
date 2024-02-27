@@ -16,20 +16,20 @@ import java.util.Objects;
  */
 public abstract class AbstractReportNodeAdder implements ReportNodeAdder {
 
-    protected final ReportNode parent;
-    protected final Map<String, TypedValue> values = new HashMap<>();
-    protected String key;
-    protected String messageTemplate;
+    private final ReportNode parent;
+    private final Map<String, TypedValue> values = new HashMap<>();
+    private String key;
+    private String messageTemplate;
 
     protected AbstractReportNodeAdder(ReportNode parent) {
         this.parent = Objects.requireNonNull(parent);
     }
 
-    protected abstract ReportNode createReportNode();
+    protected abstract ReportNode createReportNode(String key, String messageTemplate, Map<String, TypedValue> values, ReportNode parent);
 
     @Override
     public ReportNode add() {
-        ReportNode node = createReportNode();
+        ReportNode node = createReportNode(key, messageTemplate, values, parent);
         parent.addChild(node);
         return node;
     }

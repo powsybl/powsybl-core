@@ -91,7 +91,7 @@ public class ReportNodeNoOp implements ReportNode {
         // No-op
     }
 
-    private class Adder implements ReportNodeAdder {
+    private static class Adder implements ReportNodeAdder {
         @Override
         public ReportNode add() {
             return new ReportNodeNoOp();
