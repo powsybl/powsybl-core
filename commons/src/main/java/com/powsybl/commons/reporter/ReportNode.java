@@ -131,10 +131,11 @@ public interface ReportNode {
     String getMessage();
 
     /**
-     * Get the {@link Deque} of values maps for current node
+     * Create the values maps for current node
+     *
      * @return the {@link Deque} values map
      */
-    Deque<Map<String, TypedValue>> getValuesDeque();
+    Collection<Map<String, TypedValue>> getValuesMapsInheritance();
 
     /**
      * Get the value corresponding to the given key in current node context

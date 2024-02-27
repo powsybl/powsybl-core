@@ -14,6 +14,7 @@ import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * An in-memory implementation of {@link ReportNode}.
@@ -28,7 +29,9 @@ import java.util.*;
 public class ReportNodeImpl extends AbstractReportNode {
 
     private final List<ReportNode> children = new ArrayList<>();
-    private final Deque<Map<String, TypedValue>> valuesDeque;
+    private final Collection<Map<String, TypedValue>> inheritedValuesMaps;
+    private final Map<String, TypedValue> values;
+    private Collection<Map<String, TypedValue>> valuesMapsInheritance;
 
     /**
      * ReportNodeImpl constructor, with no associated values and no inherited values.
@@ -69,36 +72,44 @@ public class ReportNodeImpl extends AbstractReportNode {
      *                             or within any descendants of the created <code>ReporterNode</code>.
      *                             Be aware that any value in this map might, in all descendants, override a value of one of
      *                             <code>ReporterNode</code> ancestors.
-     * @param inheritedValuesDeque a {@link Deque} of inherited values maps
+     * @param inheritedValuesMaps a {@link Deque} of inherited values maps
      */
-    public ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Deque<Map<String, TypedValue>> inheritedValuesDeque) {
+    public ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps) {
         super(key, messageTemplate);
-        this.valuesDeque = new ArrayDeque<>(inheritedValuesDeque);
-        this.valuesDeque.addFirst(new HashMap<>());
-        Objects.requireNonNull(values).forEach(this::addValue);
+        checkMap(values);
+        Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
+        this.values = Collections.unmodifiableMap(values);
+        this.inheritedValuesMaps = Collections.unmodifiableCollection(inheritedValuesMaps);
     }
 
-    private void addValue(String key, TypedValue typedValue) {
-        Objects.requireNonNull(key);
-        Objects.requireNonNull(typedValue);
-        valuesDeque.getFirst().put(key, typedValue);
+    private static void checkMap(Map<String, TypedValue> values) {
+        Objects.requireNonNull(values).forEach((k, v) -> {
+            Objects.requireNonNull(k);
+            Objects.requireNonNull(v);
+        });
     }
 
     @Override
     public ReportNodeImpl report(String key, String messageTemplate, Map<String, TypedValue> values) {
-        ReportNodeImpl child = new ReportNodeImpl(key, messageTemplate, values, getValuesDeque());
+        ReportNodeImpl child = new ReportNodeImpl(key, messageTemplate, values, getValuesMapsInheritance());
         children.add(child);
         return child;
     }
 
     @Override
-    public Deque<Map<String, TypedValue>> getValuesDeque() {
-        return valuesDeque;
+    public Collection<Map<String, TypedValue>> getValuesMapsInheritance() {
+        if (valuesMapsInheritance == null) {
+            List<Map<String, TypedValue>> v = new ArrayList<>(1 + inheritedValuesMaps.size());
+            v.add(values);
+            v.addAll(inheritedValuesMaps);
+            valuesMapsInheritance = Collections.unmodifiableCollection(v);
+        }
+        return valuesMapsInheritance;
     }
 
     @Override
     public Optional<TypedValue> getValue(String valueKey) {
-        return getValuesDeque().stream()
+        return Stream.concat(Stream.of(values), inheritedValuesMaps.stream())
                 .map(m -> m.get(valueKey))
                 .filter(Objects::nonNull)
                 .findFirst();
@@ -130,7 +141,7 @@ public class ReportNodeImpl extends AbstractReportNode {
         return parseJsonNode(reportTree, dictionary, codec, new ArrayDeque<>());
     }
 
-    private static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec, Deque<Map<String, TypedValue>> inheritedValuesDeque) throws IOException {
+    private static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec, Collection<Map<String, TypedValue>> inheritedValuesDeque) throws IOException {
         JsonNode keyNode = reportTree.get("key");
         String key = codec.readValue(keyNode.traverse(), String.class);
 
@@ -144,7 +155,7 @@ public class ReportNodeImpl extends AbstractReportNode {
         JsonNode reportsNode = reportTree.get("children");
         if (reportsNode != null) {
             for (JsonNode jsonNode : reportsNode) {
-                reportNode.addChild(ReportNodeImpl.parseJsonNode(jsonNode, dictionary, codec, reportNode.getValuesDeque()));
+                reportNode.addChild(ReportNodeImpl.parseJsonNode(jsonNode, dictionary, codec, reportNode.getValuesMapsInheritance()));
             }
         }
 
@@ -155,7 +166,6 @@ public class ReportNodeImpl extends AbstractReportNode {
     public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("key", getKey());
-        Map<String, TypedValue> values = getValuesDeque().getFirst();
         if (!values.isEmpty()) {
             generator.writeObjectField("values", values);
         }

@@ -22,6 +22,6 @@ public class ReportNodeImplAdder extends AbstractReportNodeAdder {
 
     @Override
     protected ReportNode createReportNode(String key, String messageTemplate, Map<String, TypedValue> values, ReportNode parent) {
-        return new ReportNodeImpl(key, messageTemplate, values, parent.getValuesDeque());
+        return new ReportNodeImpl(key, messageTemplate, values, parent.getValuesMapsInheritance());
     }
 }

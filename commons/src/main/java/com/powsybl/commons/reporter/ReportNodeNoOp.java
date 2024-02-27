@@ -62,7 +62,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public Deque<Map<String, TypedValue>> getValuesDeque() {
+    public Collection<Map<String, TypedValue>> getValuesMapsInheritance() {
         return EMPTY_MAP_DEQUE;
     }
 
