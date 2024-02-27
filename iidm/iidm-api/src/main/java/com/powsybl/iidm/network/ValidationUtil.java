@@ -8,13 +8,12 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
-import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -58,11 +57,11 @@ public final class ValidationUtil {
     }
 
     private static void logError(Validable validable, String message, ReportNode reportNode) {
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey(validable.getMessageHeader())
                 .withDefaultMessage(message)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
         LOGGER.error("{}{}", validable.getMessageHeader(), message);
     }
 
@@ -471,11 +470,11 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, message, throwException, reportNode);
             return ValidationLevel.EQUIPMENT;
         }
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey(validable.getMessageHeader())
                 .withDefaultMessage(message)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
         LOGGER.warn("{}{}", validable.getMessageHeader(), message);
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }

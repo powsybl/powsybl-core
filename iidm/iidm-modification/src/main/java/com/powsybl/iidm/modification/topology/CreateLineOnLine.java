@@ -7,7 +7,6 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -232,7 +231,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         // Create the new line
         Line newLine = lineAdder.add();
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("newLineOnLineCreated")
                 .withDefaultMessage("New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
                 .withValue("newLineId", newLine.getId())
@@ -240,7 +239,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
                 .withValue("line2Id", line2Id)
                 .withValue("originalLineId", originalLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
     public LineAdder getLineAdder() {

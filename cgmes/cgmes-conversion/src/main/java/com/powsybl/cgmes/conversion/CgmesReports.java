@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Bus;
@@ -22,37 +21,37 @@ public final class CgmesReports {
 
     // INFO
     public static void importedCgmesNetworkReport(ReportNode reportNode, String networkId) {
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("importedCgmesNetwork")
                 .withDefaultMessage("CGMES network ${networkId} is imported.")
                 .withValue("networkId", networkId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
     // WARN
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("badVoltageTargetValueRegulatingControl")
                 .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}")
                 .withValue("equipmentId", eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
     public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("badTargetDeadbandRegulatingControl")
                 .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}")
                 .withValue("equipmentId", eqId)
                 .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
     public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("invalidAngleVoltageBus")
                 .withDefaultMessage("Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
                 .withValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
@@ -62,41 +61,41 @@ public final class CgmesReports {
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
     public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("invalidAngleVoltageNode")
                 .withDefaultMessage("Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
                 .withValue("nodeId", nodeId)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
     // ERROR
     public static void inconsistentProfilesTPRequiredReport(ReportNode reportNode, String networkId) {
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("inconsistentProfilesTPRequired")
                 .withDefaultMessage("Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
                 .withValue("networkId", networkId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
     public static void danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(ReportNode reportNode, String danglingLineId) {
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("danglingLineDisconnectedAtBoundaryHasBeenDisconnected")
                 .withDefaultMessage("DanglingLine ${danglingLineId} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.")
                 .withValue("danglingLineId", danglingLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
     public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(ReportNode reportNode, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("multipleUnpairedDanglingLinesAtSameBoundary")
                 .withDefaultMessage("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from (${p0}, ${q0}) to (${p0Adjusted}, ${q0Adjusted}) for dangling line ${danglingLineId}.")
                 .withValue("danglingLineId", danglingLineId)
@@ -105,6 +104,6 @@ public final class CgmesReports {
                 .withValue("p0Adjusted", p0Adjusted)
                 .withValue("q0Adjusted", q0Adjusted)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 }

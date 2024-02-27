@@ -105,6 +105,12 @@ public interface ReportNode {
     ReportNode report(String key, String messageTemplate, String valueKey, Object value, String type);
 
     /**
+     * Create a new adder to create a <code>ReporterNode</code> child.
+     * @return the created <code>ReporterNodeAdder</code>
+     */
+    ReportNodeAdder newReportNode();
+
+    /**
      * Add a ReportNode as a child of current ReportNode.
      * @param reportNode the ReportNode to add
      */
@@ -176,86 +182,4 @@ public interface ReportNode {
      */
     void print(Writer writer, String indentationStart) throws IOException;
 
-    /**
-     * TODO: Questions this design! could be avoided by replacing addChild(ReportNode) with addChild(ReportNodeBuilder)
-     */
-    void setInheritedValuesDeque(Deque<Map<String, TypedValue>> valuesDeque);
-
-    /**
-     * A default no-op implementation
-     */
-    class NoOpImpl implements ReportNode {
-
-        private static final Deque<Map<String, TypedValue>> EMPTY_MAP_DEQUE = new ArrayDeque<>();
-
-        @Override
-        public ReportNode report(String key, String messageTemplate, Map<String, TypedValue> values) {
-            return new NoOpImpl();
-        }
-
-        @Override
-        public ReportNode report(String key, String messageTemplate) {
-            return new NoOpImpl();
-        }
-
-        @Override
-        public ReportNode report(String key, String messageTemplate, String valueKey, Object value) {
-            return new NoOpImpl();
-        }
-
-        @Override
-        public ReportNode report(String key, String messageTemplate, String valueKey, Object value, String type) {
-            return new NoOpImpl();
-        }
-
-        @Override
-        public void addChild(ReportNode reportNode) {
-            // No-op
-        }
-
-        @Override
-        public String getKey() {
-            return null;
-        }
-
-        @Override
-        public String getMessage() {
-            return null;
-        }
-
-        @Override
-        public Deque<Map<String, TypedValue>> getValuesDeque() {
-            return EMPTY_MAP_DEQUE;
-        }
-
-        @Override
-        public Optional<TypedValue> getValue(String valueKey) {
-            return Optional.empty();
-        }
-
-        @Override
-        public Collection<ReportNode> getChildren() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
-            // No-op
-        }
-
-        @Override
-        public void print(Writer writer) throws IOException {
-            // No-op
-        }
-
-        @Override
-        public void print(Writer writer, String indentationStart) throws IOException {
-            // No-op
-        }
-
-        @Override
-        public void setInheritedValuesDeque(Deque<Map<String, TypedValue>> valuesDeque) {
-            // No-op
-        }
-    }
 }

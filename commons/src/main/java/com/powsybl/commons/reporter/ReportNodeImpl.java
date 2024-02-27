@@ -35,16 +35,16 @@ public class ReportNodeImpl extends AbstractReportNode {
     private final List<ReportNode> children = new ArrayList<>();
 
     /**
-     * ReportNode constructor, with no associated values.
+     * ReportNodeImpl constructor, with no associated values and no inherited values.
      * @param key the key identifying the corresponding task
      * @param defaultMessage the name or message describing the corresponding task
      */
     public ReportNodeImpl(String key, String defaultMessage) {
-        this(key, defaultMessage, Collections.emptyMap(), new ArrayDeque<>());
+        this(key, defaultMessage, Collections.emptyMap());
     }
 
     /**
-     * ReportNode constructor for the roo , with no associated values.
+     * ReportNodeImpl constructor, with no inherited values.
      * @param key the key identifying the corresponding task
      * @param defaultMessage the name or message describing the corresponding task, which may contain references to the
      *                    provided values
@@ -56,7 +56,7 @@ public class ReportNodeImpl extends AbstractReportNode {
     }
 
     /**
-     * ReporterModel constructor, with no associated values.
+     * ReportNodeImpl constructor, with no associated values.
      * @param key the key identifying the corresponding task
      * @param defaultMessage the name or message describing the corresponding task, which may contain references to the
      *                    provided values
@@ -67,20 +67,20 @@ public class ReportNodeImpl extends AbstractReportNode {
         super(key, defaultMessage, values, inheritedValuesDeque);
     }
 
-    public static ReportNodeBuilder builder() {
-        return new ReportNodeBuilder();
+    @Override
+    public ReportNodeImpl report(String key, String messageTemplate, Map<String, TypedValue> values) {
+        ReportNodeImpl child = new ReportNodeImpl(key, messageTemplate, values, getValuesDeque());
+        children.add(child);
+        return child;
     }
 
     @Override
-    public ReportNodeImpl report(String key, String messageTemplate, Map<String, TypedValue> values) {
-        ReportNodeImpl subReporter = new ReportNodeImpl(key, messageTemplate, values, getValuesDeque());
-        children.add(subReporter);
-        return subReporter;
+    public ReportNodeAdder newReportNode() {
+        return new ReportNodeImplAdder(this);
     }
 
     @Override
     public void addChild(ReportNode reportNode) {
-        reportNode.setInheritedValuesDeque(getValuesDeque());
         children.add(reportNode);
     }
 
@@ -121,6 +121,7 @@ public class ReportNodeImpl extends AbstractReportNode {
         return reportNode;
     }
 
+    @Override
     public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("key", getKey());

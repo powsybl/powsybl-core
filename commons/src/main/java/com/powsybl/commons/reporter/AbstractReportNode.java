@@ -94,12 +94,4 @@ public abstract class AbstractReportNode implements ReportNode {
     protected String formatMessage(String message) {
         return new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(message);
     }
-
-    @Override
-    public void setInheritedValuesDeque(Deque<Map<String, TypedValue>> inheritedValuesDeque) {
-        Map<String, TypedValue> nodeValues = valuesDeque.getFirst();
-        valuesDeque.clear();
-        valuesDeque.addAll(inheritedValuesDeque);
-        valuesDeque.addFirst(nodeValues);
-    }
 }

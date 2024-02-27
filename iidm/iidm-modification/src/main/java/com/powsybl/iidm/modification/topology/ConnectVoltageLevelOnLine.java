@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.ReportNodeImpl;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -119,7 +118,7 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         addLoadingLimits(line1, limits1, TwoSides.ONE);
         addLoadingLimits(line2, limits2, TwoSides.TWO);
         LOG.info("Voltage level {} connected to lines {} and {} replacing line {}.", voltageLevel.getId(), line1Id, line2Id, originalLineId);
-        reportNode.addChild(ReportNodeImpl.builder()
+        reportNode.newReportNode()
                 .withKey("voltageConnectedOnLine")
                 .withDefaultMessage("Voltage level ${voltageLevelId} connected to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
                 .withValue("voltageLevelId", voltageLevel.getId())
@@ -127,6 +126,6 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
                 .withValue("line2Id", line2Id)
                 .withValue("originalLineId", originalLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 }
