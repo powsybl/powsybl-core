@@ -3,16 +3,16 @@
   "reportTree" : {
     "key" : "importAllParallel",
     "values" : {
+      "file1" : {
+        "value" : "frVoltageRegulatingXnode.uct",
+        "type" : "FILENAME"
+      },
       "file2" : {
         "value" : "frTestGridForMerging.uct",
         "type" : "FILENAME"
       },
       "file3" : {
         "value" : "germanTsos.uct",
-        "type" : "FILENAME"
-      },
-      "file1" : {
-        "value" : "frVoltageRegulatingXnode.uct",
         "type" : "FILENAME"
       }
     },
@@ -32,31 +32,31 @@
           "children" : [ {
             "key" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              },
               "lineId" : {
                 "value" : "FFFFFF11 XXXXXX11 1"
               },
               "resistance" : {
                 "value" : 0.0,
                 "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
               }
             }
           }, {
             "key" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              },
               "lineId" : {
                 "value" : "FFFFFF11 XXXXXX12 1"
               },
               "resistance" : {
                 "value" : 0.0,
                 "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
               }
             }
           } ]
@@ -82,61 +82,61 @@
           "children" : [ {
             "key" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              },
               "lineId" : {
                 "value" : "FFFFFF11 XXXXXX11 1"
               },
               "resistance" : {
                 "value" : 0.0,
                 "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
               }
             }
           }, {
             "key" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              },
               "lineId" : {
                 "value" : "FFFFFF11 XXXXXX12 1"
               },
               "resistance" : {
                 "value" : 0.0,
                 "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
               }
             }
           }, {
             "key" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              },
               "lineId" : {
                 "value" : "FFFFFF13 XXXXXX13 1"
               },
               "resistance" : {
                 "value" : 0.0,
                 "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
               }
             }
           }, {
             "key" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              },
               "lineId" : {
                 "value" : "FFFFFF13 XXXXXX14 1"
               },
               "resistance" : {
                 "value" : 0.0,
                 "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
               }
             }
           } ]

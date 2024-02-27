@@ -7,7 +7,7 @@
  */
 package com.powsybl.commons.reporter;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -17,7 +17,7 @@ import java.util.Objects;
 public abstract class AbstractReportNodeAdder implements ReportNodeAdder {
 
     private final ReportNode parent;
-    private final Map<String, TypedValue> values = new HashMap<>();
+    private final Map<String, TypedValue> values = new LinkedHashMap<>();
     private String key;
     private String messageTemplate;
 
