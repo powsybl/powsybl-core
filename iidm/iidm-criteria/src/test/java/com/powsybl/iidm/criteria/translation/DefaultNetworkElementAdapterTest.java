@@ -9,7 +9,7 @@ package com.powsybl.iidm.criteria.translation;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.criteria.NetworkElementCriterion;
+import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DefaultNetworkElementAdapterTest {
 
     @Test
-    void testBranch() {
+    void testLine() {
         Substation substation1 = Mockito.mock(Substation.class);
         Mockito.when(substation1.getNullableCountry()).thenReturn(Country.FR);
         Substation substation2 = Mockito.mock(Substation.class);
@@ -57,12 +57,94 @@ class DefaultNetworkElementAdapterTest {
         assertEquals(226., networkElement.getNominalVoltage2(), 0.01);
         assertThrows(PowsyblException.class, networkElement::getNominalVoltage3);
 
-        assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE));
-        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
-        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIERS));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertEquals(line, networkElement.getIdentifiable());
     }
 
-    //TODO Add tests for the other kinds
+    @Test
+    void testTwoWindingsTransformer() {
+        Substation substation = Mockito.mock(Substation.class);
+        Mockito.when(substation.getNullableCountry()).thenReturn(Country.FR);
 
+        VoltageLevel voltageLevel1 = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel1.getSubstation()).thenReturn(Optional.of(substation));
+        Mockito.when(voltageLevel1.getNominalV()).thenReturn(225.);
+        VoltageLevel voltageLevel2 = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel2.getSubstation()).thenReturn(Optional.of(substation));
+        Mockito.when(voltageLevel2.getNominalV()).thenReturn(90.);
+
+        Terminal terminal1 = Mockito.mock(Terminal.class);
+        Mockito.when(terminal1.getVoltageLevel()).thenReturn(voltageLevel1);
+        Terminal terminal2 = Mockito.mock(Terminal.class);
+        Mockito.when(terminal2.getVoltageLevel()).thenReturn(voltageLevel2);
+
+        TwoWindingsTransformer twt = Mockito.mock(TwoWindingsTransformer.class);
+        Mockito.when(twt.getType()).thenReturn(IdentifiableType.TWO_WINDINGS_TRANSFORMER);
+        Mockito.when(twt.getId()).thenReturn("testTwoWindingsTransformer");
+        Mockito.when(twt.getSubstation()).thenReturn(Optional.of(substation));
+        Mockito.when(twt.getTerminal(TwoSides.ONE)).thenReturn(terminal1);
+        Mockito.when(twt.getTerminal(TwoSides.TWO)).thenReturn(terminal2);
+
+        DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(twt);
+        assertEquals("testTwoWindingsTransformer", networkElement.getId());
+        assertEquals(Country.FR, networkElement.getCountry());
+        assertEquals(225., networkElement.getNominalVoltage(), 0.01);
+        assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
+        assertEquals(90., networkElement.getNominalVoltage2(), 0.01);
+        assertThrows(PowsyblException.class, networkElement::getNominalVoltage3);
+
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertEquals(twt, networkElement.getIdentifiable());
+    }
+
+    @Test
+    void testThreeWindingsTransformer() {
+        Substation substation = Mockito.mock(Substation.class);
+        Mockito.when(substation.getNullableCountry()).thenReturn(Country.FR);
+
+        VoltageLevel voltageLevel1 = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel1.getSubstation()).thenReturn(Optional.of(substation));
+        Mockito.when(voltageLevel1.getNominalV()).thenReturn(400.);
+        VoltageLevel voltageLevel2 = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel2.getSubstation()).thenReturn(Optional.of(substation));
+        Mockito.when(voltageLevel2.getNominalV()).thenReturn(225.);
+        VoltageLevel voltageLevel3 = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel3.getSubstation()).thenReturn(Optional.of(substation));
+        Mockito.when(voltageLevel3.getNominalV()).thenReturn(90.);
+
+        Terminal terminal1 = Mockito.mock(Terminal.class);
+        Mockito.when(terminal1.getVoltageLevel()).thenReturn(voltageLevel1);
+        Terminal terminal2 = Mockito.mock(Terminal.class);
+        Mockito.when(terminal2.getVoltageLevel()).thenReturn(voltageLevel2);
+        Terminal terminal3 = Mockito.mock(Terminal.class);
+        Mockito.when(terminal3.getVoltageLevel()).thenReturn(voltageLevel3);
+
+        ThreeWindingsTransformer twt = Mockito.mock(ThreeWindingsTransformer.class);
+        Mockito.when(twt.getType()).thenReturn(IdentifiableType.THREE_WINDINGS_TRANSFORMER);
+        Mockito.when(twt.getId()).thenReturn("testThreeWindingsTransformer");
+        Mockito.when(twt.getSubstation()).thenReturn(Optional.of(substation));
+        Mockito.when(twt.getTerminal(ThreeSides.ONE)).thenReturn(terminal1);
+        Mockito.when(twt.getTerminal(ThreeSides.TWO)).thenReturn(terminal2);
+        Mockito.when(twt.getTerminal(ThreeSides.THREE)).thenReturn(terminal3);
+
+        DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(twt);
+        assertEquals("testThreeWindingsTransformer", networkElement.getId());
+        assertEquals(Country.FR, networkElement.getCountry());
+        assertEquals(400., networkElement.getNominalVoltage(), 0.01);
+        assertEquals(400., networkElement.getNominalVoltage1(), 0.01);
+        assertEquals(225., networkElement.getNominalVoltage2(), 0.01);
+        assertEquals(90., networkElement.getNominalVoltage3(), 0.01);
+
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertEquals(twt, networkElement.getIdentifiable());
+    }
 }
