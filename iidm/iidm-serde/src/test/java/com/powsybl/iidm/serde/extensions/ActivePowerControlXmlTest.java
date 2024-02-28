@@ -13,13 +13,14 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
+import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.IidmVersion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -49,5 +50,21 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
         assertEquals(activePowerControl.getDroop(), activePowerControl2.getDroop(), 0.0);
         assertEquals(activePowerControl.getParticipationFactor(), activePowerControl2.getParticipationFactor(), 0.0);
         assertEquals(activePowerControl.getName(), activePowerControl2.getName());
+
+        //Do not export active power control extension
+        Network network3 = allFormatsRoundTripTest(network, "/batteryNetworkWithoutActivePowerControlRoundTripRef.xml", IidmVersion.V_1_0, new ExportOptions().setVersion("1.0"));
+
+        Battery bat3 = network3.getBattery("BAT");
+        assertNotNull(bat3);
+        ActivePowerControl<Battery> activePowerControl3 = bat3.getExtension(ActivePowerControl.class);
+        assertNull(activePowerControl3);
+
+        //Test extension not exported in version 1.1 if boolean activated
+        Network network4 = allFormatsRoundTripTest(network, "/batteryRoundTripRef.xml", IidmVersion.V_1_1, new ExportOptions().setVersion("1.0").setWithActivePowerControlV10(true));
+
+        Battery bat4 = network4.getBattery("BAT");
+        assertNotNull(bat4);
+        ActivePowerControl<Battery> activePowerControl4 = bat4.getExtension(ActivePowerControl.class);
+        assertNull(activePowerControl4);
     }
 }
