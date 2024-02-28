@@ -10,15 +10,15 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import org.junit.jupiter.api.Test;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -600,7 +600,7 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
-        ReportNodeImpl reporter = new ReportNodeImpl("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("testReportScadaNetwork").withMessageTemplate("Test reporting of SCADA network").add();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
 
         Collection<ReportNode> children = reporter.getChildren();

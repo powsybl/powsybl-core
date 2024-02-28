@@ -41,7 +41,7 @@ import java.util.*;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface ReportNode {
+public interface ReportNode extends Report, TreeNode<ReportNode> {
 
     /**
      * A No-op implementation of <code>ReporterNode</code>
@@ -52,27 +52,14 @@ public interface ReportNode {
      * Create a new adder to create a <code>ReporterNode</code> child.
      * @return the created <code>ReporterNodeAdder</code>
      */
-    ReportNodeAdder newReportNode();
+    ReportNodeChildAdder newReportNode();
 
     /**
      * Add a ReportNode as a child of current ReportNode.
-     * @param reportNode the ReportNode to add
+     *
+     * @param reportRoot the ReportNode to add
      */
-    void addChild(ReportNode reportNode);
-
-    /**
-     * Get the key of current node.
-     * Note that each key needs to correspond to a unique message template.
-     * This is required in serialization, in particular due to multilingual support.
-     * @return the key
-     */
-    String getKey();
-
-    /**
-     * Get the message of current node, replacing references in the message template with the corresponding values
-     * @return the message
-     */
-    String getMessage();
+    void addChildren(ReportRoot reportRoot);
 
     /**
      * Get the values maps inheritance for the child nodes
@@ -82,25 +69,10 @@ public interface ReportNode {
     Collection<Map<String, TypedValue>> getValuesMapsInheritance();
 
     /**
-     * Get the value corresponding to the given key in current node context
-     *
-     * @param valueKey the key to request
-     * @return the value
-     */
-    Optional<TypedValue> getValue(String valueKey);
-
-    /**
-     * Get the ReportNode children of current node
-     * @return the ReportNode children
-     */
-    Collection<ReportNode> getChildren();
-
-    /**
-     * Serialize the current report node and fills the dictionary map provided
+     * Serialize the current report node
      * @param generator the jsonGenerator to use for serialization
-     * @param dictionary the dictionary to fill for the message templates
      */
-    void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException;
+    void writeJson(JsonGenerator generator) throws IOException;
 
     /**
      * Print to given path the current report node and its descendants

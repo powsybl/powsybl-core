@@ -1,23 +1,25 @@
 {
   "version" : "2.0",
-  "reportTree" : {
-    "key" : "testPostProcessor",
+  "reportRoot" : {
     "children" : [ {
-      "key" : "test",
-      "values" : {
-        "model" : {
-          "value" : "eurostagTutorialExample1"
+      "key" : "testPostProcessor",
+      "children" : [ {
+        "key" : "test",
+        "values" : {
+          "model" : {
+            "value" : "eurostagTutorialExample1"
+          }
         }
+      }, {
+        "key" : "testImportPostProcessor"
+      } ]
+    } ],
+    "dictionaries" : {
+      "default" : {
+        "testPostProcessor" : "Test importer post processor",
+        "test" : "Import model ${model}",
+        "testImportPostProcessor" : "testing import post processor"
       }
-    }, {
-      "key" : "testImportPostProcessor"
-    } ]
-  },
-  "dics" : {
-    "default" : {
-      "testPostProcessor" : "Test importer post processor",
-      "test" : "Import model ${model}",
-      "testImportPostProcessor" : "testing import post processor"
     }
   }
 }

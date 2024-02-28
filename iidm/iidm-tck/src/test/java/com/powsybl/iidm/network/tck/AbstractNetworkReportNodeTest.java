@@ -7,7 +7,8 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReporterContext;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -31,12 +32,12 @@ public abstract class AbstractNetworkReportNodeTest {
     public void executeWithReporterTest() {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNodeImpl reporter1 = new ReportNodeImpl("key1", "name1");
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("key1").withMessageTemplate("name1").add();
         network.getReporterContext().pushReporter(reporter1);
         assertTrue(reporter1.getChildren().isEmpty());
 
         // Create another reporter (reporter2)
-        ReportNodeImpl reporter2 = new ReportNodeImpl("key2", "name2");
+        ReportNode reporter2 = new ReportRootImpl().newReportNode().withKey("key2").withMessageTemplate("name2").add();
         assertTrue(reporter2.getChildren().isEmpty());
 
         // Execute a task using reporter2
@@ -58,13 +59,13 @@ public abstract class AbstractNetworkReportNodeTest {
     public void multiThreadTest() throws InterruptedException {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNodeImpl reporter1 = new ReportNodeImpl("key1", "name1");
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("key1").withMessageTemplate("name1").add();
         network.getReporterContext().pushReporter(reporter1);
         assertTrue(reporter1.getChildren().isEmpty());
 
         // Create 2 other reporters (reporter2 and reporter3)
-        ReportNodeImpl reporter2 = new ReportNodeImpl("key2", "name2");
-        ReportNodeImpl reporter3 = new ReportNodeImpl("key3", "name3");
+        ReportNode reporter2 = new ReportRootImpl().newReportNode().withKey("key2").withMessageTemplate("name2").add();
+        ReportNode reporter3 = new ReportRootImpl().newReportNode().withKey("key3").withMessageTemplate("name3").add();
         assertTrue(reporter2.getChildren().isEmpty());
         assertTrue(reporter3.getChildren().isEmpty());
 

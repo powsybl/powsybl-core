@@ -1,93 +1,95 @@
 {
   "version" : "2.0",
-  "reportTree" : {
-    "key" : "roundTripReporterJsonTest",
+  "reportRoot" : {
     "children" : [ {
-      "key" : "novalueReport"
-    }, {
-      "key" : "UcteReading",
+      "key" : "roundTripReporterJsonTest",
       "children" : [ {
-        "key" : "fixUcteNodes"
+        "key" : "novalueReport"
       }, {
-        "key" : "fixUcteLines",
+        "key" : "UcteReading",
         "children" : [ {
-          "key" : "negativeLineResistance",
-          "values" : {
-            "lineId" : {
-              "value" : "FFFFFF11 XXXXXX11 1"
-            },
-            "resistance" : {
-              "value" : 0.0,
-              "type" : "RESISTANCE"
-            },
-            "reportSeverity" : {
-              "value" : "ERROR",
-              "type" : "SEVERITY"
-            }
-          }
+          "key" : "fixUcteNodes"
         }, {
-          "key" : "negativeLineResistance",
-          "values" : {
-            "lineId" : {
-              "value" : "FFFFFF11 XXXXXX12 1"
-            },
-            "resistance" : {
-              "value" : 0.0,
-              "type" : "RESISTANCE"
-            },
-            "reportSeverity" : {
-              "value" : "ERROR",
-              "type" : "SEVERITY"
+          "key" : "fixUcteLines",
+          "children" : [ {
+            "key" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF11 XXXXXX11 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
+              }
             }
-          }
+          }, {
+            "key" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF11 XXXXXX12 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
+              }
+            }
+          }, {
+            "key" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF13 XXXXXX13 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
+              }
+            }
+          }, {
+            "key" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF13 XXXXXX14 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
+              }
+            }
+          } ]
         }, {
-          "key" : "negativeLineResistance",
-          "values" : {
-            "lineId" : {
-              "value" : "FFFFFF13 XXXXXX13 1"
-            },
-            "resistance" : {
-              "value" : 0.0,
-              "type" : "RESISTANCE"
-            },
-            "reportSeverity" : {
-              "value" : "ERROR",
-              "type" : "SEVERITY"
-            }
-          }
+          "key" : "fixUcteTransformer"
         }, {
-          "key" : "negativeLineResistance",
-          "values" : {
-            "lineId" : {
-              "value" : "FFFFFF13 XXXXXX14 1"
-            },
-            "resistance" : {
-              "value" : 0.0,
-              "type" : "RESISTANCE"
-            },
-            "reportSeverity" : {
-              "value" : "ERROR",
-              "type" : "SEVERITY"
-            }
-          }
+          "key" : "fixUcteRegulations"
         } ]
-      }, {
-        "key" : "fixUcteTransformer"
-      }, {
-        "key" : "fixUcteRegulations"
       } ]
-    } ]
-  },
-  "dics" : {
-    "default" : {
-      "UcteReading" : "Reading UCTE network file",
-      "novalueReport" : "No value report",
-      "fixUcteNodes" : "Fix UCTE nodes",
-      "fixUcteLines" : "Fix UCTE lines",
-      "roundTripReporterJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct",
-      "fixUcteRegulations" : "Fix UCTE regulations",
-      "fixUcteTransformer" : "Fix UCTE transformers",
-      "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)"
+    } ],
+    "dictionaries" : {
+      "default" : {
+        "roundTripReporterJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct",
+        "novalueReport" : "No value report",
+        "UcteReading" : "Reading UCTE network file",
+        "fixUcteNodes" : "Fix UCTE nodes",
+        "fixUcteLines" : "Fix UCTE lines",
+        "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+        "fixUcteTransformer" : "Fix UCTE transformers",
+        "fixUcteRegulations" : "Fix UCTE regulations"
+      }
     }
   }
 }

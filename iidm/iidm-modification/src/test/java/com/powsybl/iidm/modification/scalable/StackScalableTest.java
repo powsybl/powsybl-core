@@ -8,7 +8,8 @@
 
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,8 @@ import java.util.List;
 
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.*;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.TARGET_P;
 import static com.powsybl.iidm.modification.util.ModificationReports.scalingReport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -65,7 +67,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingUp() {
-        ReportNodeImpl reporterModel = new ReportNodeImpl("scaling", "default");
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -86,7 +88,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPMoreThanCurrent() {
-        ReportNodeImpl reporterModel = new ReportNodeImpl("scaling", "default");
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -107,7 +109,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPLessThanCurrent() {
-        ReportNodeImpl reporterModel = new ReportNodeImpl("scaling", "default");
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -128,7 +130,7 @@ class StackScalableTest {
 
     @Test
     void testMaxValueBoundsScalingUp() {
-        ReportNodeImpl reporterModel = new ReportNodeImpl("scaling", "default");
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -152,7 +154,7 @@ class StackScalableTest {
 
     @Test
     void testMinValueBoundsScalingDown() {
-        ReportNodeImpl reporterModel = new ReportNodeImpl("scaling", "default");
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);

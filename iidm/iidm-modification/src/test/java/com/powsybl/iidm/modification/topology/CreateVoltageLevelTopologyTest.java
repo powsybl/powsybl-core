@@ -7,7 +7,8 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
@@ -21,7 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -60,7 +62,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNullSwitchKind() {
         Network network = createNbNetwork();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTest", "Testing reporter");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTest").withMessageTemplate("Testing reporter").add();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -79,7 +81,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithUnsupportedSwitchKind() {
         Network network = createNbNetwork();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTest", "Testing reporter");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTest").withMessageTemplate("Testing reporter").add();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -98,7 +100,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNegativeCount() {
         Network network = createNbNetwork();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTest", "Testing reporter");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTest").withMessageTemplate("Testing reporter").add();
         NetworkModification modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(-1)
@@ -144,7 +146,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithUnexpectedSwitchKindsSize() {
         Network network = createNbNetwork();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTest", "Testing reporter");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTest").withMessageTemplate("Testing reporter").add();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -163,7 +165,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNotExistingVoltageLevel() {
         Network network = createNbNetwork();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTest", "Testing reporter");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTest").withMessageTemplate("Testing reporter").add();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId("NOT_EXISTING")
                 .withAlignedBusesOrBusbarCount(3)
@@ -195,7 +197,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
         Network network = createNbNetwork();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTest", "Testing reporter");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTest").withMessageTemplate("Testing reporter").add();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -209,7 +211,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithReporter() throws IOException {
         Network network = createNbNetwork();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateVoltageLevelTopology", "Testing reporter for voltage level topology creation");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestCreateVoltageLevelTopology").withMessageTemplate("Testing reporter for voltage level topology creation").add();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)

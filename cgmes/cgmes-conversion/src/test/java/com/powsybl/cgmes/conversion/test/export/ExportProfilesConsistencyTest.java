@@ -12,7 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.ExportersServiceLoader;
 import com.powsybl.iidm.network.Importers;
@@ -34,16 +34,16 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     void testSVSmallGridNodeBreaker() {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
-        ReportNodeImpl reporterOnlySv = new ReportNodeImpl("onlySV", "");
+        ReportNode reporterOnlySv = new ReportRootImpl().newReportNode().withKey("onlySV").withMessageTemplate("").add();
         exportProfiles(List.of("SV"), network, reporterOnlySv);
         assertTrue(inconsistentProfilesReported(reporterOnlySv));
 
-        ReportNodeImpl reporterSvAndTp = new ReportNodeImpl("SVandTP", "");
+        ReportNode reporterSvAndTp = new ReportRootImpl().newReportNode().withKey("SVandTP").withMessageTemplate("").add();
         exportProfiles(List.of("SV", "TP"), network, reporterSvAndTp);
         assertFalse(inconsistentProfilesReported(reporterSvAndTp));
     }
 
-    private boolean inconsistentProfilesReported(ReportNodeImpl reporter) {
+    private boolean inconsistentProfilesReported(ReportNode reporter) {
         return reporter.getChildren().stream()
                 .map(ReportNode::getKey)
                 .anyMatch(key -> key.equals("inconsistentProfilesTPRequired"));

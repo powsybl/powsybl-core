@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
@@ -33,7 +34,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportAttachVoltageLevelOnLineNbTest", "Testing reporter for Attaching voltage level on line - Node breaker");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportAttachVoltageLevelOnLineNbTest").withMessageTemplate("Testing reporter for Attaching voltage level on line - Node breaker").add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
@@ -45,7 +46,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportConnectVoltageLevelOnLineNbBbTest", "Testing reporter for connecting voltage level on line - Node breaker");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportConnectVoltageLevelOnLineNbBbTest").withMessageTemplate("Testing reporter for connecting voltage level on line - Node breaker").add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("NHV1_NHV2_1"))
@@ -57,7 +58,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportConnectVoltageLevelOnLineBbTest", "Testing reporter for connecting voltage level on line - Bus breaker");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportConnectVoltageLevelOnLineBbTest").withMessageTemplate("Testing reporter for connecting voltage level on line - Bus breaker").add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("bus")
                 .withLine(network.getLine("NHV1_NHV2_1"))
@@ -133,7 +134,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
 
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTestUndefinedBbs", "Testing reporter with undefined busbar section");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestUndefinedBbs").withMessageTemplate("Testing reporter with undefined busbar section").add();
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network1.getLine("CJ"))
@@ -179,7 +180,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void testWithReporter() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTestConnectVoltageLevelOnLine", "Testing reporter for connecting voltage level on line");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestConnectVoltageLevelOnLine").withMessageTemplate("Testing reporter for connecting voltage level on line").add();
         new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))

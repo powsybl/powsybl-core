@@ -12,7 +12,8 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
@@ -52,7 +53,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testSkippedExtension() throws IOException {
         // Read file with all extensions included (default ImportOptions)
-        ReportNodeImpl reporter1 = new ReportNodeImpl("root", "Root reportNode");
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("root").withMessageTemplate("Root reportNode").add();
         Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
                 new ImportOptions(), null, NetworkFactory.findDefault(), reporter1);
         Load load1 = networkReadExtensions.getLoad("LOAD");
@@ -72,7 +73,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
 
         // Read file with only terminalMockNoSerDe and loadZipModel extensions included
-        ReportNodeImpl reporter2 = new ReportNodeImpl("root", "Root reportNode");
+        ReportNode reporter2 = new ReportRootImpl().newReportNode().withKey("root").withMessageTemplate("Root reportNode").add();
         ImportOptions notAllExtensions = new ImportOptions().addExtension("terminalMockNoSerDe").addExtension("loadZipModel");
         Network networkSkippedExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
                 notAllExtensions, null, NetworkFactory.findDefault(), reporter2);

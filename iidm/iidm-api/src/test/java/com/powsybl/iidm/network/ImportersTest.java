@@ -7,13 +7,11 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportRootImpl;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.ComputationManager;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +25,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -89,7 +89,7 @@ class ImportersTest extends AbstractConvertersTest {
     @Test
     void getImporterWithImportConfigAndReporter() throws IOException {
         Importer importer = Importer.find(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
-        ReportNodeImpl reporter = new ReportNodeImpl("testFunctionalLog", "testFunctionalLogs");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("testFunctionalLog").withMessageTemplate("testFunctionalLogs").add();
         assertNotNull(importer);
         Network network = importer.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network);

@@ -7,7 +7,8 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -139,7 +140,7 @@ class RemoveFeederBayTest {
     @Test
     void testRemoveBbs() {
         Network network = createNetwork2Feeders();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTestRemoveBbs", "Testing reporter when trying to remove a busbar section");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestRemoveBbs").withMessageTemplate("Testing reporter when trying to remove a busbar section").add();
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reporter));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());

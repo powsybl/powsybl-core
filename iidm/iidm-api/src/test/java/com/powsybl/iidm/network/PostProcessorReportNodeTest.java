@@ -7,9 +7,9 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportNodeImpl;
-import com.powsybl.commons.reporter.ReportNodeDeserializer;
-import com.powsybl.commons.reporter.ReportNodeSerializer;
+import com.powsybl.commons.reporter.ReportRootDeserializer;
+import com.powsybl.commons.reporter.ReportRootImpl;
+import com.powsybl.commons.reporter.ReportRootSerializer;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.ComputationManager;
 import org.junit.jupiter.api.Test;
@@ -36,14 +36,15 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
     @Test
     void postProcessorWithReporter() throws IOException {
 
-        ReportNodeImpl reporter = new ReportNodeImpl("testPostProcessor", "Test importer post processor");
+        ReportRootImpl reportRoot = new ReportRootImpl();
+        ReportNode reporter = reportRoot.newReportNode().withKey("testPostProcessor").withMessageTemplate("Test importer post processor").add();
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network1);
 
         Optional<ReportNode> report = reporter.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
-        roundTripTest(reporter, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/postProcessorReporterTest.json");
+        roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/postProcessorReporterTest.json");
     }
 
     @Test

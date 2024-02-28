@@ -16,38 +16,27 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeSerializer extends StdSerializer<ReportNodeImpl> {
+public class ReportRootSerializer extends StdSerializer<ReportRootImpl> {
 
-    ReportNodeSerializer() {
-        super(ReportNodeImpl.class);
+    ReportRootSerializer() {
+        super(ReportRootImpl.class);
     }
 
     @Override
-    public void serialize(ReportNodeImpl reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
-        Map<String, String> dictionary = new HashMap<>();
+    public void serialize(ReportRootImpl reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("version", ReportConstants.CURRENT_VERSION.toString());
-        generator.writeFieldName("reportTree");
-        reporter.writeJson(generator, dictionary);
-        writeDictionaryEntries(generator, dictionary);
+        generator.writeFieldName("reportRoot");
+        reporter.writeJson(generator);
         generator.writeEndObject();
     }
 
-    private void writeDictionaryEntries(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
-        generator.writeFieldName("dics");
-        generator.writeStartObject();
-        generator.writeObjectField("default", dictionary);
-        generator.writeEndObject();
-    }
-
-    public static void write(ReportNodeImpl reporter, Path jsonFile) {
+    public static void write(ReportRootImpl reporter, Path jsonFile) {
         Objects.requireNonNull(reporter);
         Objects.requireNonNull(jsonFile);
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
@@ -62,7 +51,7 @@ public class ReportNodeSerializer extends StdSerializer<ReportNodeImpl> {
     }
 
     protected static final class TypedValueSerializer extends StdSerializer<TypedValue> {
-        protected TypedValueSerializer() {
+        TypedValueSerializer() {
             super(TypedValue.class);
         }
 

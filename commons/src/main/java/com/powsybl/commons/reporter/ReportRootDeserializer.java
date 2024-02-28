@@ -9,7 +9,6 @@ package com.powsybl.commons.reporter;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.slf4j.Logger;
@@ -20,24 +19,23 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Objects;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
+public class ReportRootDeserializer extends StdDeserializer<ReportRootImpl> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReportNodeDeserializer.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportRootDeserializer.class);
     public static final String DICTIONARY_VALUE_ID = "dictionary";
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
-    ReportNodeDeserializer() {
+    ReportRootDeserializer() {
         super(ReportNodeImpl.class);
     }
 
     @Override
-    public ReportNodeImpl deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+    public ReportRootImpl deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         ObjectCodec codec = p.getCodec();
         JsonNode root = codec.readTree(p);
 
@@ -45,32 +43,8 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
         String versionStr = codec.readValue(versionNode.traverse(), String.class);
         ReporterVersion version = ReporterVersion.of(versionStr);
 
-        Map<String, String> dictionary = readDictionary(root, ctx, codec);
-
-        return ReportNodeImpl.parseJsonNode(root.get("reportTree"), dictionary, codec, version);
-    }
-
-    private Map<String, String> readDictionary(JsonNode root, DeserializationContext ctx, ObjectCodec codec) throws IOException {
-        Map<String, String> dictionary = Collections.emptyMap();
-        JsonNode dicsNode = root.get("dics");
-        if (dicsNode != null) {
-            String dictionaryName = getDictionaryName(ctx);
-            JsonNode dicNode = dicsNode.get(dictionaryName);
-            if (dicNode == null && dicsNode.fields().next() != null) {
-                Map.Entry<String, JsonNode> firstDictionary = dicsNode.fields().next();
-                dicNode = firstDictionary.getValue();
-                LOGGER.warn("Cannot find `{}` dictionary, taking first entry (`{}`)", dictionaryName, firstDictionary.getKey());
-            }
-            if (dicNode != null) {
-                dictionary = codec.readValue(dicNode.traverse(), new TypeReference<HashMap<String, String>>() {
-                });
-            } else {
-                LOGGER.warn("No dictionary found! `dics` root entry is empty");
-            }
-        } else {
-            LOGGER.warn("No dictionary found! `dics` root entry is missing");
-        }
-        return dictionary;
+        String dictionaryName = getDictionaryName(ctx);
+        return ReportRootImpl.parseJsonNode(root.get("reportRoot"), codec, version, dictionaryName);
     }
 
     private String getDictionaryName(DeserializationContext ctx) {
@@ -80,20 +54,20 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
             return dicNameInjected instanceof String name ? name : DICTIONARY_DEFAULT_NAME;
         } catch (JsonMappingException | IllegalArgumentException e) {
             LOGGER.info("No injectable value found for id `{}` in DeserializationContext, therefore taking `{}` dictionary",
-                DICTIONARY_VALUE_ID, DICTIONARY_DEFAULT_NAME);
+                    DICTIONARY_VALUE_ID, DICTIONARY_DEFAULT_NAME);
             return DICTIONARY_DEFAULT_NAME;
         }
     }
 
-    public static ReportNodeImpl read(Path jsonFile) {
+    public static ReportRootImpl read(Path jsonFile) {
         return read(jsonFile, DICTIONARY_DEFAULT_NAME);
     }
 
-    public static ReportNodeImpl read(InputStream jsonIs) {
+    public static ReportRootImpl read(InputStream jsonIs) {
         return read(jsonIs, DICTIONARY_DEFAULT_NAME);
     }
 
-    public static ReportNodeImpl read(Path jsonFile, String dictionary) {
+    public static ReportRootImpl read(Path jsonFile, String dictionary) {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(dictionary);
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -103,11 +77,11 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
         }
     }
 
-    public static ReportNodeImpl read(InputStream jsonIs, String dictionary) {
+    public static ReportRootImpl read(InputStream jsonIs, String dictionary) {
         Objects.requireNonNull(jsonIs);
         Objects.requireNonNull(dictionary);
         try {
-            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReportNodeImpl.class);
+            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReportRootImpl.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -122,7 +96,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
 
     protected static final class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
-        protected TypedValueDeserializer() {
+        TypedValueDeserializer() {
             super(TypedValue.class);
         }
 

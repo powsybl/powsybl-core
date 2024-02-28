@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,55 +30,31 @@ public class ReportNodeImpl extends AbstractReportNode {
     private final List<ReportNode> children = new ArrayList<>();
     private final Collection<Map<String, TypedValue>> inheritedValuesMaps;
     private final Map<String, TypedValue> values;
+    private final RootContext rootContext;
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
-
-    /**
-     * ReportNodeImpl constructor, with no associated values and no inherited values.
-     *
-     * @param key             the key identifying the corresponding task
-     * @param messageTemplate functional log, which may contain references to values of any
-     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
-     *                        <code>${key}</code> syntax
-     */
-    public ReportNodeImpl(String key, String messageTemplate) {
-        this(key, messageTemplate, Collections.emptyMap());
-    }
-
-    /**
-     * ReportNodeImpl constructor, with no inherited values.
-     *
-     * @param key             the key identifying the corresponding task
-     * @param messageTemplate functional log, which may contain references to the given value or to values of any
-     *                        <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
-     *                        <code>${key}</code> syntax
-     * @param values          a map of {@link TypedValue} indexed by their key, which may be referred to within the messageTemplate
-     *                        or within any descendants of the created <code>ReporterNode</code>.
-     *                        Be aware that any value in this map might, in all descendants, override a value of one of
-     *                        <code>ReporterNode</code> ancestors.
-     */
-    public ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values) {
-        this(key, messageTemplate, values, new ArrayDeque<>());
-    }
 
     /**
      * ReportNodeImpl constructor, with no associated values.
      *
-     * @param key                  the key identifying the corresponding task
-     * @param messageTemplate      functional log, which may contain references to the given value or to values of any
-     *                             <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
-     *                             <code>${key}</code> syntax
-     * @param values               a map of {@link TypedValue} indexed by their key, which may be referred to within the messageTemplate
-     *                             or within any descendants of the created <code>ReporterNode</code>.
-     *                             Be aware that any value in this map might, in all descendants, override a value of one of
-     *                             <code>ReporterNode</code> ancestors.
+     * @param key                 the key identifying the corresponding task
+     * @param messageTemplate     functional log, which may contain references to the given value or to values of any
+     *                            <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
+     *                            <code>${key}</code> syntax
+     * @param values              a map of {@link TypedValue} indexed by their key, which may be referred to within the messageTemplate
+     *                            or within any descendants of the created <code>ReporterNode</code>.
+     *                            Be aware that any value in this map might, in all descendants, override a value of one of
+     *                            <code>ReporterNode</code> ancestors.
      * @param inheritedValuesMaps a {@link Deque} of inherited values maps
+     * @param rootContext         the {@link RootContext} of the {@link ReportRoot} at the root of corresponding report tree
      */
-    public ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps) {
+    ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RootContext rootContext) {
         super(key, messageTemplate);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
         this.values = Collections.unmodifiableMap(values);
         this.inheritedValuesMaps = Collections.unmodifiableCollection(inheritedValuesMaps);
+        this.rootContext = rootContext;
+        rootContext.addDictionaryEntry(key, messageTemplate);
     }
 
     private static void checkMap(Map<String, TypedValue> values) {
@@ -87,6 +62,10 @@ public class ReportNodeImpl extends AbstractReportNode {
             Objects.requireNonNull(k);
             Objects.requireNonNull(v);
         });
+    }
+
+    public RootContext getRootContext() {
+        return rootContext;
     }
 
     @Override
@@ -109,12 +88,17 @@ public class ReportNodeImpl extends AbstractReportNode {
     }
 
     @Override
-    public ReportNodeAdder newReportNode() {
-        return new ReportNodeImplAdder(this);
+    public ReportNodeChildAdder newReportNode() {
+        return new ReportNodeChildAdderImpl(this);
     }
 
     @Override
-    public void addChild(ReportNode reportNode) {
+    public void addChildren(ReportRoot reportRoot) {
+        children.addAll(reportRoot.getChildren());
+        rootContext.merge(reportRoot.getContext());
+    }
+
+    void addChild(ReportNode reportNode) {
         children.add(reportNode);
     }
 
@@ -123,18 +107,7 @@ public class ReportNodeImpl extends AbstractReportNode {
         return Collections.unmodifiableCollection(children);
     }
 
-    public static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec, ReporterVersion version) throws IOException {
-        return switch (version) {
-            case V_1_0 -> throw new PowsyblException("No backward compatibility of version " + version);
-            case V_2_0 -> parseJsonNode(reportTree, dictionary, codec);
-        };
-    }
-
-    public static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
-        return parseJsonNode(reportTree, dictionary, codec, new ArrayDeque<>());
-    }
-
-    private static ReportNodeImpl parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec, Collection<Map<String, TypedValue>> inheritedValuesDeque) throws IOException {
+    static ReportNodeImpl parseJsonNode(JsonNode reportTree, RootContext rootContext, ObjectCodec codec, Collection<Map<String, TypedValue>> inheritedValuesDeque) throws IOException {
         JsonNode keyNode = reportTree.get("key");
         String key = codec.readValue(keyNode.traverse(), String.class);
 
@@ -142,13 +115,13 @@ public class ReportNodeImpl extends AbstractReportNode {
         Map<String, TypedValue> values = valuesNode == null ? Collections.emptyMap() : codec.readValue(valuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
-        String message = dictionary.getOrDefault(key, "(missing task key in dictionary)");
-        ReportNodeImpl reportNode = new ReportNodeImpl(key, message, values, inheritedValuesDeque);
+        String message = rootContext.getDictionary().getOrDefault(key, "(missing task key in dictionary)");
+        ReportNodeImpl reportNode = new ReportNodeImpl(key, message, values, inheritedValuesDeque, rootContext);
 
         JsonNode reportsNode = reportTree.get("children");
         if (reportsNode != null) {
             for (JsonNode jsonNode : reportsNode) {
-                reportNode.addChild(ReportNodeImpl.parseJsonNode(jsonNode, dictionary, codec, reportNode.getValuesMapsInheritance()));
+                reportNode.addChild(ReportNodeImpl.parseJsonNode(jsonNode, rootContext, codec, reportNode.getValuesMapsInheritance()));
             }
         }
 
@@ -156,7 +129,7 @@ public class ReportNodeImpl extends AbstractReportNode {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
+    public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("key", getKey());
         if (!values.isEmpty()) {
@@ -166,12 +139,10 @@ public class ReportNodeImpl extends AbstractReportNode {
             generator.writeFieldName("children");
             generator.writeStartArray();
             for (ReportNode messageNode : children) {
-                messageNode.writeJson(generator, dictionary);
+                messageNode.writeJson(generator);
             }
             generator.writeEndArray();
         }
         generator.writeEndObject();
-
-        dictionary.put(getKey(), getMessageTemplate());
     }
 }

@@ -7,7 +7,8 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -57,7 +58,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     void createCouplingDeviceThrowsException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
-        ReportNodeImpl reporter1 = new ReportNodeImpl("testReporterWrongBbs", "Testing reporter with wrong busbar section ID");
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("testReporterWrongBbs").withMessageTemplate("Testing reporter with wrong busbar section ID").add();
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs")
                 .withBusOrBusbarSectionId2("bbs2")
@@ -66,7 +67,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
         assertEquals("Bus or busbar section bbs not found", e0.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reporter1.getChildren().iterator().next().getKey());
 
-        ReportNodeImpl reporter2 = new ReportNodeImpl("testReporterBbsInDifferentVl", "Testing reporter with busbar sections in different voltage levels");
+        ReportNode reporter2 = new ReportRootImpl().newReportNode().withKey("testReporterBbsInDifferentVl").withMessageTemplate("Testing reporter with busbar sections in different voltage levels").add();
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs5")
@@ -75,7 +76,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
         assertEquals("unexpectedDifferentVoltageLevels", reporter2.getChildren().iterator().next().getKey());
 
-        ReportNodeImpl reporter3 = new ReportNodeImpl("testReporterSameBbs", "Testing reporter with same busbar section");
+        ReportNode reporter3 = new ReportRootImpl().newReportNode().withKey("testReporterSameBbs").withMessageTemplate("Testing reporter with same busbar section").add();
         NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs1")
@@ -122,7 +123,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @Test
     void testWithReporter() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateCouplingDevice", "Testing reporter for coupling device creation");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestCreateCouplingDevice").withMessageTemplate("Testing reporter for coupling device creation").add();
         new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs3")
@@ -135,7 +136,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @MethodSource("parameters")
     void createCouplingDeviceThrowsException(String bbs1, String bbs2, String message, String reporterKey) {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNodeImpl reporter = new ReportNodeImpl("ReporterTest", "Testing reporter");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("ReporterTest").withMessageTemplate("Testing reporter").add();
         NetworkModification modification = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1(bbs1)
                 .withBusOrBusbarSectionId2(bbs2)

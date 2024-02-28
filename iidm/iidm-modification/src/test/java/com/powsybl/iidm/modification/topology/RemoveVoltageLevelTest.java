@@ -8,7 +8,8 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
@@ -55,7 +56,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
     @Test
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTestRemoveVL", "Testing reporter on remove voltage level");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestRemoveVL").withMessageTemplate("Testing reporter on remove voltage level").add();
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);

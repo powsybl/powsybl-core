@@ -8,7 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportNodeImpl;
+import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -132,7 +132,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
     @Test
     void testException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNodeImpl reporter1 = new ReportNodeImpl("reportTestInvalidNetwork", "Testing reporter if network mismatch");
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("reportTestInvalidNetwork").withMessageTemplate("Testing reporter if network mismatch").add();
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
@@ -151,7 +151,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         assertEquals("networkMismatch", reporter1.getChildren().iterator().next().getKey());
 
         // not found id
-        ReportNodeImpl reporter2 = new ReportNodeImpl("reportTestInvalidId", "Testing reporter if wrong feeder id");
+        ReportNode reporter2 = new ReportRootImpl().newReportNode().withKey("reportTestInvalidId").withMessageTemplate("Testing reporter if wrong feeder id").add();
         CreateFeederBay modification1 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId("bbs")
@@ -163,7 +163,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         assertEquals("notFoundBusOrBusbarSection", reporter2.getChildren().iterator().next().getKey());
 
         // wrong identifiable type
-        ReportNodeImpl reporter3 = new ReportNodeImpl("reportTestInvalidType", "Testing reporter if wrong feeder type");
+        ReportNode reporter3 = new ReportRootImpl().newReportNode().withKey("reportTestInvalidType").withMessageTemplate("Testing reporter if wrong feeder type").add();
         CreateFeederBay modification2 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId("gen1")
@@ -439,7 +439,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .setQ0(10);
 
         //negative order position
-        ReportNodeImpl reporter1 = new ReportNodeImpl("reportTestNegativeOrderPosition", "Testing reporter for a load creation with negative position order");
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("reportTestNegativeOrderPosition").withMessageTemplate("Testing reporter for a load creation with negative position order").add();
         CreateFeederBay negativeOrderCreate = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId(bbs.getId())
@@ -450,7 +450,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         assertEquals("unexpectedNegativePositionOrder", reporter1.getChildren().iterator().next().getKey());
 
         //null order position
-        ReportNodeImpl reporter2 = new ReportNodeImpl("reportTestNullOrderPosition", "Testing reporter for a load creation with null order position");
+        ReportNode reporter2 = new ReportRootImpl().newReportNode().withKey("reportTestNullOrderPosition").withMessageTemplate("Testing reporter for a load creation with null order position").add();
         CreateFeederBay nullOrderCreate = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId(bbs.getId())
@@ -463,7 +463,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
     @Test
     void testCreateLoadWithReporter() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateLoad", "Testing reporter for a load creation");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestCreateLoad").withMessageTemplate("Testing reporter for a load creation").add();
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
@@ -482,7 +482,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
     @Test
     void testCreateLoadWithReporterWithoutExtensions() throws IOException {
         Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
-        ReportNodeImpl reporter = new ReportNodeImpl("reportTestCreateLoadWithoutExtensions", "Testing reporter for a load creation in a network without extensions");
+        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestCreateLoadWithoutExtensions").withMessageTemplate("Testing reporter for a load creation in a network without extensions").add();
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
