@@ -8,8 +8,6 @@ package com.powsybl.tools;
 
 import com.google.common.collect.ImmutableMap;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Objects;
 
@@ -66,7 +64,7 @@ public abstract class AbstractVersion implements Version {
                                "mavenProjectVersion", mavenProjectVersion,
                                "gitVersion", gitVersion,
                                "gitBranch", gitBranch,
-                               "buildTimestamp", Instant.ofEpochSecond(buildTimestamp).atZone(ZoneOffset.UTC).toString());
+                               "buildTimestamp", Version.convertBuildTimestamp(buildTimestamp));
     }
 
     @Override

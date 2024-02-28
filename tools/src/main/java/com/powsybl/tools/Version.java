@@ -48,7 +48,7 @@ public interface Version {
                                  .writeCell(version.getMavenProjectVersion())
                                  .writeCell(version.getGitBranch())
                                  .writeCell(version.getGitVersion())
-                                 .writeCell(Instant.ofEpochSecond(version.getBuildTimestamp()).atZone(ZoneOffset.UTC).toString());
+                                 .writeCell(convertBuildTimestamp(version.getBuildTimestamp()));
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -58,6 +58,10 @@ public interface Version {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    static String convertBuildTimestamp(Long buildTimestamp) {
+        return Instant.ofEpochMilli(buildTimestamp).atZone(ZoneOffset.UTC).toString();
     }
 
     String getRepositoryName();
