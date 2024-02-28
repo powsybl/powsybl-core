@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
+import com.powsybl.iidm.network.LimitType;
 
 import java.io.IOException;
 import java.util.Collections;

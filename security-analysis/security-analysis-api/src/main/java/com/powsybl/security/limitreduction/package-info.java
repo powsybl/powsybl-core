@@ -5,17 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitsreduction.criteria.translation;
-
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.criteria.translation.NetworkElement;
-
-import java.util.Optional;
 
 /**
+ * Classes used for the application of a {@link com.powsybl.security.detectors.LimitReductionDefinitionList}
+ * on limits.
+ *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public interface NetworkElementWithLimits<T> extends NetworkElement {
-    Optional<T> getLimits(LimitType limitType, ThreeSides side);
-}
+package com.powsybl.security.limitreduction;

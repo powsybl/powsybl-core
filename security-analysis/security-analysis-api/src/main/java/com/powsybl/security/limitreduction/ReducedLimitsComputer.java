@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitsreduction;
+package com.powsybl.security.limitreduction;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Identifiable;
@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
 import com.powsybl.iidm.criteria.NetworkElementVisitor;
-import com.powsybl.security.limitsreduction.criteria.translation.DefaultNetworkElementWithLimitsAdapter;
-import com.powsybl.security.limitsreduction.criteria.translation.NetworkElementWithLimits;
+import com.powsybl.security.limitreduction.criteria.translation.DefaultNetworkElementWithLimitsAdapter;
+import com.powsybl.security.limitreduction.criteria.translation.NetworkElementWithLimits;
 import com.powsybl.iidm.criteria.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 
@@ -31,7 +31,7 @@ import static com.powsybl.contingency.ContingencyContextType.*;
  */
 public class ReducedLimitsComputer {
     private final LimitReductionDefinitionList limitReductionDefinitionList;
-    private List<LimitReductionDefinitionList.LimitReductionDefinition> definitionsForCurrentContingencyId = Collections.emptyList();
+    private List<LimitReductionDefinition> definitionsForCurrentContingencyId = Collections.emptyList();
     private boolean sameDefinitionsAsForPreviousContingencyId = false;
 
     private final Map<CacheKey, Object> reducedLimitsCache;
@@ -69,7 +69,7 @@ public class ReducedLimitsComputer {
     }
 
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElementWithLimits<?> networkElement, LimitType limitType) {
-        for (LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition : definitionsForCurrentContingencyId) {
+        for (LimitReductionDefinition limitReductionDefinition : definitionsForCurrentContingencyId) {
             if (limitReductionDefinition.getLimitType() == limitType &&
                     isEquipmentAffectedByLimitReduction(networkElement, limitReductionDefinition)) {
                 setLimitReductionsToLimitReducer(limitsReducer, limitReductionDefinition);
@@ -98,7 +98,7 @@ public class ReducedLimitsComputer {
         return sameDefinitionsAsForPreviousContingencyId;
     }
 
-    private void setLimitReductionsToLimitReducer(AbstractLimitsReducer<?> limitsReducer, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    private void setLimitReductionsToLimitReducer(AbstractLimitsReducer<?> limitsReducer, LimitReductionDefinition limitReductionDefinition) {
         if (isPermanentLimitAffectedByLimitReduction(limitReductionDefinition)) {
             limitsReducer.setPermanentLimitReduction(limitReductionDefinition.getLimitReduction());
         }
@@ -118,20 +118,20 @@ public class ReducedLimitsComputer {
         );
     }
 
-    protected static boolean isEquipmentAffectedByLimitReduction(NetworkElementWithLimits<?> networkElement, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    protected static boolean isEquipmentAffectedByLimitReduction(NetworkElementWithLimits<?> networkElement, LimitReductionDefinition limitReductionDefinition) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
         List<NetworkElementCriterion> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()
                 || networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));
     }
 
-    protected static boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    protected static boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinition limitReductionDefinition) {
         return limitReductionDefinition.getDurationCriteria().isEmpty()
                 || limitReductionDefinition.getDurationCriteria().stream()
                     .anyMatch(c -> c.getType().equals(LimitDurationCriterion.LimitDurationType.PERMANENT));
     }
 
-    protected static boolean isTemporaryLimitAffectedByLimitReduction(int temporaryLimitAcceptableDuration, LimitReductionDefinitionList.LimitReductionDefinition limitReductionDefinition) {
+    protected static boolean isTemporaryLimitAffectedByLimitReduction(int temporaryLimitAcceptableDuration, LimitReductionDefinition limitReductionDefinition) {
         return limitReductionDefinition.getDurationCriteria().isEmpty()
                 || limitReductionDefinition.getDurationCriteria().stream()
                     .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))

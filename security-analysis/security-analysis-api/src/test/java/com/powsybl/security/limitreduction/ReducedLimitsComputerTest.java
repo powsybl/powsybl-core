@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitsreduction;
+package com.powsybl.security.limitreduction;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,20 +40,19 @@ class ReducedLimitsComputerTest {
     static void init() {
         network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
-        LimitReductionDefinitionList.LimitReductionDefinition definition1 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
-                .setLimitReduction(0.9)
-                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
-                .setContingencyContexts(ContingencyContext.specificContingency("contingency1"))
-                .setDurationCriteria(new PermanentDurationCriterion());
-        LimitReductionDefinitionList.LimitReductionDefinition definition2 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
-                .setLimitReduction(0.5)
-                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")));
-        LimitReductionDefinitionList.LimitReductionDefinition definition3 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
-                .setLimitReduction(0.1)
-                .setContingencyContexts(ContingencyContext.specificContingency("contingency3"))
-                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")));
-        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
-                .setLimitReductionDefinitions(List.of(definition1, definition2, definition3));
+        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f,
+                List.of(ContingencyContext.specificContingency("contingency1")),
+                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
+                List.of(new PermanentDurationCriterion()));
+        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.CURRENT, 0.5f,
+                Collections.emptyList(),
+                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
+                Collections.emptyList());
+        LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.CURRENT, 0.1f,
+                List.of(ContingencyContext.specificContingency("contingency3")),
+                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
+                Collections.emptyList());
+        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2, definition3));
         computer = new ReducedLimitsComputer(definitionList);
     }
 
@@ -153,17 +153,16 @@ class ReducedLimitsComputerTest {
     }
 
     static Stream<Arguments> getNoChangesComputers() {
-        ReducedLimitsComputer noDefComputer = new ReducedLimitsComputer(new LimitReductionDefinitionList());
-        LimitReductionDefinitionList.LimitReductionDefinition definition1 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
-                .setLimitReduction(1.)
-                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
-                .setContingencyContexts(ContingencyContext.all());
-        LimitReductionDefinitionList.LimitReductionDefinition definition2 = new LimitReductionDefinitionList.LimitReductionDefinition(LimitType.CURRENT)
-                .setLimitReduction(1.)
-                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
-                .setContingencyContexts(ContingencyContext.all());
-        LimitReductionDefinitionList reductionsTo1List = new LimitReductionDefinitionList()
-                .setLimitReductionDefinitions(List.of(definition1, definition2));
+        ReducedLimitsComputer noDefComputer = new ReducedLimitsComputer(new LimitReductionDefinitionList(Collections.emptyList()));
+        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 1.f,
+                List.of(ContingencyContext.all()),
+                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
+                Collections.emptyList());
+        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.CURRENT, 1.f,
+                List.of(ContingencyContext.all()),
+                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
+                Collections.emptyList());
+        LimitReductionDefinitionList reductionsTo1List = new LimitReductionDefinitionList(List.of(definition1, definition2));
         ReducedLimitsComputer reductionsTo1Computer = new ReducedLimitsComputer(reductionsTo1List);
         return Stream.of(
                 Arguments.of("No definitions", noDefComputer),

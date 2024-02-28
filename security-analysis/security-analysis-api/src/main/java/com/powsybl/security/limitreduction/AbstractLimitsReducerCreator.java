@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
+package com.powsybl.security.limitreduction;
 
 /**
- * Classes used for the application of a {@link com.powsybl.security.detectors.LimitReductionDefinitionList}
- * on limits.
- *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-package com.powsybl.security.limitsreduction;
+public interface AbstractLimitsReducerCreator<T, R extends AbstractLimitsReducer<T>> {
+    R create(String networkElementId, T originalLimits);
+}
