@@ -43,7 +43,8 @@ public class ReducedLimitsComputer {
     }
 
     public Optional<LoadingLimits> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
-        return getLimitsWithAppliedReduction(new DefaultNetworkElementWithLimitsAdapter(identifiable), limitType, side, DefaultLimitsReducerCreator.getInstance());
+        return getLimitsWithAppliedReduction(new DefaultNetworkElementWithLimitsAdapter(identifiable), limitType, side,
+                (id, originalLimits) -> new DefaultLimitsReducer(originalLimits));
     }
 
     public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,

@@ -7,7 +7,8 @@
  */
 package com.powsybl.security.limitsreduction;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadingLimits;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,18 +18,16 @@ import java.util.stream.IntStream;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
-    private final OperationalLimitsGroup operationalLimitsGroup;
 
-    DefaultLimitsReducer(LoadingLimits originalLimits, OperationalLimitsGroup operationalLimitsGroup) {
+    DefaultLimitsReducer(LoadingLimits originalLimits) {
         super(originalLimits);
-        this.operationalLimitsGroup = operationalLimitsGroup;
     }
 
     @Override
     protected LoadingLimits generateReducedLimits() {
         LoadingLimits originalLimits = getOriginalLimits();
-        LoadingLimitsAdder<?, ?> adder = getLoadingLimitsAdder(originalLimits);
-        adder.setPermanentLimit(applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction()));
+        double reducedPermanentLimit = applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction());
+        AbstractReducedLoadingLimits reducedLoadingLimits = initReducedLoadingLimits(originalLimits.getLimitType(), reducedPermanentLimit);
 
         // Compute the temporary limits:
         // A temporary limit L1 should be ignored (not created) if there exists another temporary limit L2
@@ -40,15 +39,10 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
             double tlReducedValue = applyReduction(tl.getValue(), getTemporaryLimitReduction(tl.getAcceptableDuration()));
             if (Double.isNaN(previousRetainedReducedValue) || tlReducedValue < previousRetainedReducedValue) {
                 previousRetainedReducedValue = tlReducedValue;
-                adder.beginTemporaryLimit()
-                        .setName(tl.getName())
-                        .setAcceptableDuration(tl.getAcceptableDuration())
-                        .setValue(tlReducedValue)
-                        .setFictitious(tl.isFictitious())
-                        .endTemporaryLimit();
+                reducedLoadingLimits.addTemporaryLimit(tl.getName(), tlReducedValue, tl.getAcceptableDuration(), tl.isFictitious());
             }
         }
-        return adder.add();
+        return reducedLoadingLimits;
     }
 
     @Override
@@ -56,25 +50,13 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
         return getOriginalLimits().getTemporaryLimits().stream().mapToInt(LoadingLimits.TemporaryLimit::getAcceptableDuration);
     }
 
-    private LoadingLimitsAdder<?, ?> getLoadingLimitsAdder(LoadingLimits originalLimits) {
-        return switch (originalLimits.getLimitType()) {
-            case ACTIVE_POWER -> newActivePowerLimitsAdder();
-            case APPARENT_POWER -> newApparentPowerLimitsAdder();
-            case CURRENT -> newCurrentLimitsAdder();
+    private AbstractReducedLoadingLimits initReducedLoadingLimits(LimitType type, double permanentLimit) {
+        return switch (type) {
+            case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit);
+            case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit);
+            case CURRENT -> new ReducedCurrentLimits(permanentLimit);
             default -> throw new IllegalArgumentException(
-                    String.format("Unsupported limits type for reductions (%s)", originalLimits.getLimitType()));
+                    String.format("Unsupported limits type for reductions (%s)", type));
         };
-    }
-
-    private CurrentLimitsAdder newCurrentLimitsAdder() {
-        return operationalLimitsGroup.newCurrentLimits();
-    }
-
-    private ApparentPowerLimitsAdder newApparentPowerLimitsAdder() {
-        return operationalLimitsGroup.newApparentPowerLimits();
-    }
-
-    private ActivePowerLimitsAdder newActivePowerLimitsAdder() {
-        return operationalLimitsGroup.newActivePowerLimits();
     }
 }
