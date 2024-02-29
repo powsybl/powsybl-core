@@ -10,8 +10,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.text.StringSubstitutor;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -25,8 +27,9 @@ import java.util.stream.Stream;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeImpl extends AbstractReportNode {
+public class ReportNodeImpl implements ReportNode {
 
+    private final String key;
     private final List<ReportNode> children = new ArrayList<>();
     private final Collection<Map<String, TypedValue>> inheritedValuesMaps;
     private final Map<String, TypedValue> values;
@@ -48,7 +51,7 @@ public class ReportNodeImpl extends AbstractReportNode {
      * @param rootContext         the {@link RootContext} of the {@link ReportRoot} at the root of corresponding report tree
      */
     ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RootContext rootContext) {
-        super(key, messageTemplate);
+        this.key = Objects.requireNonNull(key);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
         this.values = Collections.unmodifiableMap(values);
@@ -64,7 +67,22 @@ public class ReportNodeImpl extends AbstractReportNode {
         });
     }
 
-    public RootContext getRootContext() {
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public String getMessage() {
+        String messageTemplate = rootContext.getDictionary().get(key);
+        return new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(messageTemplate);
+    }
+
+    public Optional<String> getValueAsString(String valueKey) {
+        return getValue(valueKey).map(TypedValue::getValue).map(Object::toString);
+    }
+
+    RootContext getRootContext() {
         return rootContext;
     }
 
@@ -105,6 +123,23 @@ public class ReportNodeImpl extends AbstractReportNode {
     @Override
     public Collection<ReportNode> getChildren() {
         return Collections.unmodifiableCollection(children);
+    }
+
+    @Override
+    public void print(Writer writer, String indentationStart) throws IOException {
+        if (children.isEmpty()) {
+            print(writer, indentationStart, "");
+        } else {
+            print(writer, indentationStart, "+ ");
+            String childrenIndent = indentationStart + "   ";
+            for (ReportNode child : children) {
+                child.print(writer, childrenIndent);
+            }
+        }
+    }
+
+    protected void print(Writer writer, String indent, String prefix) throws IOException {
+        writer.append(indent).append(prefix).append(getMessage()).append(System.lineSeparator());
     }
 
     static ReportNodeImpl parseJsonNode(JsonNode reportTree, RootContext rootContext, ObjectCodec codec, Collection<Map<String, TypedValue>> inheritedValuesDeque) throws IOException {
