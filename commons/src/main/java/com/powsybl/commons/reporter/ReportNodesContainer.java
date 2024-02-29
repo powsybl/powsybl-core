@@ -12,11 +12,11 @@ import java.util.Collection;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface TreeNode<T extends TreeNode<T>> {
+public interface ReportNodesContainer {
 
     /**
      * Get the children of current node
      * @return the children nodes
      */
-    Collection<T> getChildren();
+    Collection<ReportNode> getReportNodes();
 }

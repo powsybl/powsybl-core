@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface ReportRoot extends TreeNode<ReportNode> {
+public interface ReportRoot extends ReportNodesContainer {
     RootContext getContext();
 
     /**

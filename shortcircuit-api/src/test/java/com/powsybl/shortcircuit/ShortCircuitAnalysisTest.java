@@ -124,7 +124,7 @@ class ShortCircuitAnalysisTest {
         ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("testReportShortCircuit", "Test mock short circuit").add();
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reporter);
         assertNotNull(result);
-        Collection<ReportNode> children = reporter.getChildren();
+        Collection<ReportNode> children = reporter.getReportNodes();
         assertEquals(1, children.size());
 
         ReportNode node = children.iterator().next();
@@ -132,7 +132,7 @@ class ShortCircuitAnalysisTest {
         ReportNodeImpl subReporter = (ReportNodeImpl) node;
         assertEquals("MockShortCircuit", subReporter.getKey());
         assertEquals("Running mock short circuit", subReporter.getMessage());
-        assertTrue(subReporter.getChildren().isEmpty());
+        assertTrue(subReporter.getReportNodes().isEmpty());
     }
 
     @Test

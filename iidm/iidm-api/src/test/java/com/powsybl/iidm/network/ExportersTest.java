@@ -122,7 +122,7 @@ class ExportersTest extends AbstractConvertersTest {
         DataSource dataSource = Exporters.createDataSource(path);
         ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTest", "Testing exporter reporting").add();
         testExporter.export(null, null, dataSource, reporter);
-        Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
+        Optional<ReportNode> reportNode = reporter.getReportNodes().stream().findFirst();
         assertTrue(reportNode.isPresent());
         assertTrue(reportNode.get() instanceof ReportNode);
 

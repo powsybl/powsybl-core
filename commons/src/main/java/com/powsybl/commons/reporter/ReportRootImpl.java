@@ -29,7 +29,7 @@ public class ReportRootImpl implements ReportRoot {
     private final List<ReportNode> children = new ArrayList<>();
 
     @Override
-    public Collection<ReportNode> getChildren() {
+    public Collection<ReportNode> getReportNodes() {
         return children;
     }
 

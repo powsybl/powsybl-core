@@ -112,7 +112,7 @@ public class ReportNodeImpl implements ReportNode {
 
     @Override
     public void addChildren(ReportRoot reportRoot) {
-        children.addAll(reportRoot.getChildren());
+        children.addAll(reportRoot.getReportNodes());
         rootContext.merge(reportRoot.getContext());
     }
 
@@ -121,7 +121,7 @@ public class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public Collection<ReportNode> getChildren() {
+    public Collection<ReportNode> getReportNodes() {
         return Collections.unmodifiableCollection(children);
     }
 

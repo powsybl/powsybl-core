@@ -48,7 +48,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLineId("CJ")
                 .build();
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reporter1), "Line line1NotFound is not found");
-        assertEquals("lineNotFound", reporter1.getChildren().iterator().next().getKey());
+        assertEquals("lineNotFound", reporter1.getReportNodes().iterator().next().getKey());
 
         ReportNode reporter2 = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestUndefinedLine", "Testing reporter with undefined line2 ID").add();
         final NetworkModification modificationWithError2 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -57,7 +57,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLineId("CJ")
                 .build();
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reporter2), "Line line2NotFound is not found");
-        assertEquals("lineNotFound", reporter2.getChildren().iterator().next().getKey());
+        assertEquals("lineNotFound", reporter2.getReportNodes().iterator().next().getKey());
 
         ReportNode reporter3 = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestNoVLInCommon", "Testing reporter with lines having no voltage level in common").add();
         final NetworkModification modificationWithError3 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -66,7 +66,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLineId("CJ")
                 .build();
         assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reporter3), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
-        assertEquals("noVoltageLevelInCommon", reporter3.getChildren().iterator().next().getKey());
+        assertEquals("noVoltageLevelInCommon", reporter3.getReportNodes().iterator().next().getKey());
 
         // create limits on tee point side
         Line line1 = network.getLine("CJ_1");

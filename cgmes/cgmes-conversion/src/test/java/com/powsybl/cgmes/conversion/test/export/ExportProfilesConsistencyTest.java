@@ -44,7 +44,7 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     }
 
     private boolean inconsistentProfilesReported(ReportNode reporter) {
-        return reporter.getChildren().stream()
+        return reporter.getReportNodes().stream()
                 .map(ReportNode::getKey)
                 .anyMatch(key -> key.equals("inconsistentProfilesTPRequired"));
     }

@@ -41,7 +41,7 @@ import java.util.*;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface ReportNode extends Report, TreeNode<ReportNode> {
+public interface ReportNode extends Report, ReportNodesContainer {
 
     /**
      * A No-op implementation of <code>ReporterNode</code>

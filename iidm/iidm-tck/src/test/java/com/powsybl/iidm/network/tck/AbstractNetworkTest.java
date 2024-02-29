@@ -603,7 +603,7 @@ public abstract class AbstractNetworkTest {
         ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").add();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
 
-        Collection<ReportNode> children = reporter.getChildren();
+        Collection<ReportNode> children = reporter.getReportNodes();
         assertEquals(1, children.size());
         ReportNode node = children.iterator().next();
         assertEquals("IIDMValidation", node.getKey());
@@ -611,7 +611,7 @@ public abstract class AbstractNetworkTest {
 
         assertInstanceOf(ReportNodeImpl.class, node);
         ReportNodeImpl subReporter = (ReportNodeImpl) node;
-        Collection<ReportNode> messageNodes = subReporter.getChildren();
+        Collection<ReportNode> messageNodes = subReporter.getReportNodes();
         assertFalse(messageNodes.isEmpty());
 
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());

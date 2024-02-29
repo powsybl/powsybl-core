@@ -41,7 +41,7 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network1);
 
-        Optional<ReportNode> report = reporter.getChildren().stream().findFirst();
+        Optional<ReportNode> report = reporter.getReportNodes().stream().findFirst();
         assertTrue(report.isPresent());
 
         roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/postProcessorReporterTest.json");
