@@ -32,12 +32,12 @@ public abstract class AbstractNetworkReportNodeTest {
     public void executeWithReporterTest() {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("key1").withMessageTemplate("name1").add();
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("key1", "name1").add();
         network.getReporterContext().pushReporter(reporter1);
         assertTrue(reporter1.getChildren().isEmpty());
 
         // Create another reporter (reporter2)
-        ReportNode reporter2 = new ReportRootImpl().newReportNode().withKey("key2").withMessageTemplate("name2").add();
+        ReportNode reporter2 = new ReportRootImpl().newReportNode().withMessageTemplate("key2", "name2").add();
         assertTrue(reporter2.getChildren().isEmpty());
 
         // Execute a task using reporter2
@@ -52,20 +52,20 @@ public abstract class AbstractNetworkReportNodeTest {
     }
 
     private Runnable getTask(Network network) {
-        return () -> network.getReporterContext().getReporter().newReportNode().withKey("reportKey").withMessageTemplate("message").add();
+        return () -> network.getReporterContext().getReporter().newReportNode().withMessageTemplate("reportKey", "message").add();
     }
 
     @Test
     public void multiThreadTest() throws InterruptedException {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("key1").withMessageTemplate("name1").add();
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("key1", "name1").add();
         network.getReporterContext().pushReporter(reporter1);
         assertTrue(reporter1.getChildren().isEmpty());
 
         // Create 2 other reporters (reporter2 and reporter3)
-        ReportNode reporter2 = new ReportRootImpl().newReportNode().withKey("key2").withMessageTemplate("name2").add();
-        ReportNode reporter3 = new ReportRootImpl().newReportNode().withKey("key3").withMessageTemplate("name3").add();
+        ReportNode reporter2 = new ReportRootImpl().newReportNode().withMessageTemplate("key2", "name2").add();
+        ReportNode reporter3 = new ReportRootImpl().newReportNode().withMessageTemplate("key3", "name3").add();
         assertTrue(reporter2.getChildren().isEmpty());
         assertTrue(reporter3.getChildren().isEmpty());
 
@@ -80,7 +80,7 @@ public abstract class AbstractNetworkReportNodeTest {
                     try {
                         latch.countDown();
                         latch.await();
-                        network.getReporterContext().getReporter().newReportNode().withKey("key2").withMessageTemplate("message2").add();
+                        network.getReporterContext().getReporter().newReportNode().withMessageTemplate("key2", "message2").add();
                     } finally {
                         network.getReporterContext().popReporter();
                     }
@@ -91,7 +91,7 @@ public abstract class AbstractNetworkReportNodeTest {
                     try {
                         latch.countDown();
                         latch.await();
-                        network.getReporterContext().getReporter().newReportNode().withKey("key3").withMessageTemplate("message3").add();
+                        network.getReporterContext().getReporter().newReportNode().withMessageTemplate("key3", "message3").add();
                     } finally {
                         network.getReporterContext().popReporter();
                     }

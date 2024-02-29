@@ -600,7 +600,7 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("testReportScadaNetwork").withMessageTemplate("Test reporting of SCADA network").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").add();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
 
         Collection<ReportNode> children = reporter.getChildren();

@@ -121,7 +121,7 @@ class ShortCircuitAnalysisTest {
 
     @Test
     void testWithReporter() {
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("testReportShortCircuit").withMessageTemplate("Test mock short circuit").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("testReportShortCircuit", "Test mock short circuit").add();
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reporter);
         assertNotNull(result);
         Collection<ReportNode> children = reporter.getChildren();

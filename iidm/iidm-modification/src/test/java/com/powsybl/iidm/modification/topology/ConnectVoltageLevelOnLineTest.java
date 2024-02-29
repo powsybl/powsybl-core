@@ -34,7 +34,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportAttachVoltageLevelOnLineNbTest").withMessageTemplate("Testing reporter for Attaching voltage level on line - Node breaker").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportAttachVoltageLevelOnLineNbTest", "Testing reporter for Attaching voltage level on line - Node breaker").add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
@@ -46,7 +46,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportConnectVoltageLevelOnLineNbBbTest").withMessageTemplate("Testing reporter for connecting voltage level on line - Node breaker").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportConnectVoltageLevelOnLineNbBbTest", "Testing reporter for connecting voltage level on line - Node breaker").add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("NHV1_NHV2_1"))
@@ -58,7 +58,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportConnectVoltageLevelOnLineBbTest").withMessageTemplate("Testing reporter for connecting voltage level on line - Bus breaker").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportConnectVoltageLevelOnLineBbTest", "Testing reporter for connecting voltage level on line - Bus breaker").add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("bus")
                 .withLine(network.getLine("NHV1_NHV2_1"))
@@ -134,12 +134,12 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
 
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestUndefinedBbs").withMessageTemplate("Testing reporter with undefined busbar section").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestUndefinedBbs", "Testing reporter with undefined busbar section").add();
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network1.getLine("CJ"))
                 .build();
-        ReportNode subReportNodeNb = reporter.newReportNode().withKey("nodeBreaker").withMessageTemplate("Test on node/breaker network").add();
+        ReportNode subReportNodeNb = reporter.newReportNode().withMessageTemplate("nodeBreaker", "Test on node/breaker network").add();
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, subReportNodeNb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
         ReportNodeImpl firstReport = (ReportNodeImpl) reporter.getChildren().iterator().next();
@@ -151,7 +151,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network2.getLine("NHV1_NHV2_1"))
                 .build();
-        ReportNode subReportNodeBb = reporter.newReportNode().withKey("busBreaker").withMessageTemplate("Test on bus/breaker network").add();
+        ReportNode subReportNodeBb = reporter.newReportNode().withMessageTemplate("busBreaker", "Test on bus/breaker network").add();
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReportNodeBb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
         Iterator<ReportNode> iterator = reporter.getChildren().iterator();
@@ -180,7 +180,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void testWithReporter() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestConnectVoltageLevelOnLine").withMessageTemplate("Testing reporter for connecting voltage level on line").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestConnectVoltageLevelOnLine", "Testing reporter for connecting voltage level on line").add();
         new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))

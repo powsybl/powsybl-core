@@ -121,22 +121,22 @@ public class UcteNetworkImpl implements UcteNetwork {
     @Override
     public void fix(ReportNode reportNode) {
 
-        ReportNode nodesReportNode = reportNode.newReportNode().withKey("fixUcteNodes").withMessageTemplate("Fix UCTE nodes").add();
+        ReportNode nodesReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteNodes", "Fix UCTE nodes").add();
         for (UcteNode node : nodes.values()) {
             node.fix(nodesReportNode);
         }
 
-        ReportNode linesReportNode = reportNode.newReportNode().withKey("fixUcteLines").withMessageTemplate("Fix UCTE lines").add();
+        ReportNode linesReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteLines", "Fix UCTE lines").add();
         for (UcteLine line : lines.values()) {
             line.fix(linesReportNode);
         }
 
-        ReportNode transfoReportNode = reportNode.newReportNode().withKey("fixUcteTransformer").withMessageTemplate("Fix UCTE transformers").add();
+        ReportNode transfoReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteTransformer", "Fix UCTE transformers").add();
         for (UcteTransformer transfo : transformers.values()) {
             transfo.fix(transfoReportNode);
         }
 
-        ReportNode regulationsReportNode = reportNode.newReportNode().withKey("fixUcteRegulations").withMessageTemplate("Fix UCTE regulations").add();
+        ReportNode regulationsReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteRegulations", "Fix UCTE regulations").add();
         for (UcteRegulation regulation : regulations.values()) {
             regulation.fix(regulationsReportNode);
         }

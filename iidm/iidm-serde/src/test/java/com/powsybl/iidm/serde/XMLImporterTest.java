@@ -257,7 +257,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     }
 
     private void importDataAndTestReporter(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
-        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("test").withMessageTemplate("test reportNode").add();
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withMessageTemplate("test", "test reportNode").add();
         assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
 
         StringWriter sw = new StringWriter();

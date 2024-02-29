@@ -44,14 +44,12 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
         ReportNode reporter = new ReportRootImpl().newReportNode()
-                .withKey("testReportVoltageRegulatingXnode")
-                .withMessageTemplate("Test importing UCTE file ${file}")
+                .withMessageTemplate("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}")
                 .withTypedValue("file", "elementName.uct", TypedValue.FILENAME)
                 .add();
 
         reporter.newReportNode()
-                .withKey("reportTest")
-                .withMessageTemplate("Report test ${unknownKey}")
+                .withMessageTemplate("reportTest", "Report test ${unknownKey}")
                 .withValue("nonPrintedString", "Non printed String")
                 .add();
         Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
@@ -74,8 +72,8 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     void roundTripReporterJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
         ReportRootImpl reportRoot = new ReportRootImpl();
-        ReportNode reporter = reportRoot.newReportNode().withKey("roundTripReporterJsonTest").withMessageTemplate("Test importing UCTE file frVoltageRegulatingXnode.uct").add();
-        reporter.newReportNode().withKey("novalueReport").withMessageTemplate("No value report").add();
+        ReportNode reporter = reportRoot.newReportNode().withMessageTemplate("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct").add();
+        reporter.newReportNode().withMessageTemplate("novalueReport", "No value report").add();
         Network.read(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
 
@@ -133,7 +131,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
         ReportRootImpl reportRoot = new ReportRootImpl();
         ReportNode reporter = reportRoot.newReportNode()
-                .withKey("importAllParallel").withMessageTemplate("Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}")
+                .withMessageTemplate("importAllParallel", "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}")
                 .withTypedValue("file1", "frVoltageRegulatingXnode.uct", TypedValue.FILENAME)
                 .withTypedValue("file2", "frTestGridForMerging.uct", TypedValue.FILENAME)
                 .withTypedValue("file3", "germanTsos.uct", TypedValue.FILENAME)

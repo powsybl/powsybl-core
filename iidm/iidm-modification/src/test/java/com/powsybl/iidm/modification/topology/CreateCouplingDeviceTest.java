@@ -58,7 +58,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     void createCouplingDeviceThrowsException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("testReporterWrongBbs").withMessageTemplate("Testing reporter with wrong busbar section ID").add();
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("testReporterWrongBbs", "Testing reporter with wrong busbar section ID").add();
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs")
                 .withBusOrBusbarSectionId2("bbs2")
@@ -67,7 +67,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
         assertEquals("Bus or busbar section bbs not found", e0.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reporter1.getChildren().iterator().next().getKey());
 
-        ReportNode reporter2 = new ReportRootImpl().newReportNode().withKey("testReporterBbsInDifferentVl").withMessageTemplate("Testing reporter with busbar sections in different voltage levels").add();
+        ReportNode reporter2 = new ReportRootImpl().newReportNode().withMessageTemplate("testReporterBbsInDifferentVl", "Testing reporter with busbar sections in different voltage levels").add();
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs5")
@@ -76,7 +76,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
         assertEquals("unexpectedDifferentVoltageLevels", reporter2.getChildren().iterator().next().getKey());
 
-        ReportNode reporter3 = new ReportRootImpl().newReportNode().withKey("testReporterSameBbs").withMessageTemplate("Testing reporter with same busbar section").add();
+        ReportNode reporter3 = new ReportRootImpl().newReportNode().withMessageTemplate("testReporterSameBbs", "Testing reporter with same busbar section").add();
         NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs1")
@@ -123,7 +123,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @Test
     void testWithReporter() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestCreateCouplingDevice").withMessageTemplate("Testing reporter for coupling device creation").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestCreateCouplingDevice", "Testing reporter for coupling device creation").add();
         new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs3")
@@ -136,7 +136,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @MethodSource("parameters")
     void createCouplingDeviceThrowsException(String bbs1, String bbs2, String message, String reporterKey) {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("ReporterTest").withMessageTemplate("Testing reporter").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("ReporterTest", "Testing reporter").add();
         NetworkModification modification = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1(bbs1)
                 .withBusOrBusbarSectionId2(bbs2)

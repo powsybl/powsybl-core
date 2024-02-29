@@ -424,8 +424,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (Double.isNaN(activePowerGeneration)) {
 
             reportNode.newReportNode()
-                .withKey("activePowerUndefined")
-                .withMessageTemplate("Node ${node}: active power is undefined, set value to 0")
+                .withMessageTemplate("activePowerUndefined", "Node ${node}: active power is undefined, set value to 0")
                 .withValue("node", code.toString())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -479,8 +478,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         // PV and undefined voltage, switch to PQ
         if (isRegulatingVoltage() && (Double.isNaN(voltageReference) || voltageReference < 0.0001)) {
             reportNode.newReportNode()
-                .withKey("PvUndefinedVoltage")
-                .withMessageTemplate("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
+                .withMessageTemplate("PvUndefinedVoltage", "Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
                 .withValue("node", code.toString())
                 .withValue("voltageReference", voltageReference)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -507,8 +505,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         // PQ and undefined reactive power
         if (!isRegulatingVoltage() && Double.isNaN(reactivePowerGeneration)) {
             reportNode.newReportNode()
-                .withKey("PqUndefinedReactivePower")
-                .withMessageTemplate("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
+                .withMessageTemplate("PqUndefinedReactivePower", "Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
                 .withValue("node", code.toString())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();

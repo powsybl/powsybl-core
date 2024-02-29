@@ -649,8 +649,7 @@ public final class TopologyModificationUtils {
             if (!temporaryLimits1.isEmpty() && !temporaryLimitsTeePointSide.isEmpty()) {
                 LOGGER.warn("Temporary limits on both sides for line {} : They are ignored", lineId);
                 reportNode.newReportNode()
-                        .withKey("limitsLost")
-                        .withMessageTemplate("Temporary limits on both sides for line ${lineId} : They are ignored")
+                        .withMessageTemplate("limitsLost", "Temporary limits on both sides for line ${lineId} : They are ignored")
                         .withValue("lineId", lineId)
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();

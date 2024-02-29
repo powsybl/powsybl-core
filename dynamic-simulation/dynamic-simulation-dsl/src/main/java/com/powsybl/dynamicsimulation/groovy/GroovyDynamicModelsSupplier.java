@@ -53,7 +53,7 @@ public class GroovyDynamicModelsSupplier implements DynamicModelsSupplier {
     @Override
     public List<DynamicModel> get(Network network, ReportNode reportNode) {
         List<DynamicModel> dynamicModels = new ArrayList<>();
-        ReportNode groovyReportNode = reportNode.newReportNode().withKey("groovyDynamicModels").withMessageTemplate("Groovy Dynamic Models Supplier").add();
+        ReportNode groovyReportNode = reportNode.newReportNode().withMessageTemplate("groovyDynamicModels", "Groovy Dynamic Models Supplier").add();
 
         Binding binding = new Binding();
         binding.setVariable("network", network);

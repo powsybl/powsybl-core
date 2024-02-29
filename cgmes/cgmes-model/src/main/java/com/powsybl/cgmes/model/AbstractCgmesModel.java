@@ -258,8 +258,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
             reportNode.newReportNode()
-                    .withKey("CGMESFileRead")
-                    .withMessageTemplate("Instance file ${instanceFile}")
+                    .withMessageTemplate("CGMESFileRead", "Instance file ${instanceFile}")
                     .withTypedValue("instanceFile", name, TypedValue.FILENAME)
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();

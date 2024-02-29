@@ -51,7 +51,7 @@ public class GroovyCurvesSupplier implements CurvesSupplier {
     @Override
     public List<Curve> get(Network network, ReportNode reportNode) {
         List<Curve> curves = new ArrayList<>();
-        ReportNode groovyReportNode = reportNode.newReportNode().withKey("groovyCurves").withMessageTemplate("Groovy Curves Supplier").add();
+        ReportNode groovyReportNode = reportNode.newReportNode().withMessageTemplate("groovyCurves", "Groovy Curves Supplier").add();
 
         Binding binding = new Binding();
         binding.setVariable("network", network);

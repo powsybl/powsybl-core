@@ -16,20 +16,14 @@ public interface ReportNodeChildAdder {
     ReportNode add();
 
     /**
-     * Provide the key to build the {@link ReportNode} with.
-     * @param key the key identifying the message to build
-     * @return a reference to this object
-     */
-    ReportNodeChildAdder withKey(String key);
-
-    /**
      * Provide the message template to build the {@link ReportNode} with.
+     * @param key             the key identifying uniquely the message template
      * @param messageTemplate functional log, which may contain references to values using the <code>${key}</code> syntax,
      *                        the values mentioned being the values of corresponding {@link ReportNode} and the values of any
      *                        {@link ReportNode} ancestor of the created <code>ReporterNode</code>
      * @return a reference to this object
      */
-    ReportNodeChildAdder withMessageTemplate(String messageTemplate);
+    ReportNodeChildAdder withMessageTemplate(String key, String messageTemplate);
 
     /**
      * Provide one typed string value to build the {@link ReportNode} with.

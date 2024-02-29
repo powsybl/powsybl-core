@@ -43,8 +43,7 @@ public class TestImporter implements Importer {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withKey("test")
-                    .withMessageTemplate("Import model ${model}")
+                    .withMessageTemplate("test", "Import model ${model}")
                     .withValue("model", "eurostagTutorialExample1")
                     .add();
         }

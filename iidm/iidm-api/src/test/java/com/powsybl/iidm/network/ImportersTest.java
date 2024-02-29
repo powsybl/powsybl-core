@@ -89,7 +89,7 @@ class ImportersTest extends AbstractConvertersTest {
     @Test
     void getImporterWithImportConfigAndReporter() throws IOException {
         Importer importer = Importer.find(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("testFunctionalLog").withMessageTemplate("testFunctionalLogs").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("testFunctionalLog", "testFunctionalLogs").add();
         assertNotNull(importer);
         Network network = importer.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network);

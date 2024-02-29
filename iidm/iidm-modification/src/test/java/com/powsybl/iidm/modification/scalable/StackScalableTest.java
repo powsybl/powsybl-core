@@ -67,7 +67,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingUp() {
-        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withMessageTemplate("scaling", "default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -88,7 +88,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPMoreThanCurrent() {
-        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withMessageTemplate("scaling", "default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -109,7 +109,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPLessThanCurrent() {
-        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withMessageTemplate("scaling", "default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -130,7 +130,7 @@ class StackScalableTest {
 
     @Test
     void testMaxValueBoundsScalingUp() {
-        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withMessageTemplate("scaling", "default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -154,7 +154,7 @@ class StackScalableTest {
 
     @Test
     void testMinValueBoundsScalingDown() {
-        ReportNode reporterModel = new ReportRootImpl().newReportNode().withKey("scaling").withMessageTemplate("default").add();
+        ReportNode reporterModel = new ReportRootImpl().newReportNode().withMessageTemplate("scaling", "default").add();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);

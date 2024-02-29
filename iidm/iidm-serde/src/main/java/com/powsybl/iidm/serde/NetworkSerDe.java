@@ -714,16 +714,16 @@ public final class NetworkSerDe {
         Deque<Network> networks = new ArrayDeque<>(2);
         networks.push(network);
 
-        ReportNode validationReportNode = reportNode.newReportNode().withKey("validationWarnings").withMessageTemplate("Validation warnings").add();
+        ReportNode validationReportNode = reportNode.newReportNode().withMessageTemplate("validationWarnings", "Validation warnings").add();
         reader.readChildNodes(elementName ->
                 readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
 
         if (!extensionNamesImported.isEmpty()) {
-            ReportNode importedExtensionReportNode = reportNode.newReportNode().withKey("importedExtensions").withMessageTemplate("Imported extensions").add();
+            ReportNode importedExtensionReportNode = reportNode.newReportNode().withMessageTemplate("importedExtensions", "Imported extensions").add();
             logExtensionsImported(importedExtensionReportNode, extensionNamesImported);
         }
         if (!extensionNamesNotFound.isEmpty()) {
-            ReportNode extensionsNotFoundReportNode = reportNode.newReportNode().withKey("extensionsNotFound").withMessageTemplate("Not found extensions").add();
+            ReportNode extensionsNotFoundReportNode = reportNode.newReportNode().withMessageTemplate("extensionsNotFound", "Not found extensions").add();
             throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found !");
             logExtensionsNotFound(extensionsNotFoundReportNode, extensionNamesNotFound);
         }

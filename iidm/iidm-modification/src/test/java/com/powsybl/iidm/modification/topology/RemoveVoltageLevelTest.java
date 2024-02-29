@@ -56,7 +56,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
     @Test
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestRemoveVL").withMessageTemplate("Testing reporter on remove voltage level").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestRemoveVL", "Testing reporter on remove voltage level").add();
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);

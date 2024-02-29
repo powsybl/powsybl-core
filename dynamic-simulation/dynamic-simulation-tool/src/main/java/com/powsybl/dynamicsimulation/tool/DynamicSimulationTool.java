@@ -155,7 +155,7 @@ public class DynamicSimulationTool implements Tool {
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("dynamicSimulationTool").withMessageTemplate("Dynamic Simulation Tool").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("dynamicSimulationTool", "Dynamic Simulation Tool").add();
         DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reporter);
 
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;

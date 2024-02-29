@@ -78,12 +78,7 @@ public class ReportNodeNoOp implements ReportNode {
         }
 
         @Override
-        public ReportNodeChildAdder withKey(String key) {
-            return this;
-        }
-
-        @Override
-        public ReportNodeChildAdder withMessageTemplate(String messageTemplate) {
+        public ReportNodeChildAdder withMessageTemplate(String key, String messageTemplate) {
             return this;
         }
 

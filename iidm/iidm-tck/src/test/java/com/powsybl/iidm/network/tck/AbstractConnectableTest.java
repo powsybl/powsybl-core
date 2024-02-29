@@ -314,7 +314,7 @@ public abstract class AbstractConnectableTest {
         line1.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
 
         // disconnect the already fully disconnected line 1
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTest").withMessageTemplate("Testing reporter").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTest", "Testing reporter").add();
         network.getReporterContext().pushReporter(reporter);
         assertFalse(line1.disconnect());
         network.getReporterContext().popReporter();
@@ -364,7 +364,7 @@ public abstract class AbstractConnectableTest {
         line2.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
 
         // connect the already fully connected line 2
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTest").withMessageTemplate("Testing reporter").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTest", "Testing reporter").add();
         network.getReporterContext().pushReporter(reporter);
         assertFalse(line2.connect());
         network.getReporterContext().popReporter();

@@ -52,12 +52,12 @@ class ReportNodeContextTest {
     @MethodSource("getReporterContextStream")
     void pushAndGetReporterTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
-        ReportNode reporter0 = new ReportRootImpl().newReportNode().withKey("task0").withMessageTemplate("name0").add();
+        ReportNode reporter0 = new ReportRootImpl().newReportNode().withMessageTemplate("task0", "name0").add();
         reporterContext.pushReporter(reporter0);
         assertEquals(reporter0, reporterContext.getReporter());
         assertEquals(reporter0, reporterContext.peekReporter());
 
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("task1").withMessageTemplate("name1").add();
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("task1", "name1").add();
         reporterContext.pushReporter(reporter1);
         assertEquals(reporter1, reporterContext.getReporter());
         assertEquals(reporter1, reporterContext.peekReporter());
@@ -72,8 +72,8 @@ class ReportNodeContextTest {
     void popReporterTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
 
-        ReportNode reporter0 = new ReportRootImpl().newReportNode().withKey("task0").withMessageTemplate("name0").add();
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withKey("task1").withMessageTemplate("name1").add();
+        ReportNode reporter0 = new ReportRootImpl().newReportNode().withMessageTemplate("task0", "name0").add();
+        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("task1", "name1").add();
         reporterContext.pushReporter(reporter0);
         reporterContext.pushReporter(reporter1);
         assertEquals(reporter1, reporterContext.getReporter());
@@ -126,11 +126,11 @@ class ReportNodeContextTest {
         assert ReportNode.NO_OP.equals(reporterContext.getReporter());
 
         // Push reporters in the context
-        ReportNode reportNode1 = new ReportRootImpl().newReportNode().withKey("1").withMessageTemplate("1").add();
+        ReportNode reportNode1 = new ReportRootImpl().newReportNode().withMessageTemplate("1", "1").add();
         reporterContext.pushReporter(reportNode1);
-        ReportNode reportNode2 = new ReportRootImpl().newReportNode().withKey("2").withMessageTemplate("2").add();
+        ReportNode reportNode2 = new ReportRootImpl().newReportNode().withMessageTemplate("2", "2").add();
         reporterContext.pushReporter(reportNode2);
-        ReportNode reportNode3 = new ReportRootImpl().newReportNode().withKey("3").withMessageTemplate("3").add();
+        ReportNode reportNode3 = new ReportRootImpl().newReportNode().withMessageTemplate("3", "3").add();
         reporterContext.pushReporter(reportNode3);
 
         // Create copies

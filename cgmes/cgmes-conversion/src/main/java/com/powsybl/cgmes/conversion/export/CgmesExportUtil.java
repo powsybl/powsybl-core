@@ -125,7 +125,7 @@ public final class CgmesExportUtil {
 
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
-        context.getReporter().newReportNode().withKey("CgmesId").withMessageTemplate(modelId).add();
+        context.getReporter().newReportNode().withMessageTemplate("CgmesId", modelId).add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
         writer.writeEndElement();

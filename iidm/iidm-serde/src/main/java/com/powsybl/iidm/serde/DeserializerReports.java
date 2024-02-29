@@ -24,8 +24,7 @@ public final class DeserializerReports {
     public static void importedNetworkReport(ReportNode reportNode, String networkId, String format) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withKey("importedNetwork")
-                    .withMessageTemplate("Network \"${networkId}\" is imported from ${format} format.")
+                    .withMessageTemplate("importedNetwork", "Network \"${networkId}\" is imported from ${format} format.")
                     .withValue("networkId", networkId)
                     .withValue("format", format)
                     .withSeverity(TypedValue.INFO_SEVERITY)
@@ -38,8 +37,7 @@ public final class DeserializerReports {
         if (reportNode != null) {
             extensionsNameImported.forEach(extensionName ->
                 reportNode.newReportNode()
-                        .withKey("importedExtension")
-                        .withMessageTemplate("Extension ${extensionName} imported.")
+                        .withMessageTemplate("importedExtension", "Extension ${extensionName} imported.")
                         .withValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add()
@@ -51,8 +49,7 @@ public final class DeserializerReports {
         if (reportNode != null) {
             extensionsNotFoundName.forEach(extensionName ->
                 reportNode.newReportNode()
-                        .withKey("extensionNotFound")
-                        .withMessageTemplate("Extension ${extensionName} not found.")
+                        .withMessageTemplate("extensionNotFound", "Extension ${extensionName} not found.")
                         .withValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add()

@@ -76,8 +76,7 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
                 } else {
                     LOGGER.warn("{}duplicate point for active power {}", owner.getMessageHeader(), p);
                     owner.getNetwork().getReporterContext().getReporter().newReportNode()
-                            .withKey("validationWarning")
-                            .withMessageTemplate("${parent} duplicate point for active power {p}")
+                            .withMessageTemplate("validationWarning", "${parent} duplicate point for active power {p}")
                             .withValue("parent", owner.getMessageHeader())
                             .withValue("p", p)
                             .withSeverity(TypedValue.WARN_SEVERITY)

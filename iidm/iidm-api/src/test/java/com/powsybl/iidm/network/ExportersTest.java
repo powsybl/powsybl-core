@@ -120,7 +120,7 @@ class ExportersTest extends AbstractConvertersTest {
     void exportWithReporter() throws Exception {
         Exporter testExporter = new ExporterMockWithReporter();
         DataSource dataSource = Exporters.createDataSource(path);
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTest").withMessageTemplate("Testing exporter reporting").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTest", "Testing exporter reporting").add();
         testExporter.export(null, null, dataSource, reporter);
         Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());

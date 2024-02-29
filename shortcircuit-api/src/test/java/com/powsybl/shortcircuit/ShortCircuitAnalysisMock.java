@@ -55,7 +55,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              ComputationManager computationManager,
                                                              List<FaultParameters> faultParameters,
                                                              ReportNode reportNode) {
-        reportNode.newReportNode().withKey("MockShortCircuit").withMessageTemplate("Running mock short circuit").add();
+        reportNode.newReportNode().withMessageTemplate("MockShortCircuit", "Running mock short circuit").add();
         return run(network, faults, parameters, computationManager, faultParameters);
     }
 

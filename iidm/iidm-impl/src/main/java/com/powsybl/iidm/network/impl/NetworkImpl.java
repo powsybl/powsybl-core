@@ -1171,8 +1171,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
         ReportNode readReportNode = Objects.requireNonNull(reportNode).newReportNode()
-                .withKey("IIDMValidation")
-                .withMessageTemplate("Running validation checks on IIDM network ${networkId}")
+                .withMessageTemplate("IIDMValidation", "Running validation checks on IIDM network ${networkId}")
                 .withValue("networkId", id)
                 .add();
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),

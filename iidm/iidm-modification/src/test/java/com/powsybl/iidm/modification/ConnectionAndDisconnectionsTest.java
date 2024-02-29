@@ -311,7 +311,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportPlannedDisconnectionComplete").withMessageTemplate("Testing reporter for connectable disconnection").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportPlannedDisconnectionComplete", "Testing reporter for connectable disconnection").add();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(true)
@@ -330,7 +330,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         network.getSwitch("D1").setFictitious(true);
 
         // Network modification
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestConnectionNoDisconnection").withMessageTemplate("Testing reporter for connectable disconnection").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reporter for connectable disconnection").add();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(false)
@@ -346,7 +346,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestConnectionDisconnection").withMessageTemplate("Testing reporter for connectable disconnection").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestConnectionDisconnection", "Testing reporter for connectable disconnection").add();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(true)
@@ -362,7 +362,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestConnectionNoDisconnection").withMessageTemplate("Testing reporter for connectable disconnection").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reporter for connectable disconnection").add();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(false)
@@ -378,7 +378,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestConnection").withMessageTemplate("Testing reporter for connectable connection").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestConnection", "Testing reporter for connectable connection").add();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withConnectableId("L2")
             .withFictitiousSwitchesOperable(true)
@@ -395,7 +395,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestConnectionNoConnection").withMessageTemplate("Testing reporter for connectable connection").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestConnectionNoConnection", "Testing reporter for connectable connection").add();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withConnectableId("L2")
             .withFictitiousSwitchesOperable(false)

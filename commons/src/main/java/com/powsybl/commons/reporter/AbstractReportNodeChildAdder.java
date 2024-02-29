@@ -20,13 +20,8 @@ public abstract class AbstractReportNodeChildAdder implements ReportNodeChildAdd
     protected String messageTemplate;
 
     @Override
-    public ReportNodeChildAdder withKey(String key) {
+    public ReportNodeChildAdder withMessageTemplate(String key, String messageTemplate) {
         this.key = key;
-        return this;
-    }
-
-    @Override
-    public ReportNodeChildAdder withMessageTemplate(String messageTemplate) {
         this.messageTemplate = messageTemplate;
         return this;
     }

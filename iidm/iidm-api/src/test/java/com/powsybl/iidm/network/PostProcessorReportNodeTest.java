@@ -37,7 +37,7 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
     void postProcessorWithReporter() throws IOException {
 
         ReportRootImpl reportRoot = new ReportRootImpl();
-        ReportNode reporter = reportRoot.newReportNode().withKey("testPostProcessor").withMessageTemplate("Test importer post processor").add();
+        ReportNode reporter = reportRoot.newReportNode().withMessageTemplate("testPostProcessor", "Test importer post processor").add();
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network1);
 

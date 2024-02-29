@@ -72,7 +72,7 @@ class RemoveSubstationTest extends AbstractModificationTest {
         RemoveSubstation removeUnknown = new RemoveSubstationBuilder()
                 .withSubstationId("UNKNOWN")
                 .build();
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestRemoveUnknownSubstation").withMessageTemplate("Testing reporter on removing unknown substation").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestRemoveUnknownSubstation", "Testing reporter on removing unknown substation").add();
         Network network = EurostagTutorialExample1Factory.create();
         removeUnknown.apply(network, false, reporter);
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reporter));

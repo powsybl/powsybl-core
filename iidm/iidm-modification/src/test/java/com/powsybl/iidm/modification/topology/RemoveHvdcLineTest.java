@@ -71,7 +71,7 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     @Test
     void testRemoveHvdcLineUnknownShunt() {
         Network network = HvdcTestNetwork.createLcc();
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestRemoveHvdcLineWithUnknownShunt").withMessageTemplate("Testing reporter on removing a HVDC line with unknown shunt").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestRemoveHvdcLineWithUnknownShunt", "Testing reporter on removing a HVDC line with unknown shunt").add();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reporter));
         assertEquals("Shunt UnknownShunt not found", e.getMessage());
@@ -81,7 +81,7 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     @Test
     void testRemoveHvdcLineUnknownLine() {
         Network network = Network.create("empty", "test");
-        ReportNode reporter = new ReportRootImpl().newReportNode().withKey("reportTestRemoveHvdcLineUnknownLine").withMessageTemplate("Testing reporter on removing a HVDC line with wrong line ID").add();
+        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestRemoveHvdcLineUnknownLine", "Testing reporter on removing a HVDC line with wrong line ID").add();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reporter));
         assertEquals("Hvdc Line L not found", e.getMessage());
