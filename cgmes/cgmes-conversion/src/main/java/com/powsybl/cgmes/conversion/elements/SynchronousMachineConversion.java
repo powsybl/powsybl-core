@@ -16,13 +16,15 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import static com.powsybl.cgmes.model.CgmesNames.SYNCHRONOUS_MACHINE;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerConversion {
 
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
-        super("SynchronousMachine", sm, context);
+        super(SYNCHRONOUS_MACHINE, sm, context);
     }
 
     @Override
@@ -88,7 +90,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     }
 
     private static void addSpecificProperties(Generator generator, PropertyBag p) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "SynchronousMachine");
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, SYNCHRONOUS_MACHINE);
         String type = p.getLocal("type");
         if (type != null) {
             generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));

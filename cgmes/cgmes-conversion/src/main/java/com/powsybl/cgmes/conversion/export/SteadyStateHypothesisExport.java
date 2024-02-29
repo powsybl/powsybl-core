@@ -37,7 +37,6 @@ public final class SteadyStateHypothesisExport {
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
     private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
-    private static final String SYNCHRONOUS_MACHINE = "SynchronousMachine";
     private static final String ROTATING_MACHINE_P = "RotatingMachine.p";
     private static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
     private static final String REGULATING_COND_EQ_CONTROL_ENABLED = "RegulatingCondEq.controlEnabled";
@@ -260,20 +259,20 @@ public final class SteadyStateHypothesisExport {
     private static void writeGenerators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                  XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
-            String cgmesOriginalClass = g.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, SYNCHRONOUS_MACHINE);
+            String cgmesOriginalClass = g.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
 
             switch (cgmesOriginalClass) {
-                case "EquivalentInjection":
+                case CgmesNames.EQUIVALENT_INJECTION:
                     writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getTargetQ(),
                             g.isVoltageRegulatorOn(), g.getTargetV(), cimNamespace, writer, context);
                     break;
-                case "ExternalNetworkInjection":
+                case CgmesNames.EXTERNAL_NETWORK_INJECTION:
                     writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
                             -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0,
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
-                case SYNCHRONOUS_MACHINE:
+                case CgmesNames.SYNCHRONOUS_MACHINE:
                     writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
                             -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0, obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
                             cimNamespace, writer, context);
@@ -286,7 +285,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeExternalNetworkInjection(String id, boolean controlEnabled, double p, double q, int referencePriority, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout("ExternalNetworkInjection", id, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout(CgmesNames.EXTERNAL_NETWORK_INJECTION, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
         writer.writeCharacters(Boolean.toString(controlEnabled));
         writer.writeEndElement();
@@ -303,7 +302,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeSynchronousMachine(String id, boolean controlEnabled, double p, double q, int referencePriority, String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(SYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout(CgmesNames.SYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
         writer.writeCharacters(Boolean.toString(controlEnabled));
         writer.writeEndElement();

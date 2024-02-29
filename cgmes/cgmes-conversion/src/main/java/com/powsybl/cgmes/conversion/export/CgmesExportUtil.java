@@ -34,8 +34,7 @@ import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
-import static com.powsybl.cgmes.model.CgmesNames.PHASE_TAP_CHANGER;
-import static com.powsybl.cgmes.model.CgmesNames.RATIO_TAP_CHANGER;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -468,7 +467,9 @@ public final class CgmesExportUtil {
         double max = curve != null ? curve.getMaxP() : maxP;
 
         String kind;
-        if (min > 0) {
+        if (min < 0 && max > 0) {
+            kind = GENERATOR_OR_MOTOR;
+        } else if (min > 0) {
             kind = "generator";
         } else if (max < 0) {
             kind = "motor";
