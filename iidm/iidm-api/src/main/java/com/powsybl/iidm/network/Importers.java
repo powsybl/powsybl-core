@@ -170,7 +170,7 @@ public final class Importers {
     private static ReportNode createSubReporter(ReportNode reportNode, ReadOnlyDataSource ds) {
         return reportNode.newReportNode()
                 .withMessageTemplate("importDataSource", "Import data source ${dataSource}")
-                .withValue("dataSource", ds.getBaseName())
+                .withUntypedValue("dataSource", ds.getBaseName())
                 .add();
     }
 

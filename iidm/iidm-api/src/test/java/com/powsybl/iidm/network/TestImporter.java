@@ -44,7 +44,7 @@ public class TestImporter implements Importer {
         if (reportNode != null) {
             reportNode.newReportNode()
                     .withMessageTemplate("test", "Import model ${model}")
-                    .withValue("model", "eurostagTutorialExample1")
+                    .withUntypedValue("model", "eurostagTutorialExample1")
                     .add();
         }
         return networkFactory.createNetwork("mock", "test");

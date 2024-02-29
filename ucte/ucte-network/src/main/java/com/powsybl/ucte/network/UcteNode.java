@@ -425,7 +425,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
             reportNode.newReportNode()
                 .withMessageTemplate("activePowerUndefined", "Node ${node}: active power is undefined, set value to 0")
-                .withValue("node", code.toString())
+                .withUntypedValue("node", code.toString())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
             LOGGER.warn("Node {}: active power is undefined, set value to 0", code);
@@ -479,8 +479,8 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (isRegulatingVoltage() && (Double.isNaN(voltageReference) || voltageReference < 0.0001)) {
             reportNode.newReportNode()
                 .withMessageTemplate("PvUndefinedVoltage", "Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
-                .withValue("node", code.toString())
-                .withValue("voltageReference", voltageReference)
+                .withUntypedValue("node", code.toString())
+                .withUntypedValue("voltageReference", voltageReference)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
             LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code to {}",
@@ -506,7 +506,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (!isRegulatingVoltage() && Double.isNaN(reactivePowerGeneration)) {
             reportNode.newReportNode()
                 .withMessageTemplate("PqUndefinedReactivePower", "Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
-                .withValue("node", code.toString())
+                .withUntypedValue("node", code.toString())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
             LOGGER.warn("Node {}: voltage is not regulated but reactive power is undefined, set value to 0", code);

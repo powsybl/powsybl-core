@@ -35,12 +35,12 @@ public interface ReportNodeChildAdder {
     ReportNodeChildAdder withTypedValue(String key, String value, String type);
 
     /**
-     * Provide one string value to build the {@link ReportNode} with.
+     * Provide one untyped string value to build the {@link ReportNode} with.
      * @param key the key for the string value
      * @param value the string value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withValue(String key, String value);
+    ReportNodeChildAdder withUntypedValue(String key, String value);
 
     /**
      * Provide one typed double value to build the {@link ReportNode} with.
@@ -52,12 +52,12 @@ public interface ReportNodeChildAdder {
     ReportNodeChildAdder withTypedValue(String key, double value, String type);
 
     /**
-     * Provide one double value to build the {@link ReportNode} with.
+     * Provide one untyped double value to build the {@link ReportNode} with.
      * @param key the key for the double value
      * @param value the double value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withValue(String key, double value);
+    ReportNodeChildAdder withUntypedValue(String key, double value);
 
     /**
      * Provide one typed float value to build the {@link ReportNode} with.
@@ -69,12 +69,12 @@ public interface ReportNodeChildAdder {
     ReportNodeChildAdder withTypedValue(String key, float value, String type);
 
     /**
-     * Provide one float value to build the {@link ReportNode} with.
+     * Provide one untyped float value to build the {@link ReportNode} with.
      * @param key the key for the float value
      * @param value the float value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withValue(String key, float value);
+    ReportNodeChildAdder withUntypedValue(String key, float value);
 
     /**
      * Provide one typed int value to build the {@link ReportNode} with.
@@ -86,12 +86,12 @@ public interface ReportNodeChildAdder {
     ReportNodeChildAdder withTypedValue(String key, int value, String type);
 
     /**
-     * Provide one int value to build the {@link ReportNode} with.
+     * Provide one untyped int value to build the {@link ReportNode} with.
      * @param key the key for the int value
      * @param value the int value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withValue(String key, int value);
+    ReportNodeChildAdder withUntypedValue(String key, int value);
 
     /**
      * Provide one typed long value to build the {@link ReportNode} with.
@@ -103,12 +103,12 @@ public interface ReportNodeChildAdder {
     ReportNodeChildAdder withTypedValue(String key, long value, String type);
 
     /**
-     * Provide one long value to build the {@link ReportNode} with.
+     * Provide one untyped long value to build the {@link ReportNode} with.
      * @param key the key for the long value
      * @param value the long value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withValue(String key, long value);
+    ReportNodeChildAdder withUntypedValue(String key, long value);
 
     /**
      * Provide one typed boolean value to build the {@link ReportNode} with.
@@ -120,12 +120,12 @@ public interface ReportNodeChildAdder {
     ReportNodeChildAdder withTypedValue(String key, boolean value, String type);
 
     /**
-     * Provide one boolean value to build the {@link ReportNode} with.
+     * Provide one untyped boolean value to build the {@link ReportNode} with.
      * @param key the key for the boolean value
      * @param value the boolean value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withValue(String key, boolean value);
+    ReportNodeChildAdder withUntypedValue(String key, boolean value);
 
     /**
      * Provide the typed value for the default severity key to build the {@link ReportNode} with.

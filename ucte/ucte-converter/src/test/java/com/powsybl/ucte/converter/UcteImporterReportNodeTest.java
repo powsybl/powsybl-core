@@ -50,7 +50,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
         reporter.newReportNode()
                 .withMessageTemplate("reportTest", "Report test ${unknownKey}")
-                .withValue("nonPrintedString", "Non printed String")
+                .withUntypedValue("nonPrintedString", "Non printed String")
                 .add();
         Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());

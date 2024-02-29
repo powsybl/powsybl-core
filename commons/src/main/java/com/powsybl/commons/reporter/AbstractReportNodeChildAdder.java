@@ -33,7 +33,7 @@ public abstract class AbstractReportNodeChildAdder implements ReportNodeChildAdd
     }
 
     @Override
-    public ReportNodeChildAdder withValue(String key, String value) {
+    public ReportNodeChildAdder withUntypedValue(String key, String value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -44,7 +44,7 @@ public abstract class AbstractReportNodeChildAdder implements ReportNodeChildAdd
     }
 
     @Override
-    public ReportNodeChildAdder withValue(String key, double value) {
+    public ReportNodeChildAdder withUntypedValue(String key, double value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -55,7 +55,7 @@ public abstract class AbstractReportNodeChildAdder implements ReportNodeChildAdd
     }
 
     @Override
-    public ReportNodeChildAdder withValue(String key, float value) {
+    public ReportNodeChildAdder withUntypedValue(String key, float value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -66,7 +66,7 @@ public abstract class AbstractReportNodeChildAdder implements ReportNodeChildAdd
     }
 
     @Override
-    public ReportNodeChildAdder withValue(String key, int value) {
+    public ReportNodeChildAdder withUntypedValue(String key, int value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -77,7 +77,7 @@ public abstract class AbstractReportNodeChildAdder implements ReportNodeChildAdd
     }
 
     @Override
-    public ReportNodeChildAdder withValue(String key, long value) {
+    public ReportNodeChildAdder withUntypedValue(String key, long value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -88,7 +88,7 @@ public abstract class AbstractReportNodeChildAdder implements ReportNodeChildAdd
     }
 
     @Override
-    public ReportNodeChildAdder withValue(String key, boolean value) {
+    public ReportNodeChildAdder withUntypedValue(String key, boolean value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 

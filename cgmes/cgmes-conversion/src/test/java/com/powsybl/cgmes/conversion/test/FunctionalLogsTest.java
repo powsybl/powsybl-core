@@ -64,7 +64,7 @@ class FunctionalLogsTest {
     private ReportNode importReport(GridModelReference testCase) {
         ReportNode reporter = new ReportRootImpl().newReportNode()
                 .withMessageTemplate("testFunctionalLogs", "Test importing ${name}")
-                .withValue("name", testCase.name())
+                .withUntypedValue("name", testCase.name())
                 .add();
         Importers.importData("CGMES", testCase.dataSource(), importParams, reporter);
         return reporter;

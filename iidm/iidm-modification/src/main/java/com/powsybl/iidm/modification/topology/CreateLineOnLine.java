@@ -233,10 +233,10 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
         reportNode.newReportNode()
                 .withMessageTemplate("newLineOnLineCreated", "New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
-                .withValue("newLineId", newLine.getId())
-                .withValue("line1Id", line1Id)
-                .withValue("line2Id", line2Id)
-                .withValue("originalLineId", originalLineId)
+                .withUntypedValue("newLineId", newLine.getId())
+                .withUntypedValue("line1Id", line1Id)
+                .withUntypedValue("line2Id", line2Id)
+                .withUntypedValue("originalLineId", originalLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
