@@ -111,7 +111,7 @@ public class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void addChildren(ReportRoot reportRoot) {
+    public void include(ReportRoot reportRoot) {
         children.addAll(reportRoot.getReportNodes());
         rootContext.merge(reportRoot.getContext());
     }

@@ -59,7 +59,7 @@ public interface ReportNode extends Report, ReportNodesContainer {
      *
      * @param reportRoot the ReportNode to add
      */
-    void addChildren(ReportRoot reportRoot);
+    void include(ReportRoot reportRoot);
 
     /**
      * Get the values maps inheritance for the child nodes

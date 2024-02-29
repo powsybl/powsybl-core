@@ -27,7 +27,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public void addChildren(ReportRoot reportRoot) {
+    public void include(ReportRoot reportRoot) {
         // No-op
     }
 
