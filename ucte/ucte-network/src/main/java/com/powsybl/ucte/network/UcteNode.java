@@ -325,18 +325,18 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
     }
 
     /**
-     * Gets three phase short circuit power (MVA).
+     * Gets three-phase short-circuit power (MVA).
      * <p>{@code Double.NaN} means undefined.
-     * @return three phase short circuit power (MVA)
+     * @return three-phase short-circuit power (MVA)
      */
     public double getThreePhaseShortCircuitPower() {
         return threePhaseShortCircuitPower;
     }
 
     /**
-     * Sets three phase short circuit power (MVA).
+     * Sets three-phase short-circuit power (MVA).
      * <p>{@code Double.NaN} means undefined.
-     * @param threePhaseShortCircuitPower three phase short circuit power (MVA)
+     * @param threePhaseShortCircuitPower three-phase short-circuit power (MVA)
      */
     public void setThreePhaseShortCircuitPower(double threePhaseShortCircuitPower) {
         this.threePhaseShortCircuitPower = threePhaseShortCircuitPower;

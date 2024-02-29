@@ -25,6 +25,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
@@ -121,6 +122,17 @@ public final class SteadyStateHypothesisExport {
             // Terminal for boundary side of original line/switch is always connected
             if (dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").isPresent()) {
                 writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary"), true, cimNamespace, writer, context);
+            }
+        }
+        // If we are performing an updated export, write recorded busbar section terminals as connected
+        if (!context.isExportEquipment()) {
+            for (Bus b : network.getBusBreakerView().getBuses()) {
+                String bbsTerminals = b.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
+                if (!bbsTerminals.isEmpty()) {
+                    for (String bbsTerminal : bbsTerminals.split(",")) {
+                        writeTerminal(bbsTerminal, true, cimNamespace, writer, context);
+                    }
+                }
             }
         }
     }

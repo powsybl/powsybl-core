@@ -94,7 +94,7 @@ public class ReferenceDataProvider {
 
     private void loadReferenceData() {
         // If no explicit data source is given,
-        // force the load of boundaries configured in the platform or received as parameeter using an empty data source
+        // force the load of boundaries configured in the platform or received as parameter using an empty data source
         loadReferenceData(Objects.requireNonNullElseGet(referenceDataSource, ReadOnlyMemDataSource::new));
     }
 

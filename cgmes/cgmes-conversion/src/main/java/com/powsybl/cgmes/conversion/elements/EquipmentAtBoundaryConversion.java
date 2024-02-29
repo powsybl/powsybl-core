@@ -7,11 +7,15 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.iidm.network.DanglingLine;
+
+import java.util.Optional;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface EquipmentAtBoundaryConversion {
     void convertAtBoundary();
 
-    BoundaryLine asBoundaryLine(String node);
+    Optional<DanglingLine> getDanglingLine();
 }
