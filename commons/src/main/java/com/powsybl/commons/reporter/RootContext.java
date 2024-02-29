@@ -10,16 +10,14 @@ package com.powsybl.commons.reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class RootContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(RootContext.class);
-    private final Map<String, String> dictionary = new LinkedHashMap<>();
+    private final SortedMap<String, String> dictionary = new TreeMap<>();
 
     public Map<String, String> getDictionary() {
         return Collections.unmodifiableMap(dictionary);

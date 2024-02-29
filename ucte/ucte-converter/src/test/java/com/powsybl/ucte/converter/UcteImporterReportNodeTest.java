@@ -140,12 +140,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         assertEquals(3, networkList.size());
         assertEquals(3, reporter.getChildren().size());
 
-        int i = 0;
-        String[] dataSourceExpected = new String[] {"frTestGridForMerging", "frVoltageRegulatingXnode", "germanTsos"};
-        for (ReportNode child : reporter.getChildren()) {
-            String dataSourceReport = child.getValue("dataSource").map(TypedValue::getValue).map(Object::toString).orElse(null);
-            assertEquals(dataSourceExpected[i++], dataSourceReport);
-        }
+        roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/parallelUcteImportReport.json");
     }
 
 }

@@ -16,9 +16,9 @@
     } ],
     "dictionaries" : {
       "default" : {
-        "testPostProcessor" : "Test importer post processor",
         "test" : "Import model ${model}",
-        "testImportPostProcessor" : "testing import post processor"
+        "testImportPostProcessor" : "testing import post processor",
+        "testPostProcessor" : "Test importer post processor"
       }
     }
   }

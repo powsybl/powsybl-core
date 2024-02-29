@@ -81,14 +81,14 @@
     } ],
     "dictionaries" : {
       "default" : {
-        "roundTripReporterJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct",
-        "novalueReport" : "No value report",
         "UcteReading" : "Reading UCTE network file",
-        "fixUcteNodes" : "Fix UCTE nodes",
         "fixUcteLines" : "Fix UCTE lines",
-        "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+        "fixUcteNodes" : "Fix UCTE nodes",
+        "fixUcteRegulations" : "Fix UCTE regulations",
         "fixUcteTransformer" : "Fix UCTE transformers",
-        "fixUcteRegulations" : "Fix UCTE regulations"
+        "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+        "novalueReport" : "No value report",
+        "roundTripReporterJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct"
       }
     }
   }
