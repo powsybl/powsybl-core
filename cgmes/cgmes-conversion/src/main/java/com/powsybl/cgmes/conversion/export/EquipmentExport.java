@@ -969,7 +969,9 @@ public final class EquipmentExport {
             // If no information about original boundary has been preserved in the IIDM model,
             // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
 
-            LOG.info(String.format("Dangling line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: %s", danglingLinesId(danglingLineList)));
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Dangling line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", danglingLinesId(danglingLineList));
+            }
             DanglingLine danglingLine = danglingLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
             connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(danglingLine), CONNECTIVITY_NODE);
 
@@ -1009,7 +1011,9 @@ public final class EquipmentExport {
             setDanglingLinesProperty(danglingLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, topologicalNodeId);
         } else {
             // Also create a container if we will have to create a Topological Node for the boundary
-            LOG.info(String.format("Dangling line(s) not connected to a topology node in boundaries files: a fictitious substation and voltage level are created: %s", danglingLinesId(danglingLineList)));
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Dangling line(s) not connected to a topology node in boundaries files: a fictitious substation and voltage level are created: {}", danglingLinesId(danglingLineList));
+            }
             createFictitiousContainerFor(danglingLineList, baseVoltageId, cimNamespace, writer, context);
         }
     }
