@@ -874,31 +874,22 @@ public final class EquipmentExport {
         String connectivityNodeId = writeDanglingLinesConnectivity(danglingLineList, baseVoltageId, cimNamespace, writer, context);
 
         for (DanglingLine danglingLine : danglingLineList) {
-            writeDanglingLine(danglingLine, baseVoltageId, connectivityNodeId, mapTerminal2Id, cimNamespace, euNamespace,
-                    valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context, exported);
+            // New Equivalent Injection
+            writeDanglingLineEquivalentInjection(danglingLine, cimNamespace, baseVoltageId, connectivityNodeId, exported, writer, context);
+
+            // Cast the danglingLine to an AcLineSegment
+            AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(danglingLine), danglingLine.getNameOrId(),
+                    context.getBaseVoltageByNominalVoltage(danglingLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
+                    danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer, context);
+            writeFlowsLimits(danglingLine, exportedTerminalId(mapTerminal2Id, danglingLine.getTerminal()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+            danglingLine.getAliasFromType("CGMES." + TERMINAL_BOUNDARY).ifPresent(terminalBdId -> {
+                try {
+                    writeFlowsLimits(danglingLine, terminalBdId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+                } catch (XMLStreamException e) {
+                    throw new UncheckedXmlStreamException(e);
+                }
+            });
         }
-    }
-
-    private static void writeDanglingLine(DanglingLine danglingLine, String baseVoltageId, String connectivityNodeId,
-                                          Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace,
-                                          String valueAttributeName, String limitTypeAttributeName,
-                                          String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer,
-                                          CgmesExportContext context, List<String> exported) throws XMLStreamException {
-        // New Equivalent Injection
-        writeDanglingLineEquivalentInjection(danglingLine, cimNamespace, baseVoltageId, connectivityNodeId, exported, writer, context);
-
-        // Cast the danglingLine to an AcLineSegment
-        AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(danglingLine), danglingLine.getNameOrId(),
-                context.getBaseVoltageByNominalVoltage(danglingLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
-                danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer, context);
-        writeFlowsLimits(danglingLine, exportedTerminalId(mapTerminal2Id, danglingLine.getTerminal()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-        danglingLine.getAliasFromType("CGMES." + TERMINAL_BOUNDARY).ifPresent(terminalBdId -> {
-            try {
-                writeFlowsLimits(danglingLine, terminalBdId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
     }
 
     private static void writeDanglingLineEquivalentInjection(DanglingLine danglingLine, String cimNamespace,
@@ -978,7 +969,7 @@ public final class EquipmentExport {
             // If no information about original boundary has been preserved in the IIDM model,
             // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
 
-            LOG.info("Dangling line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", danglingLinesId(danglingLineList));
+            LOG.info("Dangling line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: " + danglingLinesId(danglingLineList));
             DanglingLine danglingLine = danglingLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
             connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(danglingLine), CONNECTIVITY_NODE);
 
@@ -1018,7 +1009,7 @@ public final class EquipmentExport {
             setDanglingLinesProperty(danglingLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, topologicalNodeId);
         } else {
             // Also create a container if we will have to create a Topological Node for the boundary
-            LOG.info("Dangling line(s) not connected to a topology node in boundaries files: a fictitious substation and voltage level are created: {}", danglingLinesId(danglingLineList));
+            LOG.info("Dangling line(s) not connected to a topology node in boundaries files: a fictitious substation and voltage level are created: " + danglingLinesId(danglingLineList));
             createFictitiousContainerFor(danglingLineList, baseVoltageId, cimNamespace, writer, context);
         }
     }
