@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * <p>Deserializer for {@link NetworkElementIdListCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class NetworkElementIdListCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<NetworkElementIdListCriterion> {

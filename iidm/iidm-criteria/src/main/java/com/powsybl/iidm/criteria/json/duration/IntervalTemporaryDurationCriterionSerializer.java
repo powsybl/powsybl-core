@@ -15,6 +15,7 @@ import com.powsybl.iidm.criteria.duration.IntervalTemporaryDurationCriterion;
 import java.io.IOException;
 
 /**
+ * <p>Serializer for {@link IntervalTemporaryDurationCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class IntervalTemporaryDurationCriterionSerializer extends StdSerializer<IntervalTemporaryDurationCriterion> {

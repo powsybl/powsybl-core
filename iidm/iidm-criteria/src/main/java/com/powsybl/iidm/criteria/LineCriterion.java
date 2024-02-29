@@ -7,6 +7,10 @@
  */
 package com.powsybl.iidm.criteria;
 
+/**
+ * <p>{@link NetworkElementCriterion} on lines.</p>
+ * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
+ */
 public class LineCriterion extends AbstractNetworkElementEquipmentCriterion {
     public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.LINE;
 

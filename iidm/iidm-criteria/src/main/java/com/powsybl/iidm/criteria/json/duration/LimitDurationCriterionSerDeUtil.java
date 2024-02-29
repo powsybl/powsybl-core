@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
+ * <p>Utility class for serialization/deserialization of {@link LimitDurationCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public final class LimitDurationCriterionSerDeUtil {

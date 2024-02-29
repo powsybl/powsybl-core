@@ -10,6 +10,11 @@ package com.powsybl.iidm.criteria.translation;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
 import com.powsybl.iidm.network.Country;
 
+/**
+ * <p>Interface that should implement objects representing network elements in order for them to be processable by
+ * the {@link NetworkElementCriterion} inheriting criterion classes.</p>
+ * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
+ */
 public interface NetworkElement {
 
     String getId();

@@ -15,12 +15,13 @@ import com.powsybl.iidm.criteria.AbstractNetworkElementEquipmentCriterion;
 import java.io.IOException;
 
 /**
+ * <p>Serializer for {@link AbstractNetworkElementEquipmentCriterion} objects (the real class is used as T parameter).</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class NetworkElementEquipmentCriterionSerializer<T extends AbstractNetworkElementEquipmentCriterion>
         extends StdSerializer<T> {
 
-    //TODO find another better name for this class
+    //TODO find another better name for this class?
     public NetworkElementEquipmentCriterionSerializer(Class<T> clazz) {
         super(clazz);
     }

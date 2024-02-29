@@ -9,6 +9,10 @@ package com.powsybl.iidm.criteria;
 
 import com.powsybl.iidm.criteria.translation.NetworkElement;
 
+/**
+ * <p>Visitor used to detect if a given {@link NetworkElement} validates criteria.</p>
+ * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
+ */
 public class NetworkElementVisitor {
 
     private final NetworkElement networkElement;

@@ -18,6 +18,7 @@ import com.powsybl.iidm.criteria.TwoWindingsTransformerCriterion;
 import java.io.IOException;
 
 /**
+ *  <p>Deserializer for {@link TwoWindingsTransformerCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class TwoWindingsTransformerCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<TwoWindingsTransformerCriterion> {

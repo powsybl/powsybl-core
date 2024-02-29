@@ -7,6 +7,10 @@
  */
 package com.powsybl.iidm.criteria;
 
+/**
+ * <p>{@link NetworkElementCriterion} on three windings transformers.</p>
+ * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
+ */
 public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementEquipmentCriterion {
     public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER;
 

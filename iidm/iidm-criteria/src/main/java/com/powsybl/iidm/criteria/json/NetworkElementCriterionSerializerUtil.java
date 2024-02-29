@@ -15,6 +15,7 @@ import com.powsybl.iidm.criteria.NetworkElementCriterion;
 import java.io.IOException;
 
 /**
+ * <p>Utility class for serialization/deserialization of {@link NetworkElementCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public final class NetworkElementCriterionSerializerUtil {

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
+ * <p>Abstract class for {@link NetworkElementCriterion} implementations' deserializers.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractNetworkElementCriterionDeserializer<T extends NetworkElementCriterion> extends StdDeserializer<T> {

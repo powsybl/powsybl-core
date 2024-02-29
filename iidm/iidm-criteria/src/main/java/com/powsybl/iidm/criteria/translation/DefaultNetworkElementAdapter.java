@@ -13,6 +13,10 @@ import com.powsybl.iidm.network.*;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * <p>Adapter to have a {@link NetworkElement} from an {@link Identifiable} object.</p>
+ * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
+ */
 public class DefaultNetworkElementAdapter implements NetworkElement {
 
     private static final Set<IdentifiableType> VALID_TYPES_FOR_LINE_CRITERION = Set.of(IdentifiableType.LINE, IdentifiableType.TIE_LINE);

@@ -18,6 +18,7 @@ import com.powsybl.iidm.criteria.TwoCountriesCriterion;
 import java.io.IOException;
 
 /**
+ * <p>Deserializer for {@link LineCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class LineCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<LineCriterion> {

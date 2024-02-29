@@ -20,6 +20,7 @@ import java.io.IOException;
 import static com.powsybl.iidm.criteria.json.duration.LimitDurationCriterionSerDeUtil.readAndCheckType;
 
 /**
+ * <p>Deserializer for {@link IntervalTemporaryDurationCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class IntervalTemporaryDurationCriterionDeserializer extends StdDeserializer<IntervalTemporaryDurationCriterion> {

@@ -7,6 +7,11 @@
  */
 package com.powsybl.iidm.criteria;
 
+/**
+ * <p>Interface for criterion classes used to filter network elements (represented as
+ * {@link com.powsybl.iidm.criteria.translation.NetworkElement} objects).</p>
+ * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
+ */
 public interface NetworkElementCriterion {
 
     enum NetworkElementCriterionType {

@@ -8,6 +8,7 @@
 package com.powsybl.iidm.criteria;
 
 /**
+ * <p>Abstract classes for {@link NetworkElementCriterion} implementations.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractNetworkElementCriterion implements NetworkElementCriterion {

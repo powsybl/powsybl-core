@@ -15,6 +15,7 @@ import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 import java.io.IOException;
 
 /**
+ * <p>Serializer for {@link EqualityTemporaryDurationCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class EqualityTemporaryDurationCriterionSerializer extends StdSerializer<EqualityTemporaryDurationCriterion> {

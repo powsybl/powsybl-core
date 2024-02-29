@@ -15,6 +15,7 @@ import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import java.io.IOException;
 
 /**
+ * <p>Serializer for {@link PermanentDurationCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class PermanentDurationCriterionSerializer extends StdSerializer<PermanentDurationCriterion> {

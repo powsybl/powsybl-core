@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * <p>{@link NetworkElementCriterion} on network element identifiers.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class NetworkElementIdListCriterion extends AbstractNetworkElementCriterion {

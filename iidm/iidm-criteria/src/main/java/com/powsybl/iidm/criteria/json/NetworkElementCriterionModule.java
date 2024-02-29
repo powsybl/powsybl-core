@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.iidm.criteria.*;
 
 /**
+ * <p>Jackson module for serialization/deserialization of {@link NetworkElementCriterion}.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class NetworkElementCriterionModule extends SimpleModule {

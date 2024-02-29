@@ -14,6 +14,7 @@ import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 
 /**
+ * <p>Jackson module for serialization/deserialization of {@link com.powsybl.iidm.criteria.duration.LimitDurationCriterion}.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class LimitDurationCriterionModule extends SimpleModule {

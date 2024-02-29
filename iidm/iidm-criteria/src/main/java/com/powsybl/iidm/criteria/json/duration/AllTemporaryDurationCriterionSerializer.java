@@ -15,6 +15,7 @@ import com.powsybl.iidm.criteria.duration.AllTemporaryDurationCriterion;
 import java.io.IOException;
 
 /**
+ * <p>Serializer for {@link AllTemporaryDurationCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class AllTemporaryDurationCriterionSerializer extends StdSerializer<AllTemporaryDurationCriterion> {
