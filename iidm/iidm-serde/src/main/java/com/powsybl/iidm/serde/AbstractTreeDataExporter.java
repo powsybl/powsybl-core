@@ -94,6 +94,11 @@ import java.util.stream.Collectors;
  *         <td>if true automation systems are exported</td>
  *         <td>true or false</td>
  *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.with-active-power-control-v-1-0</td>
+ *         <td>if true, the ActivePowerControl extension is exported in IIDM version 1.0</td>
+ *         <td>true or false</td>
+ *     </tr>
  * </table>
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
