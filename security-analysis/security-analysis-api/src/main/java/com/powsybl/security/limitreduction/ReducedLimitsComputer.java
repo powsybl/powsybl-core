@@ -27,24 +27,26 @@ public interface ReducedLimitsComputer {
      */
     ReducedLimitsComputer NO_REDUCTIONS = new ReducedLimitsComputer.NoReductionsImpl();
 
-    Optional<LoadingLimits> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side);
+    Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side);
 
-    <T> Optional<T> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
-                                                  AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
+    <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
+                                                                   AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
 
     /**
      * An implementation of {@link ReducedLimitsComputer} only retrieving the limits without applying reductions.
      */
     class NoReductionsImpl implements ReducedLimitsComputer {
         @Override
-        public Optional<LoadingLimits> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
-            return (new DefaultNetworkElementWithLimitsAdapter(identifiable)).getLimits(limitType, side);
+        public Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
+            Optional<LoadingLimits> limits = (new DefaultNetworkElementWithLimitsAdapter(identifiable)).getLimits(limitType, side);
+            return limits.map(l -> new LimitsContainer<>(l, l));
         }
 
         @Override
-        public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType,
+        public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType,
                                                              ThreeSides side, AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
-            return networkElement.getLimits(limitType, side);
+            Optional<T> limits = networkElement.getLimits(limitType, side);
+            return limits.map(l -> new LimitsContainer<>(l, l));
         }
     }
 }

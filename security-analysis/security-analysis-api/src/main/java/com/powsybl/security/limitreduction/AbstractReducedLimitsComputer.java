@@ -26,41 +26,42 @@ import java.util.Optional;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractReducedLimitsComputer implements ReducedLimitsComputer {
-    protected final Map<CacheKey, Object> reducedLimitsCache;
+    protected final Map<CacheKey, LimitsContainer<?>> reducedLimitsCache;
 
     protected AbstractReducedLimitsComputer() {
         this.reducedLimitsCache = new HashMap<>();
     }
 
     @Override
-    public Optional<LoadingLimits> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
+    public Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
         // Look into the cache to avoid recomputing reduced limits if they were already computed
         // with the same limit reductions
         CacheKey cacheKey = new CacheKey(identifiable.getId(), limitType, side);
         if (reducedLimitsCache.containsKey(cacheKey)) {
-            return Optional.of((LoadingLimits) reducedLimitsCache.get(cacheKey));
+            return Optional.of((LimitsContainer<LoadingLimits>) reducedLimitsCache.get(cacheKey));
         }
         return computeLimitsWithAppliedReduction(new DefaultNetworkElementWithLimitsAdapter(identifiable), limitType, side,
                 (id, originalLimits) -> new DefaultLimitsReducer(originalLimits));
     }
 
     @Override
-    public <T> Optional<T> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
+    public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
                                                          AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         // Look into the cache to avoid recomputing reduced limits if they were already computed
         // with the same limit reductions
         CacheKey cacheKey = new CacheKey(networkElement.getId(), limitType, side);
         if (reducedLimitsCache.containsKey(cacheKey)) {
-            return Optional.of((T) reducedLimitsCache.get(cacheKey));
+            return Optional.of((LimitsContainer<T>) reducedLimitsCache.get(cacheKey));
         }
         return computeLimitsWithAppliedReduction(networkElement, limitType, side, limitsReducerCreator);
     }
 
-    protected abstract <T> Optional<T> computeLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
+    protected abstract <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
                                                                          AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
 
-    protected <T> void putInCache(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side, T reducedLimits) {
-        reducedLimitsCache.put(new CacheKey(networkElement.getId(), limitType, side), reducedLimits);
+    protected <T> void putInCache(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
+                                  LimitsContainer<T> limitsContainer) {
+        reducedLimitsCache.put(new CacheKey(networkElement.getId(), limitType, side), limitsContainer);
     }
 
     protected void clearCache() {

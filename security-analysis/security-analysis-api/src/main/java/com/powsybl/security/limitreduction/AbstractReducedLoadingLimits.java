@@ -69,7 +69,7 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
 
     @Override
     public double getTemporaryLimitValue(int acceptableDuration) {
-        return Optional.of(getTemporaryLimit(acceptableDuration)).map(TemporaryLimit::getValue).orElse(Double.NaN);
+        return Optional.ofNullable(getTemporaryLimit(acceptableDuration)).map(TemporaryLimit::getValue).orElse(Double.NaN);
     }
 
     @Override

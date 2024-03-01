@@ -38,19 +38,20 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
     }
 
     @Override
-    protected <T> Optional<T> computeLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
+    protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
                                                                 AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         Optional<T> originalLimits = networkElement.getLimits(limitType, side);
         if (definitionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
-            return originalLimits;
+            return originalLimits.map(l -> new LimitsContainer<>(l, l));
         }
         AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
         updateLimitReducer(limitsReducer, networkElement, limitType);
         T reducedLimits = limitsReducer.getReducedLimits();
         // Cache the value to avoid recomputing it
-        putInCache(networkElement, limitType, side, reducedLimits);
-        return Optional.of(reducedLimits);
+        LimitsContainer<T> limitsContainer = new LimitsContainer<>(reducedLimits, originalLimits.get());
+        putInCache(networkElement, limitType, side, limitsContainer);
+        return Optional.of(limitsContainer);
     }
 
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElementWithLimits<?> networkElement, LimitType limitType) {
