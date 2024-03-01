@@ -533,7 +533,7 @@ public class CgmesExportContext {
     }
 
     private static boolean canGeneratorControl(Generator generator) {
-        if (generator.getReactiveLimits() == null) {
+        if (Double.isNaN(generator.getTargetV()) || generator.getReactiveLimits() == null) {
             return false;
         }
 
