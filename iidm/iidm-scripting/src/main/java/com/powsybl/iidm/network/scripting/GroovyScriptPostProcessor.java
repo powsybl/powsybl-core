@@ -14,7 +14,9 @@ import com.powsybl.iidm.network.ImportPostProcessor;
 import com.powsybl.iidm.network.Network;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.transform.ThreadInterrupt;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +71,8 @@ public class GroovyScriptPostProcessor implements ImportPostProcessor {
             LOGGER.debug("Execute groovy post processor {}", script);
             try (Reader reader = Files.newBufferedReader(script, StandardCharsets.UTF_8)) {
                 CompilerConfiguration conf = new CompilerConfiguration();
+                // Add a check on thread interruption in every loop (for, while) in the script
+                conf.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class));
 
                 Binding binding = new Binding();
                 binding.setVariable("network", network);

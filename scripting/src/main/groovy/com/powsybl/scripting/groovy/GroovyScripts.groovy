@@ -6,12 +6,13 @@
  */
 package com.powsybl.scripting.groovy
 
+import com.powsybl.computation.DefaultComputationManagerConfig
+import groovy.transform.ThreadInterrupt
 import org.codehaus.groovy.control.CompilerConfiguration
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
-
-import com.powsybl.computation.DefaultComputationManagerConfig
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -49,6 +50,9 @@ class GroovyScripts {
         assert extensions != null
 
         CompilerConfiguration conf = new CompilerConfiguration()
+
+        // Add a check on thread interruption in every loop (for, while) in the script
+        conf.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class))
 
         // Computation manager
         DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load();
