@@ -8,7 +8,7 @@
 package com.powsybl.iidm.criteria.duration;
 
 /**
- * Describes all temporary duration criterion
+ * Criterion used to filter all temporary limits regardless of their acceptable duration.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */

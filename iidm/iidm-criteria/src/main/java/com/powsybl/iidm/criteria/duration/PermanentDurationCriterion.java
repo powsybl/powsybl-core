@@ -8,7 +8,7 @@
 package com.powsybl.iidm.criteria.duration;
 
 /**
- * Describes permanent duration criterion
+ * Criterion used to filter permanent limits.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */

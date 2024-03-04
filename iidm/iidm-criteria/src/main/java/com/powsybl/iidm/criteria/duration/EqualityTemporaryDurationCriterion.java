@@ -8,13 +8,18 @@
 package com.powsybl.iidm.criteria.duration;
 
 /**
- * Describes equality temporary duration criterion
+ * Criterion used to filter temporary limits which acceptable durations are equal to a given value (in seconds).
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 public final class EqualityTemporaryDurationCriterion extends AbstractTemporaryDurationCriterion {
     private final int durationEqualityValue;
 
+    /**
+     * Create a new {@link EqualityTemporaryDurationCriterion} to filter temporary limits
+     * which acceptable durations are equal to a given value in seconds.
+     * @param durationEqualityValue duration in seconds
+     */
     public EqualityTemporaryDurationCriterion(int durationEqualityValue) {
         if (durationEqualityValue <= 0) {
             throw new IllegalArgumentException("Invalid value (must be > 0).");
@@ -27,6 +32,10 @@ public final class EqualityTemporaryDurationCriterion extends AbstractTemporaryD
         return TemporaryDurationCriterionType.EQUALITY;
     }
 
+    /**
+     * Value of acceptable duration for temporary limits matching this criterion.
+     * @return Value of acceptable duration for temporary limits matching this criterion.
+     */
     public int getDurationEqualityValue() {
         return durationEqualityValue;
     }

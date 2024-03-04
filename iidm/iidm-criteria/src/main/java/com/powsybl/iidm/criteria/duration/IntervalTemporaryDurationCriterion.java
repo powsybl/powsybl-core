@@ -8,7 +8,7 @@
 package com.powsybl.iidm.criteria.duration;
 
 /**
- * Describes interval temporary duration criterion
+ * Criterion used to filter temporary limits which acceptable durations are inside a given interval (in seconds).
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
@@ -18,6 +18,14 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
     private final boolean lowClosed;
     private final boolean highClosed;
 
+    /**
+     * Create a new {@link IntervalTemporaryDurationCriterion} to filter temporary limits
+     * which acceptable durations inside a given interval (in seconds).
+     * @param lowBound lower bound of the acceptable interval (in seconds). It may be <code>null</code>, if the interval has no lower bound.
+     * @param highBound upper bound of the acceptable interval (in seconds). It may be <code>null</code>, if the interval has no upper bound.
+     * @param lowClosed <code>true</code> if <code>lowBound</code> is part of the interval, <code>false</code> otherwise.
+     * @param highClosed <code>true</code> if <code>highBound</code> is part of the interval, <code>false</code> otherwise.
+     */
     private IntervalTemporaryDurationCriterion(Integer lowBound, Integer highBound, boolean lowClosed, boolean highClosed) {
         this.lowBound = lowBound;
         this.highBound = highBound;
@@ -31,6 +39,12 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
         private boolean lowClosed = false;
         private boolean highClosed = false;
 
+        /**
+         * Define the lower bound of the interval.
+         * @param value value of the lower bound (in seconds).
+         * @param closed <code>true</code> if the bound is part of the interval, <code>false</code> otherwise.
+         * @return the current builder
+         */
         public Builder setLowBound(int value, boolean closed) {
             checkValue(value);
             checkBounds(value, highBound);
@@ -39,6 +53,12 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
             return this;
         }
 
+        /**
+         * Define the upper bound of the interval.
+         * @param value value of the upper bound (in seconds).
+         * @param closed <code>true</code> if the bound is part of the interval, <code>false</code> otherwise.
+         * @return the current builder
+         */
         public Builder setHighBound(int value, boolean closed) {
             checkValue(value);
             checkBounds(lowBound, value);
@@ -67,6 +87,10 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
         }
     }
 
+    /**
+     * Return a builder to create an {@link IntervalTemporaryDurationCriterion}.
+     * @return a builder
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -85,18 +109,34 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
         return lowBoundOk && highBoundOk;
     }
 
+    /**
+     * Get the lower bound (in seconds) of the interval.
+     * @return lower bound of the acceptable interval (in seconds), or <code>null</code> if the interval has no lower bound.
+     */
     public Integer getLowBound() {
         return lowBound;
     }
 
+    /**
+     * Get the upper bound (in seconds) of the interval.
+     * @return upper bound of the acceptable interval (in seconds), or <code>null</code> if the interval has no upper bound.
+     */
     public Integer getHighBound() {
         return highBound;
     }
 
+    /**
+     * Is the interval closed on the lower side?
+     * @return <code>true</code> if <code>lowBound</code> is part of the interval, <code>false</code> otherwise.
+     */
     public boolean isLowClosed() {
         return lowClosed;
     }
 
+    /**
+     * Is the interval closed on the upper side?
+     * @return <code>true</code> if <code>highBound</code> is part of the interval, <code>false</code> otherwise.
+     */
     public boolean isHighClosed() {
         return highClosed;
     }

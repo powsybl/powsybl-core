@@ -10,7 +10,7 @@ package com.powsybl.iidm.criteria.duration;
 import static com.powsybl.iidm.criteria.duration.LimitDurationCriterion.LimitDurationType.TEMPORARY;
 
 /**
- * Describes temporary duration criterion
+ * Super class for criteria used to filter temporary limits.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
