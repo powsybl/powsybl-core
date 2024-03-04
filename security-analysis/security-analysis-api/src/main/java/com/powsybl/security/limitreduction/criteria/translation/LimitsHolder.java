@@ -7,10 +7,16 @@
  */
 package com.powsybl.security.limitreduction.criteria.translation;
 
-import com.powsybl.iidm.criteria.translation.NetworkElement;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.ThreeSides;
+
+import java.util.Optional;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public interface NetworkElementWithLimits<T> extends NetworkElement, LimitsHolder<T> {
+public interface LimitsHolder<T> {
+    String getId();
+
+    Optional<T> getLimits(LimitType limitType, ThreeSides side);
 }

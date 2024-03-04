@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class DefaultNetworkElementWithLimitsAdapterTest {
+    //TODO Add tieLine test
+    //TODO Use real network instead of mocked object
     @Test
     void testLine() {
         Substation substation1 = Mockito.mock(Substation.class);
@@ -69,6 +71,7 @@ class DefaultNetworkElementWithLimitsAdapterTest {
         assertEquals(987., getPermanentLimit(networkElement, LimitType.ACTIVE_POWER, ThreeSides.TWO), 0.01);
 
         assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TIE_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIERS));
@@ -119,6 +122,7 @@ class DefaultNetworkElementWithLimitsAdapterTest {
         assertEquals(987., getPermanentLimit(networkElement, LimitType.ACTIVE_POWER, ThreeSides.TWO), 0.01);
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TIE_LINE));
         assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIERS));
@@ -185,6 +189,7 @@ class DefaultNetworkElementWithLimitsAdapterTest {
         assertNull(getPermanentLimit(networkElement, LimitType.ACTIVE_POWER, ThreeSides.THREE));
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TIE_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIERS));

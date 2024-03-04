@@ -7,12 +7,13 @@
  */
 package com.powsybl.security.limitreduction;
 
+import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.limitreduction.criteria.translation.DefaultNetworkElementWithLimitsAdapter;
-import com.powsybl.security.limitreduction.criteria.translation.NetworkElementWithLimits;
+import com.powsybl.security.limitreduction.criteria.translation.LimitsHolder;
 
 import java.util.Optional;
 
@@ -29,7 +30,7 @@ public interface ReducedLimitsComputer {
 
     Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side);
 
-    <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
+    <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, NetworkElement networkElement, LimitType limitType, ThreeSides side,
                                                                    AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
 
     /**
@@ -43,9 +44,9 @@ public interface ReducedLimitsComputer {
         }
 
         @Override
-        public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType,
+        public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, NetworkElement networkElement, LimitType limitType,
                                                              ThreeSides side, AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
-            Optional<T> limits = networkElement.getLimits(limitType, side);
+            Optional<T> limits = limitsHolder.getLimits(limitType, side);
             return limits.map(l -> new LimitsContainer<>(l, l));
         }
     }

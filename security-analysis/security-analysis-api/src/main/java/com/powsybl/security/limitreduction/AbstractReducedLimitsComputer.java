@@ -7,12 +7,13 @@
  */
 package com.powsybl.security.limitreduction;
 
+import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.limitreduction.criteria.translation.DefaultNetworkElementWithLimitsAdapter;
-import com.powsybl.security.limitreduction.criteria.translation.NetworkElementWithLimits;
+import com.powsybl.security.limitreduction.criteria.translation.LimitsHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,34 +41,37 @@ public abstract class AbstractReducedLimitsComputer implements ReducedLimitsComp
         if (reducedLimitsCache.containsKey(cacheKey)) {
             return Optional.of((LimitsContainer<LoadingLimits>) reducedLimitsCache.get(cacheKey));
         }
-        return computeLimitsWithAppliedReduction(new DefaultNetworkElementWithLimitsAdapter(identifiable), limitType, side,
+        DefaultNetworkElementWithLimitsAdapter adapter = new DefaultNetworkElementWithLimitsAdapter(identifiable);
+        return computeLimitsWithAppliedReduction(adapter, adapter, limitType, side,
                 (id, originalLimits) -> new DefaultLimitsReducer(originalLimits));
     }
 
     @Override
-    public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
+    public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, NetworkElement networkElement,
+                                                                          LimitType limitType, ThreeSides side,
                                                          AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         // Look into the cache to avoid recomputing reduced limits if they were already computed
         // with the same limit reductions
-        CacheKey cacheKey = new CacheKey(networkElement.getId(), limitType, side);
+        CacheKey cacheKey = new CacheKey(limitsHolder.getId(), limitType, side);
         if (reducedLimitsCache.containsKey(cacheKey)) {
             return Optional.of((LimitsContainer<T>) reducedLimitsCache.get(cacheKey));
         }
-        return computeLimitsWithAppliedReduction(networkElement, limitType, side, limitsReducerCreator);
+        return computeLimitsWithAppliedReduction(limitsHolder, networkElement, limitType, side, limitsReducerCreator);
     }
 
-    protected abstract <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
-                                                                         AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
+    protected abstract <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, NetworkElement networkElement,
+                                                                                          LimitType limitType, ThreeSides side,
+                                                                                          AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
 
-    protected <T> void putInCache(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
+    protected <T> void putInCache(LimitsHolder<T> limitsHolder, LimitType limitType, ThreeSides side,
                                   LimitsContainer<T> limitsContainer) {
-        reducedLimitsCache.put(new CacheKey(networkElement.getId(), limitType, side), limitsContainer);
+        reducedLimitsCache.put(new CacheKey(limitsHolder.getId(), limitType, side), limitsContainer);
     }
 
     protected void clearCache() {
         reducedLimitsCache.clear();
     }
 
-    protected record CacheKey(String networkElementId, LimitType type, ThreeSides side) {
+    protected record CacheKey(String limitsHolderId, LimitType type, ThreeSides side) {
     }
 }

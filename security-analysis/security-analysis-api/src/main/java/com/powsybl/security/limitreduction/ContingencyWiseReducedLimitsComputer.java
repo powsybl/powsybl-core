@@ -8,15 +8,18 @@
 package com.powsybl.security.limitreduction;
 
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
 import com.powsybl.iidm.criteria.NetworkElementVisitor;
-import com.powsybl.security.limitreduction.criteria.translation.NetworkElementWithLimits;
 import com.powsybl.iidm.criteria.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
+import com.powsybl.iidm.criteria.translation.NetworkElement;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.security.limitreduction.criteria.translation.LimitsHolder;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static com.powsybl.contingency.ContingencyContextType.*;
 
@@ -38,15 +41,17 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
     }
 
     @Override
-    protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(NetworkElementWithLimits<T> networkElement, LimitType limitType, ThreeSides side,
-                                                                AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
+    protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(LimitsHolder<T> networkElement,
+                                                                                 NetworkElement filtrable,
+                                                                                 LimitType limitType, ThreeSides side,
+                                                                                 AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         Optional<T> originalLimits = networkElement.getLimits(limitType, side);
         if (definitionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
             return originalLimits.map(l -> new LimitsContainer<>(l, l));
         }
         AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
-        updateLimitReducer(limitsReducer, networkElement, limitType);
+        updateLimitReducer(limitsReducer, filtrable, limitType);
         T reducedLimits = limitsReducer.getReducedLimits();
         // Cache the value to avoid recomputing it
         LimitsContainer<T> limitsContainer = new LimitsContainer<>(reducedLimits, originalLimits.get());
@@ -54,7 +59,7 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
         return Optional.of(limitsContainer);
     }
 
-    private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElementWithLimits<?> networkElement, LimitType limitType) {
+    private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement networkElement, LimitType limitType) {
         for (LimitReductionDefinition limitReductionDefinition : definitionsForCurrentContingencyId) {
             if (limitReductionDefinition.getLimitType() == limitType &&
                     isEquipmentAffectedByLimitReduction(networkElement, limitReductionDefinition)) {
@@ -104,7 +109,7 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
         );
     }
 
-    protected static boolean isEquipmentAffectedByLimitReduction(NetworkElementWithLimits<?> networkElement, LimitReductionDefinition limitReductionDefinition) {
+    protected static boolean isEquipmentAffectedByLimitReduction(NetworkElement networkElement, LimitReductionDefinition limitReductionDefinition) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
         List<NetworkElementCriterion> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()

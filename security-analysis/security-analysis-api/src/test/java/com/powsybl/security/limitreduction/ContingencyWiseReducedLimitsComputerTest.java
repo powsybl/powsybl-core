@@ -8,14 +8,14 @@
 package com.powsybl.security.limitreduction;
 
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
 import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
-import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
