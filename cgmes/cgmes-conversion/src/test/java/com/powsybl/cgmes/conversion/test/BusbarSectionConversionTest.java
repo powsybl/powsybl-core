@@ -24,15 +24,32 @@ class BusbarSectionConversionTest extends AbstractSerDeTest {
 
     @Test
     void isolatedBusbarSectionWithoutTopologicalNodeInBusBreakerModelTest() {
-        Network network = Network.read("bbs-busbreaker_EQ.xml", getClass().getResourceAsStream("/bbs-busbreaker_EQ.xml"));
+        Network network = Network.read(
+                new ResourceDataSource("bbs-busbreaker",
+                new ResourceSet("/", "bbs-busbreaker_EQ.xml", "bbs-busbreaker_TP_withoutTN.xml")));
         // The network can be imported without any issue
         assertNotNull(network);
         assertEquals(1, network.getSubstationCount());
         assertEquals(1, network.getSubstations().iterator().next().getVoltageLevelStream().count());
-        // But it does not contain any busbar section
-        assertEquals(0, network.getBusbarSectionCount());
-        // And no bus has been created
+        // No Bus nor BusbarSection has been created since this is a busbreaker topology kind with no TopologicalNode
         assertEquals(0, network.getBusBreakerView().getBusCount());
+        assertEquals(0, network.getBusbarSectionCount());
+    }
+
+    @Test
+    void isolatedBusbarSectionWithoutLinkToTopologicalNodeInBusBreakerModelTest() {
+        Network network = Network.read(
+                new ResourceDataSource("bbs-busbreaker",
+                        new ResourceSet("/", "bbs-busbreaker_EQ.xml", "bbs-busbreaker_TP_withoutLinkToTN.xml")));
+        // The network can be imported without any issue
+        assertNotNull(network);
+        assertEquals(1, network.getSubstationCount());
+        assertEquals(1, network.getSubstations().iterator().next().getVoltageLevelStream().count());
+        // A Bus but no BusbarSection has been created in busbreaker topology kind
+        assertEquals(1, network.getBusBreakerView().getBusCount());
+        assertEquals(0, network.getBusbarSectionCount());
+        // The BusbasSection terminal couldn't be kept since the link to its topological node is missing
+        assertNull(network.getBusBreakerView().getBus("bbs_tn").getProperty("CGMES.busbarSectionTerminals"));
     }
 
     @Test
@@ -44,10 +61,10 @@ class BusbarSectionConversionTest extends AbstractSerDeTest {
         assertNotNull(network);
         assertEquals(1, network.getSubstationCount());
         assertEquals(1, network.getSubstations().iterator().next().getVoltageLevelStream().count());
-        // It does not contain busbar sections
-        assertEquals(0, network.getBusbarSectionCount());
-        // But a bus has been created and the busbar section terminal has been kept as a property
+        // A Bus but no BusbarSection has been created in busbreaker topology kind
         assertEquals(1, network.getBusBreakerView().getBusCount());
+        assertEquals(0, network.getBusbarSectionCount());
+        // The BusbasSection terminal has been kept as a property since the link to its topological node is present
         assertEquals("bbs_t", network.getBusBreakerView().getBus("bbs_tn").getProperty("CGMES.busbarSectionTerminals"));
     }
 }

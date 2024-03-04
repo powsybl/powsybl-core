@@ -16,7 +16,6 @@
 		<cim:Terminal.ConductingEquipment rdf:resource="#_bbs"/>
 		<cim:Terminal.ConnectivityNode rdf:resource="#_bbs_cn"/>
 		<cim:IdentifiedObject.name>T1</cim:IdentifiedObject.name>
-		<cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
 	</cim:Terminal>
 	<cim:ConnectivityNode rdf:ID="_bbs_cn">
 		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_bbs_vl"/>
