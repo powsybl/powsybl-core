@@ -104,4 +104,16 @@ public final class LimitViolationUtils {
     public static Optional<? extends LoadingLimits> getLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitType type) {
         return transformer.getLeg(side).getLimits(type);
     }
+
+    public static Optional<LoadingLimits> getLoadingLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
+        return switch (identifiable.getType()) {
+            case LINE -> (Optional<LoadingLimits>) ((Line) identifiable).getLimits(limitType, side.toTwoSides());
+            case TIE_LINE -> (Optional<LoadingLimits>) ((TieLine) identifiable).getLimits(limitType, side.toTwoSides());
+            case TWO_WINDINGS_TRANSFORMER ->
+                    (Optional<LoadingLimits>) ((TwoWindingsTransformer) identifiable).getLimits(limitType, side.toTwoSides());
+            case THREE_WINDINGS_TRANSFORMER ->
+                    (Optional<LoadingLimits>) ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
+            default -> Optional.empty();
+        };
+    }
 }

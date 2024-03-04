@@ -7,8 +7,11 @@
  */
 package com.powsybl.security.limitreduction;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.security.limitreduction.criteria.translation.DefaultNetworkElementWithLimitsAdapter;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Optional;
 
@@ -22,7 +25,6 @@ public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Filterabl
      * An implementation of {@link ReducedLimitsComputer} only retrieving the limits without applying reductions.
      */
     ReducedLimitsComputer<Filterable> NO_REDUCTIONS = new ReducedLimitsComputer.NoReductionsImpl();
-    IdentifiableLimitsGetter IDENTIFIABLE_LIMITS_GETTER = new IdentifiableLimitsGetter();
 
     Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side);
 
@@ -34,9 +36,11 @@ public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Filterabl
      * An implementation of {@link ReducedLimitsComputer} only retrieving the limits without applying reductions.
      */
     class NoReductionsImpl extends AbstractReducedLimitsComputer<Filterable> {
+        private static final String ERROR_MSG = "Not implemented: Should not be called";
+
         @Override
         public Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
-            Optional<LoadingLimits> limits = IDENTIFIABLE_LIMITS_GETTER.getLimits(new DefaultNetworkElementWithLimitsAdapter(identifiable), limitType, side);
+            Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
             return limits.map(l -> new LimitsContainer<>(l, l));
         }
 
@@ -50,13 +54,19 @@ public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Filterabl
 
         @Override
         protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(Filterable filterable, LimitType limitType, ThreeSides side, OriginalLimitsGetter<Filterable, T> originalLimitsGetter, AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
-            return Optional.empty(); // Not used
+            throw new IllegalStateException(ERROR_MSG); // Not used
         }
 
         @Override
         protected Filterable getAdapter(Identifiable<?> identifiable) {
-            return null; // Not used
+            throw new IllegalStateException(ERROR_MSG); // Not used
         }
+
+        @Override
+        protected OriginalLimitsGetter<Filterable, LoadingLimits> getOriginalLimitsGetterForIdentifiables() {
+            throw new IllegalStateException(ERROR_MSG); // Not used
+        }
+
     }
 
     interface Filterable {
@@ -65,19 +75,5 @@ public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Filterabl
 
     interface OriginalLimitsGetter<H extends Filterable, T> {
         Optional<T> getLimits(H e, LimitType limitType, ThreeSides side);
-    }
-
-    class IdentifiableLimitsGetter implements OriginalLimitsGetter<DefaultNetworkElementWithLimitsAdapter, LoadingLimits> {
-        @Override
-        public Optional<LoadingLimits> getLimits(DefaultNetworkElementWithLimitsAdapter filterable, LimitType limitType, ThreeSides side) {
-            Identifiable<?> identifiable = filterable.getIdentifiable();
-            return switch (identifiable.getType()) {
-                case LINE -> (Optional<LoadingLimits>) ((Line) identifiable).getLimits(limitType, side.toTwoSides());
-                case TIE_LINE -> (Optional<LoadingLimits>) ((TieLine) identifiable).getLimits(limitType, side.toTwoSides());
-                case TWO_WINDINGS_TRANSFORMER -> (Optional<LoadingLimits>) ((TwoWindingsTransformer) identifiable).getLimits(limitType, side.toTwoSides());
-                case THREE_WINDINGS_TRANSFORMER -> (Optional<LoadingLimits>) ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
-                default -> Optional.empty();
-            };
-        }
     }
 }

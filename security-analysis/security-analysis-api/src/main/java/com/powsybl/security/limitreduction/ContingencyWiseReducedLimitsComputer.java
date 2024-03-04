@@ -15,6 +15,7 @@ import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.limitreduction.criteria.translation.DefaultNetworkElementWithLimitsAdapter;
 
@@ -44,6 +45,11 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
     @Override
     protected ContingencyWiseReducedLimitsComputer.FilterableNetworkElement getAdapter(Identifiable<?> identifiable) {
         return new DefaultNetworkElementWithLimitsAdapter(identifiable);
+    }
+
+    @Override
+    protected OriginalLimitsGetter<ContingencyWiseReducedLimitsComputer.FilterableNetworkElement, LoadingLimits> getOriginalLimitsGetterForIdentifiables() {
+        return DefaultNetworkElementWithLimitsAdapter.getOriginalLimitsGetterForIdentifiables();
     }
 
     @Override

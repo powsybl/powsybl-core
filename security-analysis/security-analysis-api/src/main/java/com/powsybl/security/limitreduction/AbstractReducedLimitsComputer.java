@@ -7,7 +7,10 @@
  */
 package com.powsybl.security.limitreduction;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,11 +39,13 @@ public abstract class AbstractReducedLimitsComputer<F extends ReducedLimitsCompu
             return Optional.of((LimitsContainer<LoadingLimits>) reducedLimitsCache.get(cacheKey));
         }
         return computeLimitsWithAppliedReduction(getAdapter(identifiable), limitType, side,
-                (OriginalLimitsGetter<F, LoadingLimits>) IDENTIFIABLE_LIMITS_GETTER,
+                getOriginalLimitsGetterForIdentifiables(),
                 (id, originalLimits) -> new DefaultLimitsReducer(originalLimits));
     }
 
     protected abstract F getAdapter(Identifiable<?> identifiable);
+
+    protected abstract OriginalLimitsGetter<F, LoadingLimits> getOriginalLimitsGetterForIdentifiables();
 
     @Override
     public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(F filterable,
