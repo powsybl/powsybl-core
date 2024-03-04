@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -90,6 +91,7 @@ public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Processab
         public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(Processable processable, LimitType limitType, ThreeSides side,
                                                                               OriginalLimitsGetter<Processable, T> originalLimitsGetter,
                                                                               AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
+            Objects.requireNonNull(originalLimitsGetter);
             Optional<T> limits = originalLimitsGetter.getLimits(processable, limitType, side);
             return limits.map(l -> new LimitsContainer<>(l, l));
         }

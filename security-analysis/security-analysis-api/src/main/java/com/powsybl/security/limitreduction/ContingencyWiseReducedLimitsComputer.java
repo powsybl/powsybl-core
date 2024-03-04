@@ -21,6 +21,7 @@ import com.powsybl.security.limitreduction.criteria.translation.DefaultProcessab
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.powsybl.contingency.ContingencyContextType.*;
@@ -61,6 +62,8 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
                                                                                  LimitType limitType, ThreeSides side,
                                                                                  OriginalLimitsGetter<ProcessableNetworkElement, T> originalLimitsGetter,
                                                                                  AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
+        Objects.requireNonNull(originalLimitsGetter);
+        Objects.requireNonNull(limitsReducerCreator);
         Optional<T> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
         if (definitionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
