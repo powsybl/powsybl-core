@@ -1,82 +1,80 @@
 {
   "version" : "2.0",
   "reportRoot" : {
+    "messageKey" : "roundTripReporterJsonTest",
     "children" : [ {
-      "key" : "roundTripReporterJsonTest",
+      "messageKey" : "novalueReport"
+    }, {
+      "messageKey" : "UcteReading",
       "children" : [ {
-        "key" : "novalueReport"
+        "messageKey" : "fixUcteNodes"
       }, {
-        "key" : "UcteReading",
+        "messageKey" : "fixUcteLines",
         "children" : [ {
-          "key" : "fixUcteNodes"
+          "messageKey" : "negativeLineResistance",
+          "values" : {
+            "lineId" : {
+              "value" : "FFFFFF11 XXXXXX11 1"
+            },
+            "resistance" : {
+              "value" : 0.0,
+              "type" : "RESISTANCE"
+            },
+            "reportSeverity" : {
+              "value" : "ERROR",
+              "type" : "SEVERITY"
+            }
+          }
         }, {
-          "key" : "fixUcteLines",
-          "children" : [ {
-            "key" : "negativeLineResistance",
-            "values" : {
-              "lineId" : {
-                "value" : "FFFFFF11 XXXXXX11 1"
-              },
-              "resistance" : {
-                "value" : 0.0,
-                "type" : "RESISTANCE"
-              },
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              }
+          "messageKey" : "negativeLineResistance",
+          "values" : {
+            "lineId" : {
+              "value" : "FFFFFF11 XXXXXX12 1"
+            },
+            "resistance" : {
+              "value" : 0.0,
+              "type" : "RESISTANCE"
+            },
+            "reportSeverity" : {
+              "value" : "ERROR",
+              "type" : "SEVERITY"
             }
-          }, {
-            "key" : "negativeLineResistance",
-            "values" : {
-              "lineId" : {
-                "value" : "FFFFFF11 XXXXXX12 1"
-              },
-              "resistance" : {
-                "value" : 0.0,
-                "type" : "RESISTANCE"
-              },
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              }
-            }
-          }, {
-            "key" : "negativeLineResistance",
-            "values" : {
-              "lineId" : {
-                "value" : "FFFFFF13 XXXXXX13 1"
-              },
-              "resistance" : {
-                "value" : 0.0,
-                "type" : "RESISTANCE"
-              },
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              }
-            }
-          }, {
-            "key" : "negativeLineResistance",
-            "values" : {
-              "lineId" : {
-                "value" : "FFFFFF13 XXXXXX14 1"
-              },
-              "resistance" : {
-                "value" : 0.0,
-                "type" : "RESISTANCE"
-              },
-              "reportSeverity" : {
-                "value" : "ERROR",
-                "type" : "SEVERITY"
-              }
-            }
-          } ]
+          }
         }, {
-          "key" : "fixUcteTransformer"
+          "messageKey" : "negativeLineResistance",
+          "values" : {
+            "lineId" : {
+              "value" : "FFFFFF13 XXXXXX13 1"
+            },
+            "resistance" : {
+              "value" : 0.0,
+              "type" : "RESISTANCE"
+            },
+            "reportSeverity" : {
+              "value" : "ERROR",
+              "type" : "SEVERITY"
+            }
+          }
         }, {
-          "key" : "fixUcteRegulations"
+          "messageKey" : "negativeLineResistance",
+          "values" : {
+            "lineId" : {
+              "value" : "FFFFFF13 XXXXXX14 1"
+            },
+            "resistance" : {
+              "value" : 0.0,
+              "type" : "RESISTANCE"
+            },
+            "reportSeverity" : {
+              "value" : "ERROR",
+              "type" : "SEVERITY"
+            }
+          }
         } ]
+      }, {
+        "messageKey" : "fixUcteTransformer"
+      }, {
+        "messageKey" : "fixUcteRegulations"
       } ]
     } ],
     "dictionaries" : {

@@ -9,7 +9,6 @@ package com.powsybl.shortcircuit;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.ReportNodeImpl;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
@@ -121,10 +120,10 @@ class ShortCircuitAnalysisTest {
 
     @Test
     void testWithReporter() {
-        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("testReportShortCircuit", "Test mock short circuit").add();
+        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("testReportShortCircuit", "Test mock short circuit").build();
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reporter);
         assertNotNull(result);
-        Collection<ReportNode> children = reporter.getReportNodes();
+        Collection<ReportNode> children = reporter.getChildren();
         assertEquals(1, children.size());
 
         ReportNode node = children.iterator().next();
@@ -132,7 +131,7 @@ class ShortCircuitAnalysisTest {
         ReportNodeImpl subReporter = (ReportNodeImpl) node;
         assertEquals("MockShortCircuit", subReporter.getKey());
         assertEquals("Running mock short circuit", subReporter.getMessage());
-        assertTrue(subReporter.getReportNodes().isEmpty());
+        assertTrue(subReporter.getChildren().isEmpty());
     }
 
     @Test

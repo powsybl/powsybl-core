@@ -13,91 +13,93 @@ import java.util.Map;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public abstract class AbstractReportNodeChildAdder implements ReportNodeChildAdder {
+public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> implements ReportNodeAdderOrBuilder<T> {
 
     protected final Map<String, TypedValue> values = new LinkedHashMap<>();
     protected String key;
     protected String messageTemplate;
 
     @Override
-    public ReportNodeChildAdder withMessageTemplate(String key, String messageTemplate) {
+    public T withMessageTemplate(String key, String messageTemplate) {
         this.key = key;
         this.messageTemplate = messageTemplate;
-        return this;
+        return self();
     }
 
     @Override
-    public ReportNodeChildAdder withTypedValue(String key, String value, String type) {
+    public T withTypedValue(String key, String value, String type) {
         values.put(key, new TypedValue(value, type));
-        return this;
+        return self();
     }
 
     @Override
-    public ReportNodeChildAdder withUntypedValue(String key, String value) {
+    public T withUntypedValue(String key, String value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public ReportNodeChildAdder withTypedValue(String key, double value, String type) {
+    public T withTypedValue(String key, double value, String type) {
         values.put(key, new TypedValue(value, type));
-        return this;
+        return self();
     }
 
     @Override
-    public ReportNodeChildAdder withUntypedValue(String key, double value) {
+    public T withUntypedValue(String key, double value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public ReportNodeChildAdder withTypedValue(String key, float value, String type) {
+    public T withTypedValue(String key, float value, String type) {
         values.put(key, new TypedValue(value, type));
-        return this;
+        return self();
     }
 
     @Override
-    public ReportNodeChildAdder withUntypedValue(String key, float value) {
+    public T withUntypedValue(String key, float value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public ReportNodeChildAdder withTypedValue(String key, int value, String type) {
+    public T withTypedValue(String key, int value, String type) {
         values.put(key, new TypedValue(value, type));
-        return this;
+        return self();
     }
 
     @Override
-    public ReportNodeChildAdder withUntypedValue(String key, int value) {
+    public T withUntypedValue(String key, int value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public ReportNodeChildAdder withTypedValue(String key, long value, String type) {
+    public T withTypedValue(String key, long value, String type) {
         values.put(key, new TypedValue(value, type));
-        return this;
+        return self();
     }
 
     @Override
-    public ReportNodeChildAdder withUntypedValue(String key, long value) {
+    public T withUntypedValue(String key, long value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public ReportNodeChildAdder withTypedValue(String key, boolean value, String type) {
+    public T withTypedValue(String key, boolean value, String type) {
         values.put(key, new TypedValue(value, type));
-        return this;
+        return self();
     }
 
     @Override
-    public ReportNodeChildAdder withUntypedValue(String key, boolean value) {
+    public T withUntypedValue(String key, boolean value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public ReportNodeChildAdder withSeverity(TypedValue severity) {
+    public T withSeverity(TypedValue severity) {
         if (!severity.getType().equals(TypedValue.SEVERITY)) {
             throw new IllegalArgumentException("Expected a " + TypedValue.SEVERITY + " but received " + severity.getType());
         }
         values.put(ReportConstants.REPORT_SEVERITY_KEY, severity);
-        return this;
+        return self();
     }
+
+    protected abstract T self();
 }

@@ -8,7 +8,6 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.ReportRootDeserializer;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.commons.reporter.ReportRootSerializer;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.ComputationManager;
@@ -36,12 +35,11 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
     @Test
     void postProcessorWithReporter() throws IOException {
 
-        ReportRootImpl reportRoot = new ReportRootImpl();
-        ReportNode reporter = reportRoot.newReportNode().withMessageTemplate("testPostProcessor", "Test importer post processor").add();
-        Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reporter);
+        ReportNode reportRoot = ReportNode.newRootReportNode().withMessageTemplate("testPostProcessor", "Test importer post processor").build();
+        Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reportRoot);
         assertNotNull(network1);
 
-        Optional<ReportNode> report = reporter.getReportNodes().stream().findFirst();
+        Optional<ReportNode> report = reportRoot.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
         roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/postProcessorReporterTest.json");

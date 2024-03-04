@@ -24,18 +24,18 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportRootDeserializer extends StdDeserializer<ReportRootImpl> {
+public class ReportRootDeserializer extends StdDeserializer<ReportNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportRootDeserializer.class);
     public static final String DICTIONARY_VALUE_ID = "dictionary";
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
     ReportRootDeserializer() {
-        super(ReportNodeImpl.class);
+        super(ReportNode.class);
     }
 
     @Override
-    public ReportRootImpl deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+    public ReportNode deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         ObjectCodec codec = p.getCodec();
         JsonNode root = codec.readTree(p);
 
@@ -44,7 +44,7 @@ public class ReportRootDeserializer extends StdDeserializer<ReportRootImpl> {
         ReporterVersion version = ReporterVersion.of(versionStr);
 
         String dictionaryName = getDictionaryName(ctx);
-        return ReportRootImpl.parseJsonNode(root.get("reportRoot"), codec, version, dictionaryName);
+        return ReportNodeImpl.parseJsonNode(root.get("reportRoot"), codec, version, dictionaryName);
     }
 
     private String getDictionaryName(DeserializationContext ctx) {
@@ -59,15 +59,15 @@ public class ReportRootDeserializer extends StdDeserializer<ReportRootImpl> {
         }
     }
 
-    public static ReportRootImpl read(Path jsonFile) {
+    public static ReportNode read(Path jsonFile) {
         return read(jsonFile, DICTIONARY_DEFAULT_NAME);
     }
 
-    public static ReportRootImpl read(InputStream jsonIs) {
+    public static ReportNode read(InputStream jsonIs) {
         return read(jsonIs, DICTIONARY_DEFAULT_NAME);
     }
 
-    public static ReportRootImpl read(Path jsonFile, String dictionary) {
+    public static ReportNode read(Path jsonFile, String dictionary) {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(dictionary);
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -77,11 +77,11 @@ public class ReportRootDeserializer extends StdDeserializer<ReportRootImpl> {
         }
     }
 
-    public static ReportRootImpl read(InputStream jsonIs, String dictionary) {
+    public static ReportNode read(InputStream jsonIs, String dictionary) {
         Objects.requireNonNull(jsonIs);
         Objects.requireNonNull(dictionary);
         try {
-            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReportRootImpl.class);
+            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReportNode.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -21,14 +21,14 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportRootSerializer extends StdSerializer<ReportRootImpl> {
+public class ReportRootSerializer extends StdSerializer<ReportNode> {
 
     ReportRootSerializer() {
-        super(ReportRootImpl.class);
+        super(ReportNode.class);
     }
 
     @Override
-    public void serialize(ReportRootImpl reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ReportNode reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("version", ReportConstants.CURRENT_VERSION.toString());
         generator.writeFieldName("reportRoot");
@@ -36,7 +36,7 @@ public class ReportRootSerializer extends StdSerializer<ReportRootImpl> {
         generator.writeEndObject();
     }
 
-    public static void write(ReportRootImpl reporter, Path jsonFile) {
+    public static void write(ReportNode reporter, Path jsonFile) {
         Objects.requireNonNull(reporter);
         Objects.requireNonNull(jsonFile);
         try (OutputStream os = Files.newOutputStream(jsonFile)) {

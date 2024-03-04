@@ -11,7 +11,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.network.Importers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,10 +61,10 @@ class FunctionalLogsTest {
     }
 
     private ReportNode importReport(GridModelReference testCase) {
-        ReportNode reporter = new ReportRootImpl().newReportNode()
+        ReportNode reporter = ReportNode.newRootReportNode()
                 .withMessageTemplate("testFunctionalLogs", "Test importing ${name}")
                 .withUntypedValue("name", testCase.name())
-                .add();
+                .build();
         Importers.importData("CGMES", testCase.dataSource(), importParams, reporter);
         return reporter;
     }

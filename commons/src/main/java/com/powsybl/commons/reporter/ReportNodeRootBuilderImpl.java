@@ -7,26 +7,20 @@
  */
 package com.powsybl.commons.reporter;
 
-import java.util.Collections;
-import java.util.Objects;
-
 /**
  * An adder to create a {@link ReportNode} object as a child of given {@link ReportRoot} parent.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportRootChildAdderImpl extends AbstractReportNodeChildAdder {
+public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
 
-    private final ReportRootImpl parent;
-
-    public ReportRootChildAdderImpl(ReportRootImpl parent) {
-        this.parent = Objects.requireNonNull(parent);
+    @Override
+    public ReportNode build() {
+        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, new RootContext());
     }
 
     @Override
-    public ReportNode add() {
-        ReportNode node = new ReportNodeImpl(key, messageTemplate, values, Collections.emptyList(), parent.getContext());
-        parent.addChild(node);
-        return node;
+    public ReportNodeBuilder self() {
+        return this;
     }
 }

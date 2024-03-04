@@ -8,7 +8,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -58,32 +57,32 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     void createCouplingDeviceThrowsException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("testReporterWrongBbs", "Testing reporter with wrong busbar section ID").add();
+        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("testReporterWrongBbs", "Testing reporter with wrong busbar section ID").build();
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs")
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true, reporter1));
         assertEquals("Bus or busbar section bbs not found", e0.getMessage());
-        assertEquals("notFoundBusOrBusbarSection", reporter1.getReportNodes().iterator().next().getKey());
+        assertEquals("notFoundBusOrBusbarSection", reporter1.getChildren().iterator().next().getKey());
 
-        ReportNode reporter2 = new ReportRootImpl().newReportNode().withMessageTemplate("testReporterBbsInDifferentVl", "Testing reporter with busbar sections in different voltage levels").add();
+        ReportNode reporter2 = ReportNode.newRootReportNode().withMessageTemplate("testReporterBbsInDifferentVl", "Testing reporter with busbar sections in different voltage levels").build();
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs5")
                 .build();
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true, reporter2));
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
-        assertEquals("unexpectedDifferentVoltageLevels", reporter2.getReportNodes().iterator().next().getKey());
+        assertEquals("unexpectedDifferentVoltageLevels", reporter2.getChildren().iterator().next().getKey());
 
-        ReportNode reporter3 = new ReportRootImpl().newReportNode().withMessageTemplate("testReporterSameBbs", "Testing reporter with same busbar section").add();
+        ReportNode reporter3 = ReportNode.newRootReportNode().withMessageTemplate("testReporterSameBbs", "Testing reporter with same busbar section").build();
         NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs1")
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true, reporter3));
         assertEquals("No coupling device can be created on a same bus or busbar section (bbs1)", e2.getMessage());
-        assertEquals("noCouplingDeviceOnSameBusOrBusbarSection", reporter3.getReportNodes().iterator().next().getKey());
+        assertEquals("noCouplingDeviceOnSameBusOrBusbarSection", reporter3.getChildren().iterator().next().getKey());
     }
 
     @Test
@@ -123,7 +122,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @Test
     void testWithReporter() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestCreateCouplingDevice", "Testing reporter for coupling device creation").add();
+        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateCouplingDevice", "Testing reporter for coupling device creation").build();
         new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs3")
@@ -136,14 +135,14 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @MethodSource("parameters")
     void createCouplingDeviceThrowsException(String bbs1, String bbs2, String message, String reporterKey) {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("ReporterTest", "Testing reporter").add();
+        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("ReporterTest", "Testing reporter").build();
         NetworkModification modification = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1(bbs1)
                 .withBusOrBusbarSectionId2(bbs2)
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reporter));
         assertEquals(message, e2.getMessage());
-        assertEquals(reporterKey, reporter.getReportNodes().iterator().next().getKey());
+        assertEquals(reporterKey, reporter.getChildren().iterator().next().getKey());
     }
 
     private static Stream<Arguments> parameters() {

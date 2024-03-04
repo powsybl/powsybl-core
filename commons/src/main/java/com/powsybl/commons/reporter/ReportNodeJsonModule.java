@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 public class ReportNodeJsonModule extends SimpleModule {
 
     public ReportNodeJsonModule() {
-        addDeserializer(ReportRootImpl.class, new ReportRootDeserializer());
+        addDeserializer(ReportNode.class, new ReportRootDeserializer());
         addDeserializer(TypedValue.class, new ReportRootDeserializer.TypedValueDeserializer());
-        addSerializer(ReportRootImpl.class, new ReportRootSerializer());
+        addSerializer(ReportNode.class, new ReportRootSerializer());
         addSerializer(TypedValue.class, new ReportRootSerializer.TypedValueSerializer());
     }
 }

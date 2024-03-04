@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
@@ -56,7 +55,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
     @Test
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTestRemoveVL", "Testing reporter on remove voltage level").add();
+        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveVL", "Testing reporter on remove voltage level").build();
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);
@@ -80,7 +79,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
         removeUnknown.apply(network, false, reporter);
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reporter));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
-        assertEquals("voltageLevelNotFound", reporter.getReportNodes().iterator().next().getKey());
+        assertEquals("voltageLevelNotFound", reporter.getChildren().iterator().next().getKey());
     }
 
     @Test

@@ -41,25 +41,36 @@ import java.util.*;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface ReportNode extends Report, ReportNodesContainer {
+public interface ReportNode extends Report {
 
     /**
      * A No-op implementation of <code>ReporterNode</code>
      */
     ReportNode NO_OP = new ReportNodeNoOp();
 
+    static ReportNodeBuilder newRootReportNode() {
+        return new ReportNodeRootBuilderImpl();
+    }
+
+    /**
+     * Get the children of current node
+     * @return the children nodes
+     */
+    Collection<ReportNode> getChildren();
+
     /**
      * Create a new adder to create a <code>ReporterNode</code> child.
+     *
      * @return the created <code>ReporterNodeAdder</code>
      */
-    ReportNodeChildAdder newReportNode();
+    ReportNodeAdder newReportNode();
 
     /**
      * Add a ReportNode as a child of current ReportNode.
      *
      * @param reportRoot the ReportNode to add
      */
-    void include(ReportRoot reportRoot);
+    void include(ReportNode reportRoot);
 
     /**
      * Get the values maps inheritance for the child nodes

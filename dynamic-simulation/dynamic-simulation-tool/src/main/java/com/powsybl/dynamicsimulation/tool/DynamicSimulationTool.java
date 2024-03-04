@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.dynamicsimulation.*;
 import com.powsybl.dynamicsimulation.groovy.*;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
@@ -155,7 +154,7 @@ public class DynamicSimulationTool implements Tool {
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
-        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("dynamicSimulationTool", "Dynamic Simulation Tool").add();
+        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("dynamicSimulationTool", "Dynamic Simulation Tool").build();
         DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reporter);
 
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;

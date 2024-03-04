@@ -30,7 +30,7 @@ public abstract class AbstractModificationTest extends AbstractSerDeTest {
     }
 
     protected void testReporter(ReportNode reporter, String reporterFile) throws IOException {
-        Optional<ReportNode> report = reporter.getReportNodes().stream().findFirst();
+        Optional<ReportNode> report = reporter.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
         StringWriter sw = new StringWriter();

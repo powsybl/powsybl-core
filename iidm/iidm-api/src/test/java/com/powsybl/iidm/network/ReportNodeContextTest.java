@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,12 +51,12 @@ class ReportNodeContextTest {
     @MethodSource("getReporterContextStream")
     void pushAndGetReporterTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
-        ReportNode reporter0 = new ReportRootImpl().newReportNode().withMessageTemplate("task0", "name0").add();
+        ReportNode reporter0 = ReportNode.newRootReportNode().withMessageTemplate("task0", "name0").build();
         reporterContext.pushReporter(reporter0);
         assertEquals(reporter0, reporterContext.getReporter());
         assertEquals(reporter0, reporterContext.peekReporter());
 
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("task1", "name1").add();
+        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("task1", "name1").build();
         reporterContext.pushReporter(reporter1);
         assertEquals(reporter1, reporterContext.getReporter());
         assertEquals(reporter1, reporterContext.peekReporter());
@@ -72,8 +71,8 @@ class ReportNodeContextTest {
     void popReporterTest(String desc, Supplier<ReporterContext> contextSupplier) {
         ReporterContext reporterContext = contextSupplier.get();
 
-        ReportNode reporter0 = new ReportRootImpl().newReportNode().withMessageTemplate("task0", "name0").add();
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("task1", "name1").add();
+        ReportNode reporter0 = ReportNode.newRootReportNode().withMessageTemplate("task0", "name0").build();
+        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("task1", "name1").build();
         reporterContext.pushReporter(reporter0);
         reporterContext.pushReporter(reporter1);
         assertEquals(reporter1, reporterContext.getReporter());
@@ -126,11 +125,11 @@ class ReportNodeContextTest {
         assert ReportNode.NO_OP.equals(reporterContext.getReporter());
 
         // Push reporters in the context
-        ReportNode reportNode1 = new ReportRootImpl().newReportNode().withMessageTemplate("1", "1").add();
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("1", "1").build();
         reporterContext.pushReporter(reportNode1);
-        ReportNode reportNode2 = new ReportRootImpl().newReportNode().withMessageTemplate("2", "2").add();
+        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("2", "2").build();
         reporterContext.pushReporter(reportNode2);
-        ReportNode reportNode3 = new ReportRootImpl().newReportNode().withMessageTemplate("3", "3").add();
+        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("3", "3").build();
         reporterContext.pushReporter(reportNode3);
 
         // Create copies

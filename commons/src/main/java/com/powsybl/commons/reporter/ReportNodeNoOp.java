@@ -22,12 +22,12 @@ public class ReportNodeNoOp implements ReportNode {
     private static final Deque<Map<String, TypedValue>> EMPTY_MAP_DEQUE = new ArrayDeque<>();
 
     @Override
-    public ReportNodeChildAdder newReportNode() {
+    public ReportNodeAdder newReportNode() {
         return new ChildAdder();
     }
 
     @Override
-    public void include(ReportRoot reportRoot) {
+    public void include(ReportNode reportRoot) {
         // No-op
     }
 
@@ -52,7 +52,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public Collection<ReportNode> getReportNodes() {
+    public Collection<ReportNode> getChildren() {
         return Collections.emptyList();
     }
 
@@ -71,79 +71,79 @@ public class ReportNodeNoOp implements ReportNode {
         // No-op
     }
 
-    private static class ChildAdder implements ReportNodeChildAdder {
+    private static class ChildAdder implements ReportNodeAdder {
         @Override
         public ReportNode add() {
             return new ReportNodeNoOp();
         }
 
         @Override
-        public ReportNodeChildAdder withMessageTemplate(String key, String messageTemplate) {
+        public ReportNodeAdder withMessageTemplate(String key, String messageTemplate) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withTypedValue(String key, String value, String type) {
+        public ReportNodeAdder withTypedValue(String key, String value, String type) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withUntypedValue(String key, String value) {
+        public ReportNodeAdder withUntypedValue(String key, String value) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withTypedValue(String key, double value, String type) {
+        public ReportNodeAdder withTypedValue(String key, double value, String type) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withUntypedValue(String key, double value) {
+        public ReportNodeAdder withUntypedValue(String key, double value) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withTypedValue(String key, float value, String type) {
+        public ReportNodeAdder withTypedValue(String key, float value, String type) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withUntypedValue(String key, float value) {
+        public ReportNodeAdder withUntypedValue(String key, float value) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withTypedValue(String key, int value, String type) {
+        public ReportNodeAdder withTypedValue(String key, int value, String type) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withUntypedValue(String key, int value) {
+        public ReportNodeAdder withUntypedValue(String key, int value) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withTypedValue(String key, long value, String type) {
+        public ReportNodeAdder withTypedValue(String key, long value, String type) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withUntypedValue(String key, long value) {
+        public ReportNodeAdder withUntypedValue(String key, long value) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withTypedValue(String key, boolean value, String type) {
+        public ReportNodeAdder withTypedValue(String key, boolean value, String type) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withUntypedValue(String key, boolean value) {
+        public ReportNodeAdder withUntypedValue(String key, boolean value) {
             return this;
         }
 
         @Override
-        public ReportNodeChildAdder withSeverity(TypedValue severity) {
+        public ReportNodeAdder withSeverity(TypedValue severity) {
             return this;
         }
     }

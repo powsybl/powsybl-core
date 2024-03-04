@@ -14,7 +14,7 @@ import java.util.Objects;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeChildAdderImpl extends AbstractReportNodeChildAdder {
+public class ReportNodeChildAdderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeAdder> implements ReportNodeAdder {
 
     private final ReportNodeImpl parent;
 
@@ -24,8 +24,13 @@ public class ReportNodeChildAdderImpl extends AbstractReportNodeChildAdder {
 
     @Override
     public ReportNode add() {
-        ReportNode node = new ReportNodeImpl(key, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getRootContext());
+        ReportNodeImpl node = ReportNodeImpl.createChildReportNode(key, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getRootContext());
         parent.addChild(node);
         return node;
+    }
+
+    @Override
+    public ReportNodeAdder self() {
+        return this;
     }
 }

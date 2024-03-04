@@ -1,18 +1,16 @@
 {
   "version" : "2.0",
   "reportRoot" : {
+    "messageKey" : "testPostProcessor",
     "children" : [ {
-      "key" : "testPostProcessor",
-      "children" : [ {
-        "key" : "test",
-        "values" : {
-          "model" : {
-            "value" : "eurostagTutorialExample1"
-          }
+      "messageKey" : "test",
+      "values" : {
+        "model" : {
+          "value" : "eurostagTutorialExample1"
         }
-      }, {
-        "key" : "testImportPostProcessor"
-      } ]
+      }
+    }, {
+      "messageKey" : "testImportPostProcessor"
     } ],
     "dictionaries" : {
       "default" : {

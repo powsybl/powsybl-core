@@ -10,7 +10,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.commons.PowsyblException;
 import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -27,14 +30,25 @@ import java.util.stream.Stream;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeImpl implements ReportNode {
+public final class ReportNodeImpl implements ReportNode {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportNodeImpl.class);
 
     private final String key;
-    private final List<ReportNode> children = new ArrayList<>();
+    private final List<ReportNodeImpl> children = new ArrayList<>();
     private final Collection<Map<String, TypedValue>> inheritedValuesMaps;
     private final Map<String, TypedValue> values;
     private final RootContext rootContext;
+    private final boolean isRoot;
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
+
+    static ReportNodeImpl createChildReportNode(String msgKey, String message, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesDeque, RootContext rootContext) {
+        return new ReportNodeImpl(msgKey, message, values, inheritedValuesDeque, rootContext, false);
+    }
+
+    static ReportNodeImpl createRootReportNode(String msgKey, String message, Map<String, TypedValue> values, RootContext rootContext) {
+        return new ReportNodeImpl(msgKey, message, values, Collections.emptyList(), rootContext, true);
+    }
 
     /**
      * ReportNodeImpl constructor, with no associated values.
@@ -48,15 +62,16 @@ public class ReportNodeImpl implements ReportNode {
      *                            Be aware that any value in this map might, in all descendants, override a value of one of
      *                            <code>ReporterNode</code> ancestors.
      * @param inheritedValuesMaps a {@link Deque} of inherited values maps
-     * @param rootContext         the {@link RootContext} of the {@link ReportRoot} at the root of corresponding report tree
+     * @param rootContext         the {@link RootContext} of the root of corresponding report tree
      */
-    ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RootContext rootContext) {
+    private ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RootContext rootContext, boolean isRoot) {
         this.key = Objects.requireNonNull(key);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
         this.values = Collections.unmodifiableMap(values);
         this.inheritedValuesMaps = Collections.unmodifiableCollection(inheritedValuesMaps);
         this.rootContext = rootContext;
+        this.isRoot = isRoot;
         rootContext.addDictionaryEntry(key, messageTemplate);
     }
 
@@ -106,22 +121,32 @@ public class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public ReportNodeChildAdder newReportNode() {
+    public ReportNodeAdder newReportNode() {
         return new ReportNodeChildAdderImpl(this);
     }
 
     @Override
-    public void include(ReportRoot reportRoot) {
-        children.addAll(reportRoot.getReportNodes());
-        rootContext.merge(reportRoot.getContext());
+    public void include(ReportNode reportNode) {
+        if (!(reportNode instanceof ReportNodeImpl reportNodeImpl)) {
+            throw new PowsyblException("Cannot mix implementations of ReportNode, included reportNode should be/extend ReportNodeImpl");
+        }
+        if (!reportNodeImpl.isRoot) {
+            throw new PowsyblException("Cannot include non-root reportNode");
+        }
+        if (reportNode == this) {
+            throw new PowsyblException("Cannot add a reportNode in itself");
+        }
+
+        children.addAll(reportNodeImpl.children);
+        rootContext.merge(reportNodeImpl.rootContext);
     }
 
-    void addChild(ReportNode reportNode) {
+    void addChild(ReportNodeImpl reportNode) {
         children.add(reportNode);
     }
 
     @Override
-    public Collection<ReportNode> getReportNodes() {
+    public Collection<ReportNode> getChildren() {
         return Collections.unmodifiableCollection(children);
     }
 
@@ -138,46 +163,99 @@ public class ReportNodeImpl implements ReportNode {
         }
     }
 
-    protected void print(Writer writer, String indent, String prefix) throws IOException {
+    private void print(Writer writer, String indent, String prefix) throws IOException {
         writer.append(indent).append(prefix).append(getMessage()).append(System.lineSeparator());
     }
 
-    static ReportNodeImpl parseJsonNode(JsonNode reportTree, RootContext rootContext, ObjectCodec codec, Collection<Map<String, TypedValue>> inheritedValuesDeque) throws IOException {
-        JsonNode keyNode = reportTree.get("key");
+    public static ReportNodeImpl parseJsonNode(JsonNode reportTree, ObjectCodec codec, ReporterVersion version, String dictionaryName) throws IOException {
+        return switch (version) {
+            case V_1_0 -> throw new PowsyblException("No backward compatibility of version " + version);
+            case V_2_0 -> parseJsonNode(reportTree, codec, dictionaryName);
+        };
+    }
+
+    private static ReportNodeImpl parseJsonNode(JsonNode jsonNode, ObjectCodec codec, String dictionaryName) throws IOException {
+        RootContext rootContext = new RootContext();
+        readDictionary(jsonNode, codec, dictionaryName, rootContext);
+        return parseJsonNode(jsonNode, codec, rootContext, Collections.emptyList(), true);
+    }
+
+    private static ReportNodeImpl parseJsonNode(JsonNode jsonNode, ObjectCodec codec, RootContext rootContext, Collection<Map<String, TypedValue>> inheritedValuesDeque, boolean rootReportNode) throws IOException {
+        JsonNode keyNode = jsonNode.get("messageKey");
         String key = codec.readValue(keyNode.traverse(), String.class);
 
-        JsonNode valuesNode = reportTree.get("values");
+        JsonNode valuesNode = jsonNode.get("values");
         Map<String, TypedValue> values = valuesNode == null ? Collections.emptyMap() : codec.readValue(valuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
         String message = rootContext.getDictionary().getOrDefault(key, "(missing task key in dictionary)");
-        ReportNodeImpl reportNode = new ReportNodeImpl(key, message, values, inheritedValuesDeque, rootContext);
 
-        JsonNode reportsNode = reportTree.get("children");
+        ReportNodeImpl reportNode = rootReportNode
+                ? createRootReportNode(key, message, values, rootContext)
+                : createChildReportNode(key, message, values, inheritedValuesDeque, rootContext);
+
+        JsonNode reportsNode = jsonNode.get("children");
         if (reportsNode != null) {
-            for (JsonNode jsonNode : reportsNode) {
-                reportNode.addChild(ReportNodeImpl.parseJsonNode(jsonNode, rootContext, codec, reportNode.getValuesMapsInheritance()));
+            for (JsonNode jsonChildNode : reportsNode) {
+                reportNode.addChild(parseJsonNode(jsonChildNode, codec, rootContext, reportNode.getValuesMapsInheritance(), false));
             }
         }
 
         return reportNode;
     }
 
+    private static void readDictionary(JsonNode root, ObjectCodec codec, String dictionaryName, RootContext rootContext) throws IOException {
+        JsonNode dicsNode = root.get("dictionaries");
+        if (dicsNode != null) {
+            JsonNode dicNode = dicsNode.get(dictionaryName);
+            if (dicNode == null && dicsNode.fields().next() != null) {
+                Map.Entry<String, JsonNode> firstDictionary = dicsNode.fields().next();
+                dicNode = firstDictionary.getValue();
+                LOGGER.warn("Cannot find `{}` dictionary, taking first entry (`{}`)", dictionaryName, firstDictionary.getKey());
+            }
+            if (dicNode != null) {
+                for (Iterator<Map.Entry<String, JsonNode>> it = dicNode.fields(); it.hasNext(); ) {
+                    Map.Entry<String, JsonNode> entry = it.next();
+                    String value = codec.readValue(entry.getValue().traverse(), String.class);
+                    rootContext.addDictionaryEntry(entry.getKey(), value);
+                }
+            } else {
+                LOGGER.warn("No dictionary found! `dictionaries` root entry is empty");
+            }
+        } else {
+            LOGGER.warn("No dictionary found! `dictionaries` root entry is missing");
+        }
+    }
+
     @Override
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
-        generator.writeStringField("key", getKey());
+        writeReportNodeParametersJson(generator);
+        writeDictionaryEntries(generator, rootContext.getDictionary());
+        generator.writeEndObject();
+    }
+
+    private void writeReportNodeParametersJson(JsonGenerator generator) throws IOException {
+        generator.writeStringField("messageKey", getKey());
         if (!values.isEmpty()) {
             generator.writeObjectField("values", values);
         }
         if (!children.isEmpty()) {
             generator.writeFieldName("children");
             generator.writeStartArray();
-            for (ReportNode messageNode : children) {
-                messageNode.writeJson(generator);
+            for (ReportNodeImpl messageNode : children) {
+                generator.writeStartObject();
+                messageNode.writeReportNodeParametersJson(generator);
+                generator.writeEndObject();
             }
             generator.writeEndArray();
         }
+    }
+
+    private void writeDictionaryEntries(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
+        generator.writeFieldName("dictionaries");
+        generator.writeStartObject();
+        generator.writeObjectField("default", dictionary);
         generator.writeEndObject();
     }
 }

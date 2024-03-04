@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReporterContext;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -32,13 +31,13 @@ public abstract class AbstractNetworkReportNodeTest {
     public void executeWithReporterTest() {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("key1", "name1").add();
+        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
         network.getReporterContext().pushReporter(reporter1);
-        assertTrue(reporter1.getReportNodes().isEmpty());
+        assertTrue(reporter1.getChildren().isEmpty());
 
         // Create another reporter (reporter2)
-        ReportNode reporter2 = new ReportRootImpl().newReportNode().withMessageTemplate("key2", "name2").add();
-        assertTrue(reporter2.getReportNodes().isEmpty());
+        ReportNode reporter2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
+        assertTrue(reporter2.getChildren().isEmpty());
 
         // Execute a task using reporter2
         Networks.executeWithReporter(network, reporter2, getTask(network));
@@ -46,9 +45,9 @@ public abstract class AbstractNetworkReportNodeTest {
         // The network's reporter is still reporter1
         assertEquals(reporter1, network.getReporterContext().getReporter());
         // reporter1 wasn't affected
-        assertTrue(reporter1.getReportNodes().isEmpty());
+        assertTrue(reporter1.getChildren().isEmpty());
         // reporter2 was used by the task
-        assertEquals(1, reporter2.getReportNodes().size());
+        assertEquals(1, reporter2.getChildren().size());
     }
 
     private Runnable getTask(Network network) {
@@ -59,15 +58,15 @@ public abstract class AbstractNetworkReportNodeTest {
     public void multiThreadTest() throws InterruptedException {
         // Create a network and affect it a reporter (reporter1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reporter1 = new ReportRootImpl().newReportNode().withMessageTemplate("key1", "name1").add();
+        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
         network.getReporterContext().pushReporter(reporter1);
-        assertTrue(reporter1.getReportNodes().isEmpty());
+        assertTrue(reporter1.getChildren().isEmpty());
 
         // Create 2 other reporters (reporter2 and reporter3)
-        ReportNode reporter2 = new ReportRootImpl().newReportNode().withMessageTemplate("key2", "name2").add();
-        ReportNode reporter3 = new ReportRootImpl().newReportNode().withMessageTemplate("key3", "name3").add();
-        assertTrue(reporter2.getReportNodes().isEmpty());
-        assertTrue(reporter3.getReportNodes().isEmpty());
+        ReportNode reporter2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
+        ReportNode reporter3 = ReportNode.newRootReportNode().withMessageTemplate("key3", "name3").build();
+        assertTrue(reporter2.getChildren().isEmpty());
+        assertTrue(reporter3.getChildren().isEmpty());
 
         // Switch in multi-thread management
         network.allowReporterContextMultiThreadAccess(true);
@@ -110,13 +109,13 @@ public abstract class AbstractNetworkReportNodeTest {
         // The network's reporter is still reporter1
         assertEquals(reporter1, network.getReporterContext().getReporter());
         // reporter1 wasn't affected
-        assertTrue(reporter1.getReportNodes().isEmpty());
+        assertTrue(reporter1.getChildren().isEmpty());
         // reporter2 was used by the 1st task
-        assertEquals(1, reporter2.getReportNodes().size());
-        assertEquals("key2", reporter2.getReportNodes().stream().findFirst().orElseThrow().getKey());
+        assertEquals(1, reporter2.getChildren().size());
+        assertEquals("key2", reporter2.getChildren().stream().findFirst().orElseThrow().getKey());
         // reporter3 was used by the 2nd task
-        assertEquals(1, reporter3.getReportNodes().size());
-        assertEquals("key3", reporter3.getReportNodes().stream().findFirst().orElseThrow().getKey());
+        assertEquals(1, reporter3.getChildren().size());
+        assertEquals("key3", reporter3.getChildren().stream().findFirst().orElseThrow().getKey());
     }
 
     @Test

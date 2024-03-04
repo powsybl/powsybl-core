@@ -7,13 +7,7 @@
  */
 package com.powsybl.commons.reporter;
 
-public interface ReportNodeChildAdder {
-
-    /**
-     * Build the corresponding {@link ReportNode}.
-     * @return the new {@link ReportNode} corresponding to current <code>ReportNodeAdder</code>
-     */
-    ReportNode add();
+public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> {
 
     /**
      * Provide the message template to build the {@link ReportNode} with.
@@ -23,7 +17,7 @@ public interface ReportNodeChildAdder {
      *                        {@link ReportNode} ancestor of the created <code>ReporterNode</code>
      * @return a reference to this object
      */
-    ReportNodeChildAdder withMessageTemplate(String key, String messageTemplate);
+    T withMessageTemplate(String key, String messageTemplate);
 
     /**
      * Provide one typed string value to build the {@link ReportNode} with.
@@ -32,7 +26,7 @@ public interface ReportNodeChildAdder {
      * @param type the string representing the type of the string value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    ReportNodeChildAdder withTypedValue(String key, String value, String type);
+    T withTypedValue(String key, String value, String type);
 
     /**
      * Provide one untyped string value to build the {@link ReportNode} with.
@@ -40,7 +34,7 @@ public interface ReportNodeChildAdder {
      * @param value the string value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withUntypedValue(String key, String value);
+    T withUntypedValue(String key, String value);
 
     /**
      * Provide one typed double value to build the {@link ReportNode} with.
@@ -49,7 +43,7 @@ public interface ReportNodeChildAdder {
      * @param type the string representing the type of the double value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    ReportNodeChildAdder withTypedValue(String key, double value, String type);
+    T withTypedValue(String key, double value, String type);
 
     /**
      * Provide one untyped double value to build the {@link ReportNode} with.
@@ -57,7 +51,7 @@ public interface ReportNodeChildAdder {
      * @param value the double value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withUntypedValue(String key, double value);
+    T withUntypedValue(String key, double value);
 
     /**
      * Provide one typed float value to build the {@link ReportNode} with.
@@ -66,7 +60,7 @@ public interface ReportNodeChildAdder {
      * @param type the string representing the type of the float value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    ReportNodeChildAdder withTypedValue(String key, float value, String type);
+    T withTypedValue(String key, float value, String type);
 
     /**
      * Provide one untyped float value to build the {@link ReportNode} with.
@@ -74,7 +68,7 @@ public interface ReportNodeChildAdder {
      * @param value the float value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withUntypedValue(String key, float value);
+    T withUntypedValue(String key, float value);
 
     /**
      * Provide one typed int value to build the {@link ReportNode} with.
@@ -83,7 +77,7 @@ public interface ReportNodeChildAdder {
      * @param type the string representing the type of the int value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    ReportNodeChildAdder withTypedValue(String key, int value, String type);
+    T withTypedValue(String key, int value, String type);
 
     /**
      * Provide one untyped int value to build the {@link ReportNode} with.
@@ -91,7 +85,7 @@ public interface ReportNodeChildAdder {
      * @param value the int value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withUntypedValue(String key, int value);
+    T withUntypedValue(String key, int value);
 
     /**
      * Provide one typed long value to build the {@link ReportNode} with.
@@ -100,7 +94,7 @@ public interface ReportNodeChildAdder {
      * @param type the string representing the type of the long value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    ReportNodeChildAdder withTypedValue(String key, long value, String type);
+    T withTypedValue(String key, long value, String type);
 
     /**
      * Provide one untyped long value to build the {@link ReportNode} with.
@@ -108,7 +102,7 @@ public interface ReportNodeChildAdder {
      * @param value the long value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withUntypedValue(String key, long value);
+    T withUntypedValue(String key, long value);
 
     /**
      * Provide one typed boolean value to build the {@link ReportNode} with.
@@ -117,7 +111,7 @@ public interface ReportNodeChildAdder {
      * @param type the string representing the type of the boolean value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    ReportNodeChildAdder withTypedValue(String key, boolean value, String type);
+    T withTypedValue(String key, boolean value, String type);
 
     /**
      * Provide one untyped boolean value to build the {@link ReportNode} with.
@@ -125,12 +119,12 @@ public interface ReportNodeChildAdder {
      * @param value the boolean value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withUntypedValue(String key, boolean value);
+    T withUntypedValue(String key, boolean value);
 
     /**
      * Provide the typed value for the default severity key to build the {@link ReportNode} with.
      * @param severity the typed value
      * @return a reference to this object
      */
-    ReportNodeChildAdder withSeverity(TypedValue severity);
+    T withSeverity(TypedValue severity);
 }

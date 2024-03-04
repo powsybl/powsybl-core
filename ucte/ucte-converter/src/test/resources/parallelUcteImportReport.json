@@ -1,170 +1,168 @@
 {
   "version" : "2.0",
   "reportRoot" : {
+    "messageKey" : "importAllParallel",
+    "values" : {
+      "file1" : {
+        "value" : "frVoltageRegulatingXnode.uct",
+        "type" : "FILENAME"
+      },
+      "file2" : {
+        "value" : "frTestGridForMerging.uct",
+        "type" : "FILENAME"
+      },
+      "file3" : {
+        "value" : "germanTsos.uct",
+        "type" : "FILENAME"
+      }
+    },
     "children" : [ {
-      "key" : "importAllParallel",
+      "messageKey" : "importDataSource",
       "values" : {
-        "file1" : {
-          "value" : "frVoltageRegulatingXnode.uct",
-          "type" : "FILENAME"
-        },
-        "file2" : {
-          "value" : "frTestGridForMerging.uct",
-          "type" : "FILENAME"
-        },
-        "file3" : {
-          "value" : "germanTsos.uct",
-          "type" : "FILENAME"
+        "dataSource" : {
+          "value" : "frTestGridForMerging"
         }
       },
       "children" : [ {
-        "key" : "importDataSource",
-        "values" : {
-          "dataSource" : {
-            "value" : "frTestGridForMerging"
-          }
-        },
+        "messageKey" : "UcteReading",
         "children" : [ {
-          "key" : "UcteReading",
+          "messageKey" : "fixUcteNodes"
+        }, {
+          "messageKey" : "fixUcteLines",
           "children" : [ {
-            "key" : "fixUcteNodes"
-          }, {
-            "key" : "fixUcteLines",
-            "children" : [ {
-              "key" : "negativeLineResistance",
-              "values" : {
-                "lineId" : {
-                  "value" : "FFFFFF11 XXXXXX11 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                },
-                "reportSeverity" : {
-                  "value" : "ERROR",
-                  "type" : "SEVERITY"
-                }
+            "messageKey" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF11 XXXXXX11 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
               }
-            }, {
-              "key" : "negativeLineResistance",
-              "values" : {
-                "lineId" : {
-                  "value" : "FFFFFF11 XXXXXX12 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                },
-                "reportSeverity" : {
-                  "value" : "ERROR",
-                  "type" : "SEVERITY"
-                }
+            }
+          }, {
+            "messageKey" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF11 XXXXXX12 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
               }
-            } ]
-          }, {
-            "key" : "fixUcteTransformer"
-          }, {
-            "key" : "fixUcteRegulations"
+            }
           } ]
+        }, {
+          "messageKey" : "fixUcteTransformer"
+        }, {
+          "messageKey" : "fixUcteRegulations"
         } ]
-      }, {
-        "key" : "importDataSource",
-        "values" : {
-          "dataSource" : {
-            "value" : "frVoltageRegulatingXnode"
-          }
-        },
+      } ]
+    }, {
+      "messageKey" : "importDataSource",
+      "values" : {
+        "dataSource" : {
+          "value" : "frVoltageRegulatingXnode"
+        }
+      },
+      "children" : [ {
+        "messageKey" : "UcteReading",
         "children" : [ {
-          "key" : "UcteReading",
+          "messageKey" : "fixUcteNodes"
+        }, {
+          "messageKey" : "fixUcteLines",
           "children" : [ {
-            "key" : "fixUcteNodes"
+            "messageKey" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF11 XXXXXX11 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
+              }
+            }
           }, {
-            "key" : "fixUcteLines",
-            "children" : [ {
-              "key" : "negativeLineResistance",
-              "values" : {
-                "lineId" : {
-                  "value" : "FFFFFF11 XXXXXX11 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                },
-                "reportSeverity" : {
-                  "value" : "ERROR",
-                  "type" : "SEVERITY"
-                }
+            "messageKey" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF11 XXXXXX12 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
               }
-            }, {
-              "key" : "negativeLineResistance",
-              "values" : {
-                "lineId" : {
-                  "value" : "FFFFFF11 XXXXXX12 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                },
-                "reportSeverity" : {
-                  "value" : "ERROR",
-                  "type" : "SEVERITY"
-                }
-              }
-            }, {
-              "key" : "negativeLineResistance",
-              "values" : {
-                "lineId" : {
-                  "value" : "FFFFFF13 XXXXXX13 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                },
-                "reportSeverity" : {
-                  "value" : "ERROR",
-                  "type" : "SEVERITY"
-                }
-              }
-            }, {
-              "key" : "negativeLineResistance",
-              "values" : {
-                "lineId" : {
-                  "value" : "FFFFFF13 XXXXXX14 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                },
-                "reportSeverity" : {
-                  "value" : "ERROR",
-                  "type" : "SEVERITY"
-                }
-              }
-            } ]
+            }
           }, {
-            "key" : "fixUcteTransformer"
+            "messageKey" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF13 XXXXXX13 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
+              }
+            }
           }, {
-            "key" : "fixUcteRegulations"
+            "messageKey" : "negativeLineResistance",
+            "values" : {
+              "lineId" : {
+                "value" : "FFFFFF13 XXXXXX14 1"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              },
+              "reportSeverity" : {
+                "value" : "ERROR",
+                "type" : "SEVERITY"
+              }
+            }
           } ]
+        }, {
+          "messageKey" : "fixUcteTransformer"
+        }, {
+          "messageKey" : "fixUcteRegulations"
         } ]
-      }, {
-        "key" : "importDataSource",
-        "values" : {
-          "dataSource" : {
-            "value" : "germanTsos"
-          }
-        },
+      } ]
+    }, {
+      "messageKey" : "importDataSource",
+      "values" : {
+        "dataSource" : {
+          "value" : "germanTsos"
+        }
+      },
+      "children" : [ {
+        "messageKey" : "UcteReading",
         "children" : [ {
-          "key" : "UcteReading",
-          "children" : [ {
-            "key" : "fixUcteNodes"
-          }, {
-            "key" : "fixUcteLines"
-          }, {
-            "key" : "fixUcteTransformer"
-          }, {
-            "key" : "fixUcteRegulations"
-          } ]
+          "messageKey" : "fixUcteNodes"
+        }, {
+          "messageKey" : "fixUcteLines"
+        }, {
+          "messageKey" : "fixUcteTransformer"
+        }, {
+          "messageKey" : "fixUcteRegulations"
         } ]
       } ]
     } ],

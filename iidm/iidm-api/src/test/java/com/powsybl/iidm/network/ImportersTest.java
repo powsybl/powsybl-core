@@ -9,7 +9,6 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.ComputationManager;
 import org.junit.jupiter.api.Assertions;
@@ -89,14 +88,14 @@ class ImportersTest extends AbstractConvertersTest {
     @Test
     void getImporterWithImportConfigAndReporter() throws IOException {
         Importer importer = Importer.find(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
-        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("testFunctionalLog", "testFunctionalLogs").add();
+        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("testFunctionalLog", "testFunctionalLogs").build();
         assertNotNull(importer);
         Network network = importer.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network);
         assertEquals(LoadType.FICTITIOUS, network.getLoad("LOAD").getLoadType());
 
         // Check that the wrapped importer has received the functional logs reporter and produced report items
-        assertEquals(1, reporter.getReportNodes().size());
+        assertEquals(1, reporter.getChildren().size());
         StringWriter sw = new StringWriter();
         reporter.print(sw);
         String actual = TestUtil.normalizeLineSeparator(sw.toString());

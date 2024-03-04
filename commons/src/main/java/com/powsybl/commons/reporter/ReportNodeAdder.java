@@ -7,16 +7,15 @@
  */
 package com.powsybl.commons.reporter;
 
-import java.util.Collection;
-
 /**
+ * An adder to create a {@link ReportNode} object.
+ *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface ReportNodesContainer {
-
+public interface ReportNodeAdder extends ReportNodeAdderOrBuilder<ReportNodeAdder> {
     /**
-     * Get the children of current node
-     * @return the children nodes
+     * Build and add the corresponding {@link ReportNode}.
+     * @return the new {@link ReportNode} corresponding to current <code>ReportNodeAdder</code>
      */
-    Collection<ReportNode> getReportNodes();
+    ReportNode add();
 }

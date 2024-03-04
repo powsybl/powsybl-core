@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportRootImpl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -314,11 +313,11 @@ public abstract class AbstractConnectableTest {
         line1.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
 
         // disconnect the already fully disconnected line 1
-        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTest", "Testing reporter").add();
+        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reporter").build();
         network.getReporterContext().pushReporter(reporter);
         assertFalse(line1.disconnect());
         network.getReporterContext().popReporter();
-        assertEquals("alreadyDisconnectedTerminal", reporter.getReportNodes().iterator().next().getKey());
+        assertEquals("alreadyDisconnectedTerminal", reporter.getChildren().iterator().next().getKey());
 
         // Reconnect the line 1
         assertTrue(line1.connect());
@@ -364,11 +363,11 @@ public abstract class AbstractConnectableTest {
         line2.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
 
         // connect the already fully connected line 2
-        ReportNode reporter = new ReportRootImpl().newReportNode().withMessageTemplate("reportTest", "Testing reporter").add();
+        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reporter").build();
         network.getReporterContext().pushReporter(reporter);
         assertFalse(line2.connect());
         network.getReporterContext().popReporter();
-        assertEquals("alreadyConnectedTerminal", reporter.getReportNodes().iterator().next().getKey());
+        assertEquals("alreadyConnectedTerminal", reporter.getChildren().iterator().next().getKey());
 
         // Disconnect the twt
         assertTrue(twt.disconnect(SwitchPredicates.IS_CLOSED_BREAKER));
