@@ -68,12 +68,9 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
             }
         }
 
-        List<Map.Entry<Integer, List<DoublePointExt>>> entrySet = new ArrayList<>();
-        List<Integer> sortedKeys = new ArrayList<>(points.keySet());
-        Collections.sort(sortedKeys);
-        sortedKeys.forEach(key -> entrySet.add(new AbstractMap.SimpleEntry<>(key, points.get(key))));
-
-        Iterator<Map.Entry<Integer, List<DoublePointExt>>> it = entrySet.iterator();
+        Iterator<Map.Entry<Integer, List<DoublePointExt>>> it = points.entrySet().stream()
+            .sorted(Comparator.comparingInt(Map.Entry::getKey))
+            .iterator();
 
         return new Iterator<DoubleMultiPoint>() {
 
