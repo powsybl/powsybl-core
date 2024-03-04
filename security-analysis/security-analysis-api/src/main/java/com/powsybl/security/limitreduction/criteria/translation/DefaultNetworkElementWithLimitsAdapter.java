@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DefaultNetworkElementWithLimitsAdapter extends DefaultNetworkElementAdapter implements NetworkElementWithLimits<LoadingLimits> {
+public class DefaultNetworkElementWithLimitsAdapter extends DefaultNetworkElementAdapter implements LimitsHolder<LoadingLimits> {
     public DefaultNetworkElementWithLimitsAdapter(Identifiable<?> identifiable) {
         super(identifiable);
     }

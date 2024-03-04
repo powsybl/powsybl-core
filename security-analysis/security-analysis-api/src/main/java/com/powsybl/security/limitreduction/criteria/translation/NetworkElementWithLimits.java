@@ -13,4 +13,5 @@ import com.powsybl.iidm.criteria.translation.NetworkElement;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public interface NetworkElementWithLimits<T> extends NetworkElement, LimitsHolder<T> {
+    //TODO To delete
 }

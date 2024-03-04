@@ -30,7 +30,7 @@ public interface ReducedLimitsComputer {
 
     Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side);
 
-    <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, NetworkElement networkElement, LimitType limitType, ThreeSides side,
+    <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, LimitType limitType, ThreeSides side,
                                                                    AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
 
     /**
@@ -44,7 +44,7 @@ public interface ReducedLimitsComputer {
         }
 
         @Override
-        public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, NetworkElement networkElement, LimitType limitType,
+        public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, LimitType limitType,
                                                              ThreeSides side, AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
             Optional<T> limits = limitsHolder.getLimits(limitType, side);
             return limits.map(l -> new LimitsContainer<>(l, l));

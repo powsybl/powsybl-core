@@ -7,7 +7,6 @@
  */
 package com.powsybl.security.limitreduction;
 
-import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
@@ -26,7 +25,7 @@ import java.util.Optional;
  *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractReducedLimitsComputer implements ReducedLimitsComputer {
+public abstract class AbstractReducedLimitsComputer<F> implements ReducedLimitsComputer {
     protected final Map<CacheKey, LimitsContainer<?>> reducedLimitsCache;
 
     protected AbstractReducedLimitsComputer() {
@@ -42,12 +41,12 @@ public abstract class AbstractReducedLimitsComputer implements ReducedLimitsComp
             return Optional.of((LimitsContainer<LoadingLimits>) reducedLimitsCache.get(cacheKey));
         }
         DefaultNetworkElementWithLimitsAdapter adapter = new DefaultNetworkElementWithLimitsAdapter(identifiable);
-        return computeLimitsWithAppliedReduction(adapter, adapter, limitType, side,
+        return computeLimitsWithAppliedReduction(adapter, (F) adapter, limitType, side,
                 (id, originalLimits) -> new DefaultLimitsReducer(originalLimits));
     }
 
     @Override
-    public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, NetworkElement networkElement,
+    public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder,
                                                                           LimitType limitType, ThreeSides side,
                                                          AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         // Look into the cache to avoid recomputing reduced limits if they were already computed
@@ -56,10 +55,11 @@ public abstract class AbstractReducedLimitsComputer implements ReducedLimitsComp
         if (reducedLimitsCache.containsKey(cacheKey)) {
             return Optional.of((LimitsContainer<T>) reducedLimitsCache.get(cacheKey));
         }
-        return computeLimitsWithAppliedReduction(limitsHolder, networkElement, limitType, side, limitsReducerCreator);
+        return computeLimitsWithAppliedReduction(limitsHolder, (F) limitsHolder, limitType, side, limitsReducerCreator);
     }
 
-    protected abstract <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder, NetworkElement networkElement,
+    protected abstract <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder,
+                                                                                          F filterable,
                                                                                           LimitType limitType, ThreeSides side,
                                                                                           AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
 

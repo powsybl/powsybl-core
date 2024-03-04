@@ -29,7 +29,7 @@ import static com.powsybl.contingency.ContingencyContextType.*;
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsComputer {
+public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsComputer<NetworkElement> {
     private final LimitReductionDefinitionList limitReductionDefinitionList;
     private List<LimitReductionDefinition> definitionsForCurrentContingencyId = Collections.emptyList();
     private boolean sameDefinitionsAsForPreviousContingencyId = false;
@@ -42,7 +42,7 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
 
     @Override
     protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(LimitsHolder<T> networkElement,
-                                                                                 NetworkElement filtrable,
+                                                                                 NetworkElement filterable,
                                                                                  LimitType limitType, ThreeSides side,
                                                                                  AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         Optional<T> originalLimits = networkElement.getLimits(limitType, side);
@@ -51,7 +51,7 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
             return originalLimits.map(l -> new LimitsContainer<>(l, l));
         }
         AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
-        updateLimitReducer(limitsReducer, filtrable, limitType);
+        updateLimitReducer(limitsReducer, filterable, limitType);
         T reducedLimits = limitsReducer.getReducedLimits();
         // Cache the value to avoid recomputing it
         LimitsContainer<T> limitsContainer = new LimitsContainer<>(reducedLimits, originalLimits.get());
