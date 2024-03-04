@@ -16,6 +16,7 @@ public interface NetworkElementCriterion {
 
     enum NetworkElementCriterionType {
         LINE("lineCriterion"),
+        TIE_LINE("tieLineCriterion"),
         TWO_WINDINGS_TRANSFORMER("twoWindingsTransformerCriterion"),
         THREE_WINDINGS_TRANSFORMER("threeWindingsTransformerCriterion"),
         IDENTIFIERS("identifierCriterion");

@@ -11,15 +11,12 @@ import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterion
 import com.powsybl.iidm.network.*;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * <p>Adapter to have a {@link NetworkElement} from an {@link Identifiable} object.</p>
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 public class DefaultNetworkElementAdapter implements NetworkElement {
-
-    private static final Set<IdentifiableType> VALID_TYPES_FOR_LINE_CRITERION = Set.of(IdentifiableType.LINE, IdentifiableType.TIE_LINE);
 
     private final Identifiable<?> identifiable;
 
@@ -64,7 +61,7 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
     private Country getCountry(TwoSides side) {
         return switch (identifiable.getType()) {
             case LINE -> getCountryFromTerminal(((Line) identifiable).getTerminal(side));
-            case TIE_LINE -> getCountryFromTerminal(((TieLine) identifiable).getDanglingLine(side).getTerminal());
+            case TIE_LINE -> getCountryFromTerminal(((TieLine) identifiable).getTerminal(side));
             default -> null;
         };
     }
@@ -108,7 +105,9 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
     public boolean isValidFor(NetworkElementCriterionType type) {
         return type == NetworkElementCriterionType.IDENTIFIERS
                 || type == NetworkElementCriterionType.LINE
-                    && VALID_TYPES_FOR_LINE_CRITERION.contains(identifiable.getType())
+                    && identifiable.getType() == IdentifiableType.LINE
+                || type == NetworkElementCriterionType.TIE_LINE
+                    && identifiable.getType() == IdentifiableType.TIE_LINE
                 || type == NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER
                     && identifiable.getType() == IdentifiableType.TWO_WINDINGS_TRANSFORMER
                 || type == NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER

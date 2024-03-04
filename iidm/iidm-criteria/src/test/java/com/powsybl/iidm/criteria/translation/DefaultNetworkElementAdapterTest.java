@@ -27,7 +27,7 @@ class DefaultNetworkElementAdapterTest {
         Substation substation1 = Mockito.mock(Substation.class);
         Mockito.when(substation1.getNullableCountry()).thenReturn(Country.FR);
         Substation substation2 = Mockito.mock(Substation.class);
-        Mockito.when(substation2.getNullableCountry()).thenReturn(Country.AQ);
+        Mockito.when(substation2.getNullableCountry()).thenReturn(Country.DE);
 
         VoltageLevel voltageLevel1 = Mockito.mock(VoltageLevel.class);
         Mockito.when(voltageLevel1.getSubstation()).thenReturn(Optional.of(substation1));
@@ -51,17 +51,61 @@ class DefaultNetworkElementAdapterTest {
         assertEquals("testLine", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry());
         assertEquals(Country.FR, networkElement.getCountry1());
-        assertEquals(Country.AQ, networkElement.getCountry2());
+        assertEquals(Country.DE, networkElement.getCountry2());
         assertEquals(225., networkElement.getNominalVoltage(), 0.01);
         assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
         assertEquals(226., networkElement.getNominalVoltage2(), 0.01);
         assertThrows(PowsyblException.class, networkElement::getNominalVoltage3);
 
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
         assertEquals(line, networkElement.getIdentifiable());
+    }
+
+    @Test
+    void testTieLine() {
+        Substation substation1 = Mockito.mock(Substation.class);
+        Mockito.when(substation1.getNullableCountry()).thenReturn(Country.FR);
+        Substation substation2 = Mockito.mock(Substation.class);
+        Mockito.when(substation2.getNullableCountry()).thenReturn(Country.DE);
+
+        VoltageLevel voltageLevel1 = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel1.getSubstation()).thenReturn(Optional.of(substation1));
+        Mockito.when(voltageLevel1.getNominalV()).thenReturn(225.);
+        VoltageLevel voltageLevel2 = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel2.getSubstation()).thenReturn(Optional.of(substation2));
+        Mockito.when(voltageLevel2.getNominalV()).thenReturn(226.);
+
+        Terminal terminal1 = Mockito.mock(Terminal.class);
+        Mockito.when(terminal1.getVoltageLevel()).thenReturn(voltageLevel1);
+        Terminal terminal2 = Mockito.mock(Terminal.class);
+        Mockito.when(terminal2.getVoltageLevel()).thenReturn(voltageLevel2);
+
+        TieLine tieLine = Mockito.mock(TieLine.class);
+        Mockito.when(tieLine.getType()).thenReturn(IdentifiableType.TIE_LINE);
+        Mockito.when(tieLine.getId()).thenReturn("testTieLine");
+        Mockito.when(tieLine.getTerminal(TwoSides.ONE)).thenReturn(terminal1);
+        Mockito.when(tieLine.getTerminal(TwoSides.TWO)).thenReturn(terminal2);
+
+        DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(tieLine);
+        assertEquals("testTieLine", networkElement.getId());
+        assertEquals(Country.FR, networkElement.getCountry());
+        assertEquals(Country.FR, networkElement.getCountry1());
+        assertEquals(Country.DE, networkElement.getCountry2());
+        assertEquals(225., networkElement.getNominalVoltage(), 0.01);
+        assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
+        assertEquals(226., networkElement.getNominalVoltage2(), 0.01);
+        assertThrows(PowsyblException.class, networkElement::getNominalVoltage3);
+
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertEquals(tieLine, networkElement.getIdentifiable());
     }
 
     @Test
@@ -97,6 +141,7 @@ class DefaultNetworkElementAdapterTest {
         assertThrows(PowsyblException.class, networkElement::getNominalVoltage3);
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
@@ -142,6 +187,7 @@ class DefaultNetworkElementAdapterTest {
         assertEquals(90., networkElement.getNominalVoltage3(), 0.01);
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));

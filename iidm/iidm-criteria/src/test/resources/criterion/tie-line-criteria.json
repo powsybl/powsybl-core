@@ -1,0 +1,22 @@
+[ {
+  "type" : "tieLineCriterion",
+  "version" : "1.0",
+  "name" : "criterion5",
+  "countryCriterion" : {
+    "type" : "TWO_COUNTRY",
+    "countries1" : [ "FR", "DE" ],
+    "countries2" : [ ]
+  },
+  "nominalVoltageCriterion" : {
+    "type" : "SINGLE_NOMINAL_VOLTAGE",
+    "voltageInterval" : {
+      "nominalVoltageLowBound" : 80.0,
+      "nominalVoltageHighBound" : 100.0,
+      "lowClosed" : true,
+      "highClosed" : true
+    }
+  }
+}, {
+  "type" : "tieLineCriterion",
+  "version" : "1.0"
+} ]
