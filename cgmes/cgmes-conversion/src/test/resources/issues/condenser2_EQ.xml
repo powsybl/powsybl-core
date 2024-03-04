@@ -47,18 +47,18 @@
         <cim:SynchronousMachine.maxQ>0</cim:SynchronousMachine.maxQ>
         <cim:SynchronousMachine.minQ>-110</cim:SynchronousMachine.minQ>
         <cim:SynchronousMachine.qPercent>100</cim:SynchronousMachine.qPercent>
-        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.condenser" />
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.condenser" />
     </cim:SynchronousMachine>
     <cim:Terminal rdf:ID="_Condenser1_T">
         <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_Condenser1" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
     <cim:RegulatingControl rdf:ID="_Condenser1_RC">
         <cim:IdentifiedObject.name>Condenser 1 Regulating Control</cim:IdentifiedObject.name>
-        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage" />
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage" />
         <cim:RegulatingControl.Terminal rdf:resource="#_Condenser1_T" />
     </cim:RegulatingControl>
 
