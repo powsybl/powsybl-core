@@ -13,9 +13,10 @@ import com.powsybl.iidm.criteria.NetworkElementVisitor;
 import com.powsybl.iidm.criteria.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.security.limitreduction.criteria.translation.LimitsHolder;
+import com.powsybl.security.limitreduction.criteria.translation.DefaultNetworkElementWithLimitsAdapter;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +30,7 @@ import static com.powsybl.contingency.ContingencyContextType.*;
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsComputer<NetworkElement> {
+public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsComputer<ContingencyWiseReducedLimitsComputer.FilterableNetworkElement> {
     private final LimitReductionDefinitionList limitReductionDefinitionList;
     private List<LimitReductionDefinition> definitionsForCurrentContingencyId = Collections.emptyList();
     private boolean sameDefinitionsAsForPreviousContingencyId = false;
@@ -41,21 +42,27 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
     }
 
     @Override
-    protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(LimitsHolder<T> networkElement,
-                                                                                 NetworkElement filterable,
+    protected ContingencyWiseReducedLimitsComputer.FilterableNetworkElement getAdapter(Identifiable<?> identifiable) {
+        return new DefaultNetworkElementWithLimitsAdapter(identifiable);
+    }
+
+    @Override
+    protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(ContingencyWiseReducedLimitsComputer.FilterableNetworkElement filterable,
                                                                                  LimitType limitType, ThreeSides side,
+                                                                                 OriginalLimitsGetter<ContingencyWiseReducedLimitsComputer.FilterableNetworkElement, T> originalLimitsGetter,
                                                                                  AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
-        Optional<T> originalLimits = networkElement.getLimits(limitType, side);
+        Optional<T> originalLimits = originalLimitsGetter.getLimits(filterable, limitType, side);
         if (definitionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
             return originalLimits.map(l -> new LimitsContainer<>(l, l));
         }
-        AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
+        AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(filterable.getId(), originalLimits.get());
         updateLimitReducer(limitsReducer, filterable, limitType);
+
         T reducedLimits = limitsReducer.getReducedLimits();
         // Cache the value to avoid recomputing it
         LimitsContainer<T> limitsContainer = new LimitsContainer<>(reducedLimits, originalLimits.get());
-        putInCache(networkElement, limitType, side, limitsContainer);
+        putInCache(filterable, limitType, side, limitsContainer);
         return Optional.of(limitsContainer);
     }
 
@@ -130,4 +137,6 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
                     .anyMatch(c -> c.filter(temporaryLimitAcceptableDuration));
     }
 
+    public interface FilterableNetworkElement extends Filterable, NetworkElement {
+    }
 }

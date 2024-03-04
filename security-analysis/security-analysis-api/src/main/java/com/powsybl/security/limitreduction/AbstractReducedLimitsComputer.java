@@ -7,12 +7,7 @@
  */
 package com.powsybl.security.limitreduction;
 
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.security.limitreduction.criteria.translation.DefaultNetworkElementWithLimitsAdapter;
-import com.powsybl.security.limitreduction.criteria.translation.LimitsHolder;
+import com.powsybl.iidm.network.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +20,7 @@ import java.util.Optional;
  *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractReducedLimitsComputer<F> implements ReducedLimitsComputer {
+public abstract class AbstractReducedLimitsComputer<F extends ReducedLimitsComputer.Filterable> implements ReducedLimitsComputer<F> {
     protected final Map<CacheKey, LimitsContainer<?>> reducedLimitsCache;
 
     protected AbstractReducedLimitsComputer() {
@@ -40,32 +35,35 @@ public abstract class AbstractReducedLimitsComputer<F> implements ReducedLimitsC
         if (reducedLimitsCache.containsKey(cacheKey)) {
             return Optional.of((LimitsContainer<LoadingLimits>) reducedLimitsCache.get(cacheKey));
         }
-        DefaultNetworkElementWithLimitsAdapter adapter = new DefaultNetworkElementWithLimitsAdapter(identifiable);
-        return computeLimitsWithAppliedReduction(adapter, (F) adapter, limitType, side,
+        return computeLimitsWithAppliedReduction(getAdapter(identifiable), limitType, side,
+                (OriginalLimitsGetter<F, LoadingLimits>) IDENTIFIABLE_LIMITS_GETTER,
                 (id, originalLimits) -> new DefaultLimitsReducer(originalLimits));
     }
 
+    protected abstract F getAdapter(Identifiable<?> identifiable);
+
     @Override
-    public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder,
+    public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(F filterable,
                                                                           LimitType limitType, ThreeSides side,
-                                                         AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
+                                                                          OriginalLimitsGetter<F, T> originalLimitsGetter,
+                                                                          AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
         // Look into the cache to avoid recomputing reduced limits if they were already computed
         // with the same limit reductions
-        CacheKey cacheKey = new CacheKey(limitsHolder.getId(), limitType, side);
+        CacheKey cacheKey = new CacheKey(filterable.getId(), limitType, side);
         if (reducedLimitsCache.containsKey(cacheKey)) {
             return Optional.of((LimitsContainer<T>) reducedLimitsCache.get(cacheKey));
         }
-        return computeLimitsWithAppliedReduction(limitsHolder, (F) limitsHolder, limitType, side, limitsReducerCreator);
+        return computeLimitsWithAppliedReduction(filterable, limitType, side, originalLimitsGetter, limitsReducerCreator);
     }
 
-    protected abstract <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(LimitsHolder<T> limitsHolder,
-                                                                                          F filterable,
+    protected abstract <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(F filterable,
                                                                                           LimitType limitType, ThreeSides side,
+                                                                                          OriginalLimitsGetter<F, T> originalLimitsGetter,
                                                                                           AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
 
-    protected <T> void putInCache(LimitsHolder<T> limitsHolder, LimitType limitType, ThreeSides side,
+    protected <T> void putInCache(F filterable, LimitType limitType, ThreeSides side,
                                   LimitsContainer<T> limitsContainer) {
-        reducedLimitsCache.put(new CacheKey(limitsHolder.getId(), limitType, side), limitsContainer);
+        reducedLimitsCache.put(new CacheKey(filterable.getId(), limitType, side), limitsContainer);
     }
 
     protected void clearCache() {

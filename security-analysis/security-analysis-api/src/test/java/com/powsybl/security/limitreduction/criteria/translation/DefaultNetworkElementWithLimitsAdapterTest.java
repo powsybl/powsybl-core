@@ -10,6 +10,7 @@ package com.powsybl.security.limitreduction.criteria.translation;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
+import com.powsybl.security.limitreduction.ReducedLimitsComputer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -202,7 +203,7 @@ class DefaultNetworkElementWithLimitsAdapterTest {
     }
 
     private Double getPermanentLimit(DefaultNetworkElementWithLimitsAdapter networkElement, LimitType type, ThreeSides side) {
-        Optional<LoadingLimits> limits = networkElement.getLimits(type, side);
+        Optional<LoadingLimits> limits = ReducedLimitsComputer.IDENTIFIABLE_LIMITS_GETTER.getLimits(networkElement, type, side);
         return limits.map(LoadingLimits::getPermanentLimit).orElse(null);
     }
 }

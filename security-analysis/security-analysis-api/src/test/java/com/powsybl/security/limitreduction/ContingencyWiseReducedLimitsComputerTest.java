@@ -61,6 +61,8 @@ class ContingencyWiseReducedLimitsComputerTest {
         computer = new ContingencyWiseReducedLimitsComputer(definitionList);
     }
 
+    //TODO add test with Filterable and Getter
+
     @Test
     void applyReductionsTest() {
         // pre-contingency
