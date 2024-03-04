@@ -8,9 +8,12 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -51,5 +54,24 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         // No generating unit is referred, no generating unit is defined
         assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
         assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
+    }
+
+    @Test
+    void cgmes3condenserReferencePriorityTest() throws IOException {
+        String basename = "condenser3";
+        Network network = Network.read(new ResourceDataSource(basename,
+                new ResourceSet("/issues", "condenser3_EQ.xml", "condenser3_SSH.xml")));
+        Generator g = network.getGenerator("Condenser1");
+        SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
+        assertNotNull(st);
+        assertEquals(g.getTerminal(), st.getTerminal());
+
+        network.write("CGMES", null, tmpDir.resolve(basename));
+        String eq = Files.readString(tmpDir.resolve(basename + "_EQ.xml"));
+        // No generating unit is referred, no generating unit is defined
+        assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
+        assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
+        String ssh = Files.readString(tmpDir.resolve(basename + "_SSH.xml"));
+        assertTrue(ssh.contains("cim:SynchronousMachine.referencePriority>1<"));
     }
 }

@@ -63,6 +63,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
+        convertReferencePriority(g);
         if (!isCondenser) {
             convertGenerator(g);
         }
@@ -70,7 +71,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
     }
 
-    private void convertGenerator(Generator g) {
+    private void convertReferencePriority(Generator g) {
         if (p.asInt("referencePriority", 0) > 0) {
             // We could find multiple generators with the same priority,
             // we will only change the terminal of the slack extension if the previous was not connected
@@ -81,6 +82,9 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
                 st.setTerminal(g.getTerminal());
             }
         }
+    }
+
+    private void convertGenerator(Generator g) {
         double normalPF = p.asDouble("normalPF");
         if (!Double.isNaN(normalPF)) {
             if (context.config().createActivePowerControlExtension()) {

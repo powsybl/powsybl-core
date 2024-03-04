@@ -870,6 +870,7 @@ WHERE {
 OPTIONAL { GRAPH ?graphSSH {
     ?SynchronousMachine
         cim:RotatingMachine.q ?q ;
+        cim:SynchronousMachine.referencePriority ?referencePriority ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled .
     # For condensers, the p value is always 0
     BIND ( "0" AS ?p )
