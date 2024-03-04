@@ -20,22 +20,64 @@ import java.util.Optional;
  *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Filterable> {
+public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Processable> {
     /**
      * An implementation of {@link ReducedLimitsComputer} only retrieving the limits without applying reductions.
      */
-    ReducedLimitsComputer<Filterable> NO_REDUCTIONS = new ReducedLimitsComputer.NoReductionsImpl();
+    ReducedLimitsComputer<Processable> NO_REDUCTIONS = new ReducedLimitsComputer.NoReductionsImpl();
 
+    /**
+     * <p>Retrieve the limits of <code>identifiable</code> corresponding to the given limits type and side, then apply
+     * on them the reductions configured in the current {@link ReducedLimitsComputer}.</p>
+     * <p>The result of this method contains both originals and altered limits.</p>
+     * @param identifiable The identifiable for which the reduced limits must be computed
+     * @param limitType The type of the limits to process
+     * @param side The side of <code>identifiable</code> on which the limits should be retrieved
+     * @return an object containing the original limits and the altered ones
+     */
     Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side);
 
+    /**
+     * <p>Retrieve the limits of <code>filterable</code> corresponding to the given limits type and side
+     * (using <code>originalLimitsGetter</code>), then apply
+     * on them the reductions configured in the current {@link ReducedLimitsComputer}.</p>
+     * <p>The result of this method contains both originals and altered limits.</p>
+     * @param <T> the type of the limits
+     * @param filterable The object for which the reduced limits must be computed
+     * @param limitType The type of the limits to process
+     * @param side The side of <code>identifiable</code> on which the limits should be retrieved
+     * @param originalLimitsGetter the object to use to retrieve the original limits of <code>filterable</code>
+     * @param limitsReducerCreator the object to use to create an object of type {@link T} containing the modified limits.
+     * @return an object containing the original limits and the altered ones
+     */
     <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(F filterable, LimitType limitType, ThreeSides side,
                                                                    OriginalLimitsGetter<F, T> originalLimitsGetter,
                                                                    AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
 
     /**
+     * <p>Interface for objects processable by a {@link ReducedLimitsComputer}.</p>
+     * <p>Each class implementing this interface must have a corresponding {@link OriginalLimitsGetter} class allowing
+     * to obtain limits.</p>
+     */
+    interface Processable {
+        String getId();
+    }
+
+    /**
+     * Interface for objects allowing to retrieve limits (of generic type <code>T</code>) from an object
+     * manageable by the {@link ReducedLimitsComputer} (of generic type <code>H</code>).
+     *
+     * @param <H> Generic type for the network element for which we want to retrieve the limits
+     * @param <T> Generic type for the limits to retrieve
+     */
+    interface OriginalLimitsGetter<H extends Processable, T> {
+        Optional<T> getLimits(H e, LimitType limitType, ThreeSides side);
+    }
+
+    /**
      * An implementation of {@link ReducedLimitsComputer} only retrieving the limits without applying reductions.
      */
-    class NoReductionsImpl extends AbstractReducedLimitsComputer<Filterable> {
+    class NoReductionsImpl extends AbstractReducedLimitsComputer<Processable> {
         private static final String ERROR_MSG = "Not implemented: Should not be called";
 
         @Override
@@ -45,35 +87,26 @@ public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Filterabl
         }
 
         @Override
-        public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(Filterable filterable, LimitType limitType, ThreeSides side,
-                                                                              OriginalLimitsGetter<Filterable, T> originalLimitsGetter,
+        public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(Processable processable, LimitType limitType, ThreeSides side,
+                                                                              OriginalLimitsGetter<Processable, T> originalLimitsGetter,
                                                                               AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
-            Optional<T> limits = originalLimitsGetter.getLimits(filterable, limitType, side);
+            Optional<T> limits = originalLimitsGetter.getLimits(processable, limitType, side);
             return limits.map(l -> new LimitsContainer<>(l, l));
         }
 
         @Override
-        protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(Filterable filterable, LimitType limitType, ThreeSides side, OriginalLimitsGetter<Filterable, T> originalLimitsGetter, AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
+        protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(Processable processable, LimitType limitType, ThreeSides side, OriginalLimitsGetter<Processable, T> originalLimitsGetter, AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
             throw new IllegalStateException(ERROR_MSG); // Not used
         }
 
         @Override
-        protected Filterable getAdapter(Identifiable<?> identifiable) {
+        protected Processable getAdapter(Identifiable<?> identifiable) {
             throw new IllegalStateException(ERROR_MSG); // Not used
         }
 
         @Override
-        protected OriginalLimitsGetter<Filterable, LoadingLimits> getOriginalLimitsGetterForIdentifiables() {
+        protected OriginalLimitsGetter<Processable, LoadingLimits> getOriginalLimitsGetterForIdentifiables() {
             throw new IllegalStateException(ERROR_MSG); // Not used
         }
-
-    }
-
-    interface Filterable {
-        String getId();
-    }
-
-    interface OriginalLimitsGetter<H extends Filterable, T> {
-        Optional<T> getLimits(H e, LimitType limitType, ThreeSides side);
     }
 }

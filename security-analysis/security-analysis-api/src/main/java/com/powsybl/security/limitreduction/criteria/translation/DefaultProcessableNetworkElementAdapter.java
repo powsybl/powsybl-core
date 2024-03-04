@@ -21,21 +21,21 @@ import java.util.Optional;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DefaultNetworkElementWithLimitsAdapter extends DefaultNetworkElementAdapter implements ContingencyWiseReducedLimitsComputer.FilterableNetworkElement {
-    public static final ReducedLimitsComputer.OriginalLimitsGetter<ContingencyWiseReducedLimitsComputer.FilterableNetworkElement, LoadingLimits> IDENTIFIABLE_LIMITS_GETTER = new IdentifiableLimitsGetter();
+public class DefaultProcessableNetworkElementAdapter extends DefaultNetworkElementAdapter implements ContingencyWiseReducedLimitsComputer.ProcessableNetworkElement {
+    public static final ReducedLimitsComputer.OriginalLimitsGetter<ContingencyWiseReducedLimitsComputer.ProcessableNetworkElement, LoadingLimits> IDENTIFIABLE_LIMITS_GETTER = new IdentifiableLimitsGetter();
 
-    public DefaultNetworkElementWithLimitsAdapter(Identifiable<?> identifiable) {
+    public DefaultProcessableNetworkElementAdapter(Identifiable<?> identifiable) {
         super(identifiable);
     }
 
-    public static ReducedLimitsComputer.OriginalLimitsGetter<ContingencyWiseReducedLimitsComputer.FilterableNetworkElement, LoadingLimits> getOriginalLimitsGetterForIdentifiables() {
+    public static ReducedLimitsComputer.OriginalLimitsGetter<ContingencyWiseReducedLimitsComputer.ProcessableNetworkElement, LoadingLimits> getOriginalLimitsGetterForIdentifiables() {
         return IDENTIFIABLE_LIMITS_GETTER;
     }
 
-    static class IdentifiableLimitsGetter implements ReducedLimitsComputer.OriginalLimitsGetter<ContingencyWiseReducedLimitsComputer.FilterableNetworkElement, LoadingLimits> {
+    static class IdentifiableLimitsGetter implements ReducedLimitsComputer.OriginalLimitsGetter<ContingencyWiseReducedLimitsComputer.ProcessableNetworkElement, LoadingLimits> {
         @Override
-        public Optional<LoadingLimits> getLimits(ContingencyWiseReducedLimitsComputer.FilterableNetworkElement filterable, LimitType limitType, ThreeSides side) {
-            Identifiable<?> identifiable = ((DefaultNetworkElementWithLimitsAdapter) filterable).getIdentifiable();
+        public Optional<LoadingLimits> getLimits(ContingencyWiseReducedLimitsComputer.ProcessableNetworkElement filterable, LimitType limitType, ThreeSides side) {
+            Identifiable<?> identifiable = ((DefaultProcessableNetworkElementAdapter) filterable).getIdentifiable();
             return LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
         }
     }

@@ -8,6 +8,9 @@
 package com.powsybl.security.limitreduction;
 
 /**
+ * <p>Class corresponding to the result of the {@link ReducedLimitsComputer} computation
+ * for a {@link com.powsybl.security.limitreduction.ReducedLimitsComputer.Processable}.</p>
+ * <p>It contains the original and the altered limits.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public record LimitsContainer<T>(T reducedLimits, T originalLimits) {

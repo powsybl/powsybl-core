@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class DefaultNetworkElementWithLimitsAdapterTest {
+class DefaultProcessableNetworkElementAdapterTest {
     //TODO Add tieLine test
     //TODO Use real network instead of mocked object
     @Test
@@ -52,7 +52,7 @@ class DefaultNetworkElementWithLimitsAdapterTest {
         Mockito.when(line.getLimits(LimitType.APPARENT_POWER, TwoSides.ONE)).thenAnswer(x -> createLimits(654.));
         Mockito.when(line.getLimits(LimitType.ACTIVE_POWER, TwoSides.TWO)).thenAnswer(x -> createLimits(987.));
 
-        DefaultNetworkElementWithLimitsAdapter networkElement = new DefaultNetworkElementWithLimitsAdapter(line);
+        DefaultProcessableNetworkElementAdapter networkElement = new DefaultProcessableNetworkElementAdapter(line);
         assertEquals("testLine", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry());
         assertEquals(Country.FR, networkElement.getCountry1());
@@ -105,7 +105,7 @@ class DefaultNetworkElementWithLimitsAdapterTest {
         Mockito.when(twt.getLimits(LimitType.APPARENT_POWER, TwoSides.ONE)).thenAnswer(x -> createLimits(654.));
         Mockito.when(twt.getLimits(LimitType.ACTIVE_POWER, TwoSides.TWO)).thenAnswer(x -> createLimits(987.));
 
-        DefaultNetworkElementWithLimitsAdapter networkElement = new DefaultNetworkElementWithLimitsAdapter(twt);
+        DefaultProcessableNetworkElementAdapter networkElement = new DefaultProcessableNetworkElementAdapter(twt);
         assertEquals("testTwoWindingsTransformer", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry());
         assertEquals(225., networkElement.getNominalVoltage(), 0.01);
@@ -170,7 +170,7 @@ class DefaultNetworkElementWithLimitsAdapterTest {
         Mockito.when(twt.getLeg(ThreeSides.TWO)).thenReturn(leg2);
         Mockito.when(twt.getLeg(ThreeSides.THREE)).thenReturn(leg3);
 
-        DefaultNetworkElementWithLimitsAdapter networkElement = new DefaultNetworkElementWithLimitsAdapter(twt);
+        DefaultProcessableNetworkElementAdapter networkElement = new DefaultProcessableNetworkElementAdapter(twt);
         assertEquals("testThreeWindingsTransformer", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry());
         assertEquals(400., networkElement.getNominalVoltage(), 0.01);
@@ -201,8 +201,8 @@ class DefaultNetworkElementWithLimitsAdapterTest {
         return Optional.of(limits);
     }
 
-    private Double getPermanentLimit(DefaultNetworkElementWithLimitsAdapter networkElement, LimitType type, ThreeSides side) {
-        Optional<LoadingLimits> limits = DefaultNetworkElementWithLimitsAdapter.IDENTIFIABLE_LIMITS_GETTER.getLimits(networkElement, type, side);
+    private Double getPermanentLimit(DefaultProcessableNetworkElementAdapter networkElement, LimitType type, ThreeSides side) {
+        Optional<LoadingLimits> limits = DefaultProcessableNetworkElementAdapter.IDENTIFIABLE_LIMITS_GETTER.getLimits(networkElement, type, side);
         return limits.map(LoadingLimits::getPermanentLimit).orElse(null);
     }
 }
