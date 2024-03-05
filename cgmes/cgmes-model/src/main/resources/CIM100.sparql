@@ -46,7 +46,7 @@ SELECT *
         && !regex(?profile, "EquipmentBoundary", "i"))
 }}
 
-# query: synchronousMachines
+# query: synchronousMachinesGenerators
 SELECT *
 WHERE {
 { GRAPH ?graph {
@@ -55,6 +55,9 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cim:SynchronousMachine.type ?type ;
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
+    # Some test cases of condensers have a (wrong) association with a generating unit,
+    # So we explicitly check for the type of the synchronous machine
+    FILTER (!REGEX(STR(?type), "Kind.condenser"))
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
        }
@@ -78,7 +81,7 @@ OPTIONAL { GRAPH ?graphSSH {
         cim:SynchronousMachine.operatingMode ?operatingMode ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled .
 }}
-OPTIONAL { GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH2 {
     ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
 }}
 }

@@ -143,7 +143,7 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
                         cgmes.ratioTapChangers().stream().map(o -> o.getId(CgmesNames.RATIO_TAP_CHANGER)),
                         cgmes.regulatingControls().stream().map(o -> o.getId("RegulatingControl")),
                         cgmes.controlAreas().stream().map(o -> o.getId("ControlArea")),
-                        cgmes.synchronousMachines().stream().map(o -> o.getId("GeneratingUnit")),
+                        cgmes.synchronousMachinesGenerators().stream().map(o -> o.getId("GeneratingUnit")),
                         cgmes.operationalLimits().stream().map(o -> o.getId("OperationalLimit")),
                         cgmes.substations().stream().map(o -> o.getId("Region")),
                         cgmes.substations().stream().map(o -> o.getId("SubRegion"))

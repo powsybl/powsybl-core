@@ -23,17 +23,22 @@ import static com.powsybl.cgmes.model.CgmesNames.SYNCHRONOUS_MACHINE;
  */
 public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerConversion {
 
+    private final boolean isCondenser;
+
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
         super(SYNCHRONOUS_MACHINE, sm, context);
+        String type = p.getLocal("type");
+        isCondenser = type != null && type.endsWith("Kind.condenser");
     }
 
     @Override
     public void convert() {
-        double minP = p.asDouble("minP", -Double.MAX_VALUE);
-        double maxP = p.asDouble("maxP", Double.MAX_VALUE);
+        // If it is a generator, default values for minP and maxP give unlimited range
+        // If it is a condenser, default values for minP and maxP are 0
+        double minP = p.asDouble("minP", isCondenser ? 0 : -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", isCondenser ? 0 : Double.MAX_VALUE);
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
-        String generatingUnitType = p.getLocal("generatingUnitType");
         PowerFlow f = powerFlow();
 
         // Default targetP from initial P defined in EQ GeneratingUnit. Removed since CGMES 3.0
@@ -50,7 +55,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         setMinPMaxP(adder, minP, maxP);
         adder.setTargetP(targetP)
                 .setTargetQ(targetQ)
-                .setEnergySource(fromGeneratingUnitType(generatingUnitType))
+                .setEnergySource(energySourceFromGeneratingUnitType())
                 .setRatedS(ratedS);
         identify(adder);
         connect(adder);
@@ -58,6 +63,16 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
+        convertReferencePriority(g);
+        if (!isCondenser) {
+            convertGenerator(g);
+        }
+
+        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+        addSpecificProperties(g, p);
+    }
+
+    private void convertReferencePriority(Generator g) {
         if (p.asInt("referencePriority", 0) > 0) {
             // We could find multiple generators with the same priority,
             // we will only change the terminal of the slack extension if the previous was not connected
@@ -68,6 +83,21 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
                 st.setTerminal(g.getTerminal());
             }
         }
+    }
+
+    private static void addSpecificProperties(Generator generator, PropertyBag p) {
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, SYNCHRONOUS_MACHINE);
+        String type = p.getLocal("type");
+        if (type != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
+        }
+        String operatingMode = p.getLocal("operatingMode");
+        if (operatingMode != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
+        }
+    }
+
+    private void convertGenerator(Generator g) {
         double normalPF = p.asDouble("normalPF");
         if (!Double.isNaN(normalPF)) {
             if (context.config().createActivePowerControlExtension()) {
@@ -83,36 +113,23 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (generatingUnit != null) {
             g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
         }
-
-        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
-
-        addSpecificProperties(g, p);
     }
 
-    private static void addSpecificProperties(Generator generator, PropertyBag p) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, SYNCHRONOUS_MACHINE);
-        String type = p.getLocal("type");
-        if (type != null) {
-            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
-        }
-        String operatingMode = p.getLocal("operatingMode");
-        if (operatingMode != null) {
-            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
-        }
-    }
-
-    private static EnergySource fromGeneratingUnitType(String gut) {
+    private EnergySource energySourceFromGeneratingUnitType() {
+        String gut = p.getLocal("generatingUnitType");
         EnergySource es = EnergySource.OTHER;
-        if (gut.contains("HydroGeneratingUnit")) {
-            es = EnergySource.HYDRO;
-        } else if (gut.contains("NuclearGeneratingUnit")) {
-            es = EnergySource.NUCLEAR;
-        } else if (gut.contains("ThermalGeneratingUnit")) {
-            es = EnergySource.THERMAL;
-        } else if (gut.contains("WindGeneratingUnit")) {
-            es = EnergySource.WIND;
-        } else if (gut.contains("SolarGeneratingUnit")) {
-            es = EnergySource.SOLAR;
+        if (gut != null) {
+            if (gut.contains("HydroGeneratingUnit")) {
+                es = EnergySource.HYDRO;
+            } else if (gut.contains("NuclearGeneratingUnit")) {
+                es = EnergySource.NUCLEAR;
+            } else if (gut.contains("ThermalGeneratingUnit")) {
+                es = EnergySource.THERMAL;
+            } else if (gut.contains("WindGeneratingUnit")) {
+                es = EnergySource.WIND;
+            } else if (gut.contains("SolarGeneratingUnit")) {
+                es = EnergySource.SOLAR;
+            }
         }
         return es;
     }
