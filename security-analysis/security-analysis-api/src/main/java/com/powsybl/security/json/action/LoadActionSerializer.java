@@ -16,4 +16,9 @@ public class LoadActionSerializer extends AbstractLoadActionSerializer<LoadActio
     public LoadActionSerializer() {
         super(LoadAction.class);
     }
+
+    @Override
+    protected String getElementIdAttributeName() {
+        return "loadId";
+    }
 }

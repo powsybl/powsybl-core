@@ -14,12 +14,14 @@ public abstract class AbstractLoadActionSerializer<T extends AbstractLoadAction>
         super(vc);
     }
 
+    protected abstract String getElementIdAttributeName();
+
     @Override
     public void serialize(T action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("loadId", action.getElementId());
+        jsonGenerator.writeStringField(getElementIdAttributeName(), action.getElementId());
         jsonGenerator.writeBooleanField("relativeValue", action.isRelativeValue());
         action.getActivePowerValue().ifPresent(activePowerValue -> {
             try {

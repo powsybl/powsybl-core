@@ -8,6 +8,6 @@ public class LoadActionBuilder extends AbstractLoadActionBuilder<LoadAction> {
         if (activePowerValue == null && reactivePowerValue == null) {
             throw new IllegalArgumentException("For a load action, activePowerValue or reactivePowerValue must be provided");
         }
-        return new LoadAction(id, loadId, relativeValue, activePowerValue, reactivePowerValue);
+        return new LoadAction(id, elementId, relativeValue, activePowerValue, reactivePowerValue);
     }
 }

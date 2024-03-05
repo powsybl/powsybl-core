@@ -56,8 +56,9 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         actions.add(new GeneratorActionBuilder().withId("id9").withGeneratorId("generatorId1").withActivePowerRelativeValue(true).withActivePowerValue(100.0).build());
         actions.add(new GeneratorActionBuilder().withId("id10").withGeneratorId("generatorId2").withVoltageRegulatorOn(true).withTargetV(225.0).build());
         actions.add(new GeneratorActionBuilder().withId("id11").withGeneratorId("generatorId2").withVoltageRegulatorOn(false).withTargetQ(400.0).build());
-        actions.add(new LoadActionBuilder().withId("id12").withLoadId("loadId1").withRelativeValue(false).withActivePowerValue(50.0).build());
-        actions.add(new LoadActionBuilder().withId("id13").withLoadId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
+        actions.add(new LoadActionBuilder().withId("id12").withElementId("loadId1").withRelativeValue(false).withActivePowerValue(50.0).build());
+        actions.add(new LoadActionBuilder().withId("id13").withElementId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
+        actions.add(new DanglingLineActionBuilder().withId("id17").withElementId("dlId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
         actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeSides.THREE));
         actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));
         actions.add(RatioTapChangerRegulationAction.activateRegulation("id16", "transformerId5", ThreeSides.THREE));

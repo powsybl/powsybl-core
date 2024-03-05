@@ -8,6 +8,6 @@ public class DanglingLineActionBuilder extends AbstractLoadActionBuilder<Danglin
         if (activePowerValue == null && reactivePowerValue == null) {
             throw new IllegalArgumentException("For a load action, activePowerValue or reactivePowerValue must be provided");
         }
-        return new DanglingLineAction(id, loadId, relativeValue, activePowerValue, reactivePowerValue);
+        return new DanglingLineAction(id, elementId, relativeValue, activePowerValue, reactivePowerValue);
     }
 }

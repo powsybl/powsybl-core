@@ -6,4 +6,9 @@ public class DanglingLineActionSerializer extends AbstractLoadActionSerializer<D
     public DanglingLineActionSerializer() {
         super(DanglingLineAction.class);
     }
+
+    @Override
+    protected String getElementIdAttributeName() {
+        return "danglingLineId";
+    }
 }

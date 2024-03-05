@@ -23,7 +23,7 @@ public class LoadActionDeserializer extends AbstractLoadActionDeserializer<LoadA
         LoadActionBuilder loadActionBuilder = new LoadActionBuilder();
         loadActionBuilder
                 .withId(context.id)
-                .withLoadId(context.loadId)
+                .withElementId(context.elementId)
                 .withRelativeValue(context.relativeValue);
         if (context.activePowerValue != null) {
             loadActionBuilder.withActivePowerValue(context.activePowerValue);

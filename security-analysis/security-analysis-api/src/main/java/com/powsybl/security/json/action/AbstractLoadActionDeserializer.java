@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.action.AbstractLoadAction;
+import com.powsybl.security.action.DanglingLineAction;
 import com.powsybl.security.action.LoadAction;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public abstract class AbstractLoadActionDeserializer <T extends AbstractLoadActi
 
     protected static class ParsingContext {
         String id;
-        String loadId;
+        String elementId;
         Boolean relativeValue;
         Double activePowerValue;
         Double reactivePowerValue;
@@ -32,15 +33,16 @@ public abstract class AbstractLoadActionDeserializer <T extends AbstractLoadActi
         JsonUtil.parsePolymorphicObject(parser, name -> {
             switch (name) {
                 case "type":
-                    if (!LoadAction.NAME.equals(parser.nextTextValue())) {
-                        throw JsonMappingException.from(parser, "Expected type " + LoadAction.NAME);
+                    String typeValue = parser.nextTextValue();
+                    if (!LoadAction.NAME.equals(typeValue) && !DanglingLineAction.NAME.equals(typeValue)) {
+                        throw JsonMappingException.from(parser, "Expected types " + LoadAction.NAME + ", " + DanglingLineAction.NAME);
                     }
                     return true;
                 case "id":
                     context.id = parser.nextTextValue();
                     return true;
-                case "loadId":
-                    context.loadId = parser.nextTextValue();
+                case "loadId", "danglingLineId":
+                    context.elementId = parser.nextTextValue();
                     return true;
                 case "relativeValue":
                     parser.nextToken();

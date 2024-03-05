@@ -12,7 +12,7 @@ package com.powsybl.security.action;
 public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction> {
 
     protected String id;
-    protected String loadId;
+    protected String elementId;
     protected Boolean relativeValue;
     protected Double activePowerValue;
     protected Double reactivePowerValue;
@@ -24,8 +24,8 @@ public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction> {
         return this;
     }
 
-    public AbstractLoadActionBuilder<T> withLoadId(String loadId) {
-        this.loadId = loadId;
+    public AbstractLoadActionBuilder<T> withElementId(String loadId) {
+        this.elementId = loadId;
         return this;
     }
 
