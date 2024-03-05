@@ -762,7 +762,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static double checkAndFixVoltageMagnitude(double voltageMagnitude) {
-        return Double.isNaN(voltageMagnitude) || voltageMagnitude == 0.0 ? 1.0 : voltageMagnitude;
+        return Double.isNaN(voltageMagnitude) || voltageMagnitude <= 0.0 ? 1.0 : voltageMagnitude;
     }
 
     private static double checkAndFixVoltageAngle(double voltageAngle) {
