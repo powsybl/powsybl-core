@@ -12,22 +12,32 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 /**
+ * <p>This class is responsible for generating an object (of generic type {@link L}) containing the reduced limits
+ * from the original limits and the reduction coefficients to apply for the permanent and each of the temporary limits.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractLimitsReducer<T> {
-    private final T originalLimits;
+public abstract class AbstractLimitsReducer<L> {
+    private final L originalLimits;
     private double permanentLimitReduction = 1.0;
     private final Map<Integer, Double> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
 
-    protected AbstractLimitsReducer(T originalLimits) {
+    protected AbstractLimitsReducer(L originalLimits) {
         this.originalLimits = originalLimits;
     }
 
-    protected abstract T generateReducedLimits();
+    /**
+     * <p>Generate the reduced limits (of generic type {@link L}) from the original limits and reductions stored in this object.</p>
+     * @return the reduced limits
+     */
+    protected abstract L generateReducedLimits();
 
+    /**
+     * <p>Return a stream of the temporary limits' acceptable durations.</p>
+     * @return the acceptable durations
+     */
     protected abstract IntStream getTemporaryLimitsAcceptableDurationStream();
 
-    protected T getReducedLimits() {
+    protected L getReducedLimits() {
         if (permanentLimitReduction == 1.0
                 && (temporaryLimitReductionByAcceptableDuration.isEmpty()
                     || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0))) {
@@ -37,7 +47,7 @@ public abstract class AbstractLimitsReducer<T> {
         return generateReducedLimits();
     }
 
-    public T getOriginalLimits() {
+    public L getOriginalLimits() {
         return originalLimits;
     }
 

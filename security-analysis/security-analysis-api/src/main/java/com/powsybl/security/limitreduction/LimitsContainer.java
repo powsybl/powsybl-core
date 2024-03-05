@@ -12,5 +12,5 @@ package com.powsybl.security.limitreduction;
  * <p>It contains the original and the altered limits.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public record LimitsContainer<T>(T reducedLimits, T originalLimits) {
+public record LimitsContainer<L>(L reducedLimits, L originalLimits) {
 }

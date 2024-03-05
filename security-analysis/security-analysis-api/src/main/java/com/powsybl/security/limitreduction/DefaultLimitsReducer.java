@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 /**
+ * <p>{@link AbstractLimitsReducer} implementation responsible for computing reduced limits of type {@link LoadingLimits}.</p>
+ *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
