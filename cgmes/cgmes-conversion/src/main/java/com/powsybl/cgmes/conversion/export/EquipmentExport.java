@@ -439,22 +439,7 @@ public final class EquipmentExport {
 
         if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
 
-            String hydroPlantStorageType = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STORAGE_KIND);
-            String hydroPowerPlantId = null;
-            if (hydroPlantStorageType != null && GeneratingUnitEq.generatingUnitClassName(energySource).equals("HydroGeneratingUnit")) {
-                String hydroPowerPlantName = i.getNameOrId();
-                hydroPowerPlantId = context.getNamingStrategy().getCgmesId(ref(i), HYDRO_POWER_PLANT);
-                writeHydroPowerPlant(hydroPowerPlantId, hydroPowerPlantName, hydroPlantStorageType, cimNamespace, writer, context);
-            }
-            String fossilFuelType = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE);
-            if (fossilFuelType != null && !fossilFuelType.isEmpty() && GeneratingUnitEq.generatingUnitClassName(energySource).equals("ThermalGeneratingUnit")) {
-                String[] fossilFuelTypeArray = fossilFuelType.split(";");
-                for (int j = 0; j < fossilFuelTypeArray.length; j++) {
-                    String fossilFuelName = i.getNameOrId();
-                    String fossilFuelId = context.getNamingStrategy().getCgmesId(refTyped(i), ref(j), THERMAL_GENERATING_UNIT, FOSSIL_FUEL);
-                    writeFossilFuel(fossilFuelId, fossilFuelName, fossilFuelTypeArray[j], generatingUnit, cimNamespace, writer, context);
-                }
-            }
+            String hydroPowerPlantId = generatingUnitWriteHydroPowerPlantAndFossilFuel(i, cimNamespace, energySource, generatingUnit, writer, context);
 
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
@@ -465,6 +450,28 @@ public final class EquipmentExport {
                     hydroPowerPlantId, writer, context);
             generatingUnitsWritten.add(generatingUnit);
         }
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> String generatingUnitWriteHydroPowerPlantAndFossilFuel(I i, String cimNamespace, EnergySource energySource, String generatingUnit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String hydroPlantStorageType = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STORAGE_KIND);
+        String hydroPowerPlantId = null;
+        if (hydroPlantStorageType != null && GeneratingUnitEq.generatingUnitClassName(energySource).equals("HydroGeneratingUnit")) {
+            String hydroPowerPlantName = i.getNameOrId();
+            hydroPowerPlantId = context.getNamingStrategy().getCgmesId(ref(i), HYDRO_POWER_PLANT);
+            writeHydroPowerPlant(hydroPowerPlantId, hydroPowerPlantName, hydroPlantStorageType, cimNamespace, writer, context);
+        }
+
+        String fossilFuelType = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE);
+        if (fossilFuelType != null && !fossilFuelType.isEmpty() && GeneratingUnitEq.generatingUnitClassName(energySource).equals("ThermalGeneratingUnit")) {
+            String[] fossilFuelTypeArray = fossilFuelType.split(";");
+            for (int j = 0; j < fossilFuelTypeArray.length; j++) {
+                String fossilFuelName = i.getNameOrId();
+                String fossilFuelId = context.getNamingStrategy().getCgmesId(refTyped(i), ref(j), THERMAL_GENERATING_UNIT, FOSSIL_FUEL);
+                writeFossilFuel(fossilFuelId, fossilFuelName, fossilFuelTypeArray[j], generatingUnit, cimNamespace, writer, context);
+            }
+        }
+
+        return hydroPowerPlantId;
     }
 
     private static void writeHydroPowerPlant(String id, String name, String hydroPlantStorageType, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
