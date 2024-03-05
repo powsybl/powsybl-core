@@ -19,8 +19,6 @@ import java.util.*;
  */
 public class ReportNodeNoOp implements ReportNode {
 
-    private static final Collection<Map<String, TypedValue>> EMPTY_MAPS = new ArrayList<>();
-
     @Override
     public ReportNodeAdder newReportNode() {
         return new ChildAdder();
