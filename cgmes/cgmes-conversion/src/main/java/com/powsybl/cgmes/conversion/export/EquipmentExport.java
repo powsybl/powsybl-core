@@ -443,7 +443,7 @@ public final class EquipmentExport {
             String hydroPowerPlantId = null;
             if (hydroPlantStorageType != null && GeneratingUnitEq.generatingUnitClassName(energySource).equals("HydroGeneratingUnit")) {
                 String hydroPowerPlantName = i.getNameOrId();
-                hydroPowerPlantId = context.getNamingStrategy().getCgmesId(refTyped(i), HYDRO_POWER_PLANT);
+                hydroPowerPlantId = context.getNamingStrategy().getCgmesId(ref(i), HYDRO_POWER_PLANT);
                 writeHydroPowerPlant(hydroPowerPlantId, hydroPowerPlantName, hydroPlantStorageType, cimNamespace, writer, context);
             }
             String fossilFuelType = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE);
