@@ -33,8 +33,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class ContingencyWiseReducedLimitsComputerTest {
-    private static ContingencyWiseReducedLimitsComputer computer;
+class DefaultReducedLimitsComputerImplTest {
+    private static DefaultReducedLimitsComputerImpl computer;
     private static Network network;
 
     @BeforeAll
@@ -58,10 +58,8 @@ class ContingencyWiseReducedLimitsComputerTest {
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
                 List.of(new EqualityTemporaryDurationCriterion(60)));
         LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2, definition3, definition4));
-        computer = new ContingencyWiseReducedLimitsComputer(definitionList);
+        computer = new DefaultReducedLimitsComputerImpl(definitionList);
     }
-
-    //TODO add test with Processable and Getter
 
     @Test
     void applyReductionsTest() {
@@ -178,7 +176,7 @@ class ContingencyWiseReducedLimitsComputerTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getNoChangesComputers")
-    void noChangesTest(String desc, ContingencyWiseReducedLimitsComputer noChangesComputer) {
+    void noChangesTest(String desc, DefaultReducedLimitsComputerImpl noChangesComputer) {
         // In this test, no effective reductions were defined (either no definitions were used in the computer or
         // their values are all equal to 1.0).
         Optional<LimitsContainer<LoadingLimits>> optLimits = noChangesComputer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_1"),
@@ -189,7 +187,7 @@ class ContingencyWiseReducedLimitsComputerTest {
     }
 
     static Stream<Arguments> getNoChangesComputers() {
-        ContingencyWiseReducedLimitsComputer noDefComputer = new ContingencyWiseReducedLimitsComputer(new LimitReductionDefinitionList(Collections.emptyList()));
+        DefaultReducedLimitsComputerImpl noDefComputer = new DefaultReducedLimitsComputerImpl(new LimitReductionDefinitionList(Collections.emptyList()));
         LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 1.f,
                 List.of(ContingencyContext.all()),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
@@ -199,7 +197,7 @@ class ContingencyWiseReducedLimitsComputerTest {
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
                 Collections.emptyList());
         LimitReductionDefinitionList reductionsTo1List = new LimitReductionDefinitionList(List.of(definition1, definition2));
-        ContingencyWiseReducedLimitsComputer reductionsTo1Computer = new ContingencyWiseReducedLimitsComputer(reductionsTo1List);
+        DefaultReducedLimitsComputerImpl reductionsTo1Computer = new DefaultReducedLimitsComputerImpl(reductionsTo1List);
         return Stream.of(
                 Arguments.of("No definitions", noDefComputer),
                 Arguments.of("Reductions to 1.0", reductionsTo1Computer)
@@ -212,10 +210,10 @@ class ContingencyWiseReducedLimitsComputerTest {
                                                 boolean applicableForPreContingency,
                                                 boolean applicableForContingency1, boolean applicableForContingency2,
                                                 boolean applicableForContingency3) {
-        assertEquals(applicableForPreContingency, ContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, null));
-        assertEquals(applicableForContingency1, ContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, "contingency1"));
-        assertEquals(applicableForContingency2, ContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, "contingency2"));
-        assertEquals(applicableForContingency3, ContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, "contingency3"));
+        assertEquals(applicableForPreContingency, AbstractContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, null));
+        assertEquals(applicableForContingency1, AbstractContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, "contingency1"));
+        assertEquals(applicableForContingency2, AbstractContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, "contingency2"));
+        assertEquals(applicableForContingency3, AbstractContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContexts, "contingency3"));
     }
 
     static Stream<Arguments> getContingencyContextListsData() {

@@ -13,11 +13,8 @@ import com.powsybl.iidm.criteria.NetworkElementVisitor;
 import com.powsybl.iidm.criteria.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.security.limitreduction.criteria.translation.DefaultProcessableNetworkElementAdapter;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,57 +24,61 @@ import java.util.Optional;
 import static com.powsybl.contingency.ContingencyContextType.*;
 
 /**
- * Class responsible for computing reduced limits using a {@link LimitReductionDefinitionList}.
+ * Abstract class responsible for computing reduced limits using a {@link LimitReductionDefinitionList}.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsComputer<ContingencyWiseReducedLimitsComputer.ProcessableNetworkElement> {
+public abstract class AbstractContingencyWiseReducedLimitsComputer<P, L> extends AbstractReducedLimitsComputer<P, L> {
     private final LimitReductionDefinitionList limitReductionDefinitionList;
     private List<LimitReductionDefinition> definitionsForCurrentContingencyId = Collections.emptyList();
     private boolean sameDefinitionsAsForPreviousContingencyId = false;
 
     /**
-     * Create a new {@link ContingencyWiseReducedLimitsComputer} using a list of reduction definitions.
+     * Create a new {@link AbstractContingencyWiseReducedLimitsComputer} using a list of reduction definitions.
      * @param limitReductionDefinitionList the list of the reduction definitions to use when computing reduced limits.
      */
-    public ContingencyWiseReducedLimitsComputer(LimitReductionDefinitionList limitReductionDefinitionList) {
+    protected AbstractContingencyWiseReducedLimitsComputer(LimitReductionDefinitionList limitReductionDefinitionList) {
         super();
         this.limitReductionDefinitionList = limitReductionDefinitionList;
         computeDefinitionsForCurrentContingencyId(null);
     }
 
     @Override
-    protected ProcessableNetworkElement getAdapter(Identifiable<?> identifiable) {
-        return new DefaultProcessableNetworkElementAdapter(identifiable);
-    }
-
-    @Override
-    protected OriginalLimitsGetter<ProcessableNetworkElement, LoadingLimits> getOriginalLimitsGetterForIdentifiables() {
-        return DefaultProcessableNetworkElementAdapter.getOriginalLimitsGetterForIdentifiables();
-    }
-
-    @Override
-    protected <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(ProcessableNetworkElement processable,
-                                                                                 LimitType limitType, ThreeSides side,
-                                                                                 OriginalLimitsGetter<ProcessableNetworkElement, T> originalLimitsGetter,
-                                                                                 AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
-        Objects.requireNonNull(originalLimitsGetter);
-        Objects.requireNonNull(limitsReducerCreator);
-        Optional<T> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
+    protected Optional<LimitsContainer<L>> computeLimitsWithAppliedReduction(P processable, LimitType limitType, ThreeSides side) {
+        OriginalLimitsGetter<P, L> originalLimitsGetter = Objects.requireNonNull(getOriginalLimitsGetter());
+        Optional<L> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
         if (definitionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
             return originalLimits.map(l -> new LimitsContainer<>(l, l));
         }
-        AbstractLimitsReducer<T> limitsReducer = limitsReducerCreator.create(processable.getId(), originalLimits.get());
-        updateLimitReducer(limitsReducer, processable, limitType);
 
-        T reducedLimits = limitsReducer.getReducedLimits();
+        AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator = Objects.requireNonNull(getLimitsReducerCreator());
+        NetworkElement networkElement = Objects.requireNonNull(asNetworkElement(processable));
+        AbstractLimitsReducer<L> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
+        updateLimitReducer(limitsReducer, networkElement, limitType);
+
+        L reducedLimits = limitsReducer.getReducedLimits();
         // Cache the value to avoid recomputing it
-        LimitsContainer<T> limitsContainer = new LimitsContainer<>(reducedLimits, originalLimits.get());
+        LimitsContainer<L> limitsContainer = new LimitsContainer<>(reducedLimits, originalLimits.get());
         putInCache(processable, limitType, side, limitsContainer);
         return Optional.of(limitsContainer);
     }
+
+    /**
+     * Return an {@link com.powsybl.security.limitreduction.ReducedLimitsComputer.OriginalLimitsGetter} allowing to retrieve
+     * {@link L} from a network element of type {@link P}.
+     * @return an original limits getter
+     */
+    protected abstract OriginalLimitsGetter<P, L> getOriginalLimitsGetter();
+
+    /**
+     * Return the {@link AbstractLimitsReducer} creator, which will be used to create an object of type {@link L} containing the modified limits.
+     * @return the creator for {@link AbstractLimitsReducer}
+     */
+    protected abstract AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> getLimitsReducerCreator();
+
+    protected abstract NetworkElement asNetworkElement(P processable);
 
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement networkElement, LimitType limitType) {
         for (LimitReductionDefinition limitReductionDefinition : definitionsForCurrentContingencyId) {
@@ -162,8 +163,9 @@ public class ContingencyWiseReducedLimitsComputer extends AbstractReducedLimitsC
     }
 
     /**
-     * Interface for objects processable by the {@link ContingencyWiseReducedLimitsComputer} implementation.
+     * Interface for objects processable by the {@link AbstractContingencyWiseReducedLimitsComputer} implementation.
      */
     public interface ProcessableNetworkElement extends Processable, NetworkElement {
+        //TODO To remove
     }
 }
