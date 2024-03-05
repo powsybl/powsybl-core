@@ -194,7 +194,8 @@ public class Conversion {
         convert(cgmes.staticVarCompensators(), convf);
         convf = asm -> new AsynchronousMachineConversion(asm, context);
         convert(cgmes.asynchronousMachines(), convf);
-        convert(cgmes.synchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
+        convert(cgmes.synchronousMachinesGenerators(), sm -> new SynchronousMachineConversion(sm, context));
+        convert(cgmes.synchronousMachinesCondensers(), sm -> new SynchronousMachineConversion(sm, context));
 
         // We will delay the conversion of some lines/switches that have an end at boundary
         // They have to be processed after all lines/switches have been reviewed

@@ -1,0 +1,65 @@
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Synchronous Machine of type condenser</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.description>Base Voltage Level 400kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>420</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>380</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+
+    <cim:SynchronousMachine rdf:ID="_Condenser1">
+        <cim:IdentifiedObject.name>Condenser 1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_Condenser1_RC" />
+        <cim:RotatingMachine.ratedPowerFactor>0.95</cim:RotatingMachine.ratedPowerFactor>
+        <cim:RotatingMachine.ratedS>300</cim:RotatingMachine.ratedS>
+        <cim:RotatingMachine.ratedU>400</cim:RotatingMachine.ratedU>
+        <cim:SynchronousMachine.maxQ>0</cim:SynchronousMachine.maxQ>
+        <cim:SynchronousMachine.minQ>-110</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.qPercent>100</cim:SynchronousMachine.qPercent>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.condenser" />
+    </cim:SynchronousMachine>
+    <cim:Terminal rdf:ID="_Condenser1_T">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Condenser1" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_Condenser1_RC">
+        <cim:IdentifiedObject.name>Condenser 1 Regulating Control</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage" />
+        <cim:RegulatingControl.Terminal rdf:resource="#_Condenser1_T" />
+    </cim:RegulatingControl>
+
+</rdf:RDF>

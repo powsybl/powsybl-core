@@ -332,7 +332,7 @@ OPTIONAL { GRAPH ?graphSV  {
 BIND ( "LinearShuntCompensator" AS ?type )
 }
 
-# query: synchronousMachines
+# query: synchronousMachinesGenerators
 SELECT *
 WHERE {
 { GRAPH ?graph {
