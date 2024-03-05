@@ -48,6 +48,10 @@ public interface ReportNode extends Report {
      */
     ReportNode NO_OP = new ReportNodeNoOp();
 
+    /**
+     * Create a new builder for creating a root <code>ReportNode</code>.
+     * @return a {@link ReportNodeBuilder}
+     */
     static ReportNodeBuilder newRootReportNode() {
         return new ReportNodeRootBuilderImpl();
     }
@@ -73,13 +77,6 @@ public interface ReportNode extends Report {
     void include(ReportNode reportRoot);
 
     /**
-     * Get the values maps inheritance for the child nodes
-     *
-     * @return the {@link Deque} values map
-     */
-    Collection<Map<String, TypedValue>> getValuesMapsInheritance();
-
-    /**
      * Serialize the current report node
      * @param generator the jsonGenerator to use for serialization
      */
@@ -99,15 +96,5 @@ public interface ReportNode extends Report {
      * Print to given writer the current report node and its descendants
      * @param writer the writer to write to
      */
-    default void print(Writer writer) throws IOException {
-        print(writer, "");
-    }
-
-    /**
-     * Print to given writer the current report node and its descendants
-     * @param writer the writer to write to
-     * @param indentationStart the string indentation to use for current node
-     */
-    void print(Writer writer, String indentationStart) throws IOException;
-
+    void print(Writer writer) throws IOException;
 }

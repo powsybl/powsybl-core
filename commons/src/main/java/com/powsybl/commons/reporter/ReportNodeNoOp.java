@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class ReportNodeNoOp implements ReportNode {
 
-    private static final Deque<Map<String, TypedValue>> EMPTY_MAP_DEQUE = new ArrayDeque<>();
+    private static final Collection<Map<String, TypedValue>> EMPTY_MAPS = new ArrayList<>();
 
     @Override
     public ReportNodeAdder newReportNode() {
@@ -42,11 +42,6 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public Collection<Map<String, TypedValue>> getValuesMapsInheritance() {
-        return EMPTY_MAP_DEQUE;
-    }
-
-    @Override
     public Optional<TypedValue> getValue(String valueKey) {
         return Optional.empty();
     }
@@ -63,11 +58,6 @@ public class ReportNodeNoOp implements ReportNode {
 
     @Override
     public void print(Writer writer) throws IOException {
-        // No-op
-    }
-
-    @Override
-    public void print(Writer writer, String indentationStart) throws IOException {
         // No-op
     }
 

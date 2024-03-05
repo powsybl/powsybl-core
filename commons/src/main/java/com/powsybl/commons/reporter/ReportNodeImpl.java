@@ -42,7 +42,11 @@ public final class ReportNodeImpl implements ReportNode {
     private final boolean isRoot;
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
 
-    static ReportNodeImpl createChildReportNode(String msgKey, String message, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesDeque, RootContext rootContext) {
+    static ReportNodeImpl createChildReportNode(String msgKey, String message, Map<String, TypedValue> values, ReportNodeImpl parent) {
+        return createChildReportNode(msgKey, message, values, parent.getValuesMapsInheritance(), parent.getRootContext());
+    }
+
+    private static ReportNodeImpl createChildReportNode(String msgKey, String message, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesDeque, RootContext rootContext) {
         return new ReportNodeImpl(msgKey, message, values, inheritedValuesDeque, rootContext, false);
     }
 
@@ -61,7 +65,7 @@ public final class ReportNodeImpl implements ReportNode {
      *                            or within any descendants of the created <code>ReporterNode</code>.
      *                            Be aware that any value in this map might, in all descendants, override a value of one of
      *                            <code>ReporterNode</code> ancestors.
-     * @param inheritedValuesMaps a {@link Deque} of inherited values maps
+     * @param inheritedValuesMaps a {@link Collection} of inherited values maps
      * @param rootContext         the {@link RootContext} of the root of corresponding report tree
      */
     private ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RootContext rootContext, boolean isRoot) {
@@ -101,13 +105,11 @@ public final class ReportNodeImpl implements ReportNode {
         return rootContext;
     }
 
-    @Override
-    public Collection<Map<String, TypedValue>> getValuesMapsInheritance() {
+    private Collection<Map<String, TypedValue>> getValuesMapsInheritance() {
         if (valuesMapsInheritance == null) {
-            List<Map<String, TypedValue>> v = new ArrayList<>(1 + inheritedValuesMaps.size());
-            v.add(values);
-            v.addAll(inheritedValuesMaps);
-            valuesMapsInheritance = Collections.unmodifiableCollection(v);
+            valuesMapsInheritance = new ArrayList<>(1 + inheritedValuesMaps.size());
+            valuesMapsInheritance.add(values);
+            valuesMapsInheritance.addAll(inheritedValuesMaps);
         }
         return valuesMapsInheritance;
     }
@@ -151,13 +153,17 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void print(Writer writer, String indentationStart) throws IOException {
+    public void print(Writer writer) throws IOException {
+        print(writer, "");
+    }
+
+    private void print(Writer writer, String indentationStart) throws IOException {
         if (children.isEmpty()) {
             print(writer, indentationStart, "");
         } else {
             print(writer, indentationStart, "+ ");
             String childrenIndent = indentationStart + "   ";
-            for (ReportNode child : children) {
+            for (ReportNodeImpl child : children) {
                 child.print(writer, childrenIndent);
             }
         }
@@ -180,7 +186,7 @@ public final class ReportNodeImpl implements ReportNode {
         return parseJsonNode(jsonNode, codec, rootContext, Collections.emptyList(), true);
     }
 
-    private static ReportNodeImpl parseJsonNode(JsonNode jsonNode, ObjectCodec codec, RootContext rootContext, Collection<Map<String, TypedValue>> inheritedValuesDeque, boolean rootReportNode) throws IOException {
+    private static ReportNodeImpl parseJsonNode(JsonNode jsonNode, ObjectCodec codec, RootContext rootContext, Collection<Map<String, TypedValue>> inheritedValuesMaps, boolean rootReportNode) throws IOException {
         JsonNode keyNode = jsonNode.get("messageKey");
         String key = codec.readValue(keyNode.traverse(), String.class);
 
@@ -192,7 +198,7 @@ public final class ReportNodeImpl implements ReportNode {
 
         ReportNodeImpl reportNode = rootReportNode
                 ? createRootReportNode(key, message, values, rootContext)
-                : createChildReportNode(key, message, values, inheritedValuesDeque, rootContext);
+                : createChildReportNode(key, message, values, inheritedValuesMaps, rootContext);
 
         JsonNode reportsNode = jsonNode.get("children");
         if (reportsNode != null) {
