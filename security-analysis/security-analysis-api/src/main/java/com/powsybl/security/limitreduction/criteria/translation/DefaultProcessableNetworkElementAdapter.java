@@ -34,8 +34,8 @@ public class DefaultProcessableNetworkElementAdapter extends DefaultNetworkEleme
 
     static class IdentifiableLimitsGetter implements ReducedLimitsComputer.OriginalLimitsGetter<ContingencyWiseReducedLimitsComputer.ProcessableNetworkElement, LoadingLimits> {
         @Override
-        public Optional<LoadingLimits> getLimits(ContingencyWiseReducedLimitsComputer.ProcessableNetworkElement filterable, LimitType limitType, ThreeSides side) {
-            Identifiable<?> identifiable = ((DefaultProcessableNetworkElementAdapter) filterable).getIdentifiable();
+        public Optional<LoadingLimits> getLimits(ContingencyWiseReducedLimitsComputer.ProcessableNetworkElement processable, LimitType limitType, ThreeSides side) {
+            Identifiable<?> identifiable = ((DefaultProcessableNetworkElementAdapter) processable).getIdentifiable();
             return LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
         }
     }

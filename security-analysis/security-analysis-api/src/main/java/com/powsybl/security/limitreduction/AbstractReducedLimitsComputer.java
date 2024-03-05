@@ -78,21 +78,21 @@ public abstract class AbstractReducedLimitsComputer<P extends ReducedLimitsCompu
 
     /**
      * {@inheritDoc}
-     * <p>Resulting limits are stored in an internal cache, by (<code>filterable.getId()</code>, limit type, side),
+     * <p>Resulting limits are stored in an internal cache, by (<code>processable.getId()</code>, limit type, side),
      * in order to avoid unnecessary re-computation. If needed, this cache can be cleared using {@link #clearCache()}.</p>
      * <p>Note that the cache is cleared each time <code>originalLimitsGetter</code> or <code>limitsReducerCreator</code>
      * is changed.</p>
      *
      * @param <T> the type of the limits
-     * @param filterable The object for which the reduced limits must be computed
+     * @param processable The object for which the reduced limits must be computed
      * @param limitType The type of the limits to process
      * @param side The side of <code>identifiable</code> on which the limits should be retrieved
-     * @param originalLimitsGetter the object to use to retrieve the original limits of <code>filterable</code>
+     * @param originalLimitsGetter the object to use to retrieve the original limits of <code>processable</code>
      * @param limitsReducerCreator the object to use to create an object of type {@link T} containing the modified limits.
      * @return an object containing the original limits and the altered ones
      */
     @Override
-    public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(P filterable,
+    public <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(P processable,
                                                                           LimitType limitType, ThreeSides side,
                                                                           OriginalLimitsGetter<P, T> originalLimitsGetter,
                                                                           AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator) {
@@ -100,11 +100,11 @@ public abstract class AbstractReducedLimitsComputer<P extends ReducedLimitsCompu
 
         // Look into the cache to avoid recomputing reduced limits if they were already computed
         // with the same limit reductions
-        CacheKey cacheKey = new CacheKey(filterable.getId(), limitType, side);
+        CacheKey cacheKey = new CacheKey(processable.getId(), limitType, side);
         if (reducedLimitsCache.containsKey(cacheKey)) {
             return Optional.of((LimitsContainer<T>) reducedLimitsCache.get(cacheKey));
         }
-        return computeLimitsWithAppliedReduction(filterable, limitType, side, originalLimitsGetter, limitsReducerCreator);
+        return computeLimitsWithAppliedReduction(processable, limitType, side, originalLimitsGetter, limitsReducerCreator);
     }
 
     protected abstract <T> Optional<LimitsContainer<T>> computeLimitsWithAppliedReduction(P processable,

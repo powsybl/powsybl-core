@@ -21,7 +21,7 @@ import java.util.Optional;
  *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Processable> {
+public interface ReducedLimitsComputer<P extends ReducedLimitsComputer.Processable> {
     /**
      * An implementation of {@link ReducedLimitsComputer} only retrieving the limits without applying reductions.
      */
@@ -39,20 +39,20 @@ public interface ReducedLimitsComputer<F extends ReducedLimitsComputer.Processab
     Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side);
 
     /**
-     * <p>Retrieve the limits of <code>filterable</code> corresponding to the given limits type and side
+     * <p>Retrieve the limits of <code>processable</code> corresponding to the given limits type and side
      * (using <code>originalLimitsGetter</code>), then apply
      * on them the reductions configured in the current {@link ReducedLimitsComputer}.</p>
      * <p>The result of this method contains both originals and altered limits.</p>
      * @param <T> the type of the limits
-     * @param filterable The object for which the reduced limits must be computed
+     * @param processable The object for which the reduced limits must be computed
      * @param limitType The type of the limits to process
      * @param side The side of <code>identifiable</code> on which the limits should be retrieved
-     * @param originalLimitsGetter the object to use to retrieve the original limits of <code>filterable</code>
+     * @param originalLimitsGetter the object to use to retrieve the original limits of <code>processable</code>
      * @param limitsReducerCreator the object to use to create an object of type {@link T} containing the modified limits.
      * @return an object containing the original limits and the altered ones
      */
-    <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(F filterable, LimitType limitType, ThreeSides side,
-                                                                   OriginalLimitsGetter<F, T> originalLimitsGetter,
+    <T> Optional<LimitsContainer<T>> getLimitsWithAppliedReduction(P processable, LimitType limitType, ThreeSides side,
+                                                                   OriginalLimitsGetter<P, T> originalLimitsGetter,
                                                                    AbstractLimitsReducerCreator<T, ? extends AbstractLimitsReducer<T>> limitsReducerCreator);
 
     /**

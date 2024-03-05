@@ -61,7 +61,7 @@ class ContingencyWiseReducedLimitsComputerTest {
         computer = new ContingencyWiseReducedLimitsComputer(definitionList);
     }
 
-    //TODO add test with Filterable and Getter
+    //TODO add test with Processable and Getter
 
     @Test
     void applyReductionsTest() {
