@@ -122,9 +122,16 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
     T withUntypedValue(String key, boolean value);
 
     /**
-     * Provide the typed value for the default severity key to build the {@link ReportNode} with.
-     * @param severity the typed value
+     * Provide the {@link TypedValue#SEVERITY} typed value to build the {@link ReportNode} with.
+     * @param severity the {@link TypedValue#SEVERITY} typed value
      * @return a reference to this object
      */
     T withSeverity(TypedValue severity);
+
+    /**
+     * Provide the {@link String} value for the {@link TypedValue#SEVERITY} type to build the {@link ReportNode} with.
+     * @param severity the {@link String} value
+     * @return a reference to this object
+     */
+    T withSeverity(String severity);
 }

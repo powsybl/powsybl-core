@@ -101,5 +101,11 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
         return self();
     }
 
+    @Override
+    public T withSeverity(String severity) {
+        values.put(ReportConstants.REPORT_SEVERITY_KEY, new TypedValue(severity, TypedValue.SEVERITY));
+        return self();
+    }
+
     protected abstract T self();
 }
