@@ -17,6 +17,8 @@ package com.powsybl.security.action;
  */
 public class DanglingLineAction extends AbstractLoadAction {
 
+    public static final String NAME = "DANGLING_LINE";
+
     /**
      * @param id                 the id of the action.
      * @param elementId          the id of the dangling line on which the action would be applied.
@@ -30,6 +32,6 @@ public class DanglingLineAction extends AbstractLoadAction {
 
     @Override
     public String getType() {
-        return "DANGLING_LINE";
+        return NAME;
     }
 }

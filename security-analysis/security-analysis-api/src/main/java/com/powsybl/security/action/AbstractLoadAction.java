@@ -20,8 +20,6 @@ import java.util.OptionalDouble;
  */
 public abstract class AbstractLoadAction extends AbstractAction {
 
-    public static final String NAME = "LOAD";
-
     private final String elementId;
     private final boolean relativeValue;
     private final Double activePowerValue;
@@ -40,11 +38,6 @@ public abstract class AbstractLoadAction extends AbstractAction {
         this.relativeValue = relativeValue;
         this.activePowerValue = activePowerValue;
         this.reactivePowerValue = reactivePowerValue;
-    }
-
-    @Override
-    public String getType() {
-        return NAME;
     }
 
     public String getElementId() {

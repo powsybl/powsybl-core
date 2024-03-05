@@ -17,6 +17,8 @@ package com.powsybl.security.action;
  */
 public class LoadAction extends AbstractLoadAction {
 
+    public static final String NAME = "LOAD";
+
     /**
      * @param id                 the id of the action.
      * @param elementId          the id of the load on which the action would be applied.
@@ -30,6 +32,6 @@ public class LoadAction extends AbstractLoadAction {
 
     @Override
     public String getType() {
-        return "LOAD";
+        return NAME;
     }
 }
