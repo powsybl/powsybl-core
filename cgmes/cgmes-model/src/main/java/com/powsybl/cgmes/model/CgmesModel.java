@@ -112,7 +112,22 @@ public interface CgmesModel {
 
     PropertyBags staticVarCompensators();
 
-    PropertyBags synchronousMachines();
+    /**
+     * @deprecated Synchronous machines can be generators or condensers, they are obtained separately.
+     * Use {@link #synchronousMachinesGenerators()} or {@link #synchronousMachinesCondensers()} instead.
+     */
+    @Deprecated(since = "6.3.0", forRemoval = true)
+    default PropertyBags synchronousMachines() {
+        return synchronousMachinesGenerators();
+    }
+
+    default PropertyBags synchronousMachinesGenerators() {
+        return new PropertyBags();
+    }
+
+    default PropertyBags synchronousMachinesCondensers() {
+        return new PropertyBags();
+    }
 
     PropertyBags equivalentInjections();
 

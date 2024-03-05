@@ -50,7 +50,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private PropertyBags shuntCompensators;
     private PropertyBags staticVarCompensators;
     private PropertyBags equivalentShunts;
-    private PropertyBags synchronousMachines;
+    private PropertyBags synchronousMachinesGenerators;
     private PropertyBags equivalentInjections;
     private PropertyBags externalNetworkInjections;
     private PropertyBags svInjections;
@@ -91,7 +91,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
         shuntCompensators = new PropertyBags();
         equivalentShunts = new PropertyBags();
         staticVarCompensators = new PropertyBags();
-        synchronousMachines = new PropertyBags();
+        synchronousMachinesGenerators = new PropertyBags();
         equivalentInjections = new PropertyBags();
         externalNetworkInjections = new PropertyBags();
         svInjections = new PropertyBags();
@@ -229,8 +229,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
         return this;
     }
 
-    public InMemoryCgmesModel synchronousMachines(String... ids) {
-        fakeObjectsFromIdentifiers("SynchronousMachine", ids, synchronousMachines);
+    public InMemoryCgmesModel synchronousMachinesGenerators(String... ids) {
+        fakeObjectsFromIdentifiers("SynchronousMachine", ids, synchronousMachinesGenerators);
         return this;
     }
 
@@ -450,8 +450,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags synchronousMachines() {
-        return synchronousMachines;
+    public PropertyBags synchronousMachinesGenerators() {
+        return synchronousMachinesGenerators;
     }
 
     @Override

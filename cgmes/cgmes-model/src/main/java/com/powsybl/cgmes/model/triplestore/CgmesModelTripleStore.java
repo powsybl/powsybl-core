@@ -504,8 +504,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags synchronousMachines() {
-        return namedQuery("synchronousMachines");
+    public PropertyBags synchronousMachinesGenerators() {
+        return namedQuery("synchronousMachinesGenerators");
+    }
+
+    @Override
+    public PropertyBags synchronousMachinesCondensers() {
+        return namedQuery("synchronousMachinesCondensers");
     }
 
     @Override
@@ -614,6 +619,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         PropertyBags r = query(queryText);
         final long t1 = System.currentTimeMillis();
         if (LOG.isDebugEnabled()) {
+            LOG.debug("results query {}{}{}", name, System.lineSeparator(), r.tabulateLocals());
             LOG.debug("dt query {} {} ms, result set size = {}", name, t1 - t0, r.size());
         }
         return r;
