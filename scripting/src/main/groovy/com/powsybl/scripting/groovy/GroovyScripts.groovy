@@ -67,6 +67,10 @@ class GroovyScripts {
             extensions.forEach { it.load(binding, binding.computationManager) }
 
             GroovyShell shell = new GroovyShell(binding, conf)
+
+            // Check for thread interruption right before beginning the evaluation
+            if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Execution Interrupted");
+
             shell.evaluate(codeReader)
         } finally {
             extensions.forEach { it.unload() }

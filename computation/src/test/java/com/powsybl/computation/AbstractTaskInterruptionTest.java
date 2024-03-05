@@ -7,11 +7,13 @@
  */
 package com.powsybl.computation;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -63,14 +65,8 @@ public abstract class AbstractTaskInterruptionTest {
         assertFalse(cancelled);
     }
 
-    /**
-     * Test the interruption of a task containing a call to a specific method.
-     * @param isDelayed boolean describing if a delay must be added between the task launch and the interruption
-     * @param methodCalledInTask method called in the task
-     * @throws Exception Exception that should be thrown during the interruption
-     */
-    public void testCancelTask(boolean isDelayed, Supplier<?> methodCalledInTask) throws Exception {
-        CompletableFuture<Object> task = CompletableFutureTask.runAsync(() -> {
+    private CompletableFuture<Object> createTask(Supplier<?> methodCalledInTask) {
+        return CompletableFutureTask.runAsync(() -> {
             waitForStart.countDown();
             try {
                 methodCalledInTask.get();
@@ -82,15 +78,50 @@ public abstract class AbstractTaskInterruptionTest {
             }
             return null;
         }, Executors.newSingleThreadExecutor());
+    }
+
+    /**
+     * Test the interruption of a task containing a call to a specific method.
+     * @param isDelayed boolean describing if a delay must be added between the task launch and the interruption
+     * @param methodCalledInTask method called in the task
+     * @throws Exception Exception that should be thrown during the interruption
+     */
+    public void testCancelLongTask(boolean isDelayed, Supplier<?> methodCalledInTask) throws Exception {
+        CompletableFuture<Object> task = createTask(methodCalledInTask);
 
         // If asked, wait a bit to simulate interruption by a user
         if (isDelayed) {
-            await()
-                .during(800, TimeUnit.MILLISECONDS)
-                .atMost(1850, TimeUnit.MILLISECONDS)
-                .until(() -> true);
+            Thread.sleep(800);
         }
 
         assertions(task);
+    }
+
+    /**
+     * Test the interruption of a task containing a call to a specific method.
+     * @param isDelayed boolean describing if a delay must be added between the task launch and the interruption
+     * @param methodCalledInTask method called in the task
+     * @throws Exception Exception that should be thrown during the interruption
+     */
+    public void testCancelShortTask(boolean isDelayed, Supplier<?> methodCalledInTask) throws Exception {
+        CompletableFuture<Object> task = createTask(methodCalledInTask);
+
+        // If asked, wait a bit to simulate interruption by a user
+        if (isDelayed) {
+            Thread.sleep(800);
+
+            // This line is used to check that the task has already started
+            waitForStart.await();
+
+            // the script was to short to be interrupted before its end so the task is done
+            assertTrue(task.isDone());
+
+            // Cancel the task
+            boolean cancelled = task.cancel(true);
+            assertFalse(cancelled);
+        } else {
+            // If it's not delayed, the script didn't have enough time to finish yet
+            assertions(task);
+        }
     }
 }

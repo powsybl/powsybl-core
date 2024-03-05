@@ -72,6 +72,6 @@ class CalculatedTimeSeriesGroovyDslInterruptionsTest extends AbstractTaskInterru
     @Order(2)
     @ValueSource(booleans = {false, true})
     void test(boolean isDelayed) throws Exception {
-        testCancelTask(isDelayed, () -> CalculatedTimeSeriesDslLoader.find().load(script, store));
+        testCancelLongTask(isDelayed, () -> CalculatedTimeSeriesDslLoader.find().load(script, store));
     }
 }

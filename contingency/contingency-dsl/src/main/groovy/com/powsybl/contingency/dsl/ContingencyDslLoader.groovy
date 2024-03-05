@@ -7,7 +7,7 @@
 package com.powsybl.contingency.dsl
 
 import com.powsybl.commons.extensions.Extension
-import com.powsybl.contingency.*
+import com.powsybl.contingency.Contingency
 import com.powsybl.dsl.DslException
 import com.powsybl.dsl.DslLoader
 import com.powsybl.dsl.ExtendableDslExtension
@@ -138,6 +138,9 @@ class ContingencyDslLoader extends DslLoader {
             binding.setVariable("network", network)
 
             def shell = createShell(binding, imports)
+
+            // Check for thread interruption right before beginning the evaluation
+            if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Execution Interrupted")
 
             shell.evaluate(dslSrc)
 
