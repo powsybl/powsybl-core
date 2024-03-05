@@ -14,7 +14,7 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
      * @param key             the key identifying uniquely the message template
      * @param messageTemplate functional log, which may contain references to values using the <code>${key}</code> syntax,
      *                        the values mentioned being the values of corresponding {@link ReportNode} and the values of any
-     *                        {@link ReportNode} ancestor of the created <code>ReporterNode</code>
+     *                        {@link ReportNode} ancestor of the created {@link ReportNode}
      * @return a reference to this object
      */
     T withMessageTemplate(String key, String messageTemplate);

@@ -24,7 +24,7 @@ import java.util.stream.Stream;
  * An in-memory implementation of {@link ReportNode}.
  *
  * <p>Being an implementation of {@link ReportNode}, instances of <code>ReportNodeImpl</code> are not thread-safe.
- * A <code>ReporterNode</code> is not meant to be shared with other threads.
+ * As such, a <code>ReportNodeImpl</code> is not meant to be shared with other threads.
  * Therefore, it should not be saved as a class parameter of an object which could be used by separate threads.
  * In those cases it should instead be passed on in methods through their arguments.
  *
@@ -50,7 +50,11 @@ public final class ReportNodeImpl implements ReportNode {
         return new ReportNodeImpl(msgKey, message, values, inheritedValuesDeque, rootContext, false);
     }
 
-    static ReportNodeImpl createRootReportNode(String msgKey, String message, Map<String, TypedValue> values, RootContext rootContext) {
+    static ReportNodeImpl createRootReportNode(String msgKey, String message, Map<String, TypedValue> values) {
+        return createRootReportNode(msgKey, message, values, new RootContext());
+    }
+
+    private static ReportNodeImpl createRootReportNode(String msgKey, String message, Map<String, TypedValue> values, RootContext rootContext) {
         return new ReportNodeImpl(msgKey, message, values, Collections.emptyList(), rootContext, true);
     }
 
@@ -59,12 +63,12 @@ public final class ReportNodeImpl implements ReportNode {
      *
      * @param key                 the key identifying the corresponding task
      * @param messageTemplate     functional log, which may contain references to the given value or to values of any
-     *                            <code>ReporterNode</code> ancestor of the created <code>ReporterNode</code>, using the
+     *                            {@link ReportNode} ancestor of the created {@link ReportNode}, using the
      *                            <code>${key}</code> syntax
      * @param values              a map of {@link TypedValue} indexed by their key, which may be referred to within the messageTemplate
-     *                            or within any descendants of the created <code>ReporterNode</code>.
+     *                            or within any descendants of the created {@link ReportNode}.
      *                            Be aware that any value in this map might, in all descendants, override a value of one of
-     *                            <code>ReporterNode</code> ancestors.
+     *                            {@link ReportNode} ancestors.
      * @param inheritedValuesMaps a {@link Collection} of inherited values maps
      * @param rootContext         the {@link RootContext} of the root of corresponding report tree
      */

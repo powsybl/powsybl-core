@@ -16,9 +16,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * A <code>ReporterNode</code> allows building up functional reports with a tree hierarchy.
+ * A <code>ReportNode</code> allows building up functional reports with a tree hierarchy.
  *
- * <p>Each <code>ReporterNode</code> is defined by
+ * <p>Each <code>ReportNode</code> is defined by
  * <ul>
  *     <li>a {@link String} key identifying the <strong>unique</strong> corresponding functional report; this key is
  *     used to build a dictionary of all the message templates,</li>
@@ -31,20 +31,20 @@ import java.util.*;
  * in order to be later replaced by {@link org.apache.commons.text.StringSubstitutor} for instance when formatting
  * the string for the end user.
  *
- * <p>Instances of <code>ReporterNode</code> are not thread-safe.
- * When a new thread is created, a new <code>ReporterNode</code> should be provided to the process in that thread.
- * A <code>ReporterNode</code> is not meant to be shared with other threads.
+ * <p>Instances of <code>ReportNode</code> are not thread-safe.
+ * When a new thread is created, a new <code>ReportNode</code> should be provided to the process in that thread.
+ * A <code>ReportNode</code> is not meant to be shared with other threads.
  * Therefore, it should not be saved as a class parameter of an object which could be used by separate threads.
  * In those cases it should instead be passed on in methods through their arguments.
  *
- * <p>The <code>ReporterNode</code> is designed for multilingual support. Indeed, each {@link ReportNode} message can be translated based on their key and using the value keys in the desired order.
+ * <p>The <code>ReportNode</code> is designed for multilingual support. Indeed, each <code>ReportNode</code> message can be translated based on their key and using the value keys in the desired order.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public interface ReportNode extends Report {
 
     /**
-     * A No-op implementation of <code>ReporterNode</code>
+     * A No-op implementation of <code>ReportNode</code>
      */
     ReportNode NO_OP = new ReportNodeNoOp();
 
@@ -63,9 +63,9 @@ public interface ReportNode extends Report {
     Collection<ReportNode> getChildren();
 
     /**
-     * Create a new adder to create a <code>ReporterNode</code> child.
+     * Create a new adder to create a <code>ReportNode</code> child.
      *
-     * @return the created <code>ReporterNodeAdder</code>
+     * @return the created <code>ReportNodeAdder</code>
      */
     ReportNodeAdder newReportNode();
 

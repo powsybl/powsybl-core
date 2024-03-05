@@ -16,7 +16,7 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
 
     @Override
     public ReportNode build() {
-        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, new RootContext());
+        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values);
     }
 
     @Override
