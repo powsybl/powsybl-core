@@ -16,7 +16,8 @@ import com.powsybl.iidm.network.util.LimitViolationUtils;
 import java.util.Optional;
 
 /**
- * Interface for classes responsible for computing reduced limits.
+ * Interface for classes responsible for computing reduced limits of generic type {@link L}
+ * from a network element of generic type {@link P}.
  *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
@@ -27,9 +28,8 @@ public interface ReducedLimitsComputer<P, L> {
     ReducedLimitsComputer<Identifiable<?>, LoadingLimits> NO_REDUCTIONS = new ReducedLimitsComputer.NoReductionsImpl();
 
     /**
-     * <p>Retrieve the limits of <code>processable</code> corresponding to the given limits type and side
-     * (using <code>originalLimitsGetter</code>), then apply
-     * on them the reductions configured in the current {@link ReducedLimitsComputer}.</p>
+     * <p>Retrieve the limits of <code>processable</code> corresponding to the given limits type and side,
+     * then apply on them the reductions configured in the current {@link ReducedLimitsComputer}.</p>
      * <p>The result of this method contains both originals and altered limits.</p>
      *
      * @param processable The network element for which the reduced limits must be computed
@@ -38,27 +38,6 @@ public interface ReducedLimitsComputer<P, L> {
      * @return an object containing the original limits and the altered ones
      */
     Optional<LimitsContainer<L>> getLimitsWithAppliedReduction(P processable, LimitType limitType, ThreeSides side);
-
-    //TODO To remove
-    /**
-     * <p>Interface for objects processable by a {@link ReducedLimitsComputer}.</p>
-     * <p>Each class implementing this interface must have a corresponding {@link OriginalLimitsGetter} class allowing
-     * to obtain limits.</p>
-     */
-    interface Processable {
-        String getId();
-    }
-
-    /**
-     * Interface for objects allowing to retrieve limits (of generic type <code>L</code>) from an object
-     * manageable by the {@link ReducedLimitsComputer} (of generic type <code>H</code>).
-     *
-     * @param <P> Generic type for the network element for which we want to retrieve the limits
-     * @param <L> Generic type for the limits to retrieve
-     */
-    interface OriginalLimitsGetter<P, L> {
-        Optional<L> getLimits(P e, LimitType limitType, ThreeSides side);
-    }
 
     /**
      * An implementation of {@link ReducedLimitsComputer} only retrieving the limits without applying reductions.

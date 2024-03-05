@@ -66,7 +66,7 @@ public abstract class AbstractContingencyWiseReducedLimitsComputer<P, L> extends
     }
 
     /**
-     * Return an {@link com.powsybl.security.limitreduction.ReducedLimitsComputer.OriginalLimitsGetter} allowing to retrieve
+     * Return an {@link OriginalLimitsGetter} allowing to retrieve
      * {@link L} from a network element of type {@link P}.
      * @return an original limits getter
      */
@@ -163,9 +163,13 @@ public abstract class AbstractContingencyWiseReducedLimitsComputer<P, L> extends
     }
 
     /**
-     * Interface for objects processable by the {@link AbstractContingencyWiseReducedLimitsComputer} implementation.
+     * Interface for objects allowing to retrieve limits (of generic type {@link L}) from an object
+     * manageable by the {@link ReducedLimitsComputer} (of generic type {@link P}).
+     *
+     * @param <P> Generic type for the network element for which we want to retrieve the limits
+     * @param <L> Generic type for the limits to retrieve
      */
-    public interface ProcessableNetworkElement extends Processable, NetworkElement {
-        //TODO To remove
+    protected interface OriginalLimitsGetter<P, L> {
+        Optional<L> getLimits(P e, LimitType limitType, ThreeSides side);
     }
 }

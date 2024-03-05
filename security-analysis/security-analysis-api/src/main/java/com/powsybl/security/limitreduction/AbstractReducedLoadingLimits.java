@@ -44,7 +44,7 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
         }
     }
 
-    public AbstractReducedLoadingLimits(double permanentLimit) {
+    protected AbstractReducedLoadingLimits(double permanentLimit) {
         this.permanentLimit = permanentLimit;
     }
 
