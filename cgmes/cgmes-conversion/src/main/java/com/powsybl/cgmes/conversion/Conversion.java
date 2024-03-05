@@ -194,7 +194,8 @@ public class Conversion {
         convert(cgmes.staticVarCompensators(), convf);
         convf = asm -> new AsynchronousMachineConversion(asm, context);
         convert(cgmes.asynchronousMachines(), convf);
-        convert(cgmes.synchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
+        convert(cgmes.synchronousMachinesGenerators(), sm -> new SynchronousMachineConversion(sm, context));
+        convert(cgmes.synchronousMachinesCondensers(), sm -> new SynchronousMachineConversion(sm, context));
 
         // We will delay the conversion of some lines/switches that have an end at boundary
         // They have to be processed after all lines/switches have been reviewed
@@ -711,30 +712,36 @@ public class Conversion {
     private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
         EquipmentAtBoundaryConversion conversion1 = beq1.createConversion(context);
         EquipmentAtBoundaryConversion conversion2 = beq2.createConversion(context);
-        BoundaryLine boundaryLine1 = conversion1.asBoundaryLine(node);
-        BoundaryLine boundaryLine2 = conversion2.asBoundaryLine(node);
-        if (boundaryLine1 != null && boundaryLine2 != null) {
+
+        conversion1.convertAtBoundary();
+        Optional<DanglingLine> dl1 = conversion1.getDanglingLine();
+        conversion2.convertAtBoundary();
+        Optional<DanglingLine> dl2 = conversion2.getDanglingLine();
+
+        if (dl1.isPresent() && dl2.isPresent()) {
             // there can be several dangling lines linked to same x-node in one IGM for planning purposes
             // in this case, we don't merge them
             // please note that only one of them should be connected
-            String regionName1 = context.network().getVoltageLevel(boundaryLine1.getModelIidmVoltageLevelId()).getSubstation()
-                    .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
-                    .orElse(null);
-            String regionName2 = context.network().getVoltageLevel(boundaryLine2.getModelIidmVoltageLevelId()).getSubstation()
-                    .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
-                    .orElse(null);
-            if (regionName1 != null && regionName1.equals(regionName2)) {
-                context.ignored(node, "Both dangling lines are in the same region: we do not consider them as a merged line");
-                conversion1.convertAtBoundary();
-                conversion2.convertAtBoundary();
-            } else if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
-                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
+            String regionName1 = obtainRegionName(dl1.get().getTerminal().getVoltageLevel());
+            String regionName2 = obtainRegionName(dl2.get().getTerminal().getVoltageLevel());
+
+            String pairingKey1 = dl1.get().getPairingKey();
+            String pairingKey2 = dl2.get().getPairingKey();
+
+            if (!(pairingKey1 != null && pairingKey1.equals(pairingKey2))) {
+                context.ignored(node, "Both dangling lines do not have the same pairingKey: we do not consider them as a merged line");
+            } else if (regionName1 != null && regionName1.equals(regionName2)) {
+                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
+            } else if (dl2.get().getId().compareTo(dl1.get().getId()) >= 0) {
+                ACLineSegmentConversion.convertToTieLine(context, dl1.get(), dl2.get());
             } else {
-                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine2, boundaryLine1);
+                ACLineSegmentConversion.convertToTieLine(context, dl2.get(), dl1.get());
             }
-        } else {
-            context.invalid(node, "Unexpected boundaryLine");
         }
+    }
+
+    private static String obtainRegionName(VoltageLevel voltageLevel) {
+        return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
     }
 
     private void voltageAngles(PropertyBags nodes, Context context) {
