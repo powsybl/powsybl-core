@@ -21,6 +21,7 @@ public final class UcteValidation {
     public static final double DU_LIMIT = 6;
     public static final double THETA_ABS_LIMIT = 180;
     public static final double N_LIMIT = 35;
+    public static final String LINE_ID_KEY = "lineId";
 
     private UcteValidation() {
     }
@@ -36,7 +37,7 @@ public final class UcteValidation {
                 if (line.getResistance() < ZERO_EPS) {
                     reportNode.newReportNode()
                         .withMessageTemplate("negativeLineResistance", "${lineId} - Real line resistance cannot be negative (${resistance} ohm)")
-                        .withUntypedValue("lineId", lineId)
+                        .withUntypedValue(LINE_ID_KEY, lineId)
                         .withTypedValue("resistance", line.getResistance(), TypedValue.RESISTANCE)
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .add();
@@ -45,7 +46,7 @@ public final class UcteValidation {
                 if (Math.abs(line.getReactance()) < REACTANCE_EPS) {
                     reportNode.newReportNode()
                         .withMessageTemplate("epsilonLineReactance", "${lineId} - Real line reactance must be larger than 0.05 ohm (${reactance} ohm)")
-                        .withUntypedValue("lineId", lineId)
+                        .withUntypedValue(LINE_ID_KEY, lineId)
                         .withTypedValue("reactance", line.getReactance(), TypedValue.REACTANCE)
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
@@ -58,7 +59,7 @@ public final class UcteValidation {
                 if (Math.abs(line.getResistance()) > ZERO_EPS) {
                     reportNode.newReportNode()
                         .withMessageTemplate("nonZeroBusbarCouplerResistance", "${lineId} - Busbar coupler resistance must be zero (${resistance} ohm)")
-                        .withUntypedValue("lineId", lineId)
+                        .withUntypedValue(LINE_ID_KEY, lineId)
                         .withTypedValue("resistance", line.getResistance(), TypedValue.RESISTANCE)
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
@@ -67,7 +68,7 @@ public final class UcteValidation {
                 if (Math.abs(line.getReactance()) > ZERO_EPS) {
                     reportNode.newReportNode()
                         .withMessageTemplate("nonZeroBusbarCouplerReactance", "${lineId} - Busbar coupler reactance must be zero (${reactance} ohm)")
-                        .withUntypedValue("lineId", lineId)
+                        .withUntypedValue(LINE_ID_KEY, lineId)
                         .withTypedValue("reactance", line.getReactance(), TypedValue.REACTANCE)
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
@@ -76,7 +77,7 @@ public final class UcteValidation {
                 if (Math.abs(line.getSusceptance()) > ZERO_EPS) {
                     reportNode.newReportNode()
                         .withMessageTemplate("nonZeroBusbarCouplerSusceptance", "${lineId} - Busbar coupler susceptance must be zero (${susceptance} ohm)")
-                        .withUntypedValue("lineId", lineId)
+                        .withUntypedValue(LINE_ID_KEY, lineId)
                         .withTypedValue("susceptance", line.getSusceptance(), TypedValue.SUSCEPTANCE)
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
