@@ -33,6 +33,8 @@ import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.SecurityAnalysisInputBuildStrategy;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
+import com.powsybl.security.json.limitsreduction.LimitReductionDefinitionListSerDeUtil;
+import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
@@ -302,6 +304,7 @@ public class SecurityAnalysisTool implements Tool {
         options.getPath(MONITORING_FILE).ifPresent(monitorFilePath -> executionInput.setMonitors(StateMonitor.read(monitorFilePath)));
         options.getPath(STRATEGIES_FILE).ifPresent(operatorStrategyFilePath -> executionInput.setOperatorStrategies(OperatorStrategyList.read(operatorStrategyFilePath).getOperatorStrategies()));
         options.getPath(ACTIONS_FILE).ifPresent(actionFilePath -> executionInput.setActions(ActionList.readJsonFile(actionFilePath).getActions()));
+        options.getPath(LIMIT_REDUCTION_DEFINITIONS_FILE).ifPresent(limitReductionDefinitionsFilePath -> executionInput.setLimitDefinitionReductions(LimitReductionDefinitionListSerDeUtil.read(limitReductionDefinitionsFilePath).getLimitReductionDefinitions()));
 
         updateInput(options, executionInput);
 

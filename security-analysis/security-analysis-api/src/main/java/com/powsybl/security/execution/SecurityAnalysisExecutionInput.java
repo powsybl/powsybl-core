@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.action.Action;
+import com.powsybl.security.limitreduction.LimitReductionDefinition;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
 
@@ -43,6 +44,7 @@ public class SecurityAnalysisExecutionInput {
     private final List<OperatorStrategy> operatorStrategies = new ArrayList<>();
     private final List<Action> actions = new ArrayList<>();
     private final List<StateMonitor> monitors = new ArrayList<>();
+    private final List<LimitReductionDefinition> limitReductionDefinitions = new ArrayList<>();
 
     public Optional<ByteSource> getContingenciesSource() {
         return Optional.ofNullable(contingenciesSource);
@@ -74,6 +76,10 @@ public class SecurityAnalysisExecutionInput {
 
     public List<StateMonitor> getMonitors() {
         return Collections.unmodifiableList(monitors);
+    }
+
+    public List<LimitReductionDefinition> getLimitReductionDefinitions() {
+        return Collections.unmodifiableList(limitReductionDefinitions);
     }
 
     public boolean isWithLogs() {
@@ -143,6 +149,13 @@ public class SecurityAnalysisExecutionInput {
         Objects.requireNonNull(monitors);
         this.monitors.clear();
         this.monitors.addAll(monitors);
+        return this;
+    }
+
+    public SecurityAnalysisExecutionInput setLimitDefinitionReductions(List<LimitReductionDefinition> limitReductionDefinitions) {
+        Objects.requireNonNull(limitReductionDefinitions);
+        this.limitReductionDefinitions.clear();
+        this.limitReductionDefinitions.addAll(limitReductionDefinitions);
         return this;
     }
 
