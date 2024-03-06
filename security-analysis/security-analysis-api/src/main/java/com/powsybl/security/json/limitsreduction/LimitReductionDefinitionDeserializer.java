@@ -29,7 +29,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
     }
 
     private static class ParsingContext {
-        double limitReduction;
+        float limitReduction;
         LimitType limitType;
         List<NetworkElementCriterion> networkElementCriteria;
         List<LimitDurationCriterion> durationCriteria;
@@ -42,7 +42,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
             switch (fieldName) {
                 case "limitReduction" -> {
                     parser.nextToken();
-                    context.limitReduction = parser.getValueAsDouble();
+                    context.limitReduction = parser.readValueAs(Float.class);
                     return true;
                 }
                 case "limitType" -> {

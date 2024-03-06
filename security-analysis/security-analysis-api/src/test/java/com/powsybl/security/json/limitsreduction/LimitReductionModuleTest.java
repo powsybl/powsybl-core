@@ -31,7 +31,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT)
-                .setLimitReduction(0.9)
+                .setLimitReduction(0.9f)
                 .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
                         new LineCriterion().setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
                                 new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false))),
@@ -40,14 +40,14 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                 .setContingencyContexts(ContingencyContext.specificContingency("contingency1"), ContingencyContext.none())
                 .setDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
         LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.APPARENT_POWER)
-                .setLimitReduction(0.5)
+                .setLimitReduction(0.5f)
                 .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
                 .setDurationCriteria(IntervalTemporaryDurationCriterion.builder()
                         .setLowBound(10 * 60, true)
                         .setHighBound(20 * 60, true)
                         .build());
         LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER)
-                .setLimitReduction(0.8);
+                .setLimitReduction(0.8f);
         LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
                 .setLimitReductionDefinitions(List.of(definition1, definition2, definition3));
 

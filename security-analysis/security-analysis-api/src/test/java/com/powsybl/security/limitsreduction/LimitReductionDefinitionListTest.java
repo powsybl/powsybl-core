@@ -46,13 +46,13 @@ class LimitReductionDefinitionListTest {
 
         contingencyContext1 = ContingencyContext.specificContingency("contingency1");
         definition1 = new LimitReductionDefinition(LimitType.CURRENT)
-                .setLimitReduction(0.9)
+                .setLimitReduction(0.9f)
                 .setNetworkElementCriteria(networkElementCriterion1, networkElementCriterion2,
                         networkElementCriterion3, networkElementCriterion4)
                 .setContingencyContexts(contingencyContext1, ContingencyContext.none())
                 .setDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
         definition2 = new LimitReductionDefinition(LimitType.ACTIVE_POWER)
-                .setLimitReduction(0.8);
+                .setLimitReduction(0.8f);
     }
 
     @Test
@@ -70,8 +70,8 @@ class LimitReductionDefinitionListTest {
 
     @Test
     void limitReductionDefinitionGetValue() {
-        assertEquals(0.9, definition1.getLimitReduction(), 0.001);
-        assertEquals(0.8, definition2.getLimitReduction(), 0.001);
+        assertEquals(0.9f, definition1.getLimitReduction());
+        assertEquals(0.8f, definition2.getLimitReduction());
     }
 
     @Test
@@ -107,10 +107,10 @@ class LimitReductionDefinitionListTest {
         String expectedMessage = "Limit reduction value should be in [0;1]";
         LimitReductionDefinition definition = new LimitReductionDefinition(LimitType.CURRENT);
 
-        Exception e = assertThrows(PowsyblException.class, () -> definition.setLimitReduction(-0.5));
+        Exception e = assertThrows(PowsyblException.class, () -> definition.setLimitReduction(-0.5f));
         assertEquals(expectedMessage, e.getMessage());
 
-        e = assertThrows(PowsyblException.class, () -> definition.setLimitReduction(1.3));
+        e = assertThrows(PowsyblException.class, () -> definition.setLimitReduction(1.3f));
         assertEquals(expectedMessage, e.getMessage());
     }
 }

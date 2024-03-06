@@ -26,7 +26,7 @@ public class LimitReductionDefinitionList {
     private List<LimitReductionDefinition> limitReductionDefinitions = Collections.emptyList();
 
     public static class LimitReductionDefinition {
-        private double limitReduction = 1d;
+        private float limitReduction = 1f;
         private final LimitType limitType;
         private List<ContingencyContext> contingencyContexts = Collections.emptyList();
         private List<NetworkElementCriterion> networkElementCriteria = Collections.emptyList();
@@ -50,11 +50,11 @@ public class LimitReductionDefinitionList {
             return limitType;
         }
 
-        public double getLimitReduction() {
+        public float getLimitReduction() {
             return limitReduction;
         }
 
-        public LimitReductionDefinition setLimitReduction(double limitReduction) {
+        public LimitReductionDefinition setLimitReduction(float limitReduction) {
             if (limitReduction > 1. || limitReduction < 0.) {
                 throw new PowsyblException("Limit reduction value should be in [0;1]");
             }
