@@ -12,29 +12,15 @@ package com.powsybl.security.limitreduction;
  * <p>It contains the original and the altered limits. When no reductions apply, both fields contains the same object.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class LimitsContainer<L> {
-    private final L reducedLimits;
-    private final L originalLimits;
+public interface LimitsContainer<L> {
 
-    public LimitsContainer(L reducedLimits, L originalLimits) {
-        this.reducedLimits = reducedLimits;
-        this.originalLimits = originalLimits;
-    }
+    L getLimits();
 
-    public L getReducedLimits() {
-        return reducedLimits;
-    }
-
-    public L getOriginalLimits() {
-        return originalLimits;
-    }
+    L getOriginalLimits();
 
     /**
-     * <p>Indicate if the reduced limits are the same as the original ones.</p>
-     * @return <code>true</code> if the 2 objects containing the original and the reduced limits are the same,
-     * <code>false</code> otherwise.
+     * <p>Indicate if the limits are the same as the original ones.</p>
+     * @return <code>true</code> if the limits are the same as the original.
      */
-    public boolean isReducedSameAsOriginal() {
-        return originalLimits == reducedLimits;
-    }
+    boolean isSameAsOriginal();
 }

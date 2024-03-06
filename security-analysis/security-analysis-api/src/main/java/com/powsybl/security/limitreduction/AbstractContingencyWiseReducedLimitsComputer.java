@@ -50,7 +50,7 @@ public abstract class AbstractContingencyWiseReducedLimitsComputer<P, L> extends
         Optional<L> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
         if (definitionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
-            return originalLimits.map(l -> new LimitsContainer<>(l, l));
+            return originalLimits.map(UnalteredLimitsContainer::new);
         }
 
         AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator = Objects.requireNonNull(getLimitsReducerCreator());
@@ -58,9 +58,8 @@ public abstract class AbstractContingencyWiseReducedLimitsComputer<P, L> extends
         AbstractLimitsReducer<L> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
         updateLimitReducer(limitsReducer, networkElement, limitType);
 
-        L reducedLimits = limitsReducer.getReducedLimits();
+        LimitsContainer<L> limitsContainer = limitsReducer.getReducedLimits();
         // Cache the value to avoid recomputing it
-        LimitsContainer<L> limitsContainer = new LimitsContainer<>(reducedLimits, originalLimits.get());
         putInCache(processable, limitType, side, limitsContainer);
         return Optional.of(limitsContainer);
     }
@@ -78,6 +77,12 @@ public abstract class AbstractContingencyWiseReducedLimitsComputer<P, L> extends
      */
     protected abstract AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> getLimitsReducerCreator();
 
+    /**
+     * <p>Return a {@link NetworkElement} representation of <code>processable</code>
+     * (itself if it already is a {@link NetworkElement} or an adapter).</p>
+     * @param processable the object which limits should be computed.
+     * @return a {@link NetworkElement} representation of <code>processable</code>
+     */
     protected abstract NetworkElement asNetworkElement(P processable);
 
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement networkElement, LimitType limitType) {

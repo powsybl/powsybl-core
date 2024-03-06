@@ -18,18 +18,18 @@ import java.util.stream.IntStream;
  */
 public abstract class AbstractLimitsReducer<L> {
     private final L originalLimits;
-    private double permanentLimitReduction = 1.0;
-    private final Map<Integer, Double> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
+    private float permanentLimitReduction = 1.0f;
+    protected final Map<Integer, Float> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
 
     protected AbstractLimitsReducer(L originalLimits) {
         this.originalLimits = originalLimits;
     }
 
     /**
-     * <p>Generate the reduced limits (of generic type {@link L}) from the original limits and reductions stored in this object.</p>
+     * <p>Generate the reduced limits from the original limits and reductions stored in this object.</p>
      * @return the reduced limits
      */
-    protected abstract L generateReducedLimits();
+    protected abstract LimitsContainer<L> generateReducedLimits();
 
     /**
      * <p>Return a stream of the temporary limits' acceptable durations.</p>
@@ -37,12 +37,12 @@ public abstract class AbstractLimitsReducer<L> {
      */
     protected abstract IntStream getTemporaryLimitsAcceptableDurationStream();
 
-    protected L getReducedLimits() {
-        if (permanentLimitReduction == 1.0
+    protected LimitsContainer<L> getReducedLimits() {
+        if (permanentLimitReduction == 1.0f
                 && (temporaryLimitReductionByAcceptableDuration.isEmpty()
-                    || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0))) {
+                    || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0f))) {
             // No reductions are applicable
-            return getOriginalLimits();
+            return new UnalteredLimitsContainer<>(getOriginalLimits());
         }
         return generateReducedLimits();
     }
@@ -51,23 +51,23 @@ public abstract class AbstractLimitsReducer<L> {
         return originalLimits;
     }
 
-    void setPermanentLimitReduction(double permanentLimitReduction) {
+    void setPermanentLimitReduction(float permanentLimitReduction) {
         this.permanentLimitReduction = permanentLimitReduction;
     }
 
-    public double getPermanentLimitReduction() {
+    public float getPermanentLimitReduction() {
         return permanentLimitReduction;
     }
 
-    void setTemporaryLimitReduction(int acceptableDuration, double limitReduction) {
+    void setTemporaryLimitReduction(int acceptableDuration, float limitReduction) {
         temporaryLimitReductionByAcceptableDuration.put(acceptableDuration, limitReduction);
     }
 
-    public double getTemporaryLimitReduction(int acceptableDuration) {
-        return temporaryLimitReductionByAcceptableDuration.getOrDefault(acceptableDuration, 1.);
+    public float getTemporaryLimitReduction(int acceptableDuration) {
+        return temporaryLimitReductionByAcceptableDuration.getOrDefault(acceptableDuration, 1.f);
     }
 
-    protected static double applyReduction(double value, double reduction) {
+    protected static double applyReduction(double value, float reduction) {
         return value == Double.MAX_VALUE ? Double.MAX_VALUE : value * reduction;
     }
 }

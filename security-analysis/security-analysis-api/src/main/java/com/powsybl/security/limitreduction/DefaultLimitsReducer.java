@@ -26,7 +26,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
     }
 
     @Override
-    protected LoadingLimits generateReducedLimits() {
+    protected LimitsContainer<LoadingLimits> generateReducedLimits() {
         LoadingLimits originalLimits = getOriginalLimits();
         double reducedPermanentLimit = applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction());
         AbstractReducedLoadingLimits reducedLoadingLimits = initReducedLoadingLimits(originalLimits.getLimitType(), reducedPermanentLimit,
@@ -39,7 +39,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
                 .sorted(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration)).toList();
         double previousRetainedReducedValue = Double.NaN;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order of the durations
-            double reduction = getTemporaryLimitReduction(tl.getAcceptableDuration());
+            float reduction = getTemporaryLimitReduction(tl.getAcceptableDuration());
             double tlReducedValue = applyReduction(tl.getValue(), reduction);
             if (Double.isNaN(previousRetainedReducedValue) || tlReducedValue < previousRetainedReducedValue) {
                 previousRetainedReducedValue = tlReducedValue;
@@ -47,7 +47,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
                         tl.isFictitious(), tl.getValue(), reduction);
             }
         }
-        return reducedLoadingLimits;
+        return new DefaultReducedLimitsContainer(reducedLoadingLimits, originalLimits);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
 
     private AbstractReducedLoadingLimits initReducedLoadingLimits(LimitType type, double permanentLimit,
                                                                   double originalPermanentLimit,
-                                                                  double reductionAppliedOnPermanentLimit) {
+                                                                  float reductionAppliedOnPermanentLimit) {
         return switch (type) {
             case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
             case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);

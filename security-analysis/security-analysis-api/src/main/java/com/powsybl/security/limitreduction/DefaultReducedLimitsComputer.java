@@ -20,7 +20,7 @@ import java.util.Map;
  * Implementation of {@link AbstractContingencyWiseReducedLimitsComputer} working with {@link com.powsybl.iidm.network.Identifiable}.
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DefaultReducedLimitsComputerImpl extends AbstractContingencyWiseReducedLimitsComputer<Identifiable<?>, LoadingLimits> {
+public class DefaultReducedLimitsComputer extends AbstractContingencyWiseReducedLimitsComputer<Identifiable<?>, LoadingLimits> {
 
     private final Map<Identifiable<?>, DefaultNetworkElementAdapter> networkElementAdapterCache = new HashMap<>();
 
@@ -30,7 +30,7 @@ public class DefaultReducedLimitsComputerImpl extends AbstractContingencyWiseRed
      *
      * @param limitReductionDefinitionList the list of the reduction definitions to use when computing reduced limits.
      */
-    public DefaultReducedLimitsComputerImpl(LimitReductionDefinitionList limitReductionDefinitionList) {
+    public DefaultReducedLimitsComputer(LimitReductionDefinitionList limitReductionDefinitionList) {
         super(limitReductionDefinitionList);
     }
 

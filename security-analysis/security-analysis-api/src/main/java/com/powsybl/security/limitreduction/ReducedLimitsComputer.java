@@ -46,7 +46,7 @@ public interface ReducedLimitsComputer<P, L> {
         @Override
         public Optional<LimitsContainer<LoadingLimits>> getLimitsWithAppliedReduction(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
             Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
-            return limits.map(l -> new LimitsContainer<>(l, l));
+            return limits.map(UnalteredLimitsContainer::new);
         }
 
         @Override

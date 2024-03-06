@@ -28,15 +28,15 @@ class NoReductionsImplTest {
 
         Optional<LimitsContainer<LoadingLimits>> optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE);
         assertTrue(optLimits.isPresent());
-        assertEquals(500, optLimits.get().getReducedLimits().getPermanentLimit(), 0.01);
+        assertEquals(500, optLimits.get().getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
-        assertTrue(optLimits.get().isReducedSameAsOriginal());
+        assertTrue(optLimits.get().isSameAsOriginal());
 
         optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO);
         assertTrue(optLimits.isPresent());
-        checkLimitsOnSide2(optLimits.get().getReducedLimits());
+        checkLimitsOnSide2(optLimits.get().getLimits());
         checkLimitsOnSide2(optLimits.get().getOriginalLimits());
-        assertTrue(optLimits.get().isReducedSameAsOriginal());
+        assertTrue(optLimits.get().isSameAsOriginal());
     }
 
     private void checkLimitsOnSide2(LoadingLimits limits) {
