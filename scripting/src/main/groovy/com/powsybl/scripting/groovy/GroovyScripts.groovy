@@ -55,8 +55,8 @@ class GroovyScripts {
         conf.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class))
 
         // Computation manager
-        DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load();
-        binding.computationManager = config.createShortTimeExecutionComputationManager();
+        DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load()
+        binding.computationManager = config.createShortTimeExecutionComputationManager()
 
         if (out != null) {
             binding.out = out

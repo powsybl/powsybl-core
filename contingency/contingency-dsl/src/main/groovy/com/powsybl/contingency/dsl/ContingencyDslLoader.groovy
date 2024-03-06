@@ -53,7 +53,7 @@ class ContingencyDslLoader extends DslLoader {
             def cloned = closure.clone()
             ContingencySpec contingencySpec = new ContingencySpec()
 
-            List<Extension<Contingency>> extensionList = new ArrayList<>();
+            List<Extension<Contingency>> extensionList = new ArrayList<>()
             for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class, ContingencyDslLoader.class.getClassLoader())) {
                 dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
             }

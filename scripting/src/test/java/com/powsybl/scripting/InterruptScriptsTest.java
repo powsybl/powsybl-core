@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.opentest4j.AssertionFailedError;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -36,7 +35,6 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -70,14 +68,7 @@ class InterruptScriptsTest extends AbstractTaskInterruptionTest {
         }
     }
 
-    private void assertMatches(String expected, String actual) {
-        //The empty string is matched exactly, other strings as regexs
-        if (!actual.equals(expected) && ("".equals(expected) || !Pattern.compile(expected).matcher(actual).find())) {
-            throw new AssertionFailedError("", expected, actual);
-        }
-    }
-
-    protected int runCommand(String[] args) throws IOException {
+    protected int runCommand(String[] args) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ByteArrayOutputStream berr = new ByteArrayOutputStream();
         int status;
