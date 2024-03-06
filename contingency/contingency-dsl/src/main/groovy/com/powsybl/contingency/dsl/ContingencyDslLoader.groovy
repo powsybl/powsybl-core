@@ -137,10 +137,12 @@ class ContingencyDslLoader extends DslLoader {
             // set base network
             binding.setVariable("network", network)
 
-            def shell = createShell(binding, imports)
-
             // Check for thread interruption right before beginning the evaluation
-            if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Execution Interrupted")
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedException("Execution Interrupted")
+            }
+
+            def shell = createShell(binding, imports)
 
             shell.evaluate(dslSrc)
 

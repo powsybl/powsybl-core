@@ -6,10 +6,11 @@
  */
 package com.powsybl.scripting;
 
-import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.test.AbstractToolTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -17,6 +18,7 @@ import java.util.Collections;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
+@Order(1)
 class RunScriptToolTest extends AbstractToolTest {
 
     private RunScriptTool tool;
