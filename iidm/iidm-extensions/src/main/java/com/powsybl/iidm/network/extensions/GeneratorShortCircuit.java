@@ -23,12 +23,12 @@ public interface GeneratorShortCircuit extends Extension<Generator> {
     }
 
     /**
-     * Get the direct-axis subtransient reactance (also known as X''d)
+     * Get the direct-axis sub-transient reactance (also known as X''d)
      */
     double getDirectSubtransX();
 
     /**
-     * Set the direct-axis subtransient reactance (also known as X''d)
+     * Set the direct-axis sub-transient reactance (also known as X''d)
      */
     GeneratorShortCircuit setDirectSubtransX(double directSubtransX);
 
