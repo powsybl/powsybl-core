@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-powerfactory</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.2.2</version>
+        <version>6.2.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-powerfactory-dgs</artifactId>
