@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -50,5 +51,30 @@ public class VoltageRegulationTest {
         network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(50.0, voltageRegulation.getTargetV(), 0);
         assertTrue(voltageRegulation.isVoltageRegulatorOn());
+    }
+
+    @Test
+    void testVoltageRegulationExtensionCreationException() {
+
+        Network network = BatteryNetworkFactory.create();
+        Battery bat = network.getBattery("BAT");
+        assertNotNull(bat);
+
+        VoltageRegulationAdder<?> adder = bat.newExtension(VoltageRegulationAdder.class)
+            .withRegulatingTerminal(bat.getTerminal())
+            .withTargetV(50.0);
+
+        PowsyblException e = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Voltage regulator status is not defined", e.getMessage());
+
+        Network network1 = BatteryNetworkFactory.create();
+
+        VoltageRegulationAdder<?> adder1 = bat.newExtension(VoltageRegulationAdder.class)
+            .withRegulatingTerminal(network1.getBattery("BAT").getTerminal())
+            .withVoltageRegulatorOn(true)
+            .withTargetV(50.0);
+
+        PowsyblException e1 = assertThrows(PowsyblException.class, adder1::add);
+        assertEquals("regulating terminal is not part of the same network", e1.getMessage());
     }
 }
