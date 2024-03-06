@@ -15,7 +15,8 @@ import com.powsybl.iidm.network.CurrentLimits;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class ReducedCurrentLimits extends AbstractReducedLoadingLimits implements CurrentLimits {
-    public ReducedCurrentLimits(double permanentLimit) {
-        super(permanentLimit);
+    public ReducedCurrentLimits(double permanentLimit, double originalPermanentLimit,
+                                double reductionAppliedOnPermanentLimit) {
+        super(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
     }
 }

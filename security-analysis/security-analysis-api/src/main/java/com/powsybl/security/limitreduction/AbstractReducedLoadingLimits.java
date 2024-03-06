@@ -20,9 +20,12 @@ import java.util.TreeMap;
  */
 public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
     private final double permanentLimit;
+    private final double originalPermanentLimit;
+    private final double reductionAppliedOnPermanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>();
 
-    record ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious) implements TemporaryLimit {
+    record ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
+                                 double originalValue, double appliedReduction) implements TemporaryLimit {
         @Override
         public String getName() {
             return name();
@@ -42,19 +45,40 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
         public boolean isFictitious() {
             return fictitious();
         }
+
+        public double getOriginalValue() {
+            return originalValue();
+        }
+
+        public double getAppliedReduction() {
+            return appliedReduction();
+        }
     }
 
-    protected AbstractReducedLoadingLimits(double permanentLimit) {
+    protected AbstractReducedLoadingLimits(double permanentLimit, double originalPermanentLimit,
+                                           double reductionAppliedOnPermanentLimit) {
         this.permanentLimit = permanentLimit;
+        this.originalPermanentLimit = originalPermanentLimit;
+        this.reductionAppliedOnPermanentLimit = reductionAppliedOnPermanentLimit;
     }
 
-    public void addTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious) {
-        temporaryLimits.put(acceptableDuration, new ReducedTemporaryLimit(name, value, acceptableDuration, fictitious));
+    public void addTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
+                                  double originalValue, double reductionApplied) {
+        temporaryLimits.put(acceptableDuration, new ReducedTemporaryLimit(name, value, acceptableDuration, fictitious,
+                originalValue, reductionApplied));
     }
 
     @Override
     public double getPermanentLimit() {
         return permanentLimit;
+    }
+
+    public double getOriginalPermanentLimit() {
+        return originalPermanentLimit;
+    }
+
+    public double getReductionAppliedOnPermanentLimit() {
+        return reductionAppliedOnPermanentLimit;
     }
 
     @Override

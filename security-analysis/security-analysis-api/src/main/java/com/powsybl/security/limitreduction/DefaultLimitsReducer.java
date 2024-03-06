@@ -29,7 +29,8 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
     protected LoadingLimits generateReducedLimits() {
         LoadingLimits originalLimits = getOriginalLimits();
         double reducedPermanentLimit = applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction());
-        AbstractReducedLoadingLimits reducedLoadingLimits = initReducedLoadingLimits(originalLimits.getLimitType(), reducedPermanentLimit);
+        AbstractReducedLoadingLimits reducedLoadingLimits = initReducedLoadingLimits(originalLimits.getLimitType(), reducedPermanentLimit,
+                originalLimits.getPermanentLimit(), getPermanentLimitReduction());
 
         // Compute the temporary limits:
         // A temporary limit L1 should be ignored (not created) if there exists another temporary limit L2
@@ -38,10 +39,12 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
                 .sorted(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration)).toList();
         double previousRetainedReducedValue = Double.NaN;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order of the durations
-            double tlReducedValue = applyReduction(tl.getValue(), getTemporaryLimitReduction(tl.getAcceptableDuration()));
+            double reduction = getTemporaryLimitReduction(tl.getAcceptableDuration());
+            double tlReducedValue = applyReduction(tl.getValue(), reduction);
             if (Double.isNaN(previousRetainedReducedValue) || tlReducedValue < previousRetainedReducedValue) {
                 previousRetainedReducedValue = tlReducedValue;
-                reducedLoadingLimits.addTemporaryLimit(tl.getName(), tlReducedValue, tl.getAcceptableDuration(), tl.isFictitious());
+                reducedLoadingLimits.addTemporaryLimit(tl.getName(), tlReducedValue, tl.getAcceptableDuration(),
+                        tl.isFictitious(), tl.getValue(), reduction);
             }
         }
         return reducedLoadingLimits;
@@ -52,11 +55,13 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
         return getOriginalLimits().getTemporaryLimits().stream().mapToInt(LoadingLimits.TemporaryLimit::getAcceptableDuration);
     }
 
-    private AbstractReducedLoadingLimits initReducedLoadingLimits(LimitType type, double permanentLimit) {
+    private AbstractReducedLoadingLimits initReducedLoadingLimits(LimitType type, double permanentLimit,
+                                                                  double originalPermanentLimit,
+                                                                  double reductionAppliedOnPermanentLimit) {
         return switch (type) {
-            case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit);
-            case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit);
-            case CURRENT -> new ReducedCurrentLimits(permanentLimit);
+            case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
+            case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
+            case CURRENT -> new ReducedCurrentLimits(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
             default -> throw new IllegalArgumentException(
                     String.format("Unsupported limits type for reductions (%s)", type));
         };

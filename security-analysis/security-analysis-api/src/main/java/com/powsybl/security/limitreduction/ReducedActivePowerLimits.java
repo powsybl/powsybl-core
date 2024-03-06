@@ -15,7 +15,8 @@ import com.powsybl.iidm.network.ActivePowerLimits;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class ReducedActivePowerLimits extends AbstractReducedLoadingLimits implements ActivePowerLimits {
-    public ReducedActivePowerLimits(double permanentLimit) {
-        super(permanentLimit);
+    public ReducedActivePowerLimits(double permanentLimit, double originalPermanentLimit,
+                                    double reductionAppliedOnPermanentLimit) {
+        super(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
     }
 }

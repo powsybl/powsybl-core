@@ -22,7 +22,6 @@ import java.util.Map;
  */
 public class DefaultReducedLimitsComputerImpl extends AbstractContingencyWiseReducedLimitsComputer<Identifiable<?>, LoadingLimits> {
 
-    public static final AbstractLimitsReducerCreator<LoadingLimits, AbstractLimitsReducer<LoadingLimits>> LIMITS_REDUCER_CREATOR = (id, originalLimits) -> new DefaultLimitsReducer(originalLimits);
     private final Map<Identifiable<?>, DefaultNetworkElementAdapter> networkElementAdapterCache = new HashMap<>();
 
     /**
@@ -42,7 +41,7 @@ public class DefaultReducedLimitsComputerImpl extends AbstractContingencyWiseRed
 
     @Override
     protected AbstractLimitsReducerCreator<LoadingLimits, AbstractLimitsReducer<LoadingLimits>> getLimitsReducerCreator() {
-        return LIMITS_REDUCER_CREATOR;
+        return (id, originalLimits) -> new DefaultLimitsReducer(originalLimits);
     }
 
     @Override

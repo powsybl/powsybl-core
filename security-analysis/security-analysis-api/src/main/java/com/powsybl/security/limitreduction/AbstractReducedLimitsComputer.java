@@ -52,6 +52,16 @@ public abstract class AbstractReducedLimitsComputer<P, L> implements ReducedLimi
         return computeLimitsWithAppliedReduction(processable, limitType, side);
     }
 
+    /**
+     * <p>Retrieve the limits on <code>processable</code> then apply reductions on it.</p>
+     * <p>If no reductions applies on the resulting {@link LimitsContainer} must contains the same object for
+     * the original and the reduced limits.</p>
+     *
+     * @param processable the network element for which the limits must be retrieved and reduced
+     * @param limitType the type of limits to process
+     * @param side the side of the network element where to retrieve the original limits
+     * @return an object containing both the original and the reduced limits.
+     */
     protected abstract Optional<LimitsContainer<L>> computeLimitsWithAppliedReduction(P processable, LimitType limitType, ThreeSides side);
 
     protected void putInCache(P processable, LimitType limitType, ThreeSides side,
