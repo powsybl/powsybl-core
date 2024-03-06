@@ -48,8 +48,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                         .build());
         LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER)
                 .setLimitReduction(0.8f);
-        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
-                .setLimitReductionDefinitions(List.of(definition1, definition2, definition3));
+        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2, definition3));
 
         roundTripTest(definitionList, LimitReductionDefinitionListSerDeUtil::write,
                 LimitReductionDefinitionListSerDeUtil::read,

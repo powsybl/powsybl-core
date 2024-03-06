@@ -17,14 +17,17 @@ import com.powsybl.iidm.criteria.duration.*;
 import com.powsybl.iidm.criteria.json.*;
 import com.powsybl.iidm.criteria.json.duration.*;
 import com.powsybl.security.limitsreduction.LimitReductionDefinition;
+import com.powsybl.security.limitsreduction.LimitReductionDefinitionList;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class LimitReductionModule extends SimpleModule {
     public LimitReductionModule() {
+        addSerializer(LimitReductionDefinitionList.class, new LimitReductionDefinitionListSerializer());
         addSerializer(LimitReductionDefinition.class, new LimitReductionDefinitionSerializer());
         addSerializer(Criterion.class, new CriterionSerializer());
+        addDeserializer(LimitReductionDefinitionList.class, new LimitReductionDefinitionListDeserializer());
         addDeserializer(LimitReductionDefinition.class, new LimitReductionDefinitionDeserializer());
         addDeserializer(Criterion.class, new CriterionDeserializer());
 

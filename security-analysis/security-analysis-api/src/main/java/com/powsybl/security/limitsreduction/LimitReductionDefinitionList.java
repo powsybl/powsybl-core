@@ -7,7 +7,10 @@
  */
 package com.powsybl.security.limitsreduction;
 
-import java.util.*;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Contains the definitions of the applied limit reductions.
@@ -16,15 +19,14 @@ import java.util.*;
  */
 
 public class LimitReductionDefinitionList {
+    public static final String VERSION = "1.0";
+    private final List<LimitReductionDefinition> limitReductionDefinitions;
 
-    private List<LimitReductionDefinition> limitReductionDefinitions = Collections.emptyList();
-
-    public List<LimitReductionDefinition> getLimitReductionDefinitions() {
-        return Collections.unmodifiableList(limitReductionDefinitions);
+    public LimitReductionDefinitionList(List<LimitReductionDefinition> limitReductionDefinitions) {
+        this.limitReductionDefinitions = ImmutableList.copyOf(Objects.requireNonNull(limitReductionDefinitions));
     }
 
-    public LimitReductionDefinitionList setLimitReductionDefinitions(List<LimitReductionDefinition> definitions) {
-        limitReductionDefinitions = Objects.requireNonNull(definitions);
-        return this;
+    public List<LimitReductionDefinition> getLimitReductionDefinitions() {
+        return limitReductionDefinitions;
     }
 }

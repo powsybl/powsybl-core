@@ -56,8 +56,7 @@ class LimitReductionDefinitionListTest {
 
     @Test
     void limitReductionDefinitionListTest() {
-        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList()
-                .setLimitReductionDefinitions(List.of(definition1, definition2));
+        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2));
         assertEquals(List.of(definition1, definition2), definitionList.getLimitReductionDefinitions());
     }
 
