@@ -16,7 +16,7 @@ import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.security.limitsreduction.LimitReductionDefinitionList;
-import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
+import com.powsybl.security.limitsreduction.LimitReductionDefinition;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

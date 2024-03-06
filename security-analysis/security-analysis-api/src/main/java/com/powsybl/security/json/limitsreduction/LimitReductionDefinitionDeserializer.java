@@ -14,7 +14,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
-import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
+import com.powsybl.security.limitsreduction.LimitReductionDefinition;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 
 import java.io.IOException;

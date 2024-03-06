@@ -16,7 +16,7 @@ import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.criteria.duration.*;
 import com.powsybl.iidm.criteria.json.*;
 import com.powsybl.iidm.criteria.json.duration.*;
-import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
+import com.powsybl.security.limitsreduction.LimitReductionDefinition;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}

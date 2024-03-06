@@ -10,7 +10,7 @@ package com.powsybl.security.json.limitsreduction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.limitsreduction.LimitReductionDefinitionList.LimitReductionDefinition;
+import com.powsybl.security.limitsreduction.LimitReductionDefinition;
 
 import java.io.IOException;
 
