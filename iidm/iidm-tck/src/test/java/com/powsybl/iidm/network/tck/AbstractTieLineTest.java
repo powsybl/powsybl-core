@@ -87,6 +87,7 @@ public abstract class AbstractTieLineTest {
                 .setX(x2)
                 .setB(hl2b1 + hl2b2)
                 .setG(hl2g1 + hl2g2)
+                .setPairingKey("ucte")
                 .add();
 
         assertEquals(List.of(dl1, dl2), network.getDanglingLines(DanglingLineFilter.UNPAIRED));
@@ -455,6 +456,7 @@ public abstract class AbstractTieLineTest {
                 .setG(g)
                 .setP0(0)
                 .setQ0(0)
+                .setPairingKey(code)
                 .add();
         DanglingLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
