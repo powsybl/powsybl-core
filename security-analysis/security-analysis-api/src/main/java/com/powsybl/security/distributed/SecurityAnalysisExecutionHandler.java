@@ -16,7 +16,7 @@ import com.powsybl.security.action.ActionList;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
-import com.powsybl.security.json.limitsreduction.LimitReductionDefinitionListSerDeUtil;
+import com.powsybl.security.json.limitreduction.LimitReductionDefinitionListSerDeUtil;
 import com.powsybl.security.limitreduction.LimitReductionDefinition;
 import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
 import com.powsybl.security.monitor.StateMonitor;

@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.limitreduction.LimitReductionDefinition;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
 
@@ -40,6 +41,7 @@ public class DefaultSecurityAnalysisProvider implements SecurityAnalysisProvider
                                                          List<SecurityAnalysisInterceptor> interceptors,
                                                          List<OperatorStrategy> operatorStrategies,
                                                          List<Action> actions, List<StateMonitor> monitors,
+                                                         List<LimitReductionDefinition> limitReductionDefinitions,
                                                          Reporter reporter) {
         DefaultSecurityAnalysis securityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, reporter);
         interceptors.forEach(securityAnalysis::addInterceptor);
