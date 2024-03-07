@@ -10,11 +10,11 @@
 -->
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12"
-           xmlns:vr="http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_0"
-           targetNamespace="http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_0"
+           xmlns:iidm="http://www.powsybl.org/schema/iidm/1_1"
+           xmlns:vr="http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_1"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_1"
            elementFormDefault="qualified">
-    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_12" schemaLocation="iidm_V1_12.xsd"/>
+    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_1" schemaLocation="iidm_V1_1.xsd"/>
     <xs:element name="voltageRegulation">
         <xs:complexType>
             <xs:sequence>

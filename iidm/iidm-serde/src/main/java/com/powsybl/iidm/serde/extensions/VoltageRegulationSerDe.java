@@ -33,22 +33,36 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
 
     public VoltageRegulationSerDe() {
         super("voltageRegulation", VoltageRegulation.class, "vr",
-            ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
-                .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.0"))
-                .build(),
-            ImmutableMap.<String, String>builder()
-                .put("1.0", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_0")
-                .build());
+                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
+                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0", "1.0-legacy"))
+                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.1"))
+                        .build(),
+                ImmutableMap.<String, String>builder()
+                        .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/voltage_regulation/1_0")
+                        .put("1.0-legacy", "http://www.itesla_project.eu/schema/iidm/ext/voltageregulation/1_0")
+                        .put("1.1", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_1")
+                        .build());
     }
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/voltageRegulation.xsd");
+        return getClass().getResourceAsStream("/xsd/voltageRegulation_V1_1.xsd");
     }
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
-        return List.of(getClass().getResourceAsStream("/xsd/voltageRegulation.xsd"));
+        return List.of(getClass().getResourceAsStream("/xsd/voltageRegulation_V1_1.xsd"));
     }
 
     @Override
