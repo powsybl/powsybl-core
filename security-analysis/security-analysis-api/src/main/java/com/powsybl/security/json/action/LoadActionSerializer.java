@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json.action;
 
@@ -20,5 +21,10 @@ public class LoadActionSerializer extends AbstractLoadActionSerializer<LoadActio
     @Override
     protected String getElementIdAttributeName() {
         return "loadId";
+    }
+
+    @Override
+    protected String getElementId(LoadAction action) {
+        return action.getLoadId();
     }
 }

@@ -3,8 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.action;
+
+import java.util.Objects;
 
 /**
  * An action to:
@@ -19,15 +22,22 @@ public class DanglingLineAction extends AbstractLoadAction {
 
     public static final String NAME = "DANGLING_LINE";
 
+    private final String danglingLineId;
+
     /**
      * @param id                 the id of the action.
-     * @param elementId          the id of the dangling line on which the action would be applied.
+     * @param danglingLineId     the id of the dangling line on which the action would be applied.
      * @param relativeValue      True if the dangling line P0 and/or Q0 variation is relative, False if absolute.
      * @param activePowerValue   The new dangling line P0 (MW) if relativeValue equals False, otherwise the relative variation of dangling line P0 (MW).
      * @param reactivePowerValue The new dangling line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of dangling line Q0 (MVar).
      */
-    DanglingLineAction(String id, String elementId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
-        super(id, elementId, relativeValue, activePowerValue, reactivePowerValue);
+    DanglingLineAction(String id, String danglingLineId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
+        super(id, relativeValue, activePowerValue, reactivePowerValue);
+        this.danglingLineId = Objects.requireNonNull(danglingLineId);
+    }
+
+    public String getDanglingLineId() {
+        return danglingLineId;
     }
 
     @Override

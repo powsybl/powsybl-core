@@ -1,6 +1,12 @@
 package com.powsybl.security.action;
 
-public class LoadActionBuilder extends AbstractLoadActionBuilder<LoadAction> {
+public class LoadActionBuilder extends AbstractLoadActionBuilder<LoadAction, LoadActionBuilder> {
+
+    public LoadActionBuilder withLoadId(String loadId) {
+        this.elementId = loadId;
+        return this;
+    }
+
     public LoadAction build() {
         if (relativeValue == null) {
             throw new IllegalArgumentException("For a load action, relativeValue must be provided");

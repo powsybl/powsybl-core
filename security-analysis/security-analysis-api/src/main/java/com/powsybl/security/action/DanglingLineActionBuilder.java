@@ -1,6 +1,12 @@
 package com.powsybl.security.action;
 
-public class DanglingLineActionBuilder extends AbstractLoadActionBuilder<DanglingLineAction> {
+public class DanglingLineActionBuilder extends AbstractLoadActionBuilder<DanglingLineAction, DanglingLineActionBuilder> {
+
+    public DanglingLineActionBuilder withDanglingLineId(String danglingLineId) {
+        this.elementId = danglingLineId;
+        return this;
+    }
+
     public DanglingLineAction build() {
         if (relativeValue == null) {
             throw new IllegalArgumentException("For a load action, relativeValue must be provided");

@@ -9,7 +9,7 @@ package com.powsybl.security.action;
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction> {
+public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction, B extends AbstractLoadActionBuilder<T, B>> {
 
     protected String id;
     protected String elementId;
@@ -19,28 +19,23 @@ public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction> {
 
     public abstract T build();
 
-    public AbstractLoadActionBuilder<T> withId(String id) {
+    public B withId(String id) {
         this.id = id;
-        return this;
+        return (B) this;
     }
 
-    public AbstractLoadActionBuilder<T> withElementId(String loadId) {
-        this.elementId = loadId;
-        return this;
-    }
-
-    public AbstractLoadActionBuilder<T> withRelativeValue(boolean relativeValue) {
+    public B withRelativeValue(boolean relativeValue) {
         this.relativeValue = relativeValue;
-        return this;
+        return (B) this;
     }
 
-    public AbstractLoadActionBuilder<T> withActivePowerValue(double activePowerValue) {
+    public B withActivePowerValue(double activePowerValue) {
         this.activePowerValue = activePowerValue;
-        return this;
+        return (B) this;
     }
 
-    public AbstractLoadActionBuilder<T> withReactivePowerValue(double reactivePowerValue) {
+    public B withReactivePowerValue(double reactivePowerValue) {
         this.reactivePowerValue = reactivePowerValue;
-        return this;
+        return (B) this;
     }
 }

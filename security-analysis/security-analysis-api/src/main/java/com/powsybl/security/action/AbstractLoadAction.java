@@ -1,12 +1,12 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.action;
 
-import java.util.Objects;
 import java.util.OptionalDouble;
 
 /**
@@ -20,28 +20,21 @@ import java.util.OptionalDouble;
  */
 public abstract class AbstractLoadAction extends AbstractAction {
 
-    private final String elementId;
     private final boolean relativeValue;
     private final Double activePowerValue;
     private final Double reactivePowerValue;
 
     /**
      * @param id the id of the action.
-     * @param elementId the id of the element on which the action would be applied.
      * @param relativeValue True if the load P0 and/or Q0 variation is relative, False if absolute.
      * @param activePowerValue The new load P0 (MW) if relativeValue equals False, otherwise the relative variation of load P0 (MW).
      * @param reactivePowerValue The new load Q0 (MVar) if relativeValue equals False, otherwise the relative variation of load Q0 (MVar).
      */
-    AbstractLoadAction(String id, String elementId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
+    AbstractLoadAction(String id, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
         super(id);
-        this.elementId = Objects.requireNonNull(elementId);
         this.relativeValue = relativeValue;
         this.activePowerValue = activePowerValue;
         this.reactivePowerValue = reactivePowerValue;
-    }
-
-    public String getElementId() {
-        return elementId;
     }
 
     public boolean isRelativeValue() {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json.action;
 
@@ -23,7 +24,7 @@ public class LoadActionDeserializer extends AbstractLoadActionDeserializer<LoadA
         LoadActionBuilder loadActionBuilder = new LoadActionBuilder();
         loadActionBuilder
                 .withId(context.id)
-                .withElementId(context.elementId)
+                .withLoadId(context.elementId)
                 .withRelativeValue(context.relativeValue);
         if (context.activePowerValue != null) {
             loadActionBuilder.withActivePowerValue(context.activePowerValue);
