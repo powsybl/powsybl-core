@@ -28,6 +28,33 @@ SELECT *
     OPTIONAL { ?FullModel md:Model.description ?description }
 }}
 
+# query: fullModels
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    ?FullModel
+        a md:FullModel ;
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.created ?created ;
+        md:Model.version ?version ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet .
+    {
+    SELECT ?FullModel (group_concat(?profile; separator=" ") as ?profileList)
+        WHERE {
+                ?FullModel md:Model.profile ?profile .
+        } GROUP BY ?FullModel
+    }
+    OPTIONAL { ?FullModel md:Model.description ?description }
+    OPTIONAL {
+        SELECT ?FullModel (group_concat(?dependentOn; separator=" ") as ?dependentOnList)
+            WHERE {
+                    ?FullModel md:Model.DependentOn ?dependentOn .
+            } GROUP BY ?FullModel
+    }
+    # FIXME(Luma) Be careful, we may have more than one Supersedes
+    # OPTIONAL { ?FullModel md:Model.Supersedes ?Supersedes }
+}}
+
 # query: modelIds
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *

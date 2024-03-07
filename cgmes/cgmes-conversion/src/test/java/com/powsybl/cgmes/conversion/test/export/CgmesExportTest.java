@@ -15,8 +15,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -483,7 +482,7 @@ class CgmesExportTest {
             ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
-            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            CgmesMetadataModels.Model sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart("SV").orElseThrow();
             assertEquals(modelDescription, sshMetadata.getDescription());
         }
     }
@@ -500,10 +499,10 @@ class CgmesExportTest {
             ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
-            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
-            assertEquals(9, sshMetadata.getSshVersion());
-            CgmesSvMetadata svMetadata = network2.getExtension(CgmesSvMetadata.class);
-            assertEquals(9, svMetadata.getSvVersion());
+            CgmesMetadataModels.Model sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart("SV").orElseThrow();
+            assertEquals(9, sshMetadata.getVersion());
+            CgmesMetadataModels.Model svMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart("SSH").orElseThrow();
+            assertEquals(9, svMetadata.getVersion());
         }
     }
 
@@ -525,7 +524,7 @@ class CgmesExportTest {
             // check network can be reimported and that ModelDescription still includes end-tag
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
 
-            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            CgmesMetadataModels.Model sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart("SV").orElseThrow();
             assertEquals(modelDescription, sshMetadata.getDescription());
         }
 

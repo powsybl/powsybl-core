@@ -37,6 +37,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,7 +66,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
-            ExportXmlCompare::ignoringCgmesSshMetadataId);
+            ExportXmlCompare::ignoringCgmesMetadataModels);
         assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
     }
 
@@ -78,7 +79,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
-            ExportXmlCompare::ignoringCgmesSshMetadataId);
+            ExportXmlCompare::ignoringCgmesMetadataModels);
         assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
     }
 
@@ -90,7 +91,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
-            ExportXmlCompare::ignoringCgmesSshMetadataId);
+            ExportXmlCompare::ignoringCgmesMetadataModels);
         assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
     }
 
@@ -103,7 +104,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringCgmesSshMetadataId,
+                ExportXmlCompare::ignoringCgmesMetadataModels,
                 ExportXmlCompare::ignoringControlAreaNetInterchange)));
     }
 
@@ -117,7 +118,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringControlAreaNetInterchange,
-                ExportXmlCompare::ignoringCgmesSshMetadataId,
+                ExportXmlCompare::ignoringCgmesMetadataModels,
                 ExportXmlCompare::ignoringHvdcLinePmax)));
     }
 
@@ -125,6 +126,9 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         // Import original
         importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
+
+        // FIXME(Luma) remove this line
+        tmpDir = Paths.get("/Users/zamarrenolm/Downloads/");
 
         // Export SSH
         Path exportedSsh = tmpDir.resolve("exportedSsh.xml");

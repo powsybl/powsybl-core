@@ -16,7 +16,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.GridModelReference;
@@ -41,6 +41,7 @@ import java.nio.file.FileSystem;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -509,9 +510,11 @@ class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), importParams);
         assertEquals(0, network.getForecastDistance());
         assertTrue(Duration.between(ZonedDateTime.now(), network.getCaseDate()).toMinutes() < 10);
-        CgmesSvMetadata cgmesSvMetadata = network.getExtension(CgmesSvMetadata.class);
-        assertNotNull(cgmesSvMetadata);
-        assertEquals(1, cgmesSvMetadata.getSvVersion());
+        CgmesMetadataModels cgmesMetadata = network.getExtension(CgmesMetadataModels.class);
+        assertNotNull(cgmesMetadata);
+        Optional<CgmesMetadataModels.Model> svModel = cgmesMetadata.getModelForPart("SV");
+        assertTrue(svModel.isPresent());
+        assertEquals(1, svModel.get().getVersion());
     }
 
     @Test

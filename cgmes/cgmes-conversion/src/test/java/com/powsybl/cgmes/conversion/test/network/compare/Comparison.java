@@ -7,8 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
@@ -38,9 +37,9 @@ public class Comparison {
     public void compareBuses() {
         diff.current(expected);
         compareBuses(
-            expected.getBusBreakerView().getBusStream(),
-            actual.getBusBreakerView().getBusStream(),
-            this::compareBuses);
+                expected.getBusBreakerView().getBusStream(),
+                actual.getBusBreakerView().getBusStream(),
+                this::compareBuses);
     }
 
     public void compare() {
@@ -52,11 +51,8 @@ public class Comparison {
         // Compare CIM characteristics
         compareCIMCharacteristics(expected.getExtension(CimCharacteristics.class), actual.getExtension(CimCharacteristics.class));
 
-        // Compare SV metadata
-        compareCgmesSvMetadata(expected.getExtension(CgmesSvMetadata.class), actual.getExtension(CgmesSvMetadata.class));
-
-        // Compare Ssh metadata
-        compareCgmesSshMetadata(expected.getExtension(CgmesSshMetadata.class), actual.getExtension(CgmesSshMetadata.class));
+        // Compare metadata
+        compareCgmesMetadata(expected.getExtension(CgmesMetadataModels.class), actual.getExtension(CgmesMetadataModels.class));
 
         // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
         compare(
@@ -159,54 +155,55 @@ public class Comparison {
         }
     }
 
-    private void compareCgmesSvMetadata(CgmesSvMetadata expected, CgmesSvMetadata actual) {
+    private void compareCgmesMetadata(CgmesMetadataModels expected, CgmesMetadataModels actual) {
         if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSvMetadata_extension");
+            diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_extension");
             return;
         }
         if (expected != null) {
             if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSvMetadata_extension");
+                diff.missing(expected.getExtendable().getId() + "_cgmesMetadataModels_extension");
                 return;
             }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("svVersion", config.incremented ? expected.getSvVersion() + 1 : expected.getSvVersion(), actual.getSvVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
-                }
+            if (expected.getModels().size() != actual.getModels().size()) {
+                diff.compare("cgmesMetadataModels_size", expected.getModels().size(), actual.getModels().size());
             }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
-                }
+            int num = expected.getModels().size();
+            // Sorted models by id should be comparable one by one
+            List<CgmesMetadataModels.Model> expectedModels = expected.getModels().stream()
+                    .sorted(Comparator.comparing(CgmesMetadataModels.Model::getId))
+                    .collect(Collectors.toList());
+            List<CgmesMetadataModels.Model> actualModels = expected.getModels().stream()
+                    .sorted(Comparator.comparing(CgmesMetadataModels.Model::getId))
+                    .collect(Collectors.toList());
+            for (int k = 0; k < expectedModels.size(); k++) {
+                compareCgmesMetadataModels(expectedModels.get(k), actualModels.get(k));
             }
         }
     }
 
-    private void compareCgmesSshMetadata(CgmesSshMetadata expected, CgmesSshMetadata actual) {
-        if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSshMetadata_extension");
-            return;
+    private void compareCgmesMetadataModels(CgmesMetadataModels.Model expected, CgmesMetadataModels.Model actual) {
+        String prefix = "CgmesMetadataModel " + expected.getId() + "_";
+        compare(prefix + "id", expected.getId(), actual.getId());
+        compare(prefix + "part", expected.getPart(), actual.getPart());
+        compare(prefix + "description", expected.getDescription(), actual.getDescription());
+        compare(prefix + "version", config.incremented ? expected.getVersion() + 1 : expected.getVersion(), actual.getVersion());
+        compare(prefix + "modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
+        compare(prefix + "profiles", expected.getProfiles(), actual.getProfiles());
+        compare(prefix + "dependentOn", expected.getDependentOn(), actual.getDependentOn());
+        compare(prefix + "supersedes", expected.getSupersedes(), actual.getSupersedes());
+    }
+
+    void compare(String context, Set<String> expecteds, Set<String> actuals) {
+        for (String expected : expecteds) {
+            if (!actuals.contains(expected)) {
+                diff.missing(context + ": " + expected);
+            }
         }
-        if (expected != null) {
-            if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSshMetadata_extension");
-                return;
-            }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("sshVersion", config.incremented ? expected.getSshVersion() + 1 : expected.getSshVersion(), actual.getSshVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
-                }
-            }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
-                }
+        for (
+            String actual : actuals) {
+            if (!expecteds.contains(actual)) {
+                diff.unexpected(context + ": " + actual);
             }
         }
     }

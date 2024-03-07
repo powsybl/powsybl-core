@@ -272,21 +272,20 @@ public class CgmesExportContext {
             topologyKind = networkTopologyKind(network);
         }
         scenarioTime = network.getCaseDate();
-        // TODO CgmesSvMetadata and CgmesSshMetadata could be in fact same class
-        // Add multiple instances of CgmesMetadata to Network, one for each profile
-        CgmesSvMetadata svMetadata = network.getExtension(CgmesSvMetadata.class);
+        CgmesMetadataModels models = network.getExtension(CgmesMetadataModels.class);
+        CgmesMetadataModels.Model svMetadata = models != null ? models.getModelForPart("SV").orElse(null) : null;
         if (svMetadata != null) {
             svModelDescription.setDescription(svMetadata.getDescription());
-            svModelDescription.setVersion(svMetadata.getSvVersion() + 1);
-            svModelDescription.addDependencies(svMetadata.getDependencies());
+            svModelDescription.setVersion(svMetadata.getVersion() + 1);
+            svModelDescription.addDependencies(svMetadata.getDependentOn());
             svModelDescription.setModelingAuthoritySet(svMetadata.getModelingAuthoritySet());
         }
-        CgmesSshMetadata sshMetadata = network.getExtension(CgmesSshMetadata.class);
+        CgmesMetadataModels.Model sshMetadata = models != null ? models.getModelForPart("SSH").orElse(null) : null;
         if (sshMetadata != null) {
             sshModelDescription.setDescription(sshMetadata.getDescription());
-            sshModelDescription.setVersion(sshMetadata.getSshVersion() + 1);
+            sshModelDescription.setVersion(sshMetadata.getVersion() + 1);
             sshModelDescription.setSupersedes(sshMetadata.getId());
-            sshModelDescription.addDependencies(sshMetadata.getDependencies());
+            sshModelDescription.addDependencies(sshMetadata.getDependentOn());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
         addIidmMappings(network);

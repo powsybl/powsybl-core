@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.importedCgmesNetworkReport;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
@@ -156,8 +157,7 @@ public class Conversion {
         Network network = createNetwork();
         Context context = createContext(network, reporter);
         assignNetworkProperties(context);
-        addCgmesSvMetadata(network, context);
-        addCgmesSshMetadata(network, context);
+        addMetadataModels(network, context);
         addCimCharacteristics(network);
         BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
@@ -438,36 +438,49 @@ public class Conversion {
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
     }
 
-    private void addCgmesSvMetadata(Network network, Context context) {
-        PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
-        if (svDescription != null && !svDescription.isEmpty()) {
-            CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
-                    .setDescription(svDescription.get(0).get("description"))
-                    .setSvVersion(readVersion(svDescription, context))
-                    .setModelingAuthoritySet(svDescription.get(0).get("modelingAuthoritySet"));
-            svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
-            adder.add();
+    private void addMetadataModels(Network network, Context context) {
+        PropertyBags ps = cgmes.fullModels();
+        if (ps.isEmpty()) {
+            return;
         }
+        CgmesMetadataModelsAdder modelsAdder = network.newExtension(CgmesMetadataModelsAdder.class);
+        for (PropertyBag p : ps) {
+            CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
+                .setId(p.getId("FullModel"))
+                .setPart(partFromGraph(p.getLocal("graph")))
+                .setDescription(p.getId("description"))
+                .setVersion(readVersion(p, context))
+                .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
+            String profiles = p.get("profileList");
+            if (profiles != null && !profiles.isEmpty()) {
+                for (String profile : profiles.split(" ")) {
+                    modelAdder.addProfile(profile);
+                }
+            }
+            String dependentOns = p.get("dependentOnList");
+            if (dependentOns != null && !dependentOns.isEmpty()) {
+                for (String dependentOn : dependentOns.split(" ")) {
+                    modelAdder.addDependentOn(dependentOn);
+                }
+            }
+            modelAdder.add();
+        }
+        modelsAdder.add();
     }
 
-    private void addCgmesSshMetadata(Network network, Context context) {
-        PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
-        if (sshDescription != null && !sshDescription.isEmpty()) {
-            CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
-                    .setId(sshDescription.get(0).get("FullModel"))
-                    .setDescription(sshDescription.get(0).get("description"))
-                    .setSshVersion(readVersion(sshDescription, context))
-                    .setModelingAuthoritySet(sshDescription.get(0).get("modelingAuthoritySet"));
-            sshDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
-            adder.add();
-        }
+    private String partFromGraph(String graph) {
+        return Stream.of(CgmesSubset.values())
+                .filter(subset -> subset.isValidName(graph))
+                .map(CgmesSubset::getIdentifier)
+                .findFirst()
+                .orElse("unknown");
     }
 
-    private int readVersion(PropertyBags propertyBags, Context context) {
+    private int readVersion(PropertyBag propertyBag, Context context) {
         try {
-            return propertyBags.get(0).asInt("version");
+            return propertyBag.asInt("version");
         } catch (NumberFormatException e) {
-            context.fixed("Version", "The version is expected to be an integer: " + propertyBags.get(0).get("version") + ". Fixed to 1");
+            context.fixed("Version", "The version is expected to be an integer: " + propertyBag.get("version") + ". Fixed to 1");
             return 1;
         }
     }

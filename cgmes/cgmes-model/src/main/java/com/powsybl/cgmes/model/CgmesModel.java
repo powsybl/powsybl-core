@@ -33,6 +33,10 @@ public interface CgmesModel {
         return new PropertyBags();
     }
 
+    default PropertyBags fullModels() {
+        return new PropertyBags();
+    }
+
     boolean hasEquipmentCore();
 
     String modelId();

@@ -8,7 +8,7 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
+import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -56,13 +56,16 @@ class CgmesExportContextTest {
             .setCimVersion(14)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .add();
-        network.newExtension(CgmesSvMetadataAdder.class)
-            .setDescription("test")
-            .setSvVersion(2)
-            .addDependency("powsybl.test.org")
-            .addDependency("cgmes")
-            .setModelingAuthoritySet("cgmes.org")
-            .add();
+        network.newExtension(CgmesMetadataModelsAdder.class)
+                .newModel()
+                    .setId("testId")
+                    .setDescription("test")
+                    .setVersion(2)
+                    .addProfile("testProfile")
+                    .addDependentOn("otherModel")
+                    .setModelingAuthoritySet("cgmes.org")
+                    .add()
+                .add();
 
         CgmesExportContext context2 = new CgmesExportContext(network);
 

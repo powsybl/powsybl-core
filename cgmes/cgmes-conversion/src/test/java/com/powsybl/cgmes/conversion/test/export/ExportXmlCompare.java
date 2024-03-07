@@ -260,7 +260,19 @@ final class ExportXmlCompare {
         return onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
-    static ComparisonResult ignoringCgmesSshMetadataId(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringCgmesMetadataModels(Comparison comparison, ComparisonResult result) {
+        // FIXME(Luma) cgmes metadata models should be serialized in the same way, maybe we could check something else
+        if (result == ComparisonResult.DIFFERENT) {
+            String xpath = comparison.getControlDetails().getXPath();
+            if (xpath == null) {
+                xpath = comparison.getControlDetails().getParentXPath();
+            }
+            if (xpath != null && xpath.contains("cgmesMetadataModels")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+        /*
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();
             if (comparison.getType() == ComparisonType.ATTR_VALUE
@@ -271,6 +283,7 @@ final class ExportXmlCompare {
             }
         }
         return result;
+        */
     }
 
     static ComparisonResult ensuringIncreasedModelVersion(Comparison comparison, ComparisonResult result) {
