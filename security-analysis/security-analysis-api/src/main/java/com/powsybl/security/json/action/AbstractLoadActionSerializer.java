@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -8,6 +14,9 @@ import com.powsybl.security.action.AbstractLoadAction;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
+/**
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
+ */
 public abstract class AbstractLoadActionSerializer<T extends AbstractLoadAction> extends StdSerializer<T> {
 
     protected AbstractLoadActionSerializer(Class<T> vc) {
