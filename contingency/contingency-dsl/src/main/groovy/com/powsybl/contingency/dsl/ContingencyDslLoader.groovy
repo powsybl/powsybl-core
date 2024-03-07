@@ -16,6 +16,7 @@ import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.slf4j.LoggerFactory
 
+import java.util.function.BiConsumer
 import java.util.function.Consumer
 
 /**
@@ -106,6 +107,70 @@ class ContingencyDslLoader extends DslLoader {
                 consumer.accept(contingency)
             } else {
                 LOGGER.warn("Contingency '{}' is invalid", id)
+            }
+        }
+    }
+
+    Map<String, List<String>> loadNotFoundElements(Network network) {
+        loadNotFoundElements(network, null)
+    }
+
+    Map<String, List<String>> loadNotFoundElements(Network network, ContingencyDslObserver observer) {
+        Map<String, List<String>> notFoundElements = new HashMap<>()
+
+        LOGGER.debug("Loading DSL '{}'", dslSrc.getName())
+        try {
+            observer?.begin(dslSrc.getName())
+
+            Binding binding = new Binding()
+
+            findNotFoundIdentifiables(binding, network, notFoundElements.&put)
+
+            // set base network
+            binding.setVariable("network", network)
+
+            def shell = createShell(binding, new ImportCustomizer())
+
+            shell.evaluate(dslSrc)
+
+            observer?.end()
+
+            notFoundElements
+
+        } catch (CompilationFailedException e) {
+            throw new DslException(e.getMessage(), e)
+        }
+    }
+
+    static void findNotFoundIdentifiables(Binding binding, Network network, BiConsumer<String, List<String>> consumer) {
+        binding.contingency = { String id, Closure<Void> closure ->
+            def cloned = closure.clone()
+            ContingencySpec contingencySpec = new ContingencySpec()
+
+            List<Extension<Contingency>> extensionList = new ArrayList<>();
+            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class, ContingencyDslLoader.class.getClassLoader())) {
+                dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
+            }
+
+            cloned.delegate = contingencySpec
+            cloned()
+            if (!contingencySpec.equipments) {
+                throw new DslException("'equipments' field is not set")
+            }
+            if (contingencySpec.equipments.length == 0) {
+                throw new DslException("'equipments' field is empty")
+            }
+
+            List<String> notFoundIdentifiable = new ArrayList<>();
+            for (String equipment : contingencySpec.equipments) {
+                Identifiable identifiable = network.getIdentifiable(equipment)
+                if (identifiable == null) {
+                    LOGGER.warn("Equipment '{}' of contingency '{}' not found", equipment, id)
+                    notFoundIdentifiable.add(equipment);
+                }
+            }
+            if (!notFoundIdentifiable.isEmpty()) {
+                consumer.accept(id, notFoundIdentifiable)
             }
         }
     }

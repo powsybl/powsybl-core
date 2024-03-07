@@ -15,6 +15,7 @@ import groovy.lang.GroovyCodeSource;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -44,5 +45,9 @@ public class GroovyContingencyList implements ContingencyList {
     @Override
     public List<Contingency> getContingencies(Network network) {
         return new ContingencyDslLoader(codeSource).load(network);
+    }
+
+    public Map<String, List<String>> getNotFoundElements(Network network) {
+        return new ContingencyDslLoader(codeSource).loadNotFoundElements(network);
     }
 }
