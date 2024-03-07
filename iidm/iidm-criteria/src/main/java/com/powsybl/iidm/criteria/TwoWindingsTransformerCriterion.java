@@ -14,15 +14,17 @@ package com.powsybl.iidm.criteria;
 public class TwoWindingsTransformerCriterion extends AbstractNetworkElementEquipmentCriterion {
     public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER;
 
-    private SingleCountryCriterion singleCountryCriterion;
-    private TwoNominalVoltageCriterion twoNominalVoltageCriterion;
+    private final SingleCountryCriterion singleCountryCriterion;
+    private final TwoNominalVoltageCriterion twoNominalVoltageCriterion;
 
-    public TwoWindingsTransformerCriterion() {
-        super();
+    public TwoWindingsTransformerCriterion(SingleCountryCriterion singleCountryCriterion, TwoNominalVoltageCriterion twoNominalVoltageCriterion) {
+        this(null, singleCountryCriterion, twoNominalVoltageCriterion);
     }
 
-    public TwoWindingsTransformerCriterion(String name) {
+    public TwoWindingsTransformerCriterion(String name, SingleCountryCriterion singleCountryCriterion, TwoNominalVoltageCriterion twoNominalVoltageCriterion) {
         super(name);
+        this.singleCountryCriterion = singleCountryCriterion;
+        this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
     }
 
     @Override
@@ -35,19 +37,8 @@ public class TwoWindingsTransformerCriterion extends AbstractNetworkElementEquip
         return singleCountryCriterion;
     }
 
-    public TwoWindingsTransformerCriterion setSingleCountryCriterion(SingleCountryCriterion singleCountryCriterion) {
-        this.singleCountryCriterion = singleCountryCriterion;
-        return this;
-    }
-
     @Override
     public TwoNominalVoltageCriterion getNominalVoltageCriterion() {
         return twoNominalVoltageCriterion;
     }
-
-    public TwoWindingsTransformerCriterion setTwoNominalVoltageCriterion(TwoNominalVoltageCriterion twoNominalVoltageCriterion) {
-        this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
-        return this;
-    }
-
 }

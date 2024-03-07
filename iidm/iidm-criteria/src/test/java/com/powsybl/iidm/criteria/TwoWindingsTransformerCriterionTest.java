@@ -36,12 +36,12 @@ public class TwoWindingsTransformerCriterionTest {
     @Test
     void typeTest() {
         assertEquals(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER,
-                new TwoWindingsTransformerCriterion().getNetworkElementCriterionType());
+                new TwoWindingsTransformerCriterion(null, null).getNetworkElementCriterionType());
     }
 
     @Test
     void emptyCriterionTest() {
-        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion();
+        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(null, null);
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
@@ -52,8 +52,8 @@ public class TwoWindingsTransformerCriterionTest {
 
     @Test
     void nominalVoltagesTest() {
-        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion()
-                .setTwoNominalVoltageCriterion(new TwoNominalVoltageCriterion(
+        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(null,
+                new TwoNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(40., 70., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
@@ -63,13 +63,12 @@ public class TwoWindingsTransformerCriterionTest {
 
     @Test
     void countryTest() {
-        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion()
-                .setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.BE)));
+        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.BE)), null);
         assertFalse(criterion.accept(new NetworkElementVisitor(twt1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
 
-        criterion.setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)));
+        criterion = new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
@@ -77,11 +76,11 @@ public class TwoWindingsTransformerCriterionTest {
 
     @Test
     void mixedCriteriaTest() {
-        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion()
-                .setTwoNominalVoltageCriterion(new TwoNominalVoltageCriterion(
+        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(
+                new SingleCountryCriterion(List.of(Country.FR)),
+                new TwoNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
-                        new SingleNominalVoltageCriterion.VoltageInterval(40., 70., true, true)))
-                .setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR)));
+                        new SingleNominalVoltageCriterion.VoltageInterval(40., 70., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt3)));

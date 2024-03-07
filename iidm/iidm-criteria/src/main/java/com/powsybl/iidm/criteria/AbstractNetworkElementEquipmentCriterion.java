@@ -13,10 +13,6 @@ package com.powsybl.iidm.criteria;
  */
 public abstract class AbstractNetworkElementEquipmentCriterion extends AbstractNetworkElementCriterion {
 
-    protected AbstractNetworkElementEquipmentCriterion() {
-        super(null);
-    }
-
     protected AbstractNetworkElementEquipmentCriterion(String name) {
         super(name);
     }

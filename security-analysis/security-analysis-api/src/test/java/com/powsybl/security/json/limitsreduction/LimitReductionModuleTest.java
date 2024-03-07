@@ -12,6 +12,7 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.criteria.duration.AllTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.IntervalTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LimitType;
@@ -20,6 +21,7 @@ import com.powsybl.security.limitsreduction.LimitReductionDefinition;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -30,24 +32,25 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT)
-                .setLimitReduction(0.9f)
-                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
-                        new LineCriterion().setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
+        List<ContingencyContext> contingencyContexts1 = List.of(ContingencyContext.specificContingency("contingency1"), ContingencyContext.none());
+        List<NetworkElementCriterion> networkElementCriteria1 =
+                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
+                        new LineCriterion(null, new SingleNominalVoltageCriterion(
                                 new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false))),
-                        new TwoWindingsTransformerCriterion().setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE))),
-                        new ThreeWindingsTransformerCriterion().setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE))))
-                .setContingencyContexts(ContingencyContext.specificContingency("contingency1"), ContingencyContext.none())
-                .setDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
-        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.APPARENT_POWER)
-                .setLimitReduction(0.5f)
-                .setNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
-                .setDurationCriteria(IntervalTemporaryDurationCriterion.builder()
+                        new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
+                        new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null));
+        List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
+        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f,
+                contingencyContexts1, networkElementCriteria1, durationCriteria1);
+
+        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.APPARENT_POWER, 0.5f,
+                Collections.emptyList(),
+                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
+                List.of(IntervalTemporaryDurationCriterion.builder()
                         .setLowBound(10 * 60, true)
                         .setHighBound(20 * 60, true)
-                        .build());
-        LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER)
-                .setLimitReduction(0.8f);
+                        .build()));
+        LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f);
         LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2, definition3));
 
         roundTripTest(definitionList, LimitReductionDefinitionListSerDeUtil::write,

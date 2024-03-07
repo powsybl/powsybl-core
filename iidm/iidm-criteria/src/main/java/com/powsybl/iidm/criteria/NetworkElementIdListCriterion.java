@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.criteria;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Objects;
 import java.util.Set;
 
@@ -25,7 +27,7 @@ public class NetworkElementIdListCriterion extends AbstractNetworkElementCriteri
 
     public NetworkElementIdListCriterion(String name, Set<String> networkElementIds) {
         super(name);
-        this.networkElementIds = Objects.requireNonNull(networkElementIds);
+        this.networkElementIds = ImmutableSet.copyOf(Objects.requireNonNull(networkElementIds));
     }
 
     @Override

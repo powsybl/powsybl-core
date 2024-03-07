@@ -37,13 +37,13 @@ public class TieLineCriterionTest {
 
     @Test
     void typeTest() {
-        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.LINE,
-                new LineCriterion().getNetworkElementCriterionType());
+        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.TIE_LINE,
+                new TieLineCriterion(null, null).getNetworkElementCriterionType());
     }
 
     @Test
     void emptyCriterionTest() {
-        LineCriterion criterion = new LineCriterion();
+        TieLineCriterion criterion = new TieLineCriterion(null, null);
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine3)));
@@ -55,8 +55,7 @@ public class TieLineCriterionTest {
 
     @Test
     void nominalVoltageTest() {
-        LineCriterion criterion = new LineCriterion()
-                .setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
+        TieLineCriterion criterion = new TieLineCriterion(null, new SingleNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2)));
@@ -66,14 +65,13 @@ public class TieLineCriterionTest {
 
     @Test
     void countriesTest() {
-        LineCriterion criterion = new LineCriterion()
-                .setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.BE)));
+        TieLineCriterion criterion = new TieLineCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.BE)), null);
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine3)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine4)));
 
-        criterion.setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR, Country.BE), List.of(Country.BE)));
+        criterion = new TieLineCriterion(new TwoCountriesCriterion(List.of(Country.FR, Country.BE), List.of(Country.BE)), null);
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine3)));
@@ -82,10 +80,9 @@ public class TieLineCriterionTest {
 
     @Test
     void mixedCriteriaTest() {
-        LineCriterion criterion = new LineCriterion()
-                .setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
-                    new SingleNominalVoltageCriterion.VoltageInterval(350., 450., true, true)))
-                .setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.FR)));
+        TieLineCriterion criterion = new TieLineCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.FR)),
+                new SingleNominalVoltageCriterion(
+                    new SingleNominalVoltageCriterion.VoltageInterval(350., 450., true, true)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine3)));
@@ -98,7 +95,7 @@ public class TieLineCriterionTest {
         when(n.getCountry1()).thenReturn(country1);
         when(n.getCountry2()).thenReturn(country2);
         when(n.getNominalVoltage()).thenReturn(nominalVoltage);
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TIE_LINE)).thenReturn(true);
         return n;
     }
 }

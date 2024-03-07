@@ -38,12 +38,12 @@ public class LineCriterionTest {
     @Test
     void typeTest() {
         assertEquals(NetworkElementCriterion.NetworkElementCriterionType.LINE,
-                new LineCriterion().getNetworkElementCriterionType());
+                new LineCriterion(null, null).getNetworkElementCriterionType());
     }
 
     @Test
     void emptyCriterionTest() {
-        LineCriterion criterion = new LineCriterion();
+        LineCriterion criterion = new LineCriterion(null, null);
         assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line3)));
@@ -55,8 +55,7 @@ public class LineCriterionTest {
 
     @Test
     void nominalVoltageTest() {
-        LineCriterion criterion = new LineCriterion()
-                .setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
+        LineCriterion criterion = new LineCriterion(null, new SingleNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line2)));
@@ -66,14 +65,13 @@ public class LineCriterionTest {
 
     @Test
     void countriesTest() {
-        LineCriterion criterion = new LineCriterion()
-                .setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.BE)));
+        LineCriterion criterion = new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.BE)), null);
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line3)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line4)));
 
-        criterion.setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR, Country.BE), List.of(Country.BE)));
+        criterion = new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR, Country.BE), List.of(Country.BE)), null);
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line3)));
@@ -82,10 +80,8 @@ public class LineCriterionTest {
 
     @Test
     void mixedCriteriaTest() {
-        LineCriterion criterion = new LineCriterion()
-                .setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
-                    new SingleNominalVoltageCriterion.VoltageInterval(350., 450., true, true)))
-                .setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.FR)));
+        LineCriterion criterion = new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.FR)),
+                new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion.VoltageInterval(350., 450., true, true)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line3)));

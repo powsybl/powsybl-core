@@ -14,15 +14,17 @@ package com.powsybl.iidm.criteria;
 public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementEquipmentCriterion {
     public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER;
 
-    private SingleCountryCriterion singleCountryCriterion;
-    private ThreeNominalVoltageCriterion threeNominalVoltageCriterion;
+    private final SingleCountryCriterion singleCountryCriterion;
+    private final ThreeNominalVoltageCriterion threeNominalVoltageCriterion;
 
-    public ThreeWindingsTransformerCriterion() {
-        super();
+    public ThreeWindingsTransformerCriterion(SingleCountryCriterion singleCountryCriterion, ThreeNominalVoltageCriterion threeNominalVoltageCriterion) {
+        this(null, singleCountryCriterion, threeNominalVoltageCriterion);
     }
 
-    public ThreeWindingsTransformerCriterion(String name) {
+    public ThreeWindingsTransformerCriterion(String name, SingleCountryCriterion singleCountryCriterion, ThreeNominalVoltageCriterion threeNominalVoltageCriterion) {
         super(name);
+        this.singleCountryCriterion = singleCountryCriterion;
+        this.threeNominalVoltageCriterion = threeNominalVoltageCriterion;
     }
 
     @Override
@@ -35,18 +37,9 @@ public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementEqu
         return singleCountryCriterion;
     }
 
-    public ThreeWindingsTransformerCriterion setSingleCountryCriterion(SingleCountryCriterion singleCountryCriterion) {
-        this.singleCountryCriterion = singleCountryCriterion;
-        return this;
-    }
-
     @Override
     public ThreeNominalVoltageCriterion getNominalVoltageCriterion() {
         return threeNominalVoltageCriterion;
     }
 
-    public ThreeWindingsTransformerCriterion setThreeNominalVoltageCriterion(ThreeNominalVoltageCriterion threeNominalVoltageCriterion) {
-        this.threeNominalVoltageCriterion = threeNominalVoltageCriterion;
-        return this;
-    }
 }

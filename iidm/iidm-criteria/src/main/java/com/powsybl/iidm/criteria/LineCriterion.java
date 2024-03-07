@@ -14,15 +14,17 @@ package com.powsybl.iidm.criteria;
 public class LineCriterion extends AbstractNetworkElementEquipmentCriterion {
     public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.LINE;
 
-    private TwoCountriesCriterion twoCountriesCriterion;
-    private SingleNominalVoltageCriterion singleNominalVoltageCriterion;
+    private final TwoCountriesCriterion twoCountriesCriterion;
+    private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
-    public LineCriterion() {
-        super();
+    public LineCriterion(TwoCountriesCriterion twoCountriesCriterion, SingleNominalVoltageCriterion singleNominalVoltageCriterion) {
+        this(null, twoCountriesCriterion, singleNominalVoltageCriterion);
     }
 
-    public LineCriterion(String name) {
+    public LineCriterion(String name, TwoCountriesCriterion twoCountriesCriterion, SingleNominalVoltageCriterion singleNominalVoltageCriterion) {
         super(name);
+        this.twoCountriesCriterion = twoCountriesCriterion;
+        this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
     }
 
     @Override
@@ -35,18 +37,9 @@ public class LineCriterion extends AbstractNetworkElementEquipmentCriterion {
         return twoCountriesCriterion;
     }
 
-    public LineCriterion setTwoCountriesCriterion(TwoCountriesCriterion twoCountriesCriterion) {
-        this.twoCountriesCriterion = twoCountriesCriterion;
-        return this;
-    }
-
     @Override
     public SingleNominalVoltageCriterion getNominalVoltageCriterion() {
         return singleNominalVoltageCriterion;
     }
 
-    public LineCriterion setSingleNominalVoltageCriterion(SingleNominalVoltageCriterion singleNominalVoltageCriterion) {
-        this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
-        return this;
-    }
 }

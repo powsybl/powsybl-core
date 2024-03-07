@@ -32,8 +32,8 @@ public class TwoWindingsTransformerCriterionDeserializer extends AbstractNetwork
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 TwoWindingsTransformerCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE));
 
-        return new TwoWindingsTransformerCriterion(parsingContext.name)
-                .setSingleCountryCriterion((SingleCountryCriterion) parsingContext.countryCriterion)
-                .setTwoNominalVoltageCriterion((TwoNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
+        return new TwoWindingsTransformerCriterion(parsingContext.name,
+                (SingleCountryCriterion) parsingContext.countryCriterion,
+                (TwoNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
     }
 }

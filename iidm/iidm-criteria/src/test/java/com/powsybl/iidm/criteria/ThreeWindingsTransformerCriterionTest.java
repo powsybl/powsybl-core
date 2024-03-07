@@ -36,12 +36,12 @@ public class ThreeWindingsTransformerCriterionTest {
     @Test
     void typeTest() {
         assertEquals(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER,
-                new ThreeWindingsTransformerCriterion().getNetworkElementCriterionType());
+                new ThreeWindingsTransformerCriterion(null, null).getNetworkElementCriterionType());
     }
 
     @Test
     void emptyCriterionTest() {
-        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion();
+        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion(null, null);
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
@@ -52,8 +52,8 @@ public class ThreeWindingsTransformerCriterionTest {
 
     @Test
     void nominalVoltagesTest() {
-        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion()
-                .setThreeNominalVoltageCriterion(new ThreeNominalVoltageCriterion(
+        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion(null,
+                new ThreeNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(350., 550., true, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(40., 70., true, true)));
@@ -64,13 +64,12 @@ public class ThreeWindingsTransformerCriterionTest {
 
     @Test
     void countryTest() {
-        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion()
-                .setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.BE)));
+        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.BE)), null);
         assertFalse(criterion.accept(new NetworkElementVisitor(twt1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
 
-        criterion.setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)));
+        criterion = new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
@@ -78,9 +77,9 @@ public class ThreeWindingsTransformerCriterionTest {
 
     @Test
     void mixedCriteriaTest() {
-        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion()
-                .setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR)))
-                .setThreeNominalVoltageCriterion(new ThreeNominalVoltageCriterion(
+        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion(
+                new SingleCountryCriterion(List.of(Country.FR)),
+                new ThreeNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(350., 550., true, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(40., 70., true, true)));

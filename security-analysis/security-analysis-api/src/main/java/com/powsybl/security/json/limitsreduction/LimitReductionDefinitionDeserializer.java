@@ -18,6 +18,7 @@ import com.powsybl.security.limitsreduction.LimitReductionDefinition;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,6 +32,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
     private static class ParsingContext {
         float limitReduction;
         LimitType limitType;
+        List<ContingencyContext> contingencyContexts;
         List<NetworkElementCriterion> networkElementCriteria;
         List<LimitDurationCriterion> durationCriteria;
     }
@@ -51,7 +53,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
                 }
                 case "contingencyContexts" -> {
                     parser.nextToken();
-                    context.networkElementCriteria = JsonUtil.readList(deserializationContext, parser, ContingencyContext.class);
+                    context.contingencyContexts = JsonUtil.readList(deserializationContext, parser, ContingencyContext.class);
                     return true;
                 }
                 case "equipmentCriteria" -> {
@@ -69,14 +71,9 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
                 }
             }
         });
-        LimitReductionDefinition definition = new LimitReductionDefinition(context.limitType)
-                .setLimitReduction(context.limitReduction);
-        if (context.networkElementCriteria != null) {
-            definition.setNetworkElementCriteria(context.networkElementCriteria);
-        }
-        if (context.durationCriteria != null) {
-            definition.setDurationCriteria(context.durationCriteria);
-        }
-        return definition;
+        return new LimitReductionDefinition(context.limitType, context.limitReduction,
+                context.contingencyContexts != null ? context.contingencyContexts : Collections.emptyList(),
+                context.networkElementCriteria != null ? context.networkElementCriteria : Collections.emptyList(),
+                context.durationCriteria != null ? context.durationCriteria : Collections.emptyList());
     }
 }

@@ -32,9 +32,9 @@ public class LineCriterionDeserializer extends AbstractNetworkElementCriterionDe
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 LineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE));
 
-        return new LineCriterion(parsingContext.name)
-                .setTwoCountriesCriterion((TwoCountriesCriterion) parsingContext.countryCriterion)
-                .setSingleNominalVoltageCriterion((SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
+        return new LineCriterion(parsingContext.name,
+                (TwoCountriesCriterion) parsingContext.countryCriterion,
+                (SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
     }
 
 }

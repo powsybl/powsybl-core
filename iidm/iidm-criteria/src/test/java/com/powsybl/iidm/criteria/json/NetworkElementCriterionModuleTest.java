@@ -36,11 +36,10 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
 
     @Test
     void lineCriterionRoundTripTest() throws IOException {
-        LineCriterion criterion = new LineCriterion("criterion1")
-                .setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR, Country.BE)))
-                        .setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
+        LineCriterion criterion = new LineCriterion("criterion1", new TwoCountriesCriterion(List.of(Country.FR, Country.BE)),
+                        new SingleNominalVoltageCriterion(
                                 new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
-        LineCriterion empty = new LineCriterion();
+        LineCriterion empty = new LineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readLineCriteria,
@@ -49,11 +48,10 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
 
     @Test
     void tieLineCriterionRoundTripTest() throws IOException {
-        TieLineCriterion criterion = new TieLineCriterion("criterion5")
-                .setTwoCountriesCriterion(new TwoCountriesCriterion(List.of(Country.FR, Country.DE)))
-                .setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
+        TieLineCriterion criterion = new TieLineCriterion("criterion5", new TwoCountriesCriterion(List.of(Country.FR, Country.DE)),
+                new SingleNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
-        TieLineCriterion empty = new TieLineCriterion();
+        TieLineCriterion empty = new TieLineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readTieLineCriteria,
@@ -62,12 +60,12 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
 
     @Test
     void twoWindingsTransformerCriterionRoundTripTest() throws IOException {
-        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion("criterion2")
-                .setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)))
-                .setTwoNominalVoltageCriterion(new TwoNominalVoltageCriterion(
+        TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion("criterion2",
+                new SingleCountryCriterion(List.of(Country.FR, Country.BE)),
+                new TwoNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(380., 420., true, false)));
-        TwoWindingsTransformerCriterion empty = new TwoWindingsTransformerCriterion();
+        TwoWindingsTransformerCriterion empty = new TwoWindingsTransformerCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readTwoWindingsTransformerCriteria,
@@ -76,13 +74,13 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
 
     @Test
     void threeWindingsTransformerCriterionRoundTripTest() throws IOException {
-        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion("criterion3")
-                .setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.BE)))
-                .setThreeNominalVoltageCriterion(new ThreeNominalVoltageCriterion(
+        ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion("criterion3",
+                new SingleCountryCriterion(List.of(Country.BE)),
+                new ThreeNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(190., 220., false, true),
                         new SingleNominalVoltageCriterion.VoltageInterval(380., 420., true, false)));
-        ThreeWindingsTransformerCriterion empty = new ThreeWindingsTransformerCriterion();
+        ThreeWindingsTransformerCriterion empty = new ThreeWindingsTransformerCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readThreeWindingsTransformerCriteria,

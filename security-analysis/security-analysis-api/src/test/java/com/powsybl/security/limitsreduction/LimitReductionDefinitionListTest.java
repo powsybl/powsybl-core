@@ -38,20 +38,18 @@ class LimitReductionDefinitionListTest {
     @BeforeAll
     static void init() {
         networkElementCriterion1 = new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"));
-        networkElementCriterion2 = new LineCriterion().setSingleNominalVoltageCriterion(new SingleNominalVoltageCriterion(
+        networkElementCriterion2 = new LineCriterion(null, new SingleNominalVoltageCriterion(
                 new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false)));
-        networkElementCriterion3 = new TwoWindingsTransformerCriterion().setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)));
-        networkElementCriterion4 = new ThreeWindingsTransformerCriterion().setSingleCountryCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)));
+        networkElementCriterion3 = new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
+        networkElementCriterion4 = new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
 
         contingencyContext1 = ContingencyContext.specificContingency("contingency1");
-        definition1 = new LimitReductionDefinition(LimitType.CURRENT)
-                .setLimitReduction(0.9f)
-                .setNetworkElementCriteria(networkElementCriterion1, networkElementCriterion2,
-                        networkElementCriterion3, networkElementCriterion4)
-                .setContingencyContexts(contingencyContext1, ContingencyContext.none())
-                .setDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
-        definition2 = new LimitReductionDefinition(LimitType.ACTIVE_POWER)
-                .setLimitReduction(0.8f);
+        definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f,
+                List.of(contingencyContext1, ContingencyContext.none()),
+                List.of(networkElementCriterion1, networkElementCriterion2,
+                        networkElementCriterion3, networkElementCriterion4),
+                List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion()));
+        definition2 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f);
     }
 
     @Test
@@ -96,19 +94,17 @@ class LimitReductionDefinitionListTest {
 
     @Test
     void unsupportedLimitType() {
-        Exception e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.VOLTAGE));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.VOLTAGE, 0.9f));
         assertEquals("VOLTAGE is not a supported limit type for limit reduction", e.getMessage());
     }
 
     @Test
     void unsupportedLimitReductionValues() {
         String expectedMessage = "Limit reduction value should be in [0;1]";
-        LimitReductionDefinition definition = new LimitReductionDefinition(LimitType.CURRENT);
-
-        Exception e = assertThrows(PowsyblException.class, () -> definition.setLimitReduction(-0.5f));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.CURRENT, -0.5f));
         assertEquals(expectedMessage, e.getMessage());
 
-        e = assertThrows(PowsyblException.class, () -> definition.setLimitReduction(1.3f));
+        e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.CURRENT, 1.3f));
         assertEquals(expectedMessage, e.getMessage());
     }
 }

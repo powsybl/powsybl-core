@@ -32,8 +32,8 @@ public class ThreeWindingsTransformerCriterionDeserializer extends AbstractNetwo
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 ThreeWindingsTransformerCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.THREE_NOMINAL_VOLTAGE));
 
-        return new ThreeWindingsTransformerCriterion(parsingContext.name)
-                .setSingleCountryCriterion((SingleCountryCriterion) parsingContext.countryCriterion)
-                .setThreeNominalVoltageCriterion((ThreeNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
+        return new ThreeWindingsTransformerCriterion(parsingContext.name,
+                (SingleCountryCriterion) parsingContext.countryCriterion,
+                (ThreeNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
     }
 }

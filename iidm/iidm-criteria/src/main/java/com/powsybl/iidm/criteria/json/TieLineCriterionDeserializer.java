@@ -32,8 +32,8 @@ public class TieLineCriterionDeserializer extends AbstractNetworkElementCriterio
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 TieLineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE));
 
-        return new TieLineCriterion(parsingContext.name)
-                .setTwoCountriesCriterion((TwoCountriesCriterion) parsingContext.countryCriterion)
-                .setSingleNominalVoltageCriterion((SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
+        return new TieLineCriterion(parsingContext.name,
+                (TwoCountriesCriterion) parsingContext.countryCriterion,
+                (SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
     }
 }

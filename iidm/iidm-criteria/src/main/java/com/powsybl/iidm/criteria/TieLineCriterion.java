@@ -14,15 +14,17 @@ package com.powsybl.iidm.criteria;
 public class TieLineCriterion extends AbstractNetworkElementEquipmentCriterion {
     public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.TIE_LINE;
 
-    private TwoCountriesCriterion twoCountriesCriterion;
-    private SingleNominalVoltageCriterion singleNominalVoltageCriterion;
+    private final TwoCountriesCriterion twoCountriesCriterion;
+    private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
-    public TieLineCriterion() {
-        super();
+    public TieLineCriterion(TwoCountriesCriterion twoCountriesCriterion, SingleNominalVoltageCriterion singleNominalVoltageCriterion) {
+        this(null, twoCountriesCriterion, singleNominalVoltageCriterion);
     }
 
-    public TieLineCriterion(String name) {
+    public TieLineCriterion(String name, TwoCountriesCriterion twoCountriesCriterion, SingleNominalVoltageCriterion singleNominalVoltageCriterion) {
         super(name);
+        this.twoCountriesCriterion = twoCountriesCriterion;
+        this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
     }
 
     @Override
@@ -35,18 +37,9 @@ public class TieLineCriterion extends AbstractNetworkElementEquipmentCriterion {
         return twoCountriesCriterion;
     }
 
-    public TieLineCriterion setTwoCountriesCriterion(TwoCountriesCriterion twoCountriesCriterion) {
-        this.twoCountriesCriterion = twoCountriesCriterion;
-        return this;
-    }
-
     @Override
     public SingleNominalVoltageCriterion getNominalVoltageCriterion() {
         return singleNominalVoltageCriterion;
     }
 
-    public TieLineCriterion setSingleNominalVoltageCriterion(SingleNominalVoltageCriterion singleNominalVoltageCriterion) {
-        this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
-        return this;
-    }
 }
