@@ -222,7 +222,6 @@ public final class NetworkSerDe {
             return false;
         }
         boolean versionExist = true;
-
         if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?> networkExtensionSerializer) {
             versionExist = networkExtensionSerializer.versionExists(version);
         }
@@ -231,7 +230,6 @@ public final class NetworkSerDe {
                     extensionSerDe.getExtensionName());
             throwExceptionIfOption(options, message);
         }
-
         return versionExist;
     }
 
