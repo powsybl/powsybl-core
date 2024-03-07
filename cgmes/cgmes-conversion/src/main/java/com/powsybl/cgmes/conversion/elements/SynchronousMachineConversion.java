@@ -15,7 +15,9 @@ import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.extensions.ReferencePrioritiesAdder;
+
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -59,14 +61,13 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
         if (p.asInt("referencePriority", 0) > 0) {
-            // We could find multiple generators with the same priority,
-            // we will only change the terminal of the slack extension if the previous was not connected
-            SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
-            if (st == null) {
-                SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
-            } else if (!st.getTerminal().isConnected()) {
-                st.setTerminal(g.getTerminal());
-            }
+            // Create a ReferencePriorities and a ReferencePriority extension
+            g.newExtension(ReferencePrioritiesAdder.class).add();
+            ReferencePriorities referencePriorities = g.getExtension(ReferencePriorities.class);
+            referencePriorities.newReferencePriority()
+                    .setTerminal(g.getTerminal())
+                    .setPriority(p.asInt("referencePriority", 0))
+                    .add();
         }
         double normalPF = p.asDouble("normalPF");
         if (!Double.isNaN(normalPF)) {
