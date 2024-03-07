@@ -15,6 +15,10 @@ import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.limitreduction.computer.AbstractReducedLimitsComputer;
+import com.powsybl.iidm.network.limitreduction.computer.ReducedLimitsComputer;
+import com.powsybl.iidm.network.limitreduction.result.LimitsContainer;
+import com.powsybl.iidm.network.limitreduction.result.UnalteredLimitsContainer;
 
 import java.util.Collections;
 import java.util.List;

@@ -5,11 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.iidm.network.limitreduction.result;
+
+import com.powsybl.iidm.network.limitreduction.computer.ReducedLimitsComputer;
 
 /**
  * <p>Class corresponding to the result of the {@link ReducedLimitsComputer} computation.</p>
- * <p>It contains the original and the altered limits. When no reductions apply, both fields contains the same object.</p>
+ * <p>It contains the original and the altered limits. When no reductions apply, both fields contains the same object.
+ * and {@link #isSameAsOriginal} returns <code>true</code>.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public interface LimitsContainer<L> {

@@ -5,12 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.iidm.network.limitreduction.computer;
 
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.limitreduction.result.LimitsContainer;
+import com.powsybl.iidm.network.limitreduction.result.UnalteredLimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Optional;

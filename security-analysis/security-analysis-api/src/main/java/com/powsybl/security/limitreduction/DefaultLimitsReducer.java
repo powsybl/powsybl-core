@@ -9,6 +9,7 @@ package com.powsybl.security.limitreduction;
 
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.limitreduction.result.*;
 
 import java.util.Comparator;
 import java.util.List;

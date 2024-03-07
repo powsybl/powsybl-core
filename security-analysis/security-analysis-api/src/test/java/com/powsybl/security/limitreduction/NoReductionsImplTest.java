@@ -8,6 +8,8 @@
 package com.powsybl.security.limitreduction;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.limitreduction.computer.ReducedLimitsComputer;
+import com.powsybl.iidm.network.limitreduction.result.LimitsContainer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
