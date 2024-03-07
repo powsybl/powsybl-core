@@ -525,14 +525,14 @@ public class CgmesExportContext {
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && canGeneratorControl(generator)) {
+            if (regulatingControlId == null && hasVoltageControlCapability(generator)) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(generator), Part.REGULATING_CONTROL);
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
         }
     }
 
-    private static boolean canGeneratorControl(Generator generator) {
+    private static boolean hasVoltageControlCapability(Generator generator) {
         if (Double.isNaN(generator.getTargetV()) || generator.getReactiveLimits() == null) {
             return false;
         }
