@@ -188,9 +188,47 @@ public abstract class AbstractTieLineTest {
         assertTrue(otherSide2.isPresent());
         assertEquals(danglingLine1, otherSide2.orElseThrow());
 
-        // try to change pairing key, but not allowed.
-        assertThrows(ValidationException.class, () -> danglingLine1.setPairingKey("new_code"),
-                "Dangling line 'hl1': pairing key cannot be set if dangling line is paired.");
+    }
+
+    @Test
+    public void setPairingKeyTest() {
+        network = EurostagTutorialExample1Factory.createWithTieLine();
+
+        DanglingLine dl11 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_1);
+        DanglingLine dl12 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_2);
+        assertTrue(dl11.isPaired());
+        assertTrue(dl12.isPaired());
+        String tl1Id = "NHV1_NHV2_1";
+        String pairingKey1 = dl11.getPairingKey();
+        assertEquals(tl1Id, dl11.getTieLine().map(TieLine::getId).orElse(null));
+        assertEquals(tl1Id, dl12.getTieLine().map(TieLine::getId).orElse(null));
+
+        // unpair tie line tl1 by setting a new pairing key on dl11
+        String newPairingKey = "new pairing key";
+        dl11.setPairingKey(newPairingKey);
+        assertFalse(dl11.isPaired());
+        assertFalse(dl12.isPaired());
+        assertNull(network.getTieLine(tl1Id));
+
+        DanglingLine dl21 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE2_1);
+        DanglingLine dl22 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE2_2);
+        assertTrue(dl21.isPaired());
+        assertTrue(dl22.isPaired());
+        String tl2Id = "NHV1_NHV2_2";
+        assertEquals(tl2Id, dl21.getTieLine().map(TieLine::getId).orElse(null));
+        assertEquals(tl2Id, dl22.getTieLine().map(TieLine::getId).orElse(null));
+
+        // unpair tie line tl2 and create new tie line by setting the same new pairing key on dl22
+        dl22.setPairingKey(newPairingKey);
+        assertTrue(dl11.isPaired());
+        assertTrue(dl22.isPaired());
+        assertFalse(dl21.isPaired());
+        assertNull(network.getTieLine(tl2Id));
+
+        // pairing together the two remaining dangling lines dl12 and dl21
+        dl21.setPairingKey(pairingKey1);
+        assertTrue(dl12.isPaired());
+        assertTrue(dl21.isPaired());
     }
 
     @Test
