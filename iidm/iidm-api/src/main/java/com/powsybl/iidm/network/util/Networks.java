@@ -12,7 +12,7 @@ import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.HorizontalAlignment;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;

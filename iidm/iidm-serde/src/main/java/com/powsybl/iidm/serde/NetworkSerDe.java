@@ -25,7 +25,7 @@ import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonReader;
 import com.powsybl.commons.json.JsonWriter;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;

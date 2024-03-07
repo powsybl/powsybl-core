@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

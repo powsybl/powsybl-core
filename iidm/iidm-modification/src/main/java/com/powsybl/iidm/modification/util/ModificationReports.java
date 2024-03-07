@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.modification.util;
 
-import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode;
 import com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType;
 import com.powsybl.iidm.network.*;

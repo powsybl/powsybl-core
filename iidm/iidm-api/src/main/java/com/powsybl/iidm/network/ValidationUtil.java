@@ -8,8 +8,8 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

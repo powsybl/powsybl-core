@@ -7,7 +7,7 @@
  */
 package com.powsybl.ucte.network.io;
 
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.ucte.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

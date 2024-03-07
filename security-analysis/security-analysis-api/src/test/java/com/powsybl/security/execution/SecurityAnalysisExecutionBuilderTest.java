@@ -7,7 +7,7 @@
 package com.powsybl.security.execution;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;

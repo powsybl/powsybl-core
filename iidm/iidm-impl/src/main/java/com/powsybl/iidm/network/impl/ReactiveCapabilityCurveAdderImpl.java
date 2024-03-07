@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.Validable;

@@ -9,7 +9,7 @@ package com.powsybl.cgmes.model.triplestore;
 
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.*;
 import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;

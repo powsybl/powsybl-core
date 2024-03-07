@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.Sets;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 

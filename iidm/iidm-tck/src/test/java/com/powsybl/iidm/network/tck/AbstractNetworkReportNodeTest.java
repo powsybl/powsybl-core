@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReporterContext;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;

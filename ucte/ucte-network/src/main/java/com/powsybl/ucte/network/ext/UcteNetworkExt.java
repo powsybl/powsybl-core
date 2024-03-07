@@ -8,7 +8,7 @@ package com.powsybl.ucte.network.ext;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.ucte.network.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;

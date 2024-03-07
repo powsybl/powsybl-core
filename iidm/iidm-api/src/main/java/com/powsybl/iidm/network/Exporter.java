@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.parameters.Parameter;
 
 import java.util.*;

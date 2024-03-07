@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 
 import java.util.Set;
 

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.commons.reporter;
+package com.powsybl.commons.report;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

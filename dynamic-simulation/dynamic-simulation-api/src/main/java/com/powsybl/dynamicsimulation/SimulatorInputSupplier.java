@@ -7,7 +7,7 @@
 
 package com.powsybl.dynamicsimulation;
 
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;

@@ -7,7 +7,7 @@
 package com.powsybl.dynamicsimulation.groovy
 
 import com.google.auto.service.AutoService
-import com.powsybl.commons.reporter.ReportNode
+import com.powsybl.commons.report.ReportNode
 import com.powsybl.dsl.DslException
 import com.powsybl.dynamicsimulation.Curve
 

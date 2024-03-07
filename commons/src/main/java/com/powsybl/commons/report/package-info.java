@@ -10,4 +10,4 @@
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-package com.powsybl.commons.reporter;
+package com.powsybl.commons.report;

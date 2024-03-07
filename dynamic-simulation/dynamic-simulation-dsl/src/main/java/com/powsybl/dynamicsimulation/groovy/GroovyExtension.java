@@ -7,7 +7,7 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynamicsimulation.DynamicSimulationProvider;
 import groovy.lang.Binding;
 

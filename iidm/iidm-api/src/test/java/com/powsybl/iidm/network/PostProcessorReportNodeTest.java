@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.ReportRootDeserializer;
-import com.powsybl.commons.reporter.ReportRootSerializer;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportRootDeserializer;
+import com.powsybl.commons.report.ReportRootSerializer;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.ComputationManager;
 import org.junit.jupiter.api.Test;

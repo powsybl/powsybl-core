@@ -6,8 +6,8 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.ReportNode;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}

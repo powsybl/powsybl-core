@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
 import com.powsybl.dsl.ExpressionDslLoader;

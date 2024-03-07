@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.tools.ExporterMockWithReporter;
 import org.junit.jupiter.api.Test;

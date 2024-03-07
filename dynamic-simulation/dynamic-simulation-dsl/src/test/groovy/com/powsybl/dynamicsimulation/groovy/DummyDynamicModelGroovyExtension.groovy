@@ -7,7 +7,7 @@
 package com.powsybl.dynamicsimulation.groovy
 
 
-import com.powsybl.commons.reporter.ReportNode
+import com.powsybl.commons.report.ReportNode
 
 import java.util.function.Consumer
 

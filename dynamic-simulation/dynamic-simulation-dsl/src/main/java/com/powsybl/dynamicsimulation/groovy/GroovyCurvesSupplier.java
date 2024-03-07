@@ -7,7 +7,7 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dsl.ExpressionDslLoader;
 import com.powsybl.dsl.GroovyScripts;
 import com.powsybl.dynamicsimulation.Curve;

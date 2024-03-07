@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.tools;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.Network;
 

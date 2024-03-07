@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.AbstractModificationTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;

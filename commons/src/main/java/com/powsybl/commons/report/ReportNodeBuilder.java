@@ -5,17 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.commons.reporter;
+package com.powsybl.commons.report;
 
 /**
- * An adder to create a {@link ReportNode} object.
+ * A builder to create a {@link ReportNode} object.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface ReportNodeAdder extends ReportNodeAdderOrBuilder<ReportNodeAdder> {
+public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBuilder> {
     /**
-     * Build and add the corresponding {@link ReportNode}.
-     * @return the new {@link ReportNode} corresponding to current <code>ReportNodeAdder</code>
+     * Build the corresponding {@link ReportNode}.
+     * @return the new {@link ReportNode} corresponding to current <code>ReportNodeBuilder</code>
      */
-    ReportNode add();
+    ReportNode build();
 }
