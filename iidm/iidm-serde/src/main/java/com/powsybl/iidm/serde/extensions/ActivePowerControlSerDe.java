@@ -33,6 +33,8 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
         super("activePowerControl", ActivePowerControl.class, "apc",
                 new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
                         .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.0", "1.1"))
@@ -56,7 +58,7 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
         context.getWriter().writeDoubleAttribute("droop", activePowerControl.getDroop());
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         String extVersionStr = networkContext.getExtensionVersion(ConnectablePosition.NAME)
-            .orElseGet(() -> getVersion(networkContext.getVersion()));
+                .orElseGet(() -> getVersion(networkContext.getVersion()));
         if ("1.1".compareTo(extVersionStr) <= 0) {
             context.getWriter().writeDoubleAttribute("participationFactor", activePowerControl.getParticipationFactor());
         }

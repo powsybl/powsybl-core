@@ -115,7 +115,6 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String SORTED = "iidm.export.xml.sorted";
     public static final String VERSION = "iidm.export.xml.version";
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.export.xml.with-automation-systems";
-    public static final String WITH_ACTIVE_POWER_CONTROL_V_1_0 = "iidm.export.xml.with-active-power-control-v-1-0";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
@@ -135,12 +134,11 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             Arrays.stream(IidmVersion.values()).map(v -> v.toString(".")).collect(Collectors.toList()));
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
             "Export network with automation systems", Boolean.TRUE);
-    private static final Parameter WITH_ACTIVE_POWER_CONTROL_V_1_0_PARAMETER = new Parameter(WITH_ACTIVE_POWER_CONTROL_V_1_0, ParameterType.BOOLEAN,
-            "Export network in IIDM v1.0 with ActivePowerControlExtension", Boolean.FALSE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
-            SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER, WITH_ACTIVE_POWER_CONTROL_V_1_0_PARAMETER);
+            SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -202,8 +200,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setSorted(Parameter.readBoolean(getFormat(), parameters, SORTED_PARAMETER, defaultValueConfig))
                 .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig))
                 .setFormat(getTreeDataFormat())
-                .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
-                .setWithActivePowerControlV10(Parameter.readBoolean(getFormat(), parameters, WITH_ACTIVE_POWER_CONTROL_V_1_0_PARAMETER, defaultValueConfig));
+                .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig));
 
         addExtensionsVersions(parameters, options);
         return options;

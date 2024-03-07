@@ -51,8 +51,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private Charset charset = StandardCharsets.UTF_8;
 
-    private boolean withActivePowerControl = false;
-
     /**
      * Sort IIDM objects so that generated XML does not depend on data model object order. Depending on object types the
      * following sorting key has been chosen:
@@ -82,16 +80,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version) {
-        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, THROW_EXCEPTION, false);
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, THROW_EXCEPTION);
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
                          IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
-        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, iidmVersionIncompatibilityBehavior, false);
-    }
-
-    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
-                         IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior, boolean withActivePowerControl) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
@@ -100,15 +93,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.sorted = sorted;
         this.version = version;
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
-        this.withActivePowerControl = checkWithActivePowerControl(withActivePowerControl, version);
-    }
-
-    private boolean checkWithActivePowerControl(boolean withActivePowerControl, String version) {
-        if (version != null && !version.equals("1.0") && withActivePowerControl) {
-            LOGGER.warn("Parameter withActivePowerControlV10 activated but export not in IIDM 1.0, it is ignored");
-            return false;
-        }
-        return withActivePowerControl;
     }
 
     @Override
@@ -260,14 +244,4 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.withAutomationSystems = withAutomationSystems;
         return this;
     }
-
-    public boolean isWithActivePowerControlV10() {
-        return withActivePowerControl;
-    }
-
-    public ExportOptions setWithActivePowerControlV10(boolean withActivePowerControlV10) {
-        this.withActivePowerControl = checkWithActivePowerControl(withActivePowerControlV10, this.version);
-        return this;
-    }
-
 }

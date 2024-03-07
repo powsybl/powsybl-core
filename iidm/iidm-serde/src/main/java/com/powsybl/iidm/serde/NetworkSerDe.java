@@ -231,9 +231,6 @@ public final class NetworkSerDe {
                     extensionSerDe.getExtensionName());
             throwExceptionIfOption(options, message);
         }
-        if (extensionSerDe.getExtensionName().equals("activePowerControl") && version.equals(IidmVersion.V_1_0) && !options.isWithActivePowerControlV10()) {
-            return false;
-        }
 
         return versionExist;
     }
