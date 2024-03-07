@@ -517,19 +517,55 @@ public class CgmesExportContext {
         }
     }
 
+    private static boolean isCondenser(Generator generator) {
+        // TODO(Luma) This has to be revisited with the pull request for preserving detailed info for generators (#2726)
+        return generator.getMinP() == 0 && generator.getMaxP() == 0;
+    }
+
     private void addIidmMappingsGenerators(Network network) {
         for (Generator generator : network.getGenerators()) {
-            String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
-            if (generatingUnit == null) {
-                generatingUnit = namingStrategy.getCgmesId(ref(generator), refGeneratingUnit(generator));
-                generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
+            // Condensers should not have generating units
+            if (!isCondenser(generator)) {
+                String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
+                if (generatingUnit == null) {
+                    generatingUnit = namingStrategy.getCgmesId(ref(generator), refGeneratingUnit(generator));
+                    generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
+                }
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && (generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && hasVoltageControlCapability(generator)) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(generator), Part.REGULATING_CONTROL);
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
         }
+    }
+
+    private static boolean hasVoltageControlCapability(Generator generator) {
+        if (Double.isNaN(generator.getTargetV()) || generator.getReactiveLimits() == null) {
+            return false;
+        }
+
+        ReactiveLimits reactiveLimits = generator.getReactiveLimits();
+        if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
+            return hasReactiveCapability((ReactiveCapabilityCurve) reactiveLimits);
+        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+            return hasReactiveCapability((MinMaxReactiveLimits) reactiveLimits);
+        }
+
+        return false;
+    }
+
+    private static boolean hasReactiveCapability(ReactiveCapabilityCurve rcc) {
+        for (ReactiveCapabilityCurve.Point point : rcc.getPoints()) {
+            if (point.getMaxQ() != point.getMinQ()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasReactiveCapability(MinMaxReactiveLimits mmrl) {
+        return mmrl.getMaxQ() != mmrl.getMinQ();
     }
 
     private void addIidmMappingsBatteries(Network network) {

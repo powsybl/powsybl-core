@@ -139,7 +139,7 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
     @Override
     public int hashCode() {
-        return child.hashCode() + operator.hashCode();
+        return Objects.hash(child, operator, NAME);
     }
 
     @Override
