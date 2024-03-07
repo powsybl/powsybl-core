@@ -203,6 +203,12 @@ public abstract class AbstractTieLineTest {
         assertEquals(tl1Id, dl11.getTieLine().map(TieLine::getId).orElse(null));
         assertEquals(tl1Id, dl12.getTieLine().map(TieLine::getId).orElse(null));
 
+        // should not unpair if setting same pairing key
+        dl11.setPairingKey(pairingKey1);
+        assertTrue(dl11.isPaired());
+        assertTrue(dl12.isPaired());
+        assertNotNull(network.getTieLine(tl1Id));
+
         // unpair tie line tl1 by setting a new pairing key on dl11
         String newPairingKey = "new pairing key";
         dl11.setPairingKey(newPairingKey);

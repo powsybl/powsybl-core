@@ -418,26 +418,29 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLine setPairingKey(String pairingKey) {
-        if (tieLine != null) {
-            tieLine.remove();
+        if (!Objects.equals(this.pairingKey, pairingKey)) {
+            if (tieLine != null) {
+                tieLine.remove();
+            }
+
+            Map<Boolean, List<DanglingLine>> candidates = network.get().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                    .filter(dl -> pairingKey.equals(dl.getPairingKey()))
+                    .collect(Collectors.groupingBy(dl -> dl.getTerminal().isConnected()));
+            DanglingLine pairingCandidate = TieLineUtil.chooseDanglingLine(pairingKey,
+                    candidates.getOrDefault(true, List.of()),
+                    candidates.getOrDefault(false, List.of()),
+                    true);
+
+            String oldValue = this.pairingKey;
+            this.pairingKey = pairingKey;
+
+            if (pairingCandidate != null) {
+                TieLineUtil.pairDanglingLinesWithTieLine(this, pairingCandidate, network.get().newTieLine());
+            }
+
+            notifyUpdate("pairing_key", oldValue, pairingKey);
         }
 
-        Map<Boolean, List<DanglingLine>> candidates = network.get().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
-                .filter(dl -> pairingKey.equals(dl.getPairingKey()))
-                .collect(Collectors.groupingBy(dl -> dl.getTerminal().isConnected()));
-        DanglingLine pairingCandidate = TieLineUtil.chooseDanglingLine(pairingKey,
-                candidates.getOrDefault(true, List.of()),
-                candidates.getOrDefault(false, List.of()),
-                true);
-
-        String oldValue = this.pairingKey;
-        this.pairingKey = pairingKey;
-
-        if (pairingCandidate != null) {
-            TieLineUtil.pairDanglingLinesWithTieLine(this, pairingCandidate, network.get().newTieLine());
-        }
-
-        notifyUpdate("pairing_key", oldValue, pairingKey);
         return this;
     }
 
