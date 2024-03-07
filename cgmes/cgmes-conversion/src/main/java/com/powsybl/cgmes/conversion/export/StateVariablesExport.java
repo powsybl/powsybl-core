@@ -14,8 +14,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ReferencePriorities;
-import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.SwitchesFlow;
 import org.slf4j.Logger;
@@ -99,23 +98,21 @@ public final class StateVariablesExport {
 
     private static Map<String, String> buildAngleRefs(Network network, CgmesExportContext context) {
         Map<String, String> angleRefs = new HashMap<>();
-        for (ReferencePriority referencePriority : ReferencePriorities.get(network)) {
-            buildAngleRefs(referencePriority, angleRefs, context);
-        }
+        ReferenceTerminals.getTerminals(network).forEach(t -> buildAngleRefs(t, angleRefs, context));
         return angleRefs;
     }
 
-    private static void buildAngleRefs(ReferencePriority referencePriority, Map<String, String> angleRefs, CgmesExportContext context) {
-        if (referencePriority != null && referencePriority.getTerminal() != null) {
-            Bus bus = referencePriority.getTerminal().getBusBreakerView().getBus();
+    private static void buildAngleRefs(Terminal referenceTerminal, Map<String, String> angleRefs, CgmesExportContext context) {
+        if (referenceTerminal != null) {
+            Bus bus = referenceTerminal.getBusBreakerView().getBus();
             if (bus != null && bus.getSynchronousComponent() != null) {
                 buildAngleRefs(bus.getSynchronousComponent().getNum(), bus, angleRefs, context);
             } else if (bus != null) {
                 buildAngleRefs(bus, angleRefs, context);
             } else {
                 Supplier<String> message = () -> String.format(
-                        "terminal at equipment %s is not connected and is not exported as Reference Priority terminal",
-                        referencePriority.getTerminal().getConnectable().getId());
+                        "Reference terminal at equipment %s is not connected and is not used to export angle references",
+                        referenceTerminal.getConnectable().getId());
                 LOG.info(message.get());
             }
         }

@@ -15,8 +15,7 @@ import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.ReferencePriorities;
-import com.powsybl.iidm.network.extensions.ReferencePrioritiesAdder;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -60,14 +59,9 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
-        if (p.asInt("referencePriority", 0) > 0) {
-            // Create a ReferencePriorities and a ReferencePriority extension
-            g.newExtension(ReferencePrioritiesAdder.class).add();
-            ReferencePriorities referencePriorities = g.getExtension(ReferencePriorities.class);
-            referencePriorities.newReferencePriority()
-                    .setTerminal(g.getTerminal())
-                    .setPriority(p.asInt("referencePriority", 0))
-                    .add();
+        int referencePriority = p.asInt("referencePriority", 0);
+        if (referencePriority > 0) {
+            ReferencePriority.set(g, referencePriority);
         }
         double normalPF = p.asDouble("normalPF");
         if (!Double.isNaN(normalPF)) {

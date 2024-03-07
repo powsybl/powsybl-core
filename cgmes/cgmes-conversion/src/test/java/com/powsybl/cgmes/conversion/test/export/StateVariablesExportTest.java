@@ -23,6 +23,8 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -368,8 +370,10 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         Path outputSv = fileSystem.getPath("tmp-grid_SV.xml");
         Properties parameters = new Properties();
         parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
-        network.write("CGMES", parameters, outputPath);
 
+        setReferenceTerminalsFromReferencePriority(network);
+
+        network.write("CGMES", parameters, outputPath);
         assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
     }
 
@@ -382,6 +386,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         Path outputSv = fileSystem.getPath("tmp-grid_SV.xml");
         Properties parameters = new Properties();
         parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
+
+        setReferenceTerminalsFromReferencePriority(network);
 
         network.write("CGMES", parameters, outputPath);
         assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
@@ -413,6 +419,14 @@ class StateVariablesExportTest extends AbstractSerDeTest {
             throw new RuntimeException(e);
         }
         return description;
+    }
+
+    private static void setReferenceTerminalsFromReferencePriority(Network network) {
+        // Assume all terminals with reference priority > 0 are set as angle reference terminals by the load flow
+        ReferencePriorities.get(network)
+                .stream()
+                .filter(p -> p.getPriority() > 0)
+                .forEach(p -> ReferenceTerminals.addTerminal(p.getTerminal()));
     }
 
     private static String buildNetworkSvTapStepsString(Network network) {

@@ -17,7 +17,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import org.slf4j.Logger;
@@ -274,9 +273,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection
-            ReferencePriorities priorities = g.getExtension(ReferencePriorities.class);
-            int priority = (priorities != null) ? ((ReferencePriority) priorities.getReferencePriorities().iterator().next()).getPriority() : 0;
-            writer.writeCharacters(CgmesExportUtil.format(priority));
+            writer.writeCharacters(Integer.toString(ReferencePriority.get(g)));
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(g.getTargetP(), g.getMinP(), g.getReactiveLimits()));
