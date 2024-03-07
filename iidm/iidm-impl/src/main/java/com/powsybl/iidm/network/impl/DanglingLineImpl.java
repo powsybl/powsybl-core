@@ -425,9 +425,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         Map<Boolean, List<DanglingLine>> candidates = network.get().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
                 .filter(dl -> pairingKey.equals(dl.getPairingKey()))
                 .collect(Collectors.groupingBy(dl -> dl.getTerminal().isConnected()));
-        DanglingLine candidatePairingDl = TieLineUtil.chooseDanglingLine(pairingKey, candidates.get(true), candidates.get(false), true);
-        if (candidatePairingDl != null) {
-
+        DanglingLine pairingCandidate = TieLineUtil.chooseDanglingLine(pairingKey, candidates.get(true), candidates.get(false), true);
+        if (pairingCandidate != null) {
+            TieLineUtil.pairDanglingLinesWithTieLine(this, pairingCandidate, network.get().newTieLine());
         }
 
         String oldValue = this.pairingKey;

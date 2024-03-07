@@ -201,8 +201,9 @@ public final class TieLineUtil {
     public static DanglingLine chooseDanglingLine(String pairingKey, List<DanglingLine> connected, List<DanglingLine> disconnected, boolean doLog) {
         DanglingLine dl = null;
         if (connected.isEmpty()) {
-            dl = disconnected.get(0); // Cannot be empty here: we always have at least 1 connected or disconnected dangling line
-            if (disconnected.size() > 1 && doLog) {
+            if (disconnected.size() == 1) {
+                dl = disconnected.get(0);
+            } else if (disconnected.size() > 1 && doLog) {
                 LOGGER.warn("Several disconnected dangling lines {} (and no connected one) of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
                         disconnected.stream().map(DanglingLine::getId).toList(), pairingKey);
             }
@@ -270,7 +271,34 @@ public final class TieLineUtil {
                 }
             }
         }
+    }
 
+    /**
+     * Create TieLine with given dangling lines and thanks to given tieLineAdder.
+     * The danglingLine1 and danglingLine2 of the created tieLine are chosen to be in lexicographical order.
+     * @param dlA one dangling line
+     * @param dlB another dangling line
+     * @param tieLineAdder the adder to use to create the tieLine
+     * @return the created tieLine
+     */
+    public static TieLine pairDanglingLinesWithTieLine(DanglingLine dlA, DanglingLine dlB, TieLineAdder tieLineAdder) {
+        // Always keep the ids in lexicographical order (to ensure reproducibility)
+        boolean invertDl = dlA.getId().compareTo(dlB.getId()) > 0;
+        DanglingLine dl1 = invertDl ? dlB : dlA;
+        DanglingLine dl2 = invertDl ? dlA : dlB;
+
+        String tieLineId = buildMergedId(dl1.getId(), dl2.getId());
+        String tieLineName = buildMergedName(dl1.getId(), dl2.getId(),
+                dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
+
+        LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}", tieLineId, dl1.getId(), dl2.getId());
+        return tieLineAdder
+                .setId(tieLineId)
+                .setEnsureIdUnicity(true)
+                .setName(tieLineName)
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId())
+                .add();
     }
 
     public static double getR(DanglingLine dl1, DanglingLine dl2) {
