@@ -60,13 +60,13 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, elements);
+        return Objects.hash(id, name, elements);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Contingency other) {
-            return id.equals(other.id) && elements.equals(other.elements);
+            return id.equals(other.id) && Objects.equals(name, other.name) && elements.equals(other.elements);
         }
         return false;
     }
