@@ -9,19 +9,15 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-import com.powsybl.iidm.network.impl.MultiVariantObject;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public class VoltageRegulationImpl<T extends Injection<T> & ReactiveLimitsHolder> extends AbstractMultiVariantIdentifiableExtension<T> implements MultiVariantObject, VoltageRegulation<T> {
+public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExtension<Battery> implements VoltageRegulation {
 
     private final TBooleanArrayList voltageRegulatorOn;
 
@@ -29,8 +25,8 @@ public class VoltageRegulationImpl<T extends Injection<T> & ReactiveLimitsHolder
 
     private Terminal regulatingTerminal;
 
-    public VoltageRegulationImpl(T extendable, Terminal regulatingTerminal, Boolean voltageRegulatorOn, double targetV) {
-        super(extendable);
+    public VoltageRegulationImpl(Battery battery, Terminal regulatingTerminal, Boolean voltageRegulatorOn, double targetV) {
+        super(battery);
         checkRegulatingTerminal(regulatingTerminal, getNetworkFromExtendable());
         if (voltageRegulatorOn == null) {
             throw new PowsyblException("Voltage regulator status is not defined");

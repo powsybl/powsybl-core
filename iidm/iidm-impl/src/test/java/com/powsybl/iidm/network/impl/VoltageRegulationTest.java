@@ -36,7 +36,7 @@ public class VoltageRegulationTest {
         assertNotNull(bat);
 
         bat.newExtension(VoltageRegulationAdder.class).withRegulatingTerminal(bat.getTerminal()).withVoltageRegulatorOn(true).withTargetV(50.0).add();
-        VoltageRegulation<Battery> voltageRegulation = bat.getExtension(VoltageRegulation.class);
+        VoltageRegulation voltageRegulation = bat.getExtension(VoltageRegulation.class);
         assertEquals("voltageRegulation", voltageRegulation.getName());
         assertNotNull(voltageRegulation.getExtendable());
         assertEquals("BAT", voltageRegulation.getExtendable().getId());
@@ -60,7 +60,7 @@ public class VoltageRegulationTest {
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
 
-        VoltageRegulationAdder<?> adder = bat.newExtension(VoltageRegulationAdder.class)
+        VoltageRegulationAdder adder = bat.newExtension(VoltageRegulationAdder.class)
             .withRegulatingTerminal(bat.getTerminal())
             .withTargetV(50.0);
 
@@ -69,7 +69,7 @@ public class VoltageRegulationTest {
 
         Network network1 = BatteryNetworkFactory.create();
 
-        VoltageRegulationAdder<?> adder1 = bat.newExtension(VoltageRegulationAdder.class)
+        VoltageRegulationAdder adder1 = bat.newExtension(VoltageRegulationAdder.class)
             .withRegulatingTerminal(network1.getBattery("BAT").getTerminal())
             .withVoltageRegulatorOn(true)
             .withTargetV(50.0);

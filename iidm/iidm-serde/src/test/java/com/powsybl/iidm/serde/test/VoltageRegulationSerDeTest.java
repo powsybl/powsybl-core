@@ -48,13 +48,13 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
 
         Network network2 = allFormatsRoundTripTest(network, "voltageRegulationRoundTripRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
-        VoltageRegulation<Battery> voltageRegulationXml = network2.getBattery("BAT").getExtension(VoltageRegulation.class);
+        VoltageRegulation voltageRegulationXml = network2.getBattery("BAT").getExtension(VoltageRegulation.class);
         assertNotNull(voltageRegulationXml);
         assertEquals(100.0, voltageRegulationXml.getTargetV(), 0);
         assertTrue(voltageRegulationXml.isVoltageRegulatorOn());
         assertEquals(VoltageRegulation.NAME, voltageRegulationXml.getName());
 
-        VoltageRegulation<Battery> voltageRegulationXml2 = network2.getBattery("BAT2").getExtension(VoltageRegulation.class);
+        VoltageRegulation voltageRegulationXml2 = network2.getBattery("BAT2").getExtension(VoltageRegulation.class);
         assertNotNull(voltageRegulationXml);
         assertSame(network2.getGenerator("GEN").getTerminal(), voltageRegulationXml2.getRegulatingTerminal());
     }

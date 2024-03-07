@@ -8,23 +8,21 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public interface VoltageRegulationAdder<T extends Injection<T> & ReactiveLimitsHolder> extends ExtensionAdder<T, VoltageRegulation<T>> {
+public interface VoltageRegulationAdder extends ExtensionAdder<Battery, VoltageRegulation> {
 
     @Override
     default Class<VoltageRegulation> getExtensionClass() {
         return VoltageRegulation.class;
     }
 
-    VoltageRegulationAdder<T> withVoltageRegulatorOn(boolean voltageRegulatorOn);
+    VoltageRegulationAdder withVoltageRegulatorOn(boolean voltageRegulatorOn);
 
-    VoltageRegulationAdder<T> withTargetV(double targetV);
+    VoltageRegulationAdder withTargetV(double targetV);
 
-    VoltageRegulationAdder<T> withRegulatingTerminal(Terminal terminal);
+    VoltageRegulationAdder withRegulatingTerminal(Terminal terminal);
 }

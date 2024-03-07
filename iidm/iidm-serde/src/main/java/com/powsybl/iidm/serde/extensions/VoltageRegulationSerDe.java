@@ -13,8 +13,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import com.powsybl.iidm.serde.IidmVersion;
@@ -30,7 +29,7 @@ import java.util.Objects;
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 @AutoService(ExtensionSerDe.class)
-public class VoltageRegulationSerDe<T extends Injection<T> & ReactiveLimitsHolder> extends AbstractVersionableNetworkExtensionSerDe<T, VoltageRegulation<T>> {
+public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, VoltageRegulation> {
 
     public VoltageRegulationSerDe() {
         super("voltageRegulation", VoltageRegulation.class, "vr",
@@ -53,7 +52,7 @@ public class VoltageRegulationSerDe<T extends Injection<T> & ReactiveLimitsHolde
     }
 
     @Override
-    public void write(VoltageRegulation<T> voltageRegulation, SerializerContext context) {
+    public void write(VoltageRegulation voltageRegulation, SerializerContext context) {
         NetworkSerializerContext networkContext = convertContext(context);
         networkContext.getExtensionVersion(getExtensionName())
             .ifPresent(extensionVersion -> checkWritingCompatibility(extensionVersion, networkContext.getVersion()));
@@ -71,19 +70,19 @@ public class VoltageRegulationSerDe<T extends Injection<T> & ReactiveLimitsHolde
     }
 
     @Override
-    public VoltageRegulation<T> read(T component, DeserializerContext context) {
+    public VoltageRegulation read(Battery battery, DeserializerContext context) {
         NetworkDeserializerContext networkContext = convertContext(context);
         checkReadingCompatibility(networkContext);
 
         boolean voltageRegulatorOn = networkContext.getReader().readBooleanAttribute("voltageRegulatorOn");
         double targetV = networkContext.getReader().readDoubleAttribute("targetV");
 
-        component.newExtension(VoltageRegulationAdder.class).withVoltageRegulatorOn(voltageRegulatorOn).withTargetV(targetV).add();
-        VoltageRegulation<T> voltageRegulation = component.getExtension(VoltageRegulation.class);
+        battery.newExtension(VoltageRegulationAdder.class).withVoltageRegulatorOn(voltageRegulatorOn).withTargetV(targetV).add();
+        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
 
         networkContext.getReader().readChildNodes(elementName -> {
             if (elementName.equals("terminalRef")) {
-                TerminalRefSerDe.readTerminalRef(networkContext, component.getTerminal().getVoltageLevel().getNetwork(), voltageRegulation::setRegulatingTerminal);
+                TerminalRefSerDe.readTerminalRef(networkContext, battery.getTerminal().getVoltageLevel().getNetwork(), voltageRegulation::setRegulatingTerminal);
             } else {
                 throw new AssertionError("Unexpected element: " + elementName);
             }

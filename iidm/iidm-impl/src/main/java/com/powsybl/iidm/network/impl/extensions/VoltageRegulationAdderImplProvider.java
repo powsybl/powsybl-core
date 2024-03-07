@@ -9,8 +9,7 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.iidm.network.impl.VoltageRegulationAdderImpl;
 
@@ -18,8 +17,7 @@ import com.powsybl.iidm.network.impl.VoltageRegulationAdderImpl;
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 @AutoService(ExtensionAdderProvider.class)
-public class VoltageRegulationAdderImplProvider<T extends Injection<T> & ReactiveLimitsHolder> implements
-    ExtensionAdderProvider<T, VoltageRegulation<T>, VoltageRegulationAdderImpl<T>> {
+public class VoltageRegulationAdderImplProvider implements ExtensionAdderProvider<Battery, VoltageRegulation, VoltageRegulationAdderImpl> {
 
     @Override
     public String getImplementationName() {
@@ -32,12 +30,12 @@ public class VoltageRegulationAdderImplProvider<T extends Injection<T> & Reactiv
     }
 
     @Override
-    public Class<? super VoltageRegulationAdderImpl<T>> getAdderClass() {
+    public Class<VoltageRegulationAdderImpl> getAdderClass() {
         return VoltageRegulationAdderImpl.class;
     }
 
     @Override
-    public VoltageRegulationAdderImpl<T> newAdder(T extendable) {
-        return new VoltageRegulationAdderImpl<>(extendable);
+    public VoltageRegulationAdderImpl newAdder(Battery battery) {
+        return new VoltageRegulationAdderImpl(battery);
     }
 }

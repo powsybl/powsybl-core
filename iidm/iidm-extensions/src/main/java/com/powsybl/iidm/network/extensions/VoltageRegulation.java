@@ -8,14 +8,13 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public interface VoltageRegulation<I extends Injection<I> & ReactiveLimitsHolder> extends Extension<I> {
+public interface VoltageRegulation extends Extension<Battery> {
 
     String NAME = "voltageRegulation";
 
