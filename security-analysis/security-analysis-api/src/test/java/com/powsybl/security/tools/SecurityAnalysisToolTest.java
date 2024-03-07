@@ -30,11 +30,13 @@ import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.results.PreContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.tools.Command;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -76,19 +78,21 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), "security-analysis", 14, 1);
-        assertOption(tool.getCommand().getOptions(), "case-file", true, true);
-        assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "limit-types", false, true);
-        assertOption(tool.getCommand().getOptions(), "output-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "output-format", false, true);
-        assertOption(tool.getCommand().getOptions(), "contingencies-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "with-extensions", false, true);
-        assertOption(tool.getCommand().getOptions(), "task-count", false, true);
-        assertOption(tool.getCommand().getOptions(), "task", false, true);
-        assertOption(tool.getCommand().getOptions(), "external", false, false);
-        assertOption(tool.getCommand().getOptions(), "log-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "monitoring-file", false, true);
+        Command command = tool.getCommand();
+        Options options = command.getOptions();
+        assertCommand(command, "security-analysis", 14, 1);
+        assertOption(options, "case-file", true, true);
+        assertOption(options, "parameters-file", false, true);
+        assertOption(options, "limit-types", false, true);
+        assertOption(options, "output-file", false, true);
+        assertOption(options, "output-format", false, true);
+        assertOption(options, "contingencies-file", false, true);
+        assertOption(options, "with-extensions", false, true);
+        assertOption(options, "task-count", false, true);
+        assertOption(options, "task", false, true);
+        assertOption(options, "external", false, false);
+        assertOption(options, "log-file", false, true);
+        assertOption(options, "monitoring-file", false, true);
     }
 
     @Test
@@ -127,25 +131,25 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
 
-        SecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getViolationTypes()).isEmpty();
         assertThat(input.getResultExtensions()).isEmpty();
         assertThat(input.getContingenciesSource()).isNotPresent();
 
         options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_TYPES_OPTION, "HIGH_VOLTAGE,CURRENT"));
-        SecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getViolationTypes()).containsExactly(LimitViolationType.CURRENT, LimitViolationType.HIGH_VOLTAGE);
 
         options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.WITH_EXTENSIONS_OPTION, "ext1,ext2"));
-        SecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getResultExtensions()).containsExactly("ext1", "ext2");
 
         ToolOptions invalidOptions = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.CONTINGENCIES_FILE_OPTION, "contingencies"));
-        assertThatIllegalArgumentException().isThrownBy(() -> SecurityAnalysisTool.updateInput(invalidOptions, input));
+        assertThatIllegalArgumentException().isThrownBy(() -> tool.updateInput(invalidOptions, input));
 
         Files.write(fileSystem.getPath("contingencies"), "test".getBytes());
         options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.CONTINGENCIES_FILE_OPTION, "contingencies"));
-        SecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getContingenciesSource()).isPresent();
         if (input.getContingenciesSource().isPresent()) {
             assertEquals("test", new String(input.getContingenciesSource().get().read()));
@@ -182,9 +186,9 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     void readNetwork() throws IOException {
         ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
                 mock(ComputationManager.class), mock(ComputationManager.class));
-
         CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
-        SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
+        Network network = SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
+        assertNotNull(network);
     }
 
     @Test

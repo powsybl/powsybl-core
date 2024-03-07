@@ -54,5 +54,4 @@ class SecurityAnalysisInputTest {
         assertThat(inputs.getLimitViolationDetector())
                 .isSameAs(detector);
     }
-
 }
