@@ -134,7 +134,6 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             Arrays.stream(IidmVersion.values()).map(v -> v.toString(".")).collect(Collectors.toList()));
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
             "Export network with automation systems", Boolean.TRUE);
-
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
@@ -201,7 +200,6 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig))
                 .setFormat(getTreeDataFormat())
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig));
-
         addExtensionsVersions(parameters, options);
         return options;
     }
