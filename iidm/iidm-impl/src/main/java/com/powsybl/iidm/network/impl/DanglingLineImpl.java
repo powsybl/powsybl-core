@@ -10,11 +10,11 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
+import com.powsybl.iidm.network.util.TieLineUtil;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -418,13 +418,21 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLine setPairingKey(String pairingKey) {
-        if (this.isPaired()) {
-            throw new ValidationException(this, "pairing key cannot be set if dangling line is paired.");
-        } else {
-            String oldValue = this.pairingKey;
-            this.pairingKey = pairingKey;
-            notifyUpdate("pairing_key", oldValue, pairingKey);
+        if (tieLine != null) {
+            tieLine.remove();
         }
+
+        Map<Boolean, List<DanglingLine>> candidates = network.get().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                .filter(dl -> pairingKey.equals(dl.getPairingKey()))
+                .collect(Collectors.groupingBy(dl -> dl.getTerminal().isConnected()));
+        DanglingLine candidatePairingDl = TieLineUtil.chooseDanglingLine(pairingKey, candidates.get(true), candidates.get(false), true);
+        if (candidatePairingDl != null) {
+
+        }
+
+        String oldValue = this.pairingKey;
+        this.pairingKey = pairingKey;
+        notifyUpdate("pairing_key", oldValue, pairingKey);
         return this;
     }
 

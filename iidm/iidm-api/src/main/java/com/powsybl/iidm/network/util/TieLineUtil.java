@@ -187,31 +187,38 @@ public final class TieLineUtil {
 
         for (String pairingKey : pairingKeys) {
             boolean doLog = logPairingKey.test(pairingKey);
-            List<DanglingLine> connected = Optional.ofNullable(connectedByPairingKey.get(pairingKey)).orElse(Collections.emptyList());
-            List<DanglingLine> disconnected = Optional.ofNullable(disconnectedByPairingKey.get(pairingKey)).orElse(Collections.emptyList());
-            if (connected.isEmpty()) {
-                DanglingLine dl = disconnected.get(0); // Cannot be empty here: we always have at least 1 connected or disconnected dangling line
-                if (disconnected.size() == 1) {
-                    candidates.add(dl);
-                } else if (doLog) {
-                    LOGGER.warn("Several disconnected dangling lines {} (and no connected one) of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                            disconnected.stream().map(DanglingLine::getId).toList(), pairingKey);
-                }
-            } else if (connected.size() == 1) {
-                DanglingLine dl = connected.get(0);
+            DanglingLine dl = chooseDanglingLine(pairingKey,
+                    connectedByPairingKey.getOrDefault(pairingKey, Collections.emptyList()),
+                    disconnectedByPairingKey.getOrDefault(pairingKey, Collections.emptyList()),
+                    doLog);
+            if (dl != null) {
                 candidates.add(dl);
-                if (!disconnected.isEmpty() && doLog) {
-                    LOGGER.warn("Several dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                                    "Only '{}' is considered (the only connected one)",
-                            Stream.concat(Stream.of(dl.getId()), disconnected.stream().map(DanglingLine::getId)).collect(Collectors.toList()),
-                            pairingKey, dl.getId());
-                }
-            } else if (doLog) {
-                LOGGER.warn("Several connected dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                        connected.stream().map(DanglingLine::getId).toList(), pairingKey);
             }
         }
         return candidates;
+    }
+
+    public static DanglingLine chooseDanglingLine(String pairingKey, List<DanglingLine> connected, List<DanglingLine> disconnected, boolean doLog) {
+        DanglingLine dl = null;
+        if (connected.isEmpty()) {
+            dl = disconnected.get(0); // Cannot be empty here: we always have at least 1 connected or disconnected dangling line
+            if (disconnected.size() > 1 && doLog) {
+                LOGGER.warn("Several disconnected dangling lines {} (and no connected one) of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
+                        disconnected.stream().map(DanglingLine::getId).toList(), pairingKey);
+            }
+        } else if (connected.size() == 1) {
+            dl = connected.get(0);
+            if (!disconnected.isEmpty() && doLog) {
+                LOGGER.warn("Several dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
+                                "Only '{}' is considered (the only connected one)",
+                        Stream.concat(Stream.of(dl.getId()), disconnected.stream().map(DanglingLine::getId)).collect(Collectors.toList()),
+                        pairingKey, dl.getId());
+            }
+        } else if (doLog) {
+            LOGGER.warn("Several connected dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
+                    connected.stream().map(DanglingLine::getId).toList(), pairingKey);
+        }
+        return dl;
     }
 
     /**

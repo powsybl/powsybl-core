@@ -999,7 +999,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         // merge the indexes
         index.merge(otherNetwork.index);
 
-        replaceDanglingLineByTieLine(lines);
+        replaceDanglingLinePairsByTieLines(lines);
 
         other.getVoltageAngleLimits().forEach(l -> getVoltageAngleLimitsIndex().put(l.getId(), l));
 
@@ -1056,10 +1056,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 dl1byPairingKey.get(dl1.getPairingKey()).remove(dl1);
             }
             DanglingLinePair l = new DanglingLinePair();
-            l.id = buildMergedId(dl1.getId(), dl2.getId());
-            l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
             l.dl1Id = dl1.getId();
+            l.dl1Name = dl1.getOptionalName().orElse(null);
             l.dl2Id = dl2.getId();
+            l.dl2Name = dl2.getOptionalName().orElse(null);
             l.aliases = new HashMap<>();
             // No need to merge properties or aliases because we keep the original dangling lines after merge
             danglingLinePairs.add(l);
@@ -1078,33 +1078,40 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    private void replaceDanglingLineByTieLine(List<DanglingLinePair> lines) {
+    private void replaceDanglingLinePairsByTieLines(List<DanglingLinePair> lines) {
         for (DanglingLinePair danglingLinePair : lines) {
-            LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
-                    danglingLinePair.id, danglingLinePair.dl1Id, danglingLinePair.dl2Id);
-            TieLineImpl l = newTieLine()
-                    .setId(danglingLinePair.id)
-                    .setEnsureIdUnicity(true)
-                    .setName(danglingLinePair.name)
-                    .setDanglingLine1(danglingLinePair.dl1Id)
-                    .setDanglingLine2(danglingLinePair.dl2Id)
-                    .add();
-            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            danglingLinePair.aliases.forEach((alias, type) -> {
-                if (type.isEmpty()) {
-                    l.addAlias(alias);
-                } else {
-                    l.addAlias(alias, type);
-                }
-            });
+            replaceDanglineLinePairByTieLine(danglingLinePair);
         }
     }
 
+    private void replaceDanglineLinePairByTieLine(DanglingLinePair danglingLinePair) {
+        String tieLineId = buildMergedId(danglingLinePair.dl1Id, danglingLinePair.dl2Id);
+        String tieLineName = buildMergedName(danglingLinePair.dl1Id, danglingLinePair.dl2Id, danglingLinePair.dl1Name, danglingLinePair.dl2Name);
+
+        LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
+                tieLineId, danglingLinePair.dl1Id, danglingLinePair.dl2Id);
+        TieLineImpl l = newTieLine()
+                .setId(tieLineId)
+                .setEnsureIdUnicity(true)
+                .setName(tieLineName)
+                .setDanglingLine1(danglingLinePair.dl1Id)
+                .setDanglingLine2(danglingLinePair.dl2Id)
+                .add();
+        danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+        danglingLinePair.aliases.forEach((alias, type) -> {
+            if (type.isEmpty()) {
+                l.addAlias(alias);
+            } else {
+                l.addAlias(alias, type);
+            }
+        });
+    }
+
     class DanglingLinePair {
-        String id;
-        String name;
         String dl1Id;
+        String dl1Name;
         String dl2Id;
+        String dl2Name;
         Map<String, String> aliases;
         Properties properties = new Properties();
     }
