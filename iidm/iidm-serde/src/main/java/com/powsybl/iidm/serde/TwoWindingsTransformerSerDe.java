@@ -9,8 +9,6 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.Optional;
-
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
@@ -42,6 +40,10 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         writeNodeOrBus(2, twt.getTerminal2(), context);
         writeOptionalPQ(1, twt.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, twt.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+            writeSelectedGroupId(1, twt.getSelectedOperationalLimitsGroupId1().orElse(null), context.getWriter());
+            writeSelectedGroupId(2, twt.getSelectedOperationalLimitsGroupId2().orElse(null), context.getWriter());
+        });
     }
 
     @Override
@@ -54,36 +56,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         if (ptc != null) {
             writePhaseTapChanger("phaseTapChanger", ptc, context);
         }
-        Optional<ActivePowerLimits> activePowerLimits1 = twt.getActivePowerLimits1();
-        if (activePowerLimits1.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(1, activePowerLimits1.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<ApparentPowerLimits> apparentPowerLimits1 = twt.getApparentPowerLimits1();
-        if (apparentPowerLimits1.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(1, apparentPowerLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits1 = twt.getCurrentLimits1();
-        if (currentLimits1.isPresent()) {
-            writeCurrentLimits(1, currentLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
-        Optional<ActivePowerLimits> activePowerLimits2 = twt.getActivePowerLimits2();
-        if (activePowerLimits2.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(2, activePowerLimits2.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<ApparentPowerLimits> apparentPowerLimits2 = twt.getApparentPowerLimits2();
-        if (apparentPowerLimits2.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(2, apparentPowerLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits2 = twt.getCurrentLimits2();
-        if (currentLimits2.isPresent()) {
-            writeCurrentLimits(2, currentLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
+        writeLimits(context, 1, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup1().orElse(null), twt.getOperationalLimitsGroups1());
+        writeLimits(context, 2, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup2().orElse(null), twt.getOperationalLimitsGroups2());
     }
 
     @Override
@@ -110,6 +84,10 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         TwoWindingsTransformer twt = adder.add();
         readOptionalPQ(1, twt.getTerminal1(), context.getReader());
         readOptionalPQ(2, twt.getTerminal2(), context.getReader());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+            readSelectedGroupId(1, twt::setSelectedOperationalLimitsGroup1, context);
+            readSelectedGroupId(2, twt::setSelectedOperationalLimitsGroup2, context);
+        });
         return twt;
     }
 
@@ -117,6 +95,10 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected void readSubElements(TwoWindingsTransformer twt, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
+                case LIMITS_GROUP_1 -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(twt::newOperationalLimitsGroup1, LIMITS_GROUP_1, context.getReader(), context.getVersion(), context.getOptions()));
+                }
                 case ACTIVE_POWER_LIMITS_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(twt.newActivePowerLimits1(), context.getReader(), context.getVersion(), context.getOptions()));
@@ -126,6 +108,10 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(twt.newApparentPowerLimits1(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case "currentLimits1" -> readCurrentLimits(twt.newCurrentLimits1(), context.getReader(), context.getVersion(), context.getOptions());
+                case LIMITS_GROUP_2 -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(twt::newOperationalLimitsGroup2, LIMITS_GROUP_2, context.getReader(), context.getVersion(), context.getOptions()));
+                }
                 case ACTIVE_POWER_LIMITS_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(twt.newActivePowerLimits2(), context.getReader(), context.getVersion(), context.getOptions()));

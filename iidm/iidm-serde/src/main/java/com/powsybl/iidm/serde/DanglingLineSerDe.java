@@ -6,8 +6,11 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLine.Generation;
+import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Optional;
@@ -83,7 +86,8 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
             () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
         );
         writePQ(null, t, context.getWriter());
-
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                writeSelectedGroupId(null, dl.getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter()));
     }
 
     private static <T> T getOptionalValue(Generation generation, Function<Generation, T> valueGetter) {
@@ -100,21 +104,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         if (dl.getGeneration() != null) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> ReactiveLimitsSerDe.INSTANCE.write(dl.getGeneration(), context));
         }
-        Optional<ActivePowerLimits> activePowerLimits = dl.getActivePowerLimits();
-        if (activePowerLimits.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(null, activePowerLimits.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<ApparentPowerLimits> apparentPowerLimits = dl.getApparentPowerLimits();
-        if (apparentPowerLimits.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(null, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
-        if (currentLimits.isPresent()) {
-            writeCurrentLimits(null, currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
+        writeLimits(context, null, ROOT_ELEMENT_NAME, dl.getSelectedOperationalLimitsGroup().orElse(null), dl.getOperationalLimitsGroups());
     }
 
     @Override
@@ -130,6 +120,8 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         });
         DanglingLine dl = adder.add();
         readPQ(null, dl.getTerminal(), context.getReader());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                readSelectedGroupId(null, dl::setSelectedOperationalLimitsGroup, context));
         return dl;
     }
 
@@ -171,6 +163,10 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     protected void readSubElements(DanglingLine dl, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
+                case LIMITS_GROUP -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(dl, LIMITS_GROUP, context.getReader(), context.getVersion(), context.getOptions()));
+                }
                 case ACTIVE_POWER_LIMITS -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(dl.newActivePowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));

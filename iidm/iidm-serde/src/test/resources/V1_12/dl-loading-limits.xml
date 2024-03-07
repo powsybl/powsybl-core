@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" id="dangling-line" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" id="dangling-line"
+              caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test"
+              minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S" country="FR">
-        <iidm:voltageLevel id="VL" nominalV="100.0" lowVoltageLimit="80.0" highVoltageLimit="120.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL" nominalV="100.0" lowVoltageLimit="80.0" highVoltageLimit="120.0"
+                           topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="G" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="50.0" targetV="100.0" targetQ="30.0" bus="BUS" connectableBus="BUS">
+            <iidm:generator id="G" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="50.0"
+                            targetV="100.0" targetQ="30.0" bus="BUS" connectableBus="BUS">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
-            <iidm:danglingLine id="DL" p0="50.0" q0="30.0" r="10.0" x="1.0" g="1.0E-4" b="1.0E-5" bus="BUS" connectableBus="BUS">
-                <iidm:activePowerLimits permanentLimit="350.0">
-                    <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-                    <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-                </iidm:activePowerLimits>
-                <iidm:apparentPowerLimits permanentLimit="350.0">
-                    <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-                    <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-                </iidm:apparentPowerLimits>
-                <iidm:currentLimits permanentLimit="350.0">
-                    <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-                    <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-                </iidm:currentLimits>
+            <iidm:danglingLine id="DL" p0="50.0" q0="30.0" r="10.0" x="1.0" g="1.0E-4" b="1.0E-5" bus="BUS"
+                               connectableBus="BUS" selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:activePowerLimits permanentLimit="350.0">
+                        <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
+                        <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+                    </iidm:activePowerLimits>
+                    <iidm:apparentPowerLimits permanentLimit="350.0">
+                        <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
+                        <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+                    </iidm:apparentPowerLimits>
+                    <iidm:currentLimits permanentLimit="350.0">
+                        <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
+                        <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+                    </iidm:currentLimits>
+                </iidm:operationalLimitsGroup>
             </iidm:danglingLine>
         </iidm:voltageLevel>
     </iidm:substation>

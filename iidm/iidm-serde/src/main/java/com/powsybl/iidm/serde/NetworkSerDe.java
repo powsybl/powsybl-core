@@ -580,7 +580,12 @@ public final class NetworkSerDe {
                 Map.entry(VoltageLevelSerDe.ARRAY_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(VoltageLevelSerDe.INJ_ARRAY_ELEMENT_NAME, VoltageLevelSerDe.INJ_ROOT_ELEMENT_NAME),
                 Map.entry(VscConverterStationSerDe.ARRAY_ELEMENT_NAME, VscConverterStationSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(GroundSerDe.ARRAY_ELEMENT_NAME, GroundSerDe.ROOT_ELEMENT_NAME));
+                Map.entry(GroundSerDe.ARRAY_ELEMENT_NAME, GroundSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS, ConnectableSerDeUtil.LIMITS_GROUP),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_1, ConnectableSerDeUtil.LIMITS_GROUP_1),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_2, ConnectableSerDeUtil.LIMITS_GROUP_2),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_3, ConnectableSerDeUtil.LIMITS_GROUP_3)
+        );
 
         Map<String, String> extensionsMap = new HashMap<>();
         if (withExtensions) {
@@ -779,17 +784,17 @@ public final class NetworkSerDe {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore in case of
             // missing extension serializer, we must not check for an extension in sub elements.
-            if (!context.getOptions().withExtension(extensionName)) {
-                context.getReader().skipChildNodes();
-            }
-
-            ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-            if (extensionXmlSerializer != null) {
-                Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                extensionNamesImported.add(extensionName);
+            if (context.getOptions().withExtension(extensionName)) {
+                ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                if (extensionXmlSerializer != null) {
+                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                    extensionNamesImported.add(extensionName);
+                } else {
+                    extensionNamesNotFound.add(extensionName);
+                    context.getReader().skipChildNodes();
+                }
             } else {
-                extensionNamesNotFound.add(extensionName);
                 context.getReader().skipChildNodes();
             }
         });

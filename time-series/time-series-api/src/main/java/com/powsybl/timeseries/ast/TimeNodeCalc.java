@@ -13,6 +13,7 @@ import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
 import java.util.Deque;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -84,7 +85,7 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
 
     @Override
     public int hashCode() {
-        return child.hashCode();
+        return Objects.hash(child, NAME);
     }
 
     @Override

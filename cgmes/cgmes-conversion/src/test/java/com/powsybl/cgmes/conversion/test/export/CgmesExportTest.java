@@ -16,20 +16,16 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.extensions.CgmesSshMetadata;
+import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
-import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.datasource.ZipFileDataSource;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -493,6 +489,25 @@ class CgmesExportTest {
     }
 
     @Test
+    void testModelVersion() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        Properties params = new Properties();
+        params.put(CgmesExport.MODEL_VERSION, "9");
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            new CgmesExport().export(network, params, zip);
+            Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
+            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            assertEquals(9, sshMetadata.getSshVersion());
+            CgmesSvMetadata svMetadata = network2.getExtension(CgmesSvMetadata.class);
+            assertEquals(9, svMetadata.getSvVersion());
+        }
+    }
+
+    @Test
     void testModelDescriptionClosingXML() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
 
@@ -514,6 +529,41 @@ class CgmesExportTest {
             assertEquals(modelDescription, sshMetadata.getDescription());
         }
 
+    }
+
+    @Test
+    void testExportWithModelingAuthorityFromReferenceData() throws IOException {
+        // We want to test that information about sourcing actor read from reference data overrides
+        // the default value for the parameter MAS URI
+
+        // Minimal network with well-known country (BE)
+        // that can be resolved to a sourcing actor (ELIA) using the reference data.
+        // The reference data also contains a defined MAS URI (elia.be/OperationalPlanning) for this sourcing actor
+        Network network = NetworkTest1Factory.create("minimal-network");
+        network.getSubstations().iterator().next().setCountry(Country.BE);
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
+            // To export using reference data we must prepare first the boundaries that will be used
+            Path boundariesDir = Files.createDirectories(fileSystem.getPath("/boundaries"));
+            try (InputStream is = this.getClass().getResourceAsStream("/reference-data-provider/sample_EQBD.xml")) {
+                if (is != null) {
+                    Files.copy(is, boundariesDir.resolve("sample_EQBD.xml"), StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+            platformConfig.createModuleConfig("import-export-parameters-default-value")
+                    .setStringProperty(CgmesImport.BOUNDARY_LOCATION, boundariesDir.toString());
+
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            // It is enough to check that the MAS has been set correctly in the EQ instance file
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+            new CgmesExport(platformConfig).export(network, exportParams, new FileDataSource(tmpDir, network.getNameOrId()));
+
+            String eq = Files.readString(tmpDir.resolve(network.getNameOrId() + "_EQ.xml"));
+            assertTrue(eq.contains("modelingAuthoritySet>http://www.elia.be/OperationalPlanning"));
+        }
     }
 
     private static void checkDanglingLineParams(DanglingLine expected, DanglingLine actual) {
@@ -552,6 +602,72 @@ class CgmesExportTest {
         Generator actualEquivalentInjection = (Generator) eqAtEnd2;
         assertEquals(expected.getP0(), -actualEquivalentInjection.getTargetP(), EPSILON);
         assertEquals(expected.getQ0(), -actualEquivalentInjection.getTargetQ(), EPSILON);
+    }
+
+    @Test
+    void testCanGeneratorControl() throws IOException {
+        ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), new Properties());
+
+        Generator generatorNoRcc = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator generatorRcc = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
+
+        generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+        generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+
+        String exportFolder = "/test-generator-control";
+        String baseName = "testGeneratorControl";
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+            // network.write("CGMES", null, tmpDir.resolve(baseName));
+            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            String eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+
+            // Check that RC are exported properly
+            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+            generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+
+            // RC shouldn't be exported without targetV
+            double rccTargetV = generatorRcc.getTargetV();
+            generatorRcc.setVoltageRegulatorOn(false);
+            generatorRcc.setTargetV(Double.NaN);
+
+            double noRccTargetV = generatorNoRcc.getTargetV();
+            generatorNoRcc.setVoltageRegulatorOn(false);
+            generatorNoRcc.setTargetV(Double.NaN);
+
+            //network.write("CGMES", null, tmpDir.resolve(baseName));
+            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+
+            generatorRcc.setTargetV(rccTargetV);
+            generatorRcc.setVoltageRegulatorOn(true);
+            generatorNoRcc.setTargetV(noRccTargetV);
+            generatorNoRcc.setVoltageRegulatorOn(true);
+
+            // RC shouldn't be exported when Qmin and Qmax are the same
+            ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();
+            ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) generatorRcc.getReactiveLimits();
+            rcc.getPoints().forEach(point -> rccAdder.beginPoint().setP(point.getP()).setMaxQ(point.getMaxQ()).setMinQ(point.getMaxQ()).endPoint());
+            rccAdder.add();
+            MinMaxReactiveLimitsAdder mmrlAdder = generatorNoRcc.newMinMaxReactiveLimits();
+            MinMaxReactiveLimits mmrl = (MinMaxReactiveLimits) generatorNoRcc.getReactiveLimits();
+            mmrlAdder.setMinQ(mmrl.getMinQ());
+            mmrlAdder.setMaxQ(mmrl.getMinQ());
+            mmrlAdder.add();
+
+            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+        }
     }
 
     private static final double EPSILON = 1e-10;

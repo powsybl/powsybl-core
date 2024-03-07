@@ -12,6 +12,9 @@ package com.powsybl.iidm.network.extensions;
  */
 public interface ControlUnit {
 
+    record ParticipateEvent(String controlZoneName, String controlUnitId, boolean value) {
+    }
+
     String getId();
 
     boolean isParticipate();

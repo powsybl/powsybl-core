@@ -48,7 +48,8 @@ class ControlUnitImpl implements ControlUnit {
             this.participate = participate;
             SecondaryVoltageControlImpl secondaryVoltageControl = controlZone.getSecondaryVoltageControl();
             NetworkImpl network = (NetworkImpl) secondaryVoltageControl.getExtendable();
-            network.getListeners().notifyExtensionUpdate(secondaryVoltageControl, "controlUnitParticipate", !this.participate, this.participate);
+            network.getListeners().notifyExtensionUpdate(secondaryVoltageControl, "controlUnitParticipate",
+                    new ParticipateEvent(controlZone.getName(), id, !this.participate), new ParticipateEvent(controlZone.getName(), id, this.participate));
         }
     }
 }

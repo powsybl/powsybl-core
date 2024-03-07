@@ -166,8 +166,8 @@ public class MatpowerExporter implements Exporter {
                 mBus.setReactivePowerDemand(0d);
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(twt.hasProperty(V_PROP) ? Double.parseDouble(twt.getProperty(V_PROP)) / twt.getRatedU0() : 1d);
-                mBus.setVoltageAngle(twt.hasProperty(ANGLE_PROP) ? Double.parseDouble(twt.getProperty(ANGLE_PROP)) : 0d);
+                mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(twt.hasProperty(V_PROP) ? Double.parseDouble(twt.getProperty(V_PROP)) / twt.getRatedU0() : 1d));
+                mBus.setVoltageAngle(checkAndFixVoltageAngle(twt.hasProperty(ANGLE_PROP) ? Double.parseDouble(twt.getProperty(ANGLE_PROP)) : 0d));
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
@@ -195,8 +195,8 @@ public class MatpowerExporter implements Exporter {
                 mBus.setReactivePowerDemand(dl.getQ0());
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV());
-                mBus.setVoltageAngle(dl.getBoundary().getAngle());
+                mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV()));
+                mBus.setVoltageAngle(checkAndFixVoltageAngle(dl.getBoundary().getAngle()));
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
@@ -240,8 +240,8 @@ public class MatpowerExporter implements Exporter {
                 }
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(bSum);
-                mBus.setVoltageMagnitude(Double.isNaN(bus.getV()) ? 1 : bus.getV() / vl.getNominalV());
-                mBus.setVoltageAngle(Double.isNaN(bus.getAngle()) ? 0 : bus.getAngle());
+                mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(bus.getV() / vl.getNominalV()));
+                mBus.setVoltageAngle(checkAndFixVoltageAngle(bus.getAngle()));
                 mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit() / vl.getNominalV());
                 mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit() / vl.getNominalV());
                 model.addBus(mBus);
@@ -296,7 +296,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static void createLimits(List<FlowsLimitsHolder> limitsHolders, VoltageLevel vl, MBranch mBranch) {
-        limitsHolders.stream().flatMap(limitsHolder -> Stream.concat(limitsHolder.getApparentPowerLimits().stream(), // apparrent power limits first then current limits
+        limitsHolders.stream().flatMap(limitsHolder -> Stream.concat(limitsHolder.getApparentPowerLimits().stream(), // apparent power limits first then current limits
                                                                      limitsHolder.getCurrentLimits().stream()))
                 .filter(limits -> !Double.isNaN(limits.getPermanentLimit())) // skip when there is no permanent
                 .max(Comparator.comparingInt(loadingLimit -> loadingLimit.getTemporaryLimits().size())) // many tempary limits first
@@ -321,6 +321,46 @@ public class MatpowerExporter implements Exporter {
         public FlowsLimitsHolderBranchAdapter(Branch<?> branch, TwoSides side) {
             this.branch = branch;
             this.side = side;
+        }
+
+        @Override
+        public List<OperationalLimitsGroup> getOperationalLimitsGroups() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Optional<String> getSelectedOperationalLimitsGroupId() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setSelectedOperationalLimitsGroup(String id) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void removeOperationalLimitsGroup(String id) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void cancelSelectedOperationalLimitsGroup() {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -630,8 +670,6 @@ public class MatpowerExporter implements Exporter {
                         voltageRegulation, ratedS);
             }
         }
-
-        createDanglingLineGenerators(network, model, context);
     }
 
     private void createStaticVarCompensators(Network network, MatpowerModel model, Context context) {
@@ -657,7 +695,6 @@ public class MatpowerExporter implements Exporter {
                         maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
         }
-        createDanglingLineGenerators(network, model, context);
     }
 
     private void createVSCs(Network network, MatpowerModel model, Context context) {
@@ -679,7 +716,6 @@ public class MatpowerExporter implements Exporter {
                         maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
         }
-        createDanglingLineGenerators(network, model, context);
     }
 
     private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
@@ -723,6 +759,14 @@ public class MatpowerExporter implements Exporter {
             mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
             model.addGenerator(mGen);
         }
+    }
+
+    private static double checkAndFixVoltageMagnitude(double voltageMagnitude) {
+        return Double.isNaN(voltageMagnitude) || voltageMagnitude <= 0.0 ? 1.0 : voltageMagnitude;
+    }
+
+    private static double checkAndFixVoltageAngle(double voltageAngle) {
+        return Double.isNaN(voltageAngle) ? 0.0 : voltageAngle;
     }
 
     private static int getBranchCount(Bus bus) {
@@ -780,6 +824,7 @@ public class MatpowerExporter implements Exporter {
         createGenerators(network, model, context);
         createStaticVarCompensators(network, model, context);
         createVSCs(network, model, context);
+        createDanglingLineGenerators(network, model, context);
 
         if (!context.generatorIdsConvertedToLoad.isEmpty()) {
             LOGGER.debug("{} generators have been converted to a load: {}", context.generatorIdsConvertedToLoad.size(), context.generatorIdsConvertedToLoad);

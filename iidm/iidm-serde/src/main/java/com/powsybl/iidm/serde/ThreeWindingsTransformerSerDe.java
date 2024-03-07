@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.Optional;
-
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
@@ -68,6 +66,11 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         writeOptionalPQ(1, twt.getLeg1().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, twt.getLeg2().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(3, twt.getLeg3().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+            writeSelectedGroupId(1, twt.getLeg1().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
+            writeSelectedGroupId(2, twt.getLeg2().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
+            writeSelectedGroupId(3, twt.getLeg3().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
+        });
     }
 
     @Override
@@ -85,19 +88,7 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         int[] i = new int[1];
         i[0] = 1;
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-            Optional<ActivePowerLimits> activePowerLimits = leg.getActivePowerLimits();
-            if (activePowerLimits.isPresent()) {
-                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(i[0], activePowerLimits.get(), context.getWriter(),
-                        context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<ApparentPowerLimits> apparentPowerLimits = leg.getApparentPowerLimits();
-            if (apparentPowerLimits.isPresent()) {
-                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<CurrentLimits> currentLimits = leg.getCurrentLimits();
-            currentLimits.ifPresent(limits -> writeCurrentLimits(i[0], limits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getSelectedOperationalLimitsGroup().orElse(null), leg.getOperationalLimitsGroups());
             i[0]++;
         }
     }
@@ -170,6 +161,11 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         readOptionalPQ(1, twt.getLeg1().getTerminal(), context.getReader());
         readOptionalPQ(2, twt.getLeg2().getTerminal(), context.getReader());
         readOptionalPQ(3, twt.getLeg3().getTerminal(), context.getReader());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+            readSelectedGroupId(1, twt.getLeg1()::setSelectedOperationalLimitsGroup, context);
+            readSelectedGroupId(2, twt.getLeg2()::setSelectedOperationalLimitsGroup, context);
+            readSelectedGroupId(3, twt.getLeg3()::setSelectedOperationalLimitsGroup, context);
+        });
         return twt;
     }
 
@@ -177,6 +173,10 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
     protected void readSubElements(ThreeWindingsTransformer tx, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
+                case LIMITS_GROUP_1 -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tx.getLeg1(), LIMITS_GROUP_1, context.getReader(), context.getVersion(), context.getOptions()));
+                }
                 case ACTIVE_POWER_LIMITS_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg1().newActivePowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
@@ -186,6 +186,10 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg1().newApparentPowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case "currentLimits1" -> readCurrentLimits(tx.getLeg1().newCurrentLimits(), context.getReader(), context.getVersion(), context.getOptions());
+                case LIMITS_GROUP_2 -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tx.getLeg2(), LIMITS_GROUP_2, context.getReader(), context.getVersion(), context.getOptions()));
+                }
                 case ACTIVE_POWER_LIMITS_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg2().newActivePowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
@@ -195,6 +199,10 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg2().newApparentPowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
                 }
                 case "currentLimits2" -> readCurrentLimits(tx.getLeg2().newCurrentLimits(), context.getReader(), context.getVersion(), context.getOptions());
+                case LIMITS_GROUP_3 -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tx.getLeg3(), LIMITS_GROUP_3, context.getReader(), context.getVersion(), context.getOptions()));
+                }
                 case ACTIVE_POWER_LIMITS_3 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg3().newActivePowerLimits(), context.getReader(), context.getVersion(), context.getOptions()));
