@@ -24,7 +24,10 @@ public final class SynchronousMachineEq {
                              double minQ, double maxQ, double ratedS, double defaultRatedS, String kind, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("SynchronousMachine", id, generatorName, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("RotatingMachine.GeneratingUnit", generatingUnit, cimNamespace, writer, context);
+        if (generatingUnit != null) {
+            // Some synchronous machines are not associated to a generating unit (condensers)
+            CgmesExportUtil.writeReference("RotatingMachine.GeneratingUnit", generatingUnit, cimNamespace, writer, context);
+        }
         if (regulatingControlId != null) {
             CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer, context);
         }
