@@ -6,6 +6,9 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.GeneratorModification;
+import com.powsybl.iidm.modification.NetworkModification;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -80,5 +83,22 @@ public class GeneratorAction extends AbstractAction {
 
     public OptionalDouble getTargetQ() {
         return targetQ == null ? OptionalDouble.empty() : OptionalDouble.of(targetQ);
+    }
+
+    public NetworkModification toModification() {
+        // if values are outside of generator boundaries the boundaries are used instead
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        getActivePowerValue().ifPresent(value -> {
+            boolean isRelative = isActivePowerRelativeValue().orElse(false);
+            if (isRelative) {
+                modifs.setDeltaTargetP(value);
+            } else {
+                modifs.setTargetP(value);
+            }
+        });
+        isVoltageRegulatorOn().ifPresent(modifs::setVoltageRegulatorOn);
+        getTargetQ().ifPresent(modifs::setTargetQ);
+        getTargetV().ifPresent(modifs::setTargetV);
+        return new GeneratorModification(getGeneratorId(), modifs);
     }
 }

@@ -22,7 +22,7 @@ public class OpenSwitch extends AbstractNetworkModification {
 
     private final String switchId;
 
-    OpenSwitch(String switchId) {
+    public OpenSwitch(String switchId) {
         this.switchId = Objects.requireNonNull(switchId);
     }
 

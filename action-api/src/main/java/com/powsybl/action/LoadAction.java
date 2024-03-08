@@ -7,6 +7,9 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.LoadModification;
+import com.powsybl.iidm.modification.NetworkModification;
+
 import java.util.Objects;
 
 /**
@@ -43,5 +46,9 @@ public class LoadAction extends AbstractLoadAction {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    public NetworkModification toModification() {
+        return new LoadModification(getLoadId(), isRelativeValue(), getActivePowerValue().orElse(null), getReactivePowerValue().orElse(null));
     }
 }
