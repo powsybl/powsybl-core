@@ -24,7 +24,7 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.action.ActionList;
+import com.powsybl.action.ActionList;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecution;

@@ -49,6 +49,7 @@
     </developers>
 
     <modules>
+        <module>action-api</module>
         <module>action-ial</module>
         <module>ampl-converter</module>
         <module>ampl-executor</module>
