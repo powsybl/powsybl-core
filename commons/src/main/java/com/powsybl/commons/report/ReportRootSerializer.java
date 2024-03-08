@@ -28,19 +28,19 @@ public class ReportRootSerializer extends StdSerializer<ReportNode> {
     }
 
     @Override
-    public void serialize(ReportNode reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ReportNode reportNode, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("version", ReportConstants.CURRENT_VERSION.toString());
         generator.writeFieldName("reportRoot");
-        reporter.writeJson(generator);
+        reportNode.writeJson(generator);
         generator.writeEndObject();
     }
 
-    public static void write(ReportNode reporter, Path jsonFile) {
-        Objects.requireNonNull(reporter);
+    public static void write(ReportNode reportNode, Path jsonFile) {
+        Objects.requireNonNull(reportNode);
         Objects.requireNonNull(jsonFile);
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(os, reporter);
+            createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(os, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -22,7 +22,7 @@ public class ImportPostProcessorMock implements ImportPostProcessor {
 
     @Override
     public String getName() {
-        return "testReporter";
+        return "testReportNode";
     }
 
     @Override

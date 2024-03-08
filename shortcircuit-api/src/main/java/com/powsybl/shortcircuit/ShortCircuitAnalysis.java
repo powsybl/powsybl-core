@@ -53,7 +53,7 @@ public final class ShortCircuitAnalysis {
             Objects.requireNonNull(faults, NOT_NULL_FAULT_MESSAGE);
             Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
             Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
-            Objects.requireNonNull(reportNode, "Reporter should not be null");
+            Objects.requireNonNull(reportNode, "ReportNode should not be null");
             validateParameters(parameters);
             return provider.run(network, faults, parameters, computationManager, faultParameters, reportNode);
         }

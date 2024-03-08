@@ -96,7 +96,7 @@ public interface Exporter {
      * @param network the model
      * @param parameters some properties to configure the export
      * @param dataSource data source
-     * @param reportNode the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
     default void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         export(network, parameters, dataSource);

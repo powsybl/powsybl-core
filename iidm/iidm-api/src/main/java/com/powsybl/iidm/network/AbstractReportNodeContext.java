@@ -14,22 +14,22 @@ import java.util.Iterator;
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public abstract class AbstractReporterContext implements ReporterContext {
+public abstract class AbstractReportNodeContext implements ReportNodeContext {
 
-    protected AbstractReporterContext() {
+    protected AbstractReportNodeContext() {
     }
 
     @Override
-    public ReportNode peekReporter() {
-        return getReporter();
+    public ReportNode peekReportNode() {
+        return getReportNode();
     }
 
-    protected void copyReporters(AbstractReporterContext reporterContext) {
-        Iterator<ReportNode> it = reporterContext.descendingIterator();
+    protected void copyReportNodes(AbstractReportNodeContext reportNodeContext) {
+        Iterator<ReportNode> it = reportNodeContext.descendingIterator();
         // Since we don't want to copy the always present NO_OP, we skip the 1st item
         it.next();
         while (it.hasNext()) {
-            pushReporter(it.next());
+            pushReportNode(it.next());
         }
     }
 

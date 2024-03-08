@@ -60,7 +60,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private final VariantManagerImpl variantManager;
 
-    private AbstractReporterContext reporterContext;
+    private AbstractReportNodeContext reportNodeContext;
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
@@ -125,7 +125,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     NetworkImpl(String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         ref.setRef(new RefObj<>(this));
-        this.reporterContext = new SimpleReporterContext();
+        this.reportNodeContext = new SimpleReportNodeContext();
         variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
@@ -226,13 +226,13 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
-    public void allowReporterContextMultiThreadAccess(boolean allow) {
-        this.reporterContext = Networks.allowReporterContextMultiThreadAccess(this.reporterContext, allow);
+    public void allowReportNodeContextMultiThreadAccess(boolean allow) {
+        this.reportNodeContext = Networks.allowReportNodeContextMultiThreadAccess(this.reportNodeContext, allow);
     }
 
     @Override
-    public ReporterContext getReporterContext() {
-        return this.reporterContext;
+    public ReportNodeContext getReportNodeContext() {
+        return this.reportNodeContext;
     }
 
     @Override

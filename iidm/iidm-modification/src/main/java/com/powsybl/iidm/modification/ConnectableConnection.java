@@ -56,15 +56,15 @@ public class ConnectableConnection extends AbstractNetworkModification {
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
 
-        // Add the reporter to the network reporter context
-        network.getReporterContext().pushReporter(reportNode);
+        // Add the reportNode to the network reportNode context
+        network.getReportNodeContext().pushReportNode(reportNode);
 
         // Disconnect the connectable
         boolean hasBeenConnected;
         try {
             hasBeenConnected = connectable.connect(isTypeSwitchToOperate);
         } finally {
-            network.getReporterContext().popReporter();
+            network.getReportNodeContext().popReportNode();
         }
 
         if (hasBeenConnected) {

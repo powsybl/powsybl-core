@@ -70,21 +70,21 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     @Test
     void testRemoveHvdcLineUnknownShunt() {
         Network network = HvdcTestNetwork.createLcc();
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveHvdcLineWithUnknownShunt", "Testing reporter on removing a HVDC line with unknown shunt").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveHvdcLineWithUnknownShunt", "Testing reportNode on removing a HVDC line with unknown shunt").build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reporter));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Shunt UnknownShunt not found", e.getMessage());
-        assertEquals("notFoundShunt", reporter.getChildren().iterator().next().getKey());
+        assertEquals("notFoundShunt", reportNode.getChildren().iterator().next().getKey());
     }
 
     @Test
     void testRemoveHvdcLineUnknownLine() {
         Network network = Network.create("empty", "test");
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveHvdcLineUnknownLine", "Testing reporter on removing a HVDC line with wrong line ID").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveHvdcLineUnknownLine", "Testing reportNode on removing a HVDC line with wrong line ID").build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reporter));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Hvdc Line L not found", e.getMessage());
-        assertEquals("HvdcNotFound", reporter.getChildren().iterator().next().getKey());
+        assertEquals("HvdcNotFound", reportNode.getChildren().iterator().next().getKey());
     }
 
     private static void addVoltageLevelWithShuntCompensator(Network network) {

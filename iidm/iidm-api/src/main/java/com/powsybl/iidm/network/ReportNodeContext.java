@@ -12,39 +12,39 @@ import com.powsybl.commons.report.ReportNode;
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public interface ReporterContext {
+public interface ReportNodeContext {
 
     /**
      * Peek the current {@link ReportNode}.
-     * @see #pushReporter(ReportNode)
-     * @see #popReporter()
+     * @see #pushReportNode(ReportNode)
+     * @see #popReportNode()
      * @return the last defined {@link ReportNode}
      */
-    ReportNode peekReporter();
+    ReportNode peekReportNode();
 
     /**
      * Get the current {@link ReportNode}.
-     * @see #pushReporter(ReportNode)
-     * @see #popReporter()
+     * @see #pushReportNode(ReportNode)
+     * @see #popReportNode()
      * @return the last defined {@link ReportNode}
      */
-    ReportNode getReporter();
+    ReportNode getReportNode();
 
     /**
      * Use the given {@link ReportNode} instead of the current one.<br/>
-     * The reporters are stacked and the previous one should be restored later using {@link #popReporter()}.
-     * @see #popReporter()
+     * The reportNodes are stacked and the previous one should be restored later using {@link #popReportNode()}.
+     * @see #popReportNode()
      *
-     * @param reportNode The new reporter to use.
+     * @param reportNode The new reportNode to use.
      */
-    void pushReporter(ReportNode reportNode);
+    void pushReportNode(ReportNode reportNode);
 
     /**
      * Pop the current {@link ReportNode} (defined via {@link ReportNode}) and restore the previous one.
-     * @see #pushReporter(ReportNode)
+     * @see #pushReportNode(ReportNode)
      *
      * @return the current {@link ReportNode}
      */
-    ReportNode popReporter();
+    ReportNode popReportNode();
 
 }

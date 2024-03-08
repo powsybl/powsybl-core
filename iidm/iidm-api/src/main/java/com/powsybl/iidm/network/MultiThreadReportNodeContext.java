@@ -14,53 +14,53 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
- * <p>Multi-thread {@link ReporterContext}'s implementation.</p>
+ * <p>Multi-thread {@link ReportNodeContext}'s implementation.</p>
  * <p>To avoid memory leaks, this context must be closed (with the {@link #close()} method) after usage.</p>
  *
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public class MultiThreadReporterContext extends AbstractReporterContext {
+public class MultiThreadReportNodeContext extends AbstractReportNodeContext {
 
-    private final ThreadLocal<Deque<ReportNode>> reporters;
+    private final ThreadLocal<Deque<ReportNode>> reportNodes;
 
-    public MultiThreadReporterContext() {
-        this.reporters = ThreadLocal.withInitial(() -> {
+    public MultiThreadReportNodeContext() {
+        this.reportNodes = ThreadLocal.withInitial(() -> {
             Deque<ReportNode> deque = new LinkedList<>();
             deque.push(ReportNode.NO_OP);
             return deque;
         });
     }
 
-    public MultiThreadReporterContext(AbstractReporterContext reporterContext) {
+    public MultiThreadReportNodeContext(AbstractReportNodeContext reportNodeContext) {
         this();
-        copyReporters(reporterContext);
+        copyReportNodes(reportNodeContext);
     }
 
     @Override
-    public ReportNode getReporter() {
-        return this.reporters.get().peek();
+    public ReportNode getReportNode() {
+        return this.reportNodes.get().peek();
     }
 
     @Override
-    public void pushReporter(ReportNode reportNode) {
-        this.reporters.get().push(reportNode);
+    public void pushReportNode(ReportNode reportNode) {
+        this.reportNodes.get().push(reportNode);
     }
 
     @Override
-    public ReportNode popReporter() {
-        ReportNode popped = this.reporters.get().pop();
-        if (reporters.get().isEmpty()) {
-            this.reporters.get().push(ReportNode.NO_OP);
+    public ReportNode popReportNode() {
+        ReportNode popped = this.reportNodes.get().pop();
+        if (reportNodes.get().isEmpty()) {
+            this.reportNodes.get().push(ReportNode.NO_OP);
         }
         return popped;
     }
 
     public void close() {
-        reporters.remove();
+        reportNodes.remove();
     }
 
     @Override
     protected Iterator<ReportNode> descendingIterator() {
-        return reporters.get().descendingIterator();
+        return reportNodes.get().descendingIterator();
     }
 }

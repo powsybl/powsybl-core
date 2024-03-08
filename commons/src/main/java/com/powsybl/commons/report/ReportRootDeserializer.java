@@ -41,7 +41,7 @@ public class ReportRootDeserializer extends StdDeserializer<ReportNode> {
 
         JsonNode versionNode = root.get("version");
         String versionStr = codec.readValue(versionNode.traverse(), String.class);
-        ReporterVersion version = ReporterVersion.of(versionStr);
+        ReportNodeVersion version = ReportNodeVersion.of(versionStr);
 
         String dictionaryName = getDictionaryName(ctx);
         return ReportNodeImpl.parseJsonNode(root.get("reportRoot"), codec, version, dictionaryName);
@@ -81,13 +81,13 @@ public class ReportRootDeserializer extends StdDeserializer<ReportNode> {
         Objects.requireNonNull(jsonIs);
         Objects.requireNonNull(dictionary);
         try {
-            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReportNode.class);
+            return getReportNodeModelObjectMapper(dictionary).readValue(jsonIs, ReportNode.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static ObjectMapper getReporterModelObjectMapper(String dictionary) {
+    private static ObjectMapper getReportNodeModelObjectMapper(String dictionary) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ReportNodeJsonModule());
         mapper.setInjectableValues(new InjectableValues.Std().addValue(DICTIONARY_VALUE_ID, dictionary));

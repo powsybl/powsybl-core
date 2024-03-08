@@ -18,9 +18,9 @@ import java.util.Properties;
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 @AutoService(Exporter.class)
-public class ExporterMockWithReporter implements Exporter {
+public class ExporterMockWithReportNode implements Exporter {
 
-    public ExporterMockWithReporter() {
+    public ExporterMockWithReportNode() {
     }
 
     @Override

@@ -30,10 +30,10 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
     private final ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
     private final ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
     private final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-    private final Importer importer1 = Importer.addPostProcessors(loader, testImporter, computationManager, "testReporter");
+    private final Importer importer1 = Importer.addPostProcessors(loader, testImporter, computationManager, "testReportNode");
 
     @Test
-    void postProcessorWithReporter() throws IOException {
+    void postProcessorWithReportNode() throws IOException {
 
         ReportNode reportRoot = ReportNode.newRootReportNode().withMessageTemplate("testPostProcessor", "Test importer post processor").build();
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reportRoot);
@@ -42,11 +42,11 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
         Optional<ReportNode> report = reportRoot.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
-        roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/postProcessorReporterTest.json");
+        roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/postProcessorReportNodeTest.json");
     }
 
     @Test
-    void postProcessorWithoutReporter() throws Exception {
+    void postProcessorWithoutReportNode() throws Exception {
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null);
         importPostProcessorMock.process(network1, computationManager);
         assertNotNull(network1);

@@ -1,4 +1,4 @@
-+ Testing creating line reporter without extensions
++ Testing creating line reportNode without extensions
    New connectable lineTest of type LINE created.
    No extensions found on voltageLevel vl2. The extension on the connectable is not created.
    No busbar section position extension found on bbs5, only one disconnector is created.

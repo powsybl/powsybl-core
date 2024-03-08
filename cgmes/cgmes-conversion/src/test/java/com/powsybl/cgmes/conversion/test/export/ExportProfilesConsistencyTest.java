@@ -33,17 +33,17 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     void testSVSmallGridNodeBreaker() {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
-        ReportNode reporterOnlySv = ReportNode.newRootReportNode().withMessageTemplate("onlySV", "").build();
-        exportProfiles(List.of("SV"), network, reporterOnlySv);
-        assertTrue(inconsistentProfilesReported(reporterOnlySv));
+        ReportNode reportNodeOnlySv = ReportNode.newRootReportNode().withMessageTemplate("onlySV", "").build();
+        exportProfiles(List.of("SV"), network, reportNodeOnlySv);
+        assertTrue(inconsistentProfilesReported(reportNodeOnlySv));
 
-        ReportNode reporterSvAndTp = ReportNode.newRootReportNode().withMessageTemplate("SVandTP", "").build();
-        exportProfiles(List.of("SV", "TP"), network, reporterSvAndTp);
-        assertFalse(inconsistentProfilesReported(reporterSvAndTp));
+        ReportNode reportNodeSvAndTp = ReportNode.newRootReportNode().withMessageTemplate("SVandTP", "").build();
+        exportProfiles(List.of("SV", "TP"), network, reportNodeSvAndTp);
+        assertFalse(inconsistentProfilesReported(reportNodeSvAndTp));
     }
 
-    private boolean inconsistentProfilesReported(ReportNode reporter) {
-        return reporter.getChildren().stream()
+    private boolean inconsistentProfilesReported(ReportNode reportNode) {
+        return reportNode.getChildren().stream()
                 .map(ReportNode::getKey)
                 .anyMatch(key -> key.equals("inconsistentProfilesTPRequired"));
     }

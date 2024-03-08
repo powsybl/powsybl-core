@@ -200,8 +200,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        // Reporter
-        ReportNode reportNode = this.getNetwork().getReporterContext().getReporter();
+        // ReportNode
+        ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
         // Booleans
         boolean isAlreadyConnected = true;
@@ -262,8 +262,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        // Reporter
-        ReportNode reportNode = this.getNetwork().getReporterContext().getReporter();
+        // ReportNode
+        ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
         // Booleans
         boolean isAlreadyDisconnected = true;

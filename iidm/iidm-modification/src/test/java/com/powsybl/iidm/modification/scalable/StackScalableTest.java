@@ -66,7 +66,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingUp() {
-        ReportNode reporterModel = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -74,7 +74,7 @@ class StackScalableTest {
         // Proportional to Target P
         StackScalable stackScalable = Scalable.stack(generatorList);
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
-        scalingReport(reporterModel,
+        scalingReport(reportNode,
             "generators",
             scalingParameters.getScalingType(),
             100.0, variationDone);
@@ -87,7 +87,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPMoreThanCurrent() {
-        ReportNode reporterModel = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -95,7 +95,7 @@ class StackScalableTest {
         // Proportional to Target P
         StackScalable stackScalable = Scalable.stack(generatorList);
         double variationDone = stackScalable.scale(network, 300.0, scalingParameters);
-        scalingReport(reporterModel,
+        scalingReport(reportNode,
             "generators",
             scalingParameters.getScalingType(),
             300.0, variationDone);
@@ -108,7 +108,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPLessThanCurrent() {
-        ReportNode reporterModel = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -116,7 +116,7 @@ class StackScalableTest {
         // Proportional to Target P
         StackScalable stackScalable = Scalable.stack(generatorList);
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
-        scalingReport(reporterModel,
+        scalingReport(reportNode,
             "generators",
             scalingParameters.getScalingType(),
             100.0, variationDone);
@@ -129,7 +129,7 @@ class StackScalableTest {
 
     @Test
     void testMaxValueBoundsScalingUp() {
-        ReportNode reporterModel = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -140,7 +140,7 @@ class StackScalableTest {
         // Proportional to Target P
         StackScalable stackScalable = Scalable.stack(generatorList, -Double.MAX_VALUE, maxValue);
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
-        scalingReport(reporterModel,
+        scalingReport(reportNode,
             "generators",
             scalingParameters.getScalingType(),
             100.0, variationDone);
@@ -153,7 +153,7 @@ class StackScalableTest {
 
     @Test
     void testMinValueBoundsScalingDown() {
-        ReportNode reporterModel = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -164,7 +164,7 @@ class StackScalableTest {
         // Proportional to Target P
         StackScalable stackScalable = Scalable.stack(generatorList, minValue, Double.MAX_VALUE);
         double variationDone = stackScalable.scale(network, -100.0, scalingParameters);
-        scalingReport(reporterModel,
+        scalingReport(reportNode,
             "generators",
             scalingParameters.getScalingType(),
             -100.0, variationDone);

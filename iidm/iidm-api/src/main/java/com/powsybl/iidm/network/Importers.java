@@ -50,7 +50,7 @@ public final class Importers {
      * @param parameters some properties to configure the import
      * @param computationManager computation manager to use for default post processors
      * @param config the import configuration
-     * @param reportNode the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      * @return the model
      */
     public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config, ReportNode reportNode) {
@@ -150,7 +150,7 @@ public final class Importers {
             try {
                 List<Future<?>> futures = dataSources.stream()
                         .map(ds -> {
-                            ReportNode child = createSubReporter(reportNode, ds);
+                            ReportNode child = createChildReportNode(reportNode, ds);
                             return executor.submit(() -> doImport(ds, importer, parameters, consumer, listener, networkFactory, child));
                         })
                         .collect(Collectors.toList());
@@ -162,12 +162,12 @@ public final class Importers {
             }
         } else {
             for (ReadOnlyDataSource dataSource : dataSources) {
-                doImport(dataSource, importer, parameters, consumer, listener, networkFactory, createSubReporter(reportNode, dataSource));
+                doImport(dataSource, importer, parameters, consumer, listener, networkFactory, createChildReportNode(reportNode, dataSource));
             }
         }
     }
 
-    private static ReportNode createSubReporter(ReportNode reportNode, ReadOnlyDataSource ds) {
+    private static ReportNode createChildReportNode(ReportNode reportNode, ReadOnlyDataSource ds) {
         return reportNode.newReportNode()
                 .withMessageTemplate("importDataSource", "Import data source ${dataSource}")
                 .withUntypedValue("dataSource", ds.getBaseName())

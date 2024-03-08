@@ -29,14 +29,14 @@ public abstract class AbstractModificationTest extends AbstractSerDeTest {
         writeXmlTest(network, NetworkSerDe::write, refXmlFile);
     }
 
-    protected void testReporter(ReportNode reporter, String reporterFile) throws IOException {
-        Optional<ReportNode> report = reporter.getChildren().stream().findFirst();
+    protected void testReportNode(ReportNode reportNode, String reportsFile) throws IOException {
+        Optional<ReportNode> report = reportNode.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
         StringWriter sw = new StringWriter();
-        reporter.print(sw);
+        reportNode.print(sw);
 
-        InputStream refStream = TopologyTestUtils.class.getResourceAsStream(reporterFile);
+        InputStream refStream = TopologyTestUtils.class.getResourceAsStream(reportsFile);
         ComparisonUtils.compareTxt(refStream, sw.toString());
     }
 }

@@ -56,7 +56,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param variableSets list of variableSets
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
-     * @param reportNode a reporter for functional logs
+     * @param reportNode a reportNode for functional logs
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
     CompletableFuture<Void> run(Network network,

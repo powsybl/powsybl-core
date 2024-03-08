@@ -55,7 +55,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
     @Test
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveVL", "Testing reporter on remove voltage level").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveVL", "Testing reportNode on remove voltage level").build();
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);
@@ -76,10 +76,10 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
         assertNull(network.getVscConverterStation("VSC2"));
 
         RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
-        removeUnknown.apply(network, false, reporter);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reporter));
+        removeUnknown.apply(network, false, reportNode);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reportNode));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
-        assertEquals("voltageLevelNotFound", reporter.getChildren().iterator().next().getKey());
+        assertEquals("voltageLevelNotFound", reportNode.getChildren().iterator().next().getKey());
     }
 
     @Test

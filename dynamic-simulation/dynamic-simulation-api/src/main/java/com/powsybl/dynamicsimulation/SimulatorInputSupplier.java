@@ -31,7 +31,7 @@ public interface SimulatorInputSupplier<T> {
      * Return a list of <pre>T</pre> objects specific to a given network
      *
      * @param network The network used to filter the content of the list
-     * @param reportNode the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      *
      * @return A list of <pre>T</pre> for the given network
      */

@@ -826,12 +826,12 @@ public class CgmesExportContext {
         return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
     }
 
-    public CgmesExportContext setReporter(ReportNode reportNode) {
+    public CgmesExportContext setReportNode(ReportNode reportNode) {
         this.reportNode = reportNode;
         return this;
     }
 
-    public ReportNode getReporter() {
+    public ReportNode getReportNode() {
         return this.reportNode;
     }
 

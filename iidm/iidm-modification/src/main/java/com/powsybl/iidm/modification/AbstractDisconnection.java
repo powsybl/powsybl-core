@@ -33,8 +33,8 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
     }
 
     public void applyModification(Network network, boolean isPlanned, ReportNode reportNode) {
-        // Add the reporter to the network reporter context
-        network.getReporterContext().pushReporter(reportNode);
+        // Add the reportNode to the network reportNode context
+        network.getReportNodeContext().pushReportNode(reportNode);
 
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
@@ -44,7 +44,7 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         try {
             hasBeenDisconnected = connectable.disconnect(openableSwitches);
         } finally {
-            network.getReporterContext().popReporter();
+            network.getReportNodeContext().popReportNode();
         }
 
         if (hasBeenDisconnected) {

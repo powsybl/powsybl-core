@@ -61,17 +61,17 @@ class FunctionalLogsTest {
     }
 
     private ReportNode importReport(GridModelReference testCase) {
-        ReportNode reporter = ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode()
                 .withMessageTemplate("testFunctionalLogs", "Test importing ${name}")
                 .withUntypedValue("name", testCase.name())
                 .build();
-        Importers.importData("CGMES", testCase.dataSource(), importParams, reporter);
-        return reporter;
+        Importers.importData("CGMES", testCase.dataSource(), importParams, reportNode);
+        return reportNode;
     }
 
-    private void checkResult(String resourceName, ReportNode reporter) throws IOException {
+    private void checkResult(String resourceName, ReportNode reportNode) throws IOException {
         StringWriter sw = new StringWriter();
-        reporter.print(sw);
+        reportNode.print(sw);
         try (InputStream is = getClass().getResourceAsStream(resourceName)) {
             String expected = new String(is.readAllBytes());
             assertEquals(expected, sw.toString());

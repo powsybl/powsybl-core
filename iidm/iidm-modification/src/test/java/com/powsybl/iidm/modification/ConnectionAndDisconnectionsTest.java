@@ -310,14 +310,14 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportPlannedDisconnectionComplete", "Testing reporter for connectable disconnection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportPlannedDisconnectionComplete", "Testing reportNode for connectable disconnection").build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(true)
             .build();
-        modification.apply(network, reporter);
+        modification.apply(network, reportNode);
         writeXmlTest(network, "/network-disconnection-with-fictitious.xiidm");
-        testReporter(reporter, "/reporter/connectable-disconnected-planned.txt");
+        testReportNode(reportNode, "/reportNode/connectable-disconnected-planned.txt");
     }
 
     @Test
@@ -329,14 +329,14 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         network.getSwitch("D1").setFictitious(true);
 
         // Network modification
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reporter for connectable disconnection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(false)
             .build();
-        modification.apply(network, reporter);
+        modification.apply(network, reportNode);
         writeXmlTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
-        testReporter(reporter, "/reporter/connectable-not-disconnected-planned.txt");
+        testReportNode(reportNode, "/reportNode/connectable-not-disconnected-planned.txt");
     }
 
     @Test
@@ -345,14 +345,14 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionDisconnection", "Testing reporter for connectable disconnection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionDisconnection", "Testing reportNode for connectable disconnection").build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(true)
             .build();
-        modification.apply(network, reporter);
+        modification.apply(network, reportNode);
         writeXmlTest(network, "/network-disconnection-with-fictitious.xiidm");
-        testReporter(reporter, "/reporter/connectable-disconnected-unplanned.txt");
+        testReportNode(reportNode, "/reportNode/connectable-disconnected-unplanned.txt");
     }
 
     @Test
@@ -361,14 +361,14 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reporter for connectable disconnection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(false)
             .build();
-        modification.apply(network, reporter);
+        modification.apply(network, reportNode);
         writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
-        testReporter(reporter, "/reporter/connectable-not-disconnected-unplanned.txt");
+        testReportNode(reportNode, "/reportNode/connectable-not-disconnected-unplanned.txt");
     }
 
     @Test
@@ -377,15 +377,15 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnection", "Testing reporter for connectable connection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnection", "Testing reportNode for connectable connection").build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withConnectableId("L2")
             .withFictitiousSwitchesOperable(true)
             .withOnlyBreakersOperable(false)
             .build();
-        modification.apply(network, reporter);
+        modification.apply(network, reportNode);
         writeXmlTest(network, "/network-connectable-connection.xiidm");
-        testReporter(reporter, "/reporter/connectable-connected.txt");
+        testReportNode(reportNode, "/reportNode/connectable-connected.txt");
     }
 
     @Test
@@ -394,14 +394,14 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoConnection", "Testing reporter for connectable connection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoConnection", "Testing reportNode for connectable connection").build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withConnectableId("L2")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
-        modification.apply(network, reporter);
+        modification.apply(network, reportNode);
         writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
-        testReporter(reporter, "/reporter/connectable-not-connected.txt");
+        testReportNode(reportNode, "/reportNode/connectable-not-connected.txt");
     }
 }

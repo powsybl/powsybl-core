@@ -63,7 +63,7 @@ public final class SensitivityAnalysis {
             Objects.requireNonNull(variableSets, "VariableSet list should not be null");
             Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
             Objects.requireNonNull(computationManager, "Computation manager should not be null");
-            Objects.requireNonNull(reportNode, "Reporter should not be null");
+            Objects.requireNonNull(reportNode, "ReportNode should not be null");
 
             return provider.run(network, workingVariantId, factorReader, resultWriter, contingencies, variableSets, parameters, computationManager, reportNode);
         }
@@ -83,7 +83,7 @@ public final class SensitivityAnalysis {
             Objects.requireNonNull(variableSets, "VariableSet list should not be null");
             Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
             Objects.requireNonNull(computationManager, "Computation manager should not be null");
-            Objects.requireNonNull(reportNode, "Reporter should not be null");
+            Objects.requireNonNull(reportNode, "ReportNode should not be null");
 
             SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
             SensitivityResultModelWriter resultWriter = new SensitivityResultModelWriter(contingencies);

@@ -1,7 +1,7 @@
 {
   "version" : "2.0",
   "reportRoot" : {
-    "messageKey" : "roundTripReporterJsonTest",
+    "messageKey" : "roundTripReportNodeJsonTest",
     "children" : [ {
       "messageKey" : "novalueReport"
     }, {
@@ -86,7 +86,7 @@
         "fixUcteTransformer" : "Fix UCTE transformers",
         "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
         "novalueReport" : "No value report",
-        "roundTripReporterJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct"
+        "roundTripReportNodeJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct"
       }
     }
   }

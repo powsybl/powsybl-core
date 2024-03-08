@@ -206,7 +206,7 @@ public class Context {
 
     // Handling issues found during conversion
 
-    public ReportNode getReporter() {
+    public ReportNode getReportNode() {
         return reportNode;
     }
 

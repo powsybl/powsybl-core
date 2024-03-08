@@ -135,40 +135,40 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Network network1 = createNbNetworkWithBusbarSection();
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
-        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("reportTestBbsNotExistingNB", "Testing reporter if busbar section does not exist in node/breaker").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("reportTestBbsNotExistingNB", "Testing reportNode if busbar section does not exist in node/breaker").build();
         NetworkModification modification1 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line1)
                 .withLineAdder(adder1)
                 .build();
-        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, reporter1));
+        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, reportNode1));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception1.getMessage());
-        assertEquals("notFoundBusOrBusbarSection", reporter1.getChildren().iterator().next().getKey());
+        assertEquals("notFoundBusOrBusbarSection", reportNode1.getChildren().iterator().next().getKey());
 
         Network network2 = createBbNetwork();
         Line line2 = network2.getLine("NHV1_NHV2_1");
         LineAdder adder2 = createLineAdder(line2, network2);
-        ReportNode reporter2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestBbsNotExistingBB", "Testing reporter if busbar section does not exist in bus/breaker").build();
+        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestBbsNotExistingBB", "Testing reportNode if busbar section does not exist in bus/breaker").build();
         NetworkModification modification2 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, reporter2));
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, reportNode2));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
-        assertEquals("notFoundBusOrBusbarSection", reporter2.getChildren().iterator().next().getKey());
+        assertEquals("notFoundBusOrBusbarSection", reportNode2.getChildren().iterator().next().getKey());
 
-        ReportNode reporter3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestWrongTypeBbs", "Testing reporter if type of busbar section is wrong").build();
+        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestWrongTypeBbs", "Testing reportNode if type of busbar section is wrong").build();
         NetworkModification modification3 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, reporter3));
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, reportNode3));
         assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
-        assertEquals("unexpectedIdentifiableType", reporter3.getChildren().iterator().next().getKey());
+        assertEquals("unexpectedIdentifiableType", reportNode3.getChildren().iterator().next().getKey());
 
-        ReportNode reporter4 = ReportNode.newRootReportNode().withMessageTemplate("reportTestNullFictitiousSubstationID", "Testing reporter with null fictitious substation ID").build();
+        ReportNode reportNode4 = ReportNode.newRootReportNode().withMessageTemplate("reportTestNullFictitiousSubstationID", "Testing reportNode with null fictitious substation ID").build();
         NetworkModification modification4 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network1.getLine("CJ"))
@@ -176,11 +176,11 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withCreateFictitiousSubstation(true)
                 .withFictitiousSubstationId(null)
                 .build();
-        PowsyblException exception4 = assertThrows(PowsyblException.class, () -> modification4.apply(network1, true, reporter4));
+        PowsyblException exception4 = assertThrows(PowsyblException.class, () -> modification4.apply(network1, true, reportNode4));
         assertEquals("Fictitious substation ID must be defined if a fictitious substation is to be created", exception4.getMessage());
-        assertEquals("undefinedFictitiousSubstationId", reporter4.getChildren().iterator().next().getKey());
+        assertEquals("undefinedFictitiousSubstationId", reportNode4.getChildren().iterator().next().getKey());
 
-        ReportNode reporter5 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedPositionPercent", "Testing reporter with undefined position percent").build();
+        ReportNode reportNode5 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedPositionPercent", "Testing reportNode with undefined position percent").build();
         NetworkModification modification5 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network1.getLine("CJ"))
@@ -188,20 +188,20 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withCreateFictitiousSubstation(true)
                 .withPositionPercent(Double.NaN)
                 .build();
-        PowsyblException exception5 = assertThrows(PowsyblException.class, () -> modification5.apply(network1, true, reporter5));
+        PowsyblException exception5 = assertThrows(PowsyblException.class, () -> modification5.apply(network1, true, reportNode5));
         assertEquals("Percent should not be undefined", exception5.getMessage());
-        assertEquals("undefinedPercent", reporter5.getChildren().iterator().next().getKey());
+        assertEquals("undefinedPercent", reportNode5.getChildren().iterator().next().getKey());
     }
 
     @Test
-    void testWithReporter() throws IOException {
+    void testWithReportNode() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateLineOnLine", "Testing reporter for creation of a line on line").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateLineOnLine", "Testing reportNode for creation of a line on line").build();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
-        modification.apply(network, reporter);
-        testReporter(reporter, "/reporter/create-line-on-line-report.txt");
+        modification.apply(network, reportNode);
+        testReportNode(reportNode, "/reportNode/create-line-on-line-report.txt");
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {

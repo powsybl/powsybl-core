@@ -31,7 +31,7 @@ class DummyCurveGroovyExtension implements CurveGroovyExtension {
         }
     }
 
-    void load(Binding binding, Consumer<Curve> consumer, ReportNode reporter) {
+    void load(Binding binding, Consumer<Curve> consumer, ReportNode reportNode) {
         binding.dummyCurve = { Closure<Void> closure ->
             def cloned = closure.clone()
 

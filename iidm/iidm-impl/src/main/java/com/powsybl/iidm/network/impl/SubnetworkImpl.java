@@ -82,13 +82,13 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public void allowReporterContextMultiThreadAccess(boolean allow) {
-        getNetwork().allowReporterContextMultiThreadAccess(allow);
+    public void allowReportNodeContextMultiThreadAccess(boolean allow) {
+        getNetwork().allowReportNodeContextMultiThreadAccess(allow);
     }
 
     @Override
-    public ReporterContext getReporterContext() {
-        return getNetwork().getReporterContext();
+    public ReportNodeContext getReportNodeContext() {
+        return getNetwork().getReportNodeContext();
     }
 
     private boolean contains(Identifiable<?> identifiable) {

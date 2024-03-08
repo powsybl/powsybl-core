@@ -14,36 +14,36 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
- * Simple mono-thread ReporterContext's implementation.
+ * Simple mono-thread ReportNodeContext's implementation.
  *
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public class SimpleReporterContext extends AbstractReporterContext {
+public class SimpleReportNodeContext extends AbstractReportNodeContext {
 
     private final Deque<ReportNode> reportNodes;
 
-    public SimpleReporterContext() {
+    public SimpleReportNodeContext() {
         this.reportNodes = new LinkedList<>();
         this.reportNodes.push(ReportNode.NO_OP);
     }
 
-    public SimpleReporterContext(AbstractReporterContext reporterContext) {
+    public SimpleReportNodeContext(AbstractReportNodeContext reportNodeContext) {
         this();
-        copyReporters(reporterContext);
+        copyReportNodes(reportNodeContext);
     }
 
     @Override
-    public ReportNode getReporter() {
+    public ReportNode getReportNode() {
         return this.reportNodes.peekFirst();
     }
 
     @Override
-    public void pushReporter(ReportNode reportNode) {
+    public void pushReportNode(ReportNode reportNode) {
         this.reportNodes.push(reportNode);
     }
 
     @Override
-    public ReportNode popReporter() {
+    public ReportNode popReportNode() {
         ReportNode popped = this.reportNodes.pop();
         if (reportNodes.isEmpty()) {
             this.reportNodes.push(ReportNode.NO_OP);

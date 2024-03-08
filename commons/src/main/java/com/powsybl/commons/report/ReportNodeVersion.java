@@ -17,13 +17,13 @@ import java.util.stream.Stream;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public enum ReporterVersion {
+public enum ReportNodeVersion {
     V_1_0(List.of(1, 0)),
     V_2_0(List.of(2, 0));
 
     private final List<Integer> versionArray;
 
-    ReporterVersion(List<Integer> versionArray) {
+    ReportNodeVersion(List<Integer> versionArray) {
         this.versionArray = versionArray;
     }
 
@@ -37,13 +37,13 @@ public enum ReporterVersion {
         return versionArray.stream().map(Object::toString).collect(Collectors.joining(separator));
     }
 
-    public static ReporterVersion of(String version) {
+    public static ReportNodeVersion of(String version) {
         return of(version, ".");
     }
 
-    public static ReporterVersion of(String version, String separator) {
+    public static ReportNodeVersion of(String version, String separator) {
         Objects.requireNonNull(version);
-        return Stream.of(ReporterVersion.values())
+        return Stream.of(ReportNodeVersion.values())
                 .filter(v -> version.equals(v.toString(separator)))
                 .findFirst() // there can only be 0 or exactly 1 match
                 .orElseThrow(() -> new PowsyblException("Version " + version + " is not supported."));

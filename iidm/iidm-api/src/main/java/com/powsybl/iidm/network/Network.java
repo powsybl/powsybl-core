@@ -116,7 +116,7 @@ public interface Network extends Container<Network> {
      * @param parameters         Import-specific parameters
      * @param networkFactory     Network factory
      * @param loader             Provides the list of available importers and post-processors
-     * @param reportNode           The reporter used for functional logs
+     * @param reportNode           The reportNode used for functional logs
      * @return                   The loaded network
      */
     static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory,
@@ -198,7 +198,7 @@ public interface Network extends Container<Network> {
      * @param parameters         Import-specific parameters
      * @param networkFactory     Network factory
      * @param loader             Provides the list of available importers and post-processors
-     * @param reportNode           The reporter used for functional logs
+     * @param reportNode           The reportNode used for functional logs
      * @return                   The loaded network
      */
     static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory, ImportersLoader loader, ReportNode reportNode) {
@@ -221,7 +221,7 @@ public interface Network extends Container<Network> {
      * @param config             The import config, in particular definition of post processors
      * @param parameters         Import-specific parameters
      * @param loader             Provides the list of available importers and post-processors
-     * @param reportNode           The reporter used for functional logs
+     * @param reportNode           The reportNode used for functional logs
      * @return                   The loaded network
      */
     static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader, ReportNode reportNode) {
@@ -304,7 +304,7 @@ public interface Network extends Container<Network> {
      *
      * @param filename           The name of the file to be imported.
      * @param data               The raw data from which the network should be loaded
-     * @param reportNode           The reporter used for functional logs
+     * @param reportNode           The reportNode used for functional logs
      * @return                   The loaded network
      */
     static Network read(String filename, InputStream data, ReportNode reportNode) {
@@ -579,33 +579,33 @@ public interface Network extends Container<Network> {
     VariantManager getVariantManager();
 
     /**
-     * <p>Allows {@link ReporterContext} to be accessed simultaneously by different threads.</p>
-     * <p>When this option is activated, the reporter context can have a different content
+     * <p>Allows {@link ReportNodeContext} to be accessed simultaneously by different threads.</p>
+     * <p>When this option is activated, the reportNode context can have a different content
      * for each thread.</p>
      * <p>Note that to avoid memory leaks when in multi-thread configuration: </p>
      * <ul>
-     *     <li>each reporter pushed in the ReporterContext should be popped in a "finally" section:
+     *     <li>each reportNode pushed in the ReportNodeContext should be popped in a "finally" section:
      * <pre>
      * {@code
-     *     network.getReporterContext().pushReporter(reporter);
+     *     network.getReportNodeContext().pushReportNode(reportNode);
      *     try {
      *         // code that can throw an exception
      *     } finally {
-     *         network.getReporterContext().popReporter();
+     *         network.getReportNodeContext().popReportNode();
      *     }
      * }
      * </pre>
      * </li>
      * <li>the context should be set in mono-thread access when multi-threading policy is no more useful.</li>
      * </ul>
-     * @param allow allow multi-thread access to the ReporterContext
+     * @param allow allow multi-thread access to the ReportNodeContext
      */
-    void allowReporterContextMultiThreadAccess(boolean allow);
+    void allowReportNodeContextMultiThreadAccess(boolean allow);
 
     /**
-     * Get the {@link ReporterContext} of the network.
+     * Get the {@link ReportNodeContext} of the network.
      */
-    ReporterContext getReporterContext();
+    ReportNodeContext getReportNodeContext();
 
     /**
      * Get all countries.
@@ -1450,7 +1450,7 @@ public interface Network extends Container<Network> {
      * @param format the export format
      * @param parameters some properties to configure the export
      * @param dataSource data source
-     * @param reportNode the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
     default void write(ExportersLoader loader, String format, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         Exporter exporter = Exporter.find(loader, format);
@@ -1474,7 +1474,7 @@ public interface Network extends Container<Network> {
      * @param format the export format
      * @param parameters some properties to configure the export
      * @param file the network file
-     * @param reportNode the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
     default void write(ExportersLoader loader, String format, Properties parameters, Path file, ReportNode reportNode) {
         DataSource dataSource = Exporters.createDataSource(file);
@@ -1496,7 +1496,7 @@ public interface Network extends Container<Network> {
      * @param parameters some properties to configure the export
      * @param directory the output directory where files are generated
      * @param baseName a base name for all generated files
-     * @param reportNode the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, ReportNode reportNode) {
         write(loader, format, parameters, new FileDataSource(Paths.get(directory), baseName), reportNode);

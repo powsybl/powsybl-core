@@ -119,19 +119,19 @@ class ShortCircuitAnalysisTest {
     }
 
     @Test
-    void testWithReporter() {
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("testReportShortCircuit", "Test mock short circuit").build();
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reporter);
+    void testWithReportNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportShortCircuit", "Test mock short circuit").build();
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reportNode);
         assertNotNull(result);
-        Collection<ReportNode> children = reporter.getChildren();
+        Collection<ReportNode> children = reportNode.getChildren();
         assertEquals(1, children.size());
 
         ReportNode node = children.iterator().next();
         assertTrue(node instanceof ReportNodeImpl);
-        ReportNodeImpl subReporter = (ReportNodeImpl) node;
-        assertEquals("MockShortCircuit", subReporter.getKey());
-        assertEquals("Running mock short circuit", subReporter.getMessage());
-        assertTrue(subReporter.getChildren().isEmpty());
+        ReportNodeImpl reportNodeChild = (ReportNodeImpl) node;
+        assertEquals("MockShortCircuit", reportNodeChild.getKey());
+        assertEquals("Running mock short circuit", reportNodeChild.getMessage());
+        assertTrue(reportNodeChild.getChildren().isEmpty());
     }
 
     @Test

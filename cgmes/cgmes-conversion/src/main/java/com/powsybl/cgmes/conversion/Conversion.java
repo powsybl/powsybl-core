@@ -260,7 +260,7 @@ public class Conversion {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
-        importedCgmesNetworkReport(context.getReporter(), network.getId());
+        importedCgmesNetworkReport(context.getReportNode(), network.getId());
         return network;
     }
 
@@ -277,7 +277,7 @@ public class Conversion {
                     } else {
                         if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
                             LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                            CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReporter(), dl.getId());
+                            CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
                             dl.getTerminal().disconnect();
                         }
                     }
@@ -307,7 +307,7 @@ public class Conversion {
         final double q0Adjusted = q0 / count;
         dls.forEach(dl -> {
             LOG.warn("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for dangling line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
-            CgmesReports.multipleUnpairedDanglingLinesAtSameBoundaryReport(context.getReporter(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
+            CgmesReports.multipleUnpairedDanglingLinesAtSameBoundaryReport(context.getReportNode(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
             dl.setP0(p0Adjusted);
             dl.setQ0(q0Adjusted);
         });

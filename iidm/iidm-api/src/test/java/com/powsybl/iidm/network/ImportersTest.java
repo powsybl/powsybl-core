@@ -88,18 +88,18 @@ class ImportersTest extends AbstractConvertersTest {
     }
 
     @Test
-    void getImporterWithImportConfigAndReporter() throws IOException {
+    void getImporterWithImportConfigAndReportNode() throws IOException {
         Importer importer = Importer.find(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("testFunctionalLog", "testFunctionalLogs").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testFunctionalLog", "testFunctionalLogs").build();
         assertNotNull(importer);
-        Network network = importer.importData(null, networkFactory, null, reporter);
+        Network network = importer.importData(null, networkFactory, null, reportNode);
         assertNotNull(network);
         assertEquals(LoadType.FICTITIOUS, network.getLoad("LOAD").getLoadType());
 
-        // Check that the wrapped importer has received the functional logs reporter and produced report items
-        assertEquals(1, reporter.getChildren().size());
+        // Check that the wrapped importer has received the functional logs reportNode and produced report items
+        assertEquals(1, reportNode.getChildren().size());
         StringWriter sw = new StringWriter();
-        reporter.print(sw);
+        reportNode.print(sw);
         String actual = TestUtil.normalizeLineSeparator(sw.toString());
         String expected = TestUtil.normalizeLineSeparator(
                 "+ testFunctionalLogs\n" +

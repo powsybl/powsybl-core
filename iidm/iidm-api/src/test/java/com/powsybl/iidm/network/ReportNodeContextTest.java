@@ -25,13 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class ReportNodeContextTest {
 
-    private static SimpleReporterContext simpleContext;
-    private static MultiThreadReporterContext multiThreadContext;
+    private static SimpleReportNodeContext simpleContext;
+    private static MultiThreadReportNodeContext multiThreadContext;
 
     @BeforeEach
     void init() {
-        simpleContext = new SimpleReporterContext();
-        multiThreadContext = new MultiThreadReporterContext();
+        simpleContext = new SimpleReportNodeContext();
+        multiThreadContext = new MultiThreadReportNodeContext();
     }
 
     @AfterEach
@@ -40,133 +40,133 @@ class ReportNodeContextTest {
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("getReporterContextStream")
-    void getReporterOnEmptyContextTest(String desc, Supplier<ReporterContext> contextSupplier) {
-        ReporterContext reporterContext = contextSupplier.get();
-        assertEquals(ReportNode.NO_OP, reporterContext.getReporter());
-        assertEquals(ReportNode.NO_OP, reporterContext.peekReporter());
+    @MethodSource("getReportNodeContextStream")
+    void getReportNodeOnEmptyContextTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
+        ReportNodeContext reportNodeContext = contextSupplier.get();
+        assertEquals(ReportNode.NO_OP, reportNodeContext.getReportNode());
+        assertEquals(ReportNode.NO_OP, reportNodeContext.peekReportNode());
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("getReporterContextStream")
-    void pushAndGetReporterTest(String desc, Supplier<ReporterContext> contextSupplier) {
-        ReporterContext reporterContext = contextSupplier.get();
-        ReportNode reporter0 = ReportNode.newRootReportNode().withMessageTemplate("task0", "name0").build();
-        reporterContext.pushReporter(reporter0);
-        assertEquals(reporter0, reporterContext.getReporter());
-        assertEquals(reporter0, reporterContext.peekReporter());
+    @MethodSource("getReportNodeContextStream")
+    void pushAndGetReportNodeTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
+        ReportNodeContext reportNodeContext = contextSupplier.get();
+        ReportNode reportNode0 = ReportNode.newRootReportNode().withMessageTemplate("task0", "name0").build();
+        reportNodeContext.pushReportNode(reportNode0);
+        assertEquals(reportNode0, reportNodeContext.getReportNode());
+        assertEquals(reportNode0, reportNodeContext.peekReportNode());
 
-        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("task1", "name1").build();
-        reporterContext.pushReporter(reporter1);
-        assertEquals(reporter1, reporterContext.getReporter());
-        assertEquals(reporter1, reporterContext.peekReporter());
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("task1", "name1").build();
+        reportNodeContext.pushReportNode(reportNode1);
+        assertEquals(reportNode1, reportNodeContext.getReportNode());
+        assertEquals(reportNode1, reportNodeContext.peekReportNode());
 
-        // Several get (or peek) doesn't affect the reporter
-        assertEquals(reporter1, reporterContext.getReporter());
-        assertEquals(reporter1, reporterContext.peekReporter());
+        // Several get (or peek) doesn't affect the reportNode
+        assertEquals(reportNode1, reportNodeContext.getReportNode());
+        assertEquals(reportNode1, reportNodeContext.peekReportNode());
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("getReporterContextStream")
-    void popReporterTest(String desc, Supplier<ReporterContext> contextSupplier) {
-        ReporterContext reporterContext = contextSupplier.get();
+    @MethodSource("getReportNodeContextStream")
+    void popReportNodeTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
+        ReportNodeContext reportNodeContext = contextSupplier.get();
 
-        ReportNode reporter0 = ReportNode.newRootReportNode().withMessageTemplate("task0", "name0").build();
-        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("task1", "name1").build();
-        reporterContext.pushReporter(reporter0);
-        reporterContext.pushReporter(reporter1);
-        assertEquals(reporter1, reporterContext.getReporter());
+        ReportNode reportNode0 = ReportNode.newRootReportNode().withMessageTemplate("task0", "name0").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("task1", "name1").build();
+        reportNodeContext.pushReportNode(reportNode0);
+        reportNodeContext.pushReportNode(reportNode1);
+        assertEquals(reportNode1, reportNodeContext.getReportNode());
         // Pop
-        ReportNode poppedReportNode = reporterContext.popReporter();
-        assertEquals(reporter1, poppedReportNode);
-        assertEquals(reporter0, reporterContext.getReporter());
+        ReportNode poppedReportNode = reportNodeContext.popReportNode();
+        assertEquals(reportNode1, poppedReportNode);
+        assertEquals(reportNode0, reportNodeContext.getReportNode());
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("getReporterContextStream")
-    void popOnEmptyReporterContextTest(String desc, Supplier<ReporterContext> contextSupplier) {
-        ReporterContext reporterContext = contextSupplier.get();
+    @MethodSource("getReportNodeContextStream")
+    void popOnEmptyReportNodeContextTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
+        ReportNodeContext reportNodeContext = contextSupplier.get();
 
-        assert ReportNode.NO_OP.equals(reporterContext.getReporter());
-        ReportNode poppedReportNode = reporterContext.popReporter();
+        assert ReportNode.NO_OP.equals(reportNodeContext.getReportNode());
+        ReportNode poppedReportNode = reportNodeContext.popReportNode();
         assertEquals(ReportNode.NO_OP, poppedReportNode);
-        assertEquals(ReportNode.NO_OP, reporterContext.getReporter());
+        assertEquals(ReportNode.NO_OP, reportNodeContext.getReportNode());
 
         // Empty context can be popped several times
-        poppedReportNode = reporterContext.popReporter();
+        poppedReportNode = reportNodeContext.popReportNode();
         assertEquals(ReportNode.NO_OP, poppedReportNode);
-        assertEquals(ReportNode.NO_OP, reporterContext.getReporter());
+        assertEquals(ReportNode.NO_OP, reportNodeContext.getReportNode());
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("getReporterContextStream")
-    void copyEmptyReporterContextTest(String desc, Supplier<ReporterContext> contextSupplier) {
-        ReporterContext reporterContext = contextSupplier.get();
-        assert ReportNode.NO_OP.equals(reporterContext.getReporter());
+    @MethodSource("getReportNodeContextStream")
+    void copyEmptyReportNodeContextTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
+        ReportNodeContext reportNodeContext = contextSupplier.get();
+        assert ReportNode.NO_OP.equals(reportNodeContext.getReportNode());
 
         // Simple
-        ReporterContext copy = new SimpleReporterContext((AbstractReporterContext) reporterContext);
-        Assertions.assertEquals(SimpleReporterContext.class, copy.getClass());
-        Assertions.assertEquals(ReportNode.NO_OP, copy.getReporter());
+        ReportNodeContext copy = new SimpleReportNodeContext((AbstractReportNodeContext) reportNodeContext);
+        Assertions.assertEquals(SimpleReportNodeContext.class, copy.getClass());
+        Assertions.assertEquals(ReportNode.NO_OP, copy.getReportNode());
 
         // Multi-thread
-        copy = new MultiThreadReporterContext((AbstractReporterContext) reporterContext);
-        Assertions.assertEquals(MultiThreadReporterContext.class, copy.getClass());
-        Assertions.assertEquals(ReportNode.NO_OP, copy.getReporter());
+        copy = new MultiThreadReportNodeContext((AbstractReportNodeContext) reportNodeContext);
+        Assertions.assertEquals(MultiThreadReportNodeContext.class, copy.getClass());
+        Assertions.assertEquals(ReportNode.NO_OP, copy.getReportNode());
 
         // Clean
-        ((MultiThreadReporterContext) copy).close();
+        ((MultiThreadReportNodeContext) copy).close();
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("getReporterContextStream")
-    void copyNonEmptyReporterContextTest(String desc, Supplier<ReporterContext> contextSupplier) {
-        ReporterContext reporterContext = contextSupplier.get();
-        assert ReportNode.NO_OP.equals(reporterContext.getReporter());
+    @MethodSource("getReportNodeContextStream")
+    void copyNonEmptyReportNodeContextTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
+        ReportNodeContext reportNodeContext = contextSupplier.get();
+        assert ReportNode.NO_OP.equals(reportNodeContext.getReportNode());
 
-        // Push reporters in the context
+        // Push reportNodes in the context
         ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("1", "1").build();
-        reporterContext.pushReporter(reportNode1);
+        reportNodeContext.pushReportNode(reportNode1);
         ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("2", "2").build();
-        reporterContext.pushReporter(reportNode2);
+        reportNodeContext.pushReportNode(reportNode2);
         ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("3", "3").build();
-        reporterContext.pushReporter(reportNode3);
+        reportNodeContext.pushReportNode(reportNode3);
 
         // Create copies
-        SimpleReporterContext simpleCopy = new SimpleReporterContext((AbstractReporterContext) reporterContext);
-        Assertions.assertEquals(SimpleReporterContext.class, simpleCopy.getClass());
-        MultiThreadReporterContext multiThreadCopy = new MultiThreadReporterContext((AbstractReporterContext) reporterContext);
-        Assertions.assertEquals(MultiThreadReporterContext.class, multiThreadCopy.getClass());
+        SimpleReportNodeContext simpleCopy = new SimpleReportNodeContext((AbstractReportNodeContext) reportNodeContext);
+        Assertions.assertEquals(SimpleReportNodeContext.class, simpleCopy.getClass());
+        MultiThreadReportNodeContext multiThreadCopy = new MultiThreadReportNodeContext((AbstractReportNodeContext) reportNodeContext);
+        Assertions.assertEquals(MultiThreadReportNodeContext.class, multiThreadCopy.getClass());
 
-        // Test copies' reporters (pop and test all of them)
-        Assertions.assertEquals(reportNode3, simpleCopy.getReporter());
-        Assertions.assertEquals(reportNode3, multiThreadCopy.getReporter());
+        // Test copies' reportNodes (pop and test all of them)
+        Assertions.assertEquals(reportNode3, simpleCopy.getReportNode());
+        Assertions.assertEquals(reportNode3, multiThreadCopy.getReportNode());
 
-        simpleCopy.popReporter();
-        multiThreadCopy.popReporter();
-        Assertions.assertEquals(reportNode2, simpleCopy.getReporter());
-        Assertions.assertEquals(reportNode2, multiThreadCopy.getReporter());
+        simpleCopy.popReportNode();
+        multiThreadCopy.popReportNode();
+        Assertions.assertEquals(reportNode2, simpleCopy.getReportNode());
+        Assertions.assertEquals(reportNode2, multiThreadCopy.getReportNode());
 
-        simpleCopy.popReporter();
-        multiThreadCopy.popReporter();
-        Assertions.assertEquals(reportNode1, simpleCopy.getReporter());
-        Assertions.assertEquals(reportNode1, multiThreadCopy.getReporter());
+        simpleCopy.popReportNode();
+        multiThreadCopy.popReportNode();
+        Assertions.assertEquals(reportNode1, simpleCopy.getReportNode());
+        Assertions.assertEquals(reportNode1, multiThreadCopy.getReportNode());
 
-        simpleCopy.popReporter();
-        multiThreadCopy.popReporter();
-        Assertions.assertEquals(ReportNode.NO_OP, simpleCopy.getReporter());
-        Assertions.assertEquals(ReportNode.NO_OP, multiThreadCopy.getReporter());
+        simpleCopy.popReportNode();
+        multiThreadCopy.popReportNode();
+        Assertions.assertEquals(ReportNode.NO_OP, simpleCopy.getReportNode());
+        Assertions.assertEquals(ReportNode.NO_OP, multiThreadCopy.getReportNode());
 
         // Clean
         multiThreadCopy.close();
     }
 
-    static Stream<Arguments> getReporterContextStream() {
+    static Stream<Arguments> getReportNodeContextStream() {
         return Stream.of(
                 Arguments.of("Simple",
-                        (Supplier<ReporterContext>) () -> simpleContext),
+                        (Supplier<ReportNodeContext>) () -> simpleContext),
                 Arguments.of("Multi-thread",
-                        (Supplier<ReporterContext>) () -> multiThreadContext)
+                        (Supplier<ReportNodeContext>) () -> multiThreadContext)
         );
     }
 

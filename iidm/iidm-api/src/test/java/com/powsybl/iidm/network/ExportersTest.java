@@ -11,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
-import com.powsybl.iidm.network.tools.ExporterMockWithReporter;
+import com.powsybl.iidm.network.tools.ExporterMockWithReportNode;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -116,19 +116,19 @@ class ExportersTest extends AbstractConvertersTest {
     }
 
     @Test
-    void exportWithReporter() throws Exception {
-        Exporter testExporter = new ExporterMockWithReporter();
+    void exportWithReportNode() throws Exception {
+        Exporter testExporter = new ExporterMockWithReportNode();
         DataSource dataSource = Exporters.createDataSource(path);
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing exporter reporting").build();
-        testExporter.export(null, null, dataSource, reporter);
-        Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
+        ReportNode rootReportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing exporter reporting").build();
+        testExporter.export(null, null, dataSource, rootReportNode);
+        Optional<ReportNode> reportNode = rootReportNode.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());
         assertTrue(reportNode.get() instanceof ReportNode);
 
         StringWriter sw = new StringWriter();
-        reporter.print(sw);
+        rootReportNode.print(sw);
 
-        InputStream refStream = getClass().getResourceAsStream("/exportReporterTest.txt");
+        InputStream refStream = getClass().getResourceAsStream("/exportReportNodeTest.txt");
         String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
         String logExport = TestUtil.normalizeLineSeparator(sw.toString());
         assertEquals(refLogExport, logExport);

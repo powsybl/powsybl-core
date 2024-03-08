@@ -707,7 +707,7 @@ public final class NetworkSerDe {
         NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, header.extensionVersions());
 
         Network network = initNetwork(networkFactory, context, reader, null);
-        network.getReporterContext().pushReporter(reportNode);
+        network.getReportNodeContext().pushReportNode(reportNode);
 
         Set<String> extensionNamesImported = new TreeSet<>();
         Set<String> extensionNamesNotFound = new TreeSet<>();

@@ -43,24 +43,24 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     void testReportElementName() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
-        ReportNode reporter = ReportNode.newRootReportNode()
+        ReportNode rootReportNode = ReportNode.newRootReportNode()
                 .withMessageTemplate("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}")
                 .withTypedValue("file", "elementName.uct", TypedValue.FILENAME)
                 .build();
 
-        reporter.newReportNode()
+        rootReportNode.newReportNode()
                 .withMessageTemplate("reportTest", "Report test ${unknownKey}")
                 .withUntypedValue("nonPrintedString", "Non printed String")
                 .add();
-        Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
+        Optional<ReportNode> reportNode = rootReportNode.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());
         assertEquals("Report test ${unknownKey}", reportNode.get().getMessage());
         assertEquals("Non printed String", reportNode.get().getValue("nonPrintedString").map(Object::toString).orElse(null));
 
-        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
+        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, rootReportNode);
 
         StringWriter sw = new StringWriter();
-        reporter.print(sw);
+        rootReportNode.print(sw);
 
         InputStream refStream = getClass().getResourceAsStream("/elementNameImportReport.txt");
         String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
@@ -69,9 +69,9 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
-    void roundTripReporterJsonTest() throws Exception {
+    void roundTripReportNodeJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
-        ReportNode reportRoot = ReportNode.newRootReportNode().withMessageTemplate("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct").build();
+        ReportNode reportRoot = ReportNode.newRootReportNode().withMessageTemplate("roundTripReportNodeJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct").build();
         reportRoot.newReportNode().withMessageTemplate("novalueReport", "No value report").add();
         Network.read(filename, getClass().getResourceAsStream("/" + filename), reportRoot);
         roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
@@ -113,7 +113,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
-    void roundTripReporterJsonParallelImportTest() throws InterruptedException, ExecutionException, IOException {
+    void roundTripReportNodeJsonParallelImportTest() throws InterruptedException, ExecutionException, IOException {
         Path workDir = Files.createDirectory(fileSystem.getPath(WORK_DIR));
         Files.copy(getClass().getResourceAsStream("/frVoltageRegulatingXnode.uct"), fileSystem.getPath(WORK_DIR, "frVoltageRegulatingXnode.uct"));
         Files.copy(getClass().getResourceAsStream("/frTestGridForMerging.uct"), fileSystem.getPath(WORK_DIR, "frTestGridForMerging.uct"));

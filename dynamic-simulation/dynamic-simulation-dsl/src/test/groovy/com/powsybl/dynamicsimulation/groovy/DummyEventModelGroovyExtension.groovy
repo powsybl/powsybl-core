@@ -34,7 +34,7 @@ class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
         }
     }
 
-    void load(Binding binding, Consumer<EventModel> consumer, ReportNode reporter) {
+    void load(Binding binding, Consumer<EventModel> consumer, ReportNode reportNode) {
         binding.dummyEventModel = { Closure<Void> closure ->
             def cloned = closure.clone()
 

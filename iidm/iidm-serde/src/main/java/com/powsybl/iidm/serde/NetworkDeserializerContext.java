@@ -52,7 +52,7 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     }
 
     public void executeEndTasks(Network network, ReportNode reportNode) {
-        Networks.executeWithReporter(network, reportNode, () -> getEndTasks().forEach(Runnable::run));
+        Networks.executeWithReportNode(network, reportNode, () -> getEndTasks().forEach(Runnable::run));
     }
 
     @Override

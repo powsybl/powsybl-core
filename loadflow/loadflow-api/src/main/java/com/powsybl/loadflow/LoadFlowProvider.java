@@ -54,7 +54,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param computationManager a computation manager to external program execution
      * @param workingVariantId   variant id of the network
      * @param parameters         load flow execution parameters
-     * @param reportNode           the reporter used for functional logs
+     * @param reportNode           the reportNode used for functional logs
      * @return a {@link CompletableFuture} on {@link LoadFlowResult]
      */
     CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode);

@@ -80,7 +80,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @param contingenciesProvider provides list of contingencies
      * @param interceptors
      * @param monitors stateMonitor that defines the branch bus and threeWindingsTransformer about which informations will be written after security analysis
-     * @param reportNode the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
     CompletableFuture<SecurityAnalysisReport> run(Network network,

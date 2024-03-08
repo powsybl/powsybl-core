@@ -321,7 +321,7 @@ public interface Importer {
      * @param dataSource data source
      * @param networkFactory network factory
      * @param parameters some properties to configure the import
-     * @param reportNode the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      * @return the model
      */
     default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {

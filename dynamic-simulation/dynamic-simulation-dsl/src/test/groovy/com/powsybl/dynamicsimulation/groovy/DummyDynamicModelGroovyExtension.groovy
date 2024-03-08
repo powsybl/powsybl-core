@@ -34,7 +34,7 @@ class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
         }
     }
 
-    void load(Binding binding, Consumer<DynamicModel> consumer, ReportNode reporter) {
+    void load(Binding binding, Consumer<DynamicModel> consumer, ReportNode reportNode) {
         binding.dummyDynamicModel = { Closure<Void> closure ->
             def cloned = closure.clone()
 

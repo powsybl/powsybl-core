@@ -177,7 +177,7 @@ public final class ReportNodeImpl implements ReportNode {
         writer.append(indent).append(prefix).append(getMessage()).append(System.lineSeparator());
     }
 
-    public static ReportNodeImpl parseJsonNode(JsonNode reportTree, ObjectCodec codec, ReporterVersion version, String dictionaryName) throws IOException {
+    public static ReportNodeImpl parseJsonNode(JsonNode reportTree, ObjectCodec codec, ReportNodeVersion version, String dictionaryName) throws IOException {
         return switch (version) {
             case V_1_0 -> throw new PowsyblException("No backward compatibility of version " + version);
             case V_2_0 -> parseJsonNode(reportTree, codec, dictionaryName);

@@ -313,11 +313,11 @@ public abstract class AbstractConnectableTest {
         line1.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
 
         // disconnect the already fully disconnected line 1
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reporter").build();
-        network.getReporterContext().pushReporter(reporter);
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line1.disconnect());
-        network.getReporterContext().popReporter();
-        assertEquals("alreadyDisconnectedTerminal", reporter.getChildren().iterator().next().getKey());
+        network.getReportNodeContext().popReportNode();
+        assertEquals("alreadyDisconnectedTerminal", reportNode.getChildren().iterator().next().getKey());
 
         // Reconnect the line 1
         assertTrue(line1.connect());
@@ -363,11 +363,11 @@ public abstract class AbstractConnectableTest {
         line2.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
 
         // connect the already fully connected line 2
-        ReportNode reporter = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reporter").build();
-        network.getReporterContext().pushReporter(reporter);
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line2.connect());
-        network.getReporterContext().popReporter();
-        assertEquals("alreadyConnectedTerminal", reporter.getChildren().iterator().next().getKey());
+        network.getReportNodeContext().popReportNode();
+        assertEquals("alreadyConnectedTerminal", reportNode.getChildren().iterator().next().getKey());
 
         // Disconnect the twt
         assertTrue(twt.disconnect(SwitchPredicates.IS_CLOSED_BREAKER));

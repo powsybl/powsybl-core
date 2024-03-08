@@ -37,7 +37,7 @@ public interface GroovyExtension<T> {
      * Load the extension into the binding object. Each time an object is created, the consumer is notified.
      * @param binding The binding where to register the extension
      * @param consumer The consumer to notify on objects creation
-     * @param reportNode the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
     void load(Binding binding, Consumer<T> consumer, ReportNode reportNode);
 

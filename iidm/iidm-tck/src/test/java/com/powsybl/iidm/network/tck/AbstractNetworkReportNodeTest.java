@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReporterContext;
+import com.powsybl.iidm.network.ReportNodeContext;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.Networks;
 import org.junit.jupiter.api.Test;
@@ -28,71 +28,71 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class AbstractNetworkReportNodeTest {
 
     @Test
-    public void executeWithReporterTest() {
-        // Create a network and affect it a reporter (reporter1)
+    public void executeWithReportNodeTest() {
+        // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
-        network.getReporterContext().pushReporter(reporter1);
-        assertTrue(reporter1.getChildren().isEmpty());
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
+        network.getReportNodeContext().pushReportNode(reportNode1);
+        assertTrue(reportNode1.getChildren().isEmpty());
 
-        // Create another reporter (reporter2)
-        ReportNode reporter2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
-        assertTrue(reporter2.getChildren().isEmpty());
+        // Create another reportNode (reportNode2)
+        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
+        assertTrue(reportNode2.getChildren().isEmpty());
 
-        // Execute a task using reporter2
-        Networks.executeWithReporter(network, reporter2, getTask(network));
+        // Execute a task using reportNode2
+        Networks.executeWithReportNode(network, reportNode2, getTask(network));
 
-        // The network's reporter is still reporter1
-        assertEquals(reporter1, network.getReporterContext().getReporter());
-        // reporter1 wasn't affected
-        assertTrue(reporter1.getChildren().isEmpty());
-        // reporter2 was used by the task
-        assertEquals(1, reporter2.getChildren().size());
+        // The network's reportNode is still reportNode1
+        assertEquals(reportNode1, network.getReportNodeContext().getReportNode());
+        // reportNode1 wasn't affected
+        assertTrue(reportNode1.getChildren().isEmpty());
+        // reportNode2 was used by the task
+        assertEquals(1, reportNode2.getChildren().size());
     }
 
     private Runnable getTask(Network network) {
-        return () -> network.getReporterContext().getReporter().newReportNode().withMessageTemplate("reportKey", "message").add();
+        return () -> network.getReportNodeContext().getReportNode().newReportNode().withMessageTemplate("reportKey", "message").add();
     }
 
     @Test
     public void multiThreadTest() throws InterruptedException {
-        // Create a network and affect it a reporter (reporter1)
+        // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reporter1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
-        network.getReporterContext().pushReporter(reporter1);
-        assertTrue(reporter1.getChildren().isEmpty());
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
+        network.getReportNodeContext().pushReportNode(reportNode1);
+        assertTrue(reportNode1.getChildren().isEmpty());
 
-        // Create 2 other reporters (reporter2 and reporter3)
-        ReportNode reporter2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
-        ReportNode reporter3 = ReportNode.newRootReportNode().withMessageTemplate("key3", "name3").build();
-        assertTrue(reporter2.getChildren().isEmpty());
-        assertTrue(reporter3.getChildren().isEmpty());
+        // Create 2 other reportNodes (reportNode2 and reportNode3)
+        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
+        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("key3", "name3").build();
+        assertTrue(reportNode2.getChildren().isEmpty());
+        assertTrue(reportNode3.getChildren().isEmpty());
 
         // Switch in multi-thread management
-        network.allowReporterContextMultiThreadAccess(true);
+        network.allowReportNodeContextMultiThreadAccess(true);
 
         final CountDownLatch latch = new CountDownLatch(2); // to sync threads after having set the working variant
         ExecutorService service = Executors.newFixedThreadPool(2);
         service.invokeAll(Arrays.asList(
                 () -> {
-                    network.getReporterContext().pushReporter(reporter2);
+                    network.getReportNodeContext().pushReportNode(reportNode2);
                     try {
                         latch.countDown();
                         latch.await();
-                        network.getReporterContext().getReporter().newReportNode().withMessageTemplate("key2", "message2").add();
+                        network.getReportNodeContext().getReportNode().newReportNode().withMessageTemplate("key2", "message2").add();
                     } finally {
-                        network.getReporterContext().popReporter();
+                        network.getReportNodeContext().popReportNode();
                     }
                     return null;
                 },
                 () -> {
-                    network.getReporterContext().pushReporter(reporter3);
+                    network.getReportNodeContext().pushReportNode(reportNode3);
                     try {
                         latch.countDown();
                         latch.await();
-                        network.getReporterContext().getReporter().newReportNode().withMessageTemplate("key3", "message3").add();
+                        network.getReportNodeContext().getReportNode().newReportNode().withMessageTemplate("key3", "message3").add();
                     } finally {
-                        network.getReporterContext().popReporter();
+                        network.getReportNodeContext().popReportNode();
                     }
                     return null;
                 })
@@ -104,42 +104,42 @@ public abstract class AbstractNetworkReportNodeTest {
         }
 
         // Switch back to mono-thread management
-        network.allowReporterContextMultiThreadAccess(false);
+        network.allowReportNodeContextMultiThreadAccess(false);
 
-        // The network's reporter is still reporter1
-        assertEquals(reporter1, network.getReporterContext().getReporter());
-        // reporter1 wasn't affected
-        assertTrue(reporter1.getChildren().isEmpty());
-        // reporter2 was used by the 1st task
-        assertEquals(1, reporter2.getChildren().size());
-        assertEquals("key2", reporter2.getChildren().stream().findFirst().orElseThrow().getKey());
-        // reporter3 was used by the 2nd task
-        assertEquals(1, reporter3.getChildren().size());
-        assertEquals("key3", reporter3.getChildren().stream().findFirst().orElseThrow().getKey());
+        // The network's reportNode is still reportNode1
+        assertEquals(reportNode1, network.getReportNodeContext().getReportNode());
+        // reportNode1 wasn't affected
+        assertTrue(reportNode1.getChildren().isEmpty());
+        // reportNode2 was used by the 1st task
+        assertEquals(1, reportNode2.getChildren().size());
+        assertEquals("key2", reportNode2.getChildren().stream().findFirst().orElseThrow().getKey());
+        // reportNode3 was used by the 2nd task
+        assertEquals(1, reportNode3.getChildren().size());
+        assertEquals("key3", reportNode3.getChildren().stream().findFirst().orElseThrow().getKey());
     }
 
     @Test
     public void onSubnetworkTest() {
-        // Create a network and affect it a reporter (reporter1)
+        // Create a network and affect it a reportNode (reportNode1)
         Network network = Network.create("Root", "format0");
-        ReporterContext reporterContext1 = network.getReporterContext();
+        ReportNodeContext reportNodeContext1 = network.getReportNodeContext();
 
         // Create a subnetwork
         Network subnetwork = network.createSubnetwork("Sub1", "Sub1", "format1");
 
-        // Check that the retrieved reporter context is the same as the root network
-        assertEquals(reporterContext1, subnetwork.getReporterContext());
+        // Check that the retrieved reportNode context is the same as the root network
+        assertEquals(reportNodeContext1, subnetwork.getReportNodeContext());
 
         // Context change on the network/subnetwork is reflected to the other
-        network.allowReporterContextMultiThreadAccess(true);
-        ReporterContext reporterContext2 = network.getReporterContext();
-        assertNotEquals(reporterContext1, reporterContext2);
-        assertEquals(reporterContext2, subnetwork.getReporterContext());
+        network.allowReportNodeContextMultiThreadAccess(true);
+        ReportNodeContext reportNodeContext2 = network.getReportNodeContext();
+        assertNotEquals(reportNodeContext1, reportNodeContext2);
+        assertEquals(reportNodeContext2, subnetwork.getReportNodeContext());
 
-        subnetwork.allowReporterContextMultiThreadAccess(false);
-        ReporterContext reporterContext3 = subnetwork.getReporterContext();
-        assertNotEquals(reporterContext2, reporterContext3);
-        assertEquals(reporterContext3, network.getReporterContext());
+        subnetwork.allowReportNodeContextMultiThreadAccess(false);
+        ReportNodeContext reportNodeContext3 = subnetwork.getReportNodeContext();
+        assertNotEquals(reportNodeContext2, reportNodeContext3);
+        assertEquals(reportNodeContext3, network.getReportNodeContext());
     }
 
 }
