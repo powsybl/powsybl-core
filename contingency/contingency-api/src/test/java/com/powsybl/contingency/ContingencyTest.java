@@ -231,4 +231,31 @@ class ContingencyTest {
         Contingency contingency4 = Contingency.builder("test4").addGenerator("GEN").addName("testName4").build();
         assertEquals("testName4", contingency4.getName().orElse(null));
     }
+
+    @Test
+    void testEquals() {
+        //Contingency id is probably enough to identify a specific contingency, so this test evaluates the current behavior of the equals, but it can evolve
+        Contingency co1 = new Contingency("co", "coName", new BusbarSectionContingency("bbs"), new LineContingency("l", "vl"));
+
+        assertEquals(co1, new Contingency("co", "coName", new BusbarSectionContingency("bbs"), new LineContingency("l", "vl")));
+
+        // diff in id
+        assertNotEquals(co1, new Contingency("co2", "coName", new BusbarSectionContingency("bbs"), new LineContingency("l", "vl")));
+        // diff in name
+        assertNotEquals(co1, new Contingency("co", "coName2", new BusbarSectionContingency("bbs"), new LineContingency("l", "vl")));
+        // without name
+        assertNotEquals(co1, new Contingency("co", new BusbarSectionContingency("bbs"), new LineContingency("l", "vl")));
+        // without elements
+        assertNotEquals(co1, new Contingency("co", "coName"));
+        // change elements list order
+        assertNotEquals(co1, new Contingency("co", "coName", new LineContingency("l", "vl"), new BusbarSectionContingency("bbs")));
+        // duplicate elements
+        assertNotEquals(co1, new Contingency("co", "coName", new BusbarSectionContingency("bbs"), new LineContingency("l", "vl"), new LineContingency("l", "vl")));
+        // change elements type
+        assertNotEquals(co1, new Contingency("co", "coName", new GeneratorContingency("bbs"), new LineContingency("l", "vl")));
+        // change elements id
+        assertNotEquals(co1, new Contingency("co", "coName", new BusbarSectionContingency("bbs2"), new LineContingency("l", "vl")));
+        // change elements voltage id
+        assertNotEquals(co1, new Contingency("co", "coName", new BusbarSectionContingency("bbs"), new LineContingency("l", "vl2")));
+    }
 }
