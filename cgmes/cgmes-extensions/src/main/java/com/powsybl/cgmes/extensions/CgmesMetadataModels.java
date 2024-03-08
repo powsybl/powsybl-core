@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,7 +42,11 @@ public interface CgmesMetadataModels extends Extension<Network> {
 
     Collection<Model> getModels();
 
+    List<Model> getSortedModels();
+
     Optional<Model> getModelForPart(String part);
+
+    Optional<Model> getModelForPartModellingAuthoritySet(String part, String modelingAuthoritySet);
 
     Optional<Model> getModelForProfile(String profile);
 

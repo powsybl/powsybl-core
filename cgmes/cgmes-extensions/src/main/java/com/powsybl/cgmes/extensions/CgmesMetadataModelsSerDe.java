@@ -18,7 +18,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -57,18 +56,21 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNodes();
-        for (CgmesMetadataModels.Model model : sortedModels(extension.getModels(), context)) {
+
+        boolean isSorted = ((NetworkSerializerContext) context).getOptions().isSorted();
+        for (CgmesMetadataModels.Model model : isSorted ? extension.getSortedModels() : extension.getModels()) {
             writeModel(model, context);
         }
+
         writer.writeEndNodes();
     }
 
     private void writeModel(CgmesMetadataModels.Model model, SerializerContext context) {
-
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNode(getNamespaceUri(), MODEL);
         writer.writeStringAttribute("id", model.getId());
+        writer.writeStringAttribute("part", model.getPart());
         writer.writeStringAttribute("description", model.getDescription());
         writer.writeIntAttribute("version", model.getVersion());
         writer.writeStringAttribute("modelingAuthoritySet", model.getModelingAuthoritySet());
@@ -86,14 +88,6 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
             writer.writeEndNode();
         }
         writer.writeEndNodes();
-    }
-
-    private static Collection<CgmesMetadataModels.Model> sortedModels(Collection<CgmesMetadataModels.Model> models, SerializerContext context) {
-        if (!((NetworkSerializerContext) context).getOptions().isSorted()) {
-            return models.stream().sorted(Comparator.comparing(CgmesMetadataModels.Model::getId)).toList();
-        } else {
-            return models;
-        }
     }
 
     private static Collection<String> sorted(Collection<String> strings, SerializerContext context) {
@@ -115,6 +109,7 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
     private static void read(CgmesMetadataModelsAdder.ModelAdder adder, DeserializerContext context) {
         TreeDataReader reader = context.getReader();
         adder.setId(reader.readStringAttribute("id"))
+                .setPart(reader.readStringAttribute("part"))
                 .setDescription(reader.readStringAttribute("description"))
                 .setVersion(reader.readIntAttribute("version"))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));

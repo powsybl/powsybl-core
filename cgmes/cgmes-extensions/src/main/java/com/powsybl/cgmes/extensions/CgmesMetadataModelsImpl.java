@@ -97,6 +97,13 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
     }
 
     @Override
+    public Optional<Model> getModelForPartModellingAuthoritySet(String part, String modelingAuthoritySet) {
+        return models.stream()
+                .filter(m -> m.getPart().equals(part) && m.getModelingAuthoritySet().equals(modelingAuthoritySet))
+                .findFirst();
+    }
+
+    @Override
     public Optional<Model> getModelForProfile(String profile) {
         return Optional.ofNullable(profileModel.get(profile));
     }
@@ -106,4 +113,13 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
         return Collections.unmodifiableCollection(models);
     }
 
+    @Override
+    public List<Model> getSortedModels() {
+        return models.stream().sorted(
+                Comparator.comparing(CgmesMetadataModels.Model::getModelingAuthoritySet)
+                        .thenComparing(CgmesMetadataModels.Model::getPart)
+                        .thenComparing(CgmesMetadataModels.Model::getVersion)
+                        .thenComparing(CgmesMetadataModels.Model::getId)
+        ).toList();
+    }
 }

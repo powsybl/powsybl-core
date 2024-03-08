@@ -95,7 +95,11 @@ class CgmesConformity1ConversionTest {
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
+            new ComparisonConfig()
+                    .tolerance(1e-5)
+                    .checkNetworkId(false)
+                    .incrementVersions(true)
+                    .exportedParts(Set.of("SSH", "SV")));
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.microGridBaseCaseBE());
@@ -110,7 +114,11 @@ class CgmesConformity1ConversionTest {
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         ConversionTester t = new ConversionTester(importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
+            new ComparisonConfig()
+                    .tolerance(1e-5)
+                    .checkNetworkId(false)
+                    .incrementVersions(true)
+                    .exportedParts(Set.of("SSH", "SV")));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }

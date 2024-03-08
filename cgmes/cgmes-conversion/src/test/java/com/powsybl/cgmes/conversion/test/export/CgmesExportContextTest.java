@@ -58,13 +58,15 @@ class CgmesExportContextTest {
             .add();
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
-                    .setId("testId")
-                    .setDescription("test")
-                    .setVersion(2)
-                    .addProfile("testProfile")
-                    .addDependentOn("otherModel")
-                    .setModelingAuthoritySet("cgmes.org")
-                    .add()
+                .setId("testId")
+                .setPart("SV")
+                .setDescription("test")
+                .setVersion(2)
+                .addProfile("testProfile")
+                .addDependentOn("otherModel1")
+                .addDependentOn("otherModel2")
+                .setModelingAuthoritySet("cgmes.org")
+                .add()
                 .add();
 
         CgmesExportContext context2 = new CgmesExportContext(network);
@@ -76,8 +78,8 @@ class CgmesExportContextTest {
         assertEquals("test", context2.getSvModelDescription().getDescription());
         assertEquals(3, context2.getSvModelDescription().getVersion());
         assertEquals(2, context2.getSvModelDescription().getDependencies().size());
-        assertTrue(context2.getSvModelDescription().getDependencies().contains("powsybl.test.org"));
-        assertTrue(context2.getSvModelDescription().getDependencies().contains("cgmes"));
+        assertTrue(context2.getSvModelDescription().getDependencies().contains("otherModel1"));
+        assertTrue(context2.getSvModelDescription().getDependencies().contains("otherModel2"));
         assertEquals("cgmes.org", context2.getSvModelDescription().getModelingAuthoritySet());
     }
 

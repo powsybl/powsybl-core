@@ -451,21 +451,21 @@ public class Conversion {
                 .setDescription(p.getId("description"))
                 .setVersion(readVersion(p, context))
                 .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
-            String profiles = p.get("profileList");
-            if (profiles != null && !profiles.isEmpty()) {
-                for (String profile : profiles.split(" ")) {
-                    modelAdder.addProfile(profile);
-                }
-            }
-            String dependentOns = p.get("dependentOnList");
-            if (dependentOns != null && !dependentOns.isEmpty()) {
-                for (String dependentOn : dependentOns.split(" ")) {
-                    modelAdder.addDependentOn(dependentOn);
-                }
-            }
+            addMetadataModelReferences(p, "profileList", modelAdder::addProfile);
+            addMetadataModelReferences(p, "dependentOnList", modelAdder::addDependentOn);
+            addMetadataModelReferences(p, "supersedesList", modelAdder::addSupersedes);
             modelAdder.add();
         }
         modelsAdder.add();
+    }
+
+    private void addMetadataModelReferences(PropertyBag p, String refsProperty, Function<String, CgmesMetadataModelsAdder.ModelAdder> adder) {
+        String refs = p.get(refsProperty);
+        if (refs != null && !refs.isEmpty()) {
+            for (String ref : refs.split(" ")) {
+                adder.apply(ref);
+            }
+        }
     }
 
     private String partFromGraph(String graph) {

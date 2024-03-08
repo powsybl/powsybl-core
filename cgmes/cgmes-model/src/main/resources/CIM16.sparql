@@ -51,8 +51,12 @@ SELECT *
                     ?FullModel md:Model.DependentOn ?dependentOn .
             } GROUP BY ?FullModel
     }
-    # FIXME(Luma) Be careful, we may have more than one Supersedes
-    # OPTIONAL { ?FullModel md:Model.Supersedes ?Supersedes }
+    OPTIONAL {
+        SELECT ?FullModel (group_concat(?supersedes; separator=" ") as ?supersedesList)
+            WHERE {
+                    ?FullModel md:Model.Supersedes ?supersedes .
+            } GROUP BY ?FullModel
+    }
 }}
 
 # query: modelIds

@@ -165,29 +165,45 @@ public class Comparison {
                 diff.missing(expected.getExtendable().getId() + "_cgmesMetadataModels_extension");
                 return;
             }
-            if (expected.getModels().size() != actual.getModels().size()) {
-                diff.compare("cgmesMetadataModels_size", expected.getModels().size(), actual.getModels().size());
-            }
-            int num = expected.getModels().size();
-            // Sorted models by id should be comparable one by one
-            List<CgmesMetadataModels.Model> expectedModels = expected.getModels().stream()
-                    .sorted(Comparator.comparing(CgmesMetadataModels.Model::getId))
-                    .collect(Collectors.toList());
-            List<CgmesMetadataModels.Model> actualModels = expected.getModels().stream()
-                    .sorted(Comparator.comparing(CgmesMetadataModels.Model::getId))
-                    .collect(Collectors.toList());
-            for (int k = 0; k < expectedModels.size(); k++) {
-                compareCgmesMetadataModels(expectedModels.get(k), actualModels.get(k));
+            if (config.ignoreMissingMetadata) {
+                // All actual models should be in expected models
+                // But some expected models may be missing
+                for (CgmesMetadataModels.Model actualModel : actual.getModels()) {
+                    Optional<CgmesMetadataModels.Model> expectedModel = expected.getModelForPartModellingAuthoritySet(actualModel.getPart(), actualModel.getModelingAuthoritySet());
+                    if (expectedModel.isEmpty()) {
+                        diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_Model " + actualModel.getId());
+                    } else {
+                        compareCgmesMetadataModels(expectedModel.get(), actualModel);
+                    }
+                }
+            } else {
+                // If we are not ignoring models, the sorted models should be comparable one by one
+                if (expected.getModels().size() != actual.getModels().size()) {
+                    diff.compare("cgmesMetadataModels_size", expected.getModels().size(), actual.getModels().size());
+                }
+                List<CgmesMetadataModels.Model> expectedModels = expected.getSortedModels();
+                List<CgmesMetadataModels.Model> actualModels = actual.getSortedModels();
+                for (int k = 0; k < expectedModels.size(); k++) {
+                    compareCgmesMetadataModels(expectedModels.get(k), actualModels.get(k));
+                }
             }
         }
     }
 
     private void compareCgmesMetadataModels(CgmesMetadataModels.Model expected, CgmesMetadataModels.Model actual) {
         String prefix = "CgmesMetadataModel " + expected.getId() + "_";
-        compare(prefix + "id", expected.getId(), actual.getId());
+        if (config.checkNetworkId) {
+            compare(prefix + "id", expected.getId(), actual.getId());
+        }
         compare(prefix + "part", expected.getPart(), actual.getPart());
         compare(prefix + "description", expected.getDescription(), actual.getDescription());
-        compare(prefix + "version", config.incremented ? expected.getVersion() + 1 : expected.getVersion(), actual.getVersion());
+        // If part has not been exported, the version has not been incremented
+        String part = expected.getPart();
+        int expectedVersion = expected.getVersion();
+        if (config.versionIncremented && config.isExportedPart(part)) {
+            expectedVersion++;
+        }
+        compare(prefix + "version", expectedVersion, actual.getVersion());
         compare(prefix + "modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
         compare(prefix + "profiles", expected.getProfiles(), actual.getProfiles());
         compare(prefix + "dependentOn", expected.getDependentOn(), actual.getDependentOn());

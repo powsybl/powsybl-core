@@ -7,6 +7,9 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -14,7 +17,9 @@ public final class ComparisonConfig {
 
     public ComparisonConfig() {
         checkNetworkId = true;
-        incremented = false;
+        versionIncremented = false;
+        exportedParts = Collections.emptySet();
+        ignoreMissingMetadata = false;
         differences = new DifferencesFail();
         networkMappingFactory = NetworkMapping::new;
         checkVoltageLevelLimits = true;
@@ -30,7 +35,17 @@ public final class ComparisonConfig {
     }
 
     public ComparisonConfig incrementVersions(boolean incremented) {
-        this.incremented = incremented;
+        this.versionIncremented = incremented;
+        return this;
+    }
+
+    public ComparisonConfig exportedParts(Set<String> exportedParts) {
+        this.exportedParts = exportedParts;
+        return this;
+    }
+
+    public ComparisonConfig ignoreMissingMetadata() {
+        this.ignoreMissingMetadata = true;
         return this;
     }
 
@@ -71,8 +86,14 @@ public final class ComparisonConfig {
         return this;
     }
 
+    public boolean isExportedPart(String part) {
+        return exportedParts.contains(part);
+    }
+
     boolean checkNetworkId;
-    boolean incremented;
+    boolean versionIncremented;
+    Set<String> exportedParts;
+    boolean ignoreMissingMetadata;
     Differences differences;
     NetworkMappingFactory networkMappingFactory;
     boolean checkVoltageLevelLimits;
