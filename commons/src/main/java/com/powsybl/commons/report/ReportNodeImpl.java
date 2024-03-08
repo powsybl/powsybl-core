@@ -34,7 +34,7 @@ public final class ReportNodeImpl implements ReportNode {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportNodeImpl.class);
 
-    private final String key;
+    private final String messageKey;
     private final List<ReportNodeImpl> children = new ArrayList<>();
     private final Collection<Map<String, TypedValue>> inheritedValuesMaps;
     private final Map<String, TypedValue> values;
@@ -46,8 +46,8 @@ public final class ReportNodeImpl implements ReportNode {
         return createChildReportNode(msgKey, message, values, parent.getValuesMapsInheritance(), parent.getRootContext());
     }
 
-    private static ReportNodeImpl createChildReportNode(String msgKey, String message, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesDeque, RootContext rootContext) {
-        return new ReportNodeImpl(msgKey, message, values, inheritedValuesDeque, rootContext, false);
+    private static ReportNodeImpl createChildReportNode(String msgKey, String message, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValues, RootContext rootContext) {
+        return new ReportNodeImpl(msgKey, message, values, inheritedValues, rootContext, false);
     }
 
     static ReportNodeImpl createRootReportNode(String msgKey, String message, Map<String, TypedValue> values) {
@@ -61,7 +61,7 @@ public final class ReportNodeImpl implements ReportNode {
     /**
      * ReportNodeImpl constructor, with no associated values.
      *
-     * @param key                 the key identifying the corresponding task
+     * @param messageKey                 the key identifying the corresponding task
      * @param messageTemplate     functional log, which may contain references to the given value or to values of any
      *                            {@link ReportNode} ancestor of the created {@link ReportNode}, using the
      *                            <code>${key}</code> syntax
@@ -72,15 +72,15 @@ public final class ReportNodeImpl implements ReportNode {
      * @param inheritedValuesMaps a {@link Collection} of inherited values maps
      * @param rootContext         the {@link RootContext} of the root of corresponding report tree
      */
-    private ReportNodeImpl(String key, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RootContext rootContext, boolean isRoot) {
-        this.key = Objects.requireNonNull(key);
+    private ReportNodeImpl(String messageKey, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RootContext rootContext, boolean isRoot) {
+        this.messageKey = Objects.requireNonNull(messageKey);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
         this.values = Collections.unmodifiableMap(values);
-        this.inheritedValuesMaps = Collections.unmodifiableCollection(inheritedValuesMaps);
-        this.rootContext = rootContext;
+        this.inheritedValuesMaps = inheritedValuesMaps;
+        this.rootContext = Objects.requireNonNull(rootContext);
         this.isRoot = isRoot;
-        rootContext.addDictionaryEntry(key, messageTemplate);
+        rootContext.addDictionaryEntry(Objects.requireNonNull(messageKey), Objects.requireNonNull(messageTemplate));
     }
 
     private static void checkMap(Map<String, TypedValue> values) {
@@ -92,12 +92,12 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public String getMessageKey() {
-        return key;
+        return messageKey;
     }
 
     @Override
     public String getMessage() {
-        String messageTemplate = rootContext.getDictionary().get(key);
+        String messageTemplate = rootContext.getDictionary().get(messageKey);
         return new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(messageTemplate);
     }
 
@@ -192,17 +192,17 @@ public final class ReportNodeImpl implements ReportNode {
 
     private static ReportNodeImpl parseJsonNode(JsonNode jsonNode, ObjectCodec codec, RootContext rootContext, Collection<Map<String, TypedValue>> inheritedValuesMaps, boolean rootReportNode) throws IOException {
         JsonNode keyNode = jsonNode.get("messageKey");
-        String key = codec.readValue(keyNode.traverse(), String.class);
+        String messageKey = codec.readValue(keyNode.traverse(), String.class);
 
         JsonNode valuesNode = jsonNode.get("values");
         Map<String, TypedValue> values = valuesNode == null ? Collections.emptyMap() : codec.readValue(valuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
-        String message = rootContext.getDictionary().getOrDefault(key, "(missing task key in dictionary)");
+        String message = rootContext.getDictionary().getOrDefault(messageKey, "(missing message key in dictionary)");
 
         ReportNodeImpl reportNode = rootReportNode
-                ? createRootReportNode(key, message, values, rootContext)
-                : createChildReportNode(key, message, values, inheritedValuesMaps, rootContext);
+                ? createRootReportNode(messageKey, message, values, rootContext)
+                : createChildReportNode(messageKey, message, values, inheritedValuesMaps, rootContext);
 
         JsonNode reportsNode = jsonNode.get("children");
         if (reportsNode != null) {
