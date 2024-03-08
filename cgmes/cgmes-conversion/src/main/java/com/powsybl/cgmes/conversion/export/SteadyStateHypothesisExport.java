@@ -294,7 +294,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(isInSlackBus(b) ? "1" : "0");
+            writer.writeCharacters(Integer.toString(ReferencePriority.get(g)));
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(b.getTargetP(), b.getMinP(), b.getReactiveLimits()));
@@ -378,16 +378,6 @@ public final class SteadyStateHypothesisExport {
                 regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
             }
         }
-    }
-
-    private static boolean isInSlackBus(Injection<?> g) {
-        VoltageLevel vl = g.getTerminal().getVoltageLevel();
-        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-        if (slackTerminal != null) {
-            Bus slackBus = slackTerminal.getTerminal().getBusBreakerView().getBus();
-            return slackBus == g.getTerminal().getBusBreakerView().getBus();
-        }
-        return false;
     }
 
     private static void writeTapChanger(String type, String id, TapChanger<?, ?, ?, ?> tc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
