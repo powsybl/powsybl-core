@@ -111,12 +111,12 @@ class ContingencyDslLoader extends DslLoader {
         }
     }
 
-    Map<String, List<String>> loadNotFoundElements(Network network) {
+    Map<String, Set<String>> loadNotFoundElements(Network network) {
         loadNotFoundElements(network, null)
     }
 
-    Map<String, List<String>> loadNotFoundElements(Network network, ContingencyDslObserver observer) {
-        Map<String, List<String>> notFoundElements = new HashMap<>()
+    Map<String, Set<String>> loadNotFoundElements(Network network, ContingencyDslObserver observer) {
+        Map<String, Set<String>> notFoundElements = new HashMap<>()
 
         LOGGER.debug("Loading DSL '{}'", dslSrc.getName())
         try {
@@ -142,7 +142,7 @@ class ContingencyDslLoader extends DslLoader {
         }
     }
 
-    static void findNotFoundIdentifiables(Binding binding, Network network, BiConsumer<String, List<String>> consumer) {
+    static void findNotFoundIdentifiables(Binding binding, Network network, BiConsumer<String, Set<String>> consumer) {
         binding.contingency = { String id, Closure<Void> closure ->
             def cloned = closure.clone()
             ContingencySpec contingencySpec = new ContingencySpec()
@@ -161,7 +161,7 @@ class ContingencyDslLoader extends DslLoader {
                 throw new DslException("'equipments' field is empty")
             }
 
-            List<String> notFoundIdentifiable = new ArrayList<>();
+            Set<String> notFoundIdentifiable = new LinkedHashSet<>();
             for (String equipment : contingencySpec.equipments) {
                 Identifiable identifiable = network.getIdentifiable(equipment)
                 if (identifiable == null) {

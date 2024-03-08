@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import groovy.lang.GroovyCodeSource;
 
 import java.io.InputStream;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,7 +48,7 @@ public class GroovyContingencyList implements ContingencyList {
         return new ContingencyDslLoader(codeSource).load(network);
     }
 
-    public Map<String, List<String>> getNotFoundElements(Network network) {
+    public Map<String, Set<String>> getNotFoundElements(Network network) {
         return new ContingencyDslLoader(codeSource).loadNotFoundElements(network);
     }
 }
