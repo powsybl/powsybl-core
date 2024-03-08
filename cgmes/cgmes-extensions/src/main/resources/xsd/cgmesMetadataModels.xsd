@@ -11,9 +11,9 @@
     </xs:simpleType>
     <xs:complexType name="Model">
         <xs:sequence>
-            <xs:element name="Profile" type="cmm:nonEmptyString" maxOccurs="unbounded"/>
-            <xs:element name="DependentOn" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="Supersedes" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="profile" type="cmm:nonEmptyString" maxOccurs="unbounded"/>
+            <xs:element name="dependentOnModel" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="supersedesModel" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:string"/>
         <xs:attribute name="part" type="xs:string"/>
@@ -24,7 +24,7 @@
     <xs:element name="cgmesMetadataModels">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="Model" type="cmm:Model" maxOccurs="unbounded"/>
+                <xs:element name="model" type="cmm:Model" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

@@ -26,14 +26,14 @@ import java.util.Map;
 @AutoService(ExtensionSerDe.class)
 public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, CgmesMetadataModels> {
 
-    private static final String MODEL = "Model";
-    private static final String PROFILE = "Profile";
-    private static final String DEPENDENT_ON = "DependentOn";
-    private static final String SUPERSEDES = "Supersedes";
-    private static final String MODELS = "Models";
-    private static final String PROFILES = "Profiles";
-    private static final String DEPENDENT_ONS = "DependentOns";
-    private static final String SUPERSEDESS = "Supersedess";
+    private static final String MODEL = "model";
+    private static final String PROFILE = "profile";
+    private static final String DEPENDENT_ON_MODEL = "dependentOnModel";
+    private static final String SUPERSEDES_MODEL = "supersedesModel";
+    private static final String MODELS = "models";
+    private static final String PROFILES = "profiles";
+    private static final String DEPENDENT_ON_MODELS = "dependentOnModels";
+    private static final String SUPERSEDES_MODELS = "supersedesModels";
 
     public CgmesMetadataModelsSerDe() {
         super(CgmesMetadataModels.NAME, "network", CgmesMetadataModels.class,
@@ -46,8 +46,8 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         return Map.of(
                 MODELS, MODEL,
                 PROFILES, PROFILE,
-                DEPENDENT_ONS, DEPENDENT_ON,
-                SUPERSEDESS, SUPERSEDES
+                DEPENDENT_ON_MODELS, DEPENDENT_ON_MODEL,
+                SUPERSEDES_MODELS, SUPERSEDES_MODEL
                 );
     }
 
@@ -75,8 +75,8 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         writer.writeIntAttribute("version", model.getVersion());
         writer.writeStringAttribute("modelingAuthoritySet", model.getModelingAuthoritySet());
         writeReferences(sorted(model.getProfiles(), context), PROFILE, writer);
-        writeReferences(sorted(model.getDependentOn(), context), DEPENDENT_ON, writer);
-        writeReferences(sorted(model.getSupersedes(), context), SUPERSEDES, writer);
+        writeReferences(sorted(model.getDependentOn(), context), DEPENDENT_ON_MODEL, writer);
+        writeReferences(sorted(model.getSupersedes(), context), SUPERSEDES_MODEL, writer);
         writer.writeEndNode();
     }
 
@@ -116,8 +116,8 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         reader.readChildNodes(elementName -> {
             switch (elementName) {
                 case PROFILE -> adder.addProfile(reader.readContent());
-                case DEPENDENT_ON -> adder.addDependentOn(reader.readContent());
-                case SUPERSEDES -> adder.addSupersedes(reader.readContent());
+                case DEPENDENT_ON_MODEL -> adder.addDependentOn(reader.readContent());
+                case SUPERSEDES_MODEL -> adder.addSupersedes(reader.readContent());
                 default -> throw new PowsyblException("Unknown element name '" + elementName + "' in '" + CgmesMetadataModels.NAME + "'");
             }
         });
