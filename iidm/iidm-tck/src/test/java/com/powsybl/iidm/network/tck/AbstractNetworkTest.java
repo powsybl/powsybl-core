@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.tck;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.ReportNodeImpl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
@@ -602,15 +601,13 @@ public abstract class AbstractNetworkTest {
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").build();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reportNode));
 
-        Collection<ReportNode> children = reportNode.getChildren();
+        List<ReportNode> children = reportNode.getChildren();
         assertEquals(1, children.size());
-        ReportNode node = children.iterator().next();
-        assertEquals("IIDMValidation", node.getMessageKey());
-        assertEquals("Running validation checks on IIDM network scada", node.getMessage());
+        ReportNode reportNodeChild = children.get(0);
+        assertEquals("IIDMValidation", reportNodeChild.getMessageKey());
+        assertEquals("Running validation checks on IIDM network scada", reportNodeChild.getMessage());
 
-        assertInstanceOf(ReportNodeImpl.class, node);
-        ReportNodeImpl reportNodeChild = (ReportNodeImpl) node;
-        Collection<ReportNode> messageNodes = reportNodeChild.getChildren();
+        List<ReportNode> messageNodes = reportNodeChild.getChildren();
         assertFalse(messageNodes.isEmpty());
 
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());

@@ -86,9 +86,10 @@ public interface ReportNode {
 
     /**
      * Get the children of current node
+     *
      * @return the children nodes
      */
-    Collection<ReportNode> getChildren();
+    List<ReportNode> getChildren();
 
     /**
      * Create a new adder to create a <code>ReportNode</code> child.

@@ -152,8 +152,8 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public Collection<ReportNode> getChildren() {
-        return Collections.unmodifiableCollection(children);
+    public List<ReportNode> getChildren() {
+        return Collections.unmodifiableList(children);
     }
 
     @Override

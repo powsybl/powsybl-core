@@ -8,7 +8,6 @@ package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.ReportNodeImpl;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -123,12 +121,10 @@ class ShortCircuitAnalysisTest {
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportShortCircuit", "Test mock short circuit").build();
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reportNode);
         assertNotNull(result);
-        Collection<ReportNode> children = reportNode.getChildren();
+        List<ReportNode> children = reportNode.getChildren();
         assertEquals(1, children.size());
 
-        ReportNode node = children.iterator().next();
-        assertTrue(node instanceof ReportNodeImpl);
-        ReportNodeImpl reportNodeChild = (ReportNodeImpl) node;
+        ReportNode reportNodeChild = children.get(0);
         assertEquals("MockShortCircuit", reportNodeChild.getMessageKey());
         assertEquals("Running mock short circuit", reportNodeChild.getMessage());
         assertTrue(reportNodeChild.getChildren().isEmpty());

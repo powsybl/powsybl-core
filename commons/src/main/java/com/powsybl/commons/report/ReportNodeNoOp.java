@@ -45,7 +45,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public Collection<ReportNode> getChildren() {
+    public List<ReportNode> getChildren() {
         return Collections.emptyList();
     }
 

@@ -80,11 +80,10 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         ReportNode rm = ReportNodeDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
         assertEquals(2, rm.getChildren().size());
 
-        Iterator<ReportNode> childrenIt = rm.getChildren().iterator();
-        ReportNode node1 = childrenIt.next();
+        ReportNode node1 = rm.getChildren().get(0);
         assertEquals("No value report", node1.getMessage());
 
-        ReportNode node2 = childrenIt.next();
+        ReportNode node2 = rm.getChildren().get(1);
         assertEquals("Reading UCTE network file", node2.getMessage());
     }
 
@@ -95,19 +94,17 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         ReportNode rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNode.class);
         assertEquals(2, rm.getChildren().size());
 
-        Iterator<ReportNode> childrenIt = rm.getChildren().iterator();
-        ReportNode node1 = childrenIt.next();
+        ReportNode node1 = rm.getChildren().get(0);
         assertEquals("No value report", node1.getMessage());
-        ReportNode node2 = childrenIt.next();
+        ReportNode node2 = rm.getChildren().get(1);
         assertEquals("Reading UCTE network file", node2.getMessage());
 
         mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
         rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNode.class);
         assertEquals(2, rm.getChildren().size());
 
-        childrenIt = rm.getChildren().iterator();
-        node1 = childrenIt.next();
-        node2 = childrenIt.next();
+        node1 = rm.getChildren().get(0);
+        node2 = rm.getChildren().get(1);
         assertEquals("Reading UCTE network file", node2.getMessage());
         assertEquals("No value report", node1.getMessage());
     }

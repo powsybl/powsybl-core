@@ -8,7 +8,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.ReportNodeImpl;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.Iterator;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -141,8 +139,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         ReportNode subReportNodeNb = reportNode.newReportNode().withMessageTemplate("nodeBreaker", "Test on node/breaker network").add();
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, subReportNodeNb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
-        ReportNodeImpl firstReport = (ReportNodeImpl) reportNode.getChildren().iterator().next();
-        assertEquals("notFoundBusOrBusbarSection", firstReport.getChildren().iterator().next().getMessageKey());
+        ReportNode firstReport = reportNode.getChildren().get(0);
+        assertEquals("notFoundBusOrBusbarSection", firstReport.getChildren().get(0).getMessageKey());
         assertEquals("nodeBreaker", firstReport.getMessageKey());
 
         Network network2 = createBbNetwork();
@@ -153,10 +151,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         ReportNode subReportNodeBb = reportNode.newReportNode().withMessageTemplate("busBreaker", "Test on bus/breaker network").add();
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReportNodeBb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
-        Iterator<ReportNode> iterator = reportNode.getChildren().iterator();
-        iterator.next();
-        ReportNodeImpl secondReport = (ReportNodeImpl) iterator.next();
-        assertEquals("notFoundBusOrBusbarSection", secondReport.getChildren().iterator().next().getMessageKey());
+        ReportNode secondReport = reportNode.getChildren().get(1);
+        assertEquals("notFoundBusOrBusbarSection", secondReport.getChildren().get(0).getMessageKey());
         assertEquals("busBreaker", secondReport.getMessageKey());
     }
 
