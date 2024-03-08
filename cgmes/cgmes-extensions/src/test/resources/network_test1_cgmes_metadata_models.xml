@@ -22,23 +22,23 @@
     </iidm:substation>
     <iidm:extension id="network">
         <cmm:cgmesMetadataModels>
-            <cmm:Model id="eqId" description="EQ description" version="1" modelingAuthoritySet="http://powsybl.org">
-                <cmm:Profile>http://equipment-core</cmm:Profile>
-                <cmm:Profile>http://equipment-operation</cmm:Profile>
-                <cmm:DependentOn>eq-dependency1</cmm:DependentOn>
-                <cmm:DependentOn>eq-dependency2</cmm:DependentOn>
-            </cmm:Model>
-            <cmm:Model id="sshId" description="SSH description" version="1" modelingAuthoritySet="http://powsybl.org">
-                <cmm:Profile>http://steady-state-hypothesis</cmm:Profile>
-                <cmm:DependentOn>ssh-dependency1</cmm:DependentOn>
-                <cmm:DependentOn>ssh-dependency2</cmm:DependentOn>
-                <cmm:Supersedes>ssh-superseded1</cmm:Supersedes>
-            </cmm:Model>
-            <cmm:Model id="svId" description="SV description" version="1" modelingAuthoritySet="http://powsybl.org">
-                <cmm:Profile>http://state-variables</cmm:Profile>
-                <cmm:DependentOn>sv-dependency1</cmm:DependentOn>
-                <cmm:DependentOn>sv-dependency2</cmm:DependentOn>
-            </cmm:Model>
+            <cmm:model id="eqId" part="EQ" description="EQ description" version="1" modelingAuthoritySet="http://powsybl.org">
+                <cmm:profile>http://equipment-core</cmm:profile>
+                <cmm:profile>http://equipment-operation</cmm:profile>
+                <cmm:dependentOnModel>eq-dependency1</cmm:dependentOnModel>
+                <cmm:dependentOnModel>eq-dependency2</cmm:dependentOnModel>
+            </cmm:model>
+            <cmm:model id="sshId" part="SSH" description="SSH description" version="1" modelingAuthoritySet="http://powsybl.org">
+                <cmm:profile>http://steady-state-hypothesis</cmm:profile>
+                <cmm:dependentOnModel>ssh-dependency1</cmm:dependentOnModel>
+                <cmm:dependentOnModel>ssh-dependency2</cmm:dependentOnModel>
+                <cmm:supersedesModel>ssh-superseded1</cmm:supersedesModel>
+            </cmm:model>
+            <cmm:model id="svId" part="SV" description="SV description" version="1" modelingAuthoritySet="http://powsybl.org">
+                <cmm:profile>http://state-variables</cmm:profile>
+                <cmm:dependentOnModel>sv-dependency1</cmm:dependentOnModel>
+                <cmm:dependentOnModel>sv-dependency2</cmm:dependentOnModel>
+            </cmm:model>
         </cmm:cgmesMetadataModels>
     </iidm:extension>
 </iidm:network>

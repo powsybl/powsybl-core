@@ -57,8 +57,8 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNodes();
 
-        boolean isSorted = ((NetworkSerializerContext) context).getOptions().isSorted();
-        for (CgmesMetadataModels.Model model : isSorted ? extension.getSortedModels() : extension.getModels()) {
+        // Always write models sorted
+        for (CgmesMetadataModels.Model model : extension.getSortedModels()) {
             writeModel(model, context);
         }
 
