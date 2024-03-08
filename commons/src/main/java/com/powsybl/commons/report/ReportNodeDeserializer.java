@@ -24,13 +24,13 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportRootDeserializer extends StdDeserializer<ReportNode> {
+public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReportRootDeserializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportNodeDeserializer.class);
     public static final String DICTIONARY_VALUE_ID = "dictionary";
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
-    ReportRootDeserializer() {
+    ReportNodeDeserializer() {
         super(ReportNode.class);
     }
 

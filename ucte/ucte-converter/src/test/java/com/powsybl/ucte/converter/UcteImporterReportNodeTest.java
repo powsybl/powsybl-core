@@ -74,10 +74,10 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         ReportNode reportRoot = ReportNode.newRootReportNode().withMessageTemplate("roundTripReportNodeJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct").build();
         reportRoot.newReportNode().withMessageTemplate("novalueReport", "No value report").add();
         Network.read(filename, getClass().getResourceAsStream("/" + filename), reportRoot);
-        roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
+        roundTripTest(reportRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
 
         // Testing deserializing with unknown specified dictionary
-        ReportNode rm = ReportRootDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
+        ReportNode rm = ReportNodeDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
         assertEquals(2, rm.getChildren().size());
 
         Iterator<ReportNode> childrenIt = rm.getChildren().iterator();
@@ -130,7 +130,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         assertEquals(3, networkList.size());
         assertEquals(3, reportRoot.getChildren().size());
 
-        roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/parallelUcteImportReport.json");
+        roundTripTest(reportRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/parallelUcteImportReport.json");
     }
 
 }

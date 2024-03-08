@@ -7,8 +7,8 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.ReportRootDeserializer;
-import com.powsybl.commons.report.ReportRootSerializer;
+import com.powsybl.commons.report.ReportNodeDeserializer;
+import com.powsybl.commons.report.ReportNodeSerializer;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.ComputationManager;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
         Optional<ReportNode> report = reportRoot.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
-        roundTripTest(reportRoot, ReportRootSerializer::write, ReportRootDeserializer::read, "/postProcessorReportNodeTest.json");
+        roundTripTest(reportRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/postProcessorReportNodeTest.json");
     }
 
     @Test

@@ -21,9 +21,9 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportRootSerializer extends StdSerializer<ReportNode> {
+public class ReportNodeSerializer extends StdSerializer<ReportNode> {
 
-    ReportRootSerializer() {
+    ReportNodeSerializer() {
         super(ReportNode.class);
     }
 
