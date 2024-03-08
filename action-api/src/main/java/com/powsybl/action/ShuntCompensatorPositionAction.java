@@ -7,6 +7,9 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.ShuntCompensatorModification;
+
 import java.util.Objects;
 
 /**
@@ -36,5 +39,9 @@ public class ShuntCompensatorPositionAction extends AbstractAction {
 
     public int getSectionCount() {
         return sectionCount;
+    }
+
+    public NetworkModification toModification() {
+        return new ShuntCompensatorModification(getShuntCompensatorId(), null, getSectionCount());
     }
 }
