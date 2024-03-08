@@ -74,7 +74,7 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Shunt UnknownShunt not found", e.getMessage());
-        assertEquals("notFoundShunt", reportNode.getChildren().iterator().next().getKey());
+        assertEquals("notFoundShunt", reportNode.getChildren().iterator().next().getMessageKey());
     }
 
     @Test
@@ -84,7 +84,7 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Hvdc Line L not found", e.getMessage());
-        assertEquals("HvdcNotFound", reportNode.getChildren().iterator().next().getKey());
+        assertEquals("HvdcNotFound", reportNode.getChildren().iterator().next().getMessageKey());
     }
 
     private static void addVoltageLevelWithShuntCompensator(Network network) {

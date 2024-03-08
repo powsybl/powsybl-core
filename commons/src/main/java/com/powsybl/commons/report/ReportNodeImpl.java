@@ -91,7 +91,7 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public String getKey() {
+    public String getMessageKey() {
         return key;
     }
 
@@ -246,7 +246,7 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     private void writeReportNodeParametersJson(JsonGenerator generator) throws IOException {
-        generator.writeStringField("messageKey", getKey());
+        generator.writeStringField("messageKey", getMessageKey());
         if (!values.isEmpty()) {
             generator.writeObjectField("values", values);
         }

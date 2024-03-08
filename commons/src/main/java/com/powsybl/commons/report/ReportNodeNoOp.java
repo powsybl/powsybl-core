@@ -30,7 +30,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public String getKey() {
+    public String getMessageKey() {
         return null;
     }
 

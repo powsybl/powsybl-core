@@ -20,28 +20,33 @@ import java.util.*;
  *
  * <p>Each <code>ReportNode</code> is defined by
  * <ul>
- *     <li>a {@link String} key identifying the <strong>unique</strong> corresponding functional report; this key is
- *     used to build a dictionary of all the message templates,</li>
  *     <li>a map of {@link TypedValue} indexed by their keys,</li>
- *     <li>a default {@link String} containing the functional message in the default language, which may contain
- *     references to those values or to the values of one of its ancestors.</li>
+ *     <li>a default {@link String} message template containing the functional message in the default language, which
+ *     may contain references to those values or to the values of one of its ancestors,</li>
+ *     <li>a {@link String} message key identifying the <strong>unique</strong> corresponding functional report template;
+ *     this key is used in particular to build a dictionary of all the message templates,</li>
+ *     <li>a collection of <code>ReportNode</code> children, possibly empty.</li>
  * </ul>
  *
- * The {@link TypedValue} values may be referred to by their key using the <code>${key}</code> syntax,
- * in order to be later replaced by {@link org.apache.commons.text.StringSubstitutor} for instance when formatting
+ * The values {@link TypedValue} values should be referred to by their key in the message template, using the <code>${key}</code>
+ * syntax, in order to be later replaced by {@link org.apache.commons.text.StringSubstitutor} for instance when formatting
  * the string for the end user.
+ * The <code>ReportNode</code> values may be referred to within the corresponding messageTemplate, or within any of its
+ * descendants. Be aware that any descendant might override a value by giving a new value to an existing key.
+ * All implementations of <code>ReportNode</code> need to take that inheritance into account.
  *
  * <p>Instances of <code>ReportNode</code> are not thread-safe.
  * When a new thread is created, a new <code>ReportNode</code> should be provided to the process in that thread.
  * A <code>ReportNode</code> is not meant to be shared with other threads.
- * Therefore, it should not be saved as a class parameter of an object which could be used by separate threads.
+ * Therefore, it should rather not be saved as a class parameter of an object which could be used by separate threads.
  * In those cases it should instead be passed on in methods through their arguments.
  *
- * <p>The <code>ReportNode</code> is designed for multilingual support. Indeed, each <code>ReportNode</code> message can be translated based on their key and using the value keys in the desired order.
+ * <p>The <code>ReportNode</code> is designed for multilingual support.
+ * Indeed, each <code>ReportNode</code> message can be translated based on their key and using the value keys in the desired order.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface ReportNode extends Report {
+public interface ReportNode {
 
     /**
      * A No-op implementation of <code>ReportNode</code>
@@ -57,6 +62,29 @@ public interface ReportNode extends Report {
     }
 
     /**
+     * Get the message key for current node.
+     * Note that each key needs to correspond to a unique message template.
+     * This allows to build up a dictionary of message templates indexed by their key.
+     * @return the key
+     */
+    String getMessageKey();
+
+    /**
+     * Get the message of current node, replacing <code>${key}</code> references in the message template with the
+     * corresponding values, either contained in current node or in one of its parents.
+     * @return the message
+     */
+    String getMessage();
+
+    /**
+     * Get the value corresponding to the given key
+     *
+     * @param valueKey the key to request
+     * @return the value
+     */
+    Optional<TypedValue> getValue(String valueKey);
+
+    /**
      * Get the children of current node
      * @return the children nodes
      */
@@ -70,9 +98,9 @@ public interface ReportNode extends Report {
     ReportNodeAdder newReportNode();
 
     /**
-     * Add a ReportNode as a child of current ReportNode.
+     * Add a <code>ReportNode</code> as a child of current <code>ReportNode</code>.
      *
-     * @param reportRoot the ReportNode to add
+     * @param reportRoot the <code>ReportNode</code> to add, it needs to be a root <code>ReportNode</code>
      */
     void include(ReportNode reportRoot);
 

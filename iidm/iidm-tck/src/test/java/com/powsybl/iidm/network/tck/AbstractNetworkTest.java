@@ -605,7 +605,7 @@ public abstract class AbstractNetworkTest {
         Collection<ReportNode> children = reportNode.getChildren();
         assertEquals(1, children.size());
         ReportNode node = children.iterator().next();
-        assertEquals("IIDMValidation", node.getKey());
+        assertEquals("IIDMValidation", node.getMessageKey());
         assertEquals("Running validation checks on IIDM network scada", node.getMessage());
 
         assertInstanceOf(ReportNodeImpl.class, node);

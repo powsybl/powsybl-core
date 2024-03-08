@@ -60,7 +60,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reportNode1)).getMessage().contains("Line line1NotFound is not found"));
-        assertEquals("lineNotFound", reportNode1.getChildren().iterator().next().getKey());
+        assertEquals("lineNotFound", reportNode1.getChildren().iterator().next().getMessageKey());
 
         ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestLineNotFound2", "Testing reportNode with wrong line2 id").build();
         NetworkModification modificationWithError2 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -71,7 +71,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reportNode2)).getMessage().contains("Line line2NotFound is not found"));
-        assertEquals("lineNotFound", reportNode2.getChildren().iterator().next().getKey());
+        assertEquals("lineNotFound", reportNode2.getChildren().iterator().next().getMessageKey());
 
         ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestLineNotFound", "Testing reportNode with wrong tee point line").build();
         NetworkModification modificationWithError3 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -82,7 +82,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reportNode3)).getMessage().contains("Line line3NotFound is not found"));
-        assertEquals("lineNotFound", reportNode3.getChildren().iterator().next().getKey());
+        assertEquals("lineNotFound", reportNode3.getChildren().iterator().next().getMessageKey());
 
         ReportNode reportNode4 = ReportNode.newRootReportNode().withMessageTemplate("reportTestBbsNotFound", "Testing reportNode with wrong bbs").build();
         NetworkModification modificationWithError4 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -93,7 +93,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, reportNode4)).getMessage().contains("Busbar section notFoundBusbarSection is not found in voltage level VLTEST"));
-        assertEquals("busbarSectionNotFound", reportNode4.getChildren().iterator().next().getKey());
+        assertEquals("busbarSectionNotFound", reportNode4.getChildren().iterator().next().getMessageKey());
 
         ReportNode reportNode5 = ReportNode.newRootReportNode().withMessageTemplate("reportTestWrongTeePoint", "Testing reportNode with wrong tee point").build();
         NetworkModification modificationWithError5 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -104,7 +104,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError5.apply(network, true, reportNode5)).getMessage().contains("Unable to find the tee point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34"));
-        assertEquals("noTeePointAndOrTappedVoltageLevel", reportNode5.getChildren().iterator().next().getKey());
+        assertEquals("noTeePointAndOrTappedVoltageLevel", reportNode5.getChildren().iterator().next().getMessageKey());
 
         ReportNode reportNode6 = ReportNode.newRootReportNode().withMessageTemplate("reportTestBbsInWrongVL", "Testing reportNode with busbar section in wrong voltage level").build();
         NetworkModification modificationWithError6 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -115,7 +115,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError6.apply(network, true, reportNode6)).getMessage().contains("Busbar section bbs3 is not found in voltage level VLTEST"));
-        assertEquals("busbarSectionNotFound", reportNode6.getChildren().iterator().next().getKey());
+        assertEquals("busbarSectionNotFound", reportNode6.getChildren().iterator().next().getMessageKey());
 
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestReplaceTeePointByVoltageLevelOnLineNB", "Testing reportNode when replacing tee point by voltage level on line in Node/breaker network").build();
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -177,7 +177,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reportNode1)).getMessage().contains("Bus busNotFound is not found in voltage level " + VOLTAGE_LEVEL_ID));
-        assertEquals("busNotFound", reportNode1.getChildren().iterator().next().getKey());
+        assertEquals("busNotFound", reportNode1.getChildren().iterator().next().getMessageKey());
 
         ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestBusInWrongVl", "Testing reportNode with bus in wrong voltage level").build();
         NetworkModification modificationWithError2 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -188,7 +188,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reportNode2)).getMessage().contains("Bus bus3 is not found in voltage level " + VOLTAGE_LEVEL_ID));
-        assertEquals("busNotFound", reportNode2.getChildren().iterator().next().getKey());
+        assertEquals("busNotFound", reportNode2.getChildren().iterator().next().getMessageKey());
 
         ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestReplaceTeePointByVoltageLevelOnLineBb", "Testing reportNode when replacing tee point by voltage level on line in bus/breaker network").build();
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()

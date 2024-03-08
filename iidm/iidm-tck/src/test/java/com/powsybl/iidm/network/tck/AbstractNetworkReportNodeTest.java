@@ -112,10 +112,10 @@ public abstract class AbstractNetworkReportNodeTest {
         assertTrue(reportNode1.getChildren().isEmpty());
         // reportNode2 was used by the 1st task
         assertEquals(1, reportNode2.getChildren().size());
-        assertEquals("key2", reportNode2.getChildren().stream().findFirst().orElseThrow().getKey());
+        assertEquals("key2", reportNode2.getChildren().stream().findFirst().orElseThrow().getMessageKey());
         // reportNode3 was used by the 2nd task
         assertEquals(1, reportNode3.getChildren().size());
-        assertEquals("key3", reportNode3.getChildren().stream().findFirst().orElseThrow().getKey());
+        assertEquals("key3", reportNode3.getChildren().stream().findFirst().orElseThrow().getMessageKey());
     }
 
     @Test
