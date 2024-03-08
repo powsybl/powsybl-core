@@ -115,7 +115,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-action-util</artifactId>
+            <artifactId>powsybl-action-ial-util</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

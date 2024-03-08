@@ -20,7 +20,7 @@
 
     <artifactId>powsybl-action-api</artifactId>
     <name>Action</name>
-    <description>A set of actions</description>
+    <description>Powsybl action API</description>
 
     <build>
         <plugins>
@@ -46,7 +46,7 @@
         <!-- Compilation dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-contingency-api</artifactId>
+            <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
