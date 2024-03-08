@@ -79,6 +79,9 @@ class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
         networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections
                 .singletonList(new IdBasedNetworkElementIdentifier("identifier2")), "contingency3"));
         contingencyLists.add(new IdentifierContingencyList("identifierlist", networkElementIdentifiers));
+        contingencyLists.add(new TieLineCriterionContingencyList("tieLineContingencyList",
+            new TwoCountriesCriterion(Collections.singletonList(Country.FR)), nominalVoltageCriterion,
+            Collections.emptyList(), null));
         return new ListOfContingencyLists("listslist1", contingencyLists);
     }
 

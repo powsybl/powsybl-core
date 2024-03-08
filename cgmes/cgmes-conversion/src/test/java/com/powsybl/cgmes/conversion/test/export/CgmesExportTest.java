@@ -604,5 +604,71 @@ class CgmesExportTest {
         assertEquals(expected.getQ0(), -actualEquivalentInjection.getTargetQ(), EPSILON);
     }
 
+    @Test
+    void testCanGeneratorControl() throws IOException {
+        ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), new Properties());
+
+        Generator generatorNoRcc = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator generatorRcc = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
+
+        generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+        generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+
+        String exportFolder = "/test-generator-control";
+        String baseName = "testGeneratorControl";
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+            // network.write("CGMES", null, tmpDir.resolve(baseName));
+            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            String eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+
+            // Check that RC are exported properly
+            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+            generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+
+            // RC shouldn't be exported without targetV
+            double rccTargetV = generatorRcc.getTargetV();
+            generatorRcc.setVoltageRegulatorOn(false);
+            generatorRcc.setTargetV(Double.NaN);
+
+            double noRccTargetV = generatorNoRcc.getTargetV();
+            generatorNoRcc.setVoltageRegulatorOn(false);
+            generatorNoRcc.setTargetV(Double.NaN);
+
+            //network.write("CGMES", null, tmpDir.resolve(baseName));
+            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+
+            generatorRcc.setTargetV(rccTargetV);
+            generatorRcc.setVoltageRegulatorOn(true);
+            generatorNoRcc.setTargetV(noRccTargetV);
+            generatorNoRcc.setVoltageRegulatorOn(true);
+
+            // RC shouldn't be exported when Qmin and Qmax are the same
+            ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();
+            ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) generatorRcc.getReactiveLimits();
+            rcc.getPoints().forEach(point -> rccAdder.beginPoint().setP(point.getP()).setMaxQ(point.getMaxQ()).setMinQ(point.getMaxQ()).endPoint());
+            rccAdder.add();
+            MinMaxReactiveLimitsAdder mmrlAdder = generatorNoRcc.newMinMaxReactiveLimits();
+            MinMaxReactiveLimits mmrl = (MinMaxReactiveLimits) generatorNoRcc.getReactiveLimits();
+            mmrlAdder.setMinQ(mmrl.getMinQ());
+            mmrlAdder.setMaxQ(mmrl.getMinQ());
+            mmrlAdder.add();
+
+            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+        }
+    }
+
     private static final double EPSILON = 1e-10;
 }

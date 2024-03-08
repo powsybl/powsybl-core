@@ -45,7 +45,7 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
     public void process(Network network, TripleStore tripleStore) {
         Objects.requireNonNull(network);
         LOG.info("Execute {} post processor on network {}", getName(), network.getId());
-        for (PropertyBag sm : network.getExtension(CgmesModelExtension.class).getCgmesModel().synchronousMachines()) {
+        for (PropertyBag sm : network.getExtension(CgmesModelExtension.class).getCgmesModel().synchronousMachinesGenerators()) {
             String generatingUnitId = sm.getId("GeneratingUnit");
             if (generatingUnitId != null) {
                 processGenerator(network, sm, generatingUnitId);
