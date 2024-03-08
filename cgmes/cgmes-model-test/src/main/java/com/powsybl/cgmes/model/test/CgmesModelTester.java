@@ -89,7 +89,8 @@ public class CgmesModelTester {
         testPropertyBags(expected.energyConsumers(), actual.energyConsumers());
         testPropertyBags(expected.shuntCompensators(), actual.shuntCompensators());
         testPropertyBags(expected.staticVarCompensators(), actual.staticVarCompensators());
-        testPropertyBags(expected.synchronousMachines(), actual.synchronousMachines());
+        testPropertyBags(expected.synchronousMachinesGenerators(), actual.synchronousMachinesGenerators());
+        testPropertyBags(expected.synchronousMachinesCondensers(), actual.synchronousMachinesCondensers());
         testPropertyBags(expected.asynchronousMachines(), actual.asynchronousMachines());
         testPropertyBags(expected.modelProfiles(), actual.modelProfiles());
     }
