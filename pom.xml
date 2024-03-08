@@ -194,6 +194,11 @@
             <!-- project artifacts -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-action-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-action-ial</artifactId>
                 <version>${project.version}</version>
             </dependency>
