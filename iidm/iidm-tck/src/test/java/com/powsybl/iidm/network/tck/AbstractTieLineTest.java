@@ -192,19 +192,52 @@ public abstract class AbstractTieLineTest {
     }
 
     @Test
+    public void inconsistentPairingKeysTest() {
+        network = EurostagTutorialExample1Factory.createWithTieLine();
+
+        // Remove tie line to separate dangling lines
+        network.getTieLine("NHV1_NHV2_1").remove();
+        DanglingLine dl11 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_1);
+        DanglingLine dl12 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_2);
+        assertFalse(dl11.isPaired());
+        assertFalse(dl12.isPaired());
+
+        // trying to pair back with non-consistent pairing keys
+        dl11.setPairingKey("anotherPairingKey");
+        TieLineAdder tla = network.newTieLine()
+                .setId("tl")
+                .setDanglingLine1(dl11.getId())
+                .setDanglingLine2(dl12.getId());
+        ValidationException e = assertThrows(ValidationException.class, tla::add);
+        assertEquals("AC tie Line 'tl': danglingLine1 pairingKey (anotherPairingKey) is not consistent with danglingLine2 pairingKey (XNODE1)", e.getMessage());
+
+        // trying to pair back with a null pairing key on one side
+        dl11.setPairingKey(null);
+        tla.setDanglingLine1(dl11.getId())
+                .setDanglingLine2(dl12.getId());
+        e = assertThrows(ValidationException.class, tla::add);
+        assertEquals("AC tie Line 'tl': danglingLine1 pairingKey is null", e.getMessage());
+
+        // trying to pair back with a null pairing key on the other side
+        tla.setDanglingLine1(dl12.getId())
+                .setDanglingLine2(dl11.getId());
+        e = assertThrows(ValidationException.class, tla::add);
+        assertEquals("AC tie Line 'tl': danglingLine2 pairingKey is null", e.getMessage());
+    }
+
+    @Test
     public void setPairingKeyTest() {
         network = EurostagTutorialExample1Factory.createWithTieLine();
 
+        // First tie line
         DanglingLine dl11 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_1);
         DanglingLine dl12 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_2);
-        assertTrue(dl11.isPaired());
-        assertTrue(dl12.isPaired());
         String tl1Id = "NHV1_NHV2_1";
-        String pairingKey1 = dl11.getPairingKey();
         assertEquals(tl1Id, dl11.getTieLine().map(TieLine::getId).orElse(null));
         assertEquals(tl1Id, dl12.getTieLine().map(TieLine::getId).orElse(null));
 
         // should not unpair if setting same pairing key
+        String pairingKey1 = dl11.getPairingKey();
         dl11.setPairingKey(pairingKey1);
         assertTrue(dl11.isPaired());
         assertTrue(dl12.isPaired());
@@ -217,10 +250,9 @@ public abstract class AbstractTieLineTest {
         assertFalse(dl12.isPaired());
         assertNull(network.getTieLine(tl1Id));
 
+        // Second tie line
         DanglingLine dl21 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE2_1);
         DanglingLine dl22 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE2_2);
-        assertTrue(dl21.isPaired());
-        assertTrue(dl22.isPaired());
         String tl2Id = "NHV1_NHV2_2";
         assertEquals(tl2Id, dl21.getTieLine().map(TieLine::getId).orElse(null));
         assertEquals(tl2Id, dl22.getTieLine().map(TieLine::getId).orElse(null));

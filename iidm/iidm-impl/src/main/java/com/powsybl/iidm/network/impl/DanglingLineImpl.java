@@ -423,13 +423,16 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
                 tieLine.remove();
             }
 
-            Map<Boolean, List<DanglingLine>> candidates = network.get().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
-                    .filter(dl -> pairingKey.equals(dl.getPairingKey()))
-                    .collect(Collectors.groupingBy(dl -> dl.getTerminal().isConnected()));
-            DanglingLine pairingCandidate = TieLineUtil.chooseDanglingLine(pairingKey,
-                    candidates.getOrDefault(true, List.of()),
-                    candidates.getOrDefault(false, List.of()),
-                    true);
+            DanglingLine pairingCandidate = null;
+            if (pairingKey != null) {
+                Map<Boolean, List<DanglingLine>> candidates = network.get().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                        .filter(dl -> pairingKey.equals(dl.getPairingKey()))
+                        .collect(Collectors.groupingBy(dl -> dl.getTerminal().isConnected()));
+                pairingCandidate = TieLineUtil.chooseDanglingLine(pairingKey,
+                        candidates.getOrDefault(true, List.of()),
+                        candidates.getOrDefault(false, List.of()),
+                        true);
+            }
 
             String oldValue = this.pairingKey;
             this.pairingKey = pairingKey;
