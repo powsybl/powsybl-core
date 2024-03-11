@@ -18,7 +18,6 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -294,7 +293,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(Integer.toString(ReferencePriority.get(g)));
+            writer.writeCharacters(Integer.toString(ReferencePriority.get(b)));
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(b.getTargetP(), b.getMinP(), b.getReactiveLimits()));
