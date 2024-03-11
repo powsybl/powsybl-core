@@ -59,6 +59,18 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     }
 
     @Test
+    void danglingLineCriterionRoundTripTest() throws IOException {
+        DanglingLineCriterion criterion = new DanglingLineCriterion("criterion6", new SingleCountryCriterion(List.of(Country.FR, Country.DE)),
+                new SingleNominalVoltageCriterion(
+                        new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
+        DanglingLineCriterion empty = new DanglingLineCriterion(null, null);
+        List<NetworkElementCriterion> criteria = List.of(criterion, empty);
+        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+                NetworkElementCriterionModuleTest::readDanglingLineCriteria,
+                "/criterion/dangling-line-criteria.json");
+    }
+
+    @Test
     void twoWindingsTransformerCriterionRoundTripTest() throws IOException {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion("criterion2",
                 new SingleCountryCriterion(List.of(Country.FR, Country.BE)),
@@ -103,6 +115,10 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
 
     private static List<NetworkElementCriterion> readTieLineCriteria(Path jsonFile) {
         return convert(readCriteria(jsonFile, new TypeReference<List<TieLineCriterion>>() { }));
+    }
+
+    private static List<NetworkElementCriterion> readDanglingLineCriteria(Path jsonFile) {
+        return convert(readCriteria(jsonFile, new TypeReference<List<DanglingLineCriterion>>() { }));
     }
 
     private static List<NetworkElementCriterion> readTwoWindingsTransformerCriteria(Path jsonFile) {
