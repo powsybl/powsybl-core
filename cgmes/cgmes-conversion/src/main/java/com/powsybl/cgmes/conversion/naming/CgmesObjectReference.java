@@ -129,6 +129,8 @@ public interface CgmesObjectReference {
         SOLAR_GENERATING_UNIT("SGU"),
         THERMAL_GENERATING_UNIT("TGU"),
         HYDRO_GENERATING_UNIT("HGU"),
+        HYDRO_POWER_PLANT("HPP"),
+        FOSSIL_FUEL("FF"),
         GENERATING_UNIT("GU"),
         GEOGRAPHICAL_REGION("GR"),
         LOAD_AREA("LA"),
