@@ -22,22 +22,22 @@
     </iidm:substation>
     <iidm:extension id="network">
         <cmm:cgmesMetadataModels>
-            <cmm:model id="eqId" part="EQ" description="EQ description" version="1" modelingAuthoritySet="http://powsybl.org">
+            <cmm:model id="eqId" source="IMPORT" part="EQUIPMENT" description="EQ description" version="1" modelingAuthoritySet="http://powsybl.org">
                 <cmm:profile>http://equipment-core</cmm:profile>
                 <cmm:profile>http://equipment-operation</cmm:profile>
                 <cmm:dependentOnModel>eq-dependency1</cmm:dependentOnModel>
                 <cmm:dependentOnModel>eq-dependency2</cmm:dependentOnModel>
             </cmm:model>
-            <cmm:model id="sshId" part="SSH" description="SSH description" version="1" modelingAuthoritySet="http://powsybl.org">
+            <cmm:model id="svId" source="IMPORT" part="STATE_VARIABLES" description="SV description" version="1" modelingAuthoritySet="http://powsybl.org">
+                <cmm:profile>http://state-variables</cmm:profile>
+                <cmm:dependentOnModel>sv-dependency1</cmm:dependentOnModel>
+                <cmm:dependentOnModel>sv-dependency2</cmm:dependentOnModel>
+            </cmm:model>
+            <cmm:model id="sshId" source="IMPORT" part="STEADY_STATE_HYPOTHESIS" description="SSH description" version="1" modelingAuthoritySet="http://powsybl.org">
                 <cmm:profile>http://steady-state-hypothesis</cmm:profile>
                 <cmm:dependentOnModel>ssh-dependency1</cmm:dependentOnModel>
                 <cmm:dependentOnModel>ssh-dependency2</cmm:dependentOnModel>
                 <cmm:supersedesModel>ssh-superseded1</cmm:supersedesModel>
-            </cmm:model>
-            <cmm:model id="svId" part="SV" description="SV description" version="1" modelingAuthoritySet="http://powsybl.org">
-                <cmm:profile>http://state-variables</cmm:profile>
-                <cmm:dependentOnModel>sv-dependency1</cmm:dependentOnModel>
-                <cmm:dependentOnModel>sv-dependency2</cmm:dependentOnModel>
             </cmm:model>
         </cmm:cgmesMetadataModels>
     </iidm:extension>

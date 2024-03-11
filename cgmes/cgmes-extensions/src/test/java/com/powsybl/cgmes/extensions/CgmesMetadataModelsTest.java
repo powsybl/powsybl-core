@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -26,7 +27,8 @@ class CgmesMetadataModelsTest {
         Network network = NetworkTest1Factory.create();
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
-                .setPart("SSH")
+                .setSource(CgmesMetadataModels.Source.IMPORT)
+                .setPart(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                 .setId("sshId")
                 .setDescription("SSH description")
                 .setModelingAuthoritySet("http://powsybl.org")
@@ -36,7 +38,8 @@ class CgmesMetadataModelsTest {
                 .addDependentOn("ssh-dependency2")
                 .add()
                 .newModel()
-                .setPart("SV")
+                .setSource(CgmesMetadataModels.Source.IMPORT)
+                .setPart(CgmesSubset.STATE_VARIABLES)
                 .setId("svId")
                 .setDescription("SV description")
                 .setModelingAuthoritySet("http://powsybl.org")
@@ -49,15 +52,13 @@ class CgmesMetadataModelsTest {
         CgmesMetadataModels extension = network.getExtension(CgmesMetadataModels.class);
         assertNotNull(extension);
 
-        CgmesMetadataModels.Model ssh = extension.getModelForPart("SSH").orElseThrow();
-        assertEquals(ssh, extension.getModelForProfile("http://steady-state-hypothesis").orElseThrow());
+        CgmesMetadataModels.Model ssh = extension.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
         assertEquals("SSH description", ssh.getDescription());
         assertEquals("http://powsybl.org", ssh.getModelingAuthoritySet());
         assertEquals(1, ssh.getVersion());
         assertEquals(Set.of("ssh-dependency1", "ssh-dependency2"), ssh.getDependentOn());
 
-        CgmesMetadataModels.Model sv = extension.getModelForPart("SV").orElseThrow();
-        assertEquals(sv, extension.getModelForProfile("http://state-variables").orElseThrow());
+        CgmesMetadataModels.Model sv = extension.getModelForPart(CgmesSubset.STATE_VARIABLES).orElseThrow();
         assertEquals("SV description", sv.getDescription());
         assertEquals("http://powsybl.org", sv.getModelingAuthoritySet());
         assertEquals(2, sv.getVersion());

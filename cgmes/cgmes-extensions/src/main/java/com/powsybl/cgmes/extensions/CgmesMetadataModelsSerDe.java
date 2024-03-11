@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
@@ -69,11 +70,12 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNode(getNamespaceUri(), MODEL);
-        writer.writeStringAttribute("id", model.getId());
-        writer.writeStringAttribute("part", model.getPart());
-        writer.writeStringAttribute("description", model.getDescription());
-        writer.writeIntAttribute("version", model.getVersion());
+        writer.writeEnumAttribute("source", model.getSource());
+        writer.writeEnumAttribute("part", model.getPart());
         writer.writeStringAttribute("modelingAuthoritySet", model.getModelingAuthoritySet());
+        writer.writeStringAttribute("id", model.getId());
+        writer.writeIntAttribute("version", model.getVersion());
+        writer.writeStringAttribute("description", model.getDescription());
         writeReferences(sorted(model.getProfiles(), context), PROFILE, writer);
         writeReferences(sorted(model.getDependentOn(), context), DEPENDENT_ON_MODEL, writer);
         writeReferences(sorted(model.getSupersedes(), context), SUPERSEDES_MODEL, writer);
@@ -108,11 +110,12 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
 
     private static void read(CgmesMetadataModelsAdder.ModelAdder adder, DeserializerContext context) {
         TreeDataReader reader = context.getReader();
-        adder.setId(reader.readStringAttribute("id"))
-                .setPart(reader.readStringAttribute("part"))
-                .setDescription(reader.readStringAttribute("description"))
+        adder.setSource(reader.readEnumAttribute("source", CgmesMetadataModels.Source.class))
+                .setPart(reader.readEnumAttribute("part", CgmesSubset.class))
+                .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"))
+                .setId(reader.readStringAttribute("id"))
                 .setVersion(reader.readIntAttribute("version"))
-                .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
+                .setDescription(reader.readStringAttribute("description"));
         reader.readChildNodes(elementName -> {
             switch (elementName) {
                 case PROFILE -> adder.addProfile(reader.readContent());

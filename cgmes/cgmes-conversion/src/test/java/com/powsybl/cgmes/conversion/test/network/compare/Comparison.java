@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test.network.compare;
 
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;
@@ -169,7 +170,7 @@ public class Comparison {
                 // All actual models should be in expected models
                 // But some expected models may be missing
                 for (CgmesMetadataModels.Model actualModel : actual.getModels()) {
-                    Optional<CgmesMetadataModels.Model> expectedModel = expected.getModelForPartModellingAuthoritySet(actualModel.getPart(), actualModel.getModelingAuthoritySet());
+                    Optional<CgmesMetadataModels.Model> expectedModel = expected.getModelForPartModelingAuthoritySet(actualModel.getPart(), actualModel.getModelingAuthoritySet());
                     if (expectedModel.isEmpty()) {
                         diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_Model " + actualModel.getId());
                     } else {
@@ -198,7 +199,7 @@ public class Comparison {
         compare(prefix + "part", expected.getPart(), actual.getPart());
         compare(prefix + "description", expected.getDescription(), actual.getDescription());
         // If part has not been exported, the version has not been incremented
-        String part = expected.getPart();
+        CgmesSubset part = expected.getPart();
         int expectedVersion = expected.getVersion();
         if (config.versionIncremented && config.isExportedPart(part)) {
             expectedVersion++;

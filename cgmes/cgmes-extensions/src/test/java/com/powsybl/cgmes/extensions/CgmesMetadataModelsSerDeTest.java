@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,8 @@ class CgmesMetadataModelsSerDeTest extends AbstractCgmesExtensionTest {
         network.setCaseDate(ZonedDateTime.parse("2020-09-07T15:44:10.209+02:00"));
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
-                .setPart("EQ")
+                .setSource(CgmesMetadataModels.Source.IMPORT)
+                .setPart(CgmesSubset.EQUIPMENT)
                 .setId("eqId")
                 .setDescription("EQ description")
                 .setModelingAuthoritySet("http://powsybl.org")
@@ -36,7 +38,8 @@ class CgmesMetadataModelsSerDeTest extends AbstractCgmesExtensionTest {
                 .addDependentOn("eq-dependency2")
                 .add()
                 .newModel()
-                .setPart("SSH")
+                .setSource(CgmesMetadataModels.Source.IMPORT)
+                .setPart(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                 .setId("sshId")
                 .setDescription("SSH description")
                 .setModelingAuthoritySet("http://powsybl.org")
@@ -47,7 +50,8 @@ class CgmesMetadataModelsSerDeTest extends AbstractCgmesExtensionTest {
                 .addSupersedes("ssh-superseded1")
                 .add()
                 .newModel()
-                .setPart("SV")
+                .setSource(CgmesMetadataModels.Source.IMPORT)
+                .setPart(CgmesSubset.STATE_VARIABLES)
                 .setId("svId")
                 .setDescription("SV description")
                 .setModelingAuthoritySet("http://powsybl.org")

@@ -19,6 +19,7 @@ import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -99,7 +100,7 @@ class CgmesConformity1ConversionTest {
                     .tolerance(1e-5)
                     .checkNetworkId(false)
                     .incrementVersions(true)
-                    .exportedParts(Set.of("SSH", "SV")));
+                    .exportedParts(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.microGridBaseCaseBE());
@@ -118,7 +119,7 @@ class CgmesConformity1ConversionTest {
                     .tolerance(1e-5)
                     .checkNetworkId(false)
                     .incrementVersions(true)
-                    .exportedParts(Set.of("SSH", "SV")));
+                    .exportedParts(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }

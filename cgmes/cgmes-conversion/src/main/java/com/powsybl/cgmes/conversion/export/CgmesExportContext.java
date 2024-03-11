@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
@@ -273,14 +274,14 @@ public class CgmesExportContext {
         }
         scenarioTime = network.getCaseDate();
         CgmesMetadataModels models = network.getExtension(CgmesMetadataModels.class);
-        CgmesMetadataModels.Model svMetadata = models != null ? models.getModelForPart("SV").orElse(null) : null;
+        CgmesMetadataModels.Model svMetadata = models != null ? models.getModelForPart(CgmesSubset.STATE_VARIABLES).orElse(null) : null;
         if (svMetadata != null) {
             svModelDescription.setDescription(svMetadata.getDescription());
             svModelDescription.setVersion(svMetadata.getVersion() + 1);
             svModelDescription.addDependencies(svMetadata.getDependentOn());
             svModelDescription.setModelingAuthoritySet(svMetadata.getModelingAuthoritySet());
         }
-        CgmesMetadataModels.Model sshMetadata = models != null ? models.getModelForPart("SSH").orElse(null) : null;
+        CgmesMetadataModels.Model sshMetadata = models != null ? models.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElse(null) : null;
         if (sshMetadata != null) {
             sshModelDescription.setDescription(sshMetadata.getDescription());
             sshModelDescription.setVersion(sshMetadata.getVersion() + 1);

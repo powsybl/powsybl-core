@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
+import com.powsybl.cgmes.model.CgmesSubset;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -39,7 +41,7 @@ public final class ComparisonConfig {
         return this;
     }
 
-    public ComparisonConfig exportedParts(Set<String> exportedParts) {
+    public ComparisonConfig exportedParts(Set<CgmesSubset> exportedParts) {
         this.exportedParts = exportedParts;
         return this;
     }
@@ -86,13 +88,13 @@ public final class ComparisonConfig {
         return this;
     }
 
-    public boolean isExportedPart(String part) {
+    public boolean isExportedPart(CgmesSubset part) {
         return exportedParts.contains(part);
     }
 
     boolean checkNetworkId;
     boolean versionIncremented;
-    Set<String> exportedParts;
+    Set<CgmesSubset> exportedParts;
     boolean ignoreMissingMetadata;
     Differences differences;
     NetworkMappingFactory networkMappingFactory;

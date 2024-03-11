@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
@@ -20,7 +21,8 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
 
     class ModelAdderImpl implements ModelAdder {
 
-        private String part;
+        private CgmesMetadataModels.Source source;
+        private CgmesSubset part;
         private String id;
         private String description;
         private int version = 0;
@@ -30,7 +32,13 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
         private final Set<String> supersedes = new HashSet<>();
 
         @Override
-        public ModelAdder setPart(String part) {
+        public ModelAdder setSource(CgmesMetadataModels.Source source) {
+            this.source = source;
+            return this;
+        }
+
+        @Override
+        public ModelAdder setPart(CgmesSubset part) {
             this.part = part;
             return this;
         }
@@ -79,6 +87,12 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
 
         @Override
         public CgmesMetadataModelsAdderImpl add() {
+            if (source == null) {
+                throw new PowsyblException("Model source is undefined");
+            }
+            if (part == null) {
+                throw new PowsyblException("Model part is undefined");
+            }
             if (id == null) {
                 throw new PowsyblException("Model id is undefined");
             }
@@ -88,7 +102,7 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
             if (profiles.isEmpty()) {
                 throw new PowsyblException("Model must contain at least one profile");
             }
-            models.add(new CgmesMetadataModelsImpl.ModelImpl(part, id, description, version, modelingAuthoritySet, profiles, dependentOn, supersedes));
+            models.add(new CgmesMetadataModelsImpl.ModelImpl(source, part, id, description, version, modelingAuthoritySet, profiles, dependentOn, supersedes));
             return CgmesMetadataModelsAdderImpl.this;
         }
     }

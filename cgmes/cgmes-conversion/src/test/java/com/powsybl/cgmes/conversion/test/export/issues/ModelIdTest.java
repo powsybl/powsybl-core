@@ -8,7 +8,9 @@
 package com.powsybl.cgmes.conversion.test.export.issues;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
@@ -64,7 +66,8 @@ class ModelIdTest extends AbstractSerDeTest {
         // Export will increase the version number available in the metadata
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
-                    .setPart("SSH")
+                    .setSource(CgmesMetadataModels.Source.IMPORT)
+                    .setPart(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                     .setId("not-relevant")
                     .setDescription("not-relevant")
                     .setVersion(42)

@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 
@@ -19,7 +20,8 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
 
     static class ModelImpl implements Model {
 
-        private final String part;
+        private final Source source;
+        private final CgmesSubset part;
         private final String id;
         private final String description;
         private final int version;
@@ -28,8 +30,9 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
         private final Set<String> dependentOn = new HashSet<>();
         private final Set<String> supersedes = new HashSet<>();
 
-        ModelImpl(String part, String id, String description, int version, String modelingAuthoritySet,
+        ModelImpl(Source source, CgmesSubset part, String id, String description, int version, String modelingAuthoritySet,
                   Set<String> profiles, Set<String> dependentOn, Set<String> supersedes) {
+            this.source = source;
             this.part = part;
             this.id = id;
             this.description = description;
@@ -41,7 +44,12 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
         }
 
         @Override
-        public String getPart() {
+        public Source getSource() {
+            return source;
+        }
+
+        @Override
+        public CgmesSubset getPart() {
             return part;
         }
 
@@ -82,30 +90,23 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
     }
 
     private final List<Model> models = new ArrayList<>();
-    private final Map<String, Model> partModel = new HashMap<>();
-    private final Map<String, Model> profileModel = new HashMap<>();
+    private final EnumMap<CgmesSubset, Model> partModel = new EnumMap<>(CgmesSubset.class);
 
     CgmesMetadataModelsImpl(Set<Model> models) {
         this.models.addAll(models);
         models.forEach(m -> partModel.put(m.getPart(), m));
-        models.forEach(m -> m.getProfiles().forEach(profile -> profileModel.put(profile, m)));
     }
 
     @Override
-    public Optional<Model> getModelForPart(String part) {
+    public Optional<Model> getModelForPart(CgmesSubset part) {
         return Optional.ofNullable(partModel.get(part));
     }
 
     @Override
-    public Optional<Model> getModelForPartModellingAuthoritySet(String part, String modelingAuthoritySet) {
+    public Optional<Model> getModelForPartModelingAuthoritySet(CgmesSubset part, String modelingAuthoritySet) {
         return models.stream()
                 .filter(m -> m.getPart().equals(part) && m.getModelingAuthoritySet().equals(modelingAuthoritySet))
                 .findFirst();
-    }
-
-    @Override
-    public Optional<Model> getModelForProfile(String profile) {
-        return Optional.ofNullable(profileModel.get(profile));
     }
 
     @Override
@@ -116,7 +117,8 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
     @Override
     public List<Model> getSortedModels() {
         return models.stream().sorted(
-                Comparator.comparing(CgmesMetadataModels.Model::getModelingAuthoritySet)
+                Comparator.comparing(CgmesMetadataModels.Model::getSource)
+                        .thenComparing(CgmesMetadataModels.Model::getModelingAuthoritySet)
                         .thenComparing(CgmesMetadataModels.Model::getPart)
                         .thenComparing(CgmesMetadataModels.Model::getVersion)
                         .thenComparing(CgmesMetadataModels.Model::getId)
