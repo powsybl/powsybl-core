@@ -123,6 +123,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dataframes</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- In test scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
         <dependency>
             <groupId>${project.groupId}</groupId>

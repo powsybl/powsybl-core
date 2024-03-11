@@ -62,6 +62,7 @@
         <module>config-classic</module>
         <module>config-test</module>
         <module>contingency</module>
+        <module>dataframe</module>
         <module>distribution-core</module>
         <module>dsl</module>
         <module>dynamic-simulation</module>
