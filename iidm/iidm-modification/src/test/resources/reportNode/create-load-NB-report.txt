@@ -1,0 +1,3 @@
++ Testing reportNode for a load creation
+   New connectable newLoad of type LOAD created.
+   New feeder bay associated to newLoad of type LOAD was created and connected to voltage level vl1 on busbar section bbs4 with a closed disconnector and on 1 parallel busbar sections with an open disconnector.

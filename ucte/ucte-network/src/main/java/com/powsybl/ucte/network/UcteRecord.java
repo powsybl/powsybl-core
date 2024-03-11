@@ -6,7 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 
 /**
  *
@@ -14,6 +14,6 @@ import com.powsybl.commons.reporter.Reporter;
  */
 public interface UcteRecord {
 
-    void fix(Reporter reporter);
+    void fix(ReportNode reportNode);
 
 }

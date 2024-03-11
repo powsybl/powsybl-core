@@ -1,6 +1,6 @@
-+ test reporter
-  + Validation warnings
-  + Not found extensions
-     Extension foo not found.
-  + XIIDM import done
-     Network "test" is imported from XML format.
++ test reportNode
+   Validation warnings
+   + Not found extensions
+      Extension foo not found.
+   + XIIDM import done
+      Network "test" is imported from XML format.

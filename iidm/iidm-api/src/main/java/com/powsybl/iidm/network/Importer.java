@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.commons.parameters.Parameter;
@@ -84,11 +84,11 @@ public interface Importer {
         }
 
         @Override
-        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
-            Network network = importer.importData(dataSource, networkFactory, parameters, reporter);
+        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
+            Network network = importer.importData(dataSource, networkFactory, parameters, reportNode);
             for (String name : names) {
                 try {
-                    getPostProcessor(loader, name).process(network, computationManager, reporter);
+                    getPostProcessor(loader, name).process(network, computationManager, reportNode);
                 } catch (Exception e) {
                     throw new PowsyblException(e);
                 }
@@ -98,7 +98,7 @@ public interface Importer {
 
         @Override
         public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
-            return importData(dataSource, networkFactory, parameters, Reporter.NO_OP);
+            return importData(dataSource, networkFactory, parameters, ReportNode.NO_OP);
         }
 
         @Override
@@ -312,7 +312,7 @@ public interface Importer {
      * @return the model
      */
     default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
-        return importData(dataSource, networkFactory, parameters, Reporter.NO_OP);
+        return importData(dataSource, networkFactory, parameters, ReportNode.NO_OP);
     }
 
     /**
@@ -321,10 +321,10 @@ public interface Importer {
      * @param dataSource data source
      * @param networkFactory network factory
      * @param parameters some properties to configure the import
-     * @param reporter the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      * @return the model
      */
-    default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
+    default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
         return importData(dataSource, networkFactory, parameters);
     }
 

@@ -1,4 +1,0 @@
-+ Testing creating line reporter
-   New connectable lineTest of type LINE created.
-   New feeder bay associated to lineTest of type LINE was created and connected to voltage level vl2 on busbar section bbs5 with a closed disconnector and on 1 parallel busbar sections with an open disconnector.
-   New feeder bay associated to lineTest of type LINE was created and connected to voltage level vl1 on busbar section bbs1 with a closed disconnector and on 1 parallel busbar sections with an open disconnector.
