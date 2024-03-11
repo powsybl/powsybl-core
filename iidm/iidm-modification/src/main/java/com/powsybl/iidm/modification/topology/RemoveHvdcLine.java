@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
@@ -39,7 +39,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
         if (hvdcLine != null) {
             HvdcConverterStation<?> hvdcConverterStation1 = hvdcLine.getConverterStation1();
@@ -47,32 +47,32 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             Set<ShuntCompensator> shunts = null;
             if (hvdcConverterStation1.getHvdcType() == HvdcConverterStation.HvdcType.LCC) { // in real-life cases, both converter stations are of the same type
                 shunts = shuntCompensatorIds.stream()
-                        .map(id -> getShuntCompensator(id, network, throwException, reporter))
+                        .map(id -> getShuntCompensator(id, network, throwException, reportNode))
                         .filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
             } else if (!shuntCompensatorIds.isEmpty()) { // VSC converter stations and defined shunts
                 String shuntIds = String.join(",", shuntCompensatorIds);
                 LOGGER.warn("Shunts {} are ignored since converter stations {} and {} are VSC", shuntIds, hvdcConverterStation1.getId(), hvdcConverterStation2.getId());
-                ignoredVscShunts(reporter, shuntIds, hvdcConverterStation1.getId(), hvdcConverterStation2.getId());
+                ignoredVscShunts(reportNode, shuntIds, hvdcConverterStation1.getId(), hvdcConverterStation2.getId());
             }
             hvdcLine.remove();
-            removedHvdcLineReport(reporter, hvdcLineId);
+            removedHvdcLineReport(reportNode, hvdcLineId);
             LOGGER.info("Hvdc line {} has been removed", hvdcLineId);
             // Remove the Shunt compensators that represent the filters of the LCC
-            removeShuntCompensators(network, hvdcConverterStation1, hvdcConverterStation2, shunts, throwException, computationManager, reporter);
-            removeConverterStations(network, hvdcConverterStation1, hvdcConverterStation2, throwException, computationManager, reporter);
+            removeShuntCompensators(network, hvdcConverterStation1, hvdcConverterStation2, shunts, throwException, computationManager, reportNode);
+            removeConverterStations(network, hvdcConverterStation1, hvdcConverterStation2, throwException, computationManager, reportNode);
         } else {
             LOGGER.error("Hvdc Line {} not found", hvdcLineId);
-            notFoundHvdcLineReport(reporter, hvdcLineId);
+            notFoundHvdcLineReport(reportNode, hvdcLineId);
             if (throwException) {
                 throw new PowsyblException("Hvdc Line " + hvdcLineId + " not found");
             }
         }
     }
 
-    private static ShuntCompensator getShuntCompensator(String id, Network network, boolean throwException, Reporter reporter) {
+    private static ShuntCompensator getShuntCompensator(String id, Network network, boolean throwException, ReportNode reportNode) {
         ShuntCompensator sc = network.getShuntCompensator(id);
         if (sc == null) {
-            notFoundShuntReport(reporter, id);
+            notFoundShuntReport(reportNode, id);
             LOGGER.error("Shunt {} not found", id);
             if (throwException) {
                 throw new PowsyblException("Shunt " + id + " not found");
@@ -81,7 +81,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         return sc;
     }
 
-    private static void removeShuntCompensators(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Set<ShuntCompensator> shunts, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    private static void removeShuntCompensators(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Set<ShuntCompensator> shunts, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         if (shunts == null) {
             return;
         }
@@ -96,33 +96,33 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             // check whether the shunt compensator is connected to the same voltage level as the lcc
             String shuntId = shuntCompensator.getId();
             if (vl1 == shuntVl || vl2 == shuntVl) {
-                new RemoveFeederBay(shuntId).apply(network, throwException, computationManager, reporter);
-                removedShuntCompensatorReport(reporter, shuntId);
+                new RemoveFeederBay(shuntId).apply(network, throwException, computationManager, reportNode);
+                removedShuntCompensatorReport(reportNode, shuntId);
                 LOGGER.info("Shunt compensator {} has been removed", shuntId);
             } else {
                 LOGGER.warn("Shunt compensator {} has been ignored because it is not in the same voltage levels as the Lcc ({} or {})", shuntId, vl1.getId(), vl2.getId());
-                ignoredShuntInAnotherVoltageLevel(reporter, shuntId, vl1.getId(), vl2.getId());
+                ignoredShuntInAnotherVoltageLevel(reportNode, shuntId, vl1.getId(), vl2.getId());
             }
         }
     }
 
-    private static void removeConverterStations(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    private static void removeConverterStations(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         String station1Id = hvdcConverterStation1.getId();
         String station2Id = hvdcConverterStation2.getId();
         HvdcConverterStation.HvdcType station1Type = hvdcConverterStation1.getHvdcType();
         HvdcConverterStation.HvdcType station2Type = hvdcConverterStation2.getHvdcType();
-        new RemoveFeederBay(station1Id).apply(network, throwException, computationManager, reporter);
-        new RemoveFeederBay(station2Id).apply(network, throwException, computationManager, reporter);
-        reportConverterStationRemoved(reporter, station1Id, station1Type);
-        reportConverterStationRemoved(reporter, station2Id, station2Type);
+        new RemoveFeederBay(station1Id).apply(network, throwException, computationManager, reportNode);
+        new RemoveFeederBay(station2Id).apply(network, throwException, computationManager, reportNode);
+        reportConverterStationRemoved(reportNode, station1Id, station1Type);
+        reportConverterStationRemoved(reportNode, station2Id, station2Type);
     }
 
-    private static void reportConverterStationRemoved(Reporter reporter, String stationId, HvdcConverterStation.HvdcType converterStationType) {
+    private static void reportConverterStationRemoved(ReportNode reportNode, String stationId, HvdcConverterStation.HvdcType converterStationType) {
         if (converterStationType == HvdcConverterStation.HvdcType.LCC) {
-            removedLccConverterStationReport(reporter, stationId);
+            removedLccConverterStationReport(reportNode, stationId);
             LOGGER.info("Lcc converter station {} has been removed", stationId);
         } else if (converterStationType == HvdcConverterStation.HvdcType.VSC) {
-            removedVscConverterStationReport(reporter, stationId);
+            removedVscConverterStationReport(reportNode, stationId);
             LOGGER.info("Vsc converter station {} has been removed", stationId);
         }
     }

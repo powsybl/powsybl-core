@@ -26,7 +26,7 @@ public final class GeneratingUnitEq {
     private static final String EQ_GENERATINGUNIT_INITIALP = "GeneratingUnit.initialP";
 
     public static void write(String id, String generatingUnitName, EnergySource energySource, double minP, double maxP, double initialP, String cimNamespace, boolean writeInitialP,
-                             String equipmentContainer, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                             String equipmentContainer, String hydroPowerPlantId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(generatingUnitClassName(energySource), id, generatingUnitName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MINP);
         writer.writeCharacters(CgmesExportUtil.format(minP));
@@ -45,6 +45,9 @@ public final class GeneratingUnitEq {
         if (energySource == EnergySource.WIND) {
             writer.writeEmptyElement(cimNamespace, "WindGeneratingUnit.windGenUnitType");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "WindGenUnitKind.onshore")); // all generators are considered onshore
+        }
+        if (hydroPowerPlantId != null) {
+            CgmesExportUtil.writeReference("HydroGeneratingUnit.HydroPowerPlant", hydroPowerPlantId, cimNamespace, writer, context);
         }
         writer.writeEndElement();
     }

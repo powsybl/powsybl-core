@@ -222,9 +222,9 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             context.invalid("SvVoltage", message);
 
             if (bus != null) {
-                invalidAngleVoltageBusReport(context.getReporter(), bus, id, v, angle);
+                invalidAngleVoltageBusReport(context.getReportNode(), bus, id, v, angle);
             } else {
-                invalidAngleVoltageNodeReport(context.getReporter(), id, v, angle);
+                invalidAngleVoltageNodeReport(context.getReportNode(), id, v, angle);
             }
         }
         return valid;
