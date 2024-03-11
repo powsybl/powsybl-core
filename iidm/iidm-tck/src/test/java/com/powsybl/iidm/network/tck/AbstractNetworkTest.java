@@ -59,6 +59,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(1, Iterables.size(network.getSubstations(Country.FR, "TSO1", REGION1)));
         assertEquals(1, network.getSubstationCount());
         assertEquals(2, network.getBusBreakerView().getBusCount());
+        assertEquals(0, network.getConfiguredBusCount());
+        assertEquals(0, network.getConfiguredBusStream().count());
+        assertEquals(0, Iterables.size(network.getConfiguredBuses()));
 
         Substation substation1 = network.getSubstation(SUBSTATION12);
         assertNotNull(substation1);
@@ -158,12 +161,17 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(2, Iterables.size(voltageLevel1.getBusBreakerView().getBuses()));
         assertEquals(2, voltageLevel1.getBusBreakerView().getBusCount());
+        assertThrows(PowsyblException.class, () -> voltageLevel1.getBusBreakerView().getConfiguredBusCount());
         Bus busCalc1 = voltageLevel1BusbarSection1.getTerminal().getBusBreakerView().getBus();
         Bus busCalc2 = voltageLevel1BusbarSection2.getTerminal().getBusBreakerView().getBus();
         assertSame(busCalc1, load1.getTerminal().getBusBreakerView().getBus());
         assertSame(busCalc2, generator1.getTerminal().getBusBreakerView().getBus());
         assertEquals(0, busCalc1.getConnectedComponent().getNum());
         assertEquals(0, busCalc2.getConnectedComponent().getNum());
+        assertThrows(PowsyblException.class, () -> voltageLevel1.getBusBreakerView().getConfiguredBuses());
+        assertThrows(PowsyblException.class, () -> voltageLevel1.getBusBreakerView().getConfiguredBusStream());
+        assertThrows(PowsyblException.class, () -> voltageLevel1.getBusBreakerView().getConfiguredBus(busCalc1.getId()));
+        assertNull(network.getConfiguredBus(busCalc1.getId()));
 
         assertEquals(1, Iterables.size(voltageLevel1.getBusView().getBuses()));
         Bus busCalc = voltageLevel1BusbarSection1.getTerminal().getBusView().getBus();
@@ -271,6 +279,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(2, Iterables.size(network.getBatteries()));
         assertEquals(2, network.getBatteryCount());
         assertEquals(2, network.getBusBreakerView().getBusCount());
+        assertEquals(2, network.getConfiguredBusCount());
+        assertEquals(2, network.getConfiguredBusStream().count());
+        assertEquals(2, Iterables.size(network.getConfiguredBuses()));
 
         // Substation A
         Substation substation1 = network.getSubstation("P1");
@@ -288,8 +299,13 @@ public abstract class AbstractNetworkTest {
         assertSame(substation1, voltageLevel1.getSubstation().orElse(null));
         assertSame(TopologyKind.BUS_BREAKER, voltageLevel1.getTopologyKind());
         assertEquals(1, voltageLevel1.getBusBreakerView().getBusCount());
+        assertEquals(1, voltageLevel1.getBusBreakerView().getConfiguredBusCount());
+        assertEquals(1, voltageLevel1.getBusBreakerView().getConfiguredBusStream().count());
+        assertEquals(1, Iterables.size(voltageLevel1.getBusBreakerView().getConfiguredBuses()));
 
         Bus bus1 = voltageLevel1.getBusBreakerView().getBus("NGEN");
+        assertSame(bus1, voltageLevel1.getBusBreakerView().getConfiguredBus("NGEN"));
+        assertSame(bus1, network.getConfiguredBus("NGEN"));
         assertEquals(3, bus1.getConnectedTerminalCount());
 
         Generator generator1 = network.getGenerator("GEN");
@@ -321,6 +337,8 @@ public abstract class AbstractNetworkTest {
         assertSame(TopologyKind.BUS_BREAKER, voltageLevel2.getTopologyKind());
 
         Bus bus2 = voltageLevel2.getBusBreakerView().getBus("NBAT");
+        assertSame(bus2, voltageLevel2.getBusBreakerView().getConfiguredBus("NBAT"));
+        assertSame(bus2, network.getConfiguredBus("NBAT"));
         assertEquals(5, bus2.getConnectedTerminalCount());
 
         Battery battery1 = network.getBattery("BAT");
