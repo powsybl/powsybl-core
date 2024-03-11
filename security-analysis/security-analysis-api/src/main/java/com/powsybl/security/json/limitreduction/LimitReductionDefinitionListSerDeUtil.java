@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json.limitsreduction;
+package com.powsybl.security.json.limitreduction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.limitsreduction.LimitReductionDefinitionList;
+import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
 
 import java.io.IOException;
 import java.io.InputStream;

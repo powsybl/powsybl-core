@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json.limitsreduction;
+package com.powsybl.security.json.limitreduction;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
@@ -16,8 +16,8 @@ import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.security.limitsreduction.LimitReductionDefinitionList;
-import com.powsybl.security.limitsreduction.LimitReductionDefinition;
+import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
+import com.powsybl.security.limitreduction.LimitReductionDefinition;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

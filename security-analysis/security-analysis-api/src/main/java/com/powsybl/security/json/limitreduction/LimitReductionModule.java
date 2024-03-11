@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json.limitsreduction;
+package com.powsybl.security.json.limitreduction;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -16,8 +16,8 @@ import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.criteria.duration.*;
 import com.powsybl.iidm.criteria.json.*;
 import com.powsybl.iidm.criteria.json.duration.*;
-import com.powsybl.security.limitsreduction.LimitReductionDefinition;
-import com.powsybl.security.limitsreduction.LimitReductionDefinitionList;
+import com.powsybl.security.limitreduction.LimitReductionDefinition;
+import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
