@@ -52,7 +52,7 @@ public final class GeneratingUnitEq {
         writer.writeEndElement();
     }
 
-    public static String generatingUnitClassName(EnergySource energySource) {
+    private static String generatingUnitClassName(EnergySource energySource) {
         if (EnergySource.HYDRO.equals(energySource)) {
             return "HydroGeneratingUnit";
         } else if (EnergySource.NUCLEAR.equals(energySource)) {

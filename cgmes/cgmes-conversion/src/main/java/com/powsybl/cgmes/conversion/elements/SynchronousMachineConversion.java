@@ -18,6 +18,8 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Arrays;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -107,16 +109,14 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     private static void addSpecificGeneratingUnitProperties(Generator generator, PropertyBag p) {
         String hydroPlantStorageType = p.getLocal("hydroPlantStorageType");
         if (hydroPlantStorageType != null) {
-            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STORAGE_KIND, hydroPlantStorageType.replace("HydroPlantStorageKind.", ""));
+            generator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, hydroPlantStorageType.replace("HydroPlantStorageKind.", ""));
         }
-        String[] fossilFuelTypeArray = p.getLocals("fossilFuelTypeList", ";");
-        if (fossilFuelTypeArray.length > 0) {
-            for (int i = 0; i < fossilFuelTypeArray.length; i++) {
-                String s = fossilFuelTypeArray[i].replace("FuelType.", "");
-                fossilFuelTypeArray[i] = s;
-            }
-            String fossilFuelType = String.join(";", fossilFuelTypeArray);
-            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE, fossilFuelType);
+        String fossilFuelType = String.join(";",
+                Arrays.stream(p.getLocals("fossilFuelTypeList", ";"))
+                        .map(ff -> ff.replace("FuelType.", ""))
+                        .toList());
+        if (!fossilFuelType.isEmpty()) {
+            generator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, fossilFuelType);
         }
     }
 

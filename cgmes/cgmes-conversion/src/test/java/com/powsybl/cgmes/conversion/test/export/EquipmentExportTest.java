@@ -832,7 +832,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator expectedGenerator = network.getGenerator("generator1");
         expectedGenerator.setEnergySource(EnergySource.THERMAL);
         String expectedFuelType = "gas;lignite";
-        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE, expectedFuelType);
+        expectedGenerator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, expectedFuelType);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -845,7 +845,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the fuelType property
-        String actualFuelType = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE);
+        String actualFuelType = actualGenerator.getProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE);
         assertEquals(expectedFuelType, actualFuelType);
     }
 
@@ -857,7 +857,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator expectedGenerator = network.getGenerator("generator1");
         expectedGenerator.setEnergySource(EnergySource.HYDRO);
         String expectedStorageKind = "pumpedStorage";
-        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STORAGE_KIND, expectedStorageKind);
+        expectedGenerator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, expectedStorageKind);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -870,7 +870,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the storage kind property
-        String actualStorageKind = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STORAGE_KIND);
+        String actualStorageKind = actualGenerator.getProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
         assertEquals(expectedStorageKind, actualStorageKind);
     }
 

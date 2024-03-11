@@ -453,16 +453,16 @@ public final class EquipmentExport {
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String generatingUnitWriteHydroPowerPlantAndFossilFuel(I i, String cimNamespace, EnergySource energySource, String generatingUnit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String hydroPlantStorageType = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_HYDRO_PLANT_STORAGE_KIND);
+        String hydroPlantStorageType = i.getProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
         String hydroPowerPlantId = null;
-        if (hydroPlantStorageType != null && GeneratingUnitEq.generatingUnitClassName(energySource).equals("HydroGeneratingUnit")) {
+        if (hydroPlantStorageType != null && energySource.equals(EnergySource.HYDRO)) {
             String hydroPowerPlantName = i.getNameOrId();
             hydroPowerPlantId = context.getNamingStrategy().getCgmesId(ref(i), HYDRO_POWER_PLANT);
             writeHydroPowerPlant(hydroPowerPlantId, hydroPowerPlantName, hydroPlantStorageType, cimNamespace, writer, context);
         }
 
-        String fossilFuelType = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_FUEL_TYPE);
-        if (fossilFuelType != null && !fossilFuelType.isEmpty() && GeneratingUnitEq.generatingUnitClassName(energySource).equals("ThermalGeneratingUnit")) {
+        String fossilFuelType = i.getProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE);
+        if (fossilFuelType != null && !fossilFuelType.isEmpty() && energySource.equals(EnergySource.THERMAL)) {
             String[] fossilFuelTypeArray = fossilFuelType.split(";");
             for (int j = 0; j < fossilFuelTypeArray.length; j++) {
                 String fossilFuelName = i.getNameOrId();
