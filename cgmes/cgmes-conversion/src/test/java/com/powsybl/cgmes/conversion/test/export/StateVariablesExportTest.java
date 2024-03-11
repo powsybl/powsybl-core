@@ -397,6 +397,35 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         assertEquals("diverged", readFirstTopologicalIslandDescription(outputSv));
     }
 
+    @Test
+    void testReferenceTerminal() {
+        // Create a small network
+        Network network = Network.create("network", "iidm");
+        Substation s = network.newSubstation().setId("S").add();
+        VoltageLevel vl = s.newVoltageLevel().setId("VL").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl.getBusBreakerView().newBus().setId("B").add().setV(400).setAngle(0);
+        vl.newLoad().setId("L").setConnectableBus("B").setBus("B").setP0(100.0).setQ0(0.0).add();
+        Generator g1 = vl.newGenerator().setId("G1").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0).setVoltageRegulatorOn(true).add();
+        Generator g2 = vl.newGenerator().setId("G2").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0).setVoltageRegulatorOn(true).add();
+
+        // Set reference terminals
+        ReferenceTerminals.addTerminal(g1.getTerminal());
+        ReferenceTerminals.addTerminal(g2.getTerminal());
+
+        // Disconnect one of the generator
+        Terminal t1 = g1.getTerminal();
+        assertTrue(t1.disconnect());
+        assertFalse(t1.isConnected());
+        assertNull(t1.getBusView().getBus());
+
+        // Run a load flow and verify it converged
+        new LoadFlowResultsCompletion().run(network, null);
+        Path outputPath = fileSystem.getPath("tmp-referenceTerminal");
+        Path outputSv = fileSystem.getPath("tmp-referenceTerminal_SV.xml");
+        network.write("CGMES", new Properties(), outputPath);
+        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+    }
+
     private static String readFirstTopologicalIslandDescription(Path sv) {
         String description = "";
         boolean insideTopologicalIsland = false;
