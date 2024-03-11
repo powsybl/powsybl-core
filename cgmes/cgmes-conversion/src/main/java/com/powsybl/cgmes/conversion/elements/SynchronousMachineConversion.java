@@ -18,6 +18,8 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Arrays;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -99,6 +101,22 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         String generatingUnit = p.getId("GeneratingUnit");
         if (generatingUnit != null) {
             g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
+        }
+
+        addSpecificGeneratingUnitProperties(g, p);
+    }
+
+    private static void addSpecificGeneratingUnitProperties(Generator generator, PropertyBag p) {
+        String hydroPlantStorageType = p.getLocal("hydroPlantStorageType");
+        if (hydroPlantStorageType != null) {
+            generator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, hydroPlantStorageType.replace("HydroPlantStorageKind.", ""));
+        }
+        String fossilFuelType = String.join(";",
+                Arrays.stream(p.getLocals("fossilFuelTypeList", ";"))
+                        .map(ff -> ff.replace("FuelType.", ""))
+                        .toList());
+        if (!fossilFuelType.isEmpty()) {
+            generator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, fossilFuelType);
         }
     }
 
