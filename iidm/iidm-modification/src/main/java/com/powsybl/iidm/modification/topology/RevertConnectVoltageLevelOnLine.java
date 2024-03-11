@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
@@ -66,10 +66,10 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         this.lineName = lineName;
     }
 
-    private static Line checkAndGetLine(Network network, String lineId, Reporter reporter, boolean throwException) {
+    private static Line checkAndGetLine(Network network, String lineId, ReportNode reportNode, boolean throwException) {
         Line line = network.getLine(lineId);
         if (line == null) {
-            notFoundLineReport(reporter, lineId);
+            notFoundLineReport(reportNode, lineId);
             LOG.error("Line {} is not found", lineId);
             if (throwException) {
                 throw new PowsyblException(String.format("Line %s is not found", lineId));
@@ -80,9 +80,9 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
-        Line line1 = checkAndGetLine(network, line1Id, reporter, throwException);
-        Line line2 = checkAndGetLine(network, line2Id, reporter, throwException);
+                      ComputationManager computationManager, ReportNode reportNode) {
+        Line line1 = checkAndGetLine(network, line1Id, reportNode, throwException);
+        Line line2 = checkAndGetLine(network, line2Id, reportNode, throwException);
         if (line1 == null || line2 == null) {
             return;
         }
@@ -107,7 +107,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         }
 
         if (vlIds.size() != 3) {
-            noVoltageLevelInCommonReport(reporter, line1Id, line2Id);
+            noVoltageLevelInCommonReport(reportNode, line1Id, line2Id);
             LOG.error("Lines {} and {} should have one and only one voltage level in common at their extremities", line1Id, line2Id);
             if (throwException) {
                 throw new PowsyblException(String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id));
@@ -139,25 +139,25 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
         // Remove the two existing lines
         line1.remove();
-        removedLineReport(reporter, line1Id);
+        removedLineReport(reportNode, line1Id);
         LOG.info("Line {} removed", line1Id);
 
         line2.remove();
-        removedLineReport(reporter, line2Id);
+        removedLineReport(reportNode, line2Id);
         LOG.info("Line {} removed", line2Id);
 
         // Create the new line
         Line line = lineAdder.add();
-        LoadingLimitsBags limitsSide1 = mergeLimits(line1Id, limitsLine1Side1, limitsLine1Side2, reporter);
-        LoadingLimitsBags limitsSide2 = mergeLimits(line2Id, limitsLine2Side2, limitsLine2Side1, reporter);
+        LoadingLimitsBags limitsSide1 = mergeLimits(line1Id, limitsLine1Side1, limitsLine1Side2, reportNode);
+        LoadingLimitsBags limitsSide2 = mergeLimits(line2Id, limitsLine2Side2, limitsLine2Side1, reportNode);
 
         addLoadingLimits(line, limitsSide1, TwoSides.ONE);
         addLoadingLimits(line, limitsSide2, TwoSides.TWO);
-        createdLineReport(reporter, lineId);
+        createdLineReport(reportNode, lineId);
         LOG.info("New line {} created, replacing lines {} and {}", lineId, line1Id, line2Id);
 
         // remove voltage level and substation in common, if necessary
-        removeVoltageLevelAndSubstation(commonVl, reporter);
+        removeVoltageLevelAndSubstation(commonVl, reportNode);
     }
 
     public String getLine1Id() {

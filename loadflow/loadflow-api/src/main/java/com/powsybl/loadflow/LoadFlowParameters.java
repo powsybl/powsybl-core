@@ -87,7 +87,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
     public static final boolean DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_READ_SLACK_BUS = true;
-    public static final boolean DEFAULT_WRITE_SLACK_BUS = false;
+    public static final boolean DEFAULT_WRITE_SLACK_BUS = true;
     public static final boolean DEFAULT_DC = false;
     public static final boolean DEFAULT_DISTRIBUTED_SLACK = true;
     public static final BalanceType DEFAULT_BALANCE_TYPE = BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX;
