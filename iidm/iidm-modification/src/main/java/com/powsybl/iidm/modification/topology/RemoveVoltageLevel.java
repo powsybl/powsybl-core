@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.computation.ComputationManager;
@@ -33,11 +33,11 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             LOGGER.error("Voltage level {} not found", voltageLevelId);
-            notFoundVoltageLevelReport(reporter, voltageLevelId);
+            notFoundVoltageLevelReport(reportNode, voltageLevelId);
             if (throwException) {
                 throw new PowsyblException("Voltage level not found: " + voltageLevelId);
             }
@@ -46,7 +46,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
         voltageLevel.getConnectables(HvdcConverterStation.class).forEach(hcs -> {
             if (hcs.getHvdcLine() != null) {
-                new RemoveHvdcLineBuilder().withHvdcLineId(hcs.getHvdcLine().getId()).build().apply(network, throwException, computationManager, reporter);
+                new RemoveHvdcLineBuilder().withHvdcLineId(hcs.getHvdcLine().getId()).build().apply(network, throwException, computationManager, reportNode);
             }
         });
 
@@ -54,12 +54,12 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             if (connectable instanceof Injection) {
                 connectable.remove();
             } else {
-                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reporter);
+                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reportNode);
             }
         });
 
         voltageLevel.remove();
-        removedVoltageLevelReport(reporter, voltageLevelId);
+        removedVoltageLevelReport(reportNode, voltageLevelId);
         LOGGER.info("Voltage level {}, its equipments and the branches it is connected to have been removed", voltageLevelId);
     }
 

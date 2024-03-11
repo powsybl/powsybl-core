@@ -20,7 +20,7 @@ import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -135,9 +135,9 @@ public abstract class AbstractTreeDataImporter implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
         Objects.requireNonNull(dataSource);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
         Network network;
 
         ImportOptions options = createImportOptions(parameters);
@@ -149,9 +149,9 @@ public abstract class AbstractTreeDataImporter implements Importer {
                         + "." + Joiner.on("|").join(getExtensions()) + " not found");
             }
 
-            network = NetworkSerDe.read(dataSource, networkFactory, options, ext, reporter);
-            Reporter subReporter = reporter.createSubReporter("xiidmImportDone", "XIIDM import done");
-            DeserializerReports.importedNetworkReport(subReporter, network.getId(), options.getFormat().toString());
+            network = NetworkSerDe.read(dataSource, networkFactory, options, ext, reportNode);
+            ReportNode subReportNode = reportNode.newReportNode().withMessageTemplate("xiidmImportDone", "XIIDM import done").add();
+            DeserializerReports.importedNetworkReport(subReportNode, network.getId(), options.getFormat().toString());
             LOGGER.debug("{} import done in {} ms", getFormat(), System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);

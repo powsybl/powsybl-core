@@ -15,7 +15,7 @@ import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -135,11 +135,11 @@ public class Conversion {
     }
 
     public Network convert() {
-        return convert(Reporter.NO_OP);
+        return convert(ReportNode.NO_OP);
     }
 
-    public Network convert(Reporter reporter) {
-        Objects.requireNonNull(reporter);
+    public Network convert(ReportNode reportNode) {
+        Objects.requireNonNull(reportNode);
 
         // apply pre-processors before starting the conversion
         for (CgmesImportPreProcessor preProcessor : preProcessors) {
@@ -154,7 +154,7 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
-        Context context = createContext(network, reporter);
+        Context context = createContext(network, reportNode);
         assignNetworkProperties(context);
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
@@ -260,7 +260,7 @@ public class Conversion {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
-        importedCgmesNetworkReport(context.getReporter(), network.getId());
+        importedCgmesNetworkReport(context.getReportNode(), network.getId());
         return network;
     }
 
@@ -277,7 +277,7 @@ public class Conversion {
                     } else {
                         if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
                             LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                            CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReporter(), dl.getId());
+                            CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
                             dl.getTerminal().disconnect();
                         }
                     }
@@ -307,7 +307,7 @@ public class Conversion {
         final double q0Adjusted = q0 / count;
         dls.forEach(dl -> {
             LOG.warn("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for dangling line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
-            CgmesReports.multipleUnpairedDanglingLinesAtSameBoundaryReport(context.getReporter(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
+            CgmesReports.multipleUnpairedDanglingLinesAtSameBoundaryReport(context.getReportNode(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
             dl.setP0(p0Adjusted);
             dl.setQ0(q0Adjusted);
         });
@@ -396,8 +396,8 @@ public class Conversion {
         return networkFactory.createNetwork(networkId, sourceFormat);
     }
 
-    private Context createContext(Network network, Reporter reporter) {
-        Context context = new Context(cgmes, config, network, reporter);
+    private Context createContext(Network network, ReportNode reportNode) {
+        Context context = new Context(cgmes, config, network, reportNode);
         context.substationIdMapping().build();
         context.dc().initialize();
         context.loadRatioTapChangers();

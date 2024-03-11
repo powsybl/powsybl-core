@@ -22,7 +22,7 @@ import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterScope;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
@@ -146,27 +146,27 @@ public class CgmesImport implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
+    public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(networkFactory);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
         if (Parameter.readBoolean(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER, defaultValueConfig)) {
             SubnetworkDefinedBy separatingBy = SubnetworkDefinedBy.valueOf(Parameter.readString(getFormat(),
                             p, IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER, defaultValueConfig));
             Set<ReadOnlyDataSource> dss = new MultipleGridModelChecker(ds).separate(separatingBy);
             if (dss.size() > 1) {
                 return Network.merge(dss.stream()
-                        .map(ds1 -> importData1(ds1, networkFactory, p, reporter))
+                        .map(ds1 -> importData1(ds1, networkFactory, p, reportNode))
                         .toArray(Network[]::new));
             }
         }
-        return importData1(ds, networkFactory, p, reporter);
+        return importData1(ds, networkFactory, p, reportNode);
     }
 
-    private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
-        CgmesModel cgmes = readCgmes(ds, p, reporter);
-        Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
-        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+    private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
+        CgmesModel cgmes = readCgmes(ds, p, reportNode);
+        ReportNode conversionReportNode = reportNode.newReportNode().withMessageTemplate("CGMESConversion", "Importing CGMES file(s)").add();
+        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
@@ -342,7 +342,7 @@ public class CgmesImport implements Importer {
         }
     }
 
-    public CgmesModel readCgmes(ReadOnlyDataSource ds, Properties p, Reporter reporter) {
+    public CgmesModel readCgmes(ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
         TripleStoreOptions options = new TripleStoreOptions();
         String sourceForIidmIds = Parameter.readString(getFormat(), p, SOURCE_FOR_IIDM_ID_PARAMETER, defaultValueConfig);
         if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_MRID)) {
@@ -351,8 +351,8 @@ public class CgmesImport implements Importer {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
         options.decodeEscapedIdentifiers(Parameter.readBoolean(getFormat(), p, DECODE_ESCAPED_IDENTIFIERS_PARAMETER, defaultValueConfig));
-        Reporter tripleStoreReporter = reporter.createSubReporter("CGMESTriplestore", "Reading CGMES Triplestore");
-        return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReporter, options);
+        ReportNode tripleStoreReportNode = reportNode.newReportNode().withMessageTemplate("CGMESTriplestore", "Reading CGMES Triplestore").add();
+        return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReportNode, options);
     }
 
     @Override

@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
@@ -54,8 +54,8 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              ShortCircuitParameters parameters,
                                                              ComputationManager computationManager,
                                                              List<FaultParameters> faultParameters,
-                                                             Reporter reporter) {
-        reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
+                                                             ReportNode reportNode) {
+        reportNode.newReportNode().withMessageTemplate("MockShortCircuit", "Running mock short circuit").add();
         return run(network, faults, parameters, computationManager, faultParameters);
     }
 
