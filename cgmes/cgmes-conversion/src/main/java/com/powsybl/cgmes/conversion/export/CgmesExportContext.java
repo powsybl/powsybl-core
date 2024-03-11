@@ -17,7 +17,7 @@ import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import org.apache.commons.lang3.tuple.Pair;
@@ -55,7 +55,7 @@ public class CgmesExportContext {
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private ZonedDateTime scenarioTime = ZonedDateTime.now();
-    private Reporter reporter = Reporter.NO_OP;
+    private ReportNode reportNode = ReportNode.NO_OP;
     private String boundaryEqId; // may be null
     private String boundaryTpId; // may be null
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
@@ -854,13 +854,13 @@ public class CgmesExportContext {
         return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
     }
 
-    public CgmesExportContext setReporter(Reporter reporter) {
-        this.reporter = reporter;
+    public CgmesExportContext setReportNode(ReportNode reportNode) {
+        this.reportNode = reportNode;
         return this;
     }
 
-    public Reporter getReporter() {
-        return this.reporter;
+    public ReportNode getReportNode() {
+        return this.reportNode;
     }
 
     public void putTopologicalNode(String tn, Bus bus) {

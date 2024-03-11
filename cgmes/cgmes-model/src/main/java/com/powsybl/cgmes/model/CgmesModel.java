@@ -9,7 +9,7 @@ package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
 import java.time.ZonedDateTime;
@@ -203,11 +203,11 @@ public interface CgmesModel {
         throw new UnsupportedOperationException();
     }
 
-    void read(ReadOnlyDataSource ds, Reporter reporter);
+    void read(ReadOnlyDataSource ds, ReportNode reportNode);
 
-    void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter);
+    void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, ReportNode reportNode);
 
-    void read(InputStream is, String baseName, String contextName, Reporter reporter);
+    void read(InputStream is, String baseName, String contextName, ReportNode reportNode);
 
     // Helper mappings
 

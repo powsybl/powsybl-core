@@ -860,6 +860,19 @@ WHERE {
         cim:GeneratingUnit.initialP ?initialP ;
         cim:IdentifiedObject.name ?nameGeneratingUnit .
     OPTIONAL { ?GeneratingUnit cim:IdentifiedObject.description ?generatingUnitDescription }
+    OPTIONAL { ?GeneratingUnit cim:HydroGeneratingUnit.HydroPowerPlant ?HydroPowerPlant
+        OPTIONAL {
+            ?HydroPowerPlant cim:HydroPowerPlant.hydroPlantStorageType ?hydroPlantStorageType
+        }
+    }
+    OPTIONAL {
+        SELECT ?GeneratingUnit (group_concat(?fossilFuelType;separator=";") as ?fossilFuelTypeList)
+        WHERE {
+                ?FossilFuel a cim:FossilFuel;
+                cim:FossilFuel.fossilFuelType ?fossilFuelType;
+                cim:FossilFuel.ThermalGeneratingUnit ?GeneratingUnit .
+        } GROUP BY ?GeneratingUnit
+    }
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }

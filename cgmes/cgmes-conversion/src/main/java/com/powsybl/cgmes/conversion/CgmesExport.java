@@ -18,7 +18,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -63,7 +63,7 @@ public class CgmesExport implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties params, DataSource ds, Reporter reporter) {
+    public void export(Network network, Properties params, DataSource ds, ReportNode reportNode) {
         Objects.requireNonNull(network);
         String baseName = baseName(params, ds, network);
         String filenameEq = baseName + "_EQ.xml";
@@ -106,7 +106,7 @@ public class CgmesExport implements Exporter {
                 .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider))
-                .setReporter(reporter)
+                .setReportNode(reportNode)
                 .setBusinessProcess(Parameter.readString(getFormat(), params, BUSINESS_PROCESS_PARAMETER, defaultValueConfig));
 
         // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
@@ -212,7 +212,7 @@ public class CgmesExport implements Exporter {
         if (networkIsNodeBreaker
                 && (profiles.contains("SSH") || profiles.contains("SV"))
                 && !profiles.contains("TP")) {
-            inconsistentProfilesTPRequiredReport(context.getReporter(), network.getId());
+            inconsistentProfilesTPRequiredReport(context.getReportNode(), network.getId());
             LOG.error("Network {} contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.", network.getId());
         }
     }

@@ -11,7 +11,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
@@ -66,7 +66,7 @@ class LoadFlowProviderTest {
     void abstractLoadFlowProviderTest() throws IOException {
         var provider = new AbstractNoSpecificParametersLoadFlowProvider() {
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
+            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
                 return null;
             }
 
