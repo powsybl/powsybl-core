@@ -8,7 +8,7 @@ package com.powsybl.iidm.serde;
 
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -218,49 +218,49 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void importDataReporterTest() throws IOException {
+    void importDataReportNodeTest() throws IOException {
         FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test8");
-        importDataAndTestReporter("/importXmlReport.txt", dataSource);
+        importDataAndTestReportNode("/importXmlReport.txt", dataSource);
     }
 
     @Test
-    void importDataReporterExtensionNotFoundTest() throws IOException {
+    void importDataReportNodeExtensionNotFoundTest() throws IOException {
         FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test5");
-        importDataAndTestReporter("/importXmlReportExtensionsNotFound.txt", dataSource);
+        importDataAndTestReportNode("/importXmlReportExtensionsNotFound.txt", dataSource);
     }
 
     @Test
-    void importDataReporterMultipleExtension() throws IOException {
-        importDataAndTestReporter("multiple-extensions",
+    void importDataReportNodeMultipleExtension() throws IOException {
+        importDataAndTestReportNode("multiple-extensions",
                 "multiple-extensions.xml",
                 "/importXmlReportExtensions.txt");
     }
 
     @Test
-    void importDataReporterValidationTest() throws IOException {
-        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTap",
+    void importDataReportNodeValidationTest() throws IOException {
+        importDataAndTestReportNode("twoWindingsTransformerPhaseAndRatioTap",
                 "twoWindingsTransformerPhaseAndRatioTap.xml",
                 "/importXmlReportValidation.txt");
     }
 
     @Test
-    void importDataReporterValidationAndMultipleExtensionTest() throws IOException {
-        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
+    void importDataReportNodeValidationAndMultipleExtensionTest() throws IOException {
+        importDataAndTestReportNode("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
                 "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml",
                 "/importXmlReportExtensionsAndValidations.txt");
     }
 
-    private void importDataAndTestReporter(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
+    private void importDataAndTestReportNode(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
         ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet(getVersionDir(CURRENT_IIDM_VERSION), dataSourceFilename));
-        importDataAndTestReporter(expectedContentFilename, dataSource);
+        importDataAndTestReportNode(expectedContentFilename, dataSource);
     }
 
-    private void importDataAndTestReporter(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
-        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
-        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
+    private void importDataAndTestReportNode(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reportNode));
 
         StringWriter sw = new StringWriter();
-        reporterModel.export(sw);
+        reportNode.print(sw);
         InputStream ref = XMLImporterTest.class.getResourceAsStream(expectedContentFilename);
         String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
         String logExport = normalizeLineSeparator(sw.toString());

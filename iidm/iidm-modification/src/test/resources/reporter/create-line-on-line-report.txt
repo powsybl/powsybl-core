@@ -1,3 +1,0 @@
-+ Testing reporter for creation of a line on line
-   No busbar section position extension found on bbs, only one disconnector is created.
-   New line testLine was created and connected on a tee point to lines CJ_1 and CJ_2 replacing line CJ.
