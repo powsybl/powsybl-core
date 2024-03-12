@@ -62,7 +62,9 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
-        return List.of(getClass().getResourceAsStream("/xsd/voltageRegulation_V1_1.xsd"));
+        return List.of(getClass().getResourceAsStream("/xsd/voltageRegulation_V1_0.xsd"),
+                getClass().getResourceAsStream("/xsd/voltageRegulation_V1_0_legacy.xsd"),
+                getClass().getResourceAsStream("/xsd/voltageRegulation_V1_1.xsd"));
     }
 
     @Override
