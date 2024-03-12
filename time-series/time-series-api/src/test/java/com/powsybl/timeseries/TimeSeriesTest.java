@@ -211,9 +211,14 @@ class TimeSeriesTest {
     @Test
     void testImportByPath() throws URISyntaxException {
         Path path = Paths.get(Objects.requireNonNull(getClass().getResource("/timeseries.csv")).toURI());
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(path, timeSeriesCsvConfig);
 
+        // Default case
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(path);
+        assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
+
+        // Case with specific timeSeriesCsvConfig
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.DATE_TIME, true);
+        timeSeriesPerVersion = TimeSeries.parseCsv(path, timeSeriesCsvConfig);
         assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
     }
 
