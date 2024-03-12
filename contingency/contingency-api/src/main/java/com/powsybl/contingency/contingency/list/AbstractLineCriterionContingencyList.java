@@ -23,8 +23,8 @@ public abstract class AbstractLineCriterionContingencyList extends AbstractEquip
     private final TwoNominalVoltageCriterion twoNominalVoltageCriterion;
 
     protected AbstractLineCriterionContingencyList(String name, IdentifiableType type, TwoCountriesCriterion twoCountriesCriterion,
-                                                   TwoNominalVoltageCriterion twoNominalVoltageCriterion,
-                                                   List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
+                                            TwoNominalVoltageCriterion twoNominalVoltageCriterion,
+                                            List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
         super(name, type, propertyCriteria, regexCriterion);
         this.twoCountriesCriterion = twoCountriesCriterion;
         this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;

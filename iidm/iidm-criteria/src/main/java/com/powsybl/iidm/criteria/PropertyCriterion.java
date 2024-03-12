@@ -58,7 +58,6 @@ public class PropertyCriterion implements Criterion {
             case SELF ->
                     identifiable.hasProperty(propertyKey) && propertyValues.contains(identifiable.getProperty(propertyKey));
             case VOLTAGE_LEVEL, SUBSTATION -> filterEquipment(identifiable, type);
-            default -> false;
         };
     }
 
