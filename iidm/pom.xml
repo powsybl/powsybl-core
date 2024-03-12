@@ -26,6 +26,7 @@
     <modules>
         <module>iidm-api</module>
         <module>iidm-comparator</module>
+        <module>iidm-criteria</module>
         <module>iidm-extensions</module>
         <module>iidm-impl</module>
         <module>iidm-modification</module>

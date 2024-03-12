@@ -6,10 +6,10 @@
  */
 package com.powsybl.contingency.contingency.list;
 
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
-import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
-import com.powsybl.contingency.contingency.list.criterion.SingleCountryCriterion;
-import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.PropertyCriterion;
+import com.powsybl.iidm.criteria.RegexCriterion;
+import com.powsybl.iidm.criteria.SingleCountryCriterion;
+import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
 
 import java.util.List;
