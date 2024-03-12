@@ -1,2 +1,0 @@
-+ Testing reporter for voltage level topology creation
-   New symmetrical topology in voltage level VLTEST: creation of 3 bus(es) or busbar(s) with 4 section(s) each.

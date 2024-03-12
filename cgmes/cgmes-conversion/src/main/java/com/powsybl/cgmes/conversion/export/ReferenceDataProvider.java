@@ -13,7 +13,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
@@ -100,7 +100,7 @@ public class ReferenceDataProvider {
 
     private void loadReferenceData(ReadOnlyDataSource ds) {
         try {
-            referenceData = cgmesImport.readCgmes(ds, params, Reporter.NO_OP);
+            referenceData = cgmesImport.readCgmes(ds, params, ReportNode.NO_OP);
         } catch (CgmesModelException x) {
             // We have made an attempt to load it and discovered it is invalid
             referenceData = null;
