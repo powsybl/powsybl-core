@@ -4,14 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.json;
+package com.powsybl.iidm.criteria.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.contingency.list.criterion.*;
+import com.powsybl.iidm.criteria.*;
+import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
 
     @Override
     public Criterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        Criterion.CriterionType type = null;
+        CriterionType type = null;
         SingleNominalVoltageCriterion.VoltageInterval voltageInterval = null;
         SingleNominalVoltageCriterion.VoltageInterval voltageInterval1 = null;
         SingleNominalVoltageCriterion.VoltageInterval voltageInterval2 = null;
@@ -44,7 +45,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         PropertyCriterion.SideToCheck sideToCheck = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "type" -> type = Criterion.CriterionType.valueOf(parser.nextTextValue());
+                case "type" -> type = CriterionType.valueOf(parser.nextTextValue());
                 case "voltageInterval" -> {
                     parser.nextToken();
                     voltageInterval = JsonUtil.readValue(deserializationContext, parser,

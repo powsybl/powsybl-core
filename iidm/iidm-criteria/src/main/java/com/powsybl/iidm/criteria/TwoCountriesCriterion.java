@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.contingency.list.criterion;
+package com.powsybl.iidm.criteria;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
@@ -39,15 +39,12 @@ public class TwoCountriesCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        switch (type) {
-            case LINE:
-                return filterBranch(((Line) identifiable).getTerminal1(), ((Line) identifiable).getTerminal2());
-            case HVDC_LINE:
-                return filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal(),
-                        ((HvdcLine) identifiable).getConverterStation2().getTerminal());
-            default:
-                return false;
-        }
+        return switch (type) {
+            case LINE -> filterBranch(((Line) identifiable).getTerminal1(), ((Line) identifiable).getTerminal2());
+            case HVDC_LINE -> filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal(),
+                    ((HvdcLine) identifiable).getConverterStation2().getTerminal());
+            default -> false;
+        };
     }
 
     private boolean filterBranch(Terminal terminal1, Terminal terminal2) {
