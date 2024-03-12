@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.contingency.list.criterion;
+package com.powsybl.iidm.criteria;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
@@ -54,56 +54,41 @@ public class PropertyCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        switch (equipmentToCheck) {
-            case SELF:
-                return identifiable.hasProperty(propertyKey) && propertyValues.contains(identifiable.getProperty(propertyKey));
-            case VOLTAGE_LEVEL:
-            case SUBSTATION:
-                return filterEquipement(identifiable, type);
-            default:
-                return false;
-        }
+        return switch (equipmentToCheck) {
+            case SELF ->
+                    identifiable.hasProperty(propertyKey) && propertyValues.contains(identifiable.getProperty(propertyKey));
+            case VOLTAGE_LEVEL, SUBSTATION -> filterEquipment(identifiable, type);
+        };
     }
 
     private boolean filterIdentifiable(Identifiable<?> identifiable) {
         return identifiable.hasProperty(propertyKey) && propertyValues.contains(identifiable.getProperty(propertyKey));
     }
 
-    private boolean filterEquipement(Identifiable<?> identifiable, IdentifiableType type) {
-        switch (type) {
-            case STATIC_VAR_COMPENSATOR:
-            case SHUNT_COMPENSATOR:
-            case BUSBAR_SECTION:
-            case GENERATOR:
-            case DANGLING_LINE:
-            case LOAD:
-            case BATTERY:
-                return filterSubstationOrVoltageLevel(((Injection) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH:
-                return filterSubstationOrVoltageLevel(((Switch) identifiable).getVoltageLevel());
-            case TWO_WINDINGS_TRANSFORMER:
-            case LINE:
-                return filterBranch(((Branch) identifiable).getTerminal1().getVoltageLevel(),
-                        ((Branch) identifiable).getTerminal2().getVoltageLevel());
-            case HVDC_LINE:
-                return filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel(),
-                        ((HvdcLine) identifiable).getConverterStation2().getTerminal().getVoltageLevel());
-            case THREE_WINDINGS_TRANSFORMER:
-                return filterThreeWindingsTransformer((ThreeWindingsTransformer) identifiable);
-            default:
-                throw new PowsyblException(String.format("type {} has no implementation for ContingencyElement", type));
-        }
+    private boolean filterEquipment(Identifiable<?> identifiable, IdentifiableType type) {
+        return switch (type) {
+            case STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BUSBAR_SECTION, GENERATOR, DANGLING_LINE, LOAD, BATTERY ->
+                    filterSubstationOrVoltageLevel(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> filterSubstationOrVoltageLevel(((Switch) identifiable).getVoltageLevel());
+            case TWO_WINDINGS_TRANSFORMER, LINE ->
+                    filterBranch(((Branch<?>) identifiable).getTerminal1().getVoltageLevel(),
+                            ((Branch<?>) identifiable).getTerminal2().getVoltageLevel());
+            case HVDC_LINE ->
+                    filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel(),
+                            ((HvdcLine) identifiable).getConverterStation2().getTerminal().getVoltageLevel());
+            case THREE_WINDINGS_TRANSFORMER -> filterThreeWindingsTransformer((ThreeWindingsTransformer) identifiable);
+            default ->
+                    throw new PowsyblException(String.format("type %s has no implementation for ContingencyElement", type));
+        };
     }
 
     private boolean filterBranch(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2) {
-        switch (sideToCheck) {
-            case ONE:
-                return filterSubstationOrVoltageLevel(voltageLevel1) || filterSubstationOrVoltageLevel(voltageLevel2);
-            case BOTH:
-                return filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2);
-            default:
-                throw new IllegalArgumentException("only ONE or BOTH sides can be checked when filtering properties on branches");
-        }
+        return switch (sideToCheck) {
+            case ONE -> filterSubstationOrVoltageLevel(voltageLevel1) || filterSubstationOrVoltageLevel(voltageLevel2);
+            case BOTH -> filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2);
+            default ->
+                    throw new IllegalArgumentException("only ONE or BOTH sides can be checked when filtering properties on branches");
+        };
     }
 
     private boolean filterThreeWindingsTransformer(ThreeWindingsTransformer threeWindingsTransformer) {
@@ -113,20 +98,19 @@ public class PropertyCriterion implements Criterion {
         if (sideToCheck == null) {
             throw new IllegalArgumentException("enum to check side can not be null for threeWindingsTransformer to check their voltage level");
         }
-        switch (sideToCheck) {
-            case ONE:
-                return filterSubstationOrVoltageLevel(voltageLevel1) || filterSubstationOrVoltageLevel(voltageLevel2) ||
-                        filterSubstationOrVoltageLevel(voltageLevel3);
-            case BOTH:
-                return filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2)
-                        || filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel3)
-                        || filterSubstationOrVoltageLevel(voltageLevel2) && filterSubstationOrVoltageLevel(voltageLevel3);
-            case ALL_THREE:
-                return filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2) &&
-                        filterSubstationOrVoltageLevel(voltageLevel3);
-            default:
-                throw new IllegalArgumentException("enum to check side must be ONE, BOTH or ALL_THREE for threeWindingsTransformer");
-        }
+        return switch (sideToCheck) {
+            case ONE ->
+                    filterSubstationOrVoltageLevel(voltageLevel1) || filterSubstationOrVoltageLevel(voltageLevel2) ||
+                            filterSubstationOrVoltageLevel(voltageLevel3);
+            case BOTH -> filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2)
+                    || filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel3)
+                    || filterSubstationOrVoltageLevel(voltageLevel2) && filterSubstationOrVoltageLevel(voltageLevel3);
+            case ALL_THREE ->
+                    filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2) &&
+                            filterSubstationOrVoltageLevel(voltageLevel3);
+            default ->
+                    throw new IllegalArgumentException("enum to check side must be ONE, BOTH or ALL_THREE for threeWindingsTransformer");
+        };
     }
 
     private boolean filterSubstationOrVoltageLevel(VoltageLevel voltageLevel) {

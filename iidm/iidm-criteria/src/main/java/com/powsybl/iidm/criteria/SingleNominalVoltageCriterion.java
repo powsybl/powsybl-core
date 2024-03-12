@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.contingency.list.criterion;
+package com.powsybl.iidm.criteria;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
@@ -30,22 +30,13 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        switch (type) {
-            case LINE:
-                return filterInjection(((Line) identifiable).getTerminal1().getVoltageLevel());
-            case DANGLING_LINE:
-            case GENERATOR:
-            case LOAD:
-            case BATTERY:
-            case SHUNT_COMPENSATOR:
-            case STATIC_VAR_COMPENSATOR:
-            case BUSBAR_SECTION:
-                return filterInjection(((Injection) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH:
-                return filterInjection(((Switch) identifiable).getVoltageLevel());
-            default:
-                return false;
-        }
+        return switch (type) {
+            case LINE -> filterInjection(((Line) identifiable).getTerminal1().getVoltageLevel());
+            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION ->
+                    filterInjection(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> filterInjection(((Switch) identifiable).getVoltageLevel());
+            default -> false;
+        };
     }
 
     private boolean filterInjection(VoltageLevel voltageLevel) {

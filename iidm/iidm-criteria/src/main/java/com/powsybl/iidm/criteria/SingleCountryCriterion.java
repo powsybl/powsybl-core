@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.contingency.list.criterion;
+package com.powsybl.iidm.criteria;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
@@ -31,24 +31,16 @@ public class SingleCountryCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        switch (type) {
-            case DANGLING_LINE:
-            case GENERATOR:
-            case LOAD:
-            case SHUNT_COMPENSATOR:
-            case STATIC_VAR_COMPENSATOR:
-            case BUSBAR_SECTION:
-            case BATTERY:
-                return filterInjection(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH:
-                return filterInjection(((Switch) identifiable).getVoltageLevel());
-            case TWO_WINDINGS_TRANSFORMER:
-                return filterSubstation(((TwoWindingsTransformer) identifiable).getNullableSubstation());
-            case THREE_WINDINGS_TRANSFORMER:
-                return filterSubstation(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
-            default:
-                return false;
-        }
+        return switch (type) {
+            case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY ->
+                    filterInjection(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> filterInjection(((Switch) identifiable).getVoltageLevel());
+            case TWO_WINDINGS_TRANSFORMER ->
+                    filterSubstation(((TwoWindingsTransformer) identifiable).getNullableSubstation());
+            case THREE_WINDINGS_TRANSFORMER ->
+                    filterSubstation(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
+            default -> false;
+        };
     }
 
     public List<Country> getCountries() {
