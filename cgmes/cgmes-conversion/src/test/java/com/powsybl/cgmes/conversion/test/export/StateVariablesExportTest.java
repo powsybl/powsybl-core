@@ -374,7 +374,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         setReferenceTerminalsFromReferencePriority(network);
 
         network.write("CGMES", parameters, outputPath);
-        assertEquals("converged", readFirstTopologicalIsland(outputSv, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION, false));
+        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
     }
 
     @Test
@@ -390,45 +390,41 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         setReferenceTerminalsFromReferencePriority(network);
 
         network.write("CGMES", parameters, outputPath);
-        assertEquals("converged", readFirstTopologicalIsland(outputSv, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION, false));
+        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
 
         parameters.setProperty(CgmesExport.MAX_P_MISMATCH_CONVERGED, "0.000001");
         network.write("CGMES", parameters, outputPath);
-        assertEquals("diverged", readFirstTopologicalIsland(outputSv, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION, false));
+        assertEquals("diverged", readFirstTopologicalIslandDescription(outputSv));
     }
 
     @Test
-    void testReferenceTerminal() {
+    void testDisconnectedGeneratorWithReferenceTerminal() {
         // Create a small network
         Network network = Network.create("network", "iidm");
         Substation s = network.newSubstation().setId("S").add();
         VoltageLevel vl = s.newVoltageLevel().setId("VL").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         vl.getBusBreakerView().newBus().setId("B").add().setV(400).setAngle(0);
         vl.newLoad().setId("L").setConnectableBus("B").setBus("B").setP0(100.0).setQ0(0.0).add();
-        Generator g1 = vl.newGenerator().setId("G1").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0).setVoltageRegulatorOn(true).add();
-        Generator g2 = vl.newGenerator().setId("G2").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0).setVoltageRegulatorOn(true).add();
+        Generator g = vl.newGenerator().setId("G").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0).setVoltageRegulatorOn(true).add();
 
-        // Set reference terminals
-        ReferenceTerminals.addTerminal(g1.getTerminal());
-        ReferenceTerminals.addTerminal(g2.getTerminal());
+        // Set reference terminal
+        ReferenceTerminals.addTerminal(g.getTerminal());
 
-        // Disconnect one of the generator
-        Terminal t1 = g1.getTerminal();
-        assertTrue(t1.disconnect());
-        assertFalse(t1.isConnected());
-        assertNull(t1.getBusView().getBus());
+        // Disconnect the generator
+        Terminal t = g.getTerminal();
+        assertTrue(t.disconnect());
+        assertFalse(t.isConnected());
+        assertNull(t.getBusView().getBus());
 
-        // Run a load flow and verify it converged
-        new LoadFlowResultsCompletion().run(network, null);
+        // Verify in the output file that no TopologicalIsland was created
         Path outputPath = fileSystem.getPath("tmp-referenceTerminal");
         Path outputSv = fileSystem.getPath("tmp-referenceTerminal_SV.xml");
         network.write("CGMES", new Properties(), outputPath);
-        assertEquals("converged", readFirstTopologicalIsland(outputSv, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION, false));
-        assertEquals("#_B", readFirstTopologicalIsland(outputSv, "TopologicalIsland.AngleRefTopologicalNode", true));
+        assertEquals("", readFirstTopologicalIslandDescription(outputSv));
     }
 
-    private static String readFirstTopologicalIsland(Path sv, String fieldName, Boolean isAssociation) {
-        String fieldValue = "";
+    private static String readFirstTopologicalIslandDescription(Path sv) {
+        String description = "";
         boolean insideTopologicalIsland = false;
         try (InputStream is = Files.newInputStream(sv)) {
             XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
@@ -439,13 +435,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                     if (reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
                         insideTopologicalIsland = true;
                     }
-                    // Retrieve the requested field node, and read the attribute or association value
-                    if (insideTopologicalIsland && reader.getLocalName().equals(fieldName)) {
-                        if (isAssociation) {
-                            fieldValue = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, "resource");
-                        } else {
-                            fieldValue = reader.getElementText();
-                        }
+                    if (insideTopologicalIsland && reader.getLocalName().equals(CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION)) {
+                        description = reader.getElementText();
                     }
                 } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
                     break;
@@ -455,7 +446,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         } catch (IOException | XMLStreamException e) {
             throw new RuntimeException(e);
         }
-        return fieldValue;
+        return description;
     }
 
     private static void setReferenceTerminalsFromReferencePriority(Network network) {
