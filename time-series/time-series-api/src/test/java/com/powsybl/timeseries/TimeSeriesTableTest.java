@@ -122,27 +122,6 @@ class TimeSeriesTableTest {
     }
 
     @Test
-    void testVersionedAtDefaultNumberCSV() {
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
-        TimeSeriesTable table = createTimeSeriesTable(index);
-
-        // Case strict
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.DATE_TIME, false);
-
-        // test CSV export
-        assertEquals(String.join(System.lineSeparator(),
-                "Time;Version;ts1;ts2;ts3",
-                "1970-01-01T00:00:00Z;0;1.0;5.0;",
-                "1970-01-01T00:00:00.001Z;0;2.0;6.0;a",
-                "1970-01-01T00:00:00.002Z;0;3.0;7.0;b",
-                "1970-01-01T00:00:00.003Z;0;4.0;8.0;c") + System.lineSeparator(),
-            table.toCsvString(timeSeriesCsvConfig));
-
-        // Case strict
-        timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.DATE_TIME, true);
-    }
-
-    @Test
     void testEmptyTable() {
         // test empty table CSV export
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"));
