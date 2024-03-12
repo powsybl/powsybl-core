@@ -71,21 +71,19 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      *   }
      * }</pre>
      *
-     * @param network IIDM network on which the security analysis will be performed
-     * @param workingVariantId network variant ID on which the analysis will be performed
-     * @param detector
+     * @param network               IIDM network on which the security analysis will be performed
+     * @param workingVariantId      network variant ID on which the analysis will be performed
      * @param filter
      * @param computationManager
-     * @param parameters specific security analysis parameters
+     * @param parameters            specific security analysis parameters
      * @param contingenciesProvider provides list of contingencies
      * @param interceptors
-     * @param monitors stateMonitor that defines the branch bus and threeWindingsTransformer about which informations will be written after security analysis
-     * @param reportNode the reportNode used for functional logs
+     * @param monitors              stateMonitor that defines the branch bus and threeWindingsTransformer about which informations will be written after security analysis
+     * @param reportNode            the reportNode used for functional logs
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
     CompletableFuture<SecurityAnalysisReport> run(Network network,
                                                   String workingVariantId,
-                                                  LimitViolationDetector detector,
                                                   LimitViolationFilter filter,
                                                   ComputationManager computationManager,
                                                   SecurityAnalysisParameters parameters,

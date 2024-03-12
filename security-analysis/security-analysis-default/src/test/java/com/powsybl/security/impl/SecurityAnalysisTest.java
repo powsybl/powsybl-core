@@ -132,7 +132,7 @@ class SecurityAnalysisTest {
 
         SecurityAnalysisReport report = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
-                contingenciesProvider, SecurityAnalysisParameters.load(platformConfig), computationManager, filter, detector,
+                contingenciesProvider, SecurityAnalysisParameters.load(platformConfig), computationManager, filter,
                 interceptors, operatorStrategies, actions);
 
         SecurityAnalysisResult result = report.getResult();
@@ -185,7 +185,7 @@ class SecurityAnalysisTest {
 
         SecurityAnalysisReport report = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
-                contingenciesProvider, SecurityAnalysisParameters.load(platformConfig), computationManager, new LimitViolationFilter(), new DefaultLimitViolationDetector(),
+                contingenciesProvider, SecurityAnalysisParameters.load(platformConfig), computationManager, new LimitViolationFilter(),
                 interceptors, operatorStrategies, actions);
         SecurityAnalysisResult result = report.getResult();
 
@@ -257,7 +257,7 @@ class SecurityAnalysisTest {
         monitors.add(new StateMonitor(new ContingencyContext(null, ContingencyContextType.NONE),
                 Set.of("NHV1_NHV2_1", "NOT_EXISTING_BRANCH"), Set.of("VLHV1", "NOT_EXISTING_VOLTAGE_LEVEL"), Collections.singleton("NOT_EXISTING_T3W"))); // ignore IDs of non existing equipment
 
-        DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, ReportNode.NO_OP);
+        DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, filter, computationManager, monitors, ReportNode.NO_OP);
         SecurityAnalysisReport report = defaultSecurityAnalysis.run(network.getVariantManager().getWorkingVariantId(), saParameters, contingenciesProvider).join();
         SecurityAnalysisResult result = report.getResult();
         Assertions.assertThat(result.getPreContingencyResult().getNetworkResult().getBusResults()).containsExactly(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));

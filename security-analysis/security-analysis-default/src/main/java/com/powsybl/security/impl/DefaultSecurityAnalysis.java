@@ -86,11 +86,16 @@ public class DefaultSecurityAnalysis {
     private final StateMonitorIndex monitorIndex;
     private final ReportNode reportNode;
 
+    public DefaultSecurityAnalysis(Network network, LimitViolationFilter filter, ComputationManager computationManager,
+                                   List<StateMonitor> monitors, ReportNode reportNode) {
+        this(network, null, filter, computationManager, monitors, reportNode);
+    }
+
     public DefaultSecurityAnalysis(Network network, LimitViolationDetector detector,
                                    LimitViolationFilter filter, ComputationManager computationManager,
                                    List<StateMonitor> monitors, ReportNode reportNode) {
         this.network = Objects.requireNonNull(network);
-        this.violationDetector = Objects.requireNonNull(detector);
+        this.violationDetector = detector;
         this.violationFilter = Objects.requireNonNull(filter);
         this.interceptors = new ArrayList<>();
         this.computationManager = Objects.requireNonNull(computationManager);
@@ -148,7 +153,9 @@ public class DefaultSecurityAnalysis {
         SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder =
                 resultBuilder.preContingency()
                         .setStatus(LoadFlowResult.ComponentResult.Status.CONVERGED);
-        violationDetector.checkAll(network, builder::addViolation);
+        if (violationDetector != null) {
+            violationDetector.checkAll(network, builder::addViolation);
+        }
         addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         addMonitorInfos(network, monitorIndex.getNoneStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         builder.endPreContingency();
@@ -227,7 +234,9 @@ public class DefaultSecurityAnalysis {
                         .setStatus(lfResult.isOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED)
                         .setConnectivityResult(new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()));
         if (lfResult.isOk()) {
-            violationDetector.checkAll(contingency, network, builder::addViolation);
+            if (violationDetector != null) {
+                violationDetector.checkAll(contingency, network, builder::addViolation);
+            }
             addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
             StateMonitor stateMonitor = monitorIndex.getSpecificStateMonitors().get(contingency.getId());
             if (stateMonitor != null) {

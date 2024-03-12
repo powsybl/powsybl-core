@@ -32,7 +32,6 @@ public class DefaultSecurityAnalysisProvider implements SecurityAnalysisProvider
     @Override
     public CompletableFuture<SecurityAnalysisReport> run(Network network,
                                                          String workingVariantId,
-                                                         LimitViolationDetector detector,
                                                          LimitViolationFilter filter,
                                                          ComputationManager computationManager,
                                                          SecurityAnalysisParameters parameters,
@@ -41,7 +40,7 @@ public class DefaultSecurityAnalysisProvider implements SecurityAnalysisProvider
                                                          List<OperatorStrategy> operatorStrategies,
                                                          List<Action> actions, List<StateMonitor> monitors,
                                                          ReportNode reportNode) {
-        DefaultSecurityAnalysis securityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, reportNode);
+        DefaultSecurityAnalysis securityAnalysis = new DefaultSecurityAnalysis(network, filter, computationManager, monitors, reportNode);
         interceptors.forEach(securityAnalysis::addInterceptor);
         return securityAnalysis.run(workingVariantId, parameters, contingenciesProvider);
     }

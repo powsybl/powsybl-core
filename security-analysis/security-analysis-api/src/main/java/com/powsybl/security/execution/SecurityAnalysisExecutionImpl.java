@@ -59,7 +59,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
         SecurityAnalysisInput input = buildInput(data);
         return runner.runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
-                input.getContingenciesProvider(), input.getParameters(), computationManager, input.getFilter(), input.getLimitViolationDetector(),
+                input.getContingenciesProvider(), input.getParameters(), computationManager, input.getFilter(),
                 new ArrayList<>(input.getInterceptors()), data.getOperatorStrategies(), data.getActions(), data.getMonitors(), ReportNode.NO_OP);
     }
 }
