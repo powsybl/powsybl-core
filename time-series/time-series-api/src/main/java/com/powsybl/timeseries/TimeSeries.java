@@ -18,7 +18,6 @@ import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import gnu.trove.list.array.TDoubleArrayList;
-
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
@@ -35,6 +34,8 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>> extends Iterable<P> {
+
+    int DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES = 0;
 
     enum TimeFormat {
         DATE_TIME,
@@ -214,7 +215,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         int getVersion(String[] tokens) {
-            return timeSeriesCsvConfig.versioned() ? Integer.parseInt(tokens[1]) : 0;
+            return timeSeriesCsvConfig.versioned() ? Integer.parseInt(tokens[1]) : DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES;
         }
 
         int timesSize() {
