@@ -49,7 +49,7 @@ public class TwoNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        if (type == TWO_WINDINGS_TRANSFORMER || type == LINE || type == TIE_LINE) {
+        if (type == TWO_WINDINGS_TRANSFORMER || type == LINE) {
             return filter(((Branch<?>) identifiable).getTerminal1(), ((Branch<?>) identifiable).getTerminal2());
         } else if (type == HVDC_LINE) {
             return filter(((HvdcLine) identifiable).getConverterStation1().getTerminal(),
