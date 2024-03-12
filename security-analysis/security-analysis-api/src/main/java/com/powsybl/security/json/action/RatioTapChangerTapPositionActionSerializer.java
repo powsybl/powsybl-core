@@ -24,7 +24,7 @@ public class RatioTapChangerTapPositionActionSerializer extends AbstractTapChang
     @Override
     public void serialize(RatioTapChangerTapPositionAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        serializeCommonAttributes(action, jsonGenerator);
+        serializeCommonAttributes(action, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }
 }

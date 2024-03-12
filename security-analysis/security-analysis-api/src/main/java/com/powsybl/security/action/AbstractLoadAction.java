@@ -7,6 +7,9 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.List;
 import java.util.OptionalDouble;
 
 /**
@@ -30,8 +33,8 @@ public abstract class AbstractLoadAction extends AbstractAction {
      * @param activePowerValue The new load P0 (MW) if relativeValue equals False, otherwise the relative variation of load P0 (MW).
      * @param reactivePowerValue The new load Q0 (MVar) if relativeValue equals False, otherwise the relative variation of load Q0 (MVar).
      */
-    AbstractLoadAction(String id, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
-        super(id);
+    AbstractLoadAction(String id, List<NetworkElementIdentifier> networkElementIdentifiers, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
+        super(id, networkElementIdentifiers);
         this.relativeValue = relativeValue;
         this.activePowerValue = activePowerValue;
         this.reactivePowerValue = reactivePowerValue;

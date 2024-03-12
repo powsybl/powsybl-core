@@ -6,6 +6,10 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.List;
+
 /**
  * An action is taken according to an operator strategy when a condition occurs.
  * It aims at solving violations.
@@ -17,4 +21,6 @@ public interface Action {
     String getType();
 
     String getId();
+
+    List<NetworkElementIdentifier> getNetworkElementIdentifiers();
 }

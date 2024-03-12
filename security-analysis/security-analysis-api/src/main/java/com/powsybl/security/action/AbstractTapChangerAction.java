@@ -7,9 +7,10 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.ThreeSides;
 
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -17,17 +18,11 @@ import java.util.Optional;
  */
 public abstract class AbstractTapChangerAction extends AbstractAction {
 
-    private final String transformerId;
     private final ThreeSides side;
 
-    protected AbstractTapChangerAction(String id, String transformerId, ThreeSides side) {
-        super(id);
-        this.transformerId = Objects.requireNonNull(transformerId);
+    protected AbstractTapChangerAction(String id, List<NetworkElementIdentifier> tapChangerIdentifiers, ThreeSides side) {
+        super(id, tapChangerIdentifiers);
         this.side = side;
-    }
-
-    public String getTransformerId() {
-        return transformerId;
     }
 
     public Optional<ThreeSides> getSide() {

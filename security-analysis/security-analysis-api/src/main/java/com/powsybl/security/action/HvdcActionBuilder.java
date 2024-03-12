@@ -7,7 +7,12 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.HvdcLine;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -16,7 +21,7 @@ import com.powsybl.iidm.network.HvdcLine;
 public class HvdcActionBuilder {
 
     private String id;
-    private String hvdcId;
+    private List<NetworkElementIdentifier> hvdcIdentifiers;
     private Boolean acEmulationEnabled;
     private Double activePowerSetpoint = null;
     private HvdcLine.ConvertersMode converterMode = null;
@@ -25,7 +30,7 @@ public class HvdcActionBuilder {
     private Boolean relativeValue = null;
 
     public HvdcAction build() {
-        return new HvdcAction(id, hvdcId, acEmulationEnabled, activePowerSetpoint, converterMode, droop, p0, relativeValue);
+        return new HvdcAction(id, hvdcIdentifiers, acEmulationEnabled, activePowerSetpoint, converterMode, droop, p0, relativeValue);
     }
 
     public HvdcActionBuilder withId(String id) {
@@ -34,7 +39,12 @@ public class HvdcActionBuilder {
     }
 
     public HvdcActionBuilder withHvdcId(String hvdcId) {
-        this.hvdcId = hvdcId;
+        this.hvdcIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(hvdcId));
+        return this;
+    }
+
+    public HvdcActionBuilder withHvdcIdentifiers(List<NetworkElementIdentifier> hvdcIdentifiers) {
+        this.hvdcIdentifiers = hvdcIdentifiers;
         return this;
     }
 

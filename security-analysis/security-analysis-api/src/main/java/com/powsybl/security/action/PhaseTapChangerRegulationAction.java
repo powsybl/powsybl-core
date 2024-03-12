@@ -7,9 +7,13 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeSides;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -26,12 +30,16 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
     private final Double regulationValue;
 
     public PhaseTapChangerRegulationAction(String id, String transformerId, ThreeSides side, boolean regulating, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
-        super(id, transformerId, side, regulating);
+        this(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(transformerId)), side, regulating, regulationMode, regulationValue);
+    }
+
+    public PhaseTapChangerRegulationAction(String id, List<NetworkElementIdentifier> tapChangerIdentifiers, ThreeSides side, boolean regulating, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
+        super(id, tapChangerIdentifiers, side, regulating);
         this.regulationMode = regulationMode;
         this.regulationValue = regulationValue;
         if (!regulating && this.regulationMode != null) {
             throw new IllegalArgumentException("PhaseTapChangerRegulationAction can not have a regulation mode " +
-                    "if it is not regulating");
+                "if it is not regulating");
         }
     }
 
@@ -49,26 +57,32 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
     }
 
     public static PhaseTapChangerRegulationAction activateRegulation(String id, String transformerId) {
-        return new PhaseTapChangerRegulationAction(id, transformerId, null, true, null, null);
+        return new PhaseTapChangerRegulationAction(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(transformerId)),
+            null, true, null, null);
     }
 
     public static PhaseTapChangerRegulationAction activateRegulation(String id, String transformerId, ThreeSides side) {
-        return new PhaseTapChangerRegulationAction(id, transformerId, side, true, null, null);
+        return new PhaseTapChangerRegulationAction(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(transformerId)),
+            side, true, null, null);
     }
 
     public static PhaseTapChangerRegulationAction activateAndChangeRegulationMode(String id, String transformerId, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
-        return new PhaseTapChangerRegulationAction(id, transformerId, null, true, regulationMode, regulationValue);
+        return new PhaseTapChangerRegulationAction(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(transformerId)),
+            null, true, regulationMode, regulationValue);
     }
 
     public static PhaseTapChangerRegulationAction activateAndChangeRegulationMode(String id, String transformerId, ThreeSides side, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
-        return new PhaseTapChangerRegulationAction(id, transformerId, side, true, regulationMode, regulationValue);
+        return new PhaseTapChangerRegulationAction(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(transformerId)),
+            side, true, regulationMode, regulationValue);
     }
 
     public static PhaseTapChangerRegulationAction deactivateRegulation(String id, String transformerId) {
-        return new PhaseTapChangerRegulationAction(id, transformerId, null, false, null, null);
+        return new PhaseTapChangerRegulationAction(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(transformerId)),
+            null, false, null, null);
     }
 
     public static PhaseTapChangerRegulationAction deactivateRegulation(String id, String transformerId, ThreeSides side) {
-        return new PhaseTapChangerRegulationAction(id, transformerId, side, false, null, null);
+        return new PhaseTapChangerRegulationAction(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(transformerId)),
+            side, false, null, null);
     }
 }

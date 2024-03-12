@@ -34,7 +34,7 @@ public class RatioTapChangerRegulationActionDeserializer extends AbstractTapChan
         ParsingContext context = new ParsingContext();
         AbstractTapChangerRegulationActionDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerRegulationActionDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name);
+            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, deserializationContext);
             if (found) {
                 return true;
             }
@@ -53,7 +53,7 @@ public class RatioTapChangerRegulationActionDeserializer extends AbstractTapChan
                     return false;
             }
         });
-        return new RatioTapChangerRegulationAction(commonParsingContext.id, commonParsingContext.transformerId,
+        return new RatioTapChangerRegulationAction(commonParsingContext.id, commonParsingContext.networkElementIdentifiers,
                 commonParsingContext.side, commonParsingContext.regulating, context.targetV);
     }
 }

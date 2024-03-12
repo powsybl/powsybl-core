@@ -7,6 +7,10 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -16,13 +20,24 @@ import java.util.Objects;
 public abstract class AbstractAction implements Action {
 
     private final String id;
+    private final List<NetworkElementIdentifier> networkElementIdentifiers;
 
     protected AbstractAction(String id) {
+        this(id, Collections.emptyList());
+    }
+
+    protected AbstractAction(String id, List<NetworkElementIdentifier> networkElementIdentifiers) {
         this.id = Objects.requireNonNull(id);
+        this.networkElementIdentifiers = networkElementIdentifiers;
     }
 
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public List<NetworkElementIdentifier> getNetworkElementIdentifiers() {
+        return networkElementIdentifiers;
     }
 }

@@ -31,7 +31,8 @@ public class TerminalsConnectionActionSerializer extends StdSerializer<Terminals
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("elementId", action.getElementId());
+        serializerProvider.defaultSerializeField("identifiers", action.getNetworkElementIdentifiers(),
+            jsonGenerator);
         Optional<ThreeSides> side = action.getSide();
         if (side.isPresent()) {
             JsonUtil.writeOptionalStringField(jsonGenerator, "side", String.valueOf(side.get()));

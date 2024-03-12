@@ -7,13 +7,19 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ShuntCompensatorPositionActionBuilder {
 
     private String id;
-    private String shuntCompensatorId;
+    private List<NetworkElementIdentifier> shuntIdentifiers;
     private Integer sectionCount = null;
 
     public ShuntCompensatorPositionAction build() {
@@ -23,7 +29,7 @@ public class ShuntCompensatorPositionActionBuilder {
         if (sectionCount < 0) {
             throw new IllegalArgumentException("sectionCount should be positive for a shunt compensator");
         }
-        return new ShuntCompensatorPositionAction(id, shuntCompensatorId, sectionCount);
+        return new ShuntCompensatorPositionAction(id, shuntIdentifiers, sectionCount);
     }
 
     public ShuntCompensatorPositionActionBuilder withId(String id) {
@@ -32,7 +38,12 @@ public class ShuntCompensatorPositionActionBuilder {
     }
 
     public ShuntCompensatorPositionActionBuilder withShuntCompensatorId(String shuntCompensatorId) {
-        this.shuntCompensatorId = shuntCompensatorId;
+        this.shuntIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(shuntCompensatorId));
+        return this;
+    }
+
+    public ShuntCompensatorPositionActionBuilder withShuntCompensatorIdentifiers(List<NetworkElementIdentifier> shuntIdentifiers) {
+        this.shuntIdentifiers = shuntIdentifiers;
         return this;
     }
 

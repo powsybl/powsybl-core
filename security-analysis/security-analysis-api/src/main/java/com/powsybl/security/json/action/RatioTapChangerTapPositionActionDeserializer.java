@@ -29,7 +29,7 @@ public class RatioTapChangerTapPositionActionDeserializer extends AbstractTapCha
         AbstractTapChangerTapPositionActionDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerTapPositionActionDeserializer.ParsingContext();
         String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, version);
+            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, version, deserializationContext);
             if (found) {
                 return true;
             }
@@ -43,7 +43,7 @@ public class RatioTapChangerTapPositionActionDeserializer extends AbstractTapCha
             return false;
         });
         checkFields(commonParsingContext, jsonParser);
-        return new RatioTapChangerTapPositionAction(commonParsingContext.id, commonParsingContext.transformerId,
+        return new RatioTapChangerTapPositionAction(commonParsingContext.id, commonParsingContext.networkElementIdentifiers,
                 commonParsingContext.relativeValue, commonParsingContext.tapPosition, commonParsingContext.side);
     }
 }

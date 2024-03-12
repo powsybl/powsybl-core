@@ -7,7 +7,10 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.ThreeSides;
+
+import java.util.List;
 
 /**
  * An action modifying the regulation of a two or three windings transformer
@@ -19,8 +22,9 @@ public abstract class AbstractTapChangerRegulationAction extends AbstractTapChan
 
     private final boolean regulating;
 
-    protected AbstractTapChangerRegulationAction(String id, String transformerId, ThreeSides side, boolean regulating) {
-        super(id, transformerId, side);
+    protected AbstractTapChangerRegulationAction(String id, List<NetworkElementIdentifier> tapChangerIdentifiers,
+                                                 ThreeSides side, boolean regulating) {
+        super(id, tapChangerIdentifiers, side);
         this.regulating = regulating;
     }
 

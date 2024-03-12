@@ -7,9 +7,10 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.HvdcLine;
 
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -31,7 +32,6 @@ public class HvdcAction extends AbstractAction {
 
     public static final String NAME = "HVDC";
 
-    private final String hvdcId;
     private final Boolean acEmulationEnabled;
     private final Double activePowerSetpoint;
     private final HvdcLine.ConvertersMode converterMode;
@@ -39,9 +39,8 @@ public class HvdcAction extends AbstractAction {
     private final Double p0;
     private final Boolean relativeValue;
 
-    HvdcAction(String id, String hvdcId, Boolean acEmulationEnabled, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
-        super(id);
-        this.hvdcId = Objects.requireNonNull(hvdcId);
+    HvdcAction(String id, List<NetworkElementIdentifier> hvdcIdentifiers, Boolean acEmulationEnabled, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
+        super(id, hvdcIdentifiers);
         this.acEmulationEnabled = acEmulationEnabled;
         this.activePowerSetpoint = activePowerSetpoint;
         this.converterMode = converterMode;
@@ -53,10 +52,6 @@ public class HvdcAction extends AbstractAction {
     @Override
     public String getType() {
         return NAME;
-    }
-
-    public String getHvdcId() {
-        return hvdcId;
     }
 
     public Optional<HvdcLine.ConvertersMode> getConverterMode() {

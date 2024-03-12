@@ -30,7 +30,8 @@ public class StaticVarCompensatorActionSerializer extends StdSerializer<StaticVa
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("staticVarCompensatorId", action.getStaticVarCompensatorId());
+        serializerProvider.defaultSerializeField("identifiers", action.getNetworkElementIdentifiers(),
+            jsonGenerator);
         action.getRegulationMode().ifPresent(regulationMode -> {
             try {
                 jsonGenerator.writeStringField("regulationMode", String.valueOf(regulationMode));

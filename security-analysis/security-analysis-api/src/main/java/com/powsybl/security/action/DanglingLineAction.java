@@ -7,7 +7,9 @@
  */
 package com.powsybl.security.action;
 
-import java.util.Objects;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.List;
 
 /**
  * An action to:
@@ -22,22 +24,15 @@ public class DanglingLineAction extends AbstractLoadAction {
 
     public static final String NAME = "DANGLING_LINE";
 
-    private final String danglingLineId;
-
     /**
-     * @param id                 the id of the action.
-     * @param danglingLineId     the id of the dangling line on which the action would be applied.
-     * @param relativeValue      True if the dangling line P0 and/or Q0 variation is relative, False if absolute.
-     * @param activePowerValue   The new dangling line P0 (MW) if relativeValue equals False, otherwise the relative variation of dangling line P0 (MW).
-     * @param reactivePowerValue The new dangling line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of dangling line Q0 (MVar).
+     * @param id                        the id of the action.
+     * @param networkElementIdentifiers the id of the dangling line on which the action would be applied.
+     * @param relativeValue             True if the dangling line P0 and/or Q0 variation is relative, False if absolute.
+     * @param activePowerValue          The new dangling line P0 (MW) if relativeValue equals False, otherwise the relative variation of dangling line P0 (MW).
+     * @param reactivePowerValue        The new dangling line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of dangling line Q0 (MVar).
      */
-    DanglingLineAction(String id, String danglingLineId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
-        super(id, relativeValue, activePowerValue, reactivePowerValue);
-        this.danglingLineId = Objects.requireNonNull(danglingLineId);
-    }
-
-    public String getDanglingLineId() {
-        return danglingLineId;
+    DanglingLineAction(String id, List<NetworkElementIdentifier> networkElementIdentifiers, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
+        super(id, networkElementIdentifiers, relativeValue, activePowerValue, reactivePowerValue);
     }
 
     @Override

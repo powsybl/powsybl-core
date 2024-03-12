@@ -36,7 +36,7 @@ public class PhaseTapChangerRegulationActionDeserializer extends AbstractTapChan
         ParsingContext context = new ParsingContext();
         AbstractTapChangerRegulationActionDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerRegulationActionDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name);
+            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, deserializationContext);
             if (found) {
                 return true;
             }
@@ -62,7 +62,7 @@ public class PhaseTapChangerRegulationActionDeserializer extends AbstractTapChan
         if (commonParsingContext.regulating) {
             mode = PhaseTapChanger.RegulationMode.valueOf(context.regulationMode);
         }
-        return new PhaseTapChangerRegulationAction(commonParsingContext.id, commonParsingContext.transformerId,
+        return new PhaseTapChangerRegulationAction(commonParsingContext.id, commonParsingContext.networkElementIdentifiers,
                 commonParsingContext.side, commonParsingContext.regulating, mode, context.regulationValue);
     }
 }

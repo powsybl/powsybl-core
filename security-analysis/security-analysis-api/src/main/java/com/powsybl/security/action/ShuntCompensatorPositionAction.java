@@ -7,6 +7,10 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.List;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -14,22 +18,16 @@ public class ShuntCompensatorPositionAction extends AbstractAction {
 
     public static final String NAME = "SHUNT_COMPENSATOR_POSITION";
 
-    private final String shuntCompensatorId;
     private final int sectionCount;
 
-    ShuntCompensatorPositionAction(String id, String shuntCompensatorId, int sectionCount) {
-        super(id);
-        this.shuntCompensatorId = shuntCompensatorId;
+    ShuntCompensatorPositionAction(String id, List<NetworkElementIdentifier> shuntIdentifiers, int sectionCount) {
+        super(id, shuntIdentifiers);
         this.sectionCount = sectionCount;
     }
 
     @Override
     public String getType() {
         return NAME;
-    }
-
-    public String getShuntCompensatorId() {
-        return shuntCompensatorId;
     }
 
     public int getSectionCount() {

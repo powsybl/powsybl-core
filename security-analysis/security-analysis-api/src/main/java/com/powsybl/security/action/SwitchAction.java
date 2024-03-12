@@ -6,7 +6,11 @@
  */
 package com.powsybl.security.action;
 
-import java.util.Objects;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An action opening or closing a switch.
@@ -16,23 +20,20 @@ import java.util.Objects;
 public class SwitchAction extends AbstractAction {
 
     public static final String NAME = "SWITCH";
-
-    private final String switchId;
     private final boolean open;
 
-    public SwitchAction(String id, String switchId, boolean open) {
-        super(id);
-        this.switchId = Objects.requireNonNull(switchId);
+    public SwitchAction(String id, List<NetworkElementIdentifier> switchIdentifiers, boolean open) {
+        super(id, switchIdentifiers);
         this.open = open;
+    }
+
+    public SwitchAction(String id, String switchId, boolean open) {
+        this(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(switchId)), open);
     }
 
     @Override
     public String getType() {
         return NAME;
-    }
-
-    public String getSwitchId() {
-        return switchId;
     }
 
     /**

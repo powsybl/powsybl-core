@@ -28,7 +28,8 @@ public class ShuntCompensatorPositionActionSerializer extends StdSerializer<Shun
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("shuntCompensatorId", action.getShuntCompensatorId());
+        serializerProvider.defaultSerializeField("identifiers",
+            action.getNetworkElementIdentifiers(), jsonGenerator);
         jsonGenerator.writeNumberField("sectionCount", action.getSectionCount());
         jsonGenerator.writeEndObject();
     }

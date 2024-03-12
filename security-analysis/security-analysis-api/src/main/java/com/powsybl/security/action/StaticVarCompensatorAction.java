@@ -7,9 +7,10 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.StaticVarCompensator;
 
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -20,21 +21,20 @@ import java.util.OptionalDouble;
  *     <li>change voltageSetPoint to change the voltage setpoint if the regulation mode is set to VOLTAGE (kV) </li>
  *     <li>change reactivePowerSetpoint to change the reactive power setpoint if the regulation mode is set to REACTIVE_POWER (MVAR)</li>
  * </ul>
+ *
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class StaticVarCompensatorAction extends AbstractAction {
 
     public static final String NAME = "STATIC_VAR_COMPENSATOR";
-    private final String staticVarCompensatorId;
     private final StaticVarCompensator.RegulationMode regulationMode;
     private final Double voltageSetpoint;
     private final Double reactivePowerSetpoint;
 
-    protected StaticVarCompensatorAction(String id, String staticVarCompensatorId,
+    protected StaticVarCompensatorAction(String id, List<NetworkElementIdentifier> svcIdentifiers,
                                          StaticVarCompensator.RegulationMode regulationMode,
                                          Double voltageSetpoint, Double reactivePowerSetpoint) {
-        super(id);
-        this.staticVarCompensatorId = Objects.requireNonNull(staticVarCompensatorId);
+        super(id, svcIdentifiers);
         this.regulationMode = regulationMode;
         this.voltageSetpoint = voltageSetpoint;
         this.reactivePowerSetpoint = reactivePowerSetpoint;
@@ -43,10 +43,6 @@ public class StaticVarCompensatorAction extends AbstractAction {
     @Override
     public String getType() {
         return NAME;
-    }
-
-    public String getStaticVarCompensatorId() {
-        return staticVarCompensatorId;
     }
 
     public Optional<StaticVarCompensator.RegulationMode> getRegulationMode() {

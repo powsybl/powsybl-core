@@ -6,13 +6,17 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.List;
+
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction, B extends AbstractLoadActionBuilder<T, B>> {
 
     protected String id;
-    protected String elementId;
+    protected List<NetworkElementIdentifier> networkElementIdentifiers;
     protected Boolean relativeValue;
     protected Double activePowerValue;
     protected Double reactivePowerValue;

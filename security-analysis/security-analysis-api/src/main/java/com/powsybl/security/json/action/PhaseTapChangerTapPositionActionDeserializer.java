@@ -29,7 +29,7 @@ public class PhaseTapChangerTapPositionActionDeserializer extends AbstractTapCha
         ParsingContext commonParsingContext = new ParsingContext();
         String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, version);
+            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, version, deserializationContext);
             if (found) {
                 return true;
             }
@@ -43,7 +43,7 @@ public class PhaseTapChangerTapPositionActionDeserializer extends AbstractTapCha
             return false;
         });
         checkFields(commonParsingContext, jsonParser);
-        return new PhaseTapChangerTapPositionAction(commonParsingContext.id, commonParsingContext.transformerId,
+        return new PhaseTapChangerTapPositionAction(commonParsingContext.id, commonParsingContext.networkElementIdentifiers,
                 commonParsingContext.relativeValue, commonParsingContext.tapPosition, commonParsingContext.side);
     }
 }

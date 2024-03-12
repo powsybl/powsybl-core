@@ -11,10 +11,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.action.TerminalsConnectionAction;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -27,9 +31,9 @@ public class TerminalsConnectionActionDeserializer extends StdDeserializer<Termi
 
     private static class ParsingContext {
         String id;
-        String elementId;
         ThreeSides side;
         Boolean open;
+        List<NetworkElementIdentifier> networkElementIdentifiers;
     }
 
     @Override
@@ -46,7 +50,11 @@ public class TerminalsConnectionActionDeserializer extends StdDeserializer<Termi
                     context.id = jsonParser.nextTextValue();
                     return true;
                 case "elementId":
-                    context.elementId = jsonParser.nextTextValue();
+                    context.networkElementIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(jsonParser.nextTextValue()));
+                    return true;
+                case "identifiers":
+                    jsonParser.nextToken();
+                    context.networkElementIdentifiers = JsonUtil.readList(deserializationContext, jsonParser, NetworkElementIdentifier.class);
                     return true;
                 case "side":
                     jsonParser.nextToken();
@@ -64,9 +72,9 @@ public class TerminalsConnectionActionDeserializer extends StdDeserializer<Termi
             throw JsonMappingException.from(jsonParser, "for terminal connection action open field can't be null");
         }
         if (context.side == null) {
-            return new TerminalsConnectionAction(context.id, context.elementId, context.open);
+            return new TerminalsConnectionAction(context.id, context.networkElementIdentifiers, context.open);
         } else {
-            return new TerminalsConnectionAction(context.id, context.elementId, context.side, context.open);
+            return new TerminalsConnectionAction(context.id, context.networkElementIdentifiers, context.side, context.open);
         }
     }
 }

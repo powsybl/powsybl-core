@@ -6,7 +6,9 @@
  */
 package com.powsybl.security.action;
 
-import java.util.Objects;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -26,7 +28,6 @@ public class GeneratorAction extends AbstractAction {
 
     public static final String NAME = "GENERATOR";
 
-    private final String generatorId;
     private final Boolean activePowerRelativeValue;
     private final Double activePowerValue;
     private final Boolean voltageRegulatorOn;
@@ -34,18 +35,17 @@ public class GeneratorAction extends AbstractAction {
     private final Double targetQ;
 
     /**
-     * @param id the id of the action.
-     * @param generatorId the id of the generator on which the action would be applied.
+     * @param id                       the id of the action.
+     * @param generatorIdentifiers     the identifiers of the generator on which the action would be applied.
      * @param activePowerRelativeValue True if the generator targetP variation is relative, False if absolute.
-     * @param activePowerValue The new generator targetP (MW) if activePowerRelativeValue equals False, otherwise the relative variation of generator targetP (MW).
-     * @param voltageRegulatorOn The new generator voltage regulator status.
-     * @param targetV The new generator targetV (kV), absolute value only.
-     * @param targetQ The new generator targetQ (MVar), absolute value only.
+     * @param activePowerValue         The new generator targetP (MW) if activePowerRelativeValue equals False, otherwise the relative variation of generator targetP (MW).
+     * @param voltageRegulatorOn       The new generator voltage regulator status.
+     * @param targetV                  The new generator targetV (kV), absolute value only.
+     * @param targetQ                  The new generator targetQ (MVar), absolute value only.
      */
-    GeneratorAction(String id, String generatorId, Boolean activePowerRelativeValue, Double activePowerValue,
+    GeneratorAction(String id, List<NetworkElementIdentifier> generatorIdentifiers, Boolean activePowerRelativeValue, Double activePowerValue,
                     Boolean voltageRegulatorOn, Double targetV, Double targetQ) {
-        super(id);
-        this.generatorId = Objects.requireNonNull(generatorId);
+        super(id, generatorIdentifiers);
         this.activePowerRelativeValue = activePowerRelativeValue;
         this.activePowerValue = activePowerValue;
         this.voltageRegulatorOn = voltageRegulatorOn;
@@ -56,10 +56,6 @@ public class GeneratorAction extends AbstractAction {
     @Override
     public String getType() {
         return NAME;
-    }
-
-    public String getGeneratorId() {
-        return generatorId;
     }
 
     public Optional<Boolean> isActivePowerRelativeValue() {

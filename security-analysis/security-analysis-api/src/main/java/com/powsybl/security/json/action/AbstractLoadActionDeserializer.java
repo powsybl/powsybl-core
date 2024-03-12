@@ -12,11 +12,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.security.action.AbstractLoadAction;
 import com.powsybl.security.action.DanglingLineAction;
 import com.powsybl.security.action.LoadAction;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -29,7 +33,7 @@ public abstract class AbstractLoadActionDeserializer <T extends AbstractLoadActi
 
     protected static class ParsingContext {
         String id;
-        String elementId;
+        List<NetworkElementIdentifier> networkElementIdentifiers;
         Boolean relativeValue;
         Double activePowerValue;
         Double reactivePowerValue;
@@ -52,7 +56,11 @@ public abstract class AbstractLoadActionDeserializer <T extends AbstractLoadActi
                     context.id = parser.nextTextValue();
                     return true;
                 case "loadId", "danglingLineId":
-                    context.elementId = parser.nextTextValue();
+                    context.networkElementIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(parser.nextTextValue()));
+                    return true;
+                case "identifiers":
+                    parser.nextToken();
+                    context.networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                     return true;
                 case "relativeValue":
                     parser.nextToken();

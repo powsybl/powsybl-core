@@ -12,11 +12,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.security.action.StaticVarCompensatorAction;
 import com.powsybl.security.action.StaticVarCompensatorActionBuilder;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -29,7 +33,7 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
 
     private static class ParsingContext {
         String id;
-        String staticVarCompensatorId;
+        List<NetworkElementIdentifier> networkElementIdentifiers;
         String regulationMode;
         Double voltageSetpoint;
         Double reactivePowerSetpoint;
@@ -49,7 +53,11 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
                     context.id = jsonParser.nextTextValue();
                     return true;
                 case "staticVarCompensatorId":
-                    context.staticVarCompensatorId = jsonParser.nextTextValue();
+                    context.networkElementIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(jsonParser.nextTextValue()));
+                    return true;
+                case "identifiers":
+                    jsonParser.nextToken();
+                    context.networkElementIdentifiers = JsonUtil.readList(deserializationContext, jsonParser, NetworkElementIdentifier.class);
                     return true;
                 case "regulationMode":
                     context.regulationMode = jsonParser.nextTextValue();
@@ -68,7 +76,7 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
         });
         StaticVarCompensatorActionBuilder builder = new StaticVarCompensatorActionBuilder();
         builder.withId(context.id)
-                .withStaticVarCompensatorId(context.staticVarCompensatorId);
+            .withStaticVarCompensatorIdentifiers(context.networkElementIdentifiers);
         if (context.regulationMode != null) {
             builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(context.regulationMode));
         }

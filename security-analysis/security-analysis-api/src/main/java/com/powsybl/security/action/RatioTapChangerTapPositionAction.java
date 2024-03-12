@@ -7,7 +7,12 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.ThreeSides;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An action modifying the tap position of a ratio transformer
@@ -18,12 +23,20 @@ import com.powsybl.iidm.network.ThreeSides;
 public class RatioTapChangerTapPositionAction extends AbstractTapChangerTapPositionAction {
     public static final String NAME = "RATIO_TAP_CHANGER_TAP_POSITION";
 
-    public RatioTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value, ThreeSides side) {
-        super(id, transformerId, relativeValue, value, side);
+    public RatioTapChangerTapPositionAction(String id, String tapChangerId, boolean relativeValue, int value, ThreeSides side) {
+        super(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(tapChangerId)), relativeValue, value, side);
     }
 
-    public RatioTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value) {
-        super(id, transformerId, relativeValue, value, null);
+    public RatioTapChangerTapPositionAction(String id, List<NetworkElementIdentifier> tapChangerIdentifiers, boolean relativeValue, int value, ThreeSides side) {
+        super(id, tapChangerIdentifiers, relativeValue, value, side);
+    }
+
+    public RatioTapChangerTapPositionAction(String id, String tapChangerId, boolean relativeValue, int value) {
+        super(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(tapChangerId)), relativeValue, value, null);
+    }
+
+    public RatioTapChangerTapPositionAction(String id, List<NetworkElementIdentifier> tapChangerIdentifiers, boolean relativeValue, int value) {
+        super(id, tapChangerIdentifiers, relativeValue, value, null);
     }
 
     @Override

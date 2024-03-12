@@ -7,7 +7,9 @@
  */
 package com.powsybl.security.action;
 
-import java.util.Objects;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.List;
 
 /**
  * An action to:
@@ -22,22 +24,16 @@ public class LoadAction extends AbstractLoadAction {
 
     public static final String NAME = "LOAD";
 
-    private final String loadId;
-
     /**
-     * @param id                 the id of the action.
-     * @param loadId             the id of the load on which the action would be applied.
-     * @param relativeValue      True if the load P0 and/or Q0 variation is relative, False if absolute.
-     * @param activePowerValue   The new load P0 (MW) if relativeValue equals False, otherwise the relative variation of load P0 (MW).
-     * @param reactivePowerValue The new load Q0 (MVar) if relativeValue equals False, otherwise the relative variation of load Q0 (MVar).
+     * @param id                        the id of the action.
+     * @param networkElementIdentifiers the identifiers of the load on which the action would be applied.
+     * @param relativeValue             True if the load P0 and/or Q0 variation is relative, False if absolute.
+     * @param activePowerValue          The new load P0 (MW) if relativeValue equals False, otherwise the relative variation of load P0 (MW).
+     * @param reactivePowerValue        The new load Q0 (MVar) if relativeValue equals False, otherwise the relative variation of load Q0 (MVar).
      */
-    LoadAction(String id, String loadId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
-        super(id, relativeValue, activePowerValue, reactivePowerValue);
-        this.loadId = Objects.requireNonNull(loadId);
-    }
 
-    public String getLoadId() {
-        return loadId;
+    LoadAction(String id, List<NetworkElementIdentifier> networkElementIdentifiers, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
+        super(id, networkElementIdentifiers, relativeValue, activePowerValue, reactivePowerValue);
     }
 
     @Override

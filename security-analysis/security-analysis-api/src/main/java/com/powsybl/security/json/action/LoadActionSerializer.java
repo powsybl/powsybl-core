@@ -7,7 +7,10 @@
  */
 package com.powsybl.security.json.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.security.action.LoadAction;
+
+import java.util.List;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -19,12 +22,7 @@ public class LoadActionSerializer extends AbstractLoadActionSerializer<LoadActio
     }
 
     @Override
-    protected String getElementIdAttributeName() {
-        return "loadId";
-    }
-
-    @Override
-    protected String getElementId(LoadAction action) {
-        return action.getLoadId();
+    protected List<NetworkElementIdentifier> getElementId(LoadAction action) {
+        return action.getNetworkElementIdentifiers();
     }
 }

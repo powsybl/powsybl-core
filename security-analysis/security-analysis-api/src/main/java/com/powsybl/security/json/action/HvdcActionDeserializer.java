@@ -12,11 +12,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.security.action.HvdcAction;
 import com.powsybl.security.action.HvdcActionBuilder;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -29,7 +33,7 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
 
     private static class ParsingContext {
         String id;
-        String hvdcId;
+        List<NetworkElementIdentifier> networkElementIdentifiers;
         Boolean acEmulationEnabled;
         Double activePowerSetpoint;
         HvdcLine.ConvertersMode converterMode;
@@ -52,7 +56,11 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
                     context.id = jsonParser.nextTextValue();
                     return true;
                 case "hvdcId":
-                    context.hvdcId = jsonParser.nextTextValue();
+                    context.networkElementIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(jsonParser.nextTextValue()));
+                    return true;
+                case "identifiers":
+                    jsonParser.nextToken();
+                    context.networkElementIdentifiers = JsonUtil.readList(deserializationContext, jsonParser, NetworkElementIdentifier.class);
                     return true;
                 case "acEmulationEnabled":
                     jsonParser.nextToken();
@@ -83,7 +91,7 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
         });
         return new HvdcActionBuilder()
                 .withId(context.id)
-                .withHvdcId(context.hvdcId)
+                .withHvdcIdentifiers(context.networkElementIdentifiers)
                 .withAcEmulationEnabled(context.acEmulationEnabled)
                 .withActivePowerSetpoint(context.activePowerSetpoint)
                 .withConverterMode(context.converterMode)

@@ -8,6 +8,7 @@
 package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.action.AbstractTapChangerTapPositionAction;
@@ -23,10 +24,12 @@ public abstract class AbstractTapChangerTapPositionActionSerializer<T extends Ab
         super(vc);
     }
 
-    protected void serializeCommonAttributes(AbstractTapChangerTapPositionAction action, JsonGenerator jsonGenerator) throws IOException {
+    protected void serializeCommonAttributes(AbstractTapChangerTapPositionAction action, JsonGenerator jsonGenerator,
+                                             SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("transformerId", action.getTransformerId());
+        serializerProvider.defaultSerializeField("identifiers",
+            action.getNetworkElementIdentifiers(), jsonGenerator);
         jsonGenerator.writeNumberField("tapPosition", action.getTapPosition());
         jsonGenerator.writeBooleanField("relativeValue", action.isRelativeValue());
         JsonUtil.writeOptionalEnum(jsonGenerator, "side", action.getSide());

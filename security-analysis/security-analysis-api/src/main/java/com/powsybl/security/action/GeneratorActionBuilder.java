@@ -6,13 +6,19 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
 public class GeneratorActionBuilder {
 
     private String id;
-    private String generatorId;
+    private List<NetworkElementIdentifier> generatorIdentifiers;
     private Boolean activePowerRelativeValue;
     private Double activePowerValue;
     private Boolean voltageRegulatorOn;
@@ -23,7 +29,7 @@ public class GeneratorActionBuilder {
         if (activePowerRelativeValue != null ^ activePowerValue != null) {
             throw new IllegalArgumentException("For a generator action, both or none of these two attributes must be provided: activePowerValue and activePowerRelativeValue");
         }
-        return new GeneratorAction(id, generatorId, activePowerRelativeValue, activePowerValue, voltageRegulatorOn, targetV, targetQ);
+        return new GeneratorAction(id, generatorIdentifiers, activePowerRelativeValue, activePowerValue, voltageRegulatorOn, targetV, targetQ);
     }
 
     public GeneratorActionBuilder withId(String id) {
@@ -32,7 +38,12 @@ public class GeneratorActionBuilder {
     }
 
     public GeneratorActionBuilder withGeneratorId(String generatorId) {
-        this.generatorId = generatorId;
+        this.generatorIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(generatorId));
+        return this;
+    }
+
+    public GeneratorActionBuilder withGeneratorIdentifiers(List<NetworkElementIdentifier> networkElementIdentifiers) {
+        this.generatorIdentifiers = networkElementIdentifiers;
         return this;
     }
 

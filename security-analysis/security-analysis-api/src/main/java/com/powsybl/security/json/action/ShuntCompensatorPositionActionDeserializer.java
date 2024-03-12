@@ -12,10 +12,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.security.action.ShuntCompensatorPositionAction;
 import com.powsybl.security.action.ShuntCompensatorPositionActionBuilder;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -28,7 +32,7 @@ public class ShuntCompensatorPositionActionDeserializer extends StdDeserializer<
 
     private static class ParsingContext {
         String id;
-        String shuntCompensatorId;
+        List<NetworkElementIdentifier> networkElementIdentifiers;
         Integer sectionCount = null;
     }
 
@@ -46,7 +50,11 @@ public class ShuntCompensatorPositionActionDeserializer extends StdDeserializer<
                     context.id = jsonParser.nextTextValue();
                     return true;
                 case "shuntCompensatorId":
-                    context.shuntCompensatorId = jsonParser.nextTextValue();
+                    context.networkElementIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(jsonParser.nextTextValue()));
+                    return true;
+                case "identifiers":
+                    jsonParser.nextToken();
+                    context.networkElementIdentifiers = JsonUtil.readList(deserializationContext, jsonParser, NetworkElementIdentifier.class);
                     return true;
                 case "sectionCount":
                     jsonParser.nextToken();
@@ -58,7 +66,7 @@ public class ShuntCompensatorPositionActionDeserializer extends StdDeserializer<
         });
         return new ShuntCompensatorPositionActionBuilder()
                 .withId(context.id)
-                .withShuntCompensatorId(context.shuntCompensatorId)
+                .withShuntCompensatorIdentifiers(context.networkElementIdentifiers)
                 .withSectionCount(context.sectionCount)
                 .build();
     }

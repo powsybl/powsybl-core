@@ -7,9 +7,10 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.ThreeSides;
 
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,36 +21,32 @@ import java.util.Optional;
 public class TerminalsConnectionAction extends AbstractAction {
 
     public static final String NAME = "TERMINALS_CONNECTION";
-    private final String elementId;
-    private ThreeSides side;
+    private final ThreeSides side;
     private final boolean open;
 
     /**
-     * @param id the id of the action.
-     * @param elementId the id of the element which terminals are operated.
-     *                  The element can be any connectable, including a tie line by referring the terminal of
-     *                  an underlying dangling line.
-     * @param side the side of the element to operate in the action.
-     * @param open the status for the terminal to operate. {@code true} means terminal opening.
+     * @param id                 the id of the action.
+     * @param elementIdentifiers the identifiers of the element which terminals are operated.
+     *                           The element can be any connectable, including a tie line by referring the terminal of
+     *                           an underlying dangling line.
+     * @param side               the side of the element to operate in the action.
+     * @param open               the status for the terminal to operate. {@code true} means terminal opening.
      */
-    public TerminalsConnectionAction(String id, String elementId, ThreeSides side, boolean open) {
-        super(id);
-        this.elementId = Objects.requireNonNull(elementId);
-        this.side = Objects.requireNonNull(side);
+    public TerminalsConnectionAction(String id, List<NetworkElementIdentifier> elementIdentifiers, ThreeSides side, boolean open) {
+        super(id, elementIdentifiers);
+        this.side = side;
         this.open = open;
     }
 
     /**
-     * @param id the id of the action.
-     * @param elementId the id of the element which terminals are operated.
-     *                  The element can be any connectable, including a tie line by referring the terminal of
-     *                  an underlying dangling line.
-     * @param open the status for all the terminals of the element to operate. {@code true} means all terminals opening.
+     * @param id                 the id of the action.
+     * @param elementIdentifiers the identifiers of the element which terminals are operated.
+     *                           The element can be any connectable, including a tie line by referring the terminal of
+     *                           an underlying dangling line.
+     * @param open               the status for all the terminals of the element to operate. {@code true} means all terminals opening.
      */
-    public TerminalsConnectionAction(String id, String elementId, boolean open) {
-        super(id);
-        this.elementId = Objects.requireNonNull(elementId);
-        this.open = open;
+    public TerminalsConnectionAction(String id, List<NetworkElementIdentifier> elementIdentifiers, boolean open) {
+        this(id, elementIdentifiers, null, open);
     }
 
     @Override
@@ -58,15 +55,9 @@ public class TerminalsConnectionAction extends AbstractAction {
     }
 
     /**
-     * @return the element id.
-     */
-    public String getElementId() {
-        return elementId;
-    }
-
-    /**
      * The side is optional. Empty means that all the terminals of the element will be operated
      * in the action with the defined open or close status.
+     *
      * @return the optional side of the connection/disconnection action.
      */
     public Optional<ThreeSides> getSide() {

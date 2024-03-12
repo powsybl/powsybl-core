@@ -11,9 +11,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.security.action.SwitchAction;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -26,7 +30,7 @@ public class SwitchActionDeserializer extends StdDeserializer<SwitchAction> {
 
     private static class ParsingContext {
         String id;
-        String switchId;
+        List<NetworkElementIdentifier> networkElementIdentifiers;
         Boolean open;
     }
 
@@ -44,7 +48,11 @@ public class SwitchActionDeserializer extends StdDeserializer<SwitchAction> {
                     context.id = parser.nextTextValue();
                     return true;
                 case "switchId":
-                    context.switchId = parser.nextTextValue();
+                    context.networkElementIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(parser.nextTextValue()));
+                    return true;
+                case "identifiers":
+                    parser.nextToken();
+                    context.networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                     return true;
                 case "open":
                     parser.nextToken();
@@ -57,6 +65,6 @@ public class SwitchActionDeserializer extends StdDeserializer<SwitchAction> {
         if (context.open == null) {
             throw JsonMappingException.from(parser, "for switch action open field can't be null");
         }
-        return new SwitchAction(context.id, context.switchId, context.open);
+        return new SwitchAction(context.id, context.networkElementIdentifiers, context.open);
     }
 }

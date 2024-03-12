@@ -7,7 +7,12 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.StaticVarCompensator;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -15,13 +20,13 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 public class StaticVarCompensatorActionBuilder {
 
     private String id;
-    private String staticVarCompensatorId;
+    private List<NetworkElementIdentifier> svcIdentifiers;
     private StaticVarCompensator.RegulationMode regulationMode;
     private Double voltageSetpoint;
     private Double reactivePowerSetpoint;
 
     public StaticVarCompensatorAction build() {
-        return new StaticVarCompensatorAction(id, staticVarCompensatorId, regulationMode, voltageSetpoint, reactivePowerSetpoint);
+        return new StaticVarCompensatorAction(id, svcIdentifiers, regulationMode, voltageSetpoint, reactivePowerSetpoint);
     }
 
     public StaticVarCompensatorActionBuilder withId(String id) {
@@ -30,7 +35,12 @@ public class StaticVarCompensatorActionBuilder {
     }
 
     public StaticVarCompensatorActionBuilder withStaticVarCompensatorId(String staticVarCompensatorId) {
-        this.staticVarCompensatorId = staticVarCompensatorId;
+        this.svcIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(staticVarCompensatorId));
+        return this;
+    }
+
+    public StaticVarCompensatorActionBuilder withStaticVarCompensatorIdentifiers(List<NetworkElementIdentifier> svcIdentifiers) {
+        this.svcIdentifiers = svcIdentifiers;
         return this;
     }
 

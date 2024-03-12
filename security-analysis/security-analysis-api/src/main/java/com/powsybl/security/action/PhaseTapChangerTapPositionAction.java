@@ -6,7 +6,12 @@
  */
 package com.powsybl.security.action;
 
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.ThreeSides;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An action changing the tap position of a phase-shifting transformer.
@@ -18,11 +23,19 @@ public class PhaseTapChangerTapPositionAction extends AbstractTapChangerTapPosit
     public static final String NAME = "PHASE_TAP_CHANGER_TAP_POSITION";
 
     public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition) {
-        super(id, transformerId, relativeValue, tapPosition, null);
+        super(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(transformerId)), relativeValue, tapPosition, null);
+    }
+
+    public PhaseTapChangerTapPositionAction(String id, List<NetworkElementIdentifier> tapChangerIdentifiers, boolean relativeValue, int tapPosition) {
+        super(id, tapChangerIdentifiers, relativeValue, tapPosition, null);
     }
 
     public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition, ThreeSides side) {
-        super(id, transformerId, relativeValue, tapPosition, side);
+        super(id, Collections.singletonList(new IdBasedNetworkElementIdentifier(transformerId)), relativeValue, tapPosition, side);
+    }
+
+    public PhaseTapChangerTapPositionAction(String id, List<NetworkElementIdentifier> tapChangerIdentifiers, boolean relativeValue, int tapPosition, ThreeSides side) {
+        super(id, tapChangerIdentifiers, relativeValue, tapPosition, side);
     }
 
     @Override

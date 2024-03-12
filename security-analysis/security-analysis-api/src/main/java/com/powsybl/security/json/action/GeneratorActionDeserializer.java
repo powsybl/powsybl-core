@@ -11,10 +11,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.security.action.GeneratorAction;
 import com.powsybl.security.action.GeneratorActionBuilder;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -27,7 +31,7 @@ public class GeneratorActionDeserializer extends StdDeserializer<GeneratorAction
 
     private static class ParsingContext {
         String id;
-        String generatorId;
+        List<NetworkElementIdentifier> networkElementIdentifiers;
         Boolean activePowerRelativeValue;
         Double activePowerValue;
         Boolean voltageRegulatorOn;
@@ -49,7 +53,11 @@ public class GeneratorActionDeserializer extends StdDeserializer<GeneratorAction
                     context.id = parser.nextTextValue();
                     return true;
                 case "generatorId":
-                    context.generatorId = parser.nextTextValue();
+                    context.networkElementIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(parser.nextTextValue()));
+                    return true;
+                case "identifiers":
+                    parser.nextToken();
+                    context.networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                     return true;
                 case "activePowerRelativeValue":
                     parser.nextToken();
@@ -78,7 +86,7 @@ public class GeneratorActionDeserializer extends StdDeserializer<GeneratorAction
         GeneratorActionBuilder generatorActionBuilder = new GeneratorActionBuilder();
         generatorActionBuilder
                 .withId(context.id)
-                .withGeneratorId(context.generatorId);
+                .withGeneratorIdentifiers(context.networkElementIdentifiers);
         if (context.activePowerRelativeValue != null) {
             generatorActionBuilder.withActivePowerRelativeValue(context.activePowerRelativeValue);
         }

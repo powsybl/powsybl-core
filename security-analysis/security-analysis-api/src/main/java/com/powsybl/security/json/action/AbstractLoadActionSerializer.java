@@ -10,10 +10,12 @@ package com.powsybl.security.json.action;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.security.action.AbstractLoadAction;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -24,16 +26,14 @@ public abstract class AbstractLoadActionSerializer<T extends AbstractLoadAction>
         super(vc);
     }
 
-    protected abstract String getElementIdAttributeName();
-
-    protected abstract String getElementId(T action);
+    protected abstract List<NetworkElementIdentifier> getElementId(T action);
 
     @Override
     public void serialize(T action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField(getElementIdAttributeName(), getElementId(action));
+        serializerProvider.defaultSerializeField("identifiers", getElementId(action), jsonGenerator);
         jsonGenerator.writeBooleanField("relativeValue", action.isRelativeValue());
         action.getActivePowerValue().ifPresent(activePowerValue -> {
             try {

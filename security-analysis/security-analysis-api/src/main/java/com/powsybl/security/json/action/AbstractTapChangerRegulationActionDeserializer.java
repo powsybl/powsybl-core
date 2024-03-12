@@ -7,11 +7,17 @@
 package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.action.AbstractTapChangerRegulationAction;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -24,18 +30,22 @@ public abstract class AbstractTapChangerRegulationActionDeserializer<T extends A
 
     protected static class ParsingContext {
         String id;
-        String transformerId;
+        List<NetworkElementIdentifier> networkElementIdentifiers;
         boolean regulating;
         ThreeSides side = null;
     }
 
-    protected boolean deserializeCommonAttributes(JsonParser jsonParser, ParsingContext context, String name) throws IOException {
+    protected boolean deserializeCommonAttributes(JsonParser jsonParser, ParsingContext context, String name, DeserializationContext deserializationContext) throws IOException {
         switch (name) {
             case "id":
                 context.id = jsonParser.nextTextValue();
                 return true;
             case "transformerId":
-                context.transformerId = jsonParser.nextTextValue();
+                context.networkElementIdentifiers = Collections.singletonList(new IdBasedNetworkElementIdentifier(jsonParser.nextTextValue()));
+                return true;
+            case "identifiers":
+                jsonParser.nextToken();
+                context.networkElementIdentifiers = JsonUtil.readList(deserializationContext, jsonParser, NetworkElementIdentifier.class);
                 return true;
             case "side":
                 context.side = ThreeSides.valueOf(jsonParser.nextTextValue());

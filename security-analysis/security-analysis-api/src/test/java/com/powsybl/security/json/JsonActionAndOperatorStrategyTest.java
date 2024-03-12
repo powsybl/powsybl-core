@@ -47,8 +47,8 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         List<Action> actions = new ArrayList<>();
         actions.add(new SwitchAction("id1", "switchId1", true));
         actions.add(new MultipleActionsAction("id2", Collections.singletonList(new SwitchAction("id3", "switchId2", true))));
-        actions.add(new TerminalsConnectionAction("id3", "lineId3", true)); // both sides.
-        actions.add(new TerminalsConnectionAction("id4", "lineId4", false)); // both sides.
+        actions.add(new TerminalsConnectionActionBuilder().withId("id3").withElementId("lineId3").withOpen(true).build()); // both sides.
+        actions.add(new TerminalsConnectionActionBuilder().withId("id4").withElementId("lineId4").withOpen(false).build()); // both sides.
         actions.add(new PhaseTapChangerTapPositionAction("id5", "transformerId1", true, 5, ThreeSides.TWO));
         actions.add(new PhaseTapChangerTapPositionAction("id6", "transformerId2", false, 12));
         actions.add(new PhaseTapChangerTapPositionAction("id7", "transformerId3", true, -5, ThreeSides.ONE));
@@ -104,7 +104,8 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         actions.add(new StaticVarCompensatorActionBuilder().withId("id24")
                 .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
                 .withReactivePowerSetpoint(120.0).build());
-        actions.add(new TerminalsConnectionAction("id4", "transformerId25", ThreeSides.THREE, true)); // only one side.
+        actions.add(new TerminalsConnectionActionBuilder().withId("id4").withElementId("transformerId25")
+            .withSide(ThreeSides.THREE).withOpen(true).build()); // only one side.
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

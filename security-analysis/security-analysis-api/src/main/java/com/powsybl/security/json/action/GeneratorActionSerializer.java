@@ -28,7 +28,8 @@ public class GeneratorActionSerializer extends StdSerializer<GeneratorAction> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("generatorId", action.getGeneratorId());
+        serializerProvider.defaultSerializeField("identifiers", action.getNetworkElementIdentifiers(),
+            jsonGenerator);
         action.isActivePowerRelativeValue().ifPresent(activePowerRelativeValue -> {
             try {
                 jsonGenerator.writeBooleanField("activePowerRelativeValue", activePowerRelativeValue);

@@ -27,7 +27,7 @@ public class PhaseTapChangerRegulationActionSerializer extends AbstractTapChange
     @Override
     public void serialize(PhaseTapChangerRegulationAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        serializeCommonAttributes(action, jsonGenerator);
+        serializeCommonAttributes(action, jsonGenerator, serializerProvider);
         JsonUtil.writeOptionalEnum(jsonGenerator, "regulationMode", action.getRegulationMode());
         JsonUtil.writeOptionalDouble(jsonGenerator, "regulationValue", action.getRegulationValue());
         jsonGenerator.writeEndObject();

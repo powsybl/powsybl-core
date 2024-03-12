@@ -7,7 +7,10 @@
  */
 package com.powsybl.security.json.action;
 
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.security.action.DanglingLineAction;
+
+import java.util.List;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -18,12 +21,7 @@ public class DanglingLineActionSerializer extends AbstractLoadActionSerializer<D
     }
 
     @Override
-    protected String getElementIdAttributeName() {
-        return "danglingLineId";
-    }
-
-    @Override
-    protected String getElementId(DanglingLineAction action) {
-        return action.getDanglingLineId();
+    protected List<NetworkElementIdentifier> getElementId(DanglingLineAction action) {
+        return action.getNetworkElementIdentifiers();
     }
 }
