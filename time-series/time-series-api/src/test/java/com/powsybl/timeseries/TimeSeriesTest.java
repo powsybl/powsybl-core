@@ -10,11 +10,12 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
 
+import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -281,6 +282,40 @@ class TimeSeriesTest {
     }
 
     @Test
+    void testImportByPath() throws URISyntaxException {
+        Path path = Paths.get(Objects.requireNonNull(getClass().getResource("/timeseries.csv")).toURI());
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(path, timeSeriesCsvConfig);
+
+        assertEquals(2, timeSeriesPerVersion.size());
+        assertEquals(2, timeSeriesPerVersion.get(1).size());
+        assertEquals(2, timeSeriesPerVersion.get(2).size());
+
+        TimeSeries<?,?> ts1v1 = timeSeriesPerVersion.get(1).get(0);
+        TimeSeries<?,?> ts2v1 = timeSeriesPerVersion.get(1).get(1);
+        TimeSeries<?,?> ts1v2 = timeSeriesPerVersion.get(2).get(0);
+        TimeSeries<?,?> ts2v2 = timeSeriesPerVersion.get(2).get(1);
+
+        assertEquals(RegularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
+
+        assertEquals("ts1", ts1v1.getMetadata().getName());
+        assertEquals(TimeSeriesDataType.DOUBLE, ts1v1.getMetadata().getDataType());
+        assertArrayEquals(new double[] {1, Double.NaN, 3}, ((DoubleTimeSeries) ts1v1).toArray(), 0);
+
+        assertEquals("ts2", ts2v1.getMetadata().getName());
+        assertEquals(TimeSeriesDataType.STRING, ts2v1.getMetadata().getDataType());
+        assertArrayEquals(new String[] {null, "a", "b"}, ((StringTimeSeries) ts2v1).toArray());
+
+        assertEquals("ts1", ts1v2.getMetadata().getName());
+        assertEquals(TimeSeriesDataType.DOUBLE, ts1v2.getMetadata().getDataType());
+        assertArrayEquals(new double[] {4, 5, 6}, ((DoubleTimeSeries) ts1v2).toArray(), 0);
+
+        assertEquals("ts2", ts2v2.getMetadata().getName());
+        assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
+        assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
+    }
+
+    @Test
     void testErrors() {
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', false, TimeFormat.DATE_TIME);
 
@@ -338,6 +373,9 @@ class TimeSeriesTest {
             "1970-01-01T02:00:00.000+01:00;2.0",
             "1970-01-01T03:00:00.000+01:00;2.0;1.0") + System.lineSeparator();
         assertThatCode(() -> TimeSeries.parseCsv(unexpectedTokens, timeSeriesCsvConfig)).hasMessageContaining("Columns of line 1 are inconsistent with header").isInstanceOf(TimeSeriesException.class);
+
+        Path path = Path.of("wrongPath.csv");
+        assertThrows(UncheckedIOException.class, () -> TimeSeries.parseCsv(path));
     }
 
     @Test
