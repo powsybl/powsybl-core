@@ -26,6 +26,35 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class TimeSeriesTest {
 
+    private void assertOnParsedTimeSeries(Map<Integer, List<TimeSeries>> timeSeriesPerVersion, Class<?> className) {
+        assertEquals(2, timeSeriesPerVersion.size());
+        assertEquals(2, timeSeriesPerVersion.get(1).size());
+        assertEquals(2, timeSeriesPerVersion.get(2).size());
+
+        TimeSeries<?,?> ts1v1 = timeSeriesPerVersion.get(1).get(0);
+        TimeSeries<?,?> ts2v1 = timeSeriesPerVersion.get(1).get(1);
+        TimeSeries<?,?> ts1v2 = timeSeriesPerVersion.get(2).get(0);
+        TimeSeries<?,?> ts2v2 = timeSeriesPerVersion.get(2).get(1);
+
+        assertEquals(className, ts1v1.getMetadata().getIndex().getClass());
+
+        assertEquals("ts1", ts1v1.getMetadata().getName());
+        assertEquals(TimeSeriesDataType.DOUBLE, ts1v1.getMetadata().getDataType());
+        assertArrayEquals(new double[] {1, Double.NaN, 3}, ((DoubleTimeSeries) ts1v1).toArray(), 0);
+
+        assertEquals("ts2", ts2v1.getMetadata().getName());
+        assertEquals(TimeSeriesDataType.STRING, ts2v1.getMetadata().getDataType());
+        assertArrayEquals(new String[] {null, "a", "b"}, ((StringTimeSeries) ts2v1).toArray());
+
+        assertEquals("ts1", ts1v2.getMetadata().getName());
+        assertEquals(TimeSeriesDataType.DOUBLE, ts1v2.getMetadata().getDataType());
+        assertArrayEquals(new double[] {4, 5, 6}, ((DoubleTimeSeries) ts1v2).toArray(), 0);
+
+        assertEquals("ts2", ts2v2.getMetadata().getName());
+        assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
+        assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
+    }
+
     @Test
     void testRegularTimeSeriesIndex() {
         String csv = String.join(System.lineSeparator(),
@@ -49,35 +78,8 @@ class TimeSeriesTest {
         Arrays.asList(csv, csvWithQuotes).forEach(data -> {
             Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(data);
 
-            assertEquals(2, timeSeriesPerVersion.size());
-            assertEquals(2, timeSeriesPerVersion.get(1).size());
-            assertEquals(2, timeSeriesPerVersion.get(2).size());
-
-            TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
-            TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
-            TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
-            TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
-
-            assertEquals(RegularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
-
-            assertEquals("ts1", ts1v1.getMetadata().getName());
-            assertEquals(TimeSeriesDataType.DOUBLE, ts1v1.getMetadata().getDataType());
-            assertArrayEquals(new double[] {1, Double.NaN, 3}, ((DoubleTimeSeries) ts1v1).toArray(), 0);
-
-            assertEquals("ts2", ts2v1.getMetadata().getName());
-            assertEquals(TimeSeriesDataType.STRING, ts2v1.getMetadata().getDataType());
-            assertArrayEquals(new String[] {null, "a", "b"}, ((StringTimeSeries) ts2v1).toArray());
-
-            assertEquals("ts1", ts1v2.getMetadata().getName());
-            assertEquals(TimeSeriesDataType.DOUBLE, ts1v2.getMetadata().getDataType());
-            assertArrayEquals(new double[] {4, 5, 6}, ((DoubleTimeSeries) ts1v2).toArray(), 0);
-
-            assertEquals("ts2", ts2v2.getMetadata().getName());
-            assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
-            assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
-
+            assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
         });
-
     }
 
     @Test
@@ -93,32 +95,7 @@ class TimeSeriesTest {
 
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv);
 
-        assertEquals(2, timeSeriesPerVersion.size());
-        assertEquals(2, timeSeriesPerVersion.get(1).size());
-        assertEquals(2, timeSeriesPerVersion.get(2).size());
-
-        TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
-        TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
-        TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
-        TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
-
-        assertEquals(IrregularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
-
-        assertEquals("ts1", ts1v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v1.getMetadata().getDataType());
-        assertArrayEquals(new double[] {1, Double.NaN, 3}, ((DoubleTimeSeries) ts1v1).toArray(), 0);
-
-        assertEquals("ts2", ts2v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v1.getMetadata().getDataType());
-        assertArrayEquals(new String[] {null, "a", "b"}, ((StringTimeSeries) ts2v1).toArray());
-
-        assertEquals("ts1", ts1v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v2.getMetadata().getDataType());
-        assertArrayEquals(new double[] {4, 5, 6}, ((DoubleTimeSeries) ts1v2).toArray(), 0);
-
-        assertEquals("ts2", ts2v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
-        assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
+        assertOnParsedTimeSeries(timeSeriesPerVersion, IrregularTimeSeriesIndex.class);
     }
 
     @Test
@@ -135,32 +112,7 @@ class TimeSeriesTest {
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
-        assertEquals(2, timeSeriesPerVersion.size());
-        assertEquals(2, timeSeriesPerVersion.get(1).size());
-        assertEquals(2, timeSeriesPerVersion.get(2).size());
-
-        TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
-        TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
-        TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
-        TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
-
-        assertEquals(RegularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
-
-        assertEquals("ts1", ts1v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v1.getMetadata().getDataType());
-        assertArrayEquals(new double[] {1, Double.NaN, 3}, ((DoubleTimeSeries) ts1v1).toArray(), 0);
-
-        assertEquals("ts2", ts2v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v1.getMetadata().getDataType());
-        assertArrayEquals(new String[] {null, "a", "b"}, ((StringTimeSeries) ts2v1).toArray());
-
-        assertEquals("ts1", ts1v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v2.getMetadata().getDataType());
-        assertArrayEquals(new double[] {4, 5, 6}, ((DoubleTimeSeries) ts1v2).toArray(), 0);
-
-        assertEquals("ts2", ts2v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
-        assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
+        assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
     }
 
     @Test
@@ -177,32 +129,7 @@ class TimeSeriesTest {
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.MILLIS);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
-        assertEquals(2, timeSeriesPerVersion.size());
-        assertEquals(2, timeSeriesPerVersion.get(1).size());
-        assertEquals(2, timeSeriesPerVersion.get(2).size());
-
-        TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
-        TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
-        TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
-        TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
-
-        assertEquals(IrregularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
-
-        assertEquals("ts1", ts1v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v1.getMetadata().getDataType());
-        assertArrayEquals(new double[] {1, Double.NaN, 3}, ((DoubleTimeSeries) ts1v1).toArray(), 0);
-
-        assertEquals("ts2", ts2v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v1.getMetadata().getDataType());
-        assertArrayEquals(new String[] {null, "a", "b"}, ((StringTimeSeries) ts2v1).toArray());
-
-        assertEquals("ts1", ts1v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v2.getMetadata().getDataType());
-        assertArrayEquals(new double[] {4, 5, 6}, ((DoubleTimeSeries) ts1v2).toArray(), 0);
-
-        assertEquals("ts2", ts2v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
-        assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
+        assertOnParsedTimeSeries(timeSeriesPerVersion, IrregularTimeSeriesIndex.class);
     }
 
     @Test
@@ -287,32 +214,7 @@ class TimeSeriesTest {
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(path, timeSeriesCsvConfig);
 
-        assertEquals(2, timeSeriesPerVersion.size());
-        assertEquals(2, timeSeriesPerVersion.get(1).size());
-        assertEquals(2, timeSeriesPerVersion.get(2).size());
-
-        TimeSeries<?,?> ts1v1 = timeSeriesPerVersion.get(1).get(0);
-        TimeSeries<?,?> ts2v1 = timeSeriesPerVersion.get(1).get(1);
-        TimeSeries<?,?> ts1v2 = timeSeriesPerVersion.get(2).get(0);
-        TimeSeries<?,?> ts2v2 = timeSeriesPerVersion.get(2).get(1);
-
-        assertEquals(RegularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
-
-        assertEquals("ts1", ts1v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v1.getMetadata().getDataType());
-        assertArrayEquals(new double[] {1, Double.NaN, 3}, ((DoubleTimeSeries) ts1v1).toArray(), 0);
-
-        assertEquals("ts2", ts2v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v1.getMetadata().getDataType());
-        assertArrayEquals(new String[] {null, "a", "b"}, ((StringTimeSeries) ts2v1).toArray());
-
-        assertEquals("ts1", ts1v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v2.getMetadata().getDataType());
-        assertArrayEquals(new double[] {4, 5, 6}, ((DoubleTimeSeries) ts1v2).toArray(), 0);
-
-        assertEquals("ts2", ts2v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
-        assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
+        assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
     }
 
     @Test
