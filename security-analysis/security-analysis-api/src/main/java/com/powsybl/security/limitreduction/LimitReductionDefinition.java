@@ -24,6 +24,7 @@ import java.util.Objects;
 public class LimitReductionDefinition {
     private final LimitType limitType;
     private final float limitReduction;
+    private final boolean monitoringOnly;
     private final List<ContingencyContext> contingencyContexts;
     private final List<NetworkElementCriterion> networkElementCriteria;
     private final List<LimitDurationCriterion> durationCriteria;
@@ -34,11 +35,11 @@ public class LimitReductionDefinition {
                 || limitType == LimitType.APPARENT_POWER;
     }
 
-    public LimitReductionDefinition(LimitType limitType, float limitReduction) {
-        this(limitType, limitReduction, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+    public LimitReductionDefinition(LimitType limitType, float limitReduction, boolean monitoringOnly) {
+        this(limitType, limitReduction, monitoringOnly, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
-    public LimitReductionDefinition(LimitType limitType, float limitReduction,
+    public LimitReductionDefinition(LimitType limitType, float limitReduction, boolean monitoringOnly,
                                     List<ContingencyContext> contingencyContexts,
                                     List<NetworkElementCriterion> networkElementCriteria,
                                     List<LimitDurationCriterion> limitDurationCriteria) {
@@ -51,6 +52,7 @@ public class LimitReductionDefinition {
             throw new PowsyblException("Limit reduction value should be in [0;1]");
         }
         this.limitReduction = limitReduction;
+        this.monitoringOnly = monitoringOnly;
         this.contingencyContexts = ImmutableList.copyOf(Objects.requireNonNull(contingencyContexts));
         this.networkElementCriteria = ImmutableList.copyOf(Objects.requireNonNull(networkElementCriteria));
         this.durationCriteria = ImmutableList.copyOf(Objects.requireNonNull(limitDurationCriteria));
@@ -62,6 +64,10 @@ public class LimitReductionDefinition {
 
     public float getLimitReduction() {
         return limitReduction;
+    }
+
+    public boolean isMonitoringOnly() {
+        return monitoringOnly;
     }
 
     public List<ContingencyContext> getContingencyContexts() {

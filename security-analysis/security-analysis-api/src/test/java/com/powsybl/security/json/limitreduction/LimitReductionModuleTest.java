@@ -40,17 +40,17 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                         new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
                         new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
-        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f,
+        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
                 contingencyContexts1, networkElementCriteria1, durationCriteria1);
 
-        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.APPARENT_POWER, 0.5f,
+        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.APPARENT_POWER, 0.5f, false,
                 Collections.emptyList(),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
                 List.of(IntervalTemporaryDurationCriterion.builder()
                         .setLowBound(10 * 60, true)
                         .setHighBound(20 * 60, true)
                         .build()));
-        LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f);
+        LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f, true);
         LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2, definition3));
 
         roundTripTest(definitionList, LimitReductionDefinitionListSerDeUtil::write,

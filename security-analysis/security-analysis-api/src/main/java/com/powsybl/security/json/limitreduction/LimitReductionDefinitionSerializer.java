@@ -28,6 +28,7 @@ public class LimitReductionDefinitionSerializer extends StdSerializer<LimitReduc
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("limitReduction", limitReductionDefinition.getLimitReduction());
         jsonGenerator.writeStringField("limitType", limitReductionDefinition.getLimitType().name());
+        jsonGenerator.writeBooleanField("monitoringOnly", limitReductionDefinition.isMonitoringOnly());
 
         if (!limitReductionDefinition.getContingencyContexts().isEmpty()) {
             serializerProvider.defaultSerializeField("contingencyContexts",

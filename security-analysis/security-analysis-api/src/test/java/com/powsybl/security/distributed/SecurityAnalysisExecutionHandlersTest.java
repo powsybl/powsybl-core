@@ -121,7 +121,7 @@ class SecurityAnalysisExecutionHandlersTest {
     void forwardedBeforeWithCompleteInput() throws IOException {
         Action action = new SwitchAction("action", "switch", false);
         OperatorStrategy strategy = new OperatorStrategy("strat", ContingencyContext.specificContingency("cont"), new TrueCondition(), List.of("action"));
-        LimitReductionDefinition limitReductionDefinition = new LimitReductionDefinition(LimitType.CURRENT, 0.9f);
+        LimitReductionDefinition limitReductionDefinition = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false);
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())

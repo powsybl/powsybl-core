@@ -32,6 +32,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
     private static class ParsingContext {
         float limitReduction;
         LimitType limitType;
+        boolean monitoringOnly;
         List<ContingencyContext> contingencyContexts;
         List<NetworkElementCriterion> networkElementCriteria;
         List<LimitDurationCriterion> durationCriteria;
@@ -49,6 +50,10 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
                 }
                 case "limitType" -> {
                     context.limitType = LimitType.valueOf(parser.nextTextValue());
+                    return true;
+                }
+                case "monitoringOnly" -> {
+                    context.monitoringOnly = parser.nextBooleanValue();
                     return true;
                 }
                 case "contingencyContexts" -> {
@@ -71,7 +76,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
                 }
             }
         });
-        return new LimitReductionDefinition(context.limitType, context.limitReduction,
+        return new LimitReductionDefinition(context.limitType, context.limitReduction, context.monitoringOnly,
                 context.contingencyContexts != null ? context.contingencyContexts : Collections.emptyList(),
                 context.networkElementCriteria != null ? context.networkElementCriteria : Collections.emptyList(),
                 context.durationCriteria != null ? context.durationCriteria : Collections.emptyList());

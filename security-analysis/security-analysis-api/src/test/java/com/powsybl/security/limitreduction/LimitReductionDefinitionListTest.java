@@ -44,12 +44,12 @@ class LimitReductionDefinitionListTest {
         networkElementCriterion4 = new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
 
         contingencyContext1 = ContingencyContext.specificContingency("contingency1");
-        definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f,
+        definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
                 List.of(contingencyContext1, ContingencyContext.none()),
                 List.of(networkElementCriterion1, networkElementCriterion2,
                         networkElementCriterion3, networkElementCriterion4),
                 List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion()));
-        definition2 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f);
+        definition2 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f, true);
     }
 
     @Test
@@ -68,6 +68,12 @@ class LimitReductionDefinitionListTest {
     void limitReductionDefinitionGetValue() {
         assertEquals(0.9f, definition1.getLimitReduction());
         assertEquals(0.8f, definition2.getLimitReduction());
+    }
+
+    @Test
+    void limitReductionDefinitionIsMonitoringOnly() {
+        assertFalse(definition1.isMonitoringOnly());
+        assertTrue(definition2.isMonitoringOnly());
     }
 
     @Test
@@ -94,17 +100,17 @@ class LimitReductionDefinitionListTest {
 
     @Test
     void unsupportedLimitType() {
-        Exception e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.VOLTAGE, 0.9f));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.VOLTAGE, 0.9f, false));
         assertEquals("VOLTAGE is not a supported limit type for limit reduction", e.getMessage());
     }
 
     @Test
     void unsupportedLimitReductionValues() {
         String expectedMessage = "Limit reduction value should be in [0;1]";
-        Exception e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.CURRENT, -0.5f));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.CURRENT, -0.5f, true));
         assertEquals(expectedMessage, e.getMessage());
 
-        e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.CURRENT, 1.3f));
+        e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.CURRENT, 1.3f, false));
         assertEquals(expectedMessage, e.getMessage());
     }
 }
