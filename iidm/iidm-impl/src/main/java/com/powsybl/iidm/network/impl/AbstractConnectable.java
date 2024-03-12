@@ -7,9 +7,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -201,8 +200,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        // Reporter
-        Reporter reporter = this.getNetwork().getReporterContext().getReporter();
+        // ReportNode
+        ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
         // Booleans
         boolean isAlreadyConnected = true;
@@ -215,12 +214,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         for (TerminalExt terminal : getTerminals()) {
             // Check if the terminal is already connected
             if (terminal.isConnected()) {
-                reporter.report(Report.builder()
-                    .withKey("alreadyConnectedTerminal")
-                    .withDefaultMessage("A terminal of connectable ${connectable} is already connected.")
-                    .withValue("connectable", this.getId())
+                reportNode.newReportNode()
+                    .withMessageTemplate("alreadyConnectedTerminal", "A terminal of connectable ${connectable} is already connected.")
+                    .withUntypedValue("connectable", this.getId())
                     .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+                    .add();
                 continue;
             } else {
                 isAlreadyConnected = false;
@@ -264,8 +262,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        // Reporter
-        Reporter reporter = this.getNetwork().getReporterContext().getReporter();
+        // ReportNode
+        ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
         // Booleans
         boolean isAlreadyDisconnected = true;
@@ -278,12 +276,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         for (TerminalExt terminal : getTerminals()) {
             // Check if the terminal is already disconnected
             if (!terminal.isConnected()) {
-                reporter.report(Report.builder()
-                    .withKey("alreadyDisconnectedTerminal")
-                    .withDefaultMessage("A terminal of connectable ${connectable} is already disconnected.")
-                    .withValue("connectable", this.getId())
+                reportNode.newReportNode()
+                    .withMessageTemplate("alreadyDisconnectedTerminal", "A terminal of connectable ${connectable} is already disconnected.")
+                    .withUntypedValue("connectable", this.getId())
                     .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+                    .add();
                 continue;
             }
             // The terminal is connected

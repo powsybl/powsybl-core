@@ -6,7 +6,7 @@
  */
 package com.powsybl.sensitivity;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -65,7 +65,7 @@ class SensitivityAnalysisTest {
     @Test
     void testRunAsyncWithReaderAndWriter() {
         SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, factorReader, resultWriter,
-                contingencies, variableSets, parameters, computationManager, Reporter.NO_OP)
+                contingencies, variableSets, parameters, computationManager, ReportNode.NO_OP)
                 .join();
         assertEquals(1, resultWriter.getValues().size());
     }
@@ -73,7 +73,7 @@ class SensitivityAnalysisTest {
     @Test
     void testRunAsync() {
         SensitivityAnalysisResult result = SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
-                        contingencies, variableSets, parameters, computationManager, Reporter.NO_OP)
+                        contingencies, variableSets, parameters, computationManager, ReportNode.NO_OP)
                 .join();
         assertEquals(1, result.getValues().size());
     }
@@ -81,7 +81,7 @@ class SensitivityAnalysisTest {
     @Test
     void testRun() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
-                        contingencies, variableSets, parameters, computationManager, Reporter.NO_OP);
+                        contingencies, variableSets, parameters, computationManager, ReportNode.NO_OP);
         assertEquals(1, result.getValues().size());
     }
 

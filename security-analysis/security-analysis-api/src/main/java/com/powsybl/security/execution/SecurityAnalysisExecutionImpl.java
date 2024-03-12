@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.execution;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.security.*;
 
@@ -61,6 +61,6 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
                 input.getNetworkVariant().getVariantId(),
                 input.getContingenciesProvider(), input.getParameters(), computationManager, input.getFilter(), input.getLimitViolationDetector(),
                 new ArrayList<>(input.getInterceptors()), data.getOperatorStrategies(), data.getActions(), data.getMonitors(),
-                data.getLimitReductionDefinitions(), Reporter.NO_OP);
+                data.getLimitReductionDefinitions(), ReportNode.NO_OP);
     }
 }

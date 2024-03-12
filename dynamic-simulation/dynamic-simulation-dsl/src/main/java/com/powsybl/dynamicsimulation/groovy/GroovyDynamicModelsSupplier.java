@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
 import com.powsybl.dsl.ExpressionDslLoader;
@@ -51,15 +51,15 @@ public class GroovyDynamicModelsSupplier implements DynamicModelsSupplier {
     }
 
     @Override
-    public List<DynamicModel> get(Network network, Reporter reporter) {
+    public List<DynamicModel> get(Network network, ReportNode reportNode) {
         List<DynamicModel> dynamicModels = new ArrayList<>();
-        Reporter groovyReporter = reporter.createSubReporter("groovyDynamicModels", "Groovy Dynamic Models Supplier");
+        ReportNode groovyReportNode = reportNode.newReportNode().withMessageTemplate("groovyDynamicModels", "Groovy Dynamic Models Supplier").add();
 
         Binding binding = new Binding();
         binding.setVariable("network", network);
 
         ExpressionDslLoader.prepareClosures(binding);
-        extensions.forEach(e -> e.load(binding, dynamicModels::add, groovyReporter));
+        extensions.forEach(e -> e.load(binding, dynamicModels::add, groovyReportNode));
 
         GroovyShell shell = new GroovyShell(binding, new CompilerConfiguration());
         shell.evaluate(codeSource);

@@ -50,6 +50,18 @@ public class PropertyBag extends HashMap<String, String> {
         return extractIdentifier(value, false);
     }
 
+    public String[] getLocals(String property, String separator) {
+        String value = get(property);
+        if (value == null) {
+            return new String[] {};
+        }
+        String[] tokens = value.split(separator);
+        for (int i = 0; i < tokens.length; i++) {
+            tokens[i] = extractIdentifier(tokens[i], false);
+        }
+        return tokens;
+    }
+
     public String getId(String property) {
         String value = get(property);
         if (value == null) {

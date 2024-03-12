@@ -58,7 +58,6 @@ public class PropertyCriterion implements Criterion {
             case SELF ->
                     identifiable.hasProperty(propertyKey) && propertyValues.contains(identifiable.getProperty(propertyKey));
             case VOLTAGE_LEVEL, SUBSTATION -> filterEquipment(identifiable, type);
-            default -> false;
         };
     }
 
@@ -69,11 +68,11 @@ public class PropertyCriterion implements Criterion {
     private boolean filterEquipment(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (type) {
             case STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BUSBAR_SECTION, GENERATOR, DANGLING_LINE, LOAD, BATTERY ->
-                    filterSubstationOrVoltageLevel(((Injection) identifiable).getTerminal().getVoltageLevel());
+                    filterSubstationOrVoltageLevel(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> filterSubstationOrVoltageLevel(((Switch) identifiable).getVoltageLevel());
             case TWO_WINDINGS_TRANSFORMER, LINE ->
-                    filterBranch(((Branch) identifiable).getTerminal1().getVoltageLevel(),
-                            ((Branch) identifiable).getTerminal2().getVoltageLevel());
+                    filterBranch(((Branch<?>) identifiable).getTerminal1().getVoltageLevel(),
+                            ((Branch<?>) identifiable).getTerminal2().getVoltageLevel());
             case HVDC_LINE ->
                     filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel(),
                             ((HvdcLine) identifiable).getConverterStation2().getTerminal().getVoltageLevel());
