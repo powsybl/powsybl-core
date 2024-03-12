@@ -6,14 +6,16 @@
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.timeseries.TimeSeries.TimeFormat;
-
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.*;
@@ -129,7 +131,7 @@ class TimeSeriesTest {
                 "0.001;2;5.0;",
                 "0.002;2;6.0;d") + System.lineSeparator();
 
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertEquals(2, timeSeriesPerVersion.size());
@@ -229,6 +231,53 @@ class TimeSeriesTest {
         assertEquals("ts2", ts2.getMetadata().getName());
         assertEquals(TimeSeriesDataType.STRING, ts2.getMetadata().getDataType());
         assertArrayEquals(new String[] {null, "a", "b", "c", null, "d"}, ((StringTimeSeries) ts2).toArray());
+    }
+
+    @Test
+    void testVersionedAtDefaultNumberNotStrictCSV() {
+        String csv = String.join(System.lineSeparator(),
+            "Time;Version;ts1;ts2",
+            "0.000;0;1.0;",
+            "0.001;0;;a",
+            "0.002;0;3.0;b",
+            "0.000;2;4.0;c",
+            "0.001;2;5.0;",
+            "0.002;2;6.0;d") + System.lineSeparator();
+
+        // Reporter
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", "Testing reportNode TimeSeriesImport with wrong version number").build();
+
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, false);
+        TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode);
+
+        assertEquals(4, reportNode.getChildren().size());
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (0) at line \"0.000;0;1.0;null\"",
+            reportNode.getChildren().get(0).getMessage());
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (0) at line \"0.001;0;null;a\"",
+            reportNode.getChildren().get(1).getMessage());
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (0) at line \"0.002;0;3.0;b\"",
+            reportNode.getChildren().get(2).getMessage());
+        assertTrue(Pattern.compile("4 time series loaded from CSV in .* ms").matcher(reportNode.getChildren().get(3).getMessage()).find());
+    }
+
+    @Test
+    void testVersionedAtDefaultNumberStrictCSV() {
+        String csv = String.join(System.lineSeparator(),
+            "Time;Version;ts1;ts2",
+            "0.000;0;1.0;",
+            "0.001;0;;a",
+            "0.002;0;3.0;b",
+            "0.000;2;4.0;c",
+            "0.001;2;5.0;",
+            "0.002;2;6.0;d") + System.lineSeparator();
+
+        // Reporter
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", "Testing reportNode TimeSeriesImport with wrong version number").build();
+
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
+        TimeSeriesException timeSeriesException = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode));
+        assertEquals("The version number for a versioned TimeSeries cannot be equals to the default version number (0) at line \"0.000;0;1.0;null\"",
+            timeSeriesException.getMessage());
     }
 
     @Test
