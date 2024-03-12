@@ -7,10 +7,10 @@
  */
 package com.powsybl.contingency.contingency.list;
 
-import com.powsybl.iidm.network.util.criterion.PropertyCriterion;
-import com.powsybl.iidm.network.util.criterion.RegexCriterion;
-import com.powsybl.iidm.network.util.criterion.TwoCountriesCriterion;
-import com.powsybl.iidm.network.util.criterion.TwoNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.PropertyCriterion;
+import com.powsybl.iidm.criteria.RegexCriterion;
+import com.powsybl.iidm.criteria.TwoCountriesCriterion;
+import com.powsybl.iidm.criteria.TwoNominalVoltageCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
 
 import java.util.List;
@@ -23,8 +23,8 @@ public abstract class AbstractLineCriterionContingencyList extends AbstractEquip
     private final TwoNominalVoltageCriterion twoNominalVoltageCriterion;
 
     protected AbstractLineCriterionContingencyList(String name, IdentifiableType type, TwoCountriesCriterion twoCountriesCriterion,
-                                            TwoNominalVoltageCriterion twoNominalVoltageCriterion,
-                                            List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
+                                                   TwoNominalVoltageCriterion twoNominalVoltageCriterion,
+                                                   List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
         super(name, type, propertyCriteria, regexCriterion);
         this.twoCountriesCriterion = twoCountriesCriterion;
         this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
