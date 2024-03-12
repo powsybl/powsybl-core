@@ -31,16 +31,13 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        switch (type) {
-            case LINE:
-                return filter(((Line) identifiable).getTerminal1().getVoltageLevel());
-            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION:
-                return filter(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH:
-                return filter(((Switch) identifiable).getVoltageLevel());
-            default:
-                return false;
-        }
+        return switch (type) {
+            case LINE -> filter(((Line) identifiable).getTerminal1().getVoltageLevel());
+            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION ->
+                    filter(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> filter(((Switch) identifiable).getVoltageLevel());
+            default -> false;
+        };
     }
 
     @Override

@@ -40,15 +40,12 @@ public class TwoCountriesCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        switch (type) {
-            case LINE:
-                return filterBranch(((Line) identifiable).getTerminal1(), ((Line) identifiable).getTerminal2());
-            case HVDC_LINE:
-                return filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal(),
-                        ((HvdcLine) identifiable).getConverterStation2().getTerminal());
-            default:
-                return false;
-        }
+        return switch (type) {
+            case LINE -> filterBranch(((Line) identifiable).getTerminal1(), ((Line) identifiable).getTerminal2());
+            case HVDC_LINE -> filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal(),
+                    ((HvdcLine) identifiable).getConverterStation2().getTerminal());
+            default -> false;
+        };
     }
 
     @Override
