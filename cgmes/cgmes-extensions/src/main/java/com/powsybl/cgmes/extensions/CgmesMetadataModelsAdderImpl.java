@@ -21,7 +21,6 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
 
     class ModelAdderImpl implements ModelAdder {
 
-        private CgmesMetadataModels.Source source;
         private CgmesSubset part;
         private String id;
         private String description;
@@ -30,12 +29,6 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
         private final Set<String> profiles = new HashSet<>();
         private final Set<String> dependentOn = new HashSet<>();
         private final Set<String> supersedes = new HashSet<>();
-
-        @Override
-        public ModelAdder setSource(CgmesMetadataModels.Source source) {
-            this.source = source;
-            return this;
-        }
 
         @Override
         public ModelAdder setPart(CgmesSubset part) {
@@ -87,9 +80,6 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
 
         @Override
         public CgmesMetadataModelsAdderImpl add() {
-            if (source == null) {
-                throw new PowsyblException("Model source is undefined");
-            }
             if (part == null) {
                 throw new PowsyblException("Model part is undefined");
             }
@@ -102,7 +92,7 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
             if (profiles.isEmpty()) {
                 throw new PowsyblException("Model must contain at least one profile");
             }
-            models.add(new CgmesMetadataModelsImpl.ModelImpl(source, part, id, description, version, modelingAuthoritySet, profiles, dependentOn, supersedes));
+            models.add(new CgmesMetadataModelsImpl.ModelImpl(part, id, description, version, modelingAuthoritySet, profiles, dependentOn, supersedes));
             return CgmesMetadataModelsAdderImpl.this;
         }
     }

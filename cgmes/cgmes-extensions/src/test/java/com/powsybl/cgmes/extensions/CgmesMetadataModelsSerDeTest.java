@@ -26,7 +26,6 @@ class CgmesMetadataModelsSerDeTest extends AbstractCgmesExtensionTest {
         network.setCaseDate(ZonedDateTime.parse("2020-09-07T15:44:10.209+02:00"));
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
-                .setSource(CgmesMetadataModels.Source.IMPORT)
                 .setPart(CgmesSubset.EQUIPMENT)
                 .setId("eqId")
                 .setDescription("EQ description")
@@ -38,7 +37,6 @@ class CgmesMetadataModelsSerDeTest extends AbstractCgmesExtensionTest {
                 .addDependentOn("eq-dependency2")
                 .add()
                 .newModel()
-                .setSource(CgmesMetadataModels.Source.IMPORT)
                 .setPart(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                 .setId("sshId")
                 .setDescription("SSH description")
@@ -50,7 +48,6 @@ class CgmesMetadataModelsSerDeTest extends AbstractCgmesExtensionTest {
                 .addSupersedes("ssh-superseded1")
                 .add()
                 .newModel()
-                .setSource(CgmesMetadataModels.Source.IMPORT)
                 .setPart(CgmesSubset.STATE_VARIABLES)
                 .setId("svId")
                 .setDescription("SV description")

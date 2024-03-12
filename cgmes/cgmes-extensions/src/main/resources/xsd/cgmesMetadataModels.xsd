@@ -15,7 +15,6 @@
             <xs:element name="dependentOnModel" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="supersedesModel" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="source" use="required" type="cmm:nonEmptyString"/>
         <xs:attribute name="part" type="xs:string"/>
         <xs:attribute name="modelingAuthoritySet" use="required" type="cmm:nonEmptyString"/>
         <xs:attribute name="id" type="xs:string"/>

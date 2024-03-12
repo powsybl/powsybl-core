@@ -446,7 +446,6 @@ public class Conversion {
         CgmesMetadataModelsAdder modelsAdder = network.newExtension(CgmesMetadataModelsAdder.class);
         for (PropertyBag p : ps) {
             CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
-                .setSource(CgmesMetadataModels.Source.IMPORT)
                 .setId(p.getId("FullModel"))
                 .setPart(partFromGraph(p.getLocal("graph")))
                 .setDescription(p.getId("description"))

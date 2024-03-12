@@ -20,7 +20,6 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
 
     static class ModelImpl implements Model {
 
-        private final Source source;
         private final CgmesSubset part;
         private final String id;
         private final String description;
@@ -30,9 +29,8 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
         private final Set<String> dependentOn = new HashSet<>();
         private final Set<String> supersedes = new HashSet<>();
 
-        ModelImpl(Source source, CgmesSubset part, String id, String description, int version, String modelingAuthoritySet,
+        ModelImpl(CgmesSubset part, String id, String description, int version, String modelingAuthoritySet,
                   Set<String> profiles, Set<String> dependentOn, Set<String> supersedes) {
-            this.source = source;
             this.part = part;
             this.id = id;
             this.description = description;
@@ -41,11 +39,6 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
             this.profiles.addAll(profiles);
             this.dependentOn.addAll(dependentOn);
             this.supersedes.addAll(supersedes);
-        }
-
-        @Override
-        public Source getSource() {
-            return source;
         }
 
         @Override
@@ -117,8 +110,7 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
     @Override
     public List<Model> getSortedModels() {
         return models.stream().sorted(
-                Comparator.comparing(CgmesMetadataModels.Model::getSource)
-                        .thenComparing(CgmesMetadataModels.Model::getModelingAuthoritySet)
+                Comparator.comparing(CgmesMetadataModels.Model::getModelingAuthoritySet)
                         .thenComparing(CgmesMetadataModels.Model::getPart)
                         .thenComparing(CgmesMetadataModels.Model::getVersion)
                         .thenComparing(CgmesMetadataModels.Model::getId)

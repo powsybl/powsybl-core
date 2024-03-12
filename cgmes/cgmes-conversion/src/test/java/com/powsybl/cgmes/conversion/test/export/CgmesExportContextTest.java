@@ -8,7 +8,6 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
@@ -60,7 +59,6 @@ class CgmesExportContextTest {
             .add();
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
-                .setSource(CgmesMetadataModels.Source.IMPORT)
                 .setId("testId")
                 .setPart(CgmesSubset.STATE_VARIABLES)
                 .setDescription("test")

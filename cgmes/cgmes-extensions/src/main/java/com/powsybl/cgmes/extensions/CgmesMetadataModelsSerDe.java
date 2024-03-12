@@ -70,7 +70,6 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNode(getNamespaceUri(), MODEL);
-        writer.writeEnumAttribute("source", model.getSource());
         writer.writeEnumAttribute("part", model.getPart());
         writer.writeStringAttribute("modelingAuthoritySet", model.getModelingAuthoritySet());
         writer.writeStringAttribute("id", model.getId());
@@ -110,8 +109,7 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
 
     private static void read(CgmesMetadataModelsAdder.ModelAdder adder, DeserializerContext context) {
         TreeDataReader reader = context.getReader();
-        adder.setSource(reader.readEnumAttribute("source", CgmesMetadataModels.Source.class))
-                .setPart(reader.readEnumAttribute("part", CgmesSubset.class))
+        adder.setPart(reader.readEnumAttribute("part", CgmesSubset.class))
                 .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"))
                 .setId(reader.readStringAttribute("id"))
                 .setVersion(reader.readIntAttribute("version"))

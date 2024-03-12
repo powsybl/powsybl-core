@@ -24,17 +24,11 @@ import java.util.Set;
  * <p>A model may have dependencies on other models. Two kind of dependencies are kept: "dependent on" and "supersedes".</p>
  * <p>A "dependent on" is a reference to the other required model. As an example: a load flow solution depends on the topology model it was computed from.</p>
  * <p>When a model is updated, the resulting model "supersedes" the models that were used as basis for the update. As an example: when building a Common Grid Model (CGM) from Individual Grid Models (IGM) the power flow initial assumptions (SSH) of each IGM might be adjusted as part of the merging process and area interchange control, thus updated SSH instance files are created. Each updated SSH model "supersedes" the original one.</p>
- * <p>We keep track of the source of each model referenced in the Network: whether it was imported from an external source or it was created as part of the export process.</p>
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface CgmesMetadataModels extends Extension<Network> {
 
     String NAME = "cgmesMetadataModels";
-
-    enum Source {
-        IMPORT,
-        EXPORT
-    }
 
     interface Model {
         /**
@@ -42,12 +36,6 @@ public interface CgmesMetadataModels extends Extension<Network> {
          * @return the part of the CGMES the model refers to
          */
         CgmesSubset getPart();
-
-        /**
-         * The source for the model: whether it was imported from an external source or it was created as part of the export process.
-         * @return the source of the model
-         */
-        Source getSource();
 
         /**
          * The unique identifier for the model.

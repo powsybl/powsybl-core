@@ -17,8 +17,6 @@ import com.powsybl.iidm.network.Network;
 public interface CgmesMetadataModelsAdder extends ExtensionAdder<Network, CgmesMetadataModels> {
 
     interface ModelAdder {
-        ModelAdder setSource(CgmesMetadataModels.Source source);
-
         ModelAdder setPart(CgmesSubset part);
 
         ModelAdder setId(String id);

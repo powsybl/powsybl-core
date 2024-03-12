@@ -27,7 +27,6 @@ class CgmesMetadataModelsTest {
         Network network = NetworkTest1Factory.create();
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
-                .setSource(CgmesMetadataModels.Source.IMPORT)
                 .setPart(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                 .setId("sshId")
                 .setDescription("SSH description")
@@ -38,7 +37,6 @@ class CgmesMetadataModelsTest {
                 .addDependentOn("ssh-dependency2")
                 .add()
                 .newModel()
-                .setSource(CgmesMetadataModels.Source.IMPORT)
                 .setPart(CgmesSubset.STATE_VARIABLES)
                 .setId("svId")
                 .setDescription("SV description")
