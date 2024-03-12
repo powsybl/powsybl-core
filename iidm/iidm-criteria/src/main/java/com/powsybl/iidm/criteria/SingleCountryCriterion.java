@@ -31,24 +31,16 @@ public class SingleCountryCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        switch (type) {
-            case DANGLING_LINE,
-                    GENERATOR,
-                    LOAD,
-                    SHUNT_COMPENSATOR,
-                    STATIC_VAR_COMPENSATOR,
-                    BUSBAR_SECTION,
-                    BATTERY:
-                return filterInjection(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH:
-                return filterInjection(((Switch) identifiable).getVoltageLevel());
-            case TWO_WINDINGS_TRANSFORMER:
-                return filterSubstation(((TwoWindingsTransformer) identifiable).getNullableSubstation());
-            case THREE_WINDINGS_TRANSFORMER:
-                return filterSubstation(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
-            default:
-                return false;
-        }
+        return switch (type) {
+            case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY ->
+                    filterInjection(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> filterInjection(((Switch) identifiable).getVoltageLevel());
+            case TWO_WINDINGS_TRANSFORMER ->
+                    filterSubstation(((TwoWindingsTransformer) identifiable).getNullableSubstation());
+            case THREE_WINDINGS_TRANSFORMER ->
+                    filterSubstation(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
+            default -> false;
+        };
     }
 
     public List<Country> getCountries() {
