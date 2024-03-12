@@ -374,7 +374,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         setReferenceTerminalsFromReferencePriority(network);
 
         network.write("CGMES", parameters, outputPath);
-        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+        assertEquals("converged", readFirstTopologicalIsland(outputSv, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION, false));
     }
 
     @Test
@@ -390,11 +390,11 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         setReferenceTerminalsFromReferencePriority(network);
 
         network.write("CGMES", parameters, outputPath);
-        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+        assertEquals("converged", readFirstTopologicalIsland(outputSv, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION, false));
 
         parameters.setProperty(CgmesExport.MAX_P_MISMATCH_CONVERGED, "0.000001");
         network.write("CGMES", parameters, outputPath);
-        assertEquals("diverged", readFirstTopologicalIslandDescription(outputSv));
+        assertEquals("diverged", readFirstTopologicalIsland(outputSv, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION, false));
     }
 
     @Test
@@ -423,21 +423,29 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         Path outputPath = fileSystem.getPath("tmp-referenceTerminal");
         Path outputSv = fileSystem.getPath("tmp-referenceTerminal_SV.xml");
         network.write("CGMES", new Properties(), outputPath);
-        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+        assertEquals("converged", readFirstTopologicalIsland(outputSv, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION, false));
+        assertEquals("#_B", readFirstTopologicalIsland(outputSv, "TopologicalIsland.AngleRefTopologicalNode", true));
     }
 
-    private static String readFirstTopologicalIslandDescription(Path sv) {
-        String description = "";
+    private static String readFirstTopologicalIsland(Path sv, String fieldName, Boolean isAssociation) {
+        String fieldValue = "";
         boolean insideTopologicalIsland = false;
         try (InputStream is = Files.newInputStream(sv)) {
             XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 int token = reader.next();
                 if (token == XMLStreamConstants.START_ELEMENT) {
+                    // Retrieve the TopologicalIsland node
                     if (reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
                         insideTopologicalIsland = true;
-                    } else if (insideTopologicalIsland && reader.getLocalName().equals(CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION)) {
-                        description = reader.getElementText();
+                    }
+                    // Retrieve the requested field node, and read the attribute or association value
+                    if (insideTopologicalIsland && reader.getLocalName().equals(fieldName)) {
+                        if (isAssociation) {
+                            fieldValue = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, "resource");
+                        } else {
+                            fieldValue = reader.getElementText();
+                        }
                     }
                 } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
                     break;
@@ -447,7 +455,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         } catch (IOException | XMLStreamException e) {
             throw new RuntimeException(e);
         }
-        return description;
+        return fieldValue;
     }
 
     private static void setReferenceTerminalsFromReferencePriority(Network network) {
