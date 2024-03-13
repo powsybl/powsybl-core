@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public class VoltageRegulationTest {
+class VoltageRegulationTest {
 
     @Test
     void testMultiVariant() {
