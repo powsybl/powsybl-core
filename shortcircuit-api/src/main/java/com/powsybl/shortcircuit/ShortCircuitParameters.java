@@ -292,7 +292,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * A boolean indicating if the functional logs in reporter should be detailed or aggregated.
+     * A boolean indicating if the functional logs in reportNode should be detailed or aggregated.
      */
     public boolean isDetailedReport() {
         return detailedReport;

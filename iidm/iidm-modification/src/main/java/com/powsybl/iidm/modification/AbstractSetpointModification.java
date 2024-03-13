@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
@@ -43,7 +43,7 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      Reporter reporter) {
+                      ReportNode reportNode) {
         T networkElement = getNetworkElement(network, elementId);
 
         if (networkElement == null) {

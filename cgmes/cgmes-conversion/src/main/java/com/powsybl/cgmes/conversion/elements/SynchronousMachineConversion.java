@@ -15,8 +15,11 @@ import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
+
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.Arrays;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -63,25 +66,15 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
-        convertReferencePriority(g);
+        int referencePriority = p.asInt("referencePriority", 0);
+        if (referencePriority > 0) {
+            ReferencePriority.set(g, referencePriority);
+        }
         if (!isCondenser) {
             convertGenerator(g);
         }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
-    }
-
-    private void convertReferencePriority(Generator g) {
-        if (p.asInt("referencePriority", 0) > 0) {
-            // We could find multiple generators with the same priority,
-            // we will only change the terminal of the slack extension if the previous was not connected
-            SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
-            if (st == null) {
-                SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
-            } else if (!st.getTerminal().isConnected()) {
-                st.setTerminal(g.getTerminal());
-            }
-        }
     }
 
     private void convertGenerator(Generator g) {
@@ -99,6 +92,22 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         String generatingUnit = p.getId("GeneratingUnit");
         if (generatingUnit != null) {
             g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
+        }
+
+        addSpecificGeneratingUnitProperties(g, p);
+    }
+
+    private static void addSpecificGeneratingUnitProperties(Generator generator, PropertyBag p) {
+        String hydroPlantStorageType = p.getLocal("hydroPlantStorageType");
+        if (hydroPlantStorageType != null) {
+            generator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, hydroPlantStorageType.replace("HydroPlantStorageKind.", ""));
+        }
+        String fossilFuelType = String.join(";",
+                Arrays.stream(p.getLocals("fossilFuelTypeList", ";"))
+                        .map(ff -> ff.replace("FuelType.", ""))
+                        .toList());
+        if (!fossilFuelType.isEmpty()) {
+            generator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, fossilFuelType);
         }
     }
 

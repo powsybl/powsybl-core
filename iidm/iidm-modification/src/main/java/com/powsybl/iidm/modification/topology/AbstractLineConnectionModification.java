@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
@@ -99,10 +99,10 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         return line2Name;
     }
 
-    private static boolean checkPositionPercent(double positionPercent, boolean throwException, Reporter reporter, Logger logger) {
+    private static boolean checkPositionPercent(double positionPercent, boolean throwException, ReportNode reportNode, Logger logger) {
         if (Double.isNaN(positionPercent)) {
             logger.error("Percent should not be undefined");
-            undefinedPercent(reporter);
+            undefinedPercent(reportNode);
             if (throwException) {
                 throw new PowsyblException("Percent should not be undefined");
             }
@@ -111,27 +111,27 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         return true;
     }
 
-    protected boolean failChecks(Network network, boolean throwException, Reporter reporter, Logger logger) {
+    protected boolean failChecks(Network network, boolean throwException, ReportNode reportNode, Logger logger) {
         Identifiable<?> identifiable = network.getIdentifiable(bbsOrBusId);
         if (identifiable == null) {
-            ModificationLogs.busOrBbsDoesNotExist(bbsOrBusId, reporter, throwException);
+            ModificationLogs.busOrBbsDoesNotExist(bbsOrBusId, reportNode, throwException);
             return true;
         }
-        if (!checkPositionPercent(positionPercent, throwException, reporter, logger)) {
+        if (!checkPositionPercent(positionPercent, throwException, reportNode, logger)) {
             return true;
         }
-        voltageLevel = getVoltageLevel(identifiable, throwException, reporter, logger);
+        voltageLevel = getVoltageLevel(identifiable, throwException, reportNode, logger);
         return voltageLevel == null;
     }
 
-    private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, Reporter reporter, Logger logger) {
+    private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, ReportNode reportNode, Logger logger) {
         if (identifiable instanceof Bus bus) {
             return bus.getVoltageLevel();
         } else if (identifiable instanceof BusbarSection bbs) {
             return bbs.getTerminal().getVoltageLevel();
         } else {
             logger.error("Unexpected type of identifiable {}: {}", identifiable.getId(), identifiable.getType());
-            unexpectedIdentifiableType(reporter, identifiable);
+            unexpectedIdentifiableType(reportNode, identifiable);
             if (throwException) {
                 throw new PowsyblException("Unexpected type of identifiable " + identifiable.getId() + ": " + identifiable.getType());
             }
